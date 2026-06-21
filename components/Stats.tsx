@@ -1,27 +1,22 @@
+import { Store, Package, Tag, Clock } from "lucide-react";
+
+const heroStats = [
+  { icon: Store, value: "50+", label: "Stores" },
+  { icon: Package, value: "10M+", label: "Products" },
+  { icon: Tag, value: "100K+", label: "Coupons" },
+  { icon: Clock, value: "Real-time", label: "Price Tracking" },
+];
+
 export default function Stats() {
   return (
     <div className="stats">
-
-      <div className="stat-card">
-        <h3>50+</h3>
-        <p>Stores</p>
-      </div>
-
-      <div className="stat-card">
-        <h3>10M+</h3>
-        <p>Products</p>
-      </div>
-
-      <div className="stat-card">
-        <h3>100K+</h3>
-        <p>Coupons</p>
-      </div>
-
-      <div className="stat-card">
-        <h3>24/7</h3>
-        <p>Price Tracking</p>
-      </div>
-
+      {heroStats.map((stat) => (
+        <div key={stat.label} className="stat-card">
+          <stat.icon size={18} className="stat-icon" />
+          <h3>{stat.value}</h3>
+          <p>{stat.label}</p>
+        </div>
+      ))}
     </div>
   );
 }

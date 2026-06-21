@@ -1,65 +1,70 @@
+import Link from "next/link";
+import {
+  Search,
+  Heart,
+  Bell,
+  ChevronDown,
+  Crown,
+} from "lucide-react";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
+
+const navLinks = [
+  { href: "/deals", label: "Deals" },
+  { href: "/coupons", label: "Coupons" },
+  { href: "/compare", label: "Compare" },
+  { href: "/categories", label: "Categories", chevron: true },
+  { href: "/stores", label: "Stores" },
+  { href: "/blog", label: "Blog" },
+];
+
 export default function Navbar() {
   return (
     <nav className="navbar">
-
-      <div className="logo">
-
-        <img
-  src="/zorino-logo.svg"
-  alt="Zorino Logo"
-  className="navbar-logo"
-/>
-
+      <Link href="/" className="logo">
+        <div className="logo-z">Z</div>
         <div>
           <h2>ZORINO</h2>
           <p>Find Better Deals Faster</p>
         </div>
-
-      </div>
+      </Link>
 
       <div className="nav-links">
-        <a href="#">Deals</a>
-        <a href="#">Coupons</a>
-        <a href="#">Compare</a>
-        <a href="#">Categories</a>
-        <a href="#">Stores</a>
-        <a href="#">Blog</a>
+        {navLinks.map((link) => (
+          <Link key={link.href} href={link.href} className="nav-link">
+            {link.label}
+            {link.chevron && <ChevronDown size={14} className="nav-chevron" />}
+          </Link>
+        ))}
       </div>
 
       <div className="nav-actions">
-
-        <button className="icon-btn">
-          🔍
+        <button className="icon-btn" aria-label="Search">
+          <Search size={18} />
         </button>
 
-        <button className="theme-btn">
-          Dark 🌙 Light
-        </button>
+        <ThemeSwitcher />
 
-        <button className="icon-btn">
-          ♡
-        </button>
+        <Link href="/wishlist" className="icon-btn nav-wishlist" aria-label="Wishlist">
+          <Heart size={18} />
+          <span>Wishlist</span>
+        </Link>
 
-        <button className="icon-btn">
-          🔔
-        </button>
+        <Link href="/notifications" className="icon-btn icon-btn-badge" aria-label="Notifications">
+          <Bell size={18} />
+          <span className="notification-badge">3</span>
+        </Link>
 
-        <div className="profile-box">
-
-          <img
-            src="https://i.pravatar.cc/40"
-            alt="Profile"
-          />
-
+        <Link href="/profile" className="profile-box">
+          <img src="https://i.pravatar.cc/40" alt="Profile" />
           <div>
             <strong>Hi, Ahmed</strong>
-            <p>Premium</p>
+            <p className="premium-badge">
+              <Crown size={11} />
+              Premium
+            </p>
           </div>
-
-        </div>
-
+        </Link>
       </div>
-
     </nav>
   );
 }

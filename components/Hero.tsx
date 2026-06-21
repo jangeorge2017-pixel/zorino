@@ -1,60 +1,48 @@
+import Stats from "@/components/Stats";
+
+const floatingProducts = [
+  { emoji: "🎧", discount: "-25%", price: "$79", original: "$99", position: "card-1" },
+  { emoji: "💻", discount: "-18%", price: "$899", original: "$1099", position: "card-2" },
+  { emoji: "📱", discount: "-12%", price: "$899", original: "$1029", position: "card-3" },
+  { emoji: "🎮", discount: "-20%", price: "$399", original: "$499", position: "card-4" },
+];
+
 export default function Hero() {
   return (
     <section className="hero-section">
       <div className="hero-content">
         <div className="badge">
-          ✨ مدعوم بالذكاء الاصطناعي
+          <span className="badge-icon">✨</span>
+          Powered by AI
         </div>
 
         <h1 className="hero-title">
-          اعثر على <span>العروض</span>
+          Find Better
           <br />
-          بشكل أفضل وأسرع
+          <span>Deals Faster</span>
         </h1>
 
         <p className="hero-text">
-          قارن الأسعار عبر آلاف المتاجر واكتشف أفضل العروض في ثوانٍ.
+          Compare prices across thousands of stores and discover the best deals in seconds.
         </p>
 
-        <div className="hero-search">
-          <input
-            type="text"
-            placeholder="ابحث عن المنتجات أو المتاجر..."
-          />
-
-          <button>
-            استكشف
-          </button>
-        </div>
+        <Stats />
       </div>
 
       <div className="hero-logo">
-        <div className="floating-card card-1">
-          🎧
-          <span>-25%</span>
-        </div>
-
-        <div className="floating-card card-2">
-          💻
-          <span>-18%</span>
-        </div>
-
-        <div className="floating-card card-3">
-          📱
-          <span>-12%</span>
-        </div>
-
-        <div className="floating-card card-4">
-          🎮
-          <span>-20%</span>
-        </div>
+        {floatingProducts.map((product) => (
+          <div key={product.position} className={`floating-card ${product.position}`}>
+            <span className="floating-discount">{product.discount}</span>
+            <span className="floating-emoji">{product.emoji}</span>
+            <div className="floating-prices">
+              <span className="floating-price">{product.price}</span>
+              <span className="floating-original">{product.original}</span>
+            </div>
+          </div>
+        ))}
 
         <div className="logo-box">
-          <img
-            src="/hero-z.svg"
-            alt="Hero Logo"
-            className="hero-z-image"
-          />
+          <img src="/hero-z.svg" alt="Zorino Hero Logo" className="hero-z-image" />
         </div>
       </div>
     </section>
