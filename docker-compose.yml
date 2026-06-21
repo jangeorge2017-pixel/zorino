@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: zorino-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: zorino
+      POSTGRES_PASSWORD: zorino_password
+      POSTGRES_DB: zorino
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - zorino-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: zorino-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - zorino-network
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zorino-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://zorino:zorino_password@postgres:5432/zorino
+      REDIS_URL: redis://redis:6379
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-your-secret-key-change-in-production}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      AMAZON_ACCESS_KEY_ID: ${AMAZON_ACCESS_KEY_ID}
+      AMAZON_SECRET_ACCESS_KEY: ${AMAZON_SECRET_ACCESS_KEY}
+      ALIBABA_API_KEY: ${ALIBABA_API_KEY}
+      ALIEXPRESS_API_KEY: ${ALIEXPRESS_API_KEY}
+      NOON_API_KEY: ${NOON_API_KEY}
+      TEMU_API_KEY: ${TEMU_API_KEY}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - zorino-network
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: zorino-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - zorino-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  zorino-network:
+    driver: bridge
