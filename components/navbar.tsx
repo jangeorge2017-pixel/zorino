@@ -20,104 +20,56 @@ const navLinks = [
 
 export default function Navbar() {
   return (
-    <nav className="h-[88px] px-8 flex items-center justify-between bg-[#060816] border-b border-white/10">
-
-      {/* Logo */}
-      <Link href="/" className="flex items-center shrink-0">
+    <nav className="navbar">
+      <Link href="/" className="logo">
         <Image
           src="/logo.png"
-          alt="ZORINO"
-          width={235}
-          height={82}
+          alt="Zorino"
+          width={52}
+          height={52}
+          className="logo-img"
           priority
-          className="w-[235px] h-[82px] object-contain"
         />
+        <div>
+          <h2>ZORINO</h2>
+          <p>Find Better Deals Faster</p>
+        </div>
       </Link>
 
-      {/* Center Navigation */}
-      <div className="hidden lg:flex items-center gap-10">
+      <div className="nav-links">
         {navLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="flex items-center gap-1 text-white text-[16px] font-medium hover:text-violet-400 transition"
-          >
+          <Link key={link.href} href={link.href} className="nav-link">
             {link.label}
-            {link.chevron && <ChevronDown size={14} />}
+            {link.chevron && <ChevronDown size={14} className="nav-chevron" />}
           </Link>
         ))}
       </div>
 
-      {/* Right Side */}
-      <div className="flex items-center gap-3">
-
-        {/* Search */}
-        <button
-          aria-label="Search"
-          className="w-12 h-12 rounded-2xl border border-white/10 bg-white/[0.03]
-          flex items-center justify-center text-white hover:bg-white/10 transition"
-        >
-          <Search size={20} />
+      <div className="nav-actions">
+        <button type="button" className="icon-btn" aria-label="Search">
+          <Search size={18} />
         </button>
 
-        {/* Dark / Light */}
-        <div className="hidden md:flex">
-          <ThemeSwitcher />
-        </div>
+        <ThemeSwitcher />
 
-        {/* Wishlist */}
-        <Link
-          href="/wishlist"
-          className="hidden md:flex items-center gap-2 px-5 h-12 rounded-2xl border border-white/10 bg-white/[0.03]
-          text-white hover:bg-white/10 transition"
-        >
+        <Link href="/wishlist" className="icon-btn nav-wishlist" aria-label="Wishlist">
           <Heart size={18} />
-          <span className="text-sm font-medium">
-            Wishlist
-          </span>
+          <span>Wishlist</span>
         </Link>
 
-        {/* Notifications */}
-        <Link
-          href="/notifications"
-          className="relative w-12 h-12 rounded-2xl border border-white/10 bg-white/[0.03]
-          flex items-center justify-center text-white hover:bg-white/10 transition"
-        >
-          <Bell size={19} />
-
-          <span
-            className="absolute -top-1 -right-1
-            w-5 h-5 rounded-full bg-violet-600
-            text-[10px] font-semibold text-white
-            flex items-center justify-center"
-          >
-            3
-          </span>
+        <Link href="/notifications" className="icon-btn icon-btn-badge" aria-label="Notifications">
+          <Bell size={18} />
+          <span className="notification-badge">3</span>
         </Link>
 
-        {/* Profile */}
-        <Link
-          href="/profile"
-          className="hidden lg:flex items-center gap-3
-          pl-2 pr-4 py-2 rounded-2xl
-          border border-white/10 bg-white/[0.03]
-          hover:bg-white/10 transition"
-        >
-          <img
-            src="https://i.pravatar.cc/40"
-            alt="Profile"
-            className="w-10 h-10 rounded-full"
-          />
-
-          <div className="leading-tight">
-            <div className="text-white text-sm font-semibold">
-              Hi, Ahmed
-            </div>
-
-            <div className="flex items-center gap-1 text-[12px] text-violet-400">
+        <Link href="/profile" className="profile-box">
+          <img src="https://i.pravatar.cc/40" alt="Profile" />
+          <div>
+            <strong>Hi, Ahmed</strong>
+            <p className="premium-badge">
               <Crown size={11} />
               Premium
-            </div>
+            </p>
           </div>
         </Link>
       </div>

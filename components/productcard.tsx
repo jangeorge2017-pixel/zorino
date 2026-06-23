@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Flame, Star, TrendingDown, ChevronRight } from "lucide-react";
 import { trendingDeals } from "@/data/home";
 
-function PriceSparkline({ data }: { data: number[] }) {
+function PriceSparkline({ data, id }: { data: number[]; id: number }) {
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
   const width = 80;
   const height = 28;
+  const gradientId = `sparkline-gradient-${id}`;
   const points = data
     .map((value, i) => {
       const x = (i / (data.length - 1)) * width;
@@ -18,35 +19,29 @@ function PriceSparkline({ data }: { data: number[] }) {
 
   return (
     <svg width={width} height={height} className="price-sparkline" aria-hidden="true">
-      <polyline
-        points={points}
-        fill="none"
-        stroke="url(#sparkline-gradient)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
       <defs>
-        <linearGradient id="sparkline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#9333ea" />
           <stop offset="100%" stopColor="#3b82f6" />
         </linearGradient>
       </defs>
+      <polyline
+        points={points}
+        fill="none"
+        stroke={`url(#${gradientId})`}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
-function DealCard({
-  deal,
-}: {
-  deal: (typeof trendingDeals)[number];
-}) {
+function DealCard({ deal }: { deal: (typeof trendingDeals)[number] }) {
   return (
     <article className="deal-card">
       <span className="deal-discount">-{deal.discount}%</span>
-
       <div className="deal-image">{deal.image}</div>
-
       <h3 className="deal-name">{deal.name}</h3>
 
       <div className="deal-rating">
@@ -81,7 +76,7 @@ function DealCard({
           <span>{deal.store}</span>
         </div>
         <div className="deal-chart">
-          <PriceSparkline data={deal.priceHistory} />
+          <PriceSparkline data={deal.priceHistory} id={deal.id} />
           <span className="deal-updated">Updated {deal.updatedMins} min ago</span>
         </div>
       </div>
