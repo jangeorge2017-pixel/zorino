@@ -1,48 +1,33 @@
-import Stats from "@/components/Stats";
-
-const floatingProducts = [
-  { emoji: "🎧", discount: "-25%", price: "$79", original: "$99", position: "card-1" },
-  { emoji: "💻", discount: "-18%", price: "$899", original: "$1099", position: "card-2" },
-  { emoji: "📱", discount: "-12%", price: "$899", original: "$1029", position: "card-3" },
-  { emoji: "🎮", discount: "-20%", price: "$399", original: "$499", position: "card-4" },
-];
-
 export default function Hero() {
+  const floatingProducts = [
+    { id: 1, position: "top-left", discount: "-25%" },
+    { id: 2, position: "top-right", discount: "-12%" },
+    { id: 3, position: "bottom-left", discount: "-18%" },
+    { id: 4, position: "bottom-right", discount: "-20%" },
+  ];
+
   return (
-    <section className="hero-section">
-      <div className="hero-content">
-        <div className="badge">
-          <span className="badge-icon">✨</span>
-          Powered by AI
-        </div>
-
-        <h1 className="hero-title">
-          Find Better
-          <br />
-          <span>Deals Faster</span>
-        </h1>
-
-        <p className="hero-text">
-          Compare prices across thousands of stores and discover the best deals in seconds.
-        </p>
-
-        <Stats />
-      </div>
-
+    <section className="hero">
       <div className="hero-logo">
         {floatingProducts.map((product) => (
-          <div key={product.position} className={`floating-card ${product.position}`}>
-            <span className="floating-discount">{product.discount}</span>
-            <span className="floating-emoji">{product.emoji}</span>
-            <div className="floating-prices">
-              <span className="floating-price">{product.price}</span>
-              <span className="floating-original">{product.original}</span>
-            </div>
+          <div
+            key={product.id}
+            className={`floating-card ${product.position}`}
+          >
+            <span className="floating-discount">
+              {product.discount}
+            </span>
           </div>
         ))}
 
+        <div className="hero-platform"></div>
+
         <div className="logo-box">
-          <img src="/hero-z.svg" alt="Zorino Hero Logo" className="hero-z-image" />
+          <img
+            src="/hero-z.png"
+            alt="Zorino Hero Logo"
+            className="hero-z-image"
+          />
         </div>
       </div>
     </section>
