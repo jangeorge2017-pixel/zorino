@@ -73,13 +73,16 @@ img {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: calc(var(--container) + 2 * var(--content-pad));
+  max-width: min(100%, calc(var(--container) + 2 * var(--content-pad)));
   margin: 0 auto;
   padding: 0 var(--content-pad) 40px;
+  min-width: 0;
 }
 
 .site-shell > * {
-  max-width: var(--container);
+  max-width: 100%;
+  width: 100%;
+  min-width: 0;
   margin-left: auto;
   margin-right: auto;
 }
@@ -100,6 +103,7 @@ img {
   max-width: var(--container);
   margin: 0 auto;
   width: 100%;
+  min-width: 0;
   height: 100%;
   display: flex;
   justify-content: space-between;
@@ -195,6 +199,8 @@ img {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .icon-btn {
@@ -309,7 +315,7 @@ img {
 /* ─── Hero zone — background from hero-background.png only ─── */
 .hero-zone {
   display: grid;
-  grid-template-columns: 548px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 548px) minmax(0, 1fr);
   grid-template-areas:
     "hero-content hero-visual"
     "hero-search hero-search";
@@ -320,6 +326,8 @@ img {
   margin-bottom: 0;
   position: relative;
   min-height: 480px;
+  width: 100%;
+  min-width: 0;
   background-color: var(--homepage-bg-fallback);
   background-image: url("/hero-background.png");
   background-size: cover;
@@ -381,7 +389,9 @@ img {
   display: flex;
   gap: 10px;
   margin-top: 22px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
 }
 
 .stat-card {
@@ -446,17 +456,19 @@ img {
 .hero-visual {
   grid-area: hero-visual;
   position: relative;
-  width: 620px;
+  width: min(620px, 100%);
+  max-width: 100%;
   height: 560px;
-  flex-shrink: 0;
-  margin: -36px -8px 0 auto;
+  flex-shrink: 1;
+  margin: -36px 0 0 auto;
   justify-self: end;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
   background: transparent;
-  overflow: visible;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .floating-card {
@@ -468,9 +480,7 @@ img {
   background: rgba(15, 23, 42, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: block;
   box-shadow:
     0 16px 36px rgba(0, 0, 0, 0.48),
     0 0 24px rgba(139, 92, 246, 0.14);
@@ -478,7 +488,7 @@ img {
   z-index: 5;
   animation: float 4s ease-in-out infinite;
   transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .floating-card:hover {
@@ -494,22 +504,28 @@ img {
 }
 
 .floating-product-image {
-  flex: 1 1 auto;
-  width: 100%;
-  min-height: 0;
+  position: absolute;
+  top: 18px;
+  left: 16px;
+  right: 16px;
+  bottom: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 10px;
+  overflow: visible;
+  pointer-events: none;
 }
 
+.floating-card img.floating-product-img,
 .floating-product-img {
-  width: 78% !important;
+  display: block;
+  width: auto !important;
   height: auto !important;
-  max-width: 78%;
-  max-height: min(100%, 68px);
+  max-width: 100% !important;
+  max-height: 100% !important;
   object-fit: contain !important;
   object-position: center;
+  transform: none !important;
 }
 
 .floating-discount {
@@ -529,14 +545,16 @@ img {
 }
 
 .floating-prices {
-  flex: 0 0 auto;
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1px;
   width: 100%;
-  margin-top: auto;
-  padding-bottom: 1px;
+  padding-bottom: 0;
 }
 
 .floating-price {
@@ -552,11 +570,11 @@ img {
   line-height: 1.1;
 }
 
-/* Positions from reference hero crop (880×480 → hero-visual 620×560) */
-.card-1 { top: 7.5%; left: 6.5%; animation-delay: 0s; }
-.card-2 { top: 35.5%; left: 5.5%; animation-delay: 0.8s; }
-.card-3 { top: 7.5%; right: 9.5%; left: auto; animation-delay: 1.6s; }
-.card-4 { top: 35.5%; right: 9.5%; left: auto; animation-delay: 2.4s; }
+/* Surround Z above platform — open vertical rhythm, symmetric columns */
+.card-1 { top: calc(25% + 18px); left: 6.5%; animation-delay: 0s; }
+.card-2 { top: calc(59% + 18px); left: 6.5%; animation-delay: 0.8s; }
+.card-3 { top: calc(25% + 18px); right: 6.5%; left: auto; animation-delay: 1.6s; }
+.card-4 { top: calc(59% + 18px); right: 6.5%; left: auto; animation-delay: 2.4s; }
 
 .stat-card:hover {
   transform: translateY(-2px);
@@ -566,10 +584,12 @@ img {
 /* ─── Deals + Coupons (reference: ~65% / 35%) ─── */
 .deals-coupons-row {
   display: grid;
-  grid-template-columns: minmax(0, 2.12fr) minmax(340px, 1fr);
+  grid-template-columns: minmax(0, 2.12fr) minmax(0, 1fr);
   gap: 28px;
   margin-top: var(--section-gap);
   align-items: start;
+  width: 100%;
+  min-width: 0;
 }
 
 .deals-coupons-row .trending-section,
@@ -714,6 +734,7 @@ img {
 .search-bar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   background: rgba(15, 23, 42, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -723,6 +744,9 @@ img {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
   transition: border-color 0.25s, box-shadow 0.25s;
   min-height: 56px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .search-wrapper-active .search-bar {
@@ -1241,7 +1265,7 @@ img {
 
 .coupon-card {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 20px;
   background: rgba(15, 23, 42, 0.65);
@@ -1250,6 +1274,9 @@ img {
   padding: 18px 24px;
   backdrop-filter: blur(8px);
   transition: border-color 0.25s, transform 0.25s;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .coupon-card:hover {
@@ -1585,10 +1612,30 @@ img {
     --section-gap: 24px;
   }
 
+  .site-shell,
+  .page-content {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   .navbar {
     padding: 0 var(--content-pad);
     height: auto;
     min-height: 64px;
+    overflow-x: hidden;
+  }
+
+  .navbar-inner {
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .profile-box {
+    padding: 5px;
   }
 
   .nav-links {
@@ -1636,10 +1683,12 @@ img {
   }
 
   .hero-visual {
-    width: min(360px, 92vw);
-    height: min(360px, 92vw);
+    width: min(360px, 100%);
+    max-width: 100%;
+    height: min(360px, 88vw);
     margin: 0 auto;
     justify-self: center;
+    overflow: hidden;
   }
 
   .hero-title {
@@ -1659,13 +1708,10 @@ img {
   }
 
   .floating-product-image {
-    padding-top: 8px;
-  }
-
-  .floating-product-img {
-    width: 78% !important;
-    max-width: 78%;
-    max-height: min(100%, 56px);
+    top: 16px;
+    left: 14px;
+    right: 14px;
+    bottom: 22px;
   }
 
   .search-bar {
@@ -1693,6 +1739,14 @@ img {
     grid-template-columns: 1fr;
   }
 
+  .deals-carousel {
+    overflow: hidden;
+  }
+
+  .deals-nav {
+    display: none;
+  }
+
   .features-grid {
     grid-template-columns: 1fr;
   }
@@ -1702,7 +1756,17 @@ img {
   }
 
   .deals-coupons-row .coupon-card {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .coupon-info {
+    min-width: 0;
+  }
+
+  .coupon-info h3,
+  .coupon-offer,
+  .coupon-code {
+    overflow-wrap: anywhere;
   }
 
   .deals-coupons-row .coupon-actions {
@@ -1715,7 +1779,9 @@ img {
   }
 
   .coupon-card {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 14px 16px;
+    gap: 12px;
   }
 
   .coupon-actions {
@@ -1730,6 +1796,13 @@ img {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .footer-stats-left {
+    gap: 16px;
+    width: 100%;
   }
 
   .logo p,
