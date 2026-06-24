@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Sparkles, TrendingUp } from "lucide-react";
 import { popularSearches } from "@/data/home";
 
-export default function SearchBar() {
+export default function SearchBar({ defaultOpen = false }: { defaultOpen?: boolean }) {
   const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (defaultOpen && window.matchMedia("(min-width: 1280px)").matches) {
+      setFocused(true);
+    }
+  }, [defaultOpen]);
 
   return (
     <div className="search-section">

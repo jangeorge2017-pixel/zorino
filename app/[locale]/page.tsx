@@ -9,20 +9,21 @@ import FooterStats from "@/components/FooterStats";
 
 export default function Home() {
   return (
-    <>
-      <div className="cosmic-bg" aria-hidden="true" />
-      <main className="hero">
-        <Navbar />
-        <Hero />
-        <SearchBar />
-        <div className="page-content">
-          <CategoryGrid />
+    <main className="homepage">
+      <Navbar />
+      <div className="site-shell">
+        <div className="hero-zone">
+          <Hero />
+          <SearchBar defaultOpen />
+        </div>
+        <CategoryGrid />
+        <div className="deals-coupons-row">
           <ProductCard />
           <CouponSection />
-          <FeaturesSection />
-          <FooterStats />
         </div>
-      </main>
-    </>
+        <FeaturesSection />
+        <FooterStats />
+      </div>
+    </main>
   );
 }

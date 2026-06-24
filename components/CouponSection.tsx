@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Flame, Copy, Check, CheckCircle, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { Copy, Check, CheckCircle, ChevronRight } from "lucide-react";
 import { topCoupons } from "@/data/home";
+import AssetImage from "@/components/AssetImage";
+import SectionFlameIcon from "@/components/SectionFlameIcon";
 
 export default function CouponSection() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
@@ -18,7 +21,7 @@ export default function CouponSection() {
     <section className="coupon-section">
       <div className="section-header">
         <h2 className="section-title">
-          <Flame size={24} className="section-icon-fire" />
+          <SectionFlameIcon size={24} />
           Top Coupons
         </h2>
         <Link href="/coupons" className="section-link">
@@ -30,11 +33,15 @@ export default function CouponSection() {
       <div className="coupons-list">
         {topCoupons.map((coupon) => (
           <article key={coupon.id} className="coupon-card">
-            <div
-              className="coupon-store-logo"
-              style={{ background: coupon.storeColor }}
-            >
-              {coupon.storeInitial}
+            <div className="coupon-store-logo">
+              <AssetImage
+                src={coupon.storeLogoSrc}
+                alt=""
+                width={42}
+                height={42}
+                className="coupon-store-logo-img"
+                fallback={<span className="coupon-store-initial">{coupon.storeInitial}</span>}
+              />
             </div>
 
             <div className="coupon-info">
@@ -60,7 +67,7 @@ export default function CouponSection() {
                 </button>
               </div>
               <div className="coupon-meta">
-                <span>Used {coupon.usedTimes.toLocaleString()} times</span>
+                <span>Used {coupon.usedTimes.toLocaleString("en-US")} times</span>
                 {coupon.verified && (
                   <span className="coupon-verified">
                     <CheckCircle size={13} />

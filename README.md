@@ -81,9 +81,15 @@ zorino/
 │   ├── en.json            # English translations
 │   └── ar.json            # Arabic translations
 ├── public/
-│   ├── robots.txt          # SEO robots.txt
-│   ├── hero-z.svg         # Hero logo
-│   └── reference/         # Reference design files
+│   ├── reference/zorino-final-design.png  # Background source of truth
+│   ├── backgrounds/zorino-homepage-bg.png # Extracted atmosphere (from reference)
+│   ├── backgrounds/zorino-homepage-bg@2x.png
+│   ├── hero-z-logo.svg     # 1:1 SVG wrapper over hero-z-logo.png
+│   ├── hero-z.png          # Hero scene only (3D Z + platform, 1254×1254)
+│   ├── logo/               # Retina PNG variants (@2x–@4x) from hero-z-logo.png
+│   ├── robots.txt
+│   └── reference/          # Design reference only — never used in UI
+│       └── zorino-final-design.png
 ├── middleware.ts          # Next.js middleware for i18n
 ├── next.config.ts         # Next.js configuration
 └── package.json

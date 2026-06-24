@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Flame, Star, TrendingDown, ChevronRight } from "lucide-react";
+import { Star, TrendingDown, ChevronRight } from "lucide-react";
 import { trendingDeals } from "@/data/home";
+import AssetImage from "@/components/AssetImage";
+import SectionFlameIcon from "@/components/SectionFlameIcon";
 
 function PriceSparkline({ data, id }: { data: number[]; id: number }) {
   const min = Math.min(...data);
@@ -21,7 +23,7 @@ function PriceSparkline({ data, id }: { data: number[]; id: number }) {
     <svg width={width} height={height} className="price-sparkline" aria-hidden="true">
       <defs>
         <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#9333ea" />
+          <stop offset="0%" stopColor="#8b5cf6" />
           <stop offset="100%" stopColor="#3b82f6" />
         </linearGradient>
       </defs>
@@ -40,8 +42,19 @@ function PriceSparkline({ data, id }: { data: number[]; id: number }) {
 function DealCard({ deal }: { deal: (typeof trendingDeals)[number] }) {
   return (
     <article className="deal-card">
-      <span className="deal-discount">-{deal.discount}%</span>
-      <div className="deal-image">{deal.image}</div>
+      <div className="deal-card-top">
+        <span className="deal-discount">-{deal.discount}%</span>
+        <div className="deal-image">
+          <AssetImage
+            src={deal.imageSrc}
+            alt=""
+            width={72}
+            height={72}
+            className="deal-product-img"
+            fallback={<span className="deal-emoji">{deal.emoji}</span>}
+          />
+        </div>
+      </div>
       <h3 className="deal-name">{deal.name}</h3>
 
       <div className="deal-rating">
@@ -55,7 +68,7 @@ function DealCard({ deal }: { deal: (typeof trendingDeals)[number] }) {
             />
           ))}
         </div>
-        <span className="deal-reviews">({deal.reviews.toLocaleString()})</span>
+        <span className="deal-reviews">({deal.reviews.toLocaleString("en-US")})</span>
       </div>
 
       <div className="deal-price-drop">
@@ -64,21 +77,29 @@ function DealCard({ deal }: { deal: (typeof trendingDeals)[number] }) {
       </div>
 
       <div className="deal-pricing">
-        <span className="deal-price">${deal.price.toLocaleString()}</span>
-        <span className="deal-original">${deal.originalPrice.toLocaleString()}</span>
+        <span className="deal-price">${deal.price.toLocaleString("en-US")}</span>
+        <span className="deal-original">${deal.originalPrice.toLocaleString("en-US")}</span>
       </div>
 
       <div className="deal-store-row">
         <div className="deal-store">
-          <span className="store-logo" style={{ background: deal.storeColor }}>
-            {deal.store.charAt(0)}
+          <span className="store-logo">
+            <AssetImage
+              src={deal.storeLogoSrc}
+              alt=""
+              width={28}
+              height={28}
+              className="store-logo-img"
+              fallback={<span className="store-logo-initial">{deal.storeInitial}</span>}
+            />
           </span>
           <span>{deal.store}</span>
         </div>
-        <div className="deal-chart">
-          <PriceSparkline data={deal.priceHistory} id={deal.id} />
-          <span className="deal-updated">Updated {deal.updatedMins} min ago</span>
-        </div>
+        <span className="deal-updated">Updated {deal.updatedMins} min ago</span>
+      </div>
+
+      <div className="deal-chart-row">
+        <PriceSparkline data={deal.priceHistory} id={deal.id} />
       </div>
 
       <button type="button" className="deal-compare-btn">
@@ -93,7 +114,7 @@ export default function ProductCard() {
     <section className="trending-section">
       <div className="section-header">
         <h2 className="section-title">
-          <Flame size={24} className="section-icon-fire" />
+          <SectionFlameIcon size={24} />
           Trending Deals
         </h2>
         <Link href="/deals" className="section-link">
