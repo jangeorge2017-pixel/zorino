@@ -64,22 +64,4 @@ export const STORE_LOGOS = {
   nike: "/stores/nike.png",
 } as const;
 
-export const MISSING_ASSETS = [
-  "public/icons/flame.svg — section header flame (Trending Deals, Top Coupons)",
-  "public/icons/trustpilot-logo.svg — footer Trustpilot mark",
-  "public/icons/feature-ai.svg — AI Recommendations card",
-  "public/icons/feature-tracking.svg — Real-time Price Tracking card",
-  "public/icons/feature-coupons.svg — Verified Coupons card",
-  "public/icons/feature-globe.svg — Global Coverage card",
-  "public/products/deal-iphone.png — trending deal card 1",
-  "public/products/deal-macbook.png — trending deal card 2",
-  "public/products/deal-ps5.png — trending deal card 3",
-  "public/products/deal-nike.png — trending deal card 4",
-  "public/stores/amazon.png — store logo (deals + coupons)",
-  "public/stores/best-buy.png — store logo",
-  "public/stores/walmart.png — store logo",
-  "public/stores/foot-locker.png — store logo",
-  "public/stores/noon.png — coupon store logo",
-  "public/stores/aliexpress.png — coupon store logo",
-  "public/stores/nike.png — coupon store logo",
-] as const;
+export const MISSING_ASSETS = [] as const;

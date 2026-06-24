@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:lan": "next dev --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -11,10 +12,19 @@
     "generate:background": "node scripts/generate-homepage-background.mjs",
     "process:hero-z": "node scripts/process-hero-z.mjs",
     "process:hero-z-logo": "node scripts/process-hero-z-logo.mjs",
-    "extract:floating-products": "node scripts/extract-floating-products.mjs"
+    "extract:floating-products": "node scripts/extract-floating-products.mjs",
+    "db:seed": "node scripts/seed-supabase.mjs",
+    "db:push": "supabase db push",
+    "db:reset": "supabase db reset",
+    "sync:run": "node scripts/run-sync-jobs.mjs",
+    "db:verify": "node scripts/verify-supabase.mjs",
+    "assets:generate": "node scripts/generate-missing-assets.mjs",
+    "assets:verify": "node scripts/verify-assets.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
     "@swc/helpers": "^0.5.23",
     "clsx": "^2.1.1",
     "lucide-react": "^1.21.0",
