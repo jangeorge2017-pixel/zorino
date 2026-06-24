@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Logo quality check</title>
+  <style>
+    body { margin: 0; background: #040615; color: #fff; font-family: system-ui, sans-serif; padding: 24px; }
+    h2 { font-size: 14px; color: #94a3b8; margin: 0 0 12px; font-weight: 600; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    .panel { background: #040615; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; }
+    img { image-rendering: auto; display: block; max-width: 100%; }
+    .mark-38 { width: 38px; height: 38px; object-fit: contain; }
+    .mark-76 { width: 76px; height: 76px; object-fit: contain; }
+    .mark-152 { width: 152px; height: 152px; object-fit: contain; }
+    .hero-560 { width: 560px; height: auto; object-fit: contain; }
+    .native { width: 560px; height: auto; }
+  </style>
+</head>
+<body>
+  <h1 style="font-size:18px;margin-bottom:24px;">Production logo quality — all derived from hero-z.png</h1>
+  <div class="grid">
+    <div class="panel">
+      <h2>Source — hero-z.png (1254 native, 560 display)</h2>
+      <img class="native" src="/hero-z.png" width="1254" height="1254" alt="Source" />
+    </div>
+    <div class="panel">
+      <h2>Hero render — same file, CSS 560px</h2>
+      <img class="hero-560" src="/hero-z.png" width="1254" height="1254" alt="Hero" />
+    </div>
+    <div class="panel">
+      <h2>Navbar mark @4x (152 intrinsic → 38 display)</h2>
+      <img class="mark-38" src="/logo/zorino-logo-mark@4x.png" width="152" height="152" alt="Mark 4x at 38" />
+      <img class="mark-76" src="/logo/zorino-logo-mark@4x.png" width="152" height="152" alt="Mark 4x at 76" style="margin-top:16px" />
+      <img class="mark-152" src="/logo/zorino-logo-mark@4x.png" width="152" height="152" alt="Mark 4x native" style="margin-top:16px" />
+    </div>
+    <div class="panel">
+      <h2>Navbar mark srcSet sizes</h2>
+      <img class="mark-38" src="/logo/zorino-logo-mark@4x.png" srcset="/logo/zorino-logo-mark@1x.png 38w, /logo/zorino-logo-mark@2x.png 76w, /logo/zorino-logo-mark@3x.png 114w, /logo/zorino-logo-mark@4x.png 152w" sizes="38px" width="152" height="152" alt="Mark srcset" />
+    </div>
+  </div>
+</body>
+</html>

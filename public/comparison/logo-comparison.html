@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Logo comparison</title>
+  <style>
+    body {
+      margin: 0;
+      background: #040615;
+      color: #fff;
+      font-family: system-ui, sans-serif;
+      padding: 24px;
+    }
+    h1 { font-size: 18px; margin: 0 0 20px; }
+    .row {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+    .panel {
+      text-align: center;
+    }
+    .panel p {
+      margin: 0 0 12px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .panel img {
+      display: block;
+      background: #040615;
+    }
+    .navbar-size { width: 38px; height: 38px; object-fit: contain; }
+    .preview-size { width: 200px; height: 200px; object-fit: contain; }
+    .hero-size { width: 552px; height: 552px; object-fit: contain; }
+  </style>
+</head>
+<body>
+  <h1>Logo before / after (source: public/hero-z.png)</h1>
+  <div class="row">
+    <div class="panel">
+      <p>Before — flat z-logo.svg (removed)</p>
+      <img class="preview-size" src="/comparison/logo-before-flat.svg" alt="Before logo" />
+      <img class="navbar-size" src="/comparison/logo-before-flat.svg" alt="Before navbar logo" style="margin: 16px auto 0;" />
+    </div>
+    <div class="panel">
+      <p>After — hero-z.png (single source of truth)</p>
+      <img class="preview-size" src="/hero-z.png" alt="After logo" />
+      <img class="navbar-size" src="/hero-z.png" alt="After navbar logo" style="margin: 16px auto 0;" />
+    </div>
+  </div>
+  <div class="panel" style="margin-top: 32px;">
+    <p>Hero usage — same hero-z.png at full scale</p>
+    <img class="hero-size" src="/hero-z.png" alt="Hero logo" />
+  </div>
+</body>
+</html>

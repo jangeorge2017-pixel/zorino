@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:logo": "node scripts/generate-hero-z-logo-svg.mjs",
+    "generate:background": "node scripts/generate-homepage-background.mjs",
+    "process:hero-z": "node scripts/process-hero-z.mjs",
+    "process:hero-z-logo": "node scripts/process-hero-z-logo.mjs",
+    "extract:floating-products": "node scripts/extract-floating-products.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

@@ -1,0 +1,16 @@
+{
+  "source": "/hero-z-logo.png",
+  "svg": "/hero-z-logo.svg",
+  "intrinsic": {
+    "width": 235,
+    "height": 82
+  },
+  "generatedAt": "2026-06-24T00:20:00.393Z",
+  "variants": {
+    "@1x": "/hero-z-logo.png",
+    "@2x": "/logo/hero-z-logo@2x.png",
+    "@3x": "/logo/hero-z-logo@3x.png",
+    "@4x": "/logo/hero-z-logo@4x.png"
+  },
+  "note": "SVG is a 1:1 wrapper over hero-z-logo.png — no paths redrawn, no effects replaced."
+}

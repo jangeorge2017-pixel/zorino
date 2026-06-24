@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>hero-z-logo.png vs hero-z-logo.svg — 1:1 check</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #040615;
+      color: #fff;
+      font-family: system-ui, sans-serif;
+      padding: 32px;
+    }
+    h1 { font-size: 20px; margin: 0 0 8px; }
+    p { color: #94a3b8; margin: 0 0 24px; font-size: 14px; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .panel {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 24px;
+      background: #040615;
+    }
+    .panel h2 {
+      font-size: 13px;
+      color: #94a3b8;
+      margin: 0 0 16px;
+      font-weight: 600;
+    }
+    .native { width: 235px; height: 82px; image-rendering: auto; }
+    .scale-2x { width: 470px; height: 164px; }
+    .scale-4x { width: 940px; height: 328px; }
+    .overlay-wrap {
+      position: relative;
+      width: 470px;
+      height: 164px;
+    }
+    .overlay-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .overlay-wrap .top { opacity: 0.5; mix-blend-mode: difference; }
+  </style>
+</head>
+<body>
+  <h1>1:1 comparison — hero-z-logo.png vs hero-z-logo.svg</h1>
+  <p>SVG is a wrapper over the PNG (no redrawn paths). Overlap view uses difference blend — identical pixels appear dark.</p>
+
+  <div class="row">
+    <div class="panel">
+      <h2>Source — hero-z-logo.png (235×82)</h2>
+      <img class="native" src="/hero-z-logo.png" width="235" height="82" alt="PNG source" />
+    </div>
+    <div class="panel">
+      <h2>SVG — hero-z-logo.svg (same viewBox)</h2>
+      <img class="native" src="/hero-z-logo.svg" width="235" height="82" alt="SVG wrapper" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="panel">
+      <h2>@2x scale (470×164)</h2>
+      <img class="scale-2x" src="/hero-z-logo.png" width="470" height="164" alt="PNG 2x" />
+    </div>
+    <div class="panel">
+      <h2>SVG @2x scale</h2>
+      <img class="scale-2x" src="/hero-z-logo.svg" width="470" height="164" alt="SVG 2x" />
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Overlay diff @2x (PNG base + 50% SVG difference blend)</h2>
+    <div class="overlay-wrap">
+      <img src="/logo/hero-z-logo@2x.png" width="470" height="164" alt="PNG @2x base" />
+      <img class="top" src="/hero-z-logo.svg" width="470" height="164" alt="SVG overlay" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="panel">
+      <h2>Retina PNG @4x (940×328)</h2>
+      <img class="scale-4x" src="/logo/hero-z-logo@4x.png" width="940" height="328" alt="PNG 4x" />
+    </div>
+    <div class="panel">
+      <h2>Navbar render (40px height)</h2>
+      <img src="/hero-z-logo.svg" style="height:40px;width:auto" alt="Navbar size" />
+    </div>
+  </div>
+</body>
+</html>

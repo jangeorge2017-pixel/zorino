@@ -1,0 +1,59 @@
+{
+  "source": "public/reference/zorino-final-design.png",
+  "note": "118px cards at 1920 viewport; product images ~92×78px display (~65–70% of card)",
+  "products": [
+    {
+      "file": "/products/floating-headphones.png",
+      "referenceRect": {
+        "left": 772,
+        "top": 130,
+        "width": 90,
+        "height": 66
+      },
+      "intrinsic": {
+        "width": 180,
+        "height": 132
+      }
+    },
+    {
+      "file": "/products/floating-laptop.png",
+      "referenceRect": {
+        "left": 766,
+        "top": 268,
+        "width": 98,
+        "height": 52
+      },
+      "intrinsic": {
+        "width": 196,
+        "height": 104
+      }
+    },
+    {
+      "file": "/products/floating-phone.png",
+      "referenceRect": {
+        "left": 1275,
+        "top": 134,
+        "width": 48,
+        "height": 75
+      },
+      "intrinsic": {
+        "width": 96,
+        "height": 150
+      }
+    },
+    {
+      "file": "/products/floating-controller.png",
+      "referenceRect": {
+        "left": 1278,
+        "top": 258,
+        "width": 58,
+        "height": 82
+      },
+      "intrinsic": {
+        "width": 116,
+        "height": 164
+      }
+    }
+  ],
+  "generatedAt": "2026-06-24T00:57:13.247Z"
+}

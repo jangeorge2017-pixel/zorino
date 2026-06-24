@@ -1,0 +1,16 @@
+{
+  "source": "/reference/zorino-final-design.png",
+  "background": "/backgrounds/zorino-homepage-bg.png",
+  "background2x": "/backgrounds/zorino-homepage-bg@2x.png",
+  "intrinsic": {
+    "width": 1536,
+    "height": 1024
+  },
+  "cornerColor": {
+    "r": 1,
+    "g": 5,
+    "b": 17
+  },
+  "generatedAt": "2026-06-23T22:47:26.377Z",
+  "note": "Atmosphere only — no Z, no UI. Blurred reference + particles; hero Z region uses blur only."
+}
