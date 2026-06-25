@@ -14,6 +14,7 @@ import {
   X,
   Link2,
   Settings,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { adminSignOut } from "@/lib/admin/actions";
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/admin/deals", icon: ShoppingBag, label: "Deals" },
   { href: "/admin/coupons", icon: Tag, label: "Coupons" },
   { href: "/admin/affiliate", icon: Link2, label: "Affiliate" },
+  { href: "/admin/marketplaces", icon: Globe, label: "Marketplaces" },
   { href: "/admin/settings", icon: Settings, label: "Settings" },
 ];
 

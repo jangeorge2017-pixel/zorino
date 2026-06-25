@@ -386,6 +386,57 @@ export async function adminSaveIntegrationSettings(values: Record<string, string
   return { ok: result.ok, error: result.error ?? null };
 }
 
+export async function adminSaveAliExpressSettings(values: Record<string, string>) {
+  await assertAdmin();
+  const filtered: Record<string, string> = {};
+  for (const key of [
+    "ALIEXPRESS_APP_KEY",
+    "ALIEXPRESS_APP_SECRET",
+    "ALIEXPRESS_TRACKING_ID",
+  ]) {
+    if (values[key]?.trim()) filtered[key] = values[key].trim();
+  }
+  const { saveIntegrationSettings } = await import("@/lib/integration/settings");
+  const result = await saveIntegrationSettings(filtered);
+  revalidateAdmin();
+  return { ok: result.ok, error: result.error ?? null };
+}
+
+export async function adminValidateAliExpressCredentials() {
+  await assertAdmin();
+  const { validateAliExpressCredentials } = await import("@/services/aliexpress/credentials");
+  return validateAliExpressCredentials();
+}
+
+export async function adminRunAliExpressSync(
+  kind: "products" | "prices" | "stock" | "images" | "full"
+) {
+  await assertAdmin();
+  const {
+    importAliExpressProducts,
+    syncAliExpressPrices,
+    syncAliExpressStock,
+    syncAliExpressImages,
+    runAliExpressFullSync,
+  } = await import("@/services/aliexpress");
+
+  const runners = {
+    products: importAliExpressProducts,
+    prices: syncAliExpressPrices,
+    stock: syncAliExpressStock,
+    images: syncAliExpressImages,
+    full: runAliExpressFullSync,
+  } as const;
+
+  const result = await runners[kind]();
+  revalidateAdmin();
+  return {
+    ok: result.ok,
+    error: result.error ?? null,
+    result: result.result ?? null,
+  };
+}
+
 export async function adminSaveAffiliateSettings(
   settings: Array<{
     marketplace: import("@/lib/affiliate/config").AffiliateMarketplace;

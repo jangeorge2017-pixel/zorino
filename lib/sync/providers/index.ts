@@ -20,16 +20,19 @@ const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   walmart: createWalmartProvider(),
 };
 
-const PHASE1_PROVIDER_IDS = new Set<ImportProviderId>([
-  "aliexpress",
-  "ebay",
-  "cjdropshipping",
-]);
+const PHASE1_PROVIDER_IDS = new Set<ImportProviderId>(["ebay", "cjdropshipping"]);
 
-/** Resolve provider — Phase 1 uses demo/cached catalog when live API keys are absent. */
+/** AliExpress uses live API only — no demo/mock fallback (Phase 2). */
+const LIVE_ONLY_PROVIDERS = new Set<ImportProviderId>(["aliexpress"]);
+
+/** Resolve provider — demo catalog for eBay/CJ when keys absent; AliExpress waits for credentials. */
 export function getProviderAdapter(providerId: ImportProviderId | string): PartnerConnector {
   const adapter = providerInstances[providerId as ImportProviderId];
   if (!adapter) return mockConnector;
+
+  if (LIVE_ONLY_PROVIDERS.has(providerId as ImportProviderId)) {
+    return adapter;
+  }
 
   if (PHASE1_PROVIDER_IDS.has(providerId as ImportProviderId)) {
     if (adapter.isConfigured()) return adapter;
