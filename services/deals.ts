@@ -1,5 +1,6 @@
 import { mapDeal, mapProduct, mapStore } from "@/lib/database/mappers";
 import type { DealRow, ProductRow, StoreRow } from "@/lib/database/types";
+import { IMPORTED_PRODUCT_SYNC_STATUS } from "@/lib/catalog/imported-products";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Deal, ServiceResult } from "@/lib/types/entities";
 
@@ -9,11 +10,22 @@ type DealWithRelations = DealRow & {
 };
 
 function mapDealRows(rows: DealWithRelations[]): Deal[] {
-  return rows.map((row) => {
-    const product = row.products ? mapProduct(row.products) : undefined;
-    const store = row.stores ? mapStore(row.stores) : undefined;
-    return mapDeal(row, product, store);
-  });
+  return rows
+    .filter((row) => {
+      const product = row.products;
+      if (!product) return false;
+      return (
+        product.is_active !== false &&
+        product.sync_status === IMPORTED_PRODUCT_SYNC_STATUS &&
+        product.last_synced_at &&
+        !product.image_url?.startsWith("/products/")
+      );
+    })
+    .map((row) => {
+      const product = row.products ? mapProduct(row.products) : undefined;
+      const store = row.stores ? mapStore(row.stores) : undefined;
+      return mapDeal(row, product, store);
+    });
 }
 
 export async function getFeaturedDeals(limit = 4): Promise<ServiceResult<Deal[]>> {

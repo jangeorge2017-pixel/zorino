@@ -1,0 +1,69 @@
+import type { ExternalProduct } from "@/lib/sync/types";
+import type { SyncContext } from "@/lib/sync/types";
+import { finalizeExternalProduct, slugifyTitle } from "@/lib/sync/providers/shared/product-utils";
+import { mapProviderCategory } from "@/lib/sync/providers/shared/category-map";
+
+type EbayItemSummary = {
+  itemId?: string;
+  title?: string;
+  price?: { value?: string; currency?: string };
+  image?: { imageUrl?: string };
+  additionalImages?: { imageUrl?: string }[];
+  itemWebUrl?: string;
+  itemAffiliateWebUrl?: string;
+  shortDescription?: string;
+  condition?: string;
+  seller?: { username?: string };
+  estimatedAvailabilities?: { estimatedAvailableQuantity?: number }[];
+  buyingOptions?: string[];
+};
+
+export function mapEbayProduct(
+  ctx: SyncContext,
+  raw: EbayItemSummary,
+  defaultCategory?: string
+): ExternalProduct | null {
+  if (!raw.itemId || !raw.title) return null;
+
+  const price = parseFloat(raw.price?.value ?? "0");
+  if (!price || price <= 0) return null;
+
+  const productUrl = raw.itemAffiliateWebUrl ?? raw.itemWebUrl ?? "";
+  if (!productUrl) return null;
+
+  const gallery = [
+    raw.image?.imageUrl,
+    ...(raw.additionalImages?.map((img) => img.imageUrl) ?? []),
+  ].filter(Boolean) as string[];
+
+  const imageUrl = upgradeEbayImage(gallery[0] ?? "");
+  const qty = raw.estimatedAvailabilities?.[0]?.estimatedAvailableQuantity;
+  const inStock =
+    qty !== undefined ? qty > 0 : (raw.buyingOptions ?? []).includes("FIXED_PRICE");
+
+  const description =
+    raw.shortDescription?.trim() ||
+    `${raw.title}${raw.condition ? ` — ${raw.condition}` : ""}${raw.seller?.username ? ` · Seller: ${raw.seller.username}` : ""}`;
+
+  return finalizeExternalProduct(ctx, {
+    externalId: raw.itemId,
+    title: raw.title.trim(),
+    slug: slugifyTitle(raw.title),
+    description,
+    brand: raw.seller?.username,
+    categorySlug: defaultCategory ?? mapProviderCategory(raw.condition, raw.title),
+    imageUrl,
+    imageUrls: gallery.length > 0 ? gallery.map(upgradeEbayImage) : [imageUrl],
+    price,
+    originalPrice: price,
+    currency: raw.price?.currency ?? ctx.currency,
+    inStock,
+    productUrl,
+    affiliateUrl: raw.itemAffiliateWebUrl ?? undefined,
+  });
+}
+
+function upgradeEbayImage(url: string): string {
+  if (!url) return url;
+  return url.replace(/s-l\d+\./, "s-l1600.");
+}

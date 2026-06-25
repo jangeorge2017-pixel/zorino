@@ -1,4 +1,5 @@
 import { getMockDealsForStore, getMockProductsForStore } from "@/lib/sync/mock-catalog";
+import { finalizeExternalProduct } from "@/lib/sync/providers/shared/product-utils";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
 import { BaseConnector } from "@/lib/sync/connectors/base";
 
@@ -11,11 +12,13 @@ export class MockConnector extends BaseConnector {
   }
 
   async fetchProducts(ctx: SyncContext): Promise<ExternalProduct[]> {
-    return getMockProductsForStore(ctx.storeSlug).map((p) => ({
-      ...p,
-      countryCode: ctx.countryCode,
-      currency: ctx.currency,
-    }));
+    return getMockProductsForStore(ctx.storeSlug).map((p) =>
+      finalizeExternalProduct(ctx, {
+        ...p,
+        countryCode: ctx.countryCode,
+        currency: ctx.currency,
+      })
+    );
   }
 
   async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {

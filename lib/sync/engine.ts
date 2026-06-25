@@ -5,6 +5,7 @@ import {
   importProductsFromProvider,
 } from "@/lib/sync/import/pipeline";
 import { getConnectorForIntegration } from "@/lib/sync/connectors";
+import { resolveImportConfig } from "@/lib/sync/providers/shared/import-config";
 import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
 import type { StoreIntegrationType } from "@/lib/types/entities";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -18,6 +19,7 @@ interface RunJobInput {
   currency: string;
   jobType: SyncJobType;
   syncJobId?: string;
+  jobConfig?: Record<string, unknown> | null;
 }
 
 type SyncContext = import("@/lib/sync/types").SyncContext;
@@ -42,6 +44,10 @@ export async function runSyncJob(
     countryCode: input.countryCode,
     currency: input.currency,
     connectorId: input.integrationType,
+    jobConfig: resolveImportConfig(
+      input.integrationType,
+      input.jobConfig
+    ),
   };
 
   const result: SyncRunResult = {

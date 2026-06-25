@@ -1,5 +1,6 @@
 import { runDueSyncJobs, getDueSyncJobs } from "@/lib/sync/scheduler";
 import { runSyncJob } from "@/lib/sync/engine";
+import { deactivatePlaceholderProducts } from "@/lib/sync/import/cleanup";
 import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
 import type { ServiceResult } from "@/lib/types/entities";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -28,6 +29,7 @@ export async function triggerStoreSync(input: {
   countryCode?: string;
   currency?: string;
   jobType?: SyncJobType;
+  jobConfig?: Record<string, unknown> | null;
 }): Promise<ServiceResult<SyncRunResult>> {
   try {
     const result = await runSyncJob({
@@ -37,6 +39,7 @@ export async function triggerStoreSync(input: {
       countryCode: input.countryCode ?? "US",
       currency: input.currency ?? "USD",
       jobType: input.jobType ?? "full",
+      jobConfig: input.jobConfig,
     });
     return { data: result, error: null };
   } catch (err) {
@@ -62,8 +65,53 @@ export async function triggerProviderSync(input: {
   countryCode?: string;
   currency?: string;
   jobType?: SyncJobType;
+  jobConfig?: Record<string, unknown> | null;
 }): Promise<ServiceResult<SyncRunResult>> {
   return triggerStoreSync(input);
+}
+
+/** Trigger import for all Phase 1 providers (AliExpress, eBay, CJdropshipping). */
+export async function triggerPhase1Imports(): Promise<ServiceResult<SyncRunResult[]>> {
+  const supabase = createSupabaseServiceClient();
+  if (!supabase) {
+    return { data: [], error: "Supabase not configured" };
+  }
+
+  const phase1 = ["aliexpress", "ebay", "cjdropshipping"];
+  const { data: stores, error } = await supabase
+    .from("stores")
+    .select("id, slug, integration_type")
+    .in("integration_type", phase1)
+    .eq("sync_enabled", true);
+
+  if (error) return { data: [], error: error.message };
+
+  const results: SyncRunResult[] = [];
+  type ImportStore = { id: string; slug: string; integration_type: string };
+  for (const store of (stores ?? []) as ImportStore[]) {
+    const { data: result, error: syncError } = await triggerStoreSync({
+      storeId: store.id,
+      storeSlug: store.slug,
+      integrationType: store.integration_type,
+      jobType: "full",
+    });
+    if (result) results.push(result);
+    if (syncError) {
+      results.push({
+        jobType: "full",
+        status: "failed",
+        itemsFetched: 0,
+        itemsCreated: 0,
+        itemsUpdated: 0,
+        itemsFailed: 0,
+        errorMessage: syncError,
+      });
+    }
+  }
+
+  await deactivatePlaceholderProducts(supabase);
+
+  return { data: results, error: null };
 }
 
 export async function getImportProviders() {

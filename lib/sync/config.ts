@@ -23,7 +23,7 @@ export const PROVIDER_CREDENTIAL_KEYS = {
 
 /**
  * Use static mock catalog only when Supabase is not configured or SYNC_USE_MOCK=true.
- * Partner API keys control sync connectors, not homepage DB reads.
+ * Phase 1 providers (AliExpress, eBay, CJ) never import mock data when Supabase is live.
  */
 export function shouldUseMockCatalog(): boolean {
   if (!isSupabaseEnvConfigured()) return true;
@@ -53,9 +53,7 @@ export function getConnectorForStore(integrationType: string): "mock" | string {
   if (shouldUseMockCatalog()) return "mock";
 
   if (integrationType in PROVIDER_CREDENTIAL_KEYS) {
-    return isProviderConfigured(integrationType as keyof typeof PROVIDER_CREDENTIAL_KEYS)
-      ? integrationType
-      : "mock";
+    return integrationType;
   }
 
   if (!hasPartnerApiCredentials()) return "mock";

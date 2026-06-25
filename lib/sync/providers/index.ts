@@ -19,10 +19,17 @@ const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   walmart: createWalmartProvider(),
 };
 
-/** Resolve a provider adapter by ID. Unconfigured providers fall back to mock in dev sync. */
+const PHASE1_PROVIDER_IDS = new Set<ImportProviderId>([
+  "aliexpress",
+  "ebay",
+  "cjdropshipping",
+]);
+
+/** Resolve a provider adapter by ID. Phase 1 providers never fall back to mock. */
 export function getProviderAdapter(providerId: ImportProviderId | string): PartnerConnector {
   const adapter = providerInstances[providerId as ImportProviderId];
   if (!adapter) return mockConnector;
+  if (PHASE1_PROVIDER_IDS.has(providerId as ImportProviderId)) return adapter;
   if (adapter.isConfigured()) return adapter;
   return mockConnector;
 }
