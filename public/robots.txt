@@ -19,7 +19,7 @@ Allow: /api/categories
 Allow: /api/stores
 
 # Sitemap location
-Sitemap: https://zorino.com/sitemap.xml
+Sitemap: https://zorino.vercel.app/sitemap.xml
 
 # Crawl delay (optional)
 Crawl-delay: 1
