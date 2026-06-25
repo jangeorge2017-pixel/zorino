@@ -4,6 +4,7 @@ import {
   DEFAULT_LOWEST_CURRENCY,
   DEFAULT_LOWEST_LIMIT,
 } from "@/lib/lowest-prices/config";
+import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { SupabaseDb } from "@/lib/supabase/config";
 
@@ -40,7 +41,7 @@ function mapRow(row: LowestPriceRow): LowestPriceTodayItem {
     productId: row.product_id,
     productName: row.product_name,
     productSlug: row.product_slug,
-    imageUrl: row.image_url,
+    imageUrl: normalizeProductImageUrl(row.image_url),
     emoji: row.emoji ?? "🛍️",
     lowestPrice: Number(row.lowest_price),
     originalPrice: Number(row.original_price ?? row.lowest_price),

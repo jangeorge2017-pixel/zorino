@@ -5,6 +5,7 @@ import { getPriceHistory, getCurrentPricesForProduct } from "@/services/prices";
 import { getProducts, searchProducts } from "@/services/products";
 import { getCatalogStats } from "@/services/stats";
 import { getStores } from "@/services/stores";
+import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import type { Deal, Product, Store } from "@/lib/types/entities";
 import type {
   FloatingProductCard,
@@ -58,7 +59,7 @@ async function dealToCard(deal: Deal): Promise<TrendingDealCard | null> {
       id: deal.id,
       productId: deal.productId ?? product.id,
       name: product.name,
-      imageSrc: product.imageUrl,
+      imageSrc: normalizeProductImageUrl(product.imageUrl),
       emoji: product.emoji ?? "🛍️",
       discount: Number(deal.discount),
       rating: product.rating ?? 4.5,
@@ -76,7 +77,7 @@ async function dealToCard(deal: Deal): Promise<TrendingDealCard | null> {
   return {
     id: deal.id,
     name: deal.title,
-    imageSrc: product?.imageUrl ?? "/products/deal-iphone.png",
+    imageSrc: normalizeProductImageUrl(product?.imageUrl),
     emoji: product?.emoji ?? "🛍️",
     discount: Number(deal.discount),
     rating: product?.rating ?? 4.5,
@@ -103,7 +104,7 @@ async function productToCard(product: Product, store?: Store): Promise<TrendingD
     id: product.id,
     productId: product.id,
     name: product.name,
-    imageSrc: product.imageUrl,
+    imageSrc: normalizeProductImageUrl(product.imageUrl),
     emoji: product.emoji ?? "🛍️",
     discount,
     rating: product.rating ?? 4.5,
@@ -330,7 +331,7 @@ export async function getSearchResults(query: string): Promise<SearchResultItem[
     results.push({
       id: product.id,
       name: product.name,
-      imageSrc: product.imageUrl,
+      imageSrc: normalizeProductImageUrl(product.imageUrl),
       emoji: product.emoji ?? "🛍️",
       price,
       originalPrice: original || price,

@@ -1,4 +1,5 @@
 import Stats from "@/components/Stats";
+import AssetImage from "@/components/AssetImage";
 import type { FloatingProductCard, HeroStatItem } from "@/lib/types/entities";
 
 type HeroProps = {
@@ -33,8 +34,14 @@ export default function Hero({ floatingProducts, stats }: HeroProps) {
           <div key={product.position} className={`floating-card ${product.position}`}>
             <span className="floating-discount">{product.discount}</span>
             <div className="floating-product-image">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={product.imageSrc} alt="" className="floating-product-img" />
+              <AssetImage
+                src={product.imageSrc}
+                alt=""
+                width={120}
+                height={120}
+                className="floating-product-img"
+                fallback={<span className="deal-emoji">🛍️</span>}
+              />
             </div>
             <div className="floating-prices">
               <span className="floating-price">{product.price}</span>
