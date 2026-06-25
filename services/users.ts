@@ -169,3 +169,119 @@ export async function markNotificationRead(
   if (error) return { data: null, error: error.message };
   return { data: data ? mapNotification(data) : null, error: null };
 }
+
+export async function markAllNotificationsRead(
+  userId: string
+): Promise<ServiceResult<number>> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return { data: 0, error: "Supabase not configured" };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("notifications")
+    .update({ read: true, read_at: new Date().toISOString() })
+    .eq("user_id", userId)
+    .eq("read", false)
+    .select("id");
+
+  if (error) return { data: 0, error: error.message };
+  return { data: data?.length ?? 0, error: null };
+}
+
+export async function deleteUserNotification(
+  notificationId: string,
+  userId: string
+): Promise<ServiceResult<boolean>> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return { data: false, error: "Supabase not configured" };
+  }
+
+  const { error } = await deleteRows(supabase, "notifications", {
+    id: notificationId,
+    user_id: userId,
+  });
+
+  if (error) return { data: false, error: error.message };
+  return { data: true, error: null };
+}
+
+export type NotificationPreferences = {
+  emailPriceDrops: boolean;
+  emailTrending: boolean;
+  inAppEnabled: boolean;
+};
+
+export async function getNotificationPreferences(
+  userId: string
+): Promise<ServiceResult<NotificationPreferences>> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return {
+      data: { emailPriceDrops: true, emailTrending: true, inAppEnabled: true },
+      error: "Supabase not configured",
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("notification_preferences")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    return {
+      data: { emailPriceDrops: true, emailTrending: true, inAppEnabled: true },
+      error: error.message,
+    };
+  }
+
+  if (!data) {
+    return {
+      data: { emailPriceDrops: true, emailTrending: true, inAppEnabled: true },
+      error: null,
+    };
+  }
+
+  const row = data as {
+    email_price_drops: boolean;
+    email_trending: boolean;
+    in_app_enabled: boolean;
+  };
+
+  return {
+    data: {
+      emailPriceDrops: row.email_price_drops,
+      emailTrending: row.email_trending,
+      inAppEnabled: row.in_app_enabled,
+    },
+    error: null,
+  };
+}
+
+export async function saveNotificationPreferences(
+  userId: string,
+  prefs: NotificationPreferences
+): Promise<ServiceResult<boolean>> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return { data: false, error: "Supabase not configured" };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any).from("notification_preferences").upsert(
+    {
+      user_id: userId,
+      email_price_drops: prefs.emailPriceDrops,
+      email_trending: prefs.emailTrending,
+      in_app_enabled: prefs.inAppEnabled,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+
+  if (error) return { data: false, error: error.message };
+  return { data: true, error: null };
+}

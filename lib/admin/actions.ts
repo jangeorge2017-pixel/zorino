@@ -379,6 +379,13 @@ export async function adminRunPhase1Import() {
   };
 }
 
+export async function adminSaveIntegrationSettings(values: Record<string, string>) {
+  await assertAdmin();
+  const { saveIntegrationSettings } = await import("@/lib/integration/settings");
+  const result = await saveIntegrationSettings(values);
+  return { ok: result.ok, error: result.error ?? null };
+}
+
 export async function adminSaveAffiliateSettings(
   settings: Array<{
     marketplace: import("@/lib/affiliate/config").AffiliateMarketplace;

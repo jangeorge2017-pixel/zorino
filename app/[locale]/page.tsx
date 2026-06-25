@@ -4,11 +4,27 @@ import SearchBarContainer from "@/components/SearchBarContainer";
 import CategoryGridContainer from "@/components/CategoryGridContainer";
 import LowestPricesContainer from "@/components/LowestPricesContainer";
 import TrendingProductsContainer from "@/components/TrendingProductsContainer";
+import RecommendedProductsContainer from "@/components/RecommendedProductsContainer";
+import PersonalizedRecommendationsContainer from "@/components/PersonalizedRecommendationsContainer";
 import HomeDealsCouponsRow from "@/components/HomeDealsCouponsRow";
 import FeaturesSection from "@/components/FeaturesSection";
 import FooterStatsContainer from "@/components/FooterStatsContainer";
+import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return buildSeoMetadata({
+    title: "Find the Best Deals Across All Marketplaces",
+    locale,
+    alternateLocales: locale === "en" ? ["ar"] : ["en"],
+  });
+}
 
 export default function Home() {
   return (
@@ -22,6 +38,8 @@ export default function Home() {
         <CategoryGridContainer />
         <LowestPricesContainer />
         <TrendingProductsContainer />
+        <RecommendedProductsContainer />
+        <PersonalizedRecommendationsContainer />
         <HomeDealsCouponsRow />
         <FeaturesSection />
         <FooterStatsContainer />
