@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/trending?force=true",
+      "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/lowest-prices?force=true",
+      "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/sync",
+      "schedule": "0 */6 * * *"
+    }
+  ]
+}

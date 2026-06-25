@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCronSecret } from "@/lib/sync/config";
 import { executeTrendingRefresh, isTrendingRefreshDue } from "@/services/trending";
+import { invalidateTrendingFromRoute } from "@/lib/revalidate";
 
 /**
  * Cron endpoint — recomputes trending rankings every ~4 hours.
@@ -29,6 +30,8 @@ export async function GET(request: Request) {
   if (result.error) {
     return NextResponse.json({ success: false, error: result.error }, { status: 500 });
   }
+
+  invalidateTrendingFromRoute();
 
   return NextResponse.json({
     success: true,

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { DollarSign, ExternalLink, Sparkles, TrendingDown } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
 import { LOWEST_PRICE_SORT_OPTIONS } from "@/lib/lowest-prices/config";
+import { trackProductInteraction } from "@/lib/trending/track-client";
 import type { LowestPriceSort, LowestPriceTodayItem } from "@/lib/types/entities";
 
 type LowestPricesSectionProps = {
@@ -80,6 +81,28 @@ export default function LowestPricesSection({ items, lastComputedAt }: LowestPri
 
 function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
   const shopUrl = item.affiliateUrl || item.externalUrl || `/product/${item.productId}`;
+  const tracked = useRef(false);
+
+  useEffect(() => {
+    if (tracked.current || !item.productId) return;
+    tracked.current = true;
+    trackProductInteraction({
+      productId: item.productId,
+      eventType: "view",
+      countryCode: item.countryCode,
+      source: "lowest_prices_section",
+    });
+  }, [item.productId, item.countryCode]);
+
+  const handleShopClick = () => {
+    if (!item.productId) return;
+    trackProductInteraction({
+      productId: item.productId,
+      eventType: "click",
+      countryCode: item.countryCode,
+      source: "lowest_prices_section",
+    });
+  };
 
   return (
     <article className="lowest-price-card">
@@ -127,7 +150,7 @@ function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
       </div>
 
       <div className="lowest-price-actions">
-        <Link href={`/product/${item.productId}`} className="lowest-price-details">
+        <Link href={`/product/${item.productId}`} className="lowest-price-details" onClick={handleShopClick}>
           Details
         </Link>
         <a
@@ -135,6 +158,7 @@ function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
           target="_blank"
           rel="noopener noreferrer sponsored"
           className="lowest-price-shop"
+          onClick={handleShopClick}
         >
           Shop now
           <ExternalLink size={14} />

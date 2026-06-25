@@ -1,5 +1,10 @@
 export { trackProductEvent, engagementScore, EVENT_WEIGHTS } from "./events";
-export { computeAllTrendingRankings, executeTrendingRefresh, isTrendingRefreshDue } from "./compute";
+export {
+  computeAllTrendingRankings,
+  executeTrendingRefresh,
+  isTrendingRefreshDue,
+  trendingEngagementScore,
+} from "./compute";
 export {
   getTrendingProducts,
   getTrendingSectionData,
