@@ -1,26 +1,12 @@
 import type { ExternalProduct } from "@/lib/sync/types";
 import type { SyncContext } from "@/lib/sync/types";
+import type { EbayRawProduct } from "@/lib/integrations/ebay/types";
 import { finalizeExternalProduct, slugifyTitle } from "@/lib/sync/providers/shared/product-utils";
 import { mapProviderCategory } from "@/lib/sync/providers/shared/category-map";
 
-type EbayItemSummary = {
-  itemId?: string;
-  title?: string;
-  price?: { value?: string; currency?: string };
-  image?: { imageUrl?: string };
-  additionalImages?: { imageUrl?: string }[];
-  itemWebUrl?: string;
-  itemAffiliateWebUrl?: string;
-  shortDescription?: string;
-  condition?: string;
-  seller?: { username?: string };
-  estimatedAvailabilities?: { estimatedAvailableQuantity?: number }[];
-  buyingOptions?: string[];
-};
-
 export function mapEbayProduct(
   ctx: SyncContext,
-  raw: EbayItemSummary,
+  raw: EbayRawProduct,
   defaultCategory?: string
 ): ExternalProduct | null {
   if (!raw.itemId || !raw.title) return null;

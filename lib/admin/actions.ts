@@ -437,6 +437,53 @@ export async function adminRunAliExpressSync(
   };
 }
 
+export async function adminSaveEbaySettings(values: Record<string, string>) {
+  await assertAdmin();
+  const filtered: Record<string, string> = {};
+  for (const key of ["EBAY_APP_ID", "EBAY_CERT_ID", "EBAY_CAMPAIGN_ID"]) {
+    if (values[key]?.trim()) filtered[key] = values[key].trim();
+  }
+  const { saveIntegrationSettings } = await import("@/lib/integration/settings");
+  const result = await saveIntegrationSettings(filtered);
+  revalidateAdmin();
+  return { ok: result.ok, error: result.error ?? null };
+}
+
+export async function adminValidateEbayCredentials() {
+  await assertAdmin();
+  const { validateEbayCredentials } = await import("@/services/ebay/credentials");
+  return validateEbayCredentials();
+}
+
+export async function adminRunEbaySync(
+  kind: "products" | "prices" | "stock" | "images" | "full"
+) {
+  await assertAdmin();
+  const {
+    importEbayProducts,
+    syncEbayPrices,
+    syncEbayStock,
+    syncEbayImages,
+    runEbayFullSync,
+  } = await import("@/services/ebay");
+
+  const runners = {
+    products: importEbayProducts,
+    prices: syncEbayPrices,
+    stock: syncEbayStock,
+    images: syncEbayImages,
+    full: runEbayFullSync,
+  } as const;
+
+  const result = await runners[kind]();
+  revalidateAdmin();
+  return {
+    ok: result.ok,
+    error: result.error ?? null,
+    result: result.result ?? null,
+  };
+}
+
 export async function adminSaveAffiliateSettings(
   settings: Array<{
     marketplace: import("@/lib/affiliate/config").AffiliateMarketplace;

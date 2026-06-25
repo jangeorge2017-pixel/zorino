@@ -107,6 +107,16 @@ export async function generateProductAffiliateUrl(input: {
     return url;
   }
 
+  if (marketplace === "ebay") {
+    const { generateEbayAffiliateLink } = await import("@/services/ebay/affiliate-links");
+    const { url } = await generateEbayAffiliateLink({
+      productUrl: input.destinationUrl,
+      affiliateUrl: input.promotionLink,
+      trackingId: input.trackingId,
+    });
+    return url;
+  }
+
   return buildAffiliateUrl({
     destinationUrl: input.destinationUrl,
     marketplace,

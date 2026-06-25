@@ -1,0 +1,67 @@
+import type { EbayCredentials, EbayCredentialStatus } from "@/lib/integrations/ebay/types";
+import { getIntegrationCredential } from "@/lib/integration/credentials";
+
+export const EBAY_CREDENTIAL_KEYS = {
+  APP_ID: "EBAY_APP_ID",
+  CERT_ID: "EBAY_CERT_ID",
+  CAMPAIGN_ID: "EBAY_CAMPAIGN_ID",
+  OAUTH_TOKEN: "EBAY_OAUTH_TOKEN",
+} as const;
+
+export const EBAY_PROVIDER_ID = "ebay" as const;
+
+export const EBAY_BROWSE_API = "https://api.ebay.com/buy/browse/v1";
+export const EBAY_TOKEN_URL = "https://api.ebay.com/identity/v1/oauth2/token";
+
+export function getEbayCredentialStatus(): EbayCredentialStatus {
+  const appId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.APP_ID);
+  const certId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CERT_ID);
+  const campaignId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CAMPAIGN_ID);
+  const oauthToken = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.OAUTH_TOKEN);
+
+  const hasOauthToken = Boolean(oauthToken);
+  const hasAppId = Boolean(appId);
+  const hasCertId = Boolean(certId);
+  const configured = hasOauthToken || (hasAppId && hasCertId);
+
+  let source: EbayCredentialStatus["source"] = "none";
+  if (configured) {
+    source = process.env[EBAY_CREDENTIAL_KEYS.APP_ID]?.trim() ? "env" : "database";
+  }
+
+  return {
+    configured,
+    hasAppId,
+    hasCertId,
+    hasCampaignId: Boolean(campaignId),
+    hasOauthToken,
+    source,
+  };
+}
+
+export function getEbayCredentials(): EbayCredentials | null {
+  const oauthToken = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.OAUTH_TOKEN);
+  const appId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.APP_ID);
+  const certId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CERT_ID);
+
+  if (oauthToken) {
+    return {
+      appId: appId ?? "",
+      certId: certId ?? "",
+      oauthToken,
+      campaignId: getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CAMPAIGN_ID),
+    };
+  }
+
+  if (!appId || !certId) return null;
+
+  return {
+    appId,
+    certId,
+    campaignId: getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CAMPAIGN_ID),
+  };
+}
+
+export function isEbayConfigured(): boolean {
+  return getEbayCredentialStatus().configured;
+}
