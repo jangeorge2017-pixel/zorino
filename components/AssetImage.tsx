@@ -1,7 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import {
+  normalizeProductImageUrl,
+  PRODUCT_IMAGE_PLACEHOLDER,
+} from "@/lib/images/product-image";
 
 type AssetImageProps = {
   src: string;
@@ -13,7 +17,10 @@ type AssetImageProps = {
   priority?: boolean;
 };
 
-/** Renders an image when the asset exists; falls back to placeholder content for layout stability. */
+/**
+ * Renders product/marketplace images via next/image.
+ * Falls back to a local placeholder SVG, then optional fallback UI (e.g. emoji).
+ */
 export default function AssetImage({
   src,
   alt = "",
@@ -23,30 +30,51 @@ export default function AssetImage({
   fallback,
   priority,
 }: AssetImageProps) {
-  const [failed, setFailed] = useState(false);
+  const normalized = normalizeProductImageUrl(src);
+  const [activeSrc, setActiveSrc] = useState(normalized);
+  const [showFallbackUi, setShowFallbackUi] = useState(false);
 
-  if (failed || !src) {
+  useEffect(() => {
+    setActiveSrc(normalizeProductImageUrl(src));
+    setShowFallbackUi(false);
+  }, [src]);
+
+  if (showFallbackUi || (!activeSrc && fallback)) {
     return (
       <span
         className={className}
-        style={{ width, height, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+        style={{
+          width,
+          height,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
         aria-hidden={alt === ""}
       >
-        {fallback}
+        {fallback ?? <span aria-hidden="true">🛍️</span>}
       </span>
     );
   }
 
+  const handleError = () => {
+    if (activeSrc !== PRODUCT_IMAGE_PLACEHOLDER) {
+      setActiveSrc(PRODUCT_IMAGE_PLACEHOLDER);
+      return;
+    }
+    setShowFallbackUi(true);
+  };
+
   return (
     <Image
-      src={src}
+      src={activeSrc}
       alt={alt}
       width={width}
       height={height}
       className={className}
       priority={priority}
       style={{ objectFit: "contain", objectPosition: "center" }}
-      onError={() => setFailed(true)}
+      onError={handleError}
     />
   );
 }

@@ -93,7 +93,7 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
 
                 <div className="deal-image py-6 flex justify-center">
                   <AssetImage
-                    src={deal.product?.imageUrl ?? "/products/deal-iphone.png"}
+                    src={deal.product?.imageUrl ?? ""}
                     alt=""
                     width={96}
                     height={96}

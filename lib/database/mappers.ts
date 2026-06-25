@@ -11,6 +11,7 @@ import type {
   ProfileRow,
   StoreRow,
 } from "@/lib/database/types";
+import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import type {
   Country,
   Coupon,
@@ -88,7 +89,7 @@ export function mapProduct(row: ProductRow): Product {
     nameAr: row.name_ar,
     slug: row.slug,
     description: row.description,
-    imageUrl: row.image_url,
+    imageUrl: normalizeProductImageUrl(row.image_url),
     emoji: row.emoji,
     categorySlug: row.category_slug,
     brand: row.brand,
