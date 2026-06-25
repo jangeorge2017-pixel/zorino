@@ -11,6 +11,7 @@ export type EbayCredentialStatus = {
   hasCertId: boolean;
   hasCampaignId: boolean;
   hasOauthToken: boolean;
+  hasReferenceId: boolean;
   source: "env" | "database" | "none";
 };
 

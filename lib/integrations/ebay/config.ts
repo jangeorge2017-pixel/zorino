@@ -18,6 +18,7 @@ export function getEbayCredentialStatus(): EbayCredentialStatus {
   const certId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CERT_ID);
   const campaignId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CAMPAIGN_ID);
   const oauthToken = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.OAUTH_TOKEN);
+  const referenceId = getIntegrationCredential("EBAY_REFERENCE_ID");
 
   const hasOauthToken = Boolean(oauthToken);
   const hasAppId = Boolean(appId);
@@ -35,6 +36,7 @@ export function getEbayCredentialStatus(): EbayCredentialStatus {
     hasCertId,
     hasCampaignId: Boolean(campaignId),
     hasOauthToken,
+    hasReferenceId: Boolean(referenceId),
     source,
   };
 }

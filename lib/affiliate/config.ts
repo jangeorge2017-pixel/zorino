@@ -12,7 +12,7 @@ export type AffiliateMarketplace = (typeof AFFILIATE_MARKETPLACES)[number];
 export const AFFILIATE_ENV_KEYS: Record<AffiliateMarketplace, string[]> = {
   amazon: ["AMAZON_ASSOCIATE_TAG"],
   aliexpress: ["ALIEXPRESS_TRACKING_ID", "ALIEXPRESS_APP_KEY"],
-  ebay: ["EBAY_CAMPAIGN_ID", "EBAY_APP_ID"],
+  ebay: ["EBAY_CAMPAIGN_ID", "EBAY_APP_ID", "EBAY_CERT_ID", "EBAY_REFERENCE_ID"],
   walmart: ["WALMART_AFFILIATE_ID"],
   temu: ["TEMU_AFFILIATE_ID"],
 };

@@ -28,7 +28,7 @@ export type ImportIntegrationReport = {
 
 const OPTIONAL_CREDENTIALS: Partial<Record<ImportProviderId, string[]>> = {
   aliexpress: ["ALIEXPRESS_TRACKING_ID"],
-  ebay: ["EBAY_CAMPAIGN_ID", "EBAY_OAUTH_TOKEN"],
+  ebay: ["EBAY_CAMPAIGN_ID", "EBAY_OAUTH_TOKEN", "EBAY_REFERENCE_ID"],
 };
 
 const PHASE1_META: Record<

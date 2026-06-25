@@ -439,8 +439,9 @@ export async function adminRunAliExpressSync(
 
 export async function adminSaveEbaySettings(values: Record<string, string>) {
   await assertAdmin();
+  const { EBAY_EPN_ADMIN_SAVE_KEYS } = await import("@/lib/integrations/ebay/epn");
   const filtered: Record<string, string> = {};
-  for (const key of ["EBAY_APP_ID", "EBAY_CERT_ID", "EBAY_CAMPAIGN_ID"]) {
+  for (const key of EBAY_EPN_ADMIN_SAVE_KEYS) {
     if (values[key]?.trim()) filtered[key] = values[key].trim();
   }
   const { saveIntegrationSettings } = await import("@/lib/integration/settings");
