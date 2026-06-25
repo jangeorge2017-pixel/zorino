@@ -32,6 +32,13 @@ if (secret) url.searchParams.set("secret", secret);
 console.log("Triggering trending refresh:", url.origin + url.pathname);
 
 const res = await fetch(url.toString(), { method: "POST" });
-const body = await res.json();
+const text = await res.text();
+let body;
+try {
+  body = text ? JSON.parse(text) : null;
+} catch {
+  console.error("Non-JSON response:", text.slice(0, 500));
+  process.exit(1);
+}
 console.log(JSON.stringify(body, null, 2));
 process.exit(res.ok ? 0 : 1);

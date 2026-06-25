@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -17,6 +17,7 @@ import {
   Minus,
 } from "lucide-react";
 import type { ProductDetail } from "@/lib/data/product-detail";
+import { trackProductInteraction } from "@/lib/trending/track-client";
 
 type ProductDetailsPageClientProps = {
   detail: ProductDetail;
@@ -28,6 +29,24 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
   const [quantity, setQuantity] = useState(1);
   const [selectedStore, setSelectedStore] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
+
+  useEffect(() => {
+    trackProductInteraction({
+      productId: product.id,
+      eventType: "view",
+      countryCode: product.countryCode ?? "US",
+      source: "product_detail",
+    });
+  }, [product.id, product.countryCode]);
+
+  const trackClick = (source: string) => {
+    trackProductInteraction({
+      productId: product.id,
+      eventType: "click",
+      countryCode: product.countryCode ?? "US",
+      source,
+    });
+  };
 
   const tabs = [
     { id: "description", label: t("description") },
@@ -180,7 +199,12 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                 </div>
               )}
               {stores[selectedStore]?.externalUrl && (
-                <Link href={stores[selectedStore].externalUrl!} target="_blank" rel="noopener noreferrer">
+                <Link
+                  href={stores[selectedStore].externalUrl!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackClick("product_detail_buy")}
+                >
                   <Button className="w-full mt-4 flex items-center justify-center gap-2">
                     {t("comparePrices")}
                     <ExternalLink className="w-4 h-4" />

@@ -70,16 +70,26 @@ export async function getTrendingProducts(
   return { data: cards, error: null };
 }
 
-/** Fetch all ranking tabs for homepage section. */
+/** Fetch all ranking tabs for homepage section (never returns empty tabs). */
 export async function getTrendingSectionData(countryCode = "US") {
+  const limit = 8;
   const results = await Promise.all(
     ALL_RANKING_TYPES.map(async (type) => {
-      const { data } = await getTrendingProducts(type, { countryCode, limit: 8 });
+      const { data } = await getTrendingProducts(type, { countryCode, limit });
       return [type, data] as const;
     })
   );
 
-  return Object.fromEntries(results) as Record<TrendingRankingType, TrendingProductCard[]>;
+  const section = Object.fromEntries(results) as Record<TrendingRankingType, TrendingProductCard[]>;
+
+  for (const type of ALL_RANKING_TYPES) {
+    if ((section[type]?.length ?? 0) === 0) {
+      const fallback = await getTrendingProductsFallback(type, countryCode, limit);
+      section[type] = fallback.data;
+    }
+  }
+
+  return section;
 }
 
 /** Batch lookup badges for product cards. */

@@ -1,7 +1,9 @@
 import { revalidatePath, revalidateTag, updateTag } from "next/cache";
+import { TRENDING_TAG } from "@/lib/trending/config";
 
 export const CATALOG_TAG = "catalog";
 export const LOWEST_PRICES_TAG = "lowest-prices";
+export { TRENDING_TAG };
 
 const PUBLIC_PATHS = [
   "/",
@@ -40,8 +42,16 @@ export function invalidateLowestPricesFromRoute() {
   revalidatePath("/ar");
 }
 
-/** Revalidate homepage trending after manual/cron refresh. */
+/** Revalidate homepage trending after manual refresh (Server Action). */
 export function revalidateTrending() {
+  updateTag(TRENDING_TAG);
+  revalidatePath("/");
+  revalidatePath("/ar");
+}
+
+/** Invalidate trending cache from Route Handlers / cron jobs. */
+export function invalidateTrendingFromRoute() {
+  revalidateTag(TRENDING_TAG, "max");
   revalidatePath("/");
   revalidatePath("/ar");
 }

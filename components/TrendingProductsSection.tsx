@@ -28,7 +28,15 @@ export default function TrendingProductsSection({
 }: TrendingProductsSectionProps) {
   const [activeTab, setActiveTab] = useState<TrendingRankingType>("trending_today");
 
-  const products = useMemo(() => data[activeTab] ?? [], [data, activeTab]);
+  const products = useMemo(() => {
+    const tabProducts = data[activeTab] ?? [];
+    if (tabProducts.length > 0) return tabProducts;
+    for (const tab of TABS) {
+      const fallback = data[tab.id] ?? [];
+      if (fallback.length > 0) return fallback;
+    }
+    return tabProducts;
+  }, [data, activeTab]);
 
   return (
     <section className="trending-products-section" aria-labelledby="trending-products-heading">
@@ -39,7 +47,7 @@ export default function TrendingProductsSection({
             Trending Products
           </h2>
           <p className="trending-products-subtitle">
-            Ranked across all stores — updated every few hours
+            Ranked by views, clicks and purchases — refreshed every 4 hours
           </p>
         </div>
       </div>
@@ -62,19 +70,15 @@ export default function TrendingProductsSection({
         </div>
       </div>
 
-      {products.length === 0 ? (
-        <p className="trending-empty">No trending products yet. Check back soon.</p>
-      ) : (
-        <div
-          className="trending-products-grid"
-          role="tabpanel"
-          aria-label={getRankingLabel(activeTab)}
-        >
-          {products.map((product) => (
-            <TrendingProductCardView key={`${activeTab}-${product.id}`} product={product} />
-          ))}
-        </div>
-      )}
+      <div
+        className="trending-products-grid"
+        role="tabpanel"
+        aria-label={getRankingLabel(activeTab)}
+      >
+        {products.map((product) => (
+          <TrendingProductCardView key={`${activeTab}-${product.id}`} product={product} />
+        ))}
+      </div>
 
       <p className="trending-region-note">
         Showing rankings for <strong>{countryCode}</strong>
