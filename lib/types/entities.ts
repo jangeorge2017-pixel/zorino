@@ -16,7 +16,15 @@ export type StoreIntegrationType =
   | "walmart"
   | "custom"
   | "partner";
-export type NotificationType = "price_drop" | "coupon" | "deal" | "system" | "review" | "alert";
+export type NotificationType =
+  | "price_drop"
+  | "coupon"
+  | "deal"
+  | "system"
+  | "review"
+  | "alert"
+  | "trending"
+  | "affiliate";
 
 export interface Country {
   code: string;

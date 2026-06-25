@@ -1,11 +1,13 @@
 import Card from "@/components/ui/Card";
 import type { AffiliateAnalytics } from "@/services/affiliate";
+import type { ProfitAnalytics } from "@/services/affiliate/profit";
 
 type AffiliateDashboardProps = {
   analytics: AffiliateAnalytics;
+  profit: ProfitAnalytics;
 };
 
-export default function AffiliateDashboard({ analytics }: AffiliateDashboardProps) {
+export default function AffiliateDashboard({ analytics, profit }: AffiliateDashboardProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -13,6 +15,33 @@ export default function AffiliateDashboard({ analytics }: AffiliateDashboardProp
         <StatCard label="Last 7 days" value={analytics.clicksLast7Days} />
         <StatCard label="Last 30 days" value={analytics.clicksLast30Days} />
       </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard
+          label="Est. conversions (30d)"
+          value={profit.estimatedConversions}
+          suffix=""
+        />
+        <StatCard
+          label="Est. revenue (30d)"
+          value={profit.estimatedRevenue}
+          prefix="$"
+          decimals
+        />
+        <StatCard
+          label="Est. commission (30d)"
+          value={profit.estimatedCommission}
+          prefix="$"
+          decimals
+        />
+      </div>
+
+      <Card>
+        <p className="text-gray-400 text-sm">
+          Conversion rate estimate: {(profit.conversionRate * 100).toFixed(1)}% · Avg commission
+          rate: {profit.avgCommissionRate.toFixed(1)}%
+        </p>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
@@ -97,11 +126,31 @@ export default function AffiliateDashboard({ analytics }: AffiliateDashboardProp
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({
+  label,
+  value,
+  prefix = "",
+  suffix = "",
+  decimals = false,
+}: {
+  label: string;
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  decimals?: boolean;
+}) {
+  const formatted = decimals
+    ? value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : value.toLocaleString("en-US");
+
   return (
     <Card>
       <p className="text-gray-400 text-sm">{label}</p>
-      <p className="text-3xl font-bold text-white mt-1">{value.toLocaleString("en-US")}</p>
+      <p className="text-3xl font-bold text-white mt-1">
+        {prefix}
+        {formatted}
+        {suffix}
+      </p>
     </Card>
   );
 }

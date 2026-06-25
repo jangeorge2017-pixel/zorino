@@ -18,12 +18,13 @@ export interface SEOProps {
 }
 
 export function generateMetadata(props: SEOProps) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://zorino.com";
   const {
     title = 'ZORINO - Find the Best Deals Across All Marketplaces',
     description = 'Discover amazing deals, coupons, and price comparisons across Amazon, Alibaba, AliExpress, Noon, Temu and more. Save money on every purchase with ZORINO.',
     keywords = ['deals', 'coupons', 'discounts', 'price comparison', 'Amazon', 'Alibaba', 'AliExpress', 'Noon', 'Temu', 'shopping', 'save money'],
     image = '/og-image.png',
-    url = 'https://zorino.com',
+    url = siteUrl,
     noIndex = false,
     canonical,
     locale = 'en',
@@ -34,6 +35,7 @@ export function generateMetadata(props: SEOProps) {
   const fullUrl = canonical || url;
 
   return {
+    metadataBase: new URL(siteUrl),
     title: fullTitle,
     description,
     keywords: keywords.join(', '),

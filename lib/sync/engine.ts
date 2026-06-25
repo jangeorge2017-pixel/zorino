@@ -4,6 +4,7 @@ import {
   importPricesFromProvider,
   importProductsFromProvider,
 } from "@/lib/sync/import/pipeline";
+import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
 import { getConnectorForIntegration } from "@/lib/sync/connectors";
 import { resolveImportConfig } from "@/lib/sync/providers/shared/import-config";
 import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
@@ -35,6 +36,7 @@ export async function runSyncJob(
   options: SyncEngineOptions = {}
 ): Promise<SyncRunResult> {
   const { persist = true, dryRun = false } = options;
+  await hydrateIntegrationCredentials();
   const supabase = persist && !dryRun ? createSupabaseServiceClient() : null;
 
   const ctx: SyncContext = {
