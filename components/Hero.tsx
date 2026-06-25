@@ -1,8 +1,12 @@
 import Stats from "@/components/Stats";
-import AssetImage from "@/components/AssetImage";
-import { floatingProducts } from "@/data/home";
+import type { FloatingProductCard, HeroStatItem } from "@/lib/types/entities";
 
-export default function Hero() {
+type HeroProps = {
+  floatingProducts: FloatingProductCard[];
+  stats: HeroStatItem[];
+};
+
+export default function Hero({ floatingProducts, stats }: HeroProps) {
   return (
     <section className="hero-section">
       <div className="hero-content">
@@ -21,7 +25,7 @@ export default function Hero() {
           Compare prices across thousands of stores, discover exclusive deals and save more on everything you love.
         </p>
 
-        <Stats />
+        <Stats stats={stats} />
       </div>
 
       <div className="hero-visual">
@@ -29,14 +33,8 @@ export default function Hero() {
           <div key={product.position} className={`floating-card ${product.position}`}>
             <span className="floating-discount">{product.discount}</span>
             <div className="floating-product-image">
-              <AssetImage
-                src={product.imageSrc}
-                alt=""
-                width={400}
-                height={400}
-                className="floating-product-img"
-                fallback={<span className="floating-emoji">{product.emoji}</span>}
-              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={product.imageSrc} alt="" className="floating-product-img" />
             </div>
             <div className="floating-prices">
               <span className="floating-price">{product.price}</span>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Smartphone,
   Laptop,
@@ -8,36 +9,46 @@ import {
   Shirt,
   MoreHorizontal,
 } from "lucide-react";
-import { categories } from "@/data/home";
+import type { HomepageCategoryItem } from "@/lib/types/entities";
 
 const iconMap = {
-  Phones: Smartphone,
-  Laptops: Laptop,
-  Gaming: Gamepad2,
-  TVs: Tv,
-  Home: Home,
-  Wearables: Watch,
-  Fashion: Shirt,
-  More: MoreHorizontal,
+  phones: Smartphone,
+  laptops: Laptop,
+  gaming: Gamepad2,
+  tvs: Tv,
+  home: Home,
+  wearables: Watch,
+  fashion: Shirt,
 } as const;
 
-export default function CategoryGrid() {
+type CategoryGridProps = {
+  categories: HomepageCategoryItem[];
+};
+
+export default function CategoryGrid({ categories }: CategoryGridProps) {
+  if (categories.length === 0) {
+    return null;
+  }
+
   return (
     <section className="categories-section">
       <div className="categories">
         {categories.map((category) => {
-          const Icon = iconMap[category.label as keyof typeof iconMap] ?? MoreHorizontal;
+          const Icon =
+            iconMap[category.slug as keyof typeof iconMap] ?? MoreHorizontal;
+          const href = category.slug === "more" ? "/categories" : `/categories/${category.slug}`;
+
           return (
-            <button
-              key={category.label}
-              type="button"
+            <Link
+              key={category.slug}
+              href={href}
               className={`category-card ${category.active ? "category-card-active" : ""} ${category.accent ? `category-accent-${category.accent}` : ""}`}
             >
               <span className="category-icon-wrap">
                 <Icon size={22} strokeWidth={1.8} />
               </span>
               <span className="category-label">{category.label}</span>
-            </button>
+            </Link>
           );
         })}
       </div>

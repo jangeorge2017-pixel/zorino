@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Search, Sparkles, TrendingUp } from "lucide-react";
-import { popularSearches } from "@/data/home";
 
-export default function SearchBar({ defaultOpen = false }: { defaultOpen?: boolean }) {
+type SearchBarProps = {
+  defaultOpen?: boolean;
+  popularSearches: string[];
+};
+
+export default function SearchBar({
+  defaultOpen = false,
+  popularSearches,
+}: SearchBarProps) {
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
@@ -36,7 +43,7 @@ export default function SearchBar({ defaultOpen = false }: { defaultOpen?: boole
           </button>
         </div>
 
-        {focused && (
+        {focused && popularSearches.length > 0 && (
           <div className="search-dropdown">
             <p className="search-dropdown-label">Popular searches</p>
             <ul className="search-suggestions">

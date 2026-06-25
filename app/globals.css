@@ -1015,6 +1015,413 @@ img {
   margin-top: 48px;
 }
 
+/* ─── Trending Products (dedicated section) ─── */
+.trending-products-section {
+  margin-top: var(--section-gap);
+  width: 100%;
+  min-width: 0;
+}
+
+.trending-products-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.trending-products-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.trending-title-icon {
+  color: #f97316;
+}
+
+.trending-products-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.trending-tabs-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.trending-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.trending-tabs {
+  display: flex;
+  gap: 8px;
+  min-width: min-content;
+}
+
+.trending-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.5);
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.trending-tab:hover {
+  color: #e2e8f0;
+  border-color: rgba(147, 51, 234, 0.35);
+}
+
+.trending-tab-active {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.35), rgba(59, 130, 246, 0.25));
+  color: #fff;
+  border-color: rgba(147, 51, 234, 0.5);
+}
+
+.trending-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.trending-product-card {
+  min-width: 0;
+}
+
+.trending-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  max-width: calc(100% - 80px);
+}
+
+.trending-badge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  border-radius: 8px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.trending-badge-md {
+  font-size: 11px;
+  padding: 4px 9px;
+}
+
+.trending-badge-sm {
+  font-size: 10px;
+  padding: 3px 7px;
+}
+
+.trending-badge-trending {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #fff;
+}
+
+.trending-badge-bestseller {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  color: #1e1b4b;
+}
+
+.trending-badge-hot {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+}
+
+.trending-badge-drop {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+}
+
+.trending-badge-popular {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: #fff;
+}
+
+.trending-provider-count {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.trending-card-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.trending-empty,
+.trending-region-note {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.trending-region-note {
+  margin-top: 14px;
+  text-align: right;
+}
+
+/* ─── Lowest Prices Today ─── */
+.lowest-prices-section {
+  margin-top: var(--section-gap);
+  width: 100%;
+  min-width: 0;
+}
+
+.lowest-prices-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.lowest-prices-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.lowest-prices-icon {
+  color: #22c55e;
+}
+
+.lowest-prices-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.lowest-prices-updated {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.lowest-prices-sort-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+  scrollbar-width: none;
+}
+
+.lowest-prices-sort-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.lowest-prices-sort {
+  display: flex;
+  gap: 8px;
+  min-width: min-content;
+}
+
+.lowest-sort-btn {
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.55);
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.lowest-sort-btn:hover {
+  color: #e2e8f0;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.lowest-sort-btn-active {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.28), rgba(16, 185, 129, 0.18));
+  color: #fff;
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+.lowest-prices-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.lowest-price-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px;
+  min-width: 0;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.lowest-price-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(34, 197, 94, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+.lowest-price-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lowest-price-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 55%;
+}
+
+.lowest-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 8px;
+  line-height: 1.2;
+}
+
+.lowest-badge-new {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
+}
+
+.lowest-badge-save {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+}
+
+.lowest-price-img {
+  width: 72px !important;
+  height: 72px !important;
+  object-fit: contain;
+}
+
+.lowest-price-emoji {
+  font-size: 42px;
+  line-height: 1;
+}
+
+.lowest-price-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f8fafc;
+  margin: 0 0 8px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lowest-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.lowest-price-current {
+  font-size: 22px;
+  font-weight: 800;
+  color: #4ade80;
+}
+
+.lowest-price-original {
+  font-size: 14px;
+  color: #64748b;
+  text-decoration: line-through;
+}
+
+.lowest-price-savings {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #86efac;
+  margin: 0 0 10px;
+}
+
+.lowest-price-store {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.lowest-price-store-name {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.lowest-price-provider {
+  color: #64748b;
+  text-transform: capitalize;
+}
+
+.lowest-price-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.lowest-price-details,
+.lowest-price-shop {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lowest-price-details {
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lowest-price-shop {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+}
+
+.lowest-prices-empty {
+  font-size: 14px;
+  color: #64748b;
+}
+
 .deals-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1590,6 +1997,16 @@ img {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .trending-products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .lowest-prices-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1737,6 +2154,38 @@ img {
   .deals-coupons-row .deals-grid,
   .deals-grid {
     grid-template-columns: 1fr;
+  }
+
+  .trending-products-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .lowest-prices-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .lowest-sort-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .lowest-price-actions {
+    flex-direction: column;
+  }
+
+  .trending-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .trending-products-subtitle {
+    font-size: 13px;
+  }
+
+  .trending-region-note {
+    text-align: left;
   }
 
   .deals-carousel {

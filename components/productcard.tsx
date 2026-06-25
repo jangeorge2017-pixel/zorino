@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { Star, TrendingDown, ChevronRight } from "lucide-react";
-import { trendingDeals } from "@/data/home";
 import AssetImage from "@/components/AssetImage";
 import SectionFlameIcon from "@/components/SectionFlameIcon";
+import TrendingBadgePill from "@/components/TrendingBadge";
+import { getTrendingDeals } from "@/lib/data/homepage";
+import { getProductBadgesMap } from "@/services/trending/queries";
+import type { TrendingDealCard } from "@/lib/types/entities";
 
-function PriceSparkline({ data, id }: { data: number[]; id: number }) {
+function PriceSparkline({ data, id }: { data: number[]; id: number | string }) {
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
@@ -39,11 +42,14 @@ function PriceSparkline({ data, id }: { data: number[]; id: number }) {
   );
 }
 
-function DealCard({ deal }: { deal: (typeof trendingDeals)[number] }) {
+function DealCard({ deal }: { deal: TrendingDealCard }) {
   return (
     <article className="deal-card">
       <div className="deal-card-top">
-        <span className="deal-discount">-{deal.discount}%</span>
+        <div className="trending-card-badges">
+          {deal.badge && <TrendingBadgePill badge={deal.badge} size="sm" />}
+          <span className="deal-discount">-{deal.discount}%</span>
+        </div>
         <div className="deal-image">
           <AssetImage
             src={deal.imageSrc}
@@ -109,7 +115,15 @@ function DealCard({ deal }: { deal: (typeof trendingDeals)[number] }) {
   );
 }
 
-export default function ProductCard() {
+export default async function ProductCard() {
+  const deals = await getTrendingDeals();
+  const productIds = deals.map((d) => String(d.productId ?? d.id));
+  const badges = await getProductBadgesMap(productIds);
+  const dealsWithBadges = deals.map((deal) => ({
+    ...deal,
+    badge: badges.get(String(deal.productId ?? deal.id)) ?? deal.badge ?? null,
+  }));
+
   return (
     <section className="trending-section">
       <div className="section-header">
@@ -123,11 +137,15 @@ export default function ProductCard() {
         </Link>
       </div>
 
-      <div className="deals-grid">
-        {trendingDeals.map((deal) => (
-          <DealCard key={deal.id} deal={deal} />
-        ))}
-      </div>
+      {deals.length === 0 ? (
+        <p className="text-gray-400 text-sm">No deals or products available yet.</p>
+      ) : (
+        <div className="deals-grid">
+          {dealsWithBadges.map((deal) => (
+            <DealCard key={deal.id} deal={deal} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
