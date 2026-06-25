@@ -1,5 +1,6 @@
 import { mapProduct } from "@/lib/database/mappers";
 import type { ProductRow } from "@/lib/database/types";
+import { isImportedProductRow } from "@/lib/catalog/imported-products";
 import { getCurrentPricesForProduct, getPriceHistory } from "@/services/prices";
 import type {
   ServiceResult,
@@ -55,7 +56,7 @@ export async function getTrendingProducts(
 
   const cards: TrendingProductCard[] = [];
   for (const row of data as RankingRow[]) {
-    if (!row.products) continue;
+    if (!row.products || !isImportedProductRow(row.products)) continue;
     const card = await productToTrendingCard(
       mapProduct(row.products),
       rankingType,
@@ -204,7 +205,14 @@ async function getTrendingProductsFallback(
   const supabase = createSupabaseAnonClient();
   if (!supabase) return { data: [], error: null };
 
-  let query = supabase.from("products").select("*").eq("is_active", true).limit(limit * 2);
+  let query = supabase
+    .from("products")
+    .select("*")
+    .eq("is_active", true)
+    .eq("sync_status", "synced")
+    .not("last_synced_at", "is", null)
+    .not("image_url", "like", "/products/%")
+    .limit(limit * 2);
 
   if (rankingType === "best_sellers") {
     query = query.order("review_count", { ascending: false });
