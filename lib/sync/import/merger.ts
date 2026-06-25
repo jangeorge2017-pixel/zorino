@@ -14,6 +14,8 @@ import {
   linkExternalProductToCanonical,
   markExternalPriceMerged,
 } from "@/lib/sync/import/repository";
+import { afterProductMerge } from "@/lib/marketplace-engine/catalog";
+import { computePriceChange } from "@/lib/marketplace-engine/utils";
 import type { ImportProviderId } from "@/lib/sync/providers/types";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
 import type { SupabaseDb } from "@/lib/supabase/config";
@@ -46,7 +48,9 @@ export async function mergeExternalProductToCatalog(
   const row = toProductRow(product, categoryId);
   const syncHash = computeSyncHash(product);
 
-  const duplicate = await findExistingCanonicalProduct(supabase, ctx, product);
+  const duplicate = await findExistingCanonicalProduct(supabase, ctx, product, {
+    externalProductRowId,
+  });
   let productId = duplicate?.productId;
   let created = false;
 
@@ -62,6 +66,12 @@ export async function mergeExternalProductToCatalog(
     if (externalProductRowId) {
       await linkExternalProductToCanonical(supabase, externalProductRowId, productId!);
     }
+    await afterProductMerge(supabase, {
+      productId: productId!,
+      storeId: ctx.storeId,
+      product,
+      provider: ctx.integrationType,
+    });
     return { productId: productId!, created: false, skipped: true };
   }
 
@@ -86,6 +96,13 @@ export async function mergeExternalProductToCatalog(
   if (externalProductRowId) {
     await linkExternalProductToCanonical(supabase, externalProductRowId, productId!);
   }
+
+  await afterProductMerge(supabase, {
+    productId: productId!,
+    storeId: ctx.storeId,
+    product,
+    provider: ctx.integrationType,
+  });
 
   return { productId: productId!, created };
 }
@@ -117,12 +134,19 @@ export async function mergeExternalPriceToCatalog(
     .eq("id", canonicalProductId);
 
   const prevPrice = previous?.price as number | undefined;
+  const { changePercent, changeDirection } = computePriceChange(prevPrice, product.price);
+
   if (prevPrice === undefined || prevPrice !== product.price) {
     await db(supabase).from("price_history").insert({
       product_id: canonicalProductId,
       store_id: ctx.storeId,
       price: product.price,
+      original_price: product.originalPrice ?? product.price,
       currency: product.currency,
+      country_code: product.countryCode,
+      provider: provider ?? ctx.integrationType,
+      change_percent: changePercent,
+      change_direction: changeDirection,
     });
   }
 
@@ -136,6 +160,13 @@ export async function mergeExternalPriceToCatalog(
       product.currency
     );
   }
+
+  await afterProductMerge(supabase, {
+    productId: canonicalProductId,
+    storeId: ctx.storeId,
+    product,
+    provider: provider ?? ctx.integrationType,
+  });
 }
 
 export async function mergeExternalDealToCatalog(

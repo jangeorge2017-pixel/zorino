@@ -115,7 +115,12 @@ export interface PriceHistoryPoint {
   productId: string;
   storeId?: string | null;
   price: number;
+  originalPrice?: number | null;
   currency: string;
+  countryCode?: string | null;
+  provider?: string | null;
+  changePercent?: number | null;
+  changeDirection?: "up" | "down" | "same" | "new" | null;
   recordedAt: string;
 }
 

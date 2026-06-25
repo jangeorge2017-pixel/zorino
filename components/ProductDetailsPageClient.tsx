@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import Link from "next/link";
@@ -25,9 +26,13 @@ type ProductDetailsPageClientProps = {
 
 export default function ProductDetailsPageClient({ detail }: ProductDetailsPageClientProps) {
   const t = useTranslations("product");
-  const { product, categoryName, comparison } = detail;
-  const { offers, lowestPrice, highestDiscount, providerCount, cheapestStoreName, savingsVsHighest } =
+  const { product, categoryName, comparison, images, specifications, variants, priceHistory } =
+    detail;
+  const { offers, lowestPrice, highestDiscount, providerCount, cheapestStoreName, savingsVsHighest, savingsPercent } =
     comparison;
+
+  const gallery = images.length > 0 ? images : [product.imageUrl];
+  const [activeImage, setActiveImage] = useState(gallery[0]);
 
   const cheapest = offers.find((o) => o.isLowest) ?? offers[0];
   const price = lowestPrice || cheapest?.price || 0;
@@ -89,7 +94,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
           <div>
             <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 mb-4 flex justify-center">
               <AssetImage
-                src={product.imageUrl}
+                src={activeImage}
                 alt={product.name}
                 width={240}
                 height={240}
@@ -97,6 +102,22 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                 fallback={<span className="text-9xl">{product.emoji ?? "🛍️"}</span>}
               />
             </div>
+            {gallery.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {gallery.map((url) => (
+                  <button
+                    key={url}
+                    type="button"
+                    onClick={() => setActiveImage(url)}
+                    className={`shrink-0 rounded-lg border p-1 ${
+                      activeImage === url ? "border-purple-500" : "border-gray-800"
+                    }`}
+                  >
+                    <AssetImage src={url} alt="" width={64} height={64} className="rounded" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
@@ -162,6 +183,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                 providerCount={providerCount}
                 cheapestStoreName={cheapestStoreName}
                 savingsVsHighest={savingsVsHighest}
+                savingsPercent={savingsPercent}
               />
             )}
           </div>
@@ -217,9 +239,97 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                   <span className="text-white font-medium">{value}</span>
                 </div>
               ))}
+              {Object.entries(specifications).map(([key, value]) => (
+                <div key={key} className="flex justify-between py-3 border-b border-gray-800">
+                  <span className="text-gray-400 capitalize">{key.replace(/_/g, " ")}</span>
+                  <span className="text-white font-medium">{value}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+
+        {variants.length > 0 && (
+          <section className="mb-12">
+            <Card>
+              <h2 className="text-2xl font-bold text-white mb-4">Available variants</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {variants.map((variant) => (
+                  <div
+                    key={variant.id}
+                    className="flex items-center justify-between p-4 rounded-xl border border-gray-800 bg-gray-900/40"
+                  >
+                    <div>
+                      <p className="text-white font-medium">{variant.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {Object.entries(variant.attributes)
+                          .map(([k, v]) => `${k}: ${v}`)
+                          .join(" · ")}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      {variant.price != null && (
+                        <p className="text-white font-semibold">
+                          ${Number(variant.price).toLocaleString("en-US")}
+                        </p>
+                      )}
+                      <p className={`text-xs ${variant.inStock ? "text-green-400" : "text-red-400"}`}>
+                        {variant.inStock ? "In stock" : "Out of stock"}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </section>
+        )}
+
+        {priceHistory.length > 1 && (
+          <section className="mb-12">
+            <Card>
+              <h2 className="text-2xl font-bold text-white mb-4">Price history</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-gray-400 border-b border-gray-800">
+                      <th className="text-left py-2">Date</th>
+                      <th className="text-right py-2">Price</th>
+                      <th className="text-right py-2">Change</th>
+                      <th className="text-left py-2">Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...priceHistory].reverse().slice(0, 10).map((point) => (
+                      <tr key={point.id} className="border-b border-gray-800/50">
+                        <td className="py-2 text-gray-300">
+                          {new Date(point.recordedAt).toLocaleDateString()}
+                        </td>
+                        <td className="py-2 text-right text-white">
+                          ${point.price.toLocaleString("en-US")} {point.currency}
+                        </td>
+                        <td className="py-2 text-right">
+                          {point.changeDirection === "down" && (
+                            <span className="text-green-400">↓ {point.changePercent}%</span>
+                          )}
+                          {point.changeDirection === "up" && (
+                            <span className="text-red-400">↑ {point.changePercent}%</span>
+                          )}
+                          {point.changeDirection === "new" && (
+                            <span className="text-gray-400">New</span>
+                          )}
+                          {point.changeDirection === "same" && (
+                            <span className="text-gray-500">—</span>
+                          )}
+                        </td>
+                        <td className="py-2 text-gray-400 capitalize">{point.provider ?? "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </section>
+        )}
 
         <Card className="flex items-center gap-4">
           <TrendingUp className="w-8 h-8 text-green-400" />
