@@ -21,17 +21,7 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
   };
 
   if (coupons.length === 0) {
-    return (
-      <section className="coupon-section">
-        <div className="section-header">
-          <h2 className="section-title">
-            <SectionFlameIcon size={24} />
-            Top Coupons
-          </h2>
-        </div>
-        <p className="text-gray-400 text-sm">No coupons available yet.</p>
-      </section>
-    );
+    return null;
   }
 
   return (

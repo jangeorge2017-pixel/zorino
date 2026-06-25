@@ -3,13 +3,16 @@ import { Package, Store, Tag, ShoppingBag } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import AdminLowestPricesPanel from "@/components/admin/AdminLowestPricesPanel";
+import AdminTrendingPanel from "@/components/admin/AdminTrendingPanel";
 import { getCatalogStats } from "@/services/stats";
 import { getLowestPriceRefreshStatus } from "@/services/lowest-prices";
+import { getTrendingRefreshStatus } from "@/services/trending";
 
 export default async function AdminOverviewPage() {
-  const [{ data: stats }, { data: lowestJob }] = await Promise.all([
+  const [{ data: stats }, { data: lowestJob }, { data: trendingJob }] = await Promise.all([
     getCatalogStats(),
     getLowestPriceRefreshStatus(),
+    getTrendingRefreshStatus(),
   ]);
 
   const cards = [
@@ -45,6 +48,12 @@ export default async function AdminOverviewPage() {
         lastRunAt={lowestJob?.last_run_at ?? null}
         itemsComputed={lowestJob?.items_computed ?? 0}
         lastStatus={lowestJob?.last_status ?? null}
+      />
+
+      <AdminTrendingPanel
+        lastRunAt={trendingJob?.last_run_at ?? null}
+        itemsRanked={trendingJob?.items_ranked ?? 0}
+        lastStatus={trendingJob?.last_status ?? null}
       />
 
       <Card>

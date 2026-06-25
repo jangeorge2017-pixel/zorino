@@ -248,3 +248,17 @@ export async function getProviderCountForProduct(productId: string): Promise<num
 
   return count ?? 0;
 }
+
+export async function getTrendingRefreshStatus() {
+  const supabase = createSupabaseAnonClient();
+  if (!supabase) return { data: null, error: "Supabase not configured" };
+
+  const { data, error } = await db(supabase)
+    .from("trending_refresh_jobs")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
+
+  if (error) return { data: null, error: error.message };
+  return { data, error: null };
+}

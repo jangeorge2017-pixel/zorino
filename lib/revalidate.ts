@@ -40,6 +40,12 @@ export function invalidateLowestPricesFromRoute() {
   revalidatePath("/ar");
 }
 
+/** Revalidate homepage trending after manual/cron refresh. */
+export function revalidateTrending() {
+  revalidatePath("/");
+  revalidatePath("/ar");
+}
+
 /** Revalidate all public catalog + admin pages after CRUD. */
 export function revalidateCatalog() {
   updateTag(CATALOG_TAG);

@@ -7,5 +7,7 @@ export default async function LowestPricesContainer() {
     getLowestPricesLastComputed(),
   ]);
 
+  if (items.length === 0) return null;
+
   return <LowestPricesSection items={items} lastComputedAt={lastComputedAt} />;
 }
