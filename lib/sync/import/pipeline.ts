@@ -64,6 +64,9 @@ export async function importProductsFromProvider(
       result.itemsFailed += 1;
     }
   }
+
+  const { refreshUniversalCatalogAggregates } = await import("@/services/marketplace-engine");
+  await refreshUniversalCatalogAggregates({ limit: 200 });
 }
 
 export async function importPricesFromProvider(
@@ -106,15 +109,12 @@ export async function importPricesFromProvider(
         externalRowId = external?.id ?? null;
       }
 
-      const { data: canonical } = await db(supabase)
-        .from("products")
-        .select("id")
-        .eq("slug", product.slug)
-        .maybeSingle();
-
-      const productId =
-        canonical?.id ??
-        (await mergeExternalProductToCatalog(supabase, ctx, product, externalRowId)).productId;
+      const { productId } = await mergeExternalProductToCatalog(
+        supabase,
+        ctx,
+        product,
+        externalRowId
+      );
 
       if (provider) {
         await upsertExternalPrice(supabase, provider, ctx.storeId, product, externalRowId, productId);
@@ -165,14 +165,8 @@ export async function importImagesFromProvider(
 
   for (const product of products) {
     try {
-      const { data: dbProduct } = await db(supabase)
-        .from("products")
-        .select("id")
-        .eq("slug", product.slug)
-        .maybeSingle();
-      if (!dbProduct?.id) continue;
-
-      await mergeExternalImagesToCatalog(supabase, product, dbProduct.id);
+      const { productId } = await mergeExternalProductToCatalog(supabase, ctx, product, null);
+      await mergeExternalImagesToCatalog(supabase, product, productId);
       result.itemsUpdated += 1;
     } catch {
       result.itemsFailed += 1;

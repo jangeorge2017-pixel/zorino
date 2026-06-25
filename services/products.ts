@@ -86,26 +86,23 @@ export async function searchProducts(
   limit = 20,
   options?: { importedOnly?: boolean }
 ): Promise<ServiceResult<Product[]>> {
+  if (options?.importedOnly !== false) {
+    const { searchCatalogProducts } = await import("@/lib/marketplace-engine/search");
+    const result = await searchCatalogProducts(query, limit);
+    return { data: result.data, error: result.error };
+  }
+
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
     return { data: [], error: "Supabase not configured" };
   }
 
-  let dbQuery = supabase
+  const { data, error } = await supabase
     .from("products")
     .select("*")
     .eq("is_active", true)
     .or(`name.ilike.%${query}%,name_ar.ilike.%${query}%,brand.ilike.%${query}%`)
     .limit(limit);
-
-  if (options?.importedOnly) {
-    dbQuery = dbQuery
-      .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
-      .not("last_synced_at", "is", null)
-      .not("image_url", "like", "/products/%");
-  }
-
-  const { data, error } = await dbQuery;
 
   if (error) return { data: [], error: error.message };
   return { data: (data ?? []).map(mapProduct), error: null };

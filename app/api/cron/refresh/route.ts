@@ -9,6 +9,7 @@ import {
 import { triggerPhase1Imports } from "@/services/sync";
 import { runAliExpressScheduledSync } from "@/services/aliexpress";
 import { runEbayScheduledSync } from "@/services/ebay";
+import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
 import { runNotificationAlerts } from "@/services/notifications/alerts";
 import { invalidateLowestPricesFromRoute, invalidateTrendingFromRoute } from "@/lib/revalidate";
 
@@ -72,6 +73,11 @@ export async function GET(request: Request) {
     results.importPhase1 = imported.error
       ? { error: imported.error, results: imported.data }
       : { providersRun: imported.data.length, results: imported.data };
+
+    const catalog = await refreshUniversalCatalogAggregates({ limit: 500 });
+    results.universalCatalog = catalog.error
+      ? { error: catalog.error }
+      : { refreshed: catalog.refreshed };
   } else {
     results.aliexpress = { skipped: true };
     results.ebay = { skipped: true };

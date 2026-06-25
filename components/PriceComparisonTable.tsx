@@ -123,6 +123,7 @@ type ComparePriceSummaryProps = {
   providerCount: number;
   cheapestStoreName: string;
   savingsVsHighest: number;
+  savingsPercent?: number;
 };
 
 export function ComparePriceSummary({
@@ -131,6 +132,7 @@ export function ComparePriceSummary({
   providerCount,
   cheapestStoreName,
   savingsVsHighest,
+  savingsPercent,
 }: ComparePriceSummaryProps) {
   return (
     <div className="compare-price-summary">
@@ -151,7 +153,9 @@ export function ComparePriceSummary({
         <div className="compare-price-stat">
           <span className="compare-price-stat-label">You save up to</span>
           <span className="compare-price-stat-value">${savingsVsHighest.toLocaleString("en-US")}</span>
-          <span className="compare-price-stat-meta">vs highest offer</span>
+          <span className="compare-price-stat-meta">
+            {savingsPercent ? `${savingsPercent}% vs highest offer` : "vs highest offer"}
+          </span>
         </div>
       )}
     </div>

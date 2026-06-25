@@ -1,4 +1,5 @@
-import { mapPrice, mapProduct, mapStore } from "@/lib/database/mappers";
+import { computeSavingsPercent } from "@/lib/marketplace-engine/utils";
+import { mapProduct } from "@/lib/database/mappers";
 import type { PriceRow, ProductRow, StoreRow } from "@/lib/database/types";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import {
@@ -22,6 +23,7 @@ export type CompareProductResult = {
   highestPrice: number;
   highestDiscount: number;
   savingsVsHighest: number;
+  savingsPercent: number;
   providerCount: number;
   cheapestStoreName: string;
   highestDiscountStoreName: string;
@@ -79,6 +81,7 @@ export async function compareImportedProductPrices(
         highestPrice: 0,
         highestDiscount: 0,
         savingsVsHighest: 0,
+        savingsPercent: 0,
         providerCount: 0,
         cheapestStoreName: "",
         highestDiscountStoreName: "",
@@ -110,6 +113,7 @@ export async function compareImportedProductPrices(
       highestPrice: highest,
       highestDiscount: maxDiscount,
       savingsVsHighest: Math.max(0, highest - lowest),
+      savingsPercent: computeSavingsPercent(lowest, highest),
       providerCount: new Set(sorted.map((o) => o.storeId)).size,
       cheapestStoreName: sorted[0].store?.name ?? "Store",
       highestDiscountStoreName: highestDiscountOffer.store?.name ?? "Store",

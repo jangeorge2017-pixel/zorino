@@ -123,12 +123,24 @@ export function mapPrice(row: PriceRow, store?: Store): Price {
 }
 
 export function mapPriceHistory(row: PriceHistoryRow): PriceHistoryPoint {
+  const extended = row as PriceHistoryRow & {
+    original_price?: number | null;
+    country_code?: string | null;
+    provider?: string | null;
+    change_percent?: number | null;
+    change_direction?: "up" | "down" | "same" | "new" | null;
+  };
   return {
     id: row.id,
     productId: row.product_id,
     storeId: row.store_id,
     price: Number(row.price),
+    originalPrice: extended.original_price != null ? Number(extended.original_price) : null,
     currency: row.currency,
+    countryCode: extended.country_code ?? null,
+    provider: extended.provider ?? null,
+    changePercent: extended.change_percent != null ? Number(extended.change_percent) : null,
+    changeDirection: extended.change_direction ?? null,
     recordedAt: row.recorded_at,
   };
 }
