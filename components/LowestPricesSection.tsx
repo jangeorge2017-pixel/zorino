@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { DollarSign, ExternalLink, Sparkles, TrendingDown } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
+import { ComparePricesButton } from "@/components/PriceComparisonTable";
 import { LOWEST_PRICE_SORT_OPTIONS } from "@/lib/lowest-prices/config";
 import { trackProductInteraction } from "@/lib/trending/track-client";
 import type { LowestPriceSort, LowestPriceTodayItem } from "@/lib/types/entities";
@@ -150,9 +151,7 @@ function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
       </div>
 
       <div className="lowest-price-actions">
-        <Link href={`/product/${item.productId}`} className="lowest-price-details" onClick={handleShopClick}>
-          Details
-        </Link>
+        <ComparePricesButton productId={item.productId} className="lowest-price-details" />
         <a
           href={shopUrl}
           target="_blank"

@@ -2,7 +2,13 @@
  * Provider adapter credential and capability metadata.
  */
 
-export type ImportProviderId = "amazon" | "aliexpress" | "cjdropshipping" | "ebay";
+export type ImportProviderId =
+  | "amazon"
+  | "aliexpress"
+  | "cjdropshipping"
+  | "ebay"
+  | "temu"
+  | "walmart";
 
 export interface ProviderCredentials {
   envKeys: string[];

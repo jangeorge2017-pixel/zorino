@@ -15,6 +15,8 @@ const integrationOptions = [
   { value: "custom", label: "Custom" },
   { value: "amazon", label: "Amazon" },
   { value: "aliexpress", label: "AliExpress" },
+  { value: "ebay", label: "eBay" },
+  { value: "temu", label: "Temu" },
   { value: "shopify", label: "Shopify" },
   { value: "noon", label: "Noon" },
   { value: "walmart", label: "Walmart" },

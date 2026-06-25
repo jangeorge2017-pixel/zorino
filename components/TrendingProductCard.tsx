@@ -150,7 +150,7 @@ export default function TrendingProductCardView({
       </div>
 
       <Link
-        href={`/product/${product.productId ?? product.id}`}
+        href={`/product/${product.productId ?? product.id}#compare-prices`}
         className="deal-compare-btn trending-card-cta"
         onClick={handleClick}
       >

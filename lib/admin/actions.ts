@@ -339,3 +339,20 @@ export async function adminRefreshTrending() {
     error: result.error ?? null,
   };
 }
+
+export async function adminRefreshPrices() {
+  await assertAdmin();
+  const { executeScheduledSync } = await import("@/services/sync");
+  const { executeLowestPriceRefresh } = await import("@/services/lowest-prices");
+  const [syncResult, lowestResult] = await Promise.all([
+    executeScheduledSync(),
+    executeLowestPriceRefresh({ force: true, triggeredBy: "admin" }),
+  ]);
+  revalidateLowestPrices();
+  revalidateCatalog();
+  return {
+    storesSynced: syncResult.data?.length ?? 0,
+    lowestPricesComputed: lowestResult.itemsComputed ?? 0,
+    error: syncResult.error ?? ("error" in lowestResult ? lowestResult.error : null) ?? null,
+  };
+}
