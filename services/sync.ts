@@ -2,6 +2,7 @@ import { runDueSyncJobs, getDueSyncJobs } from "@/lib/sync/scheduler";
 import { runSyncJob } from "@/lib/sync/engine";
 import { deactivatePlaceholderProducts } from "@/lib/sync/import/cleanup";
 import { isAliExpressConfigured } from "@/lib/integrations/aliexpress";
+import { isEbayConfigured } from "@/lib/integrations/ebay";
 import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
 import type { ServiceResult } from "@/lib/types/entities";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -91,6 +92,9 @@ export async function triggerPhase1Imports(): Promise<ServiceResult<SyncRunResul
   type ImportStore = { id: string; slug: string; integration_type: string };
   for (const store of (stores ?? []) as ImportStore[]) {
     if (store.integration_type === "aliexpress" && !isAliExpressConfigured()) {
+      continue;
+    }
+    if (store.integration_type === "ebay" && !isEbayConfigured()) {
       continue;
     }
     const { data: result, error: syncError } = await triggerStoreSync({

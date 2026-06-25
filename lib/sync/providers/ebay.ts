@@ -1,4 +1,8 @@
-import { EbayClient } from "@/lib/sync/providers/ebay/client";
+import {
+  EbayAffiliateClient,
+  getEbayCredentials,
+  isEbayConfigured,
+} from "@/lib/integrations/ebay";
 import { mapEbayProduct } from "@/lib/sync/providers/ebay/mapper";
 import { resolveImportConfig } from "@/lib/sync/providers/shared/import-config";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
@@ -12,7 +16,7 @@ import {
 const CREDENTIAL_KEYS = ["EBAY_APP_ID", "EBAY_CERT_ID"] as const;
 
 /**
- * eBay Browse API — item summary search.
+ * eBay Browse API — affiliate-aware item search.
  * @see https://developer.ebay.com/api-docs/buy/static/api-browse.html
  */
 export class EbayProvider extends BaseConnector {
@@ -25,9 +29,14 @@ export class EbayProvider extends BaseConnector {
     apiDocs: "https://developer.ebay.com/api-docs/buy/static/api-browse.html",
   };
 
+  private client(): EbayAffiliateClient {
+    const creds = getEbayCredentials();
+    if (!creds) throw this.notConfiguredError();
+    return new EbayAffiliateClient(creds.campaignId);
+  }
+
   isConfigured(): boolean {
-    if (process.env.EBAY_OAUTH_TOKEN?.trim()) return true;
-    return checkProviderCredentials([...CREDENTIAL_KEYS]).configured;
+    return isEbayConfigured();
   }
 
   getCredentials() {
@@ -39,7 +48,7 @@ export class EbayProvider extends BaseConnector {
       throw this.notConfiguredError();
     }
 
-    const client = new EbayClient();
+    const client = this.client();
     const config = resolveImportConfig("ebay", ctx.jobConfig as Record<string, unknown>);
     const rawItems = await client.searchProducts(config, ctx.countryCode);
 
@@ -63,7 +72,7 @@ export class EbayProvider extends BaseConnector {
   > {
     if (!this.isConfigured() || externalIds.length === 0) return [];
 
-    const client = new EbayClient();
+    const client = this.client();
     const rawItems = await client.getItemsByIds(externalIds, ctx.countryCode);
 
     return rawItems

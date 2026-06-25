@@ -12,7 +12,7 @@ export type ProviderIntegrationStatus = {
   optionalCredentials: string[];
   externalProductCount: number;
   lastSyncAt: string | null;
-  mode: "live" | "mock";
+  mode: "live" | "mock" | "idle";
 };
 
 export type ImportIntegrationReport = {
@@ -42,6 +42,8 @@ const PHASE1_META: Record<
   temu: { name: "Temu", phase: "placeholder" },
   walmart: { name: "Walmart", phase: "placeholder" },
 };
+
+const LIVE_ONLY_PROVIDERS = new Set<ImportProviderId>(["aliexpress", "ebay"]);
 
 const PHASE1_PROVIDERS: ImportProviderId[] = ["aliexpress", "ebay", "cjdropshipping"];
 
@@ -94,7 +96,7 @@ export async function buildImportIntegrationReport(): Promise<ImportIntegrationR
       optionalCredentials: optional.filter((k) => !process.env[k]?.trim()),
       externalProductCount,
       lastSyncAt,
-      mode: configured ? "live" : "mock",
+      mode: configured ? "live" : LIVE_ONLY_PROVIDERS.has(id) ? "idle" : "mock",
     });
   }
 
