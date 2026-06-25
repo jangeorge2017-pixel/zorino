@@ -6,5 +6,6 @@ export {
   getProductTrendingBadge,
   getProductBadgesMap,
   getProviderCountForProduct,
+  getTrendingRefreshStatus,
 } from "./queries";
 export { getRankingLabel, ALL_RANKING_TYPES } from "@/lib/trending/labels";

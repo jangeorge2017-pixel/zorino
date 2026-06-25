@@ -124,6 +124,10 @@ export default async function ProductCard() {
     badge: badges.get(String(deal.productId ?? deal.id)) ?? deal.badge ?? null,
   }));
 
+  if (deals.length === 0) {
+    return null;
+  }
+
   return (
     <section className="trending-section">
       <div className="section-header">
@@ -137,15 +141,11 @@ export default async function ProductCard() {
         </Link>
       </div>
 
-      {deals.length === 0 ? (
-        <p className="text-gray-400 text-sm">No deals or products available yet.</p>
-      ) : (
-        <div className="deals-grid">
-          {dealsWithBadges.map((deal) => (
-            <DealCard key={deal.id} deal={deal} />
-          ))}
-        </div>
-      )}
+      <div className="deals-grid">
+        {dealsWithBadges.map((deal) => (
+          <DealCard key={deal.id} deal={deal} />
+        ))}
+      </div>
     </section>
   );
 }

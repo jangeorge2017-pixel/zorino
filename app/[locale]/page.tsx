@@ -4,8 +4,7 @@ import SearchBarContainer from "@/components/SearchBarContainer";
 import CategoryGridContainer from "@/components/CategoryGridContainer";
 import LowestPricesContainer from "@/components/LowestPricesContainer";
 import TrendingProductsContainer from "@/components/TrendingProductsContainer";
-import ProductCard from "@/components/productcard";
-import CouponSectionContainer from "@/components/CouponSectionContainer";
+import HomeDealsCouponsRow from "@/components/HomeDealsCouponsRow";
 import FeaturesSection from "@/components/FeaturesSection";
 import FooterStatsContainer from "@/components/FooterStatsContainer";
 
@@ -23,10 +22,7 @@ export default function Home() {
         <CategoryGridContainer />
         <LowestPricesContainer />
         <TrendingProductsContainer />
-        <div className="deals-coupons-row">
-          <ProductCard />
-          <CouponSectionContainer />
-        </div>
+        <HomeDealsCouponsRow />
         <FeaturesSection />
         <FooterStatsContainer />
       </div>

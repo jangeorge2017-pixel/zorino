@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidateCatalog, revalidateLowestPrices } from "@/lib/revalidate";
+import { revalidateCatalog, revalidateLowestPrices, revalidateTrending } from "@/lib/revalidate";
 import { deleteRows, insertRow, updateRow } from "@/lib/database/writes";
 import { getAdminSupabaseClient, getAdminUser } from "@/lib/admin/auth";
 import { slugify } from "@/lib/admin/slug";
@@ -326,5 +326,16 @@ export async function adminRefreshLowestPrices() {
     itemsComputed: result.itemsComputed ?? 0,
     skipped: "skipped" in result ? result.skipped : false,
     error: "error" in result ? (result.error ?? null) : null,
+  };
+}
+
+export async function adminRefreshTrending() {
+  await assertAdmin();
+  const { executeTrendingRefresh } = await import("@/services/trending");
+  const result = await executeTrendingRefresh();
+  revalidateTrending();
+  return {
+    itemsRanked: result.ranked ?? 0,
+    error: result.error ?? null,
   };
 }
