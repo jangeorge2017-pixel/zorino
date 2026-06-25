@@ -24,7 +24,8 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const force = url.searchParams.get("force") === "true";
+  const force =
+    url.searchParams.get("force") === "true" || request.headers.get("x-vercel-cron") === "1";
   const hourUtc = new Date().getUTCHours();
   const results: Record<string, unknown> = {};
 
