@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCronSecret } from "@/lib/sync/config";
+import { executeScheduledSync } from "@/services/sync";
 import { executeTrendingRefresh, isTrendingRefreshDue } from "@/services/trending";
 import {
   executeLowestPriceRefresh,
@@ -28,6 +29,11 @@ export async function GET(request: Request) {
     url.searchParams.get("force") === "true" || request.headers.get("x-vercel-cron") === "1";
   const hourUtc = new Date().getUTCHours();
   const results: Record<string, unknown> = {};
+
+  const sync = await executeScheduledSync();
+  results.sync = sync.error
+    ? { error: sync.error, results: sync.data }
+    : { jobsRun: sync.data.length, results: sync.data };
 
   if (force || (await isTrendingRefreshDue())) {
     const trending = await executeTrendingRefresh();
