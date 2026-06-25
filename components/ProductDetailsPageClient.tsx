@@ -16,6 +16,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import type { ProductDetail } from "@/lib/data/product-detail";
+import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { trackProductInteraction } from "@/lib/trending/track-client";
 
 type ProductDetailsPageClientProps = {
@@ -183,7 +184,13 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
             )}
             {cheapest?.externalUrl && (
               <Link
-                href={cheapest.externalUrl}
+                href={buildAffiliateRedirectPath({
+                  productId: product.id,
+                  storeSlug: cheapest.store?.slug ?? cheapest.provider ?? "store",
+                  destinationUrl: cheapest.externalUrl,
+                  source: "product_detail_cheapest",
+                  countryCode: product.countryCode ?? "US",
+                })}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackClick("product_detail_cheapest")}

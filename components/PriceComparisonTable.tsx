@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ExternalLink, Tag, TrendingDown, Trophy } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
+import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import type { CompareOffer } from "@/services/compare";
 
 type PriceComparisonTableProps = {
@@ -33,7 +34,14 @@ export default function PriceComparisonTable({
         <tbody>
           {offers.map((offer) => {
             const storeName = offer.store?.name ?? "Store";
-            const shopUrl = offer.externalUrl ?? offer.store?.website ?? `/product/${productId}`;
+            const storeSlug = offer.store?.slug ?? offer.provider ?? "store";
+            const destination = offer.externalUrl ?? offer.store?.website ?? `/product/${productId}`;
+            const shopUrl = buildAffiliateRedirectPath({
+              productId,
+              storeSlug,
+              destinationUrl: destination,
+              source: "compare_table",
+            });
             return (
               <tr
                 key={offer.id}

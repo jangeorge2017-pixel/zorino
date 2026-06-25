@@ -356,3 +356,18 @@ export async function adminRefreshPrices() {
     error: syncResult.error ?? ("error" in lowestResult ? lowestResult.error : null) ?? null,
   };
 }
+
+export async function adminSaveAffiliateSettings(
+  settings: Array<{
+    marketplace: import("@/lib/affiliate/config").AffiliateMarketplace;
+    partnerTag?: string | null;
+    commissionRate?: number;
+    isEnabled?: boolean;
+  }>
+) {
+  await assertAdmin();
+  const { updateAffiliateSettings } = await import("@/services/affiliate");
+  const result = await updateAffiliateSettings(settings);
+  revalidateAdmin();
+  return { ok: result.ok, error: result.error ?? null };
+}
