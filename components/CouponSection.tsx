@@ -2,20 +2,37 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Copy, Check, CheckCircle, ChevronRight } from "lucide-react";
-import { topCoupons } from "@/data/home";
 import AssetImage from "@/components/AssetImage";
 import SectionFlameIcon from "@/components/SectionFlameIcon";
+import type { TopCouponCard } from "@/lib/types/entities";
 
-export default function CouponSection() {
-  const [copiedId, setCopiedId] = useState<number | null>(null);
+type CouponSectionProps = {
+  coupons: TopCouponCard[];
+};
 
-  const handleCopy = (id: number, code: string) => {
+export default function CouponSection({ coupons }: CouponSectionProps) {
+  const [copiedId, setCopiedId] = useState<number | string | null>(null);
+
+  const handleCopy = (id: number | string, code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
+
+  if (coupons.length === 0) {
+    return (
+      <section className="coupon-section">
+        <div className="section-header">
+          <h2 className="section-title">
+            <SectionFlameIcon size={24} />
+            Top Coupons
+          </h2>
+        </div>
+        <p className="text-gray-400 text-sm">No coupons available yet.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="coupon-section">
@@ -31,7 +48,7 @@ export default function CouponSection() {
       </div>
 
       <div className="coupons-list">
-        {topCoupons.map((coupon) => (
+        {coupons.map((coupon) => (
           <article key={coupon.id} className="coupon-card">
             <div className="coupon-store-logo">
               <AssetImage
@@ -59,11 +76,7 @@ export default function CouponSection() {
                   onClick={() => handleCopy(coupon.id, coupon.code)}
                   aria-label={`Copy ${coupon.code}`}
                 >
-                  {copiedId === coupon.id ? (
-                    <Check size={16} />
-                  ) : (
-                    <Copy size={16} />
-                  )}
+                  {copiedId === coupon.id ? <Check size={16} /> : <Copy size={16} />}
                 </button>
               </div>
               <div className="coupon-meta">

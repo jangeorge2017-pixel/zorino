@@ -229,3 +229,30 @@ export interface PaginatedResponse<T> {
   pageSize: number;
   totalPages: number;
 }
+
+/** Supabase-backed entity types — prefer for new backend code */
+export type {
+  CatalogStats,
+  Country,
+  Currency,
+  Favorite,
+  FloatingProductCard,
+  FooterStatItem,
+  HeroStatItem,
+  HomepageCategoryItem,
+  Price,
+  PriceHistoryPoint,
+  ServiceResult,
+  StoreIntegrationType,
+  TopCouponCard,
+  TrendingDealCard,
+} from "./entities";
+
+export type {
+  User as DbUser,
+  Product as DbProduct,
+  Store as DbStore,
+  Deal as DbDeal,
+  Coupon as DbCoupon,
+  Notification as DbNotification,
+} from "./entities";
