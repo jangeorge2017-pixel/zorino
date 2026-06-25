@@ -3,6 +3,7 @@ import { Star, TrendingDown, ChevronRight } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
 import SectionFlameIcon from "@/components/SectionFlameIcon";
 import TrendingBadgePill from "@/components/TrendingBadge";
+import { ComparePricesButton } from "@/components/PriceComparisonTable";
 import { getTrendingDeals } from "@/lib/data/homepage";
 import { getProductBadgesMap } from "@/services/trending/queries";
 import type { TrendingDealCard } from "@/lib/types/entities";
@@ -108,9 +109,7 @@ function DealCard({ deal }: { deal: TrendingDealCard }) {
         <PriceSparkline data={deal.priceHistory} id={deal.id} />
       </div>
 
-      <button type="button" className="deal-compare-btn">
-        Compare Prices
-      </button>
+      <ComparePricesButton productId={String(deal.productId ?? deal.id)} />
     </article>
   );
 }

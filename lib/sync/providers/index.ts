@@ -4,6 +4,8 @@ import { createAmazonProvider } from "@/lib/sync/providers/amazon";
 import { createAliExpressProvider } from "@/lib/sync/providers/aliexpress";
 import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshipping";
 import { createEbayProvider } from "@/lib/sync/providers/ebay";
+import { createTemuProvider } from "@/lib/sync/providers/temu";
+import { createWalmartProvider } from "@/lib/sync/providers/walmart";
 import { MockConnector } from "@/lib/sync/connectors/mock";
 
 const mockConnector = new MockConnector();
@@ -13,6 +15,8 @@ const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   aliexpress: createAliExpressProvider(),
   cjdropshipping: createCJdropshippingProvider(),
   ebay: createEbayProvider(),
+  temu: createTemuProvider(),
+  walmart: createWalmartProvider(),
 };
 
 /** Resolve a provider adapter by ID. Unconfigured providers fall back to mock in dev sync. */
@@ -36,4 +40,6 @@ export {
   createAliExpressProvider,
   createCJdropshippingProvider,
   createEbayProvider,
+  createTemuProvider,
+  createWalmartProvider,
 };

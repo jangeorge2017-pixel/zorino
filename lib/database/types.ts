@@ -11,6 +11,7 @@ export type StoreIntegrationType =
   | "aliexpress"
   | "cjdropshipping"
   | "ebay"
+  | "temu"
   | "shopify"
   | "noon"
   | "walmart"

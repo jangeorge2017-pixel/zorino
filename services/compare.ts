@@ -11,6 +11,8 @@ import type { Price, Product, ServiceResult } from "@/lib/types/entities";
 export type CompareOffer = Price & {
   provider?: string;
   isLowest?: boolean;
+  isHighestDiscount?: boolean;
+  discountPercent: number;
 };
 
 export type CompareProductResult = {
@@ -18,11 +20,12 @@ export type CompareProductResult = {
   offers: CompareOffer[];
   lowestPrice: number;
   highestPrice: number;
+  highestDiscount: number;
   savingsVsHighest: number;
   providerCount: number;
+  cheapestStoreName: string;
+  highestDiscountStoreName: string;
 };
-
-type PriceWithStore = PriceRow & { stores: StoreRow | null };
 
 type ExternalPriceRow = {
   provider: string;
@@ -54,10 +57,18 @@ export async function compareImportedProductPrices(
     (externalResult.data ?? []).map((row) => [row.store_id, row.provider])
   );
 
-  const offers: CompareOffer[] = pricesResult.data.map((price) => ({
-    ...price,
-    provider: price.storeId ? providerByStore.get(price.storeId) : undefined,
-  }));
+  const offers: CompareOffer[] = pricesResult.data.map((price) => {
+    const original = price.originalPrice ?? price.price;
+    const discountPercent =
+      original > price.price
+        ? Math.round(((original - price.price) / original) * 10000) / 100
+        : 0;
+    return {
+      ...price,
+      provider: price.storeId ? providerByStore.get(price.storeId) : price.store?.integrationType,
+      discountPercent,
+    };
+  });
 
   if (offers.length === 0) {
     return {
@@ -66,8 +77,11 @@ export async function compareImportedProductPrices(
         offers: [],
         lowestPrice: 0,
         highestPrice: 0,
+        highestDiscount: 0,
         savingsVsHighest: 0,
         providerCount: 0,
+        cheapestStoreName: "",
+        highestDiscountStoreName: "",
       },
       error: null,
     };
@@ -76,8 +90,17 @@ export async function compareImportedProductPrices(
   const sorted = [...offers].sort((a, b) => a.price - b.price);
   const lowest = sorted[0].price;
   const highest = sorted[sorted.length - 1].price;
+  const maxDiscount = Math.max(...sorted.map((o) => o.discountPercent));
+  const highestDiscountOffer = sorted.reduce((best, o) =>
+    o.discountPercent > best.discountPercent ? o : best
+  );
 
   sorted[0].isLowest = true;
+  for (const offer of sorted) {
+    if (offer.discountPercent === maxDiscount && maxDiscount > 0) {
+      offer.isHighestDiscount = true;
+    }
+  }
 
   return {
     data: {
@@ -85,8 +108,11 @@ export async function compareImportedProductPrices(
       offers: sorted,
       lowestPrice: lowest,
       highestPrice: highest,
+      highestDiscount: maxDiscount,
       savingsVsHighest: Math.max(0, highest - lowest),
       providerCount: new Set(sorted.map((o) => o.storeId)).size,
+      cheapestStoreName: sorted[0].store?.name ?? "Store",
+      highestDiscountStoreName: highestDiscountOffer.store?.name ?? "Store",
     },
     error: null,
   };

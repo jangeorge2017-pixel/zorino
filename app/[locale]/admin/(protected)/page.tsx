@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Package, Store, Tag, ShoppingBag } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import AdminPriceSyncPanel from "@/components/admin/AdminPriceSyncPanel";
 import AdminLowestPricesPanel from "@/components/admin/AdminLowestPricesPanel";
 import AdminTrendingPanel from "@/components/admin/AdminTrendingPanel";
 import { getCatalogStats } from "@/services/stats";
@@ -43,6 +44,11 @@ export default async function AdminOverviewPage() {
           </Card>
         ))}
       </div>
+
+      <AdminPriceSyncPanel
+        lastRunAt={lowestJob?.last_run_at ?? null}
+        lastStatus={lowestJob?.last_status ?? null}
+      />
 
       <AdminLowestPricesPanel
         lastRunAt={lowestJob?.last_run_at ?? null}
