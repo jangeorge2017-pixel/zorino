@@ -28,6 +28,7 @@
     "trending:verify": "node scripts/verify-trending.mjs",
     "lowest-prices:refresh": "node scripts/run-lowest-prices-refresh.mjs",
     "lowest-prices:verify": "node scripts/verify-lowest-prices.mjs",
+    "marketplace:verify": "node scripts/verify-marketplace-engine.mjs",
     "affiliate:verify": "node scripts/verify-affiliate.mjs",
     "admin:create": "node scripts/create-admin.mjs",
     "assets:generate": "node scripts/generate-missing-assets.mjs",
