@@ -1,4 +1,5 @@
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
+import { IMPORTED_PRODUCT_SYNC_STATUS } from "@/lib/catalog/imported-products";
 import type { CatalogStats, ServiceResult } from "@/lib/types/entities";
 
 async function countTable(
@@ -18,6 +19,21 @@ async function countTable(
   return count ?? 0;
 }
 
+async function countImportedProducts(
+  supabase: NonNullable<ReturnType<typeof createSupabaseAnonClient>>
+): Promise<number> {
+  const { count, error } = await supabase
+    .from("products")
+    .select("*", { count: "exact", head: true })
+    .eq("is_active", true)
+    .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
+    .not("last_synced_at", "is", null)
+    .not("image_url", "like", "/products/%");
+
+  if (error) return 0;
+  return count ?? 0;
+}
+
 export async function getCatalogStats(): Promise<ServiceResult<CatalogStats>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
@@ -29,7 +45,7 @@ export async function getCatalogStats(): Promise<ServiceResult<CatalogStats>> {
 
   const [stores, products, coupons, deals, users] = await Promise.all([
     countTable("stores", { column: "is_active", value: true }),
-    countTable("products", { column: "is_active", value: true }),
+    countImportedProducts(supabase),
     countTable("coupons", { column: "is_active", value: true }),
     countTable("deals", { column: "is_active", value: true }),
     countTable("profiles"),
