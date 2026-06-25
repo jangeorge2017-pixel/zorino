@@ -12,6 +12,7 @@ import {
   LogOut,
   Menu,
   X,
+  Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { adminSignOut } from "@/lib/admin/actions";
@@ -20,8 +21,9 @@ const navItems = [
   { href: "/admin", icon: BarChart3, label: "Overview", exact: true },
   { href: "/admin/products", icon: Package, label: "Products" },
   { href: "/admin/stores", icon: Store, label: "Stores" },
-  { href: "/admin/coupons", icon: Tag, label: "Coupons" },
   { href: "/admin/deals", icon: ShoppingBag, label: "Deals" },
+  { href: "/admin/coupons", icon: Tag, label: "Coupons" },
+  { href: "/admin/affiliate", icon: Link2, label: "Affiliate" },
 ];
 
 type AdminShellProps = {

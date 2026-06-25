@@ -6,6 +6,7 @@ import { DollarSign, ExternalLink, Sparkles, TrendingDown } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
 import { ComparePricesButton } from "@/components/PriceComparisonTable";
 import { LOWEST_PRICE_SORT_OPTIONS } from "@/lib/lowest-prices/config";
+import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { trackProductInteraction } from "@/lib/trending/track-client";
 import type { LowestPriceSort, LowestPriceTodayItem } from "@/lib/types/entities";
 
@@ -81,7 +82,17 @@ export default function LowestPricesSection({ items, lastComputedAt }: LowestPri
 }
 
 function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
-  const shopUrl = item.affiliateUrl || item.externalUrl || `/product/${item.productId}`;
+  const rawDestination = item.externalUrl || item.affiliateUrl || "";
+  const destination = rawDestination.startsWith("http")
+    ? rawDestination
+    : `https://${item.provider}.com`;
+  const shopUrl = buildAffiliateRedirectPath({
+    productId: item.productId,
+    storeSlug: item.provider,
+    destinationUrl: destination,
+    source: "lowest_prices_section",
+    countryCode: item.countryCode,
+  });
   const tracked = useRef(false);
 
   useEffect(() => {
