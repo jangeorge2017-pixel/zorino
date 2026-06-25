@@ -1,3 +1,6 @@
+import { EbayClient } from "@/lib/sync/providers/ebay/client";
+import { mapEbayProduct } from "@/lib/sync/providers/ebay/mapper";
+import { resolveImportConfig } from "@/lib/sync/providers/shared/import-config";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
 import { BaseConnector } from "@/lib/sync/connectors/base";
 import {
@@ -9,9 +12,8 @@ import {
 const CREDENTIAL_KEYS = ["EBAY_APP_ID", "EBAY_CERT_ID"] as const;
 
 /**
- * eBay Browse / Finding API adapter.
- * Placeholder until EBAY_APP_ID + EBAY_CERT_ID are configured.
- * Target API: GET /buy/browse/v1/item_summary/search
+ * eBay Browse API — item summary search.
+ * @see https://developer.ebay.com/api-docs/buy/static/api-browse.html
  */
 export class EbayProvider extends BaseConnector {
   id = "ebay" as const;
@@ -19,11 +21,12 @@ export class EbayProvider extends BaseConnector {
   readonly meta: ProviderAdapterMeta = {
     id: "ebay",
     name: "eBay",
-    phase: "placeholder",
+    phase: "live",
     apiDocs: "https://developer.ebay.com/api-docs/buy/static/api-browse.html",
   };
 
   isConfigured(): boolean {
+    if (process.env.EBAY_OAUTH_TOKEN?.trim()) return true;
     return checkProviderCredentials([...CREDENTIAL_KEYS]).configured;
   }
 
@@ -35,22 +38,50 @@ export class EbayProvider extends BaseConnector {
     if (!this.isConfigured()) {
       throw this.notConfiguredError();
     }
-    await this.logPlaceholderFetch("fetchProducts", ctx);
-    return [];
+
+    const client = new EbayClient();
+    const config = resolveImportConfig("ebay", ctx.jobConfig as Record<string, unknown>);
+    const rawItems = await client.searchProducts(config, ctx.countryCode);
+
+    const products: ExternalProduct[] = [];
+    for (const raw of rawItems) {
+      const mapped = mapEbayProduct(ctx, raw, config.categorySlug);
+      if (mapped) products.push(mapped);
+    }
+    return products;
   }
 
   async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {
-    if (!this.isConfigured()) return [];
     return [];
   }
 
-  private async logPlaceholderFetch(method: string, ctx: SyncContext) {
-    if (process.env.NODE_ENV !== "production") {
-      console.info(
-        `[EbayProvider] ${method} placeholder — credentials set, API integration pending`,
-        { store: ctx.storeSlug }
-      );
-    }
+  async fetchPrices(
+    ctx: SyncContext,
+    externalIds: string[]
+  ): Promise<
+    Pick<ExternalProduct, "externalId" | "price" | "originalPrice" | "currency" | "inStock">[]
+  > {
+    if (!this.isConfigured() || externalIds.length === 0) return [];
+
+    const client = new EbayClient();
+    const rawItems = await client.getItemsByIds(externalIds, ctx.countryCode);
+
+    return rawItems
+      .map((raw) => {
+        const mapped = mapEbayProduct(ctx, raw);
+        if (!mapped) return null;
+        return {
+          externalId: mapped.externalId,
+          price: mapped.price,
+          originalPrice: mapped.originalPrice,
+          currency: mapped.currency,
+          inStock: mapped.inStock,
+        };
+      })
+      .filter(Boolean) as Pick<
+      ExternalProduct,
+      "externalId" | "price" | "originalPrice" | "currency" | "inStock"
+    >[];
   }
 }
 

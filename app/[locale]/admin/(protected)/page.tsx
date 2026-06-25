@@ -3,18 +3,22 @@ import { Package, Store, Tag, ShoppingBag } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import AdminPriceSyncPanel from "@/components/admin/AdminPriceSyncPanel";
+import AdminImportPanel from "@/components/admin/AdminImportPanel";
 import AdminLowestPricesPanel from "@/components/admin/AdminLowestPricesPanel";
 import AdminTrendingPanel from "@/components/admin/AdminTrendingPanel";
 import { getCatalogStats } from "@/services/stats";
 import { getLowestPriceRefreshStatus } from "@/services/lowest-prices";
 import { getTrendingRefreshStatus } from "@/services/trending";
+import { buildImportIntegrationReport } from "@/lib/sync/providers/integration-report";
 
 export default async function AdminOverviewPage() {
-  const [{ data: stats }, { data: lowestJob }, { data: trendingJob }] = await Promise.all([
-    getCatalogStats(),
-    getLowestPriceRefreshStatus(),
-    getTrendingRefreshStatus(),
-  ]);
+  const [{ data: stats }, { data: lowestJob }, { data: trendingJob }, importReport] =
+    await Promise.all([
+      getCatalogStats(),
+      getLowestPriceRefreshStatus(),
+      getTrendingRefreshStatus(),
+      buildImportIntegrationReport(),
+    ]);
 
   const cards = [
     { label: "Stores", value: stats.stores, icon: Store, href: "/admin/stores" },
@@ -44,6 +48,19 @@ export default async function AdminOverviewPage() {
           </Card>
         ))}
       </div>
+
+      <AdminImportPanel
+        providers={importReport.providers.map((p) => ({
+          id: p.id,
+          name: p.name,
+          configured: p.configured,
+          mode: p.mode,
+          externalProductCount: p.externalProductCount,
+          lastSyncAt: p.lastSyncAt,
+          missingCredentials: p.missingCredentials,
+        }))}
+        totals={importReport.totals}
+      />
 
       <AdminPriceSyncPanel
         lastRunAt={lowestJob?.last_run_at ?? null}

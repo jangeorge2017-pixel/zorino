@@ -59,6 +59,8 @@ export interface SyncContext {
   countryCode: string;
   currency: string;
   connectorId: ConnectorId;
+  /** Per-job import settings from sync_jobs.config */
+  jobConfig?: import("@/lib/sync/providers/shared/import-config").ImportJobConfig;
 }
 
 export interface SyncJobDefinition {

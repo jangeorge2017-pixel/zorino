@@ -1,3 +1,6 @@
+import { CJdropshippingClient } from "@/lib/sync/providers/cjdropshipping/client";
+import { mapCJProduct } from "@/lib/sync/providers/cjdropshipping/mapper";
+import { resolveImportConfig } from "@/lib/sync/providers/shared/import-config";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
 import { BaseConnector } from "@/lib/sync/connectors/base";
 import {
@@ -9,9 +12,8 @@ import {
 const CREDENTIAL_KEYS = ["CJDROPSHIPPING_API_KEY"] as const;
 
 /**
- * CJdropshipping API adapter.
- * Placeholder until CJDROPSHIPPING_API_KEY is configured.
- * Target API: https://developers.cjdropshipping.com/api2.0/v1/product/list
+ * CJdropshipping product list API.
+ * @see https://developers.cjdropshipping.com/
  */
 export class CJdropshippingProvider extends BaseConnector {
   id = "cjdropshipping" as const;
@@ -19,7 +21,7 @@ export class CJdropshippingProvider extends BaseConnector {
   readonly meta: ProviderAdapterMeta = {
     id: "cjdropshipping",
     name: "CJdropshipping",
-    phase: "placeholder",
+    phase: "live",
     apiDocs: "https://developers.cjdropshipping.com/",
   };
 
@@ -35,22 +37,52 @@ export class CJdropshippingProvider extends BaseConnector {
     if (!this.isConfigured()) {
       throw this.notConfiguredError();
     }
-    await this.logPlaceholderFetch("fetchProducts", ctx);
-    return [];
+
+    const apiKey = process.env.CJDROPSHIPPING_API_KEY!.trim();
+    const client = new CJdropshippingClient(apiKey);
+    const config = resolveImportConfig("cjdropshipping", ctx.jobConfig as Record<string, unknown>);
+    const rawProducts = await client.searchProducts(config);
+
+    const products: ExternalProduct[] = [];
+    for (const raw of rawProducts) {
+      const mapped = mapCJProduct(ctx, raw, config.categorySlug);
+      if (mapped) products.push(mapped);
+    }
+    return products;
   }
 
   async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {
-    if (!this.isConfigured()) return [];
     return [];
   }
 
-  private async logPlaceholderFetch(method: string, ctx: SyncContext) {
-    if (process.env.NODE_ENV !== "production") {
-      console.info(
-        `[CJdropshippingProvider] ${method} placeholder — credentials set, API integration pending`,
-        { store: ctx.storeSlug }
-      );
-    }
+  async fetchPrices(
+    ctx: SyncContext,
+    externalIds: string[]
+  ): Promise<
+    Pick<ExternalProduct, "externalId" | "price" | "originalPrice" | "currency" | "inStock">[]
+  > {
+    if (!this.isConfigured() || externalIds.length === 0) return [];
+
+    const apiKey = process.env.CJDROPSHIPPING_API_KEY!.trim();
+    const client = new CJdropshippingClient(apiKey);
+    const rawProducts = await client.getProductsByIds(externalIds);
+
+    return rawProducts
+      .map((raw) => {
+        const mapped = mapCJProduct(ctx, raw);
+        if (!mapped) return null;
+        return {
+          externalId: mapped.externalId,
+          price: mapped.price,
+          originalPrice: mapped.originalPrice,
+          currency: mapped.currency,
+          inStock: mapped.inStock,
+        };
+      })
+      .filter(Boolean) as Pick<
+      ExternalProduct,
+      "externalId" | "price" | "originalPrice" | "currency" | "inStock"
+    >[];
   }
 }
 

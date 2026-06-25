@@ -1,4 +1,5 @@
 import { mapProduct } from "@/lib/database/mappers";
+import { IMPORTED_PRODUCT_SYNC_STATUS } from "@/lib/catalog/imported-products";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Product, ServiceResult } from "@/lib/types/entities";
 
@@ -7,6 +8,8 @@ export async function getProducts(options?: {
   countryCode?: string;
   limit?: number;
   offset?: number;
+  /** When true, only return products imported via Phase 1 API sync. */
+  importedOnly?: boolean;
 }): Promise<ServiceResult<Product[]>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
@@ -18,6 +21,13 @@ export async function getProducts(options?: {
     .select("*")
     .eq("is_active", true)
     .order("name");
+
+  if (options?.importedOnly) {
+    query = query
+      .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
+      .not("last_synced_at", "is", null)
+      .not("image_url", "like", "/products/%");
+  }
 
   if (options?.categorySlug) {
     query = query.eq("category_slug", options.categorySlug);
@@ -73,19 +83,29 @@ export async function getProductById(id: string): Promise<ServiceResult<Product 
 
 export async function searchProducts(
   query: string,
-  limit = 20
+  limit = 20,
+  options?: { importedOnly?: boolean }
 ): Promise<ServiceResult<Product[]>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
     return { data: [], error: "Supabase not configured" };
   }
 
-  const { data, error } = await supabase
+  let dbQuery = supabase
     .from("products")
     .select("*")
     .eq("is_active", true)
     .or(`name.ilike.%${query}%,name_ar.ilike.%${query}%,brand.ilike.%${query}%`)
     .limit(limit);
+
+  if (options?.importedOnly) {
+    dbQuery = dbQuery
+      .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
+      .not("last_synced_at", "is", null)
+      .not("image_url", "like", "/products/%");
+  }
+
+  const { data, error } = await dbQuery;
 
   if (error) return { data: [], error: error.message };
   return { data: (data ?? []).map(mapProduct), error: null };

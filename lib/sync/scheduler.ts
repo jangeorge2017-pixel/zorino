@@ -25,6 +25,7 @@ export interface DueSyncJob {
   currency: string;
   intervalMinutes: number;
   provider?: string;
+  jobConfig?: Record<string, unknown> | null;
 }
 
 /** Returns sync jobs that are due to run (next_run_at <= now or never run). */
@@ -58,6 +59,7 @@ export async function getDueSyncJobs(): Promise<DueSyncJob[]> {
           typeof row.config?.provider === "string"
             ? row.config.provider
             : store.integration_type,
+        jobConfig: row.config,
       };
     });
 }
@@ -77,6 +79,7 @@ export async function runDueSyncJobs(): Promise<SyncRunResult[]> {
       currency: job.currency,
       jobType: job.jobType,
       syncJobId: job.id,
+      jobConfig: job.jobConfig,
     });
     results.push(result);
 

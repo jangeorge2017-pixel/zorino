@@ -357,6 +357,28 @@ export async function adminRefreshPrices() {
   };
 }
 
+export async function adminRunPhase1Import() {
+  await assertAdmin();
+  const { triggerPhase1Imports } = await import("@/services/sync");
+  const result = await triggerPhase1Imports();
+  revalidateCatalog();
+
+  const totals = (result.data ?? []).reduce(
+    (acc, r) => ({
+      itemsFetched: acc.itemsFetched + r.itemsFetched,
+      itemsCreated: acc.itemsCreated + r.itemsCreated,
+      itemsUpdated: acc.itemsUpdated + r.itemsUpdated,
+    }),
+    { itemsFetched: 0, itemsCreated: 0, itemsUpdated: 0 }
+  );
+
+  return {
+    providersRun: result.data?.length ?? 0,
+    ...totals,
+    error: result.error ?? null,
+  };
+}
+
 export async function adminSaveAffiliateSettings(
   settings: Array<{
     marketplace: import("@/lib/affiliate/config").AffiliateMarketplace;

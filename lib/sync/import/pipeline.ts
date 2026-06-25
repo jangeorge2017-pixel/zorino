@@ -42,7 +42,7 @@ export async function importProductsFromProvider(
         externalRowId = external?.id ?? null;
       }
 
-      const { productId, created } = await mergeExternalProductToCatalog(
+      const { productId, created, skipped } = await mergeExternalProductToCatalog(
         supabase,
         ctx,
         product,
@@ -54,8 +54,12 @@ export async function importProductsFromProvider(
       }
       await mergeExternalPriceToCatalog(supabase, ctx, provider, product, productId);
 
+      if (!skipped) {
+        await mergeExternalImagesToCatalog(supabase, product, productId);
+      }
+
       if (created) result.itemsCreated += 1;
-      else result.itemsUpdated += 1;
+      else if (!skipped) result.itemsUpdated += 1;
     } catch {
       result.itemsFailed += 1;
     }

@@ -168,7 +168,7 @@ export async function getTrendingDeals(limit = 4): Promise<TrendingDealCard[]> {
   }
 
   if (cards.length < limit) {
-    const products = await getProducts({ limit: limit * 2 });
+    const products = await getProducts({ limit: limit * 2, importedOnly: true });
     for (const product of products.data) {
       if (cards.length >= limit) break;
       if (usedProductIds.has(product.id)) continue;
@@ -225,7 +225,7 @@ export async function getHomepageCategories(): Promise<HomepageCategoryItem[]> {
 
 /** Popular searches from product catalog. */
 export async function getPopularSearches(): Promise<string[]> {
-  const { data, error } = await getProducts({ limit: 6 });
+  const { data, error } = await getProducts({ limit: 6, importedOnly: true });
   if (error || data.length === 0) return [];
   return data.map((product) => product.name);
 }
@@ -315,7 +315,7 @@ export async function getSearchResults(query: string): Promise<SearchResultItem[
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const { data, error } = await searchProducts(trimmed, 24);
+  const { data, error } = await searchProducts(trimmed, 24, { importedOnly: true });
   if (error || data.length === 0) return [];
 
   const results: SearchResultItem[] = [];

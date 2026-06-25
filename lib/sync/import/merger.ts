@@ -7,6 +7,10 @@ import {
   toProductSourceRow,
 } from "@/lib/sync/normalizer";
 import {
+  findExistingCanonicalProduct,
+  hasProductChanged,
+} from "@/lib/sync/import/deduplication";
+import {
   linkExternalProductToCanonical,
   markExternalPriceMerged,
 } from "@/lib/sync/import/repository";
@@ -37,19 +41,29 @@ export async function mergeExternalProductToCatalog(
   ctx: SyncContext,
   product: ExternalProduct,
   externalProductRowId?: string | null
-): Promise<{ productId: string; created: boolean }> {
+): Promise<{ productId: string; created: boolean; skipped?: boolean }> {
   const categoryId = await resolveCategoryId(supabase, product.categorySlug);
   const row = toProductRow(product, categoryId);
   const syncHash = computeSyncHash(product);
 
-  const { data: existing } = await db(supabase)
-    .from("products")
-    .select("id")
-    .eq("slug", product.slug)
-    .maybeSingle();
-
-  let productId = existing?.id as string | undefined;
+  const duplicate = await findExistingCanonicalProduct(supabase, ctx, product);
+  let productId = duplicate?.productId;
   let created = false;
+
+  if (
+    duplicate &&
+    duplicate.matchType === "external_id" &&
+    !hasProductChanged(product, duplicate.existingSyncHash)
+  ) {
+    await db(supabase).from("product_sources").upsert(
+      toProductSourceRow(productId!, ctx.storeId, product, syncHash),
+      { onConflict: "store_id,external_product_id,country_code,currency" }
+    );
+    if (externalProductRowId) {
+      await linkExternalProductToCanonical(supabase, externalProductRowId, productId!);
+    }
+    return { productId: productId!, created: false, skipped: true };
+  }
 
   if (productId) {
     await db(supabase).from("products").update(row).eq("id", productId);
@@ -96,6 +110,11 @@ export async function mergeExternalPriceToCatalog(
   await db(supabase).from("prices").upsert(toPriceRow(canonicalProductId, ctx.storeId, product), {
     onConflict: "product_id,store_id,country_code,currency",
   });
+
+  await db(supabase)
+    .from("products")
+    .update({ in_stock: product.inStock, last_synced_at: new Date().toISOString() })
+    .eq("id", canonicalProductId);
 
   const prevPrice = previous?.price as number | undefined;
   if (prevPrice === undefined || prevPrice !== product.price) {
