@@ -2,25 +2,11 @@ import type { ExternalProduct } from "@/lib/sync/types";
 import type { SyncContext } from "@/lib/sync/types";
 import { finalizeExternalProduct, slugifyTitle } from "@/lib/sync/providers/shared/product-utils";
 import { mapProviderCategory } from "@/lib/sync/providers/shared/category-map";
-
-type AliExpressProduct = {
-  product_id?: string;
-  product_title?: string;
-  product_main_image_url?: string;
-  product_small_image_urls?: string[];
-  target_sale_price?: string;
-  target_original_price?: string;
-  promotion_link?: string;
-  product_detail_url?: string;
-  shop_url?: string;
-  evaluate_rate?: string;
-  lastest_volume?: string;
-  first_level_category_name?: string;
-};
+import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 
 export function mapAliExpressProduct(
   ctx: SyncContext,
-  raw: AliExpressProduct,
+  raw: AliExpressRawProduct,
   defaultCategory?: string
 ): ExternalProduct | null {
   if (!raw.product_id || !raw.product_title) return null;
@@ -39,6 +25,8 @@ export function mapAliExpressProduct(
 
   const rating = raw.evaluate_rate ? parseFloat(raw.evaluate_rate) / 20 : undefined;
   const reviews = raw.lastest_volume ? parseInt(raw.lastest_volume, 10) : 0;
+  const stockQty = raw.sku_available_stock ? parseInt(raw.sku_available_stock, 10) : null;
+  const inStock = stockQty !== null ? stockQty > 0 : true;
 
   return finalizeExternalProduct(ctx, {
     externalId: String(raw.product_id),
@@ -50,7 +38,7 @@ export function mapAliExpressProduct(
     imageUrls: gallery.length > 0 ? gallery : [imageUrl],
     price,
     originalPrice: original > price ? original : price,
-    inStock: true,
+    inStock,
     productUrl,
     affiliateUrl: raw.promotion_link ?? undefined,
     rating,

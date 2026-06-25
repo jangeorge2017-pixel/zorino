@@ -13,7 +13,6 @@ type IntegrationSettingsFormProps = {
 };
 
 const PROVIDER_GROUPS = [
-  { id: "aliexpress", title: "AliExpress API", description: "Open Platform affiliate product API" },
   { id: "ebay", title: "eBay API", description: "Browse API + OAuth client credentials" },
   { id: "cjdropshipping", title: "CJdropshipping API", description: "Product list REST API" },
 ] as const;
@@ -45,8 +44,8 @@ export default function IntegrationSettingsForm({ fields }: IntegrationSettingsF
           <div>
             <h2 className="text-xl font-bold text-white">Marketplace API Keys</h2>
             <p className="text-sm text-gray-400 mt-1">
-              Add keys here to switch from demo/cached products to live marketplace imports.
-              Environment variables on Vercel take precedence when set.
+              Add keys here to enable live marketplace imports. AliExpress is configured under
+              Marketplace Settings (no demo data).
             </p>
           </div>
         </div>

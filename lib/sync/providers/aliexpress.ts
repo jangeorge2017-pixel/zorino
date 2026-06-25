@@ -1,4 +1,8 @@
-import { AliExpressClient } from "@/lib/sync/providers/aliexpress/client";
+import {
+  AliExpressAffiliateClient,
+  getAliExpressCredentials,
+  isAliExpressConfigured,
+} from "@/lib/integrations/aliexpress";
 import { mapAliExpressProduct } from "@/lib/sync/providers/aliexpress/mapper";
 import { resolveImportConfig } from "@/lib/sync/providers/shared/import-config";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
@@ -25,8 +29,14 @@ export class AliExpressProvider extends BaseConnector {
     apiDocs: "https://openservice.aliexpress.com/doc/api.htm",
   };
 
+  private client(): AliExpressAffiliateClient {
+    const creds = getAliExpressCredentials();
+    if (!creds) throw this.notConfiguredError();
+    return new AliExpressAffiliateClient(creds.appKey, creds.appSecret, creds.trackingId);
+  }
+
   isConfigured(): boolean {
-    return checkProviderCredentials([...CREDENTIAL_KEYS]).configured;
+    return isAliExpressConfigured();
   }
 
   getCredentials() {
@@ -38,11 +48,7 @@ export class AliExpressProvider extends BaseConnector {
       throw this.notConfiguredError();
     }
 
-    const appKey = process.env.ALIEXPRESS_APP_KEY!.trim();
-    const appSecret = process.env.ALIEXPRESS_APP_SECRET!.trim();
-    const trackingId = process.env.ALIEXPRESS_TRACKING_ID?.trim();
-
-    const client = new AliExpressClient(appKey, appSecret, trackingId);
+    const client = this.client();
     const config = resolveImportConfig("aliexpress", ctx.jobConfig as Record<string, unknown>);
     const rawProducts = await client.searchProducts(config, ctx.currency);
 
@@ -81,10 +87,7 @@ export class AliExpressProvider extends BaseConnector {
   > {
     if (!this.isConfigured() || externalIds.length === 0) return [];
 
-    const appKey = process.env.ALIEXPRESS_APP_KEY!.trim();
-    const appSecret = process.env.ALIEXPRESS_APP_SECRET!.trim();
-    const trackingId = process.env.ALIEXPRESS_TRACKING_ID?.trim();
-    const client = new AliExpressClient(appKey, appSecret, trackingId);
+    const client = this.client();
     const rawProducts = await client.getProductsByIds(externalIds, ctx.currency);
 
     return rawProducts

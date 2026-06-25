@@ -81,6 +81,7 @@ export async function generateProductAffiliateUrl(input: {
   storeSlug?: string | null;
   marketplace?: AffiliateMarketplace | null;
   trackingId?: string;
+  promotionLink?: string | null;
 }): Promise<string> {
   const marketplace =
     input.marketplace ??
@@ -92,6 +93,18 @@ export async function generateProductAffiliateUrl(input: {
     const setting = await getAffiliateSetting(marketplace);
     if (setting && !setting.isEnabled) return input.destinationUrl;
     partnerTag = setting?.partnerTag ?? getPartnerTagFromEnv(marketplace);
+  }
+
+  if (marketplace === "aliexpress") {
+    const { generateAliExpressAffiliateLink } = await import(
+      "@/services/aliexpress/affiliate-links"
+    );
+    const { url } = await generateAliExpressAffiliateLink({
+      productUrl: input.destinationUrl,
+      promotionLink: input.promotionLink,
+      trackingId: input.trackingId,
+    });
+    return url;
   }
 
   return buildAffiliateUrl({

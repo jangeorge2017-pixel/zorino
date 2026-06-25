@@ -7,6 +7,7 @@ import {
   isLowestPriceRefreshDue,
 } from "@/services/lowest-prices";
 import { triggerPhase1Imports } from "@/services/sync";
+import { runAliExpressScheduledSync } from "@/services/aliexpress";
 import { runNotificationAlerts } from "@/services/notifications/alerts";
 import { invalidateLowestPricesFromRoute, invalidateTrendingFromRoute } from "@/lib/revalidate";
 
@@ -56,11 +57,17 @@ export async function GET(request: Request) {
   if (!lowest.skipped && !("error" in lowest && lowest.error)) invalidateLowestPricesFromRoute();
 
   if (force || hourUtc % 6 === 0) {
+    const aliexpress = await runAliExpressScheduledSync();
+    results.aliexpress = aliexpress.skipped
+      ? { skipped: true }
+      : { jobsRun: aliexpress.results.length, results: aliexpress.results, error: aliexpress.error };
+
     const imported = await triggerPhase1Imports();
     results.importPhase1 = imported.error
       ? { error: imported.error, results: imported.data }
       : { providersRun: imported.data.length, results: imported.data };
   } else {
+    results.aliexpress = { skipped: true };
     results.importPhase1 = { skipped: true };
   }
 
