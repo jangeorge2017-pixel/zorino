@@ -19,7 +19,9 @@ export const INTEGRATION_SETTING_FIELDS: Omit<
   { key: "ALIEXPRESS_TRACKING_ID", label: "AliExpress Tracking ID", provider: "aliexpress", isSecret: false },
   { key: "EBAY_APP_ID", label: "eBay App ID", provider: "ebay", isSecret: false },
   { key: "EBAY_CERT_ID", label: "eBay Cert ID", provider: "ebay", isSecret: true },
-  { key: "EBAY_CAMPAIGN_ID", label: "eBay Campaign ID", provider: "ebay", isSecret: false },
+  { key: "EBAY_CAMPAIGN_ID", label: "eBay Campaign ID (ePN)", provider: "ebay", isSecret: false },
+  { key: "EBAY_OAUTH_TOKEN", label: "eBay OAuth Token (optional)", provider: "ebay", isSecret: true },
+  { key: "EBAY_REFERENCE_ID", label: "eBay Reference ID (optional)", provider: "ebay", isSecret: false },
   { key: "CJDROPSHIPPING_API_KEY", label: "CJdropshipping API Key", provider: "cjdropshipping", isSecret: true },
 ];
 

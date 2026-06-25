@@ -39,9 +39,11 @@ type EbaySettingsPanelProps = {
 };
 
 const FIELD_KEYS = [
-  { key: "EBAY_APP_ID", label: "App ID (Client ID)", secret: false },
-  { key: "EBAY_CERT_ID", label: "Cert ID (Client Secret)", secret: true },
-  { key: "EBAY_CAMPAIGN_ID", label: "Campaign ID (ePN)", secret: false },
+  { key: "EBAY_APP_ID", label: "App ID (Client ID)", secret: false, optional: false },
+  { key: "EBAY_CERT_ID", label: "Cert ID (Client Secret)", secret: true, optional: false },
+  { key: "EBAY_CAMPAIGN_ID", label: "Campaign ID (ePN)", secret: false, optional: false },
+  { key: "EBAY_OAUTH_TOKEN", label: "OAuth Token (optional)", secret: true, optional: true },
+  { key: "EBAY_REFERENCE_ID", label: "Reference ID (optional)", secret: false, optional: true },
 ] as const;
 
 export default function EbaySettingsPanel({ status, logs, recentRuns }: EbaySettingsPanelProps) {
@@ -92,8 +94,9 @@ export default function EbaySettingsPanel({ status, logs, recentRuns }: EbaySett
               eBay Affiliate API
             </h2>
             <p className="text-sm text-gray-400 mt-1">
-              Browse API with eBay Partner Network affiliate context. No mock data — imports begin
-              once valid credentials are saved and validated.
+              Browse API with eBay Partner Network affiliate context. Credentials below are
+              placeholders until you validate and enable live sync. Production stays idle until
+              then.
             </p>
           </div>
           <span
@@ -246,7 +249,16 @@ function placeholderForField(key: string, status: EbayCredentialStatus): string 
   if (key === "EBAY_CERT_ID") {
     return status.hasCertId ? "•••••••• (configured)" : "Enter Cert ID";
   }
-  return status.hasCampaignId ? "•••••••• (configured)" : "Enter Campaign ID";
+  if (key === "EBAY_CAMPAIGN_ID") {
+    return status.hasCampaignId ? "•••••••• (configured)" : "Enter Campaign ID";
+  }
+  if (key === "EBAY_OAUTH_TOKEN") {
+    return status.hasOauthToken ? "•••••••• (configured)" : "Optional preset token";
+  }
+  if (key === "EBAY_REFERENCE_ID") {
+    return status.hasReferenceId ? "•••••••• (configured)" : "Optional sub-tracking ID";
+  }
+  return "Enter value";
 }
 
 function SyncButton({

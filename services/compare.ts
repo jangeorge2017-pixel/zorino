@@ -1,6 +1,6 @@
 import { computeSavingsPercent } from "@/lib/marketplace-engine/utils";
 import { mapProduct } from "@/lib/database/mappers";
-import type { PriceRow, ProductRow, StoreRow } from "@/lib/database/types";
+import type { ProductRow } from "@/lib/database/types";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import {
   compareProductPrices,
