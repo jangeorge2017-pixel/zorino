@@ -2,6 +2,7 @@
 // This file implements the notification system for email and in-app notifications
 
 import { useState } from 'react';
+import { getSiteUrl } from '@/lib/site-url';
 
 export interface Notification {
   id: string;
@@ -231,7 +232,7 @@ class NotificationSystem {
           <div class="content">
             <h2>${subject}</h2>
             <p>${notification.message}</p>
-            <a href="https://zorino.com" class="button">View on ZORINO</a>
+            <a href="${getSiteUrl()}" class="button">View on ZORINO</a>
           </div>
           <div class="footer">
             <p>You received this email because you subscribed to ZORINO notifications.</p>
