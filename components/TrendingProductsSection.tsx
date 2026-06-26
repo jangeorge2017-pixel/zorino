@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { Flame, Trophy, Zap, TrendingDown, Globe } from "lucide-react";
 import TrendingProductCardView from "@/components/TrendingProductCard";
+import HomeSectionHeader from "@/components/HomeSectionHeader";
+import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import type { TrendingProductCard, TrendingRankingType } from "@/lib/types/entities";
 import { getRankingLabel } from "@/lib/trending/labels";
 
@@ -39,18 +41,17 @@ export default function TrendingProductsSection({
   }, [data, activeTab]);
 
   return (
-    <section className="trending-products-section" aria-labelledby="trending-products-heading">
-      <div className="trending-products-header">
-        <div>
-          <h2 id="trending-products-heading" className="section-title trending-products-title">
-            <Flame size={24} className="trending-title-icon" />
-            Trending Products
-          </h2>
-          <p className="trending-products-subtitle">
-            Ranked by views, clicks and purchases — refreshed every 4 hours
-          </p>
-        </div>
-      </div>
+    <section
+      id={HOME_SECTIONS["trending-products"].sectionId}
+      className="home-section-shell home-section-shell--trending-products trending-products-section"
+      aria-labelledby="trending-products-heading"
+    >
+      <HomeSectionHeader
+        variant="trending-products"
+        headingId="trending-products-heading"
+        title="Trending Products"
+        subtitle="Ranked by views, clicks and purchases — refreshed every 4 hours"
+      />
 
       <div className="trending-tabs-scroll" role="tablist" aria-label="Trending categories">
         <div className="trending-tabs">

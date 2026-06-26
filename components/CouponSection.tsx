@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Copy, Check, CheckCircle, ChevronRight } from "lucide-react";
+import { Copy, Check, CheckCircle } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
-import SectionFlameIcon from "@/components/SectionFlameIcon";
+import HomeSectionHeader from "@/components/HomeSectionHeader";
+import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import type { TopCouponCard } from "@/lib/types/entities";
 
 type CouponSectionProps = {
@@ -25,17 +25,17 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
   }
 
   return (
-    <section className="coupon-section">
-      <div className="section-header">
-        <h2 className="section-title">
-          <SectionFlameIcon size={24} />
-          Top Coupons
-        </h2>
-        <Link href="/coupons" className="section-link">
-          View all coupons
-          <ChevronRight size={16} />
-        </Link>
-      </div>
+    <section
+      id={HOME_SECTIONS["top-coupons"].sectionId}
+      className="home-section-shell home-section-shell--top-coupons coupon-section"
+    >
+      <HomeSectionHeader
+        variant="top-coupons"
+        headingId="top-coupons-heading"
+        title="Top Coupons"
+        subtitle="Verified codes from trusted stores — copy and save instantly"
+        link={{ href: "/coupons", label: "View all coupons" }}
+      />
 
       <div className="coupons-list">
         {coupons.map((coupon) => (

@@ -1,5 +1,6 @@
 import Navbar from "@/components/navbar";
 import HeroContainer from "@/components/HeroContainer";
+import HomeQuickNav from "@/components/HomeQuickNav";
 import SearchBarContainer from "@/components/SearchBarContainer";
 import CategoryGridContainer from "@/components/CategoryGridContainer";
 import LowestPricesContainer from "@/components/LowestPricesContainer";
@@ -35,6 +36,7 @@ export default function Home() {
           <HeroContainer />
           <SearchBarContainer defaultOpen />
         </div>
+        <HomeQuickNav />
         <CategoryGridContainer />
         <LowestPricesContainer />
         <TrendingProductsContainer />
