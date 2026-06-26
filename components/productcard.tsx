@@ -1,115 +1,41 @@
-import { Star, TrendingDown } from "lucide-react";
-import ProductCardMedia from "@/components/ProductCardMedia";
-import AssetImage from "@/components/AssetImage";
+import HomeProductCard from "@/components/HomeProductCard";
 import HomeSectionHeader from "@/components/HomeSectionHeader";
 import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import TrendingBadgePill from "@/components/TrendingBadge";
-import ProductCardActions from "@/components/ProductCardActions";
 import { getTrendingDeals } from "@/lib/data/homepage";
 import { getProductBadgesMap } from "@/services/trending/queries";
+import { formatCompactCount } from "@/lib/homepage/format";
 import type { TrendingDealCard } from "@/lib/types/entities";
-
-function PriceSparkline({ data, id }: { data: number[]; id: number | string }) {
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const width = 80;
-  const height = 28;
-  const gradientId = `sparkline-gradient-${id}`;
-  const points = data
-    .map((value, i) => {
-      const x = (i / (data.length - 1)) * width;
-      const y = height - ((value - min) / range) * (height - 4) - 2;
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  return (
-    <svg width={width} height={height} className="price-sparkline" aria-hidden="true">
-      <defs>
-        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#8b5cf6" />
-          <stop offset="100%" stopColor="#3b82f6" />
-        </linearGradient>
-      </defs>
-      <polyline
-        points={points}
-        fill="none"
-        stroke={`url(#${gradientId})`}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function DealCard({ deal }: { deal: TrendingDealCard }) {
   return (
-    <article className="deal-card product-card">
-      <ProductCardMedia
-        src={deal.imageSrc}
-        alt={deal.name}
-        fallback={<span className="deal-emoji">{deal.emoji}</span>}
-        badges={
-          <>
-            {deal.badge && <TrendingBadgePill badge={deal.badge} size="sm" />}
-            <span className="deal-discount">-{deal.discount}%</span>
-          </>
-        }
-      />
-
-      <div className="product-card-body">
-        <h3 className="deal-name">{deal.name}</h3>
-
-        <div className="deal-rating">
-          <div className="deal-stars">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                size={14}
-                className={i < Math.floor(deal.rating) ? "star-filled" : "star-empty"}
-                fill={i < Math.floor(deal.rating) ? "currentColor" : "none"}
-              />
-            ))}
-          </div>
-          <span className="deal-reviews">({deal.reviews.toLocaleString("en-US")})</span>
-        </div>
-
-        <div className="deal-price-drop">
-          <TrendingDown size={12} />
-          Price dropped
-        </div>
-
-        <div className="deal-pricing">
-          <span className="deal-price">${deal.price.toLocaleString("en-US")}</span>
-          <span className="deal-original">${deal.originalPrice.toLocaleString("en-US")}</span>
-        </div>
-
-        <div className="deal-store-row">
-          <div className="deal-store">
-            <span className="store-logo">
-              <AssetImage
-                src={deal.storeLogoSrc}
-                alt=""
-                width={28}
-                height={28}
-                className="store-logo-img"
-                fallback={<span className="store-logo-initial">{deal.storeInitial}</span>}
-              />
-            </span>
-            <span>{deal.store}</span>
-          </div>
-          <span className="deal-updated">Updated {deal.updatedMins} min ago</span>
-        </div>
-
-        <div className="deal-chart-row">
-          <PriceSparkline data={deal.priceHistory} id={deal.id} />
-        </div>
-      </div>
-
-      <ProductCardActions productId={String(deal.productId ?? deal.id)} />
-    </article>
+    <HomeProductCard
+      variant="trending-deals"
+      productId={String(deal.productId ?? deal.id)}
+      name={deal.name}
+      imageSrc={deal.imageSrc}
+      emoji={deal.emoji}
+      price={deal.price}
+      originalPrice={deal.originalPrice}
+      discount={deal.discount}
+      rating={deal.rating}
+      reviewCount={deal.reviews}
+      storeName={deal.store}
+      storeLogoSrc={deal.storeLogoSrc}
+      storeInitial={deal.storeInitial}
+      storesCompared={deal.providerCount}
+      shippingTime="Limited time"
+      priceHistory={deal.priceHistory}
+      showPriceDrop
+      updatedLabel={`Updated ${deal.updatedMins} min ago`}
+      sparklineId={deal.id}
+      badges={
+        <>
+          {deal.badge ? <TrendingBadgePill badge={deal.badge} size="sm" /> : null}
+          <span className="home-product-flash-badge">Flash Deal</span>
+        </>
+      }
+    />
   );
 }
 
@@ -126,6 +52,8 @@ export default async function ProductCard() {
     return null;
   }
 
+  const priceDropped = dealsWithBadges.filter((deal) => deal.discount >= 20).length;
+
   return (
     <section
       id={HOME_SECTIONS["trending-deals"].sectionId}
@@ -137,6 +65,12 @@ export default async function ProductCard() {
         title="Trending Deals"
         subtitle="Price drops and hot offers updated throughout the day"
         link={{ href: "/deals", label: "View all deals" }}
+        stats={[
+          { value: formatCompactCount(dealsWithBadges.length), label: "Live Deals" },
+          { value: String(priceDropped), label: "Price Dropped" },
+          { value: "Limited Time", label: "Flash Deals" },
+        ]}
+        tags={["Price Dropped", "Flash Deals", "Countdown Ready"]}
       />
 
       <div className="deals-grid">

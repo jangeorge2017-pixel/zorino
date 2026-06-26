@@ -45,7 +45,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
   "recommended-products": {
     variant: "recommended-products",
     sectionId: "section-recommended-products",
-    badge: "Editor’s Pick",
+    badge: "Editor's Pick",
     icon: Sparkles,
     navTitle: "Recommended Products",
     navSubtitle: "Top-rated across stores",
@@ -53,7 +53,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
   "recommended-for-you": {
     variant: "recommended-for-you",
     sectionId: "section-recommended-for-you",
-    badge: "For You",
+    badge: "Personalized Picks",
     icon: UserRound,
     navTitle: "Recommended For You",
     navSubtitle: "Personalized matches",
@@ -69,7 +69,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
   "top-coupons": {
     variant: "top-coupons",
     sectionId: "section-top-coupons",
-    badge: "Save More",
+    badge: "Verified Codes",
     icon: BadgePercent,
     navTitle: "Top Coupons",
     navSubtitle: "Verified codes",

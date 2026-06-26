@@ -1,12 +1,11 @@
 "use client";
 
-import ProductCardMedia from "@/components/ProductCardMedia";
-import ProductCardActions from "@/components/ProductCardActions";
+import HomeProductCard from "@/components/HomeProductCard";
 import HomeSectionHeader from "@/components/HomeSectionHeader";
 import {
   HOME_SECTIONS,
-  type HomeSectionVariant,
 } from "@/lib/homepage/sections";
+import { formatCompactCount } from "@/lib/homepage/format";
 import type { RecommendedProductCard } from "@/services/recommendations";
 
 type RecommendedProductsSectionProps = {
@@ -14,6 +13,7 @@ type RecommendedProductsSectionProps = {
   title: string;
   subtitle: string;
   products: RecommendedProductCard[];
+  isLoggedIn?: boolean;
 };
 
 export default function RecommendedProductsSection({
@@ -21,11 +21,43 @@ export default function RecommendedProductsSection({
   title,
   subtitle,
   products,
+  isLoggedIn = false,
 }: RecommendedProductsSectionProps) {
   if (products.length === 0) return null;
 
   const sectionConfig = HOME_SECTIONS[variant];
   const headingId = `${variant}-heading`;
+  const avgRating =
+    products.length > 0
+      ? (
+          products.reduce((sum, product) => sum + product.rating, 0) / products.length
+        ).toFixed(1)
+      : "4.8";
+
+  const stats =
+    variant === "recommended-for-you"
+      ? isLoggedIn
+        ? [
+            { value: String(products.length), label: "Personalized Picks" },
+            { value: "Based on interests", label: "Match Type" },
+            { value: `${avgRating}★`, label: "Avg. Rating" },
+          ]
+        : [
+            { value: "Sign in", label: "Unlock Personalization" },
+            { value: formatCompactCount(products.length), label: "Popular Picks" },
+          ]
+      : [
+          { value: String(products.length), label: "Curated Picks" },
+          { value: `${avgRating}★`, label: "Avg. Rating" },
+          { value: "Premium", label: "Selection" },
+        ];
+
+  const tags =
+    variant === "recommended-for-you"
+      ? isLoggedIn
+        ? ["Based on your interests", "Because you viewed…", "Personalized Picks"]
+        : ["Sign in to unlock personalized recommendations"]
+      : ["Curated selection", "Top rated", "Editor approved"];
 
   return (
     <section
@@ -38,36 +70,30 @@ export default function RecommendedProductsSection({
         headingId={headingId}
         title={title}
         subtitle={subtitle}
+        stats={stats}
+        tags={tags}
       />
 
       <div className="trending-products-grid">
         {products.map((product) => (
-          <article key={product.id} className="trending-product-card deal-card product-card">
-            <ProductCardMedia
-              src={product.imageUrl}
-              alt={product.name}
-              fallback={<span className="deal-emoji">{product.emoji}</span>}
-              badges={
-                product.discount > 0 ? (
-                  <span className="deal-discount">-{product.discount}%</span>
-                ) : null
-              }
-            />
-
-            <div className="product-card-body">
-              <p className="trending-card-reason">{product.reason}</p>
-              <h3 className="trending-card-title deal-name">{product.name}</h3>
-              <p className="trending-card-store">{product.storeName}</p>
-              <div className="trending-card-prices deal-pricing">
-                <span className="trending-card-price deal-price">${product.price.toFixed(2)}</span>
-                {product.discount > 0 && (
-                  <span className="trending-card-discount deal-discount">-{product.discount}%</span>
-                )}
-              </div>
-            </div>
-
-            <ProductCardActions productId={product.id} />
-          </article>
+          <HomeProductCard
+            key={product.id}
+            variant={variant}
+            productId={product.id}
+            name={product.name}
+            imageSrc={product.imageUrl}
+            emoji={product.emoji}
+            price={product.price}
+            originalPrice={product.originalPrice}
+            discount={product.discount}
+            rating={product.rating}
+            reviewCount={product.reviewCount}
+            storeName={product.storeName}
+            storeInitial={product.storeName.charAt(0).toUpperCase()}
+            storesCompared={2}
+            shippingTime="3–6 days"
+            reason={product.reason}
+          />
         ))}
       </div>
     </section>
