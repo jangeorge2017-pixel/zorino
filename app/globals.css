@@ -512,13 +512,13 @@ img {
 }
 
 .hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
-  left: 10%;
-  top: 57%;
+  left: calc(10% + 12px);
+  top: calc(57% + 25px);
 }
 
 .hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
-  left: 90%;
-  top: 57%;
+  left: calc(90% - 12px);
+  top: calc(57% + 25px);
 }
 
 .hero-orbit-card {
@@ -2642,13 +2642,13 @@ img {
   }
 
   .hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
-    left: 9%;
-    top: 58%;
+    left: calc(9% + 10px);
+    top: calc(58% + 22px);
   }
 
   .hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
-    left: 91%;
-    top: 58%;
+    left: calc(91% - 10px);
+    top: calc(58% + 22px);
   }
 
   .hero-orbit-image-frame {
@@ -2800,13 +2800,13 @@ img {
   }
 
   .hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
-    left: 8%;
-    top: 59%;
+    left: calc(8% + 8px);
+    top: calc(59% + 20px);
   }
 
   .hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
-    left: 92%;
-    top: 59%;
+    left: calc(92% - 8px);
+    top: calc(59% + 20px);
   }
 
   .hero-orbit-image-frame {
