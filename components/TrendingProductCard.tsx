@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import HomeProductCard from "@/components/HomeProductCard";
-import TrendingBadgePill from "@/components/TrendingBadge";
 import { trackProductInteraction } from "@/lib/trending/track-client";
 import type { TrendingProductCard } from "@/lib/types/entities";
 
@@ -56,13 +55,10 @@ export default function TrendingProductCardView({
       storesCompared={product.providerCount}
       shippingTime="1–3 days"
       priceHistory={product.priceHistory}
-      showPriceDrop={product.rankingType === "biggest_drops"}
+      trendingBadge={product.badge}
       updatedLabel="Trending now"
       sparklineId={product.id}
       onShopClick={handleClick}
-      badges={
-        product.badge ? <TrendingBadgePill badge={product.badge} size="sm" /> : null
-      }
     />
   );
 }

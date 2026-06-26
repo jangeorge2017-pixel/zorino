@@ -1,14 +1,20 @@
 "use client";
 
-import { TrendingDown, Truck } from "lucide-react";
-import type { ReactNode } from "react";
+import { Truck } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
 import AssetImage from "@/components/AssetImage";
 import StarRating from "@/components/StarRating";
 import WishlistButton from "@/components/WishlistButton";
+import PriceAlertButton from "@/components/PriceAlertButton";
+import ProductDynamicBadge from "@/components/ProductDynamicBadge";
 import PriceSparkline from "@/components/PriceSparkline";
+import {
+  resolveDynamicBadge,
+  type DynamicBadgeType,
+} from "@/lib/homepage/badges";
 import type { HomeSectionVariant } from "@/lib/homepage/sections";
+import type { TrendingBadge } from "@/lib/types/entities";
 
 export type HomeProductCardProps = {
   variant: HomeSectionVariant;
@@ -26,10 +32,12 @@ export type HomeProductCardProps = {
   storeInitial?: string;
   shippingTime?: string;
   storesCompared?: number;
-  badges?: ReactNode;
+  dynamicBadge?: DynamicBadgeType;
+  trendingBadge?: TrendingBadge | null;
+  isNew?: boolean;
+  isNewLow?: boolean;
   reason?: string;
   priceHistory?: number[];
-  showPriceDrop?: boolean;
   updatedLabel?: string;
   shopHref?: string;
   shopExternal?: boolean;
@@ -65,20 +73,31 @@ export default function HomeProductCard({
   storeInitial,
   shippingTime = "2–5 days",
   storesCompared,
-  badges,
+  dynamicBadge,
+  trendingBadge,
+  isNew,
+  isNewLow,
   reason,
   priceHistory,
-  showPriceDrop = false,
   updatedLabel,
   shopHref,
   shopExternal = false,
   onShopClick,
   sparklineId,
 }: HomeProductCardProps) {
-  const initial =
-    storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
+  const initial = storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
   const showOriginal = originalPrice !== undefined && originalPrice > price;
+  const savingsAmount = showOriginal ? originalPrice! - price : 0;
   const showRating = rating !== undefined && rating > 0;
+  const badgeType =
+    dynamicBadge ??
+    resolveDynamicBadge({
+      variant,
+      trendingBadge,
+      isNew,
+      isNewLow,
+      discount,
+    });
 
   return (
     <article className={`home-product-card product-card product-card--${variant}`}>
@@ -88,14 +107,18 @@ export default function HomeProductCard({
         fallback={<span className="deal-emoji">{emoji}</span>}
         badges={
           <>
-            {badges}
-            {discount > 0 && (
-              <span className="deal-discount home-product-discount">-{discount}%</span>
-            )}
+            <ProductDynamicBadge type={badgeType} />
+            {discount > 0 ? (
+              <span className="home-product-discount-pill">-{discount}%</span>
+            ) : null}
           </>
         }
       />
-      <WishlistButton productId={productId} />
+
+      <div className="product-card-quick-actions">
+        <WishlistButton productId={productId} />
+        <PriceAlertButton productId={productId} />
+      </div>
 
       <div className="product-card-body">
         {reason ? <p className="home-product-reason">{reason}</p> : null}
@@ -105,19 +128,19 @@ export default function HomeProductCard({
           <StarRating rating={rating} reviewCount={reviewCount} size="md" />
         ) : null}
 
-        {showPriceDrop ? (
-          <div className="deal-price-drop">
-            <TrendingDown size={12} />
-            Price dropped
+        <div className="home-product-pricing-block">
+          <div className="deal-pricing">
+            <span className="deal-price">${price.toLocaleString("en-US")}</span>
+            {showOriginal ? (
+              <span className="deal-original">
+                ${originalPrice!.toLocaleString("en-US")}
+              </span>
+            ) : null}
           </div>
-        ) : null}
-
-        <div className="deal-pricing">
-          <span className="deal-price">${price.toLocaleString("en-US")}</span>
-          {showOriginal ? (
-            <span className="deal-original">
-              ${originalPrice!.toLocaleString("en-US")}
-            </span>
+          {savingsAmount > 0 ? (
+            <p className="home-product-savings">
+              Save ${savingsAmount.toLocaleString("en-US")}
+            </p>
           ) : null}
         </div>
 
@@ -134,7 +157,7 @@ export default function HomeProductCard({
                   fallback={<span className="store-logo-initial">{initial}</span>}
                 />
               </span>
-              <span>{storeName}</span>
+              <span className="home-product-store-name">{storeName}</span>
             </div>
             {storesCompared !== undefined && storesCompared > 1 ? (
               <span className="home-product-stores-compared">
@@ -169,7 +192,6 @@ export default function HomeProductCard({
 
       <ProductCardActions
         productId={productId}
-        compareClassName="home-compare-btn"
         shopHref={shopHref}
         shopExternal={shopExternal}
         onShopClick={onShopClick}

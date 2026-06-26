@@ -53,7 +53,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
   "recommended-for-you": {
     variant: "recommended-for-you",
     sectionId: "section-recommended-for-you",
-    badge: "Personalized Picks",
+    badge: "For You",
     icon: UserRound,
     navTitle: "Recommended For You",
     navSubtitle: "Personalized matches",
