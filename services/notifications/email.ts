@@ -1,4 +1,5 @@
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { getContactEmail } from "@/lib/site-url";
 
 type EmailInput = {
   userId: string;
@@ -9,7 +10,7 @@ type EmailInput = {
 /** Send email via Resend when configured; otherwise no-op (in-app notifications still work). */
 export async function sendNotificationEmail(input: EmailInput): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.NOTIFICATION_FROM_EMAIL?.trim() ?? "notifications@zorino.com";
+  const from = process.env.NOTIFICATION_FROM_EMAIL?.trim() ?? getContactEmail("notifications");
   if (!apiKey) return false;
 
   const supabase = createSupabaseServiceClient();

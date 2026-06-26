@@ -2,6 +2,7 @@
 // This file implements the contact form functionality with email automation
 
 import { useState } from 'react';
+import { getContactEmail } from '@/lib/site-url';
 
 export interface ContactFormData {
   name: string;
@@ -128,7 +129,7 @@ class ContactFormSystem {
   private async sendEmailNotification(data: ContactFormData, ticketId: string): Promise<void> {
     // In production, send email using SMTP service
     const emailContent = {
-      to: 'support@zorino.com',
+      to: getContactEmail('support'),
       subject: `New Contact Form Submission - ${ticketId}`,
       html: `
         <h2>New Contact Form Submission</h2>
