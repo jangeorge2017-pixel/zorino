@@ -1,5 +1,6 @@
 import Stats from "@/components/Stats";
 import HeroOrbitCard from "@/components/HeroOrbitCard";
+import { getHeroOrbitAnimationDelay } from "@/lib/hero/orbit";
 import type { FloatingProductCard, HeroStatItem } from "@/lib/types/entities";
 
 type HeroProps = {
@@ -32,7 +33,11 @@ export default function Hero({ floatingProducts, stats }: HeroProps) {
       <div className="hero-visual">
         <div className="hero-orbit" aria-label="Featured products">
           {floatingProducts.map((product) => (
-            <HeroOrbitCard key={product.position} product={product} />
+            <HeroOrbitCard
+              key={product.position}
+              product={product}
+              animationDelay={getHeroOrbitAnimationDelay(product.position)}
+            />
           ))}
         </div>
       </div>
