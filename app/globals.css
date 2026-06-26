@@ -478,18 +478,53 @@ img {
   min-width: 0;
 }
 
-/* Hero orbit — 5 circular product cards, upper half only (platform area stays clear) */
+/* Hero orbit — 5 cards matched to public/target design.jpeg reference */
 .hero-orbit {
   position: absolute;
   inset: 0;
   z-index: 5;
   pointer-events: none;
+  --hero-orbit-card-size: 112px;
+}
+
+.hero-orbit-slot {
+  position: absolute;
+  width: var(--hero-orbit-card-size);
+  height: var(--hero-orbit-card-size);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Positions matched to public/target design.jpeg (symmetric about Z logo center) */
+.hero-orbit-slot[data-orbit-position="orbit-top"] {
+  left: 50%;
+  top: 21%;
+}
+
+.hero-orbit-slot[data-orbit-position="orbit-upper-left"] {
+  left: 19%;
+  top: 39%;
+}
+
+.hero-orbit-slot[data-orbit-position="orbit-upper-right"] {
+  left: 81%;
+  top: 39%;
+}
+
+.hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
+  left: 10%;
+  top: 85%;
+}
+
+.hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
+  left: 90%;
+  top: 85%;
 }
 
 .hero-orbit-card {
-  position: absolute;
-  width: 112px;
-  height: 112px;
+  position: relative;
+  width: 100%;
+  height: 100%;
   pointer-events: auto;
   animation: hero-orbit-float 5.2s ease-in-out infinite;
   will-change: transform;
@@ -595,52 +630,6 @@ img {
     transform: translateY(-11px);
   }
 }
-
-@keyframes hero-orbit-float-center {
-  0%, 100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(-11px);
-  }
-}
-
-/* Symmetric pentagon — upper half only; lower ~48% left empty for Z platform */
-.orbit-top {
-  top: 2%;
-  left: 50%;
-  transform: translateX(-50%);
-  animation-name: hero-orbit-float-center;
-  animation-delay: 0s;
-}
-
-.orbit-upper-left {
-  top: 13%;
-  left: 11%;
-  animation-delay: 0.65s;
-}
-
-.orbit-upper-right {
-  top: 13%;
-  right: 11%;
-  left: auto;
-  animation-delay: 1.3s;
-}
-
-.orbit-lower-left {
-  top: 30%;
-  left: 7%;
-  animation-delay: 1.95s;
-}
-
-.orbit-lower-right {
-  top: 30%;
-  right: 7%;
-  left: auto;
-  animation-delay: 2.6s;
-}
-
-/* Legacy floating card rules removed — use .hero-orbit-* only */
 
 .stat-card:hover {
   transform: translateY(-2px);
@@ -2634,9 +2623,32 @@ img {
     justify-self: center;
   }
 
-  .hero-orbit-card {
-    width: 96px;
-    height: 96px;
+  .hero-orbit {
+    --hero-orbit-card-size: 96px;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-top"] {
+    top: 22%;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-upper-left"] {
+    left: 18%;
+    top: 40%;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-upper-right"] {
+    left: 82%;
+    top: 40%;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
+    left: 9%;
+    top: 86%;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
+    left: 91%;
+    top: 86%;
   }
 
   .hero-orbit-image-frame {
@@ -2769,9 +2781,32 @@ img {
     font-size: 40px;
   }
 
-  .hero-orbit-card {
-    width: 88px;
-    height: 88px;
+  .hero-orbit {
+    --hero-orbit-card-size: 88px;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-top"] {
+    top: 23%;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-upper-left"] {
+    left: 17%;
+    top: 41%;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-upper-right"] {
+    left: 83%;
+    top: 41%;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
+    left: 8%;
+    top: 87%;
+  }
+
+  .hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
+    left: 92%;
+    top: 87%;
   }
 
   .hero-orbit-image-frame {
@@ -2782,30 +2817,6 @@ img {
     min-width: 30px;
     padding: 2px 6px;
     font-size: 9px;
-  }
-
-  .orbit-top {
-    top: 1%;
-  }
-
-  .orbit-upper-left {
-    top: 12%;
-    left: 8%;
-  }
-
-  .orbit-upper-right {
-    top: 12%;
-    right: 8%;
-  }
-
-  .orbit-lower-left {
-    top: 28%;
-    left: 4%;
-  }
-
-  .orbit-lower-right {
-    top: 28%;
-    right: 4%;
   }
 
   .search-bar {
