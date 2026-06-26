@@ -34,9 +34,9 @@ export default function Home() {
       <div className="site-shell">
         <div className="hero-zone">
           <HeroContainer />
+          <HomeQuickNav />
           <SearchBarContainer defaultOpen />
         </div>
-        <HomeQuickNav />
         <CategoryGridContainer />
         <LowestPricesContainer />
         <TrendingProductsContainer />
