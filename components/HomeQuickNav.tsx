@@ -68,7 +68,7 @@ export default function HomeQuickNav() {
                 onClick={() => scrollToSection(item.sectionId)}
               >
                 <span className="home-quick-nav-icon" aria-hidden="true">
-                  <Icon size={22} strokeWidth={2.25} />
+                  <Icon size={29} strokeWidth={2.25} />
                 </span>
                 <span className="home-quick-nav-title">{item.navTitle}</span>
               </button>
