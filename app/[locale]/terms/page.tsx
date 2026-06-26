@@ -3,9 +3,11 @@
 import { useTranslations } from 'next-intl';
 import Card from '@/components/ui/Card';
 import { FileText, AlertTriangle, Scale, Ban, Gavel, RefreshCw } from 'lucide-react';
+import { getContactEmail } from '@/lib/site-url';
 
 export default function TermsPage() {
   const t = useTranslations('terms');
+  const legalEmail = getContactEmail('legal');
 
   const sections = [
     {
@@ -141,7 +143,7 @@ export default function TermsPage() {
           </p>
           <div className="space-y-2">
             <p className="text-white">
-              <strong>Email:</strong> legal@zorino.com
+              <strong>Email:</strong> {legalEmail}
             </p>
             <p className="text-white">
               <strong>Address:</strong> 123 Tech Street, Dubai, UAE

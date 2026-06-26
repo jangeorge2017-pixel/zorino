@@ -1,5 +1,4 @@
-// SEO Metadata Utilities
-// This file provides utilities for generating SEO metadata for pages
+import { getSiteUrl } from "@/lib/site-url";
 
 export interface SEOProps {
   title?: string;
@@ -18,7 +17,7 @@ export interface SEOProps {
 }
 
 export function generateMetadata(props: SEOProps) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://zorino.org";
+  const siteUrl = getSiteUrl();
   const {
     title = 'ZORINO - Find the Best Deals Across All Marketplaces',
     description = 'Discover amazing deals, coupons, and price comparisons across Amazon, Alibaba, AliExpress, Noon, Temu and more. Save money on every purchase with ZORINO.',

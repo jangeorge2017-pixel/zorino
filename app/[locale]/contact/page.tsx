@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import { Mail, Phone, MapPin, Send, CheckCircle, MessageSquare, HeadphonesIcon } from 'lucide-react';
+import { getContactEmail } from '@/lib/site-url';
 
 export default function ContactPage() {
   const t = useTranslations('contact');
@@ -39,8 +40,8 @@ export default function ContactPage() {
     {
       icon: Mail,
       label: 'Email',
-      value: 'support@zorino.com',
-      link: 'mailto:support@zorino.com',
+      value: getContactEmail('support'),
+      link: `mailto:${getContactEmail('support')}`,
     },
     {
       icon: Phone,
@@ -61,19 +62,19 @@ export default function ContactPage() {
       icon: MessageSquare,
       title: 'General Inquiries',
       description: 'Questions about our platform, features, or services',
-      email: 'info@zorino.com',
+      email: getContactEmail('info'),
     },
     {
       icon: HeadphonesIcon,
       title: 'Technical Support',
       description: 'Help with technical issues, bugs, or account problems',
-      email: 'support@zorino.com',
+      email: getContactEmail('support'),
     },
     {
       icon: Send,
       title: 'Partnerships',
       description: 'Business partnerships, affiliate programs, or collaborations',
-      email: 'partnerships@zorino.com',
+      email: getContactEmail('partnerships'),
     },
   ];
 

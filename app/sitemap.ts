@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import { IMPORTED_PRODUCT_SYNC_STATUS } from "@/lib/catalog/imported-products";
+import { getSiteUrl } from "@/lib/site-url";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://zorino.org";
+const BASE_URL = getSiteUrl();
 const LOCALES = ["en", "ar"] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

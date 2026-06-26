@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { verifyAdminSession } from "@/lib/admin/actions";
+import { getContactEmail } from "@/lib/site-url";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function AdminLoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@zorino.com"
+              placeholder={getContactEmail("admin")}
               required
               autoComplete="email"
             />

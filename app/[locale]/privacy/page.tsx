@@ -3,9 +3,11 @@
 import { useTranslations } from 'next-intl';
 import Card from '@/components/ui/Card';
 import { Shield, Eye, Lock, User, Database, Globe } from 'lucide-react';
+import { getContactEmail } from "@/lib/site-url";
 
 export default function PrivacyPolicyPage() {
   const t = useTranslations('privacy');
+  const privacyEmail = getContactEmail('privacy');
 
   const sections = [
     {
@@ -79,7 +81,7 @@ export default function PrivacyPolicyPage() {
           <li>Export your data</li>
           <li>Object to processing of your data</li>
         </ul>
-        <p>Contact us at privacy@zorino.com to exercise these rights.</p>
+        <p>Contact us at ${privacyEmail} to exercise these rights.</p>
       `,
     },
     {
@@ -140,7 +142,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <div className="space-y-2">
             <p className="text-white">
-              <strong>Email:</strong> privacy@zorino.com
+              <strong>Email:</strong> {privacyEmail}
             </p>
             <p className="text-white">
               <strong>Address:</strong> 123 Tech Street, Dubai, UAE
