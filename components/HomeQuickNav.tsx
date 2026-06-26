@@ -52,7 +52,7 @@ export default function HomeQuickNav() {
   return (
     <nav className="home-quick-nav" aria-label="Quick section navigation">
       <div className="home-quick-nav-track">
-        <div className="home-quick-nav-grid">
+        <div className="home-quick-nav-row">
           {HOME_QUICK_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = activeSectionId === item.sectionId;
@@ -62,18 +62,15 @@ export default function HomeQuickNav() {
                 key={item.sectionId}
                 type="button"
                 aria-current={isActive ? "true" : undefined}
-                className={`home-quick-nav-card home-quick-nav-card--${item.variant}${
+                className={`home-quick-nav-item home-quick-nav-item--${item.variant}${
                   isActive ? " is-active" : ""
                 }`}
                 onClick={() => scrollToSection(item.sectionId)}
               >
-                <span className={`home-quick-nav-icon home-quick-nav-icon--${item.variant}`}>
-                  <Icon size={26} aria-hidden="true" />
+                <span className="home-quick-nav-icon" aria-hidden="true">
+                  <Icon size={22} strokeWidth={2.25} />
                 </span>
-                <span className="home-quick-nav-text">
-                  <span className="home-quick-nav-title">{item.navTitle}</span>
-                  <span className="home-quick-nav-subtitle">{item.navSubtitle}</span>
-                </span>
+                <span className="home-quick-nav-title">{item.navTitle}</span>
               </button>
             );
           })}
