@@ -26,7 +26,7 @@ export default function ProductCardMedia({
           alt={alt}
           fill
           className="product-card-image"
-          sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 22vw"
+          sizes="(max-width: 767px) 92vw, (max-width: 1024px) 46vw, 24vw"
           fallback={fallback}
           priority={priority}
         />

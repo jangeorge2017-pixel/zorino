@@ -22,6 +22,7 @@ export type HomeSectionConfig = {
   badge: string;
   icon: LucideIcon;
   navTitle: string;
+  navTitleMobile: string;
   navSubtitle: string;
 };
 
@@ -32,6 +33,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
     badge: "Best Value",
     icon: Tag,
     navTitle: "Lowest Price",
+    navTitleMobile: "Lowest Price",
     navSubtitle: "Today’s cheapest picks",
   },
   "trending-products": {
@@ -40,6 +42,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
     badge: "Hot Now",
     icon: Flame,
     navTitle: "Trending Products",
+    navTitleMobile: "Trending",
     navSubtitle: "What shoppers love",
   },
   "recommended-products": {
@@ -48,6 +51,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
     badge: "Editor's Pick",
     icon: Sparkles,
     navTitle: "Recommended Products",
+    navTitleMobile: "Recommended",
     navSubtitle: "Top-rated across stores",
   },
   "recommended-for-you": {
@@ -56,6 +60,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
     badge: "For You",
     icon: UserRound,
     navTitle: "Recommended For You",
+    navTitleMobile: "For You",
     navSubtitle: "Personalized matches",
   },
   "trending-deals": {
@@ -64,6 +69,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
     badge: "Live Deals",
     icon: TrendingUp,
     navTitle: "Trending Deals",
+    navTitleMobile: "Deals",
     navSubtitle: "Dropping prices now",
   },
   "top-coupons": {
@@ -72,6 +78,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
     badge: "Verified Codes",
     icon: BadgePercent,
     navTitle: "Top Coupons",
+    navTitleMobile: "Coupons",
     navSubtitle: "Verified codes",
   },
 };

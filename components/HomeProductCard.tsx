@@ -7,6 +7,7 @@ import AssetImage from "@/components/AssetImage";
 import StarRating from "@/components/StarRating";
 import WishlistButton from "@/components/WishlistButton";
 import PriceAlertButton from "@/components/PriceAlertButton";
+import ShareButton from "@/components/ShareButton";
 import ProductDynamicBadge from "@/components/ProductDynamicBadge";
 import PriceSparkline from "@/components/PriceSparkline";
 import {
@@ -117,6 +118,7 @@ export default function HomeProductCard({
 
       <div className="product-card-quick-actions">
         <WishlistButton productId={productId} />
+        <ShareButton productId={productId} productName={name} />
         <PriceAlertButton productId={productId} />
       </div>
 
