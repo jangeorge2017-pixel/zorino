@@ -18,7 +18,7 @@ export interface SEOProps {
 }
 
 export function generateMetadata(props: SEOProps) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://zorino.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://zorino.org";
   const {
     title = 'ZORINO - Find the Best Deals Across All Marketplaces',
     description = 'Discover amazing deals, coupons, and price comparisons across Amazon, Alibaba, AliExpress, Noon, Temu and more. Save money on every purchase with ZORINO.',
