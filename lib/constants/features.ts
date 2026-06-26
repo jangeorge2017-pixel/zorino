@@ -20,7 +20,7 @@ export const marketingFeatures = [
   {
     iconSrc: "/icons/feature-globe.svg",
     title: "Global Coverage",
-    description: "Compare prices from stores across multiple regions",
+    description: "Compare prices from 50+ stores across 150+ countries",
     accent: "blue",
   },
 ] as const;

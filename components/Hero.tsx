@@ -1,5 +1,5 @@
 import Stats from "@/components/Stats";
-import AssetImage from "@/components/AssetImage";
+import HeroOrbitCard from "@/components/HeroOrbitCard";
 import type { FloatingProductCard, HeroStatItem } from "@/lib/types/entities";
 
 type HeroProps = {
@@ -30,25 +30,11 @@ export default function Hero({ floatingProducts, stats }: HeroProps) {
       </div>
 
       <div className="hero-visual">
-        {floatingProducts.map((product) => (
-          <div key={product.position} className={`floating-card ${product.position}`}>
-            <span className="floating-discount">{product.discount}</span>
-            <div className="floating-product-image">
-              <AssetImage
-                src={product.imageSrc}
-                alt=""
-                width={120}
-                height={120}
-                className="floating-product-img"
-                fallback={<span className="deal-emoji">🛍️</span>}
-              />
-            </div>
-            <div className="floating-prices">
-              <span className="floating-price">{product.price}</span>
-              <span className="floating-original">{product.original}</span>
-            </div>
-          </div>
-        ))}
+        <div className="hero-orbit" aria-label="Featured products">
+          {floatingProducts.map((product) => (
+            <HeroOrbitCard key={product.position} product={product} />
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink, Tag, TrendingDown, Trophy } from "lucide-react";
+import { ExternalLink, Tag, TrendingDown, Trophy, ChevronRight } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import type { CompareOffer } from "@/services/compare";
@@ -178,6 +178,7 @@ export function ComparePricesButton({
       onClick={onClick}
     >
       Compare Prices
+      <ChevronRight size={16} />
     </Link>
   );
 }

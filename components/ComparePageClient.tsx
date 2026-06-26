@@ -35,14 +35,18 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
           {products.map((item) => (
             <Card key={item.product.id} className="compare-page-product">
               <div className="compare-page-product-header">
-                <AssetImage
-                  src={item.product.imageUrl}
-                  alt=""
-                  width={64}
-                  height={64}
-                  className="compare-page-product-img"
-                  fallback={<span className="text-3xl">{item.product.emoji ?? "🛍️"}</span>}
-                />
+                <div className="compare-page-product-media product-card-media">
+                  <div className="product-card-image-frame">
+                    <AssetImage
+                      src={item.product.imageUrl}
+                      alt={item.product.name}
+                      fill
+                      className="compare-page-product-img product-card-image"
+                      sizes="120px"
+                      fallback={<span className="deal-emoji">{item.product.emoji ?? "🛍️"}</span>}
+                    />
+                  </div>
+                </div>
                 <div>
                   <Link
                     href={`/product/${item.product.id}#compare-prices`}

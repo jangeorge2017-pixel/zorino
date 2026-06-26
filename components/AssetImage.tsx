@@ -5,13 +5,16 @@ import { useEffect, useState, type ReactNode } from "react";
 import {
   normalizeProductImageUrl,
   PRODUCT_IMAGE_PLACEHOLDER,
+  isLocalProductImage,
 } from "@/lib/images/product-image";
 
 type AssetImageProps = {
   src: string;
   alt?: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
+  fill?: boolean;
+  sizes?: string;
   className?: string;
   fallback?: ReactNode;
   priority?: boolean;
@@ -26,6 +29,8 @@ export default function AssetImage({
   alt = "",
   width,
   height,
+  fill = false,
+  sizes,
   className,
   fallback,
   priority,
@@ -33,26 +38,33 @@ export default function AssetImage({
   const normalized = normalizeProductImageUrl(src);
   const [activeSrc, setActiveSrc] = useState(normalized);
   const [showFallbackUi, setShowFallbackUi] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setActiveSrc(normalizeProductImageUrl(src));
     setShowFallbackUi(false);
+    const next = normalizeProductImageUrl(src);
+    setLoaded(isLocalProductImage(next));
   }, [src]);
 
   if (showFallbackUi || (!activeSrc && fallback)) {
     return (
       <span
-        className={className}
-        style={{
-          width,
-          height,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className={`asset-image-fallback ${className ?? ""}`}
+        style={
+          fill
+            ? undefined
+            : {
+                width,
+                height,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }
+        }
         aria-hidden={alt === ""}
       >
-        {fallback ?? <span aria-hidden="true">🛍️</span>}
+        {fallback ?? <span className="product-card-emoji-fallback" aria-hidden="true">🛍️</span>}
       </span>
     );
   }
@@ -65,16 +77,27 @@ export default function AssetImage({
     setShowFallbackUi(true);
   };
 
+  const shared = {
+    src: activeSrc,
+    alt,
+    className: `${className ?? ""}${loaded ? " asset-image-loaded" : " asset-image-loading"}`.trim(),
+    priority,
+    loading: priority ? ("eager" as const) : ("lazy" as const),
+    style: { objectFit: "contain" as const, objectPosition: "center" as const },
+    onError: handleError,
+    onLoad: () => setLoaded(true),
+  };
+
+  if (fill) {
+    return <Image {...shared} fill sizes={sizes ?? "100vw"} />;
+  }
+
   return (
     <Image
-      src={activeSrc}
-      alt={alt}
-      width={width}
-      height={height}
-      className={className}
-      priority={priority}
-      style={{ objectFit: "contain", objectPosition: "center" }}
-      onError={handleError}
+      {...shared}
+      width={width ?? 120}
+      height={height ?? 120}
+      sizes={sizes}
     />
   );
 }

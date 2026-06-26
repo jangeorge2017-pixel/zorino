@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
-import { Star, TrendingDown, ChevronRight } from "lucide-react";
+import { Star, TrendingDown } from "lucide-react";
+import ProductCardMedia from "@/components/ProductCardMedia";
 import AssetImage from "@/components/AssetImage";
 import TrendingBadgePill from "@/components/TrendingBadge";
+import ProductCardActions from "@/components/ProductCardActions";
 import { trackProductInteraction } from "@/lib/trending/track-client";
 import type { TrendingProductCard } from "@/lib/types/entities";
 
@@ -76,87 +77,80 @@ export default function TrendingProductCardView({
   };
 
   return (
-    <article className="trending-product-card deal-card">
-      <div className="deal-card-top">
-        <div className="trending-card-badges">
-          {product.badge && <TrendingBadgePill badge={product.badge} size="sm" />}
-          {product.discount > 0 && (
-            <span className="deal-discount">-{product.discount}%</span>
+    <article className="trending-product-card deal-card product-card">
+      <ProductCardMedia
+        src={product.imageSrc}
+        alt={product.name}
+        fallback={<span className="deal-emoji">{product.emoji}</span>}
+        badges={
+          <>
+            {product.badge && <TrendingBadgePill badge={product.badge} size="sm" />}
+            {product.discount > 0 && (
+              <span className="deal-discount">-{product.discount}%</span>
+            )}
+          </>
+        }
+      />
+
+      <div className="product-card-body">
+        <h3 className="deal-name">{product.name}</h3>
+
+        <div className="deal-rating">
+          <div className="deal-stars">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                size={14}
+                className={i < Math.floor(product.rating) ? "star-filled" : "star-empty"}
+                fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
+              />
+            ))}
+          </div>
+          <span className="deal-reviews">({product.reviews.toLocaleString("en-US")})</span>
+        </div>
+
+        {product.rankingType === "biggest_drops" && (
+          <div className="deal-price-drop">
+            <TrendingDown size={12} />
+            Price dropped
+          </div>
+        )}
+
+        <div className="deal-pricing">
+          <span className="deal-price">${product.price.toLocaleString("en-US")}</span>
+          {product.originalPrice > product.price && (
+            <span className="deal-original">${product.originalPrice.toLocaleString("en-US")}</span>
           )}
         </div>
-        <div className="deal-image">
-          <AssetImage
-            src={product.imageSrc}
-            alt=""
-            width={72}
-            height={72}
-            className="deal-product-img"
-            fallback={<span className="deal-emoji">{product.emoji}</span>}
-          />
+
+        <div className="deal-store-row">
+          <div className="deal-store">
+            <span className="store-logo">
+              <AssetImage
+                src={product.storeLogoSrc}
+                alt=""
+                width={28}
+                height={28}
+                className="store-logo-img"
+                fallback={<span className="store-logo-initial">{product.storeInitial}</span>}
+              />
+            </span>
+            <span>{product.store}</span>
+          </div>
+          {product.providerCount !== undefined && product.providerCount > 1 && (
+            <span className="trending-provider-count">{product.providerCount} stores</span>
+          )}
+        </div>
+
+        <div className="deal-chart-row">
+          <PriceSparkline data={product.priceHistory} id={String(product.id)} />
         </div>
       </div>
 
-      <h3 className="deal-name">{product.name}</h3>
-
-      <div className="deal-rating">
-        <div className="deal-stars">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              size={13}
-              className={i < Math.floor(product.rating) ? "star-filled" : "star-empty"}
-              fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
-            />
-          ))}
-        </div>
-        <span className="deal-reviews">({product.reviews.toLocaleString("en-US")})</span>
-      </div>
-
-      {product.rankingType === "biggest_drops" && (
-        <div className="deal-price-drop">
-          <TrendingDown size={12} />
-          Price dropped
-        </div>
-      )}
-
-      <div className="deal-pricing">
-        <span className="deal-price">${product.price.toLocaleString("en-US")}</span>
-        {product.originalPrice > product.price && (
-          <span className="deal-original">${product.originalPrice.toLocaleString("en-US")}</span>
-        )}
-      </div>
-
-      <div className="deal-store-row">
-        <div className="deal-store">
-          <span className="store-logo">
-            <AssetImage
-              src={product.storeLogoSrc}
-              alt=""
-              width={28}
-              height={28}
-              className="store-logo-img"
-              fallback={<span className="store-logo-initial">{product.storeInitial}</span>}
-            />
-          </span>
-          <span>{product.store}</span>
-        </div>
-        {product.providerCount !== undefined && product.providerCount > 1 && (
-          <span className="trending-provider-count">{product.providerCount} stores</span>
-        )}
-      </div>
-
-      <div className="deal-chart-row">
-        <PriceSparkline data={product.priceHistory} id={String(product.id)} />
-      </div>
-
-      <Link
-        href={`/product/${product.productId ?? product.id}#compare-prices`}
-        className="deal-compare-btn trending-card-cta"
-        onClick={handleClick}
-      >
-        Compare Prices
-        <ChevronRight size={14} />
-      </Link>
+      <ProductCardActions
+        productId={String(product.productId ?? product.id)}
+        onShopClick={handleClick}
+      />
     </article>
   );
 }

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Star, TrendingDown, ChevronRight } from "lucide-react";
+import ProductCardMedia from "@/components/ProductCardMedia";
 import AssetImage from "@/components/AssetImage";
 import SectionFlameIcon from "@/components/SectionFlameIcon";
 import TrendingBadgePill from "@/components/TrendingBadge";
-import { ComparePricesButton } from "@/components/PriceComparisonTable";
+import ProductCardActions from "@/components/ProductCardActions";
 import { getTrendingDeals } from "@/lib/data/homepage";
 import { getProductBadgesMap } from "@/services/trending/queries";
 import type { TrendingDealCard } from "@/lib/types/entities";
@@ -45,71 +46,69 @@ function PriceSparkline({ data, id }: { data: number[]; id: number | string }) {
 
 function DealCard({ deal }: { deal: TrendingDealCard }) {
   return (
-    <article className="deal-card">
-      <div className="deal-card-top">
-        <div className="trending-card-badges">
-          {deal.badge && <TrendingBadgePill badge={deal.badge} size="sm" />}
-          <span className="deal-discount">-{deal.discount}%</span>
+    <article className="deal-card product-card">
+      <ProductCardMedia
+        src={deal.imageSrc}
+        alt={deal.name}
+        fallback={<span className="deal-emoji">{deal.emoji}</span>}
+        badges={
+          <>
+            {deal.badge && <TrendingBadgePill badge={deal.badge} size="sm" />}
+            <span className="deal-discount">-{deal.discount}%</span>
+          </>
+        }
+      />
+
+      <div className="product-card-body">
+        <h3 className="deal-name">{deal.name}</h3>
+
+        <div className="deal-rating">
+          <div className="deal-stars">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                size={14}
+                className={i < Math.floor(deal.rating) ? "star-filled" : "star-empty"}
+                fill={i < Math.floor(deal.rating) ? "currentColor" : "none"}
+              />
+            ))}
+          </div>
+          <span className="deal-reviews">({deal.reviews.toLocaleString("en-US")})</span>
         </div>
-        <div className="deal-image">
-          <AssetImage
-            src={deal.imageSrc}
-            alt=""
-            width={72}
-            height={72}
-            className="deal-product-img"
-            fallback={<span className="deal-emoji">{deal.emoji}</span>}
-          />
+
+        <div className="deal-price-drop">
+          <TrendingDown size={12} />
+          Price dropped
+        </div>
+
+        <div className="deal-pricing">
+          <span className="deal-price">${deal.price.toLocaleString("en-US")}</span>
+          <span className="deal-original">${deal.originalPrice.toLocaleString("en-US")}</span>
+        </div>
+
+        <div className="deal-store-row">
+          <div className="deal-store">
+            <span className="store-logo">
+              <AssetImage
+                src={deal.storeLogoSrc}
+                alt=""
+                width={28}
+                height={28}
+                className="store-logo-img"
+                fallback={<span className="store-logo-initial">{deal.storeInitial}</span>}
+              />
+            </span>
+            <span>{deal.store}</span>
+          </div>
+          <span className="deal-updated">Updated {deal.updatedMins} min ago</span>
+        </div>
+
+        <div className="deal-chart-row">
+          <PriceSparkline data={deal.priceHistory} id={deal.id} />
         </div>
       </div>
-      <h3 className="deal-name">{deal.name}</h3>
 
-      <div className="deal-rating">
-        <div className="deal-stars">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              size={13}
-              className={i < Math.floor(deal.rating) ? "star-filled" : "star-empty"}
-              fill={i < Math.floor(deal.rating) ? "currentColor" : "none"}
-            />
-          ))}
-        </div>
-        <span className="deal-reviews">({deal.reviews.toLocaleString("en-US")})</span>
-      </div>
-
-      <div className="deal-price-drop">
-        <TrendingDown size={12} />
-        Price dropped
-      </div>
-
-      <div className="deal-pricing">
-        <span className="deal-price">${deal.price.toLocaleString("en-US")}</span>
-        <span className="deal-original">${deal.originalPrice.toLocaleString("en-US")}</span>
-      </div>
-
-      <div className="deal-store-row">
-        <div className="deal-store">
-          <span className="store-logo">
-            <AssetImage
-              src={deal.storeLogoSrc}
-              alt=""
-              width={28}
-              height={28}
-              className="store-logo-img"
-              fallback={<span className="store-logo-initial">{deal.storeInitial}</span>}
-            />
-          </span>
-          <span>{deal.store}</span>
-        </div>
-        <span className="deal-updated">Updated {deal.updatedMins} min ago</span>
-      </div>
-
-      <div className="deal-chart-row">
-        <PriceSparkline data={deal.priceHistory} id={deal.id} />
-      </div>
-
-      <ComparePricesButton productId={String(deal.productId ?? deal.id)} />
+      <ProductCardActions productId={String(deal.productId ?? deal.id)} />
     </article>
   );
 }

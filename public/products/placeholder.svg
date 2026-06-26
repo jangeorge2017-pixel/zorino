@@ -1,6 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none" role="img" aria-label="Product placeholder">
-  <rect width="120" height="120" rx="16" fill="#1f2937"/>
-  <rect x="24" y="32" width="72" height="56" rx="8" stroke="#6b7280" stroke-width="3" fill="#111827"/>
-  <circle cx="44" cy="52" r="8" fill="#4b5563"/>
-  <path d="M32 76l18-16 14 12 10-8 14 12" stroke="#6b7280" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" fill="none" role="img" aria-label="Product placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="320" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="80" y1="60" x2="240" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8b5cf6" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#3b82f6" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="24" fill="url(#bg)"/>
+  <rect x="48" y="48" width="224" height="224" rx="20" fill="url(#accent)" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  <rect x="88" y="96" width="144" height="112" rx="14" stroke="#64748b" stroke-width="3" fill="#0f172a"/>
+  <circle cx="128" cy="136" r="14" fill="#475569"/>
+  <path d="M96 176l36-32 28 24 22-18 40 32" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
