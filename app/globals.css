@@ -3875,8 +3875,9 @@ img {
     --container: 100%;
     --content-pad: 16px;
     --section-gap: 22px;
-    --product-card-min-height: 442px;
-    --product-card-padding: 14px;
+    --product-card-min-height: 398px;
+    --product-card-padding: 12px;
+    --product-card-body-gap: 6px;
     --product-grid-gap: 16px;
   }
 
@@ -4155,7 +4156,10 @@ img {
 
   .home-quick-nav {
     height: auto;
-    min-height: 54px;
+    min-height: 58px;
+    margin-top: -6px;
+    display: flex;
+    align-items: center;
   }
 
   .home-quick-nav-track {
@@ -4166,6 +4170,9 @@ img {
     scrollbar-width: none;
     margin: 0 calc(-1 * var(--content-pad));
     padding: 0 var(--content-pad);
+    width: 100%;
+    display: flex;
+    align-items: center;
   }
 
   .home-quick-nav-track::-webkit-scrollbar {
@@ -4174,42 +4181,60 @@ img {
 
   .home-quick-nav-row {
     justify-content: flex-start;
+    align-items: center;
     width: max-content;
     min-width: 100%;
-    gap: 14px;
+    gap: 16px;
     height: auto;
-    min-height: 50px;
-    padding-bottom: 4px;
+    min-height: 54px;
+    padding: 2px 0 6px;
   }
 
   .home-quick-nav-item {
     flex: 0 0 auto;
     min-width: max-content;
-    padding: 0 6px;
+    padding: 0 8px;
     scroll-snap-align: center;
     scroll-snap-stop: always;
-    height: 50px;
+    height: auto;
+    min-height: 54px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-align: center;
   }
 
   .home-quick-nav-title {
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.15;
     overflow: visible;
     text-overflow: unset;
     max-width: none;
+    white-space: nowrap;
+  }
+
+  .home-quick-nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .home-quick-nav-icon svg {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 
   .home-quick-nav-item::after {
     max-width: none;
+    bottom: 2px;
   }
 
   .home-quick-nav-item.is-active::after,
   .home-quick-nav-item:hover::after {
-    width: calc(100% - 4px);
+    width: calc(100% - 6px);
   }
 
   .home-quick-nav-item.is-active .home-quick-nav-title {
