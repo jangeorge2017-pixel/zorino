@@ -61,7 +61,7 @@ class AffiliateSystem {
   private trackingDomain: string;
   private commissionRates: Record<string, number>;
 
-  constructor(trackingDomain: string = 'zorino.com') {
+  constructor(trackingDomain: string = 'zorino.org') {
     this.trackingDomain = trackingDomain;
     this.commissionRates = {
       amazon: 4,

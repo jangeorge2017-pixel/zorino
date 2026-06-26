@@ -2,6 +2,7 @@
 // This file implements the newsletter subscription and email campaign system
 
 import { useState } from 'react';
+import { getSiteUrl } from '@/lib/site-url';
 
 export interface NewsletterSubscriber {
   id: string;
@@ -187,11 +188,11 @@ class NewsletterSystem {
                 <li>Shopping tips and guides</li>
                 <li>Early access to new features</li>
               </ul>
-              <a href="https://zorino.com" class="button">Start Saving Now</a>
+              <a href="${getSiteUrl()}" class="button">Start Saving Now</a>
             </div>
             <div class="footer">
               <p>You received this email because you subscribed to ZORINO newsletter.</p>
-              <p>To unsubscribe, click <a href="https://zorino.com/unsubscribe?email=${subscriber.email}">here</a>.</p>
+              <p>To unsubscribe, click <a href="${getSiteUrl()}/unsubscribe?email=${subscriber.email}">here</a>.</p>
               <p>&copy; ${new Date().getFullYear()} ZORINO. All rights reserved.</p>
             </div>
           </div>
@@ -235,7 +236,7 @@ class NewsletterSystem {
               <p>We're sorry to see you go. You've been successfully unsubscribed from the ZORINO newsletter.</p>
               <p>If you ever want to re-subscribe, just visit our website and sign up again.</p>
               <p>We hope to see you again soon!</p>
-              <a href="https://zorino.com">Return to ZORINO</a>
+              <a href="${getSiteUrl()}">Return to ZORINO</a>
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} ZORINO. All rights reserved.</p>
