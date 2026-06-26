@@ -1,38 +1,44 @@
 "use client";
 
-import { Sparkles, UserCircle } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
+import HomeSectionHeader from "@/components/HomeSectionHeader";
+import {
+  HOME_SECTIONS,
+  type HomeSectionVariant,
+} from "@/lib/homepage/sections";
 import type { RecommendedProductCard } from "@/services/recommendations";
 
 type RecommendedProductsSectionProps = {
+  variant: "recommended-products" | "recommended-for-you";
   title: string;
   subtitle: string;
-  icon: "recommended" | "personalized";
   products: RecommendedProductCard[];
 };
 
 export default function RecommendedProductsSection({
+  variant,
   title,
   subtitle,
-  icon,
   products,
 }: RecommendedProductsSectionProps) {
   if (products.length === 0) return null;
 
-  const Icon = icon === "personalized" ? UserCircle : Sparkles;
+  const sectionConfig = HOME_SECTIONS[variant];
+  const headingId = `${variant}-heading`;
 
   return (
-    <section className="trending-products-section" aria-labelledby={`${icon}-heading`}>
-      <div className="trending-products-header">
-        <div>
-          <h2 id={`${icon}-heading`} className="section-title trending-products-title">
-            <Icon size={24} className="trending-title-icon" />
-            {title}
-          </h2>
-          <p className="trending-products-subtitle">{subtitle}</p>
-        </div>
-      </div>
+    <section
+      id={sectionConfig.sectionId}
+      className={`home-section-shell home-section-shell--${variant} recommended-products-section`}
+      aria-labelledby={headingId}
+    >
+      <HomeSectionHeader
+        variant={variant}
+        headingId={headingId}
+        title={title}
+        subtitle={subtitle}
+      />
 
       <div className="trending-products-grid">
         {products.map((product) => (

@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { Star, TrendingDown, ChevronRight } from "lucide-react";
+import { Star, TrendingDown } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import AssetImage from "@/components/AssetImage";
-import SectionFlameIcon from "@/components/SectionFlameIcon";
+import HomeSectionHeader from "@/components/HomeSectionHeader";
+import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import TrendingBadgePill from "@/components/TrendingBadge";
 import ProductCardActions from "@/components/ProductCardActions";
 import { getTrendingDeals } from "@/lib/data/homepage";
@@ -127,17 +127,17 @@ export default async function ProductCard() {
   }
 
   return (
-    <section className="trending-section">
-      <div className="section-header">
-        <h2 className="section-title">
-          <SectionFlameIcon size={24} />
-          Trending Deals
-        </h2>
-        <Link href="/deals" className="section-link">
-          View all deals
-          <ChevronRight size={16} />
-        </Link>
-      </div>
+    <section
+      id={HOME_SECTIONS["trending-deals"].sectionId}
+      className="home-section-shell home-section-shell--trending-deals trending-section"
+    >
+      <HomeSectionHeader
+        variant="trending-deals"
+        headingId="trending-deals-heading"
+        title="Trending Deals"
+        subtitle="Price drops and hot offers updated throughout the day"
+        link={{ href: "/deals", label: "View all deals" }}
+      />
 
       <div className="deals-grid">
         {dealsWithBadges.map((deal) => (

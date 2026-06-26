@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { DollarSign, Sparkles, TrendingDown } from "lucide-react";
+import { Sparkles, TrendingDown } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
+import HomeSectionHeader from "@/components/HomeSectionHeader";
+import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import { LOWEST_PRICE_SORT_OPTIONS } from "@/lib/lowest-prices/config";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { trackProductInteraction } from "@/lib/trending/track-client";
@@ -35,23 +36,24 @@ export default function LowestPricesSection({ items, lastComputedAt }: LowestPri
   }, [items, sort]);
 
   return (
-    <section className="lowest-prices-section" aria-labelledby="lowest-prices-heading">
-      <div className="lowest-prices-header">
-        <div>
-          <h2 id="lowest-prices-heading" className="section-title lowest-prices-title">
-            <DollarSign size={24} className="lowest-prices-icon" />
-            Lowest Prices Today
-          </h2>
-          <p className="lowest-prices-subtitle">
-            Cheapest offers across all imported stores — compared automatically
-          </p>
-        </div>
-        {lastComputedAt && (
-          <p className="lowest-prices-updated">
-            Updated {formatRelativeTime(lastComputedAt)}
-          </p>
-        )}
-      </div>
+    <section
+      id={HOME_SECTIONS["lowest-price"].sectionId}
+      className="home-section-shell home-section-shell--lowest-price lowest-prices-section"
+      aria-labelledby="lowest-prices-heading"
+    >
+      <HomeSectionHeader
+        variant="lowest-price"
+        headingId="lowest-prices-heading"
+        title="Lowest Prices Today"
+        subtitle="Cheapest offers across all imported stores — compared automatically"
+        meta={
+          lastComputedAt ? (
+            <p className="lowest-prices-updated">
+              Updated {formatRelativeTime(lastComputedAt)}
+            </p>
+          ) : undefined
+        }
+      />
 
       <div className="lowest-prices-sort-scroll">
         <div className="lowest-prices-sort" role="group" aria-label="Sort lowest prices">

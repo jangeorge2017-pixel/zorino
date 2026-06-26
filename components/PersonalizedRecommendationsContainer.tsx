@@ -8,13 +8,13 @@ export default async function PersonalizedRecommendationsContainer() {
 
   return (
     <RecommendedProductsSection
+      variant="recommended-for-you"
       title="Recommended for You"
       subtitle={
         user
           ? "Based on your favorites, clicks, and trending deals"
           : "Popular picks — sign in for personalized recommendations"
       }
-      icon="personalized"
       products={products}
     />
   );
