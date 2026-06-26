@@ -2,9 +2,9 @@
 
 import { useMemo, useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { DollarSign, ExternalLink, Sparkles, TrendingDown } from "lucide-react";
-import AssetImage from "@/components/AssetImage";
-import { ComparePricesButton } from "@/components/PriceComparisonTable";
+import { DollarSign, Sparkles, TrendingDown } from "lucide-react";
+import ProductCardMedia from "@/components/ProductCardMedia";
+import ProductCardActions from "@/components/ProductCardActions";
 import { LOWEST_PRICE_SORT_OPTIONS } from "@/lib/lowest-prices/config";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { trackProductInteraction } from "@/lib/trending/track-client";
@@ -117,63 +117,56 @@ function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
   };
 
   return (
-    <article className="lowest-price-card">
-      <div className="lowest-price-card-top">
-        <div className="lowest-price-badges">
-          {item.isNewLow && (
-            <span className="lowest-badge lowest-badge-new">
-              <Sparkles size={12} />
-              New Low
-            </span>
-          )}
-          {item.discountPercent > 0 && (
-            <span className="lowest-badge lowest-badge-save">-{item.discountPercent}%</span>
+    <article className="lowest-price-card product-card">
+      <ProductCardMedia
+        src={item.imageUrl}
+        alt={item.productName}
+        fallback={<span className="lowest-price-emoji">{item.emoji}</span>}
+        badges={
+          <>
+            {item.isNewLow && (
+              <span className="lowest-badge lowest-badge-new">
+                <Sparkles size={12} />
+                New Low
+              </span>
+            )}
+            {item.discountPercent > 0 && (
+              <span className="lowest-badge lowest-badge-save">-{item.discountPercent}%</span>
+            )}
+          </>
+        }
+      />
+
+      <div className="product-card-body">
+        <h3 className="lowest-price-name">{item.productName}</h3>
+
+        <div className="lowest-price-row">
+          <span className="lowest-price-current">${item.lowestPrice.toLocaleString("en-US")}</span>
+          {item.originalPrice > item.lowestPrice && (
+            <span className="lowest-price-original">${item.originalPrice.toLocaleString("en-US")}</span>
           )}
         </div>
-        <AssetImage
-          src={item.imageUrl}
-          alt=""
-          width={72}
-          height={72}
-          className="lowest-price-img"
-          fallback={<span className="lowest-price-emoji">{item.emoji}</span>}
-        />
-      </div>
 
-      <h3 className="lowest-price-name">{item.productName}</h3>
-
-      <div className="lowest-price-row">
-        <span className="lowest-price-current">${item.lowestPrice.toLocaleString("en-US")}</span>
-        {item.originalPrice > item.lowestPrice && (
-          <span className="lowest-price-original">${item.originalPrice.toLocaleString("en-US")}</span>
+        {item.savingsAmount > 0 && (
+          <p className="lowest-price-savings">
+            <TrendingDown size={12} />
+            Save ${item.savingsAmount.toLocaleString("en-US")} ({item.discountPercent}%)
+          </p>
         )}
+
+        <div className="lowest-price-store">
+          <span className="lowest-price-store-name">{item.storeName}</span>
+          <span className="lowest-price-provider">{item.provider}</span>
+        </div>
       </div>
 
-      {item.savingsAmount > 0 && (
-        <p className="lowest-price-savings">
-          <TrendingDown size={12} />
-          Save ${item.savingsAmount.toLocaleString("en-US")} ({item.discountPercent}%)
-        </p>
-      )}
-
-      <div className="lowest-price-store">
-        <span className="lowest-price-store-name">{item.storeName}</span>
-        <span className="lowest-price-provider">{item.provider}</span>
-      </div>
-
-      <div className="lowest-price-actions">
-        <ComparePricesButton productId={item.productId} className="lowest-price-details" />
-        <a
-          href={shopUrl}
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-          className="lowest-price-shop"
-          onClick={handleShopClick}
-        >
-          Shop now
-          <ExternalLink size={14} />
-        </a>
-      </div>
+      <ProductCardActions
+        productId={item.productId}
+        compareClassName="lowest-price-details"
+        shopHref={shopUrl}
+        shopExternal
+        onShopClick={handleShopClick}
+      />
     </article>
   );
 }

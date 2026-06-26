@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { Sparkles, UserCircle } from "lucide-react";
-import AssetImage from "@/components/AssetImage";
+import ProductCardMedia from "@/components/ProductCardMedia";
+import ProductCardActions from "@/components/ProductCardActions";
 import type { RecommendedProductCard } from "@/services/recommendations";
 
 type RecommendedProductsSectionProps = {
@@ -36,35 +36,32 @@ export default function RecommendedProductsSection({
 
       <div className="trending-products-grid">
         {products.map((product) => (
-          <Link
-            key={product.id}
-            href={`/product/${product.id}`}
-            className="trending-product-card-link"
-          >
-            <article className="trending-product-card">
-              <div className="trending-card-image-wrap">
-                <AssetImage
-                  src={product.imageUrl}
-                  alt={product.name}
-                  width={160}
-                  height={160}
-                  className="trending-card-image"
-                  fallback={<span className="deal-emoji">{product.emoji}</span>}
-                />
+          <article key={product.id} className="trending-product-card deal-card product-card">
+            <ProductCardMedia
+              src={product.imageUrl}
+              alt={product.name}
+              fallback={<span className="deal-emoji">{product.emoji}</span>}
+              badges={
+                product.discount > 0 ? (
+                  <span className="deal-discount">-{product.discount}%</span>
+                ) : null
+              }
+            />
+
+            <div className="product-card-body">
+              <p className="trending-card-reason">{product.reason}</p>
+              <h3 className="trending-card-title deal-name">{product.name}</h3>
+              <p className="trending-card-store">{product.storeName}</p>
+              <div className="trending-card-prices deal-pricing">
+                <span className="trending-card-price deal-price">${product.price.toFixed(2)}</span>
+                {product.discount > 0 && (
+                  <span className="trending-card-discount deal-discount">-{product.discount}%</span>
+                )}
               </div>
-              <div className="trending-card-body">
-                <p className="text-xs text-purple-400 mb-1">{product.reason}</p>
-                <h3 className="trending-card-title">{product.name}</h3>
-                <p className="trending-card-store">{product.storeName}</p>
-                <div className="trending-card-prices">
-                  <span className="trending-card-price">${product.price.toFixed(2)}</span>
-                  {product.discount > 0 && (
-                    <span className="trending-card-discount">-{product.discount}%</span>
-                  )}
-                </div>
-              </div>
-            </article>
-          </Link>
+            </div>
+
+            <ProductCardActions productId={product.id} />
+          </article>
         ))}
       </div>
     </section>

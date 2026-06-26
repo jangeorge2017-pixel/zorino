@@ -16,7 +16,15 @@ import type {
   TrendingDealCard,
 } from "@/lib/types/entities";
 
-const FLOATING_POSITIONS = ["card-1", "card-2", "card-3", "card-4"] as const;
+const HERO_ORBIT_POSITIONS = [
+  "orbit-top",
+  "orbit-upper-left",
+  "orbit-upper-right",
+  "orbit-lower-left",
+  "orbit-lower-right",
+] as const;
+
+const FLOATING_POSITIONS = HERO_ORBIT_POSITIONS;
 
 const CATEGORY_ACCENTS: Record<string, string | null> = {
   phones: "pink",
@@ -194,18 +202,31 @@ export async function getCouponsForPage() {
   return data.map(couponToCard);
 }
 
-/** Hero floating cards from trending deals/products. */
+/** Hero orbit — five circular product cards in the upper half around the Z logo. */
 export async function getHeroFloatingProducts(): Promise<FloatingProductCard[]> {
-  const deals = await getTrendingDeals(4);
-  if (deals.length === 0) return [];
+  const deals = await getTrendingDeals(5);
+  const positions = HERO_ORBIT_POSITIONS;
 
-  return deals.map((deal, index) => ({
-    imageSrc: deal.imageSrc,
-    discount: `-${Math.round(deal.discount)}%`,
-    price: formatCurrency(deal.price),
-    original: formatCurrency(deal.originalPrice),
-    position: FLOATING_POSITIONS[index] ?? FLOATING_POSITIONS[0],
-  }));
+  if (deals.length === 0) {
+    return positions.map((position) => ({
+      imageSrc: normalizeProductImageUrl(null),
+      discount: "",
+      price: "",
+      original: "",
+      position,
+    }));
+  }
+
+  return positions.map((position, index) => {
+    const deal = deals[index % deals.length];
+    return {
+      imageSrc: deal.imageSrc,
+      discount: deal.discount > 0 ? `-${Math.round(deal.discount)}%` : "",
+      price: formatCurrency(deal.price),
+      original: formatCurrency(deal.originalPrice),
+      position,
+    };
+  });
 }
 
 /** Category grid from Supabase. */

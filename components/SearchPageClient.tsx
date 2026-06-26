@@ -3,12 +3,11 @@
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Search, Filter } from "lucide-react";
 import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import AssetImage from "@/components/AssetImage";
-import { Search, Filter, Star, Heart, ExternalLink } from "lucide-react";
+import ListingProductCard from "@/components/ListingProductCard";
 import type { SearchResultItem } from "@/lib/data/homepage";
 
 type SearchPageClientProps = {
@@ -206,65 +205,25 @@ export default function SearchPageClient({
                 <p className="text-gray-400 mb-4">{t("tryDifferentKeywords")}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="listing-products-grid">
                 {filteredResults.map((product) => (
-                  <Card key={product.id} hover>
-                    <div className="space-y-4">
-                      <div className="py-4 flex justify-center">
-                        <AssetImage
-                          src={product.imageSrc}
-                          alt=""
-                          width={96}
-                          height={96}
-                          className="deal-product-img"
-                          fallback={<span className="text-6xl">{product.emoji}</span>}
-                        />
-                      </div>
-
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-1">{product.name}</h3>
-                        <p className="text-sm text-gray-400">
-                          {product.category} • {product.store}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                        <span>{product.rating}</span>
-                        <span>({product.reviewCount} reviews)</span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-white">${product.price}</span>
-                        {product.originalPrice > product.price && (
-                          <span className="text-gray-500 line-through">${product.originalPrice}</span>
-                        )}
-                        {product.discount > 0 && (
-                          <span className="bg-green-500/20 text-green-400 text-sm font-bold px-2 py-1 rounded">
-                            -{product.discount}%
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-sm ${product.inStock ? "text-green-400" : "text-red-400"}`}
-                        >
-                          {product.inStock ? t("inStock") : t("outOfStock")}
-                        </span>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Button className="flex-1">{t("viewDetails")}</Button>
-                        <Button variant="outline" size="sm">
-                          <Heart className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
+                  <ListingProductCard
+                    key={product.id}
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      imageSrc: product.imageSrc,
+                      emoji: product.emoji,
+                      price: product.price,
+                      originalPrice: product.originalPrice,
+                      discount: product.discount,
+                      rating: product.rating,
+                      reviewCount: product.reviewCount,
+                      store: product.store,
+                      category: product.category,
+                      inStock: product.inStock,
+                    }}
+                  />
                 ))}
               </div>
             )}

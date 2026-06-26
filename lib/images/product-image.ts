@@ -25,6 +25,13 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   { protocol: "https" as const, hostname: "**.walmartimages.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.media-amazon.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.ssl-images-amazon.com", pathname: "/**" },
+  // Temu
+  { protocol: "https" as const, hostname: "**.temu.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.kwcdn.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.temuapi.com", pathname: "/**" },
+  // Amazon (direct product images)
+  { protocol: "https" as const, hostname: "m.media-amazon.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "images-na.ssl-images-amazon.com", pathname: "/**" },
   // Avatars / misc already used in app
   { protocol: "https" as const, hostname: "i.pravatar.cc", pathname: "/**" },
 ];

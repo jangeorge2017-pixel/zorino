@@ -3,10 +3,9 @@
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
-import AssetImage from "@/components/AssetImage";
-import { Clock, Star, ExternalLink } from "lucide-react";
+import ListingProductCard from "@/components/ListingProductCard";
+import { Clock } from "lucide-react";
 import type { Deal } from "@/lib/types/entities";
 
 type DealsPageClientProps = {
@@ -82,60 +81,34 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
         {filtered.length === 0 ? (
           <p className="text-gray-400">No deals available yet.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="listing-products-grid">
             {filtered.map((deal) => (
-              <Card key={deal.id} hover className="overflow-hidden">
+              <div key={deal.id} className="relative">
                 {deal.isFeatured && (
-                  <div className="bg-gradient-to-r from-purple-600 to-blue-500 text-white text-xs font-bold px-3 py-1 inline-block">
+                  <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-600 to-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     {t("featured")}
                   </div>
                 )}
-
-                <div className="deal-image py-6 flex justify-center">
-                  <AssetImage
-                    src={deal.product?.imageUrl ?? ""}
-                    alt=""
-                    width={96}
-                    height={96}
-                    className="deal-product-img"
-                    fallback={<span className="deal-emoji text-5xl">{deal.product?.emoji ?? "🛍️"}</span>}
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-white line-clamp-2">
-                    {deal.product?.name ?? deal.title}
-                  </h3>
-
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span>{deal.product?.rating ?? 4.5}</span>
-                    <span>({deal.product?.reviewCount ?? 0} {t("reviews")})</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-white">${deal.price}</span>
-                    <span className="text-gray-500 line-through">${deal.originalPrice}</span>
-                    <span className="bg-green-500/20 text-green-400 text-sm font-bold px-2 py-1 rounded">
-                      -{Math.round(deal.discount)}%
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Clock className="w-4 h-4" />
-                    <span>
-                      {t("dealEndsIn")} {daysUntil(deal.endsAt)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm text-gray-400">
-                    <span>{deal.store?.name ?? "Store"}</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </div>
-
-                  <Button className="w-full">{t("viewDetails")}</Button>
-                </div>
-              </Card>
+                <ListingProductCard
+                  product={{
+                    id: deal.product?.id ?? deal.id,
+                    name: deal.product?.name ?? deal.title,
+                    imageSrc: deal.product?.imageUrl ?? "",
+                    emoji: deal.product?.emoji ?? undefined,
+                    price: deal.price,
+                    originalPrice: deal.originalPrice,
+                    discount: Math.round(deal.discount),
+                    rating: deal.product?.rating ?? undefined,
+                    reviewCount: deal.product?.reviewCount ?? undefined,
+                    store: deal.store?.name ?? undefined,
+                  }}
+                  showWishlist={false}
+                />
+                <p className="listing-deal-meta">
+                  <Clock size={14} />
+                  {t("dealEndsIn")} {daysUntil(deal.endsAt)}
+                </p>
+              </div>
             ))}
           </div>
         )}

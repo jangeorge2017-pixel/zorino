@@ -92,15 +92,18 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
           <div>
-            <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 mb-4 flex justify-center">
-              <AssetImage
-                src={activeImage}
-                alt={product.name}
-                width={240}
-                height={240}
-                className="deal-product-img"
-                fallback={<span className="text-9xl">{product.emoji ?? "🛍️"}</span>}
-              />
+            <div className="product-detail-gallery product-card-media mb-4">
+              <div className="product-card-image-frame">
+                <AssetImage
+                  src={activeImage}
+                  alt={product.name}
+                  fill
+                  className="product-card-image"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                  fallback={<span className="deal-emoji">{product.emoji ?? "🛍️"}</span>}
+                />
+              </div>
             </div>
             {gallery.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-2">
