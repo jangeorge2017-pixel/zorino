@@ -22,8 +22,8 @@ export const HERO_ORBIT_REFERENCE_POSITIONS: Record<string, { left: string; top:
   "orbit-top": { left: "50%", top: "21%" },
   "orbit-upper-left": { left: "19%", top: "39%" },
   "orbit-upper-right": { left: "81%", top: "39%" },
-  "orbit-lower-left": { left: "10%", top: "57%" },
-  "orbit-lower-right": { left: "90%", top: "57%" },
+  "orbit-lower-left": { left: "calc(10% + 12px)", top: "calc(57% + 25px)" },
+  "orbit-lower-right": { left: "calc(90% - 12px)", top: "calc(57% + 25px)" },
 };
 
 export function getHeroOrbitSlotPosition(position: string): {
