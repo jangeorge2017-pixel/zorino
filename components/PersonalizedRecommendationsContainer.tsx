@@ -12,10 +12,11 @@ export default async function PersonalizedRecommendationsContainer() {
       title="Recommended for You"
       subtitle={
         user
-          ? "Based on your favorites, clicks, and trending deals"
+          ? "Based on your interests and browsing history"
           : "Popular picks — sign in for personalized recommendations"
       }
       products={products}
+      isLoggedIn={Boolean(user)}
     />
   );
 }

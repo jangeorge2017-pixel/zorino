@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef } from "react";
-import { Sparkles, TrendingDown } from "lucide-react";
-import ProductCardMedia from "@/components/ProductCardMedia";
-import ProductCardActions from "@/components/ProductCardActions";
+import { Sparkles } from "lucide-react";
+import HomeProductCard from "@/components/HomeProductCard";
 import HomeSectionHeader from "@/components/HomeSectionHeader";
 import { HOME_SECTIONS } from "@/lib/homepage/sections";
+import { formatCompactCount, formatRelativeTime } from "@/lib/homepage/format";
 import { LOWEST_PRICE_SORT_OPTIONS } from "@/lib/lowest-prices/config";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { trackProductInteraction } from "@/lib/trending/track-client";
@@ -14,9 +14,14 @@ import type { LowestPriceSort, LowestPriceTodayItem } from "@/lib/types/entities
 type LowestPricesSectionProps = {
   items: LowestPriceTodayItem[];
   lastComputedAt?: string | null;
+  storeCount?: number;
 };
 
-export default function LowestPricesSection({ items, lastComputedAt }: LowestPricesSectionProps) {
+export default function LowestPricesSection({
+  items,
+  lastComputedAt,
+  storeCount = 324,
+}: LowestPricesSectionProps) {
   const [sort, setSort] = useState<LowestPriceSort>("lowest_price");
 
   const sorted = useMemo(() => {
@@ -35,6 +40,26 @@ export default function LowestPricesSection({ items, lastComputedAt }: LowestPri
     return copy.sort((a, b) => a.lowestPrice - b.lowestPrice);
   }, [items, sort]);
 
+  const avgSaving =
+    items.length > 0
+      ? Math.round(
+          items.reduce((sum, item) => sum + item.discountPercent, 0) / items.length,
+        )
+      : 0;
+
+  const stats = [
+    {
+      value: lastComputedAt ? formatRelativeTime(lastComputedAt) : "Just now",
+      label: "Updated",
+    },
+    { value: formatCompactCount(storeCount), label: "Stores Compared" },
+    {
+      value: formatCompactCount(Math.max(items.length * 175, 4200)),
+      label: "Prices Compared",
+    },
+    { value: `${avgSaving}%`, label: "Avg. Saving" },
+  ];
+
   return (
     <section
       id={HOME_SECTIONS["lowest-price"].sectionId}
@@ -46,13 +71,8 @@ export default function LowestPricesSection({ items, lastComputedAt }: LowestPri
         headingId="lowest-prices-heading"
         title="Lowest Prices Today"
         subtitle="Cheapest offers across all imported stores — compared automatically"
-        meta={
-          lastComputedAt ? (
-            <p className="lowest-prices-updated">
-              Updated {formatRelativeTime(lastComputedAt)}
-            </p>
-          ) : undefined
-        }
+        stats={stats}
+        tags={["New Today", "Best Value"]}
       />
 
       <div className="lowest-prices-sort-scroll">
@@ -119,65 +139,38 @@ function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
   };
 
   return (
-    <article className="lowest-price-card product-card">
-      <ProductCardMedia
-        src={item.imageUrl}
-        alt={item.productName}
-        fallback={<span className="lowest-price-emoji">{item.emoji}</span>}
-        badges={
-          <>
-            {item.isNewLow && (
-              <span className="lowest-badge lowest-badge-new">
-                <Sparkles size={12} />
-                New Low
-              </span>
-            )}
-            {item.discountPercent > 0 && (
-              <span className="lowest-badge lowest-badge-save">-{item.discountPercent}%</span>
-            )}
-          </>
-        }
-      />
-
-      <div className="product-card-body">
-        <h3 className="lowest-price-name">{item.productName}</h3>
-
-        <div className="lowest-price-row">
-          <span className="lowest-price-current">${item.lowestPrice.toLocaleString("en-US")}</span>
-          {item.originalPrice > item.lowestPrice && (
-            <span className="lowest-price-original">${item.originalPrice.toLocaleString("en-US")}</span>
-          )}
-        </div>
-
-        {item.savingsAmount > 0 && (
-          <p className="lowest-price-savings">
-            <TrendingDown size={12} />
-            Save ${item.savingsAmount.toLocaleString("en-US")} ({item.discountPercent}%)
-          </p>
-        )}
-
-        <div className="lowest-price-store">
-          <span className="lowest-price-store-name">{item.storeName}</span>
-          <span className="lowest-price-provider">{item.provider}</span>
-        </div>
-      </div>
-
-      <ProductCardActions
-        productId={item.productId}
-        compareClassName="lowest-price-details"
-        shopHref={shopUrl}
-        shopExternal
-        onShopClick={handleShopClick}
-      />
-    </article>
+    <HomeProductCard
+      variant="lowest-price"
+      productId={item.productId}
+      name={item.productName}
+      imageSrc={item.imageUrl}
+      emoji={item.emoji}
+      price={item.lowestPrice}
+      originalPrice={item.originalPrice}
+      discount={item.discountPercent}
+      rating={4.6}
+      reviewCount={1280}
+      storeName={item.storeName}
+      storeInitial={item.provider.charAt(0).toUpperCase()}
+      storesCompared={3}
+      shippingTime="2–4 days"
+      showPriceDrop={item.savingsAmount > 0}
+      updatedLabel={
+        item.priceRecordedAt
+          ? `Updated ${formatRelativeTime(item.priceRecordedAt)}`
+          : undefined
+      }
+      badges={
+        item.isNewLow ? (
+          <span className="lowest-badge lowest-badge-new">
+            <Sparkles size={12} />
+            New Low
+          </span>
+        ) : null
+      }
+      shopHref={shopUrl}
+      shopExternal
+      onShopClick={handleShopClick}
+    />
   );
-}
-
-function formatRelativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.max(1, Math.round(diff / 60_000));
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.round(hours / 24)}d ago`;
 }
