@@ -513,12 +513,12 @@ img {
 
 .hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
   left: 10%;
-  top: 85%;
+  top: 59%;
 }
 
 .hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
   left: 90%;
-  top: 85%;
+  top: 59%;
 }
 
 .hero-orbit-card {
@@ -2643,12 +2643,12 @@ img {
 
   .hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
     left: 9%;
-    top: 86%;
+    top: 60%;
   }
 
   .hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
     left: 91%;
-    top: 86%;
+    top: 60%;
   }
 
   .hero-orbit-image-frame {
@@ -2801,12 +2801,12 @@ img {
 
   .hero-orbit-slot[data-orbit-position="orbit-lower-left"] {
     left: 8%;
-    top: 87%;
+    top: 61%;
   }
 
   .hero-orbit-slot[data-orbit-position="orbit-lower-right"] {
     left: 92%;
-    top: 87%;
+    top: 61%;
   }
 
   .hero-orbit-image-frame {
