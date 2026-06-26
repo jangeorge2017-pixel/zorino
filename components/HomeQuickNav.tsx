@@ -6,23 +6,8 @@ import { HOME_QUICK_NAV_ITEMS } from "@/lib/homepage/sections";
 const SECTION_HIGHLIGHT_CLASS = "is-quick-nav-highlight";
 const HIGHLIGHT_DURATION_MS = 1400;
 
-function useMobileNavLabels() {
-  const [isMobileNav, setIsMobileNav] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobileNav(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  return isMobileNav;
-}
-
 export default function HomeQuickNav() {
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
-  const isMobileNav = useMobileNavLabels();
 
   useEffect(() => {
     const sections = HOME_QUICK_NAV_ITEMS.map((item) =>
@@ -71,7 +56,6 @@ export default function HomeQuickNav() {
           {HOME_QUICK_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = activeSectionId === item.sectionId;
-            const label = isMobileNav ? item.navTitleMobile : item.navTitle;
 
             return (
               <button
@@ -86,7 +70,7 @@ export default function HomeQuickNav() {
                 <span className="home-quick-nav-icon" aria-hidden="true">
                   <Icon size={29} strokeWidth={2.25} />
                 </span>
-                <span className="home-quick-nav-title">{label}</span>
+                <span className="home-quick-nav-title">{item.navTitle}</span>
               </button>
             );
           })}
