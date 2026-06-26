@@ -1,11 +1,10 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef } from "react";
-import { Sparkles } from "lucide-react";
 import HomeProductCard from "@/components/HomeProductCard";
 import HomeSectionHeader from "@/components/HomeSectionHeader";
 import { HOME_SECTIONS } from "@/lib/homepage/sections";
-import { formatCompactCount, formatRelativeTime } from "@/lib/homepage/format";
+import { formatRelativeTime } from "@/lib/homepage/format";
 import { LOWEST_PRICE_SORT_OPTIONS } from "@/lib/lowest-prices/config";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { trackProductInteraction } from "@/lib/trending/track-client";
@@ -14,13 +13,11 @@ import type { LowestPriceSort, LowestPriceTodayItem } from "@/lib/types/entities
 type LowestPricesSectionProps = {
   items: LowestPriceTodayItem[];
   lastComputedAt?: string | null;
-  storeCount?: number;
 };
 
 export default function LowestPricesSection({
   items,
   lastComputedAt,
-  storeCount = 324,
 }: LowestPricesSectionProps) {
   const [sort, setSort] = useState<LowestPriceSort>("lowest_price");
 
@@ -40,25 +37,9 @@ export default function LowestPricesSection({
     return copy.sort((a, b) => a.lowestPrice - b.lowestPrice);
   }, [items, sort]);
 
-  const avgSaving =
-    items.length > 0
-      ? Math.round(
-          items.reduce((sum, item) => sum + item.discountPercent, 0) / items.length,
-        )
-      : 0;
-
-  const stats = [
-    {
-      value: lastComputedAt ? formatRelativeTime(lastComputedAt) : "Just now",
-      label: "Updated",
-    },
-    { value: formatCompactCount(storeCount), label: "Stores Compared" },
-    {
-      value: formatCompactCount(Math.max(items.length * 175, 4200)),
-      label: "Prices Compared",
-    },
-    { value: `${avgSaving}%`, label: "Avg. Saving" },
-  ];
+  const updatedLabel = lastComputedAt
+    ? `Updated ${formatRelativeTime(lastComputedAt)}`
+    : "Updated just now";
 
   return (
     <section
@@ -71,17 +52,19 @@ export default function LowestPricesSection({
         headingId="lowest-prices-heading"
         title="Lowest Prices Today"
         subtitle="Cheapest offers across all imported stores — compared automatically"
-        stats={stats}
-        tags={["New Today", "Best Value"]}
+        updatedLabel={updatedLabel}
+        link={{ href: "/search" }}
       />
 
-      <div className="lowest-prices-sort-scroll">
-        <div className="lowest-prices-sort" role="group" aria-label="Sort lowest prices">
+      <div className="section-pills-scroll section-pills-scroll--green">
+        <div className="section-pills" role="group" aria-label="Sort lowest prices">
           {LOWEST_PRICE_SORT_OPTIONS.map((option) => (
             <button
               key={option.value}
               type="button"
-              className={`lowest-sort-btn ${sort === option.value ? "lowest-sort-btn-active" : ""}`}
+              className={`section-pill section-pill--green ${
+                sort === option.value ? "is-active" : ""
+              }`}
               onClick={() => setSort(option.value)}
             >
               {option.label}
@@ -154,19 +137,11 @@ function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
       storeInitial={item.provider.charAt(0).toUpperCase()}
       storesCompared={3}
       shippingTime="2–4 days"
-      showPriceDrop={item.savingsAmount > 0}
+      isNewLow={item.isNewLow}
       updatedLabel={
         item.priceRecordedAt
           ? `Updated ${formatRelativeTime(item.priceRecordedAt)}`
           : undefined
-      }
-      badges={
-        item.isNewLow ? (
-          <span className="lowest-badge lowest-badge-new">
-            <Sparkles size={12} />
-            New Low
-          </span>
-        ) : null
       }
       shopHref={shopUrl}
       shopExternal

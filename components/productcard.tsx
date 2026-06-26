@@ -1,10 +1,8 @@
 import HomeProductCard from "@/components/HomeProductCard";
 import HomeSectionHeader from "@/components/HomeSectionHeader";
 import { HOME_SECTIONS } from "@/lib/homepage/sections";
-import TrendingBadgePill from "@/components/TrendingBadge";
 import { getTrendingDeals } from "@/lib/data/homepage";
 import { getProductBadgesMap } from "@/services/trending/queries";
-import { formatCompactCount } from "@/lib/homepage/format";
 import type { TrendingDealCard } from "@/lib/types/entities";
 
 function DealCard({ deal }: { deal: TrendingDealCard }) {
@@ -26,15 +24,10 @@ function DealCard({ deal }: { deal: TrendingDealCard }) {
       storesCompared={deal.providerCount}
       shippingTime="Limited time"
       priceHistory={deal.priceHistory}
-      showPriceDrop
+      trendingBadge={deal.badge}
+      dynamicBadge="flash-deal"
       updatedLabel={`Updated ${deal.updatedMins} min ago`}
       sparklineId={deal.id}
-      badges={
-        <>
-          {deal.badge ? <TrendingBadgePill badge={deal.badge} size="sm" /> : null}
-          <span className="home-product-flash-badge">Flash Deal</span>
-        </>
-      }
     />
   );
 }
@@ -52,8 +45,6 @@ export default async function ProductCard() {
     return null;
   }
 
-  const priceDropped = dealsWithBadges.filter((deal) => deal.discount >= 20).length;
-
   return (
     <section
       id={HOME_SECTIONS["trending-deals"].sectionId}
@@ -64,13 +55,8 @@ export default async function ProductCard() {
         headingId="trending-deals-heading"
         title="Trending Deals"
         subtitle="Price drops and hot offers updated throughout the day"
-        link={{ href: "/deals", label: "View all deals" }}
-        stats={[
-          { value: formatCompactCount(dealsWithBadges.length), label: "Live Deals" },
-          { value: String(priceDropped), label: "Price Dropped" },
-          { value: "Limited Time", label: "Flash Deals" },
-        ]}
-        tags={["Price Dropped", "Flash Deals", "Countdown Ready"]}
+        updatedLabel="Updated 3 min ago"
+        link={{ href: "/deals" }}
       />
 
       <div className="deals-grid">

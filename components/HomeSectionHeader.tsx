@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import HomeSectionStats, { type HomeSectionStatItem } from "@/components/HomeSectionStats";
+import { ArrowRight } from "lucide-react";
 import {
   HOME_SECTIONS,
   type HomeSectionVariant,
@@ -11,10 +10,8 @@ type HomeSectionHeaderProps = {
   title: string;
   subtitle?: string;
   headingId: string;
-  link?: { href: string; label: string };
-  meta?: React.ReactNode;
-  stats?: HomeSectionStatItem[];
-  tags?: string[];
+  link?: { href: string; label?: string };
+  updatedLabel?: string;
   animatedIcon?: boolean;
 };
 
@@ -24,9 +21,7 @@ export default function HomeSectionHeader({
   subtitle,
   headingId,
   link,
-  meta,
-  stats,
-  tags,
+  updatedLabel,
   animatedIcon = false,
 }: HomeSectionHeaderProps) {
   const config = HOME_SECTIONS[variant];
@@ -39,19 +34,21 @@ export default function HomeSectionHeader({
           <span className={`home-section-badge home-section-badge--${variant}`}>
             {config.badge}
           </span>
-          <h2
-            id={headingId}
-            className={`home-section-title home-section-title--${variant}`}
-          >
-            <span
-              className={`home-section-icon-wrap home-section-icon-wrap--${variant}${
-                animatedIcon ? " home-section-icon-wrap--animated" : ""
-              }`}
+          <div className="home-section-title-row">
+            <h2
+              id={headingId}
+              className={`home-section-title home-section-title--${variant}`}
             >
-              <Icon size={22} aria-hidden="true" />
-            </span>
-            {title}
-          </h2>
+              <span
+                className={`home-section-icon-wrap home-section-icon-wrap--${variant}${
+                  animatedIcon ? " home-section-icon-wrap--animated" : ""
+                }`}
+              >
+                <Icon size={26} aria-hidden="true" />
+              </span>
+              {title}
+            </h2>
+          </div>
           {subtitle ? (
             <p className={`home-section-subtitle home-section-subtitle--${variant}`}>
               {subtitle}
@@ -62,35 +59,22 @@ export default function HomeSectionHeader({
             aria-hidden="true"
           />
         </div>
-        {(link || meta) && (
-          <div className="home-section-header-aside">
-            {meta}
-            {link ? (
-              <Link
-                href={link.href}
-                className={`home-section-link home-section-link--${variant}`}
-              >
-                {link.label}
-                <ChevronRight size={16} />
-              </Link>
-            ) : null}
-          </div>
-        )}
+
+        <div className="home-section-header-aside">
+          {updatedLabel ? (
+            <p className="home-section-updated">{updatedLabel}</p>
+          ) : null}
+          {link ? (
+            <Link
+              href={link.href}
+              className={`home-section-view-all home-section-view-all--${variant}`}
+            >
+              {link.label ?? "View All"}
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          ) : null}
+        </div>
       </div>
-
-      {tags && tags.length > 0 ? (
-        <ul className={`home-section-tags home-section-tags--${variant}`}>
-          {tags.map((tag) => (
-            <li key={tag} className="home-section-tag">
-              {tag}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      {stats && stats.length > 0 ? (
-        <HomeSectionStats variant={variant} items={stats} />
-      ) : null}
     </header>
   );
 }

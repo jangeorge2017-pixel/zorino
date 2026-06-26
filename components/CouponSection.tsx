@@ -38,13 +38,8 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
         headingId="top-coupons-heading"
         title="Top Coupons"
         subtitle="Verified codes from trusted stores — copy and save instantly"
-        link={{ href: "/coupons", label: "View all coupons" }}
-        stats={[
-          { value: String(verifiedCount), label: "Verified Codes" },
-          { value: "94%", label: "Success Rate" },
-          { value: formatCompactCount(totalUses), label: "Users Used" },
-        ]}
-        tags={["Verified Codes", "Expires Soon", "Copy Code"]}
+        updatedLabel={`${formatCompactCount(totalUses)} uses today`}
+        link={{ href: "/coupons" }}
       />
 
       <div className="coupons-list">
@@ -62,6 +57,7 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
             </div>
 
             <div className="coupon-info">
+              <span className="dynamic-badge dynamic-badge--hot dynamic-badge--sm">Hot</span>
               <h3>{coupon.store}</h3>
               <p className="coupon-offer">{coupon.offer}</p>
               <p className="coupon-min">{coupon.minSpend}</p>
@@ -98,7 +94,7 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
                 {coupon.verified && (
                   <span className="coupon-verified">
                     <CheckCircle size={13} />
-                    Verified
+                    Verified ({verifiedCount})
                   </span>
                 )}
               </div>

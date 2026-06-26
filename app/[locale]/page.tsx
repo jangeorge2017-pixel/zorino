@@ -10,6 +10,7 @@ import PersonalizedRecommendationsContainer from "@/components/PersonalizedRecom
 import HomeDealsCouponsRow from "@/components/HomeDealsCouponsRow";
 import FeaturesSection from "@/components/FeaturesSection";
 import FooterStatsContainer from "@/components/FooterStatsContainer";
+import HomeSectionScrollReveal from "@/components/HomeSectionScrollReveal";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,7 @@ export default function Home() {
         <HomeDealsCouponsRow />
         <FeaturesSection />
         <FooterStatsContainer />
+        <HomeSectionScrollReveal />
       </div>
     </main>
   );

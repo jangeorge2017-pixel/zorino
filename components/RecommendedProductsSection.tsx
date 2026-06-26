@@ -2,10 +2,7 @@
 
 import HomeProductCard from "@/components/HomeProductCard";
 import HomeSectionHeader from "@/components/HomeSectionHeader";
-import {
-  HOME_SECTIONS,
-} from "@/lib/homepage/sections";
-import { formatCompactCount } from "@/lib/homepage/format";
+import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import type { RecommendedProductCard } from "@/services/recommendations";
 
 type RecommendedProductsSectionProps = {
@@ -27,37 +24,6 @@ export default function RecommendedProductsSection({
 
   const sectionConfig = HOME_SECTIONS[variant];
   const headingId = `${variant}-heading`;
-  const avgRating =
-    products.length > 0
-      ? (
-          products.reduce((sum, product) => sum + product.rating, 0) / products.length
-        ).toFixed(1)
-      : "4.8";
-
-  const stats =
-    variant === "recommended-for-you"
-      ? isLoggedIn
-        ? [
-            { value: String(products.length), label: "Personalized Picks" },
-            { value: "Based on interests", label: "Match Type" },
-            { value: `${avgRating}★`, label: "Avg. Rating" },
-          ]
-        : [
-            { value: "Sign in", label: "Unlock Personalization" },
-            { value: formatCompactCount(products.length), label: "Popular Picks" },
-          ]
-      : [
-          { value: String(products.length), label: "Curated Picks" },
-          { value: `${avgRating}★`, label: "Avg. Rating" },
-          { value: "Premium", label: "Selection" },
-        ];
-
-  const tags =
-    variant === "recommended-for-you"
-      ? isLoggedIn
-        ? ["Based on your interests", "Because you viewed…", "Personalized Picks"]
-        : ["Sign in to unlock personalized recommendations"]
-      : ["Curated selection", "Top rated", "Editor approved"];
 
   return (
     <section
@@ -70,8 +36,10 @@ export default function RecommendedProductsSection({
         headingId={headingId}
         title={title}
         subtitle={subtitle}
-        stats={stats}
-        tags={tags}
+        updatedLabel="Updated 12 min ago"
+        link={{
+          href: variant === "recommended-for-you" && !isLoggedIn ? "/auth/login" : "/search",
+        }}
       />
 
       <div className="trending-products-grid">
@@ -93,6 +61,7 @@ export default function RecommendedProductsSection({
             storesCompared={2}
             shippingTime="3–6 days"
             reason={product.reason}
+            dynamicBadge={variant === "recommended-products" ? "editor-pick" : undefined}
           />
         ))}
       </div>
