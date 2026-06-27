@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Store, Package, Tag, Users, Star } from "lucide-react";
+import { Package, Star, Store, Tag, Users } from "lucide-react";
 import { TRUSTPILOT_LOGO } from "@/lib/assets";
 import type { FooterStatItem } from "@/lib/types/entities";
 
@@ -12,20 +12,20 @@ const ICONS = {
   users: Users,
 } as const;
 
-type Props = {
-  stats: FooterStatItem[];
+type ZorinoHomeFooterProps = {
+  footerStats: FooterStatItem[];
 };
 
-export default function ZorinoBlueprintFooter({ stats }: Props) {
+export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps) {
   const [logoFailed, setLogoFailed] = useState(false);
 
   return (
-    <footer className="zb-footer">
-      <div className="zb-footer-stats">
-        {stats.map((stat) => {
+    <footer className="zh-footer">
+      <div className="zh-footer__stats">
+        {footerStats.map((stat) => {
           const Icon = ICONS[stat.key];
           return (
-            <div key={stat.key} className="zb-footer-stat">
+            <div key={stat.key} className="zh-footer__stat">
               <Icon size={16} aria-hidden />
               <strong>{stat.value}</strong>
               <span>{stat.label}</span>
@@ -34,9 +34,9 @@ export default function ZorinoBlueprintFooter({ stats }: Props) {
         })}
       </div>
 
-      <div className="zb-trustpilot">
+      <div className="zh-footer__trustpilot">
         <strong>Excellent</strong>
-        <span className="zb-trustpilot-stars" aria-label="5 out of 5 stars">
+        <span className="zh-footer__stars" aria-label="5 out of 5 stars">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star key={i} size={16} fill="#22c55e" color="#22c55e" />
           ))}

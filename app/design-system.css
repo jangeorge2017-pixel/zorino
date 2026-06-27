@@ -1,0 +1,600 @@
+/**
+ * ZORINO Design System — Phase 0
+ * Visual tokens from public/reference/zorino-final-design.png
+ * Scoped utility classes for shell + shared UI (zor-* prefix)
+ */
+
+:root {
+  /* ─── Layout ─── */
+  --zor-viewport: 1920px;
+  --zor-content: 1520px;
+  --zor-pad: clamp(16px, calc((100vw - var(--zor-content)) / 2), 200px);
+  --zor-nav-h: 72px;
+  --zor-section-gap: 28px;
+
+  /* ─── Color: surfaces ─── */
+  --zor-bg-deep: #020611;
+  --zor-bg-default: #040615;
+  --zor-bg-hero: #030712;
+  --zor-bg-elevated: rgba(10, 15, 30, 0.5);
+
+  /* ─── Color: text ─── */
+  --zor-text: #f8fafc;
+  --zor-text-soft: #94a3b8;
+  --zor-text-muted: #64748b;
+  --zor-text-accent: #c4b5fd;
+  --zor-text-link: #93c5fd;
+
+  /* ─── Color: brand ─── */
+  --zor-purple: #8b5cf6;
+  --zor-purple-deep: #7c3aed;
+  --zor-purple-light: #c4b5fd;
+  --zor-indigo: #6366f1;
+  --zor-cyan: #22d3ee;
+  --zor-green: #22c55e;
+  --zor-green-soft: #86efac;
+  --zor-red: #ef4444;
+  --zor-yellow: #fde68a;
+
+  /* ─── Glass & borders ─── */
+  --zor-glass: rgba(15, 23, 42, 0.72);
+  --zor-glass-strong: rgba(15, 23, 42, 0.92);
+  --zor-glass-border: rgba(255, 255, 255, 0.09);
+  --zor-border-subtle: rgba(255, 255, 255, 0.07);
+  --zor-border-default: rgba(255, 255, 255, 0.1);
+
+  /* ─── Gradients ─── */
+  --zor-gradient-primary: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+  --zor-gradient-title: linear-gradient(95deg, #a78bfa 0%, #6366f1 42%, #22d3ee 100%);
+
+  /* ─── Spacing ─── */
+  --zor-space-1: 4px;
+  --zor-space-2: 8px;
+  --zor-space-3: 12px;
+  --zor-space-4: 16px;
+  --zor-space-5: 20px;
+  --zor-space-6: 24px;
+  --zor-space-7: 28px;
+  --zor-space-8: 32px;
+  --zor-space-9: 36px;
+
+  /* ─── Radius ─── */
+  --zor-radius-sm: 8px;
+  --zor-radius-md: 12px;
+  --zor-radius-lg: 16px;
+  --zor-radius-xl: 20px;
+  --zor-radius-pill: 999px;
+
+  /* ─── Shadows ─── */
+  --zor-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --zor-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.32);
+  --zor-shadow-glow: 0 4px 18px rgba(139, 92, 246, 0.42);
+  --zor-shadow-glow-soft: 0 0 24px rgba(139, 92, 246, 0.28);
+
+  /* ─── Typography ─── */
+  --zor-font-sans: var(--font-geist-sans, system-ui, sans-serif);
+  --zor-text-xs: 10px;
+  --zor-text-sm: 12px;
+  --zor-text-base: 14px;
+  --zor-text-md: 15px;
+  --zor-text-lg: 16px;
+  --zor-text-xl: 22px;
+  --zor-text-2xl: 56px;
+  --zor-leading-tight: 1.05;
+  --zor-leading-normal: 1.5;
+  --zor-leading-relaxed: 1.62;
+  --zor-weight-medium: 500;
+  --zor-weight-semibold: 600;
+  --zor-weight-bold: 700;
+  --zor-weight-extrabold: 800;
+
+  /* ─── Motion ─── */
+  --zor-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --zor-duration: 200ms;
+}
+
+/* ─── Public shell ─── */
+.zor-public-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--zor-bg-deep);
+  color: var(--zor-text);
+  font-family: var(--zor-font-sans);
+}
+
+.zor-public-shell__main {
+  flex: 1;
+  width: 100%;
+  max-width: min(100%, calc(var(--zor-content) + 2 * var(--zor-pad)));
+  margin: 0 auto;
+  padding: var(--zor-space-8) var(--zor-pad) var(--zor-space-9);
+  min-width: 0;
+}
+
+/* ─── Site nav ─── */
+.zor-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--zor-nav-h);
+  padding: 0 var(--zor-pad);
+  border-bottom: 1px solid var(--zor-border-subtle);
+  background: rgba(3, 7, 18, 0.78);
+  backdrop-filter: blur(18px);
+}
+
+.zor-nav__inner {
+  max-width: var(--zor-content);
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--zor-space-5);
+  min-width: 0;
+}
+
+.zor-nav__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.zor-nav__logo img {
+  height: 40px;
+  width: auto;
+}
+
+.zor-nav__tagline {
+  font-size: var(--zor-text-xs);
+  font-weight: var(--zor-weight-medium);
+  color: var(--zor-text-link);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.zor-nav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--zor-space-7);
+}
+
+.zor-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--zor-text-base);
+  font-weight: var(--zor-weight-medium);
+  color: #f1f5f9;
+  transition: color var(--zor-duration) var(--zor-ease);
+}
+
+.zor-nav__link:hover {
+  color: var(--zor-purple-light);
+}
+
+.zor-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--zor-space-2);
+  flex-shrink: 0;
+}
+
+.zor-nav__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 var(--zor-space-3);
+  border-radius: 11px;
+  border: 1px solid var(--zor-border-default);
+  background: rgba(15, 23, 42, 0.82);
+  color: var(--zor-text);
+  font-size: 12.5px;
+  font-weight: var(--zor-weight-semibold);
+  position: relative;
+  transition: border-color var(--zor-duration) var(--zor-ease),
+    background var(--zor-duration) var(--zor-ease);
+}
+
+.zor-nav__icon-btn:hover {
+  border-color: rgba(139, 92, 246, 0.35);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.zor-nav__badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--zor-red);
+  font-size: 9px;
+  font-weight: var(--zor-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--zor-bg-deep);
+}
+
+.zor-nav__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--zor-space-2);
+  padding: 5px 10px 5px 5px;
+  border-radius: 13px;
+  border: 1px solid var(--zor-border-default);
+  background: rgba(15, 23, 42, 0.82);
+  color: inherit;
+}
+
+.zor-nav__profile img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.zor-nav__profile strong {
+  display: block;
+  font-size: 11.5px;
+  font-weight: var(--zor-weight-semibold);
+}
+
+.zor-nav__premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: var(--zor-weight-semibold);
+  color: var(--zor-text-accent);
+}
+
+/* Theme toggle inside nav uses existing .theme-toggle from globals — restyled here */
+.zor-nav .theme-toggle {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 3px;
+  border-radius: 11px;
+  border: 1px solid var(--zor-border-default);
+  background: rgba(15, 23, 42, 0.82);
+  gap: 2px;
+}
+
+.zor-nav .theme-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: var(--zor-radius-sm);
+  font-size: var(--zor-text-sm);
+  font-weight: var(--zor-weight-semibold);
+  color: var(--zor-text-soft);
+  border: none;
+  background: transparent;
+}
+
+.zor-nav .theme-option-active {
+  background: rgba(139, 92, 246, 0.38);
+  color: var(--zor-text);
+}
+
+/* ─── Site footer (inner pages) ─── */
+.zor-site-footer {
+  border-top: 1px solid var(--zor-border-subtle);
+  background: rgba(3, 7, 18, 0.6);
+  backdrop-filter: blur(12px);
+  padding: var(--zor-space-6) var(--zor-pad);
+}
+
+.zor-site-footer__inner {
+  max-width: var(--zor-content);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--zor-space-4);
+}
+
+.zor-site-footer__brand {
+  font-size: var(--zor-text-sm);
+  font-weight: var(--zor-weight-bold);
+  color: var(--zor-text);
+}
+
+.zor-site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--zor-space-4);
+}
+
+.zor-site-footer__link {
+  font-size: var(--zor-text-sm);
+  color: var(--zor-text-soft);
+  transition: color var(--zor-duration) var(--zor-ease);
+}
+
+.zor-site-footer__link:hover {
+  color: var(--zor-purple-light);
+}
+
+.zor-site-footer__copy {
+  font-size: var(--zor-text-sm);
+  color: var(--zor-text-muted);
+}
+
+/* ─── Page header utility (Phase 2+) ─── */
+.zor-page-header {
+  margin-bottom: var(--zor-space-8);
+}
+
+.zor-page-header__title {
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: var(--zor-weight-extrabold);
+  letter-spacing: -0.02em;
+  color: var(--zor-text);
+  margin: 0 0 var(--zor-space-2);
+}
+
+.zor-page-header__subtitle {
+  font-size: var(--zor-text-lg);
+  color: var(--zor-text-soft);
+  margin: 0;
+  line-height: var(--zor-leading-relaxed);
+}
+
+/* ─── Buttons ─── */
+.zor-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--zor-space-2);
+  font-family: inherit;
+  font-weight: var(--zor-weight-semibold);
+  border-radius: var(--zor-radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform var(--zor-duration) var(--zor-ease),
+    box-shadow var(--zor-duration) var(--zor-ease),
+    background var(--zor-duration) var(--zor-ease),
+    border-color var(--zor-duration) var(--zor-ease);
+}
+
+.zor-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.zor-btn--sm {
+  padding: var(--zor-space-2) var(--zor-space-4);
+  font-size: var(--zor-text-sm);
+}
+
+.zor-btn--md {
+  padding: 11px var(--zor-space-6);
+  font-size: var(--zor-text-base);
+}
+
+.zor-btn--lg {
+  padding: var(--zor-space-4) var(--zor-space-8);
+  font-size: var(--zor-text-lg);
+}
+
+.zor-btn--primary {
+  color: var(--zor-text);
+  background: var(--zor-gradient-primary);
+  box-shadow: var(--zor-shadow-glow);
+}
+
+.zor-btn--primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(139, 92, 246, 0.5);
+}
+
+.zor-btn--secondary {
+  color: var(--zor-text);
+  background: rgba(15, 23, 42, 0.82);
+  border-color: var(--zor-border-default);
+}
+
+.zor-btn--secondary:hover:not(:disabled) {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+.zor-btn--outline {
+  color: var(--zor-purple-light);
+  background: transparent;
+  border-color: rgba(139, 92, 246, 0.45);
+}
+
+.zor-btn--outline:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.zor-btn--ghost {
+  color: var(--zor-text-soft);
+  background: transparent;
+}
+
+.zor-btn--ghost:hover:not(:disabled) {
+  background: rgba(15, 23, 42, 0.55);
+  color: var(--zor-text);
+}
+
+/* ─── Card ─── */
+.zor-card {
+  background: var(--zor-glass);
+  border: 1px solid var(--zor-glass-border);
+  border-radius: var(--zor-radius-xl);
+  padding: var(--zor-space-6);
+  backdrop-filter: blur(14px);
+}
+
+.zor-card--hover {
+  transition: transform var(--zor-duration) var(--zor-ease),
+    border-color var(--zor-duration) var(--zor-ease),
+    box-shadow var(--zor-duration) var(--zor-ease);
+}
+
+.zor-card--hover:hover {
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow: var(--zor-shadow-glow-soft);
+  transform: translateY(-2px);
+}
+
+/* ─── Form fields ─── */
+.zor-field {
+  width: 100%;
+}
+
+.zor-label {
+  display: block;
+  font-size: var(--zor-text-base);
+  font-weight: var(--zor-weight-medium);
+  color: var(--zor-text-soft);
+  margin-bottom: var(--zor-space-2);
+}
+
+.zor-input,
+.zor-select {
+  width: 100%;
+  padding: var(--zor-space-3) var(--zor-space-4);
+  border-radius: var(--zor-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.55);
+  color: var(--zor-text);
+  font-family: inherit;
+  font-size: var(--zor-text-base);
+  transition: border-color var(--zor-duration) var(--zor-ease),
+    box-shadow var(--zor-duration) var(--zor-ease);
+}
+
+.zor-input::placeholder {
+  color: var(--zor-text-muted);
+}
+
+.zor-input:focus,
+.zor-select:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.55);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.zor-input--error,
+.zor-select--error {
+  border-color: var(--zor-red);
+}
+
+.zor-field-error {
+  margin-top: var(--zor-space-1);
+  font-size: var(--zor-text-sm);
+  color: var(--zor-red);
+}
+
+.zor-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--zor-text-soft) 50%),
+    linear-gradient(135deg, var(--zor-text-soft) 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 36px;
+}
+
+.zor-select option {
+  background: #0f172a;
+  color: var(--zor-text);
+}
+
+/* ─── Modal ─── */
+.zor-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--zor-space-4);
+}
+
+.zor-modal-backdrop__shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.zor-modal {
+  position: relative;
+  width: 100%;
+  max-width: 32rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid var(--zor-glass-border);
+  border-radius: var(--zor-radius-xl);
+  padding: var(--zor-space-6);
+  box-shadow: var(--zor-shadow-md);
+}
+
+.zor-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--zor-space-4);
+  margin-bottom: var(--zor-space-6);
+}
+
+.zor-modal__title {
+  font-size: var(--zor-text-xl);
+  font-weight: var(--zor-weight-bold);
+  color: var(--zor-text);
+}
+
+.zor-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--zor-space-2);
+  border: none;
+  border-radius: var(--zor-radius-sm);
+  background: transparent;
+  color: var(--zor-text-soft);
+  cursor: pointer;
+}
+
+.zor-modal__close:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--zor-text);
+}
+
+/* ─── Responsive: nav ─── */
+@media (max-width: 1279px) {
+  .zor-nav__links {
+    display: none;
+  }
+
+  .zor-nav__tagline {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .zor-nav__icon-btn span:not(.zor-nav__badge) {
+    display: none;
+  }
+
+  .zor-nav__profile div {
+    display: none;
+  }
+}

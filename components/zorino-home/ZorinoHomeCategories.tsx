@@ -1,13 +1,13 @@
 import Link from "next/link";
 import {
-  Smartphone,
-  Laptop,
   Gamepad2,
-  Tv,
   Home,
-  Watch,
-  Shirt,
+  Laptop,
   MoreHorizontal,
+  Shirt,
+  Smartphone,
+  Tv,
+  Watch,
 } from "lucide-react";
 import type { HomepageCategoryItem } from "@/lib/types/entities";
 
@@ -19,35 +19,35 @@ const ICONS = {
   home: Home,
   wearables: Watch,
   fashion: Shirt,
+  more: MoreHorizontal,
 } as const;
 
-type Props = {
+type ZorinoHomeCategoriesProps = {
   categories: HomepageCategoryItem[];
 };
 
-export default function ZorinoBlueprintCategories({ categories }: Props) {
+export default function ZorinoHomeCategories({ categories }: ZorinoHomeCategoriesProps) {
   if (categories.length === 0) return null;
 
   return (
-    <nav className="zb-categories" aria-label="Categories">
+    <nav className="zh-categories" aria-label="Categories">
       {categories.map((category) => {
-        const Icon =
-          ICONS[category.slug as keyof typeof ICONS] ?? MoreHorizontal;
+        const Icon = ICONS[category.slug as keyof typeof ICONS] ?? MoreHorizontal;
         const href =
           category.slug === "more" ? "/categories" : `/categories/${category.slug}`;
-        const accent = category.accent ? ` zb-accent-${category.accent}` : "";
-        const active = category.active ? " zb-category--active" : "";
+        const accent = category.accent ? ` zh-categories__item--${category.accent}` : "";
+        const highlighted = category.active ? " zh-categories__item--highlight" : "";
 
         return (
           <Link
             key={category.slug}
             href={href}
-            className={`zb-category${accent}${active}`}
+            className={`zh-categories__item${accent}${highlighted}`}
           >
-            <span className="zb-category-icon">
+            <span className="zh-categories__icon">
               <Icon size={22} strokeWidth={1.8} aria-hidden />
             </span>
-            <span className="zb-category-label">{category.label}</span>
+            <span className="zh-categories__label">{category.label}</span>
           </Link>
         );
       })}

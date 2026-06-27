@@ -1,0 +1,86 @@
+"use client";
+
+import Link from "next/link";
+import { ChevronRight, Star, TrendingDown, TrendingUp } from "lucide-react";
+import ZorinoHomeSparkline from "@/components/zorino-home/ZorinoHomeSparkline";
+import type { TrendingDealCard } from "@/lib/types/entities";
+
+export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard }) {
+  const dropped = deal.originalPrice > deal.price;
+  const increased = deal.originalPrice < deal.price;
+  const compareHref = deal.productId ? `/product/${deal.productId}` : "/deals";
+
+  return (
+    <article className="zh-deal-card">
+      <div className="zh-deal-card__media">
+        {deal.discount > 0 ? (
+          <span className="zh-deal-card__discount">-{Math.round(deal.discount)}%</span>
+        ) : null}
+        <img src={deal.imageSrc} alt={deal.name} />
+      </div>
+
+      <h3 className="zh-deal-card__name">{deal.name}</h3>
+
+      <div className="zh-deal-card__rating">
+        <span className="zh-deal-card__stars" aria-label={`${deal.rating} out of 5 stars`}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star
+              key={i}
+              size={12}
+              fill={i < Math.round(deal.rating) ? "#fbbf24" : "none"}
+              color="#fbbf24"
+            />
+          ))}
+        </span>
+        <span className="zh-deal-card__reviews">({deal.reviews.toLocaleString()})</span>
+      </div>
+
+      {dropped ? (
+        <span className="zh-deal-card__drop">
+          <TrendingDown size={12} aria-hidden />
+          Price dropped
+        </span>
+      ) : increased ? (
+        <span className="zh-deal-card__rise">
+          <TrendingUp size={12} aria-hidden />
+          Price up
+        </span>
+      ) : null}
+
+      <div className="zh-deal-card__prices">
+        <span className="zh-deal-card__price">${deal.price.toLocaleString("en-US")}</span>
+        {(dropped || increased) && deal.originalPrice !== deal.price ? (
+          <span className="zh-deal-card__was">
+            ${deal.originalPrice.toLocaleString("en-US")}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="zh-deal-card__store-row">
+        <div className="zh-deal-card__store">
+          <span className="zh-deal-card__store-logo">
+            <img
+              src={deal.storeLogoSrc}
+              alt=""
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                if (e.currentTarget.parentElement) {
+                  e.currentTarget.parentElement.textContent = deal.storeInitial;
+                }
+              }}
+            />
+          </span>
+          {deal.store}
+        </div>
+        <span className="zh-deal-card__updated">Updated {deal.updatedMins} min ago</span>
+      </div>
+
+      <ZorinoHomeSparkline values={deal.priceHistory} rising={increased} />
+
+      <Link href={compareHref} className="zh-deal-card__cta">
+        Compare Prices
+        <ChevronRight size={16} aria-hidden />
+      </Link>
+    </article>
+  );
+}
