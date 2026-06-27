@@ -31,6 +31,7 @@ function DealCard({ deal }: { deal: TrendingDealCard }) {
       sparklineId={deal.id}
       compareOnly
       hideQuickActions
+      referenceDealCard
     />
   );
 }
