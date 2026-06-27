@@ -115,9 +115,7 @@ export default function HomeProductCard({
         badges={
           referenceDealCard ? (
             discount > 0 ? (
-              <span className="home-product-discount-pill home-product-discount-pill--deal">
-                -{discount}%
-              </span>
+              <span className="home-product-discount-pill">-{discount}%</span>
             ) : null
           ) : (
             <>

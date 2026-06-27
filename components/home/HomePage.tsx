@@ -3,16 +3,12 @@ import HeroContainer from "@/components/HeroContainer";
 import SearchBarContainer from "@/components/SearchBarContainer";
 import CategoryGridContainer from "@/components/CategoryGridContainer";
 import HomeDealsCouponsRow from "@/components/HomeDealsCouponsRow";
-import TrendingProductsContainer from "@/components/TrendingProductsContainer";
-import LowestPricesContainer from "@/components/LowestPricesContainer";
-import RecommendedProductsContainer from "@/components/RecommendedProductsContainer";
-import PersonalizedRecommendationsContainer from "@/components/PersonalizedRecommendationsContainer";
 import FeaturesSection from "@/components/FeaturesSection";
 import FooterStatsContainer from "@/components/FooterStatsContainer";
 
 /**
- * Reference layout — public/reference/zorino-final-design.png
- * Structure only; product imagery comes from integrated store APIs.
+ * Blueprint: public/reference/zorino-final-design.png
+ * Section order: Navbar → Hero → Search → Categories → Deals|Coupons → Features → Footer
  */
 export default function HomePage() {
   return (
@@ -39,16 +35,6 @@ export default function HomePage() {
 
         <section className="home-structure__commerce" aria-label="Trending deals and coupons">
           <HomeDealsCouponsRow />
-        </section>
-
-        <section className="home-structure__featured" aria-label="Featured products">
-          <TrendingProductsContainer />
-        </section>
-
-        <section className="home-structure__recommendations" aria-label="Recommendations">
-          <LowestPricesContainer />
-          <RecommendedProductsContainer />
-          <PersonalizedRecommendationsContainer />
         </section>
 
         <section className="home-structure__features" aria-label="Platform features">
