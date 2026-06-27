@@ -28,6 +28,7 @@ function DealCard({ deal }: { deal: TrendingDealCard }) {
       dynamicBadge="flash-deal"
       updatedLabel={`Updated ${deal.updatedMins} min ago`}
       sparklineId={deal.id}
+      compareOnly
     />
   );
 }
@@ -56,7 +57,7 @@ export default async function ProductCard() {
         title="Trending Deals"
         subtitle="Price drops and hot offers updated throughout the day"
         updatedLabel="Updated 3 min ago"
-        link={{ href: "/deals" }}
+        link={{ href: "/deals", label: "View all deals" }}
       />
 
       <div className="deals-grid">

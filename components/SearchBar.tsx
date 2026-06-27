@@ -15,7 +15,7 @@ export default function SearchBar({
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
-    if (defaultOpen && window.matchMedia("(min-width: 1280px)").matches) {
+    if (defaultOpen) {
       setFocused(true);
     }
   }, [defaultOpen]);

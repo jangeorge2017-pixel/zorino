@@ -1,10 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  BadgePercent,
   Flame,
   Sparkles,
   Tag,
-  TrendingUp,
   UserRound,
 } from "lucide-react";
 
@@ -67,7 +65,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
     variant: "trending-deals",
     sectionId: "section-trending-deals",
     badge: "Live Deals",
-    icon: TrendingUp,
+    icon: Flame,
     navTitle: "Trending Deals",
     navTitleMobile: "Deals",
     navSubtitle: "Dropping prices now",
@@ -76,7 +74,7 @@ export const HOME_SECTIONS: Record<HomeSectionVariant, HomeSectionConfig> = {
     variant: "top-coupons",
     sectionId: "section-top-coupons",
     badge: "Verified Codes",
-    icon: BadgePercent,
+    icon: Flame,
     navTitle: "Top Coupons",
     navTitleMobile: "Coupons",
     navSubtitle: "Verified codes",

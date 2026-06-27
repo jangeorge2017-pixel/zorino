@@ -1,6 +1,5 @@
 import Navbar from "@/components/navbar";
 import HeroContainer from "@/components/HeroContainer";
-import HomeQuickNav from "@/components/HomeQuickNav";
 import SearchBarContainer from "@/components/SearchBarContainer";
 import CategoryGridContainer from "@/components/CategoryGridContainer";
 import LowestPricesContainer from "@/components/LowestPricesContainer";
@@ -35,15 +34,23 @@ export default function Home() {
       <div className="site-shell">
         <div className="hero-zone">
           <HeroContainer />
-          <HomeQuickNav />
+        </div>
+
+        <div className="homepage-search-band">
           <SearchBarContainer defaultOpen />
         </div>
+
         <CategoryGridContainer />
-        <LowestPricesContainer />
-        <TrendingProductsContainer />
-        <RecommendedProductsContainer />
-        <PersonalizedRecommendationsContainer />
+
         <HomeDealsCouponsRow />
+
+        <div className="homepage-listing-sections">
+          <LowestPricesContainer />
+          <TrendingProductsContainer />
+          <RecommendedProductsContainer />
+          <PersonalizedRecommendationsContainer />
+        </div>
+
         <FeaturesSection />
         <FooterStatsContainer />
         <HomeSectionScrollReveal />
