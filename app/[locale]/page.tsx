@@ -1,4 +1,4 @@
-import HomePage from "@/components/home/HomePage";
+import ZorinoBlueprintPage from "@/components/zorino-blueprint/ZorinoBlueprintPage";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
@@ -17,5 +17,5 @@ export async function generateMetadata({
 }
 
 export default function Home() {
-  return <HomePage />;
+  return <ZorinoBlueprintPage />;
 }
