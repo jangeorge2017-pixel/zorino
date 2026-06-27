@@ -11,6 +11,7 @@ import { getRankingLabel } from "@/lib/trending/labels";
 type TrendingProductsSectionProps = {
   data: Record<TrendingRankingType, TrendingProductCard[]>;
   countryCode?: string;
+  title?: string;
 };
 
 const TABS: {
@@ -27,6 +28,7 @@ const TABS: {
 export default function TrendingProductsSection({
   data,
   countryCode = "US",
+  title = "Featured Products",
 }: TrendingProductsSectionProps) {
   const [activeTab, setActiveTab] = useState<TrendingRankingType>("trending_today");
 
@@ -49,7 +51,7 @@ export default function TrendingProductsSection({
       <HomeSectionHeader
         variant="trending-products"
         headingId="trending-products-heading"
-        title="Trending Products"
+        title={title}
         subtitle="Ranked by views, clicks and purchases — refreshed every 4 hours"
         updatedLabel="Updated 4 min ago"
         link={{ href: "/search" }}

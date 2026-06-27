@@ -598,6 +598,78 @@
   color: #f8fafc;
 }
 
+/* ─── Homepage structure (reference section order) ─── */
+.home-structure__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ref-section-gap);
+}
+
+.home-structure__header {
+  position: relative;
+  z-index: 100;
+}
+
+.home-structure__hero {
+  margin-bottom: 0;
+}
+
+.home-structure__discovery {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.home-structure__search.homepage-search-band {
+  margin: 0;
+}
+
+.home-structure__categories {
+  margin: 0;
+}
+
+.home-structure__categories .categories-section {
+  margin-bottom: 0;
+}
+
+.home-structure__commerce,
+.home-structure__featured,
+.home-structure__recommendations,
+.home-structure__features,
+.home-structure__footer {
+  width: 100%;
+  min-width: 0;
+}
+
+.home-structure__featured,
+.home-structure__recommendations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ref-section-gap);
+}
+
+.homepage--reference .home-structure__featured .home-section-shell,
+.homepage--reference .home-structure__recommendations .home-section-shell {
+  margin-top: 0;
+  padding: 20px 18px 18px;
+  border-radius: var(--ref-panel-radius);
+  background: rgba(10, 15, 30, 0.5);
+  border: 1px solid var(--ref-glass-border);
+  backdrop-filter: blur(14px);
+}
+
+.homepage--reference .home-structure__features .features-section {
+  margin-top: 0;
+}
+
+.homepage--reference .home-structure__footer .footer-stats {
+  margin-top: 0;
+}
+
+.homepage--reference .home-structure__commerce .deals-coupons-row {
+  margin-top: 0;
+}
+
 /* ─── Tablet (768–1279) ─── */
 @media (max-width: 1279px) {
   .homepage--reference .hero-zone {
