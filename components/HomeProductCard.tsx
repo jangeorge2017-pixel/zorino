@@ -46,6 +46,7 @@ export type HomeProductCardProps = {
   sparklineId?: string | number;
   compareOnly?: boolean;
   hideQuickActions?: boolean;
+  referenceDealCard?: boolean;
 };
 
 const SPARKLINE_VARIANT: Record<
@@ -89,6 +90,7 @@ export default function HomeProductCard({
   sparklineId,
   compareOnly = false,
   hideQuickActions = false,
+  referenceDealCard = false,
 }: HomeProductCardProps) {
   const initial = storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
   const showOriginal = originalPrice !== undefined && originalPrice > price;
@@ -111,12 +113,20 @@ export default function HomeProductCard({
         alt={name}
         fallback={<span className="deal-emoji">{emoji}</span>}
         badges={
-          <>
-            <ProductDynamicBadge type={badgeType} />
-            {discount > 0 ? (
-              <span className="home-product-discount-pill">-{discount}%</span>
-            ) : null}
-          </>
+          referenceDealCard ? (
+            discount > 0 ? (
+              <span className="home-product-discount-pill home-product-discount-pill--deal">
+                -{discount}%
+              </span>
+            ) : null
+          ) : (
+            <>
+              <ProductDynamicBadge type={badgeType} />
+              {discount > 0 ? (
+                <span className="home-product-discount-pill">-{discount}%</span>
+              ) : null}
+            </>
+          )
         }
       />
 
@@ -136,6 +146,12 @@ export default function HomeProductCard({
           <StarRating rating={rating} reviewCount={reviewCount} size="md" />
         ) : null}
 
+        {referenceDealCard && badgeType === "price-dropped" ? (
+          <div className="home-product-status-badge">
+            <ProductDynamicBadge type="price-dropped" />
+          </div>
+        ) : null}
+
         <div className="home-product-pricing-block">
           <div className="deal-pricing">
             <span className="deal-price">${price.toLocaleString("en-US")}</span>
@@ -145,7 +161,7 @@ export default function HomeProductCard({
               </span>
             ) : null}
           </div>
-          {savingsAmount > 0 ? (
+          {!referenceDealCard && savingsAmount > 0 ? (
             <p className="home-product-savings">
               Save ${savingsAmount.toLocaleString("en-US")}
             </p>
@@ -176,7 +192,7 @@ export default function HomeProductCard({
         )}
 
         <div className="home-product-meta-row">
-          {shippingTime ? (
+          {!referenceDealCard && shippingTime ? (
             <span className="home-product-shipping">
               <Truck size={12} />
               {shippingTime}

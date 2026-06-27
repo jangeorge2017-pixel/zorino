@@ -22,7 +22,9 @@ export default function SearchBar({
 
   return (
     <div className="search-section">
-      <div className={`search-wrapper ${focused ? "search-wrapper-active" : ""}`}>
+      <div
+        className={`search-wrapper${focused ? " search-wrapper-active search-wrapper--open" : ""}`}
+      >
         <div className="search-bar">
           <Search size={20} className="search-icon" />
 

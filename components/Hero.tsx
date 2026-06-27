@@ -14,7 +14,7 @@ export default function Hero({ floatingProducts, stats }: HeroProps) {
       <div className="hero-content">
         <div className="badge">
           <span className="badge-icon">✨</span>
-          Powered by AI
+          + Powered by AI
         </div>
 
         <h1 className="hero-title">
