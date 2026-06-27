@@ -15,6 +15,10 @@ import {
   getHomepageStats,
 } from "@/lib/data/homepage";
 
+/**
+ * Blueprint: public/reference/zorino-final-design.png
+ * Section order: Nav → Hero → Search → Categories → Deals|Coupons → Features → Footer
+ */
 export default async function ZorinoBlueprintPage() {
   const [deals, coupons, floating, categories, popularSearches, stats] =
     await Promise.all([
@@ -29,18 +33,33 @@ export default async function ZorinoBlueprintPage() {
   return (
     <div className="zorino-blueprint">
       <ZorinoBlueprintNav />
+
       <div className="zb-shell">
-        <ZorinoBlueprintHero stats={stats.hero} floating={floating} />
-        <ZorinoBlueprintSearch popularSearches={popularSearches} defaultOpen />
-        <ZorinoBlueprintCategories categories={categories} />
+        <section className="zb-hero-section" aria-label="Hero">
+          <ZorinoBlueprintHero stats={stats.hero} floating={floating} />
+        </section>
+
+        <section className="zb-discovery-section" aria-label="Search and categories">
+          <ZorinoBlueprintSearch popularSearches={popularSearches} defaultOpen />
+          <ZorinoBlueprintCategories categories={categories} />
+        </section>
+
         {(deals.length > 0 || coupons.length > 0) && (
-          <div className="zb-commerce">
-            <ZorinoBlueprintDealsPanel deals={deals} />
-            <ZorinoBlueprintCouponsPanel coupons={coupons} />
-          </div>
+          <section className="zb-commerce-section" aria-label="Trending deals and coupons">
+            <div className="zb-commerce">
+              <ZorinoBlueprintDealsPanel deals={deals} />
+              <ZorinoBlueprintCouponsPanel coupons={coupons} />
+            </div>
+          </section>
         )}
-        <ZorinoBlueprintFeatures />
-        <ZorinoBlueprintFooter stats={stats.footer} />
+
+        <section className="zb-features-section" aria-label="Platform features">
+          <ZorinoBlueprintFeatures />
+        </section>
+
+        <section className="zb-footer-section">
+          <ZorinoBlueprintFooter stats={stats.footer} />
+        </section>
       </div>
     </div>
   );

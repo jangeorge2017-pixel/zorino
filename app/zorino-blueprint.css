@@ -24,30 +24,6 @@
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-.zorino-blueprint::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 100% 60% at 50% -12%, rgba(88, 28, 135, 0.48), transparent 58%),
-    radial-gradient(ellipse 50% 40% at 92% 8%, rgba(37, 99, 235, 0.22), transparent 55%),
-    radial-gradient(ellipse 42% 35% at 6% 14%, rgba(34, 211, 238, 0.1), transparent 52%),
-    radial-gradient(ellipse 80% 50% at 70% 32%, rgba(139, 92, 246, 0.12), transparent 60%),
-    var(--zb-bg-deep);
-}
-
-.zorino-blueprint::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.42;
-  background: url("/hero-background.png") center -40px / min(1520px, 100vw) auto no-repeat;
-}
-
 .zb-shell {
   position: relative;
   z-index: 2;
@@ -231,15 +207,56 @@
   color: #c4b5fd;
 }
 
+/* ─── Page sections (reference: hero nebula only in hero; rest solid dark) ─── */
+.zb-hero-section {
+  position: relative;
+  isolation: isolate;
+  margin: 0 calc(-1 * var(--zb-pad));
+  padding: 16px var(--zb-pad) calc(var(--zb-search-overlap) + 8px);
+  background: #030712;
+  overflow: hidden;
+}
+
+.zb-hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% -8%, rgba(88, 28, 135, 0.5), transparent 58%),
+    radial-gradient(ellipse 45% 38% at 88% 12%, rgba(37, 99, 235, 0.24), transparent 55%),
+    radial-gradient(ellipse 40% 32% at 8% 18%, rgba(34, 211, 238, 0.1), transparent 52%),
+    radial-gradient(ellipse 55% 42% at 72% 38%, rgba(139, 92, 246, 0.14), transparent 60%);
+}
+
+.zb-discovery-section,
+.zb-commerce-section,
+.zb-features-section,
+.zb-footer-section {
+  position: relative;
+  z-index: 1;
+  background: var(--zb-bg-deep);
+}
+
+.zb-discovery-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 0;
+}
+
 /* ─── Hero ─── */
 .zb-hero {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 548px) minmax(0, 1fr);
   column-gap: 24px;
   align-items: center;
   min-height: 480px;
-  padding-top: 16px;
-  padding-bottom: calc(var(--zb-search-overlap) - 8px);
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .zb-hero-copy {
@@ -440,7 +457,6 @@
   margin-top: calc(-1 * var(--zb-search-overlap));
   max-width: var(--zb-content);
   width: 100%;
-  align-self: center;
 }
 
 .zb-search-bar {
@@ -599,6 +615,17 @@
 .zb-category--active {
   border-color: rgba(34, 197, 94, 0.45);
   box-shadow: 0 0 20px rgba(34, 197, 94, 0.12);
+}
+
+.zb-category:not(.zb-category--active):not([class*="zb-accent-"]) {
+  opacity: 0.88;
+}
+
+.zb-category.zb-accent-red,
+.zb-category.zb-accent-yellow,
+.zb-category.zb-accent-purple,
+.zb-category.zb-accent-gray {
+  opacity: 0.92;
 }
 
 .zb-category-icon {

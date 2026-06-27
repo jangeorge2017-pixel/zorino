@@ -1,3 +1,4 @@
+import "@/app/zorino-blueprint.css";
 import ZorinoBlueprintPage from "@/components/zorino-blueprint/ZorinoBlueprintPage";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 
