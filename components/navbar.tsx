@@ -18,6 +18,9 @@ export default function Navbar() {
       <div className="navbar-inner">
         <Link href="/" className="logo">
           <ZorinoLogo className="logo-lockup" />
+          <div className="logo-text">
+            <span className="logo-tagline">Find Better Deals Faster</span>
+          </div>
         </Link>
 
         <div className="nav-links">

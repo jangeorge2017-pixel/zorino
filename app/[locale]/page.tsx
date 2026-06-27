@@ -2,14 +2,9 @@ import Navbar from "@/components/navbar";
 import HeroContainer from "@/components/HeroContainer";
 import SearchBarContainer from "@/components/SearchBarContainer";
 import CategoryGridContainer from "@/components/CategoryGridContainer";
-import LowestPricesContainer from "@/components/LowestPricesContainer";
-import TrendingProductsContainer from "@/components/TrendingProductsContainer";
-import RecommendedProductsContainer from "@/components/RecommendedProductsContainer";
-import PersonalizedRecommendationsContainer from "@/components/PersonalizedRecommendationsContainer";
 import HomeDealsCouponsRow from "@/components/HomeDealsCouponsRow";
 import FeaturesSection from "@/components/FeaturesSection";
 import FooterStatsContainer from "@/components/FooterStatsContainer";
-import HomeSectionScrollReveal from "@/components/HomeSectionScrollReveal";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +24,7 @@ export async function generateMetadata({
 
 export default function Home() {
   return (
-    <main className="homepage">
+    <main className="homepage homepage--reference">
       <Navbar />
       <div className="site-shell">
         <div className="hero-zone">
@@ -44,16 +39,8 @@ export default function Home() {
 
         <HomeDealsCouponsRow />
 
-        <div className="homepage-listing-sections">
-          <LowestPricesContainer />
-          <TrendingProductsContainer />
-          <RecommendedProductsContainer />
-          <PersonalizedRecommendationsContainer />
-        </div>
-
         <FeaturesSection />
         <FooterStatsContainer />
-        <HomeSectionScrollReveal />
       </div>
     </main>
   );

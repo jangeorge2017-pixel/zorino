@@ -27,13 +27,14 @@ const HERO_ORBIT_POSITIONS = [
 const FLOATING_POSITIONS = HERO_ORBIT_POSITIONS;
 
 const CATEGORY_ACCENTS: Record<string, string | null> = {
-  phones: "pink",
+  phones: "purple",
   laptops: "blue",
   gaming: "green",
-  tvs: null,
+  tvs: "red",
   home: "yellow",
-  wearables: null,
-  fashion: null,
+  wearables: "pink",
+  fashion: "purple",
+  more: "blue",
 };
 
 function minutesSince(isoDate: string): number {

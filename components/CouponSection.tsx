@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Copy, Check, CheckCircle, Clock, Users } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
-import HomeSectionHeader from "@/components/HomeSectionHeader";
+import ReferenceSectionHeader from "@/components/ReferenceSectionHeader";
 import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
@@ -26,20 +26,17 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
   }
 
   const verifiedCount = coupons.filter((coupon) => coupon.verified).length;
-  const totalUses = coupons.reduce((sum, coupon) => sum + coupon.usedTimes, 0);
 
   return (
     <section
       id={HOME_SECTIONS["top-coupons"].sectionId}
-      className="home-section-shell home-section-shell--top-coupons coupon-section"
+      className="home-section-shell home-section-shell--top-coupons coupon-section ref-panel"
     >
-      <HomeSectionHeader
-        variant="top-coupons"
+      <ReferenceSectionHeader
         headingId="top-coupons-heading"
         title="Top Coupons"
-        subtitle="Verified codes from trusted stores — copy and save instantly"
-        updatedLabel={`${formatCompactCount(totalUses)} uses today`}
-        link={{ href: "/coupons", label: "View all coupons" }}
+        linkHref="/coupons"
+        linkLabel="View all coupons"
       />
 
       <div className="coupons-list">
@@ -57,7 +54,6 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
             </div>
 
             <div className="coupon-info">
-              <span className="dynamic-badge dynamic-badge--hot dynamic-badge--sm">Hot</span>
               <h3>{coupon.store}</h3>
               <p className="coupon-offer">{coupon.offer}</p>
               <p className="coupon-min">{coupon.minSpend}</p>
@@ -79,24 +75,17 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
                   {copiedId === coupon.id ? <Check size={16} /> : <Copy size={16} />}
                 </button>
               </div>
-              <button
-                type="button"
-                className="coupon-copy-action"
-                onClick={() => handleCopy(coupon.id, coupon.code)}
-              >
-                Copy Code
-              </button>
               <div className="coupon-meta">
                 <span className="coupon-users-used">
                   <Users size={12} />
                   Used {coupon.usedTimes.toLocaleString("en-US")} times
                 </span>
-                {coupon.verified && (
+                {coupon.verified ? (
                   <span className="coupon-verified">
                     <CheckCircle size={13} />
                     Verified ({verifiedCount})
                   </span>
-                )}
+                ) : null}
               </div>
             </div>
           </article>
