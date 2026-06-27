@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils/cn';
+import { cn } from "@/lib/utils/cn";
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -10,18 +10,10 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export default function Select({ label, error, options, className, ...props }: SelectProps) {
   return (
-    <div className="w-full">
-      {label && (
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          {label}
-        </label>
-      )}
+    <div className="zor-field">
+      {label ? <label className="zor-label">{label}</label> : null}
       <select
-        className={cn(
-          'w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all cursor-pointer',
-          error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
-          className
-        )}
+        className={cn("zor-select", error && "zor-select--error", className)}
         {...props}
       >
         {options.map((option) => (
@@ -30,9 +22,7 @@ export default function Select({ label, error, options, className, ...props }: S
           </option>
         ))}
       </select>
-      {error && (
-        <p className="mt-1 text-sm text-red-500">{error}</p>
-      )}
+      {error ? <p className="zor-field-error">{error}</p> : null}
     </div>
   );
 }
