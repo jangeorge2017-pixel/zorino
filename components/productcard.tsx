@@ -1,5 +1,6 @@
 import HomeProductCard from "@/components/HomeProductCard";
-import HomeSectionHeader from "@/components/HomeSectionHeader";
+import ReferenceSectionHeader from "@/components/ReferenceSectionHeader";
+import DealsCarousel from "@/components/DealsCarousel";
 import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import { getTrendingDeals } from "@/lib/data/homepage";
 import { getProductBadgesMap } from "@/services/trending/queries";
@@ -25,10 +26,11 @@ function DealCard({ deal }: { deal: TrendingDealCard }) {
       shippingTime="Limited time"
       priceHistory={deal.priceHistory}
       trendingBadge={deal.badge}
-      dynamicBadge="flash-deal"
+      dynamicBadge="price-dropped"
       updatedLabel={`Updated ${deal.updatedMins} min ago`}
       sparklineId={deal.id}
       compareOnly
+      hideQuickActions
     />
   );
 }
@@ -49,22 +51,20 @@ export default async function ProductCard() {
   return (
     <section
       id={HOME_SECTIONS["trending-deals"].sectionId}
-      className="home-section-shell home-section-shell--trending-deals trending-section"
+      className="home-section-shell home-section-shell--trending-deals trending-section ref-panel"
     >
-      <HomeSectionHeader
-        variant="trending-deals"
+      <ReferenceSectionHeader
         headingId="trending-deals-heading"
         title="Trending Deals"
-        subtitle="Price drops and hot offers updated throughout the day"
-        updatedLabel="Updated 3 min ago"
-        link={{ href: "/deals", label: "View all deals" }}
+        linkHref="/deals"
+        linkLabel="View all deals"
       />
 
-      <div className="deals-grid">
+      <DealsCarousel>
         {dealsWithBadges.map((deal) => (
           <DealCard key={deal.id} deal={deal} />
         ))}
-      </div>
+      </DealsCarousel>
     </section>
   );
 }

@@ -5,6 +5,7 @@ export type DynamicBadgeType =
   | "hot"
   | "new"
   | "flash-deal"
+  | "price-dropped"
   | "trending"
   | "editor-pick"
   | "best-price";
@@ -13,6 +14,7 @@ export const DYNAMIC_BADGE_LABELS: Record<DynamicBadgeType, string> = {
   hot: "Hot",
   new: "New",
   "flash-deal": "Flash Deal",
+  "price-dropped": "Price dropped",
   trending: "Trending",
   "editor-pick": "Editor Pick",
   "best-price": "Best Price",
@@ -28,7 +30,7 @@ export function resolveDynamicBadge(options: {
   if (options.isNew || options.isNewLow) return "new";
 
   if (options.trendingBadge === "hot") return "hot";
-  if (options.trendingBadge === "price_drop") return "flash-deal";
+  if (options.trendingBadge === "price_drop") return "price-dropped";
   if (
     options.trendingBadge === "trending" ||
     options.trendingBadge === "bestseller" ||
@@ -41,7 +43,7 @@ export function resolveDynamicBadge(options: {
     case "lowest-price":
       return "best-price";
     case "trending-deals":
-      return "flash-deal";
+      return "price-dropped";
     case "recommended-products":
       return "editor-pick";
     case "recommended-for-you":

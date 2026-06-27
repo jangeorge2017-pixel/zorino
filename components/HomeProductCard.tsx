@@ -45,6 +45,7 @@ export type HomeProductCardProps = {
   onShopClick?: () => void;
   sparklineId?: string | number;
   compareOnly?: boolean;
+  hideQuickActions?: boolean;
 };
 
 const SPARKLINE_VARIANT: Record<
@@ -87,6 +88,7 @@ export default function HomeProductCard({
   onShopClick,
   sparklineId,
   compareOnly = false,
+  hideQuickActions = false,
 }: HomeProductCardProps) {
   const initial = storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
   const showOriginal = originalPrice !== undefined && originalPrice > price;
@@ -118,11 +120,13 @@ export default function HomeProductCard({
         }
       />
 
-      <div className="product-card-quick-actions">
-        <WishlistButton productId={productId} />
-        <ShareButton productId={productId} productName={name} />
-        <PriceAlertButton productId={productId} />
-      </div>
+      {!hideQuickActions ? (
+        <div className="product-card-quick-actions">
+          <WishlistButton productId={productId} />
+          <ShareButton productId={productId} productName={name} />
+          <PriceAlertButton productId={productId} />
+        </div>
+      ) : null}
 
       <div className="product-card-body">
         {reason ? <p className="home-product-reason">{reason}</p> : null}

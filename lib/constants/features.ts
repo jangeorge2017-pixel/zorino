@@ -2,25 +2,25 @@ export const marketingFeatures = [
   {
     iconSrc: "/icons/feature-ai.svg",
     title: "AI Recommendations",
-    description: "Smart suggestions tailored to your shopping preferences",
+    description: "Smart AI suggests the best products and deals for you.",
     accent: "purple",
   },
   {
     iconSrc: "/icons/feature-tracking.svg",
     title: "Real-time Price Tracking",
-    description: "Get instant alerts when prices drop on your wishlist",
-    accent: "purple",
+    description: "We track price changes 24/7 so you never overpay.",
+    accent: "pink",
   },
   {
     iconSrc: "/icons/feature-coupons.svg",
     title: "Verified Coupons",
-    description: "Every coupon code is tested and verified before listing",
+    description: "Thousands of verified coupons updated daily.",
     accent: "green",
   },
   {
     iconSrc: "/icons/feature-globe.svg",
     title: "Global Coverage",
-    description: "Compare prices from 50+ stores across 150+ countries",
+    description: "Compare prices from 50+ countries and global stores.",
     accent: "blue",
   },
 ] as const;
