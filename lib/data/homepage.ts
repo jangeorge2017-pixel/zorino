@@ -32,9 +32,9 @@ const CATEGORY_ACCENTS: Record<string, string | null> = {
   gaming: "green",
   tvs: "red",
   home: "yellow",
-  wearables: "pink",
-  fashion: "purple",
-  more: "blue",
+  wearables: "purple",
+  fashion: "pink",
+  more: "gray",
 };
 
 function minutesSince(isoDate: string): number {
@@ -242,7 +242,7 @@ export async function getHomepageCategories(): Promise<HomepageCategoryItem[]> {
       active: index === 2,
       accent: CATEGORY_ACCENTS[category.slug] ?? null,
     })),
-    { slug: "more", label: "More", active: false, accent: null },
+    { slug: "more", label: "More", active: false, accent: "gray" },
   ];
 }
 
