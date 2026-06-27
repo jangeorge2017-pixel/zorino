@@ -6,25 +6,28 @@ type ProductCardActionsProps = {
   productId: string;
   shopHref?: string;
   showShop?: boolean;
+  compareOnly?: boolean;
   onShopClick?: () => void;
   shopExternal?: boolean;
 };
 
-/** Shop Now primary + Compare Prices secondary. */
+/** Shop Now primary + Compare Prices secondary, or Compare Prices only (reference deals). */
 export default function ProductCardActions({
   productId,
   shopHref,
   showShop = true,
+  compareOnly = false,
   onShopClick,
   shopExternal = false,
 }: ProductCardActionsProps) {
   const href = shopHref ?? `/product/${productId}#compare-prices`;
+  const showShopButton = showShop && !compareOnly;
 
   return (
     <div
-      className={`product-card-actions${showShop ? " product-card-actions-dual" : " product-card-actions-single"}`}
+      className={`product-card-actions${showShopButton ? " product-card-actions-dual" : " product-card-actions-single"}`}
     >
-      {showShop ? (
+      {showShopButton ? (
         shopExternal ? (
           <a
             href={href}

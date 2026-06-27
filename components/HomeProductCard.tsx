@@ -44,6 +44,7 @@ export type HomeProductCardProps = {
   shopExternal?: boolean;
   onShopClick?: () => void;
   sparklineId?: string | number;
+  compareOnly?: boolean;
 };
 
 const SPARKLINE_VARIANT: Record<
@@ -85,6 +86,7 @@ export default function HomeProductCard({
   shopExternal = false,
   onShopClick,
   sparklineId,
+  compareOnly = false,
 }: HomeProductCardProps) {
   const initial = storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
   const showOriginal = originalPrice !== undefined && originalPrice > price;
@@ -197,6 +199,7 @@ export default function HomeProductCard({
         shopHref={shopHref}
         shopExternal={shopExternal}
         onShopClick={onShopClick}
+        compareOnly={compareOnly}
       />
     </article>
   );

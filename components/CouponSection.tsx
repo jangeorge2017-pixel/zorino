@@ -39,7 +39,7 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
         title="Top Coupons"
         subtitle="Verified codes from trusted stores — copy and save instantly"
         updatedLabel={`${formatCompactCount(totalUses)} uses today`}
-        link={{ href: "/coupons" }}
+        link={{ href: "/coupons", label: "View all coupons" }}
       />
 
       <div className="coupons-list">
