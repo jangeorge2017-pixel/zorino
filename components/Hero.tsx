@@ -31,14 +31,18 @@ export default function Hero({ floatingProducts, stats }: HeroProps) {
       </div>
 
       <div className="hero-visual">
-        <div className="hero-orbit" aria-label="Featured products">
-          {floatingProducts.map((product) => (
-            <HeroOrbitCard
-              key={product.position}
-              product={product}
-              animationDelay={getHeroOrbitAnimationDelay(product.position)}
-            />
-          ))}
+        <div className="hero-visual-stage">
+          <div className="hero-visual-z-bg" aria-hidden="true" />
+          <div className="hero-visual-glow" aria-hidden="true" />
+          <div className="hero-orbit" aria-label="Featured products">
+            {floatingProducts.map((product) => (
+              <HeroOrbitCard
+                key={product.position}
+                product={product}
+                animationDelay={getHeroOrbitAnimationDelay(product.position)}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
