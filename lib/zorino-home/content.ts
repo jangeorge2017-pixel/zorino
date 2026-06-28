@@ -24,7 +24,7 @@ export type ZhOrbitCard = {
 export type ZhCategory = {
   slug: string;
   label: string;
-  accent?: "pink" | "blue" | "green" | "red" | "yellow" | "purple" | "gray";
+  accent?: "pink" | "blue" | "green" | "purple" | "gray" | "cyan" | "orange" | "indigo";
   highlighted?: boolean;
 };
 
@@ -117,13 +117,13 @@ export const ZH_POPULAR_SEARCHES = [
 ];
 
 export const ZH_CATEGORIES: ZhCategory[] = [
-  { slug: "phones", label: "Phones", accent: "pink" },
-  { slug: "laptops", label: "Laptops", accent: "blue" },
-  { slug: "gaming", label: "Gaming", accent: "green" },
-  { slug: "tvs", label: "TVs", accent: "red" },
-  { slug: "home", label: "Home", accent: "yellow", highlighted: true },
-  { slug: "wearables", label: "Wearables", accent: "purple" },
-  { slug: "fashion", label: "Fashion", accent: "pink" },
+  { slug: "phones", label: "Phones", accent: "blue" },
+  { slug: "laptops", label: "Laptops", accent: "cyan" },
+  { slug: "gaming", label: "Gaming", accent: "purple" },
+  { slug: "tvs", label: "TVs", accent: "orange" },
+  { slug: "home", label: "Home", accent: "green", highlighted: true },
+  { slug: "wearables", label: "Wearables", accent: "pink" },
+  { slug: "fashion", label: "Fashion", accent: "indigo" },
   { slug: "more", label: "More", accent: "gray" },
 ];
 

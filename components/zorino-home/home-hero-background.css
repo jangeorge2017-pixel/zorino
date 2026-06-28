@@ -1,78 +1,14 @@
 /**
- * HomeHeroBackground — backdrop for search, categories, and commerce (hhb-* prefix)
+ * HomeHeroBackground — commerce section only (transparent; hero continuum above)
  */
 
 .hhb {
   position: relative;
   isolation: isolate;
-  margin: 0 calc(-1 * var(--zh-pad));
-  padding: 12px var(--zh-pad) 36px;
-  background: linear-gradient(180deg, #030712 0%, #040615 52%, #030712 100%);
-  overflow: hidden;
-}
-
-.hhb__backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.hhb__nebula {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 100% 58% at 50% -2%, rgba(88, 28, 135, 0.58), transparent 64%),
-    radial-gradient(ellipse 52% 44% at 88% 16%, rgba(37, 99, 235, 0.3), transparent 58%),
-    radial-gradient(ellipse 44% 38% at 8% 20%, rgba(34, 211, 238, 0.14), transparent 56%),
-    radial-gradient(ellipse 72% 50% at 66% 38%, rgba(139, 92, 246, 0.2), transparent 64%),
-    radial-gradient(ellipse 88% 52% at 50% 92%, rgba(88, 28, 135, 0.16), transparent 74%);
-}
-
-.hhb__stars {
-  position: absolute;
-  inset: 0;
-  opacity: 0.62;
-  background-image:
-    radial-gradient(1px 1px at 8% 18%, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1px 1px at 22% 62%, rgba(255, 255, 255, 0.38), transparent),
-    radial-gradient(1.5px 1.5px at 42% 12%, rgba(196, 181, 253, 0.55), transparent),
-    radial-gradient(1px 1px at 58% 38%, rgba(255, 255, 255, 0.32), transparent),
-    radial-gradient(1px 1px at 74% 24%, rgba(147, 197, 253, 0.45), transparent),
-    radial-gradient(1px 1px at 86% 68%, rgba(255, 255, 255, 0.38), transparent),
-    radial-gradient(1px 1px at 12% 84%, rgba(255, 255, 255, 0.28), transparent),
-    radial-gradient(1.5px 1.5px at 52% 76%, rgba(167, 139, 250, 0.38), transparent),
-    radial-gradient(1px 1px at 32% 34%, rgba(255, 255, 255, 0.22), transparent),
-    radial-gradient(1px 1px at 94% 10%, rgba(255, 255, 255, 0.42), transparent),
-    radial-gradient(1px 1px at 48% 48%, rgba(255, 255, 255, 0.15), transparent);
-}
-
-.hhb__streaks {
-  position: absolute;
-  inset: 0;
-  opacity: 0.55;
-  background:
-    linear-gradient(118deg, transparent 42%, rgba(139, 92, 246, 0.14) 49%, transparent 56%),
-    linear-gradient(132deg, transparent 58%, rgba(34, 211, 238, 0.08) 64%, transparent 70%),
-    radial-gradient(ellipse 28% 18% at 72% 52%, rgba(99, 102, 241, 0.18), transparent 72%);
-  filter: blur(1px);
-}
-
-.hhb__ambient-glow {
-  position: absolute;
-  top: 4%;
-  right: 6%;
-  width: min(560px, 44vw);
-  height: min(500px, 42vw);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 50% 50%,
-    rgba(99, 102, 241, 0.16) 0%,
-    rgba(139, 92, 246, 0.08) 38%,
-    transparent 72%
-  );
-  filter: blur(28px);
+  margin: 0 calc(-1 * var(--zh-pad)) 0;
+  padding: 0 var(--zh-pad) 36px;
+  background: transparent;
+  overflow: visible;
 }
 
 .hhb__content {
@@ -80,7 +16,6 @@
   z-index: 1;
 }
 
-.hhb__content .zh-hero-block__stack,
 .hhb__content .zh-commerce {
   position: relative;
   z-index: 1;
@@ -91,7 +26,7 @@
   grid-template-columns: minmax(0, 2.12fr) minmax(0, 1fr);
   gap: 28px;
   align-items: stretch;
-  margin-top: 32px;
+  margin-top: 0;
   padding-top: 0;
   background: transparent;
 }
@@ -99,14 +34,5 @@
 @media (max-width: 1279px) {
   .hhb .zh-commerce {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 767px) {
-  .hhb__ambient-glow {
-    width: 80vw;
-    height: 60vw;
-    right: 50%;
-    transform: translateX(50%);
   }
 }

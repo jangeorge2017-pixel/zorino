@@ -27,13 +27,13 @@ const HERO_ORBIT_POSITIONS = [
 const FLOATING_POSITIONS = HERO_ORBIT_POSITIONS;
 
 const CATEGORY_ACCENTS: Record<string, string | null> = {
-  phones: "pink",
-  laptops: "blue",
-  gaming: "green",
-  tvs: "red",
-  home: "yellow",
-  wearables: "purple",
-  fashion: "pink",
+  phones: "blue",
+  laptops: "cyan",
+  gaming: "purple",
+  tvs: "orange",
+  home: "green",
+  wearables: "pink",
+  fashion: "indigo",
   more: "gray",
 };
 
