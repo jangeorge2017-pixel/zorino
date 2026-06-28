@@ -23,8 +23,11 @@ export default function ZorinoHomeNav() {
     <header className="zh-nav">
       <div className="zh-nav__inner">
         <Link href="/" className="zh-nav__logo">
-          <img src={ZORINO_LOGO_SOURCE} alt="ZORINO" width={118} height={40} />
-          <span className="zh-nav__tagline">Find Better Deals Faster</span>
+          <img src={ZORINO_LOGO_SOURCE} alt="" width={40} height={40} />
+          <div className="zh-nav__brand">
+            <span className="zh-nav__wordmark">ZORINO</span>
+            <span className="zh-nav__tagline">Find Better Deals Faster</span>
+          </div>
         </Link>
 
         <nav className="zh-nav__links" aria-label="Primary">
