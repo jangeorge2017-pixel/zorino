@@ -117,11 +117,11 @@ export const ZH_POPULAR_SEARCHES = [
 ];
 
 export const ZH_CATEGORIES: ZhCategory[] = [
-  { slug: "phones", label: "Phones", accent: "pink", highlighted: true },
-  { slug: "laptops", label: "Laptops", accent: "blue", highlighted: true },
-  { slug: "gaming", label: "Gaming", accent: "green", highlighted: true },
+  { slug: "phones", label: "Phones", accent: "pink" },
+  { slug: "laptops", label: "Laptops", accent: "blue" },
+  { slug: "gaming", label: "Gaming", accent: "green" },
   { slug: "tvs", label: "TVs", accent: "red" },
-  { slug: "home", label: "Home", accent: "yellow" },
+  { slug: "home", label: "Home", accent: "yellow", highlighted: true },
   { slug: "wearables", label: "Wearables", accent: "purple" },
   { slug: "fashion", label: "Fashion", accent: "pink" },
   { slug: "more", label: "More", accent: "gray" },

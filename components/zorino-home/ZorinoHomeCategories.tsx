@@ -36,7 +36,8 @@ export default function ZorinoHomeCategories({ categories }: ZorinoHomeCategorie
         const href =
           category.slug === "more" ? "/categories" : `/categories/${category.slug}`;
         const accent = category.accent ? ` zh-categories__item--${category.accent}` : "";
-        const highlighted = category.active ? " zh-categories__item--highlight" : "";
+        const highlighted =
+          category.active || category.slug === "home" ? " zh-categories__item--highlight" : "";
 
         return (
           <Link

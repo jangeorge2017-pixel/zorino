@@ -10,7 +10,7 @@ type ZorinoHomeSearchProps = {
 
 export default function ZorinoHomeSearch({ popularSearches }: ZorinoHomeSearchProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [query, setQuery] = useState("");
 
   const goToSearch = (term?: string) => {

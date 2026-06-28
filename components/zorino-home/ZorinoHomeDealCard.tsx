@@ -32,7 +32,9 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
             />
           ))}
         </span>
-        <span className="zh-deal-card__reviews">({deal.reviews.toLocaleString()})</span>
+        <span className="zh-deal-card__reviews">
+          ({deal.reviews.toLocaleString("en-US")})
+        </span>
       </div>
 
       {dropped ? (
@@ -72,10 +74,11 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
           </span>
           {deal.store}
         </div>
-        <span className="zh-deal-card__updated">Updated {deal.updatedMins} min ago</span>
       </div>
 
       <ZorinoHomeSparkline values={deal.priceHistory} rising={increased} />
+
+      <span className="zh-deal-card__updated">Updated {deal.updatedMins} min ago</span>
 
       <Link href={compareHref} className="zh-deal-card__cta">
         Compare Prices

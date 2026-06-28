@@ -42,12 +42,12 @@ export default async function ZorinoHomePage() {
       <ZorinoHomeNav />
 
       <div className="zh-shell">
-        <HomeHeroBackground>
-          <ZorinoHomeHero
-            stats={withFallbackHeroStats(stats.hero)}
-            floatingProducts={withFallbackFloatingProducts(floatingProducts)}
-          />
+        <ZorinoHomeHero
+          stats={withFallbackHeroStats(stats.hero)}
+          floatingProducts={withFallbackFloatingProducts(floatingProducts)}
+        />
 
+        <HomeHeroBackground>
           <div className="zh-hero-block__stack">
             <ZorinoHomeSearch
               popularSearches={withFallbackPopularSearches(popularSearches)}

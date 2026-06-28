@@ -1,0 +1,8 @@
+{
+  "name": "ZORINO Homepage Builder",
+  "id": "zorino-homepage-builder-local",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page"
+}
