@@ -10,8 +10,11 @@ type ZorinoHomeSearchProps = {
 
 export default function ZorinoHomeSearch({ popularSearches }: ZorinoHomeSearchProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(true);
+  const [focused, setFocused] = useState(false);
   const [query, setQuery] = useState("");
+
+  const showDropdown =
+    (focused || query.trim().length > 0) && popularSearches.length > 0;
 
   const goToSearch = (term?: string) => {
     const value = (term ?? query).trim();
@@ -26,7 +29,7 @@ export default function ZorinoHomeSearch({ popularSearches }: ZorinoHomeSearchPr
   };
 
   return (
-    <div className={`zh-search${open ? " zh-search--open" : ""}`}>
+    <div className={`zh-search${showDropdown ? " zh-search--open" : ""}`}>
       <form className="zh-search__bar" onSubmit={handleSubmit}>
         <Search size={20} className="zh-search__icon" aria-hidden />
         <input
@@ -34,8 +37,8 @@ export default function ZorinoHomeSearch({ popularSearches }: ZorinoHomeSearchPr
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for products, brands or categories..."
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setTimeout(() => setFocused(false), 150)}
         />
         <button type="button" className="zh-search__ai" onClick={() => goToSearch()}>
           <Sparkles size={14} aria-hidden />
@@ -46,7 +49,7 @@ export default function ZorinoHomeSearch({ popularSearches }: ZorinoHomeSearchPr
         </button>
       </form>
 
-      {open && popularSearches.length > 0 ? (
+      {showDropdown ? (
         <div className="zh-search__dropdown">
           <h4>Popular searches</h4>
           <ul>

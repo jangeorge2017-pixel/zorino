@@ -46,6 +46,7 @@
 .hero-artwork__backdrop {
   position: absolute;
   inset: 0;
+  bottom: calc(-1 * var(--zh-hero-bg-extend, 118px));
   pointer-events: none;
   overflow: visible;
   -webkit-mask-image:
@@ -136,7 +137,7 @@
   position: absolute;
   top: 0;
   right: -18%;
-  bottom: 0;
+  bottom: calc(-1 * var(--zh-hero-bg-extend, 118px));
   left: -18%;
   transform: scaleY(1.48);
   transform-origin: bottom center;

@@ -36,11 +36,13 @@ export default function ZorinoHomeHero({ stats }: ZorinoHomeHeroProps) {
               const Icon = STAT_ICONS[stat.key];
               return (
                 <article key={stat.key} className={`zh-stat zh-stat--${stat.tone}`}>
-                  <div className="zh-stat__icon">
-                    <Icon size={20} aria-hidden />
-                  </div>
                   <p className="zh-stat__value">{stat.value}</p>
-                  <p className="zh-stat__label">{stat.label}</p>
+                  <div className="zh-stat__meta">
+                    <div className="zh-stat__icon">
+                      <Icon size={26} aria-hidden />
+                    </div>
+                    <p className="zh-stat__label">{stat.label}</p>
+                  </div>
                 </article>
               );
             })}
