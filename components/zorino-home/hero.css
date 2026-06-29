@@ -253,11 +253,11 @@
   will-change: transform;
 }
 
-.zh-orbit-card[data-orbit-position="orbit-top"] { left: 50%; top: 18%; }
-.zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: 16%; top: 36%; }
-.zh-orbit-card[data-orbit-position="orbit-upper-right"] { left: 84%; top: 36%; }
-.zh-orbit-card[data-orbit-position="orbit-lower-left"] { left: calc(10% + 12px); top: calc(58% + 22px); }
-.zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: calc(90% - 12px); top: calc(58% + 22px); }
+.zh-orbit-card[data-orbit-position="orbit-top"] { left: 50%; top: 40%; }
+.zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: 16%; top: 58%; }
+.zh-orbit-card[data-orbit-position="orbit-upper-right"] { left: 84%; top: 58%; }
+.zh-orbit-card[data-orbit-position="orbit-lower-left"] { left: calc(10% + 12px); top: calc(80% + 22px); }
+.zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: calc(90% - 12px); top: calc(80% + 22px); }
 
 .zh-orbit-card__media {
   position: relative;
