@@ -10,6 +10,7 @@ import {
   Watch,
 } from "lucide-react";
 import type { HomepageCategoryItem } from "@/lib/types/entities";
+import "./categories.css";
 
 const ICONS = {
   phones: Smartphone,
@@ -45,8 +46,8 @@ export default function ZorinoHomeCategories({ categories }: ZorinoHomeCategorie
             href={href}
             className={`zh-categories__item${accent}${highlighted}`}
           >
-            <span className="zh-categories__icon">
-              <Icon size={17} strokeWidth={1.85} aria-hidden />
+            <span className="zh-categories__icon-box">
+              <Icon size={18} strokeWidth={1.85} aria-hidden />
             </span>
             <span className="zh-categories__label">{category.label}</span>
           </Link>

@@ -1,9 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Star, TrendingDown, TrendingUp } from "lucide-react";
+import { ChevronRight, Clock, Star, TrendingDown, TrendingUp } from "lucide-react";
 import ZorinoHomeSparkline from "@/components/zorino-home/ZorinoHomeSparkline";
 import type { TrendingDealCard } from "@/lib/types/entities";
+import "./ZorinoHomeDealCard.css";
+
+function formatUsd(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
 
 export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard }) {
   const dropped = deal.originalPrice > deal.price;
@@ -16,7 +26,7 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
         {deal.discount > 0 ? (
           <span className="zh-deal-card__discount">-{Math.round(deal.discount)}%</span>
         ) : null}
-        <img src={deal.imageSrc} alt={deal.name} />
+        <img src={deal.imageSrc} alt={deal.name} decoding="async" />
       </div>
 
       <h3 className="zh-deal-card__name">{deal.name}</h3>
@@ -26,9 +36,9 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
-              size={12}
-              fill={i < Math.round(deal.rating) ? "#fbbf24" : "none"}
-              color="#fbbf24"
+              size={11}
+              fill={i < Math.round(deal.rating) ? "#fbbf24" : "#334155"}
+              color={i < Math.round(deal.rating) ? "#fbbf24" : "#334155"}
             />
           ))}
         </span>
@@ -50,11 +60,9 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
       ) : null}
 
       <div className="zh-deal-card__prices">
-        <span className="zh-deal-card__price">${deal.price.toLocaleString("en-US")}</span>
+        <span className="zh-deal-card__price">{formatUsd(deal.price)}</span>
         {(dropped || increased) && deal.originalPrice !== deal.price ? (
-          <span className="zh-deal-card__was">
-            ${deal.originalPrice.toLocaleString("en-US")}
-          </span>
+          <span className="zh-deal-card__was">{formatUsd(deal.originalPrice)}</span>
         ) : null}
       </div>
 
@@ -74,11 +82,15 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
           </span>
           {deal.store}
         </div>
+        <span className="zh-deal-card__updated">
+          <Clock size={11} aria-hidden />
+          Updated {deal.updatedMins} min ago
+        </span>
       </div>
 
-      <ZorinoHomeSparkline values={deal.priceHistory} rising={increased} />
-
-      <span className="zh-deal-card__updated">Updated {deal.updatedMins} min ago</span>
+      <div className="zh-deal-card__spark-wrap">
+        <ZorinoHomeSparkline values={deal.priceHistory} rising={increased} />
+      </div>
 
       <Link href={compareHref} className="zh-deal-card__cta">
         Compare Prices
