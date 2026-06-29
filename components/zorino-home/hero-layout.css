@@ -41,7 +41,7 @@
   background: none;
   border: none;
   box-shadow: none;
-  transform: translate(-95px, 32px);
+  transform: translate(-58px, 48px);
 }
 
 .hero-artwork__backdrop {
@@ -331,6 +331,12 @@
   mix-blend-mode: screen;
   -webkit-mask-image: linear-gradient(to top, #000 0%, #000 36%, transparent 100%);
   mask-image: linear-gradient(to top, #000 0%, #000 36%, transparent 100%);
+}
+
+@media (max-width: 1279px) {
+  .hero-artwork {
+    transform: translate(-42px, 44px);
+  }
 }
 
 @media (max-width: 767px) {
