@@ -1,6 +1,7 @@
 import HeroArtwork from "@/components/zorino-home/HeroArtwork";
 import type { FloatingProductCard, HeroStatItem } from "@/lib/types/entities";
-import { Package, Store, Tag, TrendingUp } from "lucide-react";
+import { Package, Sparkles, Store, Tag, TrendingUp } from "lucide-react";
+import "./hero.css";
 import "./hero-layout.css";
 
 const STAT_ICONS = {
@@ -15,11 +16,19 @@ type ZorinoHomeHeroProps = {
   floatingProducts: FloatingProductCard[];
 };
 
-export default function ZorinoHomeHero({ stats }: ZorinoHomeHeroProps) {
+export default function ZorinoHomeHero({
+  stats,
+  floatingProducts,
+}: ZorinoHomeHeroProps) {
   return (
     <section className="zh-hero" aria-label="Hero">
       <div className="zh-hero__col zh-hero__col--left">
         <div className="zh-hero__copy">
+          <div className="zh-hero__badge">
+            <Sparkles size={13} aria-hidden />
+            Powered by AI
+          </div>
+
           <h1 className="zh-hero__title">
             Find Better
             <br />
@@ -39,7 +48,7 @@ export default function ZorinoHomeHero({ stats }: ZorinoHomeHeroProps) {
                   <p className="zh-stat__value">{stat.value}</p>
                   <div className="zh-stat__meta">
                     <div className="zh-stat__icon">
-                      <Icon size={26} aria-hidden />
+                      <Icon size={18} aria-hidden />
                     </div>
                     <p className="zh-stat__label">{stat.label}</p>
                   </div>
@@ -51,7 +60,7 @@ export default function ZorinoHomeHero({ stats }: ZorinoHomeHeroProps) {
       </div>
 
       <div className="zh-hero__col zh-hero__col--right">
-        <HeroArtwork />
+        <HeroArtwork floatingProducts={floatingProducts} />
       </div>
     </section>
   );

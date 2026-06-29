@@ -1,3 +1,7 @@
+"use client";
+
+import { useId } from "react";
+
 function buildPath(values: number[], width: number, height: number): string {
   if (values.length < 2) return "";
   const min = Math.min(...values);
@@ -25,26 +29,49 @@ type ZorinoHomeSparklineProps = {
 };
 
 export default function ZorinoHomeSparkline({ values, rising = false }: ZorinoHomeSparklineProps) {
-  if (values.length < 2) return null;
+  const gradientId = useId();
+  const width = 120;
+  const height = 32;
+  const stroke = rising ? "#ef4444" : "#7c3aed";
 
-  const stroke = rising ? "#ef4444" : "#8b5cf6";
-  const fillStart = rising ? "rgba(239, 68, 68, 0.28)" : "rgba(139, 92, 246, 0.28)";
-  const fillEnd = rising ? "rgba(239, 68, 68, 0)" : "rgba(139, 92, 246, 0)";
+  if (values.length < 2) {
+    return (
+      <svg
+        className="zh-sparkline"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        <line
+          x1="0"
+          y1={height / 2}
+          x2={width}
+          y2={height / 2}
+          stroke={stroke}
+          strokeWidth="1.5"
+          strokeOpacity="0.4"
+        />
+      </svg>
+    );
+  }
+
+  const fillStart = rising ? "rgba(239, 68, 68, 0.28)" : "rgba(124, 58, 237, 0.28)";
+  const fillEnd = rising ? "rgba(239, 68, 68, 0)" : "rgba(124, 58, 237, 0)";
 
   return (
-    <svg className="zh-sparkline" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden>
+    <svg className="zh-sparkline" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden>
       <defs>
-        <linearGradient id={`zh-spark-${rising ? "up" : "down"}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={fillStart} />
           <stop offset="100%" stopColor={fillEnd} />
         </linearGradient>
       </defs>
-      <path d={buildAreaPath(values, 120, 36)} fill={`url(#zh-spark-${rising ? "up" : "down"})`} />
+      <path d={buildAreaPath(values, width, height)} fill={`url(#${gradientId})`} />
       <path
-        d={buildPath(values, 120, 36)}
+        d={buildPath(values, width, height)}
         fill="none"
         stroke={stroke}
-        strokeWidth="2"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
