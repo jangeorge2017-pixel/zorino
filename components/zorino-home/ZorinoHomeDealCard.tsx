@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Clock, Star, TrendingDown, TrendingUp } from "lucide-react";
+import { ChevronRight, Clock, ImageOff, Star, TrendingDown, TrendingUp } from "lucide-react";
 import ZorinoHomeSparkline from "@/components/zorino-home/ZorinoHomeSparkline";
 import type { TrendingDealCard } from "@/lib/types/entities";
 import "./ZorinoHomeDealCard.css";
@@ -16,6 +17,7 @@ function formatUsd(value: number): string {
 }
 
 export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard }) {
+  const [imgError, setImgError] = useState(false);
   const dropped = deal.originalPrice > deal.price;
   const increased = deal.originalPrice < deal.price;
   const compareHref = deal.productId ? `/product/${deal.productId}` : "/deals";
@@ -26,7 +28,19 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
         {deal.discount > 0 ? (
           <span className="zh-deal-card__discount">-{Math.round(deal.discount)}%</span>
         ) : null}
-        <img src={deal.imageSrc} alt={deal.name} decoding="async" />
+        {!imgError && deal.imageSrc ? (
+          <img
+            src={deal.imageSrc}
+            alt={deal.name}
+            decoding="async"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="zh-deal-card__media-fallback" aria-hidden>
+            <ImageOff size={28} />
+            <span>No image</span>
+          </div>
+        )}
       </div>
 
       <h3 className="zh-deal-card__name">{deal.name}</h3>
