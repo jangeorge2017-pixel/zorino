@@ -1,6 +1,6 @@
 "use client";
 
-import { PageErrorState } from "@/components/pages";
+import { PageErrorState, PageLayout } from "@/components/pages";
 
 export default function Error({
   reset,
@@ -9,10 +9,12 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <PageErrorState
-      title="Something went wrong"
-      description="We couldn't load this page. Please try again."
-      onRetry={reset}
-    />
+    <PageLayout>
+      <PageErrorState
+        title="Something went wrong"
+        description="We couldn't load this page. Please try again."
+        onRetry={reset}
+      />
+    </PageLayout>
   );
 }

@@ -338,6 +338,10 @@
     "moveToCart": "Move to Cart",
     "removeAll": "Remove All"
   },
+  "products": {
+    "title": "All Products",
+    "subtitle": "Browse thousands of products across every category and store"
+  },
   "admin": {
     "title": "Admin Dashboard",
     "overview": "Overview",

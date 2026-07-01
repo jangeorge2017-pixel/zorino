@@ -6,10 +6,8 @@ import { Home, Search } from "lucide-react";
 export default function NotFoundContent() {
   return (
     <PageLayout>
-      <div className="zor-page-state min-h-[60vh]">
-        <p className="text-7xl font-extrabold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-4">
-          404
-        </p>
+      <div className="zor-page-state zor-page-state--404 min-h-[60vh]">
+        <p className="zor-page-state__code">404</p>
         <h1 className="zor-page-state__title text-3xl">Page Not Found</h1>
         <p className="zor-page-state__text mb-8">
           The page you&apos;re looking for doesn&apos;t exist or may have been moved.

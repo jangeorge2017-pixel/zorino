@@ -89,6 +89,10 @@ function buildCompareResult(productId: string): CompareProductResult | null {
   };
 }
 
+export function getMockProductsForPage() {
+  return MOCK_SEARCH_ITEMS;
+}
+
 export function getMockDealsForPage(): Deal[] {
   return MOCK_DEALS;
 }

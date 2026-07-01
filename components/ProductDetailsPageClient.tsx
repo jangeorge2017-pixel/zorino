@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import { PageLayout } from "@/components/pages";
 import AssetImage from "@/components/AssetImage";
 import PriceComparisonTable, { ComparePriceSummary } from "@/components/PriceComparisonTable";
 import {
@@ -76,8 +77,8 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
   ].filter(Boolean) as [string, string][];
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <PageLayout>
+    <div>
         <div className="text-sm text-gray-400 mb-6">
           <Link href="/" className="hover:text-white">
             Home
@@ -346,7 +347,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
             </p>
           </div>
         </Card>
-      </div>
     </div>
+    </PageLayout>
   );
 }
