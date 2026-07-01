@@ -149,6 +149,96 @@ function couponToCard(coupon: Awaited<ReturnType<typeof fetchTopCoupons>>["data"
   };
 }
 
+export type HomepageSectionProducts = {
+  flash: TrendingDealCard[];
+  priceDrops: TrendingDealCard[];
+  newArrivals: TrendingDealCard[];
+  topRated: TrendingDealCard[];
+  editorsPicks: TrendingDealCard[];
+};
+
+const SECTION_LIMIT = 4;
+
+function uniqueCards(cards: TrendingDealCard[]): TrendingDealCard[] {
+  const seen = new Set<string>();
+  return cards.filter((card) => {
+    const key = String(card.productId ?? card.id);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function prefixCards(cards: TrendingDealCard[], prefix: string): TrendingDealCard[] {
+  return cards.map((card) => ({
+    ...card,
+    id: `${prefix}-${card.id}`,
+  }));
+}
+
+/** Product grids below Trending Deals / Top Coupons on the homepage. */
+export async function getHomepageSectionProducts(): Promise<HomepageSectionProducts> {
+  const pool: TrendingDealCard[] = [];
+  const usedProductIds = new Set<string>();
+
+  const featured = await getFeaturedDeals(SECTION_LIMIT * 6);
+  for (const deal of featured.data) {
+    const card = await dealToCard(deal);
+    if (!card) continue;
+    const key = String(card.productId ?? card.id);
+    if (usedProductIds.has(key)) continue;
+    pool.push(card);
+    if (deal.productId) usedProductIds.add(deal.productId);
+  }
+
+  if (pool.length < SECTION_LIMIT * 5) {
+    const active = await getActiveDeals(SECTION_LIMIT * 8);
+    for (const deal of active.data) {
+      if (pool.length >= SECTION_LIMIT * 6) break;
+      const card = await dealToCard(deal);
+      if (!card) continue;
+      const key = String(card.productId ?? card.id);
+      if (usedProductIds.has(key)) continue;
+      pool.push(card);
+      if (deal.productId) usedProductIds.add(deal.productId);
+    }
+  }
+
+  if (pool.length < SECTION_LIMIT * 5) {
+    const products = await getProducts({ limit: SECTION_LIMIT * 8, importedOnly: true });
+    for (const product of products.data) {
+      if (pool.length >= SECTION_LIMIT * 6) break;
+      if (usedProductIds.has(product.id)) continue;
+      pool.push(await productToCard(product));
+      usedProductIds.add(product.id);
+    }
+  }
+
+  const cards = uniqueCards(pool);
+  const byDiscount = [...cards].sort((a, b) => b.discount - a.discount);
+  const priceDrops = cards
+    .filter((card) => card.originalPrice > card.price)
+    .sort((a, b) => b.discount - a.discount);
+  const byRating = [...cards].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+  const byRecent = [...cards].sort((a, b) => a.updatedMins - b.updatedMins);
+
+  return {
+    flash: prefixCards(byDiscount.slice(0, SECTION_LIMIT), "flash"),
+    priceDrops: prefixCards(
+      (priceDrops.length > 0 ? priceDrops : byDiscount).slice(0, SECTION_LIMIT),
+      "drop",
+    ),
+    newArrivals: prefixCards(byRecent.slice(0, SECTION_LIMIT), "new"),
+    topRated: prefixCards(byRating.slice(0, SECTION_LIMIT), "rated"),
+    editorsPicks: prefixCards(
+      byRating.slice(SECTION_LIMIT, SECTION_LIMIT * 2).length > 0
+        ? byRating.slice(SECTION_LIMIT, SECTION_LIMIT * 2)
+        : cards.slice(0, SECTION_LIMIT),
+      "pick",
+    ),
+  };
+}
+
 /** Homepage trending deals — active deals first, then active products. */
 export async function getTrendingDeals(limit = 4): Promise<TrendingDealCard[]> {
   const cards: TrendingDealCard[] = [];

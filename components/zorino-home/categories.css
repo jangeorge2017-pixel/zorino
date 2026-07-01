@@ -1,13 +1,17 @@
 /**
  * Categories row — reference: public/reference/zorino-final-design.png
- * Desktop 1440px · 8 equal glass tiles · figma Categories / Row
+ * Compact icon-forward tiles (~25% smaller than prior layout)
  */
+
+.zh-categories-wrap {
+  margin-top: var(--zh-gap, 24px);
+}
 
 .zh-categories {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: var(--zh-space-search-categories);
+  gap: 8px;
+  margin-top: 0;
 }
 
 .zh-categories__item {
@@ -15,16 +19,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 92px;
-  padding: 12px 8px 16px;
-  border-radius: 14px;
+  gap: 5px;
+  min-height: 69px;
+  padding: 8px 5px 10px;
+  border-radius: 12px;
   text-decoration: none;
   color: inherit;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
@@ -45,15 +49,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.65);
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .zh-categories__icon-box svg {
-  filter: drop-shadow(0 0 8px currentColor);
+  filter: drop-shadow(0 0 10px currentColor);
 }
 
 .zh-categories__item--blue .zh-categories__icon-box svg { color: #3b82f6; }
@@ -92,7 +96,7 @@
 }
 
 .zh-categories__label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1.2;
   color: #e2e8f0;
@@ -111,7 +115,7 @@
 
   .zh-categories__item {
     flex: 0 0 auto;
-    min-width: 96px;
+    min-width: 72px;
     scroll-snap-align: start;
   }
 }

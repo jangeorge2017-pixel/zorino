@@ -5,7 +5,7 @@
 .hhb {
   position: relative;
   isolation: isolate;
-  margin: 0 calc(-1 * var(--zh-pad)) 0;
+  margin: var(--zh-gap, 24px) calc(-1 * var(--zh-pad)) 0;
   padding: 0 var(--zh-pad) 36px;
   background: transparent;
   overflow: visible;

@@ -7,6 +7,7 @@ import {
   ZH_TOP_COUPONS,
   ZH_TRENDING_DEALS,
 } from "@/lib/zorino-home/content";
+import type { HomepageSectionProducts } from "@/lib/data/homepage";
 import type {
   FloatingProductCard,
   FooterStatItem,
@@ -15,6 +16,39 @@ import type {
   TopCouponCard,
   TrendingDealCard,
 } from "@/lib/types/entities";
+
+const SECTION_LIMIT = 4;
+
+function mapStaticDeal(deal: (typeof ZH_TRENDING_DEALS)[number]): TrendingDealCard {
+  return {
+    id: deal.id,
+    name: deal.name,
+    imageSrc: deal.imageSrc,
+    emoji: "🛍️",
+    discount: deal.discount,
+    rating: deal.rating,
+    reviews: deal.reviews,
+    price: deal.price,
+    originalPrice: deal.originalPrice,
+    store: deal.store,
+    storeLogoSrc: deal.storeLogoSrc,
+    storeInitial: deal.storeInitial,
+    updatedMins: deal.updatedMins,
+    priceHistory: deal.priceHistory,
+  };
+}
+
+function fallbackSectionSlice(
+  offset: number,
+  prefix: string,
+): TrendingDealCard[] {
+  const base = ZH_TRENDING_DEALS.map(mapStaticDeal);
+  const rotated = [...base.slice(offset), ...base.slice(0, offset)];
+  return rotated.slice(0, SECTION_LIMIT).map((card) => ({
+    ...card,
+    id: `${prefix}-${card.id}`,
+  }));
+}
 
 const ORBIT_SLOT_TO_POSITION: Record<string, string> = {
   top: "orbit-top",
@@ -128,4 +162,22 @@ export function withFallbackFooterStats(stats: FooterStatItem[]): FooterStatItem
     value: stat.value,
     label: stat.label,
   }));
+}
+
+function hasSectionProducts(sections: HomepageSectionProducts): boolean {
+  return Object.values(sections).some((items) => items.length > 0);
+}
+
+export function withFallbackSectionProducts(
+  sections: HomepageSectionProducts,
+): HomepageSectionProducts {
+  if (hasSectionProducts(sections)) return sections;
+
+  return {
+    flash: fallbackSectionSlice(0, "flash"),
+    priceDrops: fallbackSectionSlice(1, "drop"),
+    newArrivals: fallbackSectionSlice(2, "new"),
+    topRated: fallbackSectionSlice(3, "rated"),
+    editorsPicks: fallbackSectionSlice(0, "pick"),
+  };
 }
