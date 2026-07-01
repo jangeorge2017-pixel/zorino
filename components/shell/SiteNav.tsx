@@ -6,6 +6,7 @@ import {
   Heart,
   Search,
 } from "lucide-react";
+import IntlNavSelectors from "@/components/international/IntlNavSelectors";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ZORINO_LOGO_SOURCE } from "@/lib/assets";
 
@@ -42,6 +43,7 @@ export default function SiteNav() {
           <Link href="/search" className="zor-nav__icon-btn" aria-label="Search">
             <Search size={18} />
           </Link>
+          <IntlNavSelectors />
           <ThemeSwitcher />
           <Link href="/wishlist" className="zor-nav__icon-btn">
             <Heart size={18} aria-hidden />

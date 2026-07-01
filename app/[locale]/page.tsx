@@ -21,13 +21,9 @@ export async function generateMetadata({
   const { locale } = await params;
 
   return buildSeoMetadata({
-
     title: "Find the Best Deals Across All Marketplaces",
-
-    locale,
-
-    alternateLocales: locale === "en" ? ["ar"] : ["en"],
-
+    locale: locale as "en" | "ar",
+    pathname: "/",
   });
 
 }

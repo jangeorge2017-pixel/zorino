@@ -8,18 +8,21 @@ type ProductPageProps = {
 };
 
 export async function generateMetadata({ params }: ProductPageProps) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const detail = getMockProductDetail(id);
   if (!detail) return { title: "Product Not Found" };
 
-  return generateProductMetadata({
-    name: detail.product.name,
-    description: detail.product.description ?? detail.product.name,
-    price: detail.comparison.lowestPrice ?? 0,
-    image: detail.product.imageUrl,
-    category: detail.categoryName,
-    marketplace: detail.comparison.cheapestStoreName ?? "Zorino",
-  });
+  return generateProductMetadata(
+    {
+      name: detail.product.name,
+      description: detail.product.description ?? detail.product.name,
+      price: detail.comparison.lowestPrice ?? 0,
+      image: detail.product.imageUrl,
+      category: detail.categoryName,
+      marketplace: detail.comparison.cheapestStoreName ?? "Zorino",
+    },
+    { locale: locale as "en" | "ar", pathname: `/product/${id}` }
+  );
 }
 
 export default async function ProductDetailsPage({ params }: ProductPageProps) {

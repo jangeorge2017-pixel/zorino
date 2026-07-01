@@ -1,4 +1,6 @@
 import { getSiteUrl } from "@/lib/site-url";
+import { locales, type Locale } from "@/i18n/config";
+import { buildHreflangAlternates, buildLocalizedUrl, openGraphLocale } from "@/lib/international/urls";
 
 export interface SEOProps {
   title?: string;
@@ -6,46 +8,63 @@ export interface SEOProps {
   keywords?: string[];
   image?: string;
   url?: string;
+  pathname?: string;
   noIndex?: boolean;
   canonical?: string;
-  locale?: string;
-  alternateLocales?: string[];
-  openGraph?: any;
-  twitter?: any;
-  robots?: any;
-  alternates?: any;
+  locale?: Locale;
+  openGraph?: Record<string, unknown>;
+  twitter?: Record<string, unknown>;
+  robots?: Record<string, unknown>;
 }
 
 export function generateMetadata(props: SEOProps) {
   const siteUrl = getSiteUrl();
   const {
-    title = 'ZORINO - Find the Best Deals Across All Marketplaces',
-    description = 'Discover amazing deals, coupons, and price comparisons across Amazon, Alibaba, AliExpress, Noon, Temu and more. Save money on every purchase with ZORINO.',
-    keywords = ['deals', 'coupons', 'discounts', 'price comparison', 'Amazon', 'Alibaba', 'AliExpress', 'Noon', 'Temu', 'shopping', 'save money'],
-    image = '/og-image.png',
-    url = siteUrl,
+    title = "ZORINO - Find the Best Deals Across All Marketplaces",
+    description = "Discover amazing deals, coupons, and price comparisons across Amazon, Alibaba, AliExpress, Noon, Temu and more. Save money on every purchase with ZORINO.",
+    keywords = [
+      "deals",
+      "coupons",
+      "discounts",
+      "price comparison",
+      "Amazon",
+      "Alibaba",
+      "AliExpress",
+      "Noon",
+      "Temu",
+      "shopping",
+      "save money",
+    ],
+    image = "/og-image.png",
+    pathname = "/",
     noIndex = false,
     canonical,
-    locale = 'en',
-    alternateLocales = ['ar'],
+    locale = "en",
   } = props;
 
-  const fullTitle = `${title} | ZORINO`;
-  const fullUrl = canonical || url;
+  const fullTitle = title.includes("ZORINO") ? title : `${title} | ZORINO`;
+  const canonicalUrl =
+    canonical ?? buildLocalizedUrl(pathname, locale, siteUrl);
+  const hreflang = buildHreflangAlternates(pathname, siteUrl);
+  const ogLocale = openGraphLocale(locale);
+  const alternateOgLocales = locales
+    .filter((l) => l !== locale)
+    .map(openGraphLocale);
 
   return {
     metadataBase: new URL(siteUrl),
     title: fullTitle,
     description,
-    keywords: keywords.join(', '),
-    authors: [{ name: 'ZORINO' }],
+    keywords: keywords.join(", "),
+    authors: [{ name: "ZORINO" }],
     openGraph: {
-      type: 'website',
-      locale,
-      url: fullUrl,
+      type: "website",
+      locale: ogLocale,
+      alternateLocale: alternateOgLocales,
+      url: canonicalUrl,
       title: fullTitle,
       description,
-      siteName: 'ZORINO',
+      siteName: "ZORINO",
       images: [
         {
           url: image,
@@ -54,13 +73,15 @@ export function generateMetadata(props: SEOProps) {
           alt: title,
         },
       ],
+      ...(props.openGraph ?? {}),
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: fullTitle,
       description,
       images: [image],
-      creator: '@zorino',
+      creator: "@zorino",
+      ...(props.twitter ?? {}),
     },
     robots: {
       index: !noIndex,
@@ -69,98 +90,77 @@ export function generateMetadata(props: SEOProps) {
         index: !noIndex,
         follow: !noIndex,
       },
+      ...(props.robots ?? {}),
     },
     alternates: {
-      canonical: fullUrl,
-      languages: alternateLocales.reduce((acc, altLocale) => {
-        acc[altLocale] = `${fullUrl}/${altLocale}`;
-        return acc;
-      }, {} as Record<string, string>),
+      canonical: canonicalUrl,
+      languages: hreflang,
     },
-  } as any;
+  };
 }
 
-export function generateProductMetadata(product: {
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  category: string;
-  marketplace: string;
-}) {
+export function generateProductMetadata(
+  product: {
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    category: string;
+    marketplace: string;
+    currency?: string;
+  },
+  options?: { locale?: Locale; pathname?: string }
+) {
+  const currency = product.currency ?? "USD";
   const title = `${product.name} - ${product.marketplace}`;
-  const description = `${product.description} Price: $${product.price}. Available at ${product.marketplace}.`;
-  const keywords = [
-    product.name,
-    product.category,
-    product.marketplace,
-    'price comparison',
-    'deals',
-    'discount',
-  ];
+  const description = `${product.description} Price: ${currency} ${product.price}. Available at ${product.marketplace}.`;
 
   return generateMetadata({
     title,
     description,
-    keywords,
+    keywords: [product.name, product.category, product.marketplace, "price comparison", "deals"],
     image: product.image,
+    locale: options?.locale ?? "en",
+    pathname: options?.pathname ?? `/product/${product.name}`,
     openGraph: {
-      type: 'product',
-      product: {
-        price: product.price,
-        currency: 'USD',
-        availability: 'in stock',
-        category: product.category,
-      },
+      type: "website",
     },
   });
 }
 
-export function generateCategoryMetadata(category: {
-  name: string;
-  description: string;
-  slug: string;
-}) {
-  const title = `${category.name} Deals & Discounts`;
-  const description = category.description;
-  const keywords = [
-    category.name,
-    'deals',
-    'discounts',
-    'coupons',
-    'price comparison',
-  ];
-
+export function generateCategoryMetadata(
+  category: { name: string; description: string; slug: string },
+  options?: { locale?: Locale }
+) {
   return generateMetadata({
-    title,
-    description,
-    keywords,
+    title: `${category.name} Deals & Discounts`,
+    description: category.description,
+    keywords: [category.name, "deals", "discounts", "coupons", "price comparison"],
+    locale: options?.locale ?? "en",
+    pathname: `/categories/${category.slug}`,
   });
 }
 
-export function generateBlogPostMetadata(post: {
-  title: string;
-  excerpt: string;
-  image: string;
-  author: string;
-  publishedAt: string;
-}) {
-  const title = post.title;
-  const description = post.excerpt;
-  const keywords = [
-    ...post.title.split(' '),
-    'shopping tips',
-    'deals',
-    'money saving',
-  ];
-
+export function generateBlogPostMetadata(
+  post: {
+    title: string;
+    excerpt: string;
+    image: string;
+    author: string;
+    publishedAt: string;
+    slug?: string;
+  },
+  options?: { locale?: Locale }
+) {
   return generateMetadata({
-    title,
-    description,
-    keywords,
+    title: post.title,
+    description: post.excerpt,
+    keywords: [...post.title.split(" "), "shopping tips", "deals", "money saving"],
     image: post.image,
+    locale: options?.locale ?? "en",
+    pathname: `/blog/${post.slug ?? "post"}`,
     openGraph: {
-      type: 'article',
+      type: "article",
       article: {
         publishedTime: post.publishedAt,
         authors: [post.author],

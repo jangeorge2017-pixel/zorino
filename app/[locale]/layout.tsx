@@ -2,7 +2,13 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import LocaleShell from "@/components/shell/LocaleShell";
+import DocumentAttributes from "@/components/international/DocumentAttributes";
+import { IntlPreferencesProvider } from "@/components/international/IntlPreferencesProvider";
 import { locales, type Locale } from "@/i18n/config";
+import {
+  getServerIntlPreferences,
+  preferencesToJson,
+} from "@/lib/international/preferences";
 
 export default async function LocaleLayout({
   children,
@@ -18,10 +24,14 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const prefs = await getServerIntlPreferences(locale as Locale);
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <LocaleShell>{children}</LocaleShell>
+      <DocumentAttributes locale={locale as Locale} />
+      <IntlPreferencesProvider initial={preferencesToJson(prefs)}>
+        <LocaleShell>{children}</LocaleShell>
+      </IntlPreferencesProvider>
     </NextIntlClientProvider>
   );
 }

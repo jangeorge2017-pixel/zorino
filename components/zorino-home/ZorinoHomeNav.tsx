@@ -6,6 +6,7 @@ import {
   Heart,
   Search,
 } from "lucide-react";
+import IntlNavSelectors from "@/components/international/IntlNavSelectors";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ZorinoLogo } from "@/components/ZorinoLogo";
 import "./nav.css";
@@ -42,6 +43,7 @@ export default function ZorinoHomeNav() {
           <Link href="/search" className="zh-nav__icon-btn" aria-label="Search">
             <Search size={18} strokeWidth={2} />
           </Link>
+          <IntlNavSelectors />
           <ThemeSwitcher />
           <Link href="/wishlist" className="zh-nav__icon-btn zh-nav__wishlist">
             <Heart size={18} strokeWidth={2} aria-hidden />
