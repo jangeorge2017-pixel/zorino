@@ -7,6 +7,7 @@ import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
 import AssetImage from "@/components/AssetImage";
 import { Copy, CheckCircle, ExternalLink } from "lucide-react";
+import { PageEmptyState, PageFilterBar, PageHeader, PageLayout } from "@/components/pages";
 import type { TopCouponCard } from "@/lib/types/entities";
 
 type CouponsPageClientProps = {
@@ -47,14 +48,10 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">{t("title")}</h1>
-          <p className="text-gray-400">{t("subtitle")}</p>
-        </div>
+    <PageLayout>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
-        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 mb-8">
+      <PageFilterBar>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select
               label="Filter by Store"
@@ -72,10 +69,10 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
               <Button className="w-full">{t("filter")}</Button>
             </div>
           </div>
-        </div>
+      </PageFilterBar>
 
         {filtered.length === 0 ? (
-          <p className="text-gray-400">No coupons available yet.</p>
+          <PageEmptyState title="No coupons available yet" />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((coupon) => (
@@ -137,7 +134,6 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </PageLayout>
   );
 }

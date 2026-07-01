@@ -7,6 +7,7 @@ import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
+import { PageEmptyState, PageFilterBar, PageHeader, PageLayout } from "@/components/pages";
 import { Star, ExternalLink, CheckCircle } from "lucide-react";
 import type { Store } from "@/lib/types/entities";
 
@@ -44,14 +45,10 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
     });
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">{t("title")}</h1>
-          <p className="text-gray-400">{t("subtitle")}</p>
-        </div>
+    <PageLayout>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
-        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 mb-8">
+      <PageFilterBar>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select
               label="Filter by Integration"
@@ -69,10 +66,10 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
               <Button className="w-full">{t("filter")}</Button>
             </div>
           </div>
-        </div>
+      </PageFilterBar>
 
         {filtered.length === 0 ? (
-          <p className="text-gray-400">No stores found.</p>
+          <PageEmptyState title="No stores found" />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((store) => (
@@ -143,7 +140,6 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </PageLayout>
   );
 }

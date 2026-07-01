@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import AssetImage from "@/components/AssetImage";
 import PriceComparisonTable, { ComparePriceSummary } from "@/components/PriceComparisonTable";
 import Card from "@/components/ui/Card";
+import { PageEmptyState, PageHeader, PageLayout } from "@/components/pages";
 import type { CompareProductResult } from "@/services/compare";
 
 type ComparePageClientProps = {
@@ -15,21 +16,21 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
   const t = useTranslations("compare");
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-white mb-2">{t("title")}</h1>
-        <p className="text-gray-400">
-          Compare prices across Amazon, AliExpress, eBay, Walmart and Temu
-        </p>
-      </div>
+    <PageLayout>
+      <PageHeader
+        title={t("title")}
+        subtitle="Compare prices across Amazon, AliExpress, eBay, Walmart and more"
+      />
 
       {products.length === 0 ? (
-        <Card>
-          <p className="text-gray-400">{t("noProductsToCompare")}</p>
-          <Link href="/" className="text-purple-400 hover:text-purple-300 text-sm mt-4 inline-block">
-            Browse products →
-          </Link>
-        </Card>
+        <PageEmptyState
+          title={t("noProductsToCompare")}
+          description="Browse products and add them to compare prices across stores."
+          actionLabel="Browse Products"
+          onAction={() => {
+            window.location.href = "/products";
+          }}
+        />
       ) : (
         <div className="space-y-10">
           {products.map((item) => (
@@ -73,6 +74,6 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
           ))}
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }

@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import ListingProductCard from "@/components/ListingProductCard";
+import { PageHeader, PageLayout } from "@/components/pages";
 import type { SearchResultItem } from "@/lib/data/homepage";
 
 type SearchPageClientProps = {
@@ -87,18 +88,14 @@ export default function SearchPageClient({
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">{t("title")}</h1>
-          <p className="text-gray-400">
-            {initialQuery ? `${t("subtitle")} "${initialQuery}"` : t("noResults")}
-          </p>
-        </div>
+    <PageLayout>
+      <PageHeader
+        title={t("title")}
+        subtitle={initialQuery ? `${t("subtitle")} "${initialQuery}"` : t("noResults")}
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1">
-            <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 sticky top-24">
+      <div className="zor-page-grid">
+          <aside className="zor-filter-sidebar">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                   <Filter className="w-5 h-5" />
@@ -184,10 +181,9 @@ export default function SearchPageClient({
                   {t("filter")}
                 </Button>
               </form>
-            </div>
-          </div>
+          </aside>
 
-          <div className="lg:col-span-3">
+          <div>
             <div className="flex items-center justify-between mb-6">
               <span className="text-gray-400">{filteredResults.length} results found</span>
               <Select
@@ -229,7 +225,6 @@ export default function SearchPageClient({
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </PageLayout>
   );
 }
