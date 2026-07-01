@@ -1,5 +1,5 @@
 /**
- * Unified homepage surface — seamless deep navy canvas, integrated glass sections
+ * Unified homepage surface — continuous deep space black canvas
  */
 
 .zh-featured-brands-wrap {
@@ -18,59 +18,51 @@
 .zh-deals-panel.zh-panel,
 .zh-product-section.zh-panel,
 .zh-panel {
-  background: var(--zh-surface-glass);
+  background: transparent;
   border: none;
-  box-shadow:
-    inset 0 1px 0 var(--zh-surface-highlight),
-    0 0 0 0.5px rgba(91, 220, 255, 0.03);
-  backdrop-filter: blur(10px);
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .zh-categories__item {
-  background: rgba(4, 8, 18, 0.16);
+  background: transparent;
   border: none;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.02),
-    0 0 0 0.5px rgba(91, 220, 255, 0.04);
+  box-shadow: none;
 }
 
 .zh-categories__item:hover {
-  background: rgba(6, 12, 26, 0.22);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    0 0 0 0.5px rgba(91, 220, 255, 0.1),
-    0 0 14px rgba(34, 211, 238, 0.06);
+  background: rgba(6, 8, 15, 0.35);
+  box-shadow: none;
 }
 
 .zh-footer {
   background: transparent;
   border-top: none;
-  box-shadow: inset 0 1px 0 rgba(91, 220, 255, 0.05);
+  box-shadow: none;
 }
 
 .zh-quick-nav.is-sticky {
-  background: rgba(4, 7, 15, 0.9);
+  background: rgba(6, 8, 15, 0.92);
   border-bottom: none;
-  box-shadow:
-    inset 0 -1px 0 rgba(91, 220, 255, 0.06),
-    0 8px 24px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 
 .zh-brand-card {
-  background: rgba(4, 8, 18, 0.2);
+  background: rgba(6, 8, 15, 0.28);
   border: none;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    0 0 0 0.5px rgba(91, 220, 255, 0.05);
+  box-shadow: none;
 }
 
 .zh-brand-card:hover {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 0 0 0.5px rgba(91, 220, 255, 0.08),
-    0 0 18px var(--zh-brand-glow);
+  background: rgba(6, 8, 15, 0.38);
+  box-shadow: 0 0 16px var(--zh-brand-glow);
 }
 
 .zh-product-sections {
   gap: var(--zh-section-step, var(--zh-space-stats-search, 22px));
+}
+
+.hhb,
+.hhb .zh-commerce {
+  background: transparent;
 }
