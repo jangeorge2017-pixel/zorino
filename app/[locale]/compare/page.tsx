@@ -1,9 +1,7 @@
 import ComparePageClient from "@/components/ComparePageClient";
-import { getComparePageProducts } from "@/lib/data/compare";
+import { getMockComparePageProducts } from "@/lib/mock/page-data";
 
-export const dynamic = "force-dynamic";
-
-export default async function ComparePage() {
-  const products = await getComparePageProducts(6);
+export default function ComparePage() {
+  const products = getMockComparePageProducts();
   return <ComparePageClient products={products} />;
 }

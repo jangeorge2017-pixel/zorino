@@ -9,7 +9,7 @@ type MockEntry = ExternalProduct & { storeSlug: string; isFeatured?: boolean; so
 
 const IMG = {
   iphone:
-    "https://images.unsplash.com/photo-1695048133142-1c204c703e24?w=1200&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1718223483120-8131e57f948b?w=1200&auto=format&fit=crop&q=80",
   macbook:
     "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&auto=format&fit=crop&q=80",
   ps5: "https://images.unsplash.com/photo-1606813907293-d86efa9b94ea?w=1200&auto=format&fit=crop&q=80",

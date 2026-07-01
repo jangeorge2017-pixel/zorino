@@ -1,7 +1,5 @@
 import SearchPageClient from "@/components/SearchPageClient";
-import { getSearchFilters, getSearchResults } from "@/lib/data/homepage";
-
-export const dynamic = "force-dynamic";
+import { getMockSearchFilters, getMockSearchResults } from "@/lib/mock/page-data";
 
 type SearchPageProps = {
   searchParams: Promise<{ q?: string }>;
@@ -9,7 +7,8 @@ type SearchPageProps = {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q = "" } = await searchParams;
-  const [results, filters] = await Promise.all([getSearchResults(q), getSearchFilters()]);
+  const results = getMockSearchResults(q);
+  const filters = getMockSearchFilters();
 
   return (
     <SearchPageClient

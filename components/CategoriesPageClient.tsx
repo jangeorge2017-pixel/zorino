@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import Link from "next/link";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { ArrowRight, Grid3X3, List } from "lucide-react";
@@ -56,10 +57,12 @@ export default function CategoriesPageClient({ categories }: CategoriesPageClien
                 <p className="text-sm text-gray-400 mb-3">
                   {category.productCount.toLocaleString()} products
                 </p>
-                <Button variant="outline" size="sm" className="w-full">
-                  {t("viewAll")}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                <Link href={`/categories/${category.slug}`} className="w-full">
+                  <Button variant="outline" size="sm" className="w-full">
+                    {t("viewAll")}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
               </Card>
             ))}
           </div>
@@ -74,10 +77,12 @@ export default function CategoriesPageClient({ categories }: CategoriesPageClien
                     {category.productCount.toLocaleString()} products
                   </p>
                 </div>
-                <Button variant="outline">
-                  {t("viewAll")}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                <Link href={`/categories/${category.slug}`}>
+                  <Button variant="outline">
+                    {t("viewAll")}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
               </Card>
             ))}
           </div>

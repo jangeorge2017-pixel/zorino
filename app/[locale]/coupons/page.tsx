@@ -1,9 +1,7 @@
 import CouponsPageClient from "@/components/CouponsPageClient";
-import { getCouponsForPage } from "@/lib/data/homepage";
+import { getMockCouponsForPage } from "@/lib/mock/page-data";
 
-export const dynamic = "force-dynamic";
-
-export default async function CouponsPage() {
-  const coupons = await getCouponsForPage();
+export default function CouponsPage() {
+  const coupons = getMockCouponsForPage();
   return <CouponsPageClient coupons={coupons} />;
 }

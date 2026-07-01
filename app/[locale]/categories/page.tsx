@@ -1,9 +1,7 @@
 import CategoriesPageClient from "@/components/CategoriesPageClient";
-import { getCategoriesForPage } from "@/lib/data/homepage";
+import { getMockCategoriesForPage } from "@/lib/mock/page-data";
 
-export const dynamic = "force-dynamic";
-
-export default async function CategoriesPage() {
-  const categories = await getCategoriesForPage();
+export default function CategoriesPage() {
+  const categories = getMockCategoriesForPage();
   return <CategoriesPageClient categories={categories} />;
 }

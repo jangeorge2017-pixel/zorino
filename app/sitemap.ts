@@ -14,13 +14,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/coupons",
     "/categories",
     "/stores",
-    "/search",
-    "/blog",
+    "/settings",
+    "/wishlist",
+    "/compare",
     "/about",
     "/contact",
     "/faq",
     "/privacy",
     "/terms",
+    "/cookies",
+    "/affiliate-disclosure",
+    "/dmca",
+    "/accessibility",
+    "/blog",
   ];
 
   const entries: MetadataRoute.Sitemap = [];
@@ -65,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const category of (categories ?? []) as { slug: string; updated_at: string | null }[]) {
       for (const locale of LOCALES) {
         entries.push({
-          url: `${BASE_URL}/${locale}/category/${category.slug}`,
+          url: `${BASE_URL}/${locale}/categories/${category.slug}`,
           lastModified: category.updated_at ? new Date(category.updated_at) : now,
           changeFrequency: "weekly",
           priority: 0.6,

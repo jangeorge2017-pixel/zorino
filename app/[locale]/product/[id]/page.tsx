@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation";
 import ProductDetailsPageClient from "@/components/ProductDetailsPageClient";
-import { getProductDetail } from "@/lib/data/product-detail";
+import { getMockProductDetail } from "@/lib/mock/page-data";
 import { generateProductMetadata } from "@/lib/seo/metadata";
-
-export const dynamic = "force-dynamic";
 
 type ProductPageProps = {
   params: Promise<{ id: string; locale: string }>;
@@ -11,7 +9,7 @@ type ProductPageProps = {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { id } = await params;
-  const detail = await getProductDetail(id);
+  const detail = getMockProductDetail(id);
   if (!detail) return { title: "Product Not Found" };
 
   return generateProductMetadata({
@@ -26,7 +24,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
 export default async function ProductDetailsPage({ params }: ProductPageProps) {
   const { id } = await params;
-  const detail = await getProductDetail(id);
+  const detail = getMockProductDetail(id);
   if (!detail) notFound();
   return <ProductDetailsPageClient detail={detail} />;
 }

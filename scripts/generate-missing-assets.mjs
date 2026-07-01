@@ -85,6 +85,8 @@ const storeCopies = [
   ["icons/card-2.png", "stores/aliexpress.png"],
   ["icons/card-3.png", "stores/nike.png"],
   ["icons/card-4.png", "stores/default.png"],
+  ["icons/card-1.png", "stores/ebay.png"],
+  ["icons/card-2.png", "stores/cjdropshipping.png"],
 ];
 
 const storeSvgs = [
@@ -95,6 +97,8 @@ const storeSvgs = [
   ["stores/noon.svg", svgStoreLogo("Noon", "#feee00", "#111")],
   ["stores/aliexpress.svg", svgStoreLogo("AliExpress", "#e62e04")],
   ["stores/nike.svg", svgStoreLogo("Nike", "#111111")],
+  ["stores/ebay.svg", svgStoreLogo("eBay", "#0064d2")],
+  ["stores/cjdropshipping.svg", svgStoreLogo("CJdropshipping", "#ff6a00")],
   ["stores/default.svg", svgStoreLogo("Store", "#64748b")],
 ];
 

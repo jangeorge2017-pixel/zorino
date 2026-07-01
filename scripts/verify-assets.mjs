@@ -31,6 +31,8 @@ const REQUIRED = [
   "/stores/noon.png",
   "/stores/aliexpress.png",
   "/stores/nike.png",
+  "/stores/ebay.png",
+  "/stores/cjdropshipping.png",
   "/stores/default.png",
   "/og-image.png",
 ];

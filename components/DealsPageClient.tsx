@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import ListingProductCard from "@/components/ListingProductCard";
+import { PageEmptyState, PageFilterBar, PageHeader, PageLayout } from "@/components/pages";
 import { Clock } from "lucide-react";
 import type { Deal } from "@/lib/types/entities";
 
@@ -51,14 +52,10 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
   }, [deals, selectedStore, sortBy]);
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">{t("title")}</h1>
-          <p className="text-gray-400">{t("subtitle")}</p>
-        </div>
+    <PageLayout>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
-        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 mb-8">
+      <PageFilterBar>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select
               label={t("filterByStore")}
@@ -76,10 +73,13 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
               <Button className="w-full">{t("filter")}</Button>
             </div>
           </div>
-        </div>
+      </PageFilterBar>
 
         {filtered.length === 0 ? (
-          <p className="text-gray-400">No deals available yet.</p>
+          <PageEmptyState
+            title="No deals found"
+            description="Try adjusting your filters or check back later for new deals."
+          />
         ) : (
           <div className="listing-products-grid">
             {filtered.map((deal) => (
@@ -112,7 +112,6 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </PageLayout>
   );
 }

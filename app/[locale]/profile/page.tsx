@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
@@ -77,6 +78,16 @@ export default function ProfilePage() {
 
               <nav className="space-y-2">
                 {tabs.map((tab) => (
+                  tab.id === 'settings' ? (
+                    <Link
+                      key={tab.id}
+                      href="/settings"
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-400 hover:bg-gray-800/50 hover:text-white"
+                    >
+                      <tab.icon className="w-5 h-5" />
+                      {tab.label}
+                    </Link>
+                  ) : (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
@@ -89,6 +100,7 @@ export default function ProfilePage() {
                     <tab.icon className="w-5 h-5" />
                     {tab.label}
                   </button>
+                  )
                 ))}
               </nav>
 
