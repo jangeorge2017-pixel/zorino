@@ -4,6 +4,9 @@ import type { SearchResultItem } from "@/lib/data/homepage";
 import type { Deal, Coupon, Store, Category } from "@/lib/types/entities";
 import type { TopCouponCard } from "@/lib/types/entities";
 import type { MockBlogPost, MockCategoryDetail, MockStoreDetail, MockWishlistItem } from "@/lib/mock/types";
+import { sortCategoriesForCountry } from "@/lib/international/categories";
+import { filterStoresByCountry } from "@/lib/international/stores";
+import type { CountryCode } from "@/lib/international/config";
 import {
   MOCK_BLOG_POSTS,
   MOCK_CATEGORIES,
@@ -104,12 +107,14 @@ export function getMockCouponsForPage(): TopCouponCard[] {
   }));
 }
 
-export function getMockStoresForPage(): Store[] {
-  return MOCK_STORES;
+export function getMockStoresForPage(countryCode?: CountryCode): Store[] {
+  if (!countryCode) return MOCK_STORES;
+  return filterStoresByCountry(MOCK_STORES, countryCode);
 }
 
-export function getMockCategoriesForPage(): Category[] {
-  return MOCK_CATEGORIES;
+export function getMockCategoriesForPage(countryCode?: CountryCode): Category[] {
+  if (!countryCode) return MOCK_CATEGORIES;
+  return sortCategoriesForCountry(MOCK_CATEGORIES, countryCode);
 }
 
 export function getMockComparePageProducts(limit = 6): CompareProductResult[] {

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import type { Locale } from "@/i18n/config";
 import { generateMetadata } from "@/lib/seo/metadata";
 
 const OFFICIAL_PAGE_SEO = {
@@ -59,27 +61,32 @@ const OFFICIAL_PAGE_SEO = {
 
 export type OfficialPageSlug = keyof typeof OFFICIAL_PAGE_SEO;
 
-export function generateOfficialPageMetadata(slug: OfficialPageSlug) {
+const OFFICIAL_PATHS: Record<OfficialPageSlug, string> = {
+  about: "/about",
+  contact: "/contact",
+  privacy: "/privacy",
+  terms: "/terms",
+  cookies: "/cookies",
+  faq: "/faq",
+  affiliate: "/affiliate-disclosure",
+  dmca: "/dmca",
+  accessibility: "/accessibility",
+};
+
+export function getOfficialPageSeo(slug: OfficialPageSlug) {
+  return OFFICIAL_PAGE_SEO[slug];
+}
+
+export function generateOfficialPageMetadata(
+  slug: OfficialPageSlug,
+  locale: Locale = "en"
+): Metadata {
   const config = OFFICIAL_PAGE_SEO[slug];
-  const pathMap: Record<OfficialPageSlug, string> = {
-    about: "/about",
-    contact: "/contact",
-    privacy: "/privacy",
-    terms: "/terms",
-    cookies: "/cookies",
-    faq: "/faq",
-    affiliate: "/affiliate-disclosure",
-    dmca: "/dmca",
-    accessibility: "/accessibility",
-  };
   return generateMetadata({
     title: config.title,
     description: config.description,
     keywords: [...config.keywords],
-    url: pathMap[slug],
+    pathname: OFFICIAL_PATHS[slug],
+    locale,
   });
-}
-
-export function getOfficialPageSeo(slug: OfficialPageSlug) {
-  return OFFICIAL_PAGE_SEO[slug];
 }

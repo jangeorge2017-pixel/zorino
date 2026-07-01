@@ -1,32 +1,65 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { useAuth } from "@/lib/auth/auth-context";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { PageHeader, PageLayout } from "@/components/pages";
+import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
+import { useRouter as useIntlRouter, usePathname } from "@/i18n/navigation";
+import {
+  listCountries,
+  listCurrencies,
+  languages,
+  type CountryCode,
+  type CurrencyCode,
+} from "@/lib/international/config";
+import type { Locale } from "@/i18n/config";
 import { Bell, CheckCircle, Globe, Moon, Shield } from "lucide-react";
 
 export default function SettingsPageClient() {
   const t = useTranslations("profile");
+  const locale = useLocale() as Locale;
   const { user } = useAuth();
   const router = useRouter();
+  const intlRouter = useIntlRouter();
+  const pathname = usePathname();
+  const { country, currency, updatePreferences } = useIntlPreferences();
   const [saved, setSaved] = useState(false);
   const [settings, setSettings] = useState({
-    locale: "en",
-    currency: "USD",
-    country: "US",
+    locale: locale as Locale,
+    currency: currency.code as CurrencyCode,
+    country: country.code as CountryCode,
     emailNotifications: true,
     priceAlerts: true,
     dealDigest: false,
     theme: "dark",
   });
 
-  const handleSave = () => {
+  useEffect(() => {
+    setSettings((current) => ({
+      ...current,
+      locale,
+      currency: currency.code,
+      country: country.code,
+    }));
+  }, [locale, currency.code, country.code]);
+
+  const handleSave = async () => {
+    await updatePreferences({
+      countryCode: settings.country as CountryCode,
+      currencyCode: settings.currency as CurrencyCode,
+    });
+
+    if (settings.locale !== locale) {
+      intlRouter.replace(pathname, { locale: settings.locale as Locale });
+    }
+
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -73,32 +106,36 @@ export default function SettingsPageClient() {
           <div className="space-y-4">
             <Select
               label="Language"
-              options={[
-                { value: "en", label: "English" },
-                { value: "ar", label: "العربية" },
-              ]}
+              options={Object.values(languages).map((lang) => ({
+                value: lang.code,
+                label: lang.nativeLabel,
+              }))}
               value={settings.locale}
-              onChange={(e) => setSettings({ ...settings, locale: e.target.value })}
+              onChange={(e) =>
+                setSettings({ ...settings, locale: e.target.value as Locale })
+              }
             />
             <Select
               label="Currency"
-              options={[
-                { value: "USD", label: "USD ($)" },
-                { value: "EUR", label: "EUR (€)" },
-                { value: "AED", label: "AED (د.إ)" },
-              ]}
+              options={listCurrencies().map((item) => ({
+                value: item.code,
+                label: `${item.code} (${item.symbol})`,
+              }))}
               value={settings.currency}
-              onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
+              onChange={(e) =>
+                setSettings({ ...settings, currency: e.target.value as CurrencyCode })
+              }
             />
             <Select
               label="Country"
-              options={[
-                { value: "US", label: "United States" },
-                { value: "AE", label: "United Arab Emirates" },
-                { value: "UK", label: "United Kingdom" },
-              ]}
+              options={listCountries().map((item) => ({
+                value: item.code,
+                label: item.name,
+              }))}
               value={settings.country}
-              onChange={(e) => setSettings({ ...settings, country: e.target.value })}
+              onChange={(e) =>
+                setSettings({ ...settings, country: e.target.value as CountryCode })
+              }
             />
           </div>
         </Card>

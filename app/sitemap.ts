@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import { IMPORTED_PRODUCT_SYNC_STATUS } from "@/lib/catalog/imported-products";
+import { locales } from "@/i18n/config";
+import { buildLocalizedUrl } from "@/lib/international/urls";
 import { getSiteUrl } from "@/lib/site-url";
 
 const BASE_URL = getSiteUrl();
-const LOCALES = ["en", "ar"] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -31,10 +32,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const entries: MetadataRoute.Sitemap = [];
 
-  for (const locale of LOCALES) {
+  for (const locale of locales) {
     for (const path of staticPaths) {
       entries.push({
-        url: `${BASE_URL}/${locale}${path}`,
+        url: buildLocalizedUrl(path || "/", locale, BASE_URL),
         lastModified: now,
         changeFrequency: path === "" ? "daily" : path === "/deals" ? "hourly" : "weekly",
         priority: path === "" ? 1 : 0.7,
@@ -52,9 +53,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .limit(500);
 
     for (const product of (products ?? []) as { id: string; slug: string; updated_at: string | null }[]) {
-      for (const locale of LOCALES) {
+      for (const locale of locales) {
         entries.push({
-          url: `${BASE_URL}/${locale}/product/${product.id}`,
+          url: buildLocalizedUrl(`/product/${product.id}`, locale, BASE_URL),
           lastModified: product.updated_at ? new Date(product.updated_at) : now,
           changeFrequency: "daily",
           priority: 0.8,
@@ -69,9 +70,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .limit(100);
 
     for (const category of (categories ?? []) as { slug: string; updated_at: string | null }[]) {
-      for (const locale of LOCALES) {
+      for (const locale of locales) {
         entries.push({
-          url: `${BASE_URL}/${locale}/categories/${category.slug}`,
+          url: buildLocalizedUrl(`/categories/${category.slug}`, locale, BASE_URL),
           lastModified: category.updated_at ? new Date(category.updated_at) : now,
           changeFrequency: "weekly",
           priority: 0.6,
