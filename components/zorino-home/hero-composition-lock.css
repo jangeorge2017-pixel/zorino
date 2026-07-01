@@ -1,0 +1,87 @@
+/**
+ * Approved homepage hero composition lock.
+ * Reference: public/reference/zorino-final-design.png
+ *
+ * Global locale RTL (html[dir="rtl"]) must not mirror hero layout:
+ * copy left, Z artwork right, orbit cards, stats, and search spacing unchanged.
+ */
+
+.zh-page {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+html[dir="rtl"] .zh-page {
+  direction: ltr;
+}
+
+/* Physical grid columns — never swap in RTL */
+.zh-page .zh-hero {
+  grid-template-columns: minmax(0, 548px) minmax(0, 1fr);
+}
+
+.zh-page .zh-hero__col--left {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+}
+
+.zh-page .zh-hero__col--right {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Z artwork anchor stays on the physical right edge */
+.zh-page .zh-page__artwork,
+.zh-page .zh-page__artwork::after {
+  background-position:
+    right calc(var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left))
+    top var(--zh-hero-artwork-painted-top);
+}
+
+.zh-page .hero-artwork {
+  transform: translate(
+    calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
+    calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+  );
+}
+
+.zh-page .hero-artwork__orbit {
+  transform: translateX(120px);
+}
+
+/* Nav keeps reference left-to-right composition on homepage */
+.zh-page .zh-nav,
+.zh-page .zh-nav__inner,
+.zh-page .zh-hero-zone,
+.zh-page .zh-hero-search,
+.zh-page .zh-search {
+  direction: ltr;
+}
+
+@media (max-width: 1279px) {
+  .zh-page .hero-artwork {
+    transform: translate(
+      calc(-42px - var(--zh-hero-artwork-shift-left, 0px)),
+      calc(44px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+    );
+  }
+}
+
+@media (max-width: 1279px) {
+  .zh-page .zh-hero__col--left {
+    text-align: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .zh-page .zh-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .zh-page .zh-hero__col--left,
+  .zh-page .zh-hero__col--right {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
