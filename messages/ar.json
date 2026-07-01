@@ -207,7 +207,8 @@
     "featuredStores": "متاجر مميزة",
     "storeRating": "تقييم المتجر",
     "storeReviews": "مراجعات المتجر",
-    "viewStoreProducts": "عرض منتجات المتجر"
+    "viewStoreProducts": "عرض منتجات المتجر",
+    "filter": "تصفية"
   },
   "search": {
     "title": "نتائج البحث",

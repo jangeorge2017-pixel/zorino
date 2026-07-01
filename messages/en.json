@@ -207,7 +207,8 @@
     "featuredStores": "Featured Stores",
     "storeRating": "Store Rating",
     "storeReviews": "Store Reviews",
-    "viewStoreProducts": "View Store Products"
+    "viewStoreProducts": "View Store Products",
+    "filter": "Filter"
   },
   "search": {
     "title": "Search Results",
