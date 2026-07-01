@@ -5,7 +5,7 @@
 .zh-quick-nav-wrap {
   position: relative;
   width: 100%;
-  margin: 0;
+  margin: var(--zh-gap, 24px) 0 0;
   padding: 0;
 }
 
@@ -155,9 +155,14 @@ a.zh-quick-nav__pill.is-active::before {
 }
 
 /* Scroll targets — offset when nav is sticky */
+#zh-section-featured-brands,
 #zh-section-trending-deals,
 #zh-section-coupons,
-#zh-section-features,
+#zh-section-flash-deals,
+#zh-section-price-drops,
+#zh-section-new-arrivals,
+#zh-section-top-rated,
+#zh-section-editors-picks,
 #zh-section-stores,
 #zh-section-categories {
   scroll-margin-top: calc(var(--zh-nav-h, 72px) + 68px);

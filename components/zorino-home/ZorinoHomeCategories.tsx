@@ -47,7 +47,7 @@ export default function ZorinoHomeCategories({ categories }: ZorinoHomeCategorie
             className={`zh-categories__item${accent}${highlighted}`}
           >
             <span className="zh-categories__icon-box">
-              <Icon size={18} strokeWidth={1.85} aria-hidden />
+              <Icon size={28} strokeWidth={1.75} aria-hidden />
             </span>
             <span className="zh-categories__label">{category.label}</span>
           </Link>

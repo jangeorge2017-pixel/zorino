@@ -10,6 +10,12 @@ export type ZorinoQuickNavItem = {
 
 export const ZORINO_QUICK_NAV_ITEMS: readonly ZorinoQuickNavItem[] = [
   {
+    id: "featured-brands",
+    emoji: "🎟️",
+    label: "Coupon Brands",
+    targetId: "zh-section-featured-brands",
+  },
+  {
     id: "trending-deals",
     emoji: "🔥",
     label: "Trending Deals",
@@ -25,31 +31,31 @@ export const ZORINO_QUICK_NAV_ITEMS: readonly ZorinoQuickNavItem[] = [
     id: "flash-deals",
     emoji: "⚡",
     label: "Flash Deals",
-    targetId: "zh-section-trending-deals",
+    targetId: "zh-section-flash-deals",
   },
   {
     id: "price-drops",
     emoji: "📉",
     label: "Price Drops",
-    targetId: "zh-section-trending-deals",
+    targetId: "zh-section-price-drops",
   },
   {
     id: "new-arrivals",
     emoji: "🆕",
     label: "New Arrivals",
-    targetId: "zh-section-trending-deals",
+    targetId: "zh-section-new-arrivals",
   },
   {
     id: "top-rated",
     emoji: "⭐",
     label: "Top Rated",
-    targetId: "zh-section-features",
+    targetId: "zh-section-top-rated",
   },
   {
     id: "editors-picks",
     emoji: "❤️",
     label: "Editor's Picks",
-    targetId: "zh-section-features",
+    targetId: "zh-section-editors-picks",
   },
   {
     id: "stores",
@@ -74,11 +80,16 @@ export const ZORINO_QUICK_NAV_ITEMS: readonly ZorinoQuickNavItem[] = [
 
 /** Unique section roots observed for scroll-spy */
 export const ZORINO_QUICK_NAV_TARGETS = [
+  "zh-section-featured-brands",
+  "zh-section-categories",
   "zh-section-trending-deals",
   "zh-section-coupons",
-  "zh-section-features",
+  "zh-section-flash-deals",
+  "zh-section-price-drops",
+  "zh-section-new-arrivals",
+  "zh-section-top-rated",
+  "zh-section-editors-picks",
   "zh-section-stores",
-  "zh-section-categories",
 ] as const;
 
 export const ZORINO_QUICK_NAV_STICKY_TOP = 72;
