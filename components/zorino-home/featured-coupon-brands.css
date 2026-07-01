@@ -2,19 +2,10 @@
  * Featured Coupon Brands — premium horizontal carousel below search
  */
 
-.zh-featured-brands-wrap {
-  margin-top: var(--zh-space-search-categories, 22px);
-}
-
 .zh-featured-brands.zh-panel {
   padding: 20px 18px 18px;
   border-radius: 20px;
-  background: rgba(10, 15, 30, 0.52);
-  border: 1px solid rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(16px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 12px 40px rgba(0, 0, 0, 0.22);
 }
 
 .zh-featured-brands .zh-section-head {
