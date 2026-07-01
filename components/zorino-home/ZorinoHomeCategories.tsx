@@ -31,7 +31,7 @@ export default function ZorinoHomeCategories({ categories }: ZorinoHomeCategorie
   if (categories.length === 0) return null;
 
   return (
-    <nav className="zh-categories" aria-label="Categories">
+    <nav className="zh-categories" id="zh-section-categories" aria-label="Categories">
       {categories.map((category) => {
         const Icon = ICONS[category.slug as keyof typeof ICONS] ?? MoreHorizontal;
         const href =

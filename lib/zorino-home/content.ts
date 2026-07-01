@@ -14,7 +14,7 @@ export type ZhHeroStat = {
 };
 
 export type ZhOrbitCard = {
-  slot: "top" | "upper-left" | "upper-right" | "lower-left";
+  slot: "top" | "left" | "upper-right" | "right";
   imageSrc: string;
   discount: string;
   price: string;
@@ -85,7 +85,7 @@ export const ZH_ORBIT_CARDS: ZhOrbitCard[] = [
     original: "$329",
   },
   {
-    slot: "upper-left",
+    slot: "left",
     imageSrc: "/comparison/cal-laptop-104.png",
     discount: "-18%",
     price: "$899",
@@ -99,7 +99,7 @@ export const ZH_ORBIT_CARDS: ZhOrbitCard[] = [
     original: "$1,199",
   },
   {
-    slot: "lower-left",
+    slot: "right",
     imageSrc: "/comparison/cal-controller-96.png",
     discount: "-20%",
     price: "$59",

@@ -18,10 +18,17 @@ import type {
 
 const ORBIT_SLOT_TO_POSITION: Record<string, string> = {
   top: "orbit-top",
-  "upper-left": "orbit-upper-left",
+  left: "orbit-upper-left",
   "upper-right": "orbit-upper-right",
-  "lower-left": "orbit-lower-left",
+  right: "orbit-lower-right",
 };
+
+const HERO_ORBIT_COMPOSITION = [
+  "orbit-top",
+  "orbit-upper-left",
+  "orbit-upper-right",
+  "orbit-lower-right",
+] as const;
 
 export function withFallbackCategories(
   categories: HomepageCategoryItem[]
@@ -43,10 +50,25 @@ export function withFallbackPopularSearches(searches: string[]): string[] {
 export function withFallbackFloatingProducts(
   products: FloatingProductCard[]
 ): FloatingProductCard[] {
-  const visible = products.filter(
-    (product) => product.imageSrc && product.discount
-  );
-  if (visible.length >= 4) return products;
+  const compositionCards = products
+    .filter((product) =>
+      HERO_ORBIT_COMPOSITION.includes(
+        product.position as (typeof HERO_ORBIT_COMPOSITION)[number],
+      ),
+    )
+    .filter((product) => product.imageSrc && product.discount);
+
+  if (compositionCards.length >= 4) {
+    return HERO_ORBIT_COMPOSITION.map((position) => {
+      const match = compositionCards.find((card) => card.position === position);
+      return (
+        match ?? {
+          ...compositionCards[0],
+          position,
+        }
+      );
+    });
+  }
 
   return ZH_ORBIT_CARDS.map((card) => ({
     imageSrc: card.imageSrc,

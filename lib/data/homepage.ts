@@ -20,7 +20,6 @@ const HERO_ORBIT_POSITIONS = [
   "orbit-top",
   "orbit-upper-left",
   "orbit-upper-right",
-  "orbit-lower-left",
   "orbit-lower-right",
 ] as const;
 
@@ -205,7 +204,7 @@ export async function getCouponsForPage() {
 
 /** Hero orbit — five circular product cards in the upper half around the Z logo. */
 export async function getHeroFloatingProducts(): Promise<FloatingProductCard[]> {
-  const deals = await getTrendingDeals(5);
+  const deals = await getTrendingDeals(4);
   const positions = HERO_ORBIT_POSITIONS;
 
   if (deals.length === 0) {

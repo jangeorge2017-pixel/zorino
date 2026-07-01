@@ -3,48 +3,14 @@
  * Imported by ZorinoHomeHero; scopes under .zh-page / .zh-hero-zone
  */
 
-/* ─── Hero zone (continuous backdrop for hero + search + categories) ─── */
+/* ─── Hero zone (content only — page background is on .zh-page) ─── */
 .zh-hero-zone {
   position: relative;
-  isolation: isolate;
-  z-index: 10;
   margin: 0 calc(-1 * var(--zh-pad));
-  padding: 16px var(--zh-pad) var(--zh-space-categories-deals);
+  padding: 0 var(--zh-pad) var(--zh-space-categories-deals);
   overflow-x: clip;
   overflow-y: visible;
-}
-
-.zh-hero-zone::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    linear-gradient(
-      180deg,
-      #020611 0%,
-      #030712 18%,
-      #050818 42%,
-      #040615 68%,
-      #030712 86%,
-      #020611 100%
-    );
-}
-
-.zh-hero-zone::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.72;
-  background:
-    radial-gradient(ellipse 92% 58% at 14% 6%, rgba(168, 85, 247, 0.22), transparent 62%),
-    radial-gradient(ellipse 78% 52% at 88% 10%, rgba(59, 130, 246, 0.16), transparent 58%),
-    radial-gradient(ellipse 70% 48% at 76% 52%, rgba(139, 92, 246, 0.14), transparent 62%),
-    radial-gradient(ellipse 110% 46% at 50% 78%, rgba(88, 28, 135, 0.1), transparent 70%),
-    radial-gradient(ellipse 40% 32% at 62% 38%, rgba(34, 211, 238, 0.06), transparent 72%);
+  background: transparent;
 }
 
 .zh-hero-zone .zh-hero,
@@ -54,15 +20,20 @@
   z-index: 2;
 }
 
-/* ─── Hero search wrapper ─── */
+/* ─── Hero search wrapper — sits just below platform with small gap ─── */
 .zh-hero-search {
   position: relative;
   z-index: 30;
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: var(--zh-space-stats-search);
+  margin-top: calc(
+    var(--zh-space-stats-search) +
+    var(--zh-hero-search-platform-gap, 14px) -
+    var(--zh-hero-search-overlap)
+  );
   margin-bottom: 0;
+  transform: translateY(-19px);
 }
 
 /* ─── Hero copy ─── */
@@ -108,11 +79,11 @@
   line-height: 1.05;
   font-weight: 800;
   letter-spacing: -2.2px;
-  color: #f8fafc;
+  color: #ffffff;
 }
 
 .zh-hero__title span {
-  background: var(--zh-title-gradient);
+  background: linear-gradient(95deg, #a78bfa 0%, #6366f1 42%, #22d3ee 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -217,12 +188,13 @@
   font-weight: 600;
 }
 
-/* ─── Floating orbit product cards ─── */
+/* ─── Floating orbit product cards — explicit positions (no group offset) ─── */
 .hero-artwork__orbit {
   position: absolute;
   inset: 0;
   z-index: 4;
   pointer-events: none;
+  transform: translateX(120px);
 }
 
 @keyframes zh-orbit-float {
@@ -237,9 +209,9 @@
 
 .zh-orbit-card {
   position: absolute;
-  width: 112px;
-  padding: 8px;
-  border-radius: 14px;
+  width: 86px;
+  padding: 6px;
+  border-radius: 12px;
   background: rgba(15, 23, 42, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.11);
   backdrop-filter: blur(14px);
@@ -253,15 +225,15 @@
   will-change: transform;
 }
 
-.zh-orbit-card[data-orbit-position="orbit-top"] { left: 50%; top: 40%; }
-.zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: 16%; top: 58%; }
-.zh-orbit-card[data-orbit-position="orbit-upper-right"] { left: 84%; top: 58%; }
-.zh-orbit-card[data-orbit-position="orbit-lower-left"] { left: calc(10% + 12px); top: calc(80% + 22px); }
-.zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: calc(90% - 12px); top: calc(80% + 22px); }
+/* 2×2 — left col 72%, right col 88%; top 36%, bottom 60% */
+.zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: calc(72% - 151px); top: 36%; }
+.zh-orbit-card[data-orbit-position="orbit-top"] { left: calc(72% - 151px); top: 60%; }
+.zh-orbit-card[data-orbit-position="orbit-upper-right"] { left: 88%; top: 36%; }
+.zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: 88%; top: 60%; }
 
 .zh-orbit-card__media {
   position: relative;
-  height: 56px;
+  height: 43px;
   border-radius: 10px;
   overflow: hidden;
   background: rgba(30, 41, 59, 0.8);
@@ -295,7 +267,7 @@
 }
 
 .zh-orbit-card__price {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   color: #f8fafc;
 }

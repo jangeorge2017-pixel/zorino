@@ -1,6 +1,5 @@
 /** Slot order for staggered float animation delays. */
 export const HERO_ORBIT_ANGLE_ORDER = [
-  "orbit-lower-left",
   "orbit-upper-left",
   "orbit-top",
   "orbit-upper-right",
@@ -15,15 +14,13 @@ export function getHeroOrbitAnimationDelay(position: string): number {
 }
 
 /**
- * Reference slot positions (% of .hero-orbit), from public/target design.jpeg.
- * Applied via CSS data-orbit-position rules in globals.css.
+ * Premium four-card orbit around the Z logo (hero.css data-orbit-position rules).
  */
 export const HERO_ORBIT_REFERENCE_POSITIONS: Record<string, { left: string; top: string }> = {
-  "orbit-top": { left: "50%", top: "21%" },
-  "orbit-upper-left": { left: "19%", top: "39%" },
-  "orbit-upper-right": { left: "81%", top: "39%" },
-  "orbit-lower-left": { left: "calc(10% + 12px)", top: "calc(57% + 25px)" },
-  "orbit-lower-right": { left: "calc(90% - 12px)", top: "calc(57% + 25px)" },
+  "orbit-top": { left: "50%", top: "23%" },
+  "orbit-upper-left": { left: "15%", top: "49%" },
+  "orbit-upper-right": { left: "79%", top: "29%" },
+  "orbit-lower-right": { left: "85%", top: "53%" },
 };
 
 export function getHeroOrbitSlotPosition(position: string): {

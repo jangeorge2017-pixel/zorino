@@ -20,7 +20,7 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
   const [logoFailed, setLogoFailed] = useState(false);
 
   return (
-    <footer className="zh-footer">
+    <footer className="zh-footer" id="zh-section-stores">
       <div className="zh-footer__stats">
         {footerStats.map((stat) => {
           const Icon = ICONS[stat.key];
