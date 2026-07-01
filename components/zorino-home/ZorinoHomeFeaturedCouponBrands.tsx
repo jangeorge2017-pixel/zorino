@@ -115,8 +115,8 @@ export default function ZorinoHomeFeaturedCouponBrands({
       aria-labelledby="zh-featured-brands-title"
     >
       <div className="zh-section-head">
-        <h2 id="zh-featured-brands-title" className="zh-section-head__title">
-          <Ticket size={20} aria-hidden className="zh-featured-brands__icon" />
+        <h2 id="zh-featured-brands-title" className="zh-section-head__title zh-featured-brands__title">
+          <Ticket size={22} aria-hidden className="zh-featured-brands__icon" />
           Featured Coupon Brands
         </h2>
         <Link href="/coupons" className="zh-section-head__link">

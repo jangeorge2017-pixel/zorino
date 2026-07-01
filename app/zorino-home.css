@@ -16,11 +16,18 @@
   --zh-gap: var(--zh-space-stats-search);
   --zh-section-step: var(--zh-space-stats-search);
   --zh-space-search-categories: var(--zh-space-stats-search);
-  --zh-surface-glass: rgba(8, 12, 26, 0.28);
-  --zh-surface-border: rgba(78, 168, 255, 0.08);
-  --zh-surface-highlight: rgba(255, 255, 255, 0.03);
-  --zh-electric-blue: #4ea8ff;
-  --zh-electric-glow: rgba(78, 168, 255, 0.45);
+  --zh-surface-glass: rgba(5, 9, 20, 0.12);
+  --zh-surface-border: rgba(91, 220, 255, 0.04);
+  --zh-surface-highlight: rgba(255, 255, 255, 0.015);
+  --zh-neon-core: #7dccff;
+  --zh-neon-mid: #5bb8ff;
+  --zh-neon-cyan: #22d3ee;
+  --zh-neon-halo: rgba(91, 220, 255, 0.62);
+  --zh-neon-outer: rgba(34, 211, 238, 0.28);
+  --zh-electric-blue: var(--zh-neon-mid);
+  --zh-electric-glow: var(--zh-neon-halo);
+  --zh-premium-orange: #ff9a1f;
+  --zh-premium-orange-glow: rgba(255, 154, 31, 0.38);
   --zh-glass: #15192b;
   --zh-glass-border: #2d3748;
   --zh-gradient: linear-gradient(135deg, #8b5cf6, #6366f1);
@@ -68,7 +75,7 @@
   --zh-hero-search-overlap: 98px;
   --zh-hero-search-platform-gap: 14px;
   --zh-hero-bg-stretch-up: 45px;
-  --zh-page-bg-base: #060a14;
+  --zh-page-bg-base: #04070f;
   position: relative;
   margin-top: 0;
   padding-top: 0;
@@ -90,20 +97,20 @@
   box-shadow: none;
   background-color: var(--zh-page-bg-base);
   background-image:
-    radial-gradient(circle 1px at 11% 22%, rgba(255, 255, 255, 0.18) 0%, transparent 100%),
-    radial-gradient(circle 1px at 26% 56%, rgba(255, 255, 255, 0.12) 0%, transparent 100%),
-    radial-gradient(circle 1px at 40% 36%, rgba(255, 255, 255, 0.14) 0%, transparent 100%),
-    radial-gradient(ellipse 90% 55% at 18% 6%, rgba(59, 130, 246, 0.1), transparent 62%),
-    radial-gradient(ellipse 72% 48% at 82% 10%, rgba(78, 168, 255, 0.08), transparent 58%),
-    radial-gradient(ellipse 68% 44% at 76% 48%, rgba(37, 99, 235, 0.06), transparent 62%),
-    radial-gradient(ellipse 100% 42% at 50% 100%, rgba(30, 58, 138, 0.08), transparent 72%),
+    radial-gradient(circle 1px at 11% 22%, rgba(255, 255, 255, 0.14) 0%, transparent 100%),
+    radial-gradient(circle 1px at 26% 56%, rgba(255, 255, 255, 0.1) 0%, transparent 100%),
+    radial-gradient(circle 1px at 40% 36%, rgba(255, 255, 255, 0.11) 0%, transparent 100%),
+    radial-gradient(ellipse 92% 58% at 20% 8%, rgba(59, 130, 246, 0.09), transparent 64%),
+    radial-gradient(ellipse 76% 50% at 84% 12%, rgba(34, 211, 238, 0.07), transparent 60%),
+    radial-gradient(ellipse 70% 46% at 78% 50%, rgba(37, 99, 235, 0.05), transparent 64%),
+    radial-gradient(ellipse 100% 44% at 50% 100%, rgba(15, 35, 80, 0.12), transparent 74%),
     linear-gradient(
       180deg,
-      #050810 0%,
-      #060a14 18%,
-      #070c18 42%,
-      #060a14 68%,
-      #050810 100%
+      #03060d 0%,
+      #04070f 24%,
+      #050912 50%,
+      #04070f 76%,
+      #03060d 100%
     );
   background-repeat: no-repeat;
   background-size:
@@ -312,9 +319,11 @@
 .zh-panel {
   padding: 22px 20px 20px;
   border-radius: 16px;
-  background: var(--zh-surface-glass, rgba(8, 12, 26, 0.28));
-  border: 1px solid var(--zh-surface-border, rgba(78, 168, 255, 0.08));
-  box-shadow: inset 0 1px 0 var(--zh-surface-highlight, rgba(255, 255, 255, 0.03));
+  background: var(--zh-surface-glass);
+  border: none;
+  box-shadow:
+    inset 0 1px 0 var(--zh-surface-highlight),
+    0 0 0 0.5px rgba(91, 220, 255, 0.03);
   min-height: 100%;
 }
 
@@ -479,8 +488,8 @@
   min-height: 80px;
   border-radius: 0;
   background: transparent;
-  border-top: 1px solid rgba(78, 168, 255, 0.08);
-  box-shadow: none;
+  border-top: none;
+  box-shadow: inset 0 1px 0 rgba(91, 220, 255, 0.05);
 }
 
 .zh-footer__stats {
