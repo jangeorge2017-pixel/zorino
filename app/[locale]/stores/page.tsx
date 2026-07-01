@@ -1,9 +1,7 @@
 import StoresPageClient from "@/components/StoresPageClient";
-import { getStoresForPage } from "@/lib/data/homepage";
+import { getMockStoresForPage } from "@/lib/mock/page-data";
 
-export const dynamic = "force-dynamic";
-
-export default async function StoresPage() {
-  const stores = await getStoresForPage();
+export default function StoresPage() {
+  const stores = getMockStoresForPage();
   return <StoresPageClient stores={stores} />;
 }

@@ -1,6 +1,11 @@
 /** Local placeholder when an imported product image fails to load. */
 export const PRODUCT_IMAGE_PLACEHOLDER = "/products/placeholder.svg";
 
+const LEGACY_BROKEN_IMAGE_URLS: Record<string, string> = {
+  "https://images.unsplash.com/photo-1695048133142-1c204c703e24?w=1200&auto=format&fit=crop&q=80":
+    "https://images.unsplash.com/photo-1718223483120-8131e57f948b?w=1200&auto=format&fit=crop&q=80",
+};
+
 /** Remote image host patterns allowed for next/image (import pipeline + CDNs). */
 export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   // Unsplash (dev/mock catalog)
@@ -40,6 +45,8 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
 export function normalizeProductImageUrl(url?: string | null): string {
   const trimmed = url?.trim();
   if (!trimmed) return PRODUCT_IMAGE_PLACEHOLDER;
+  const legacyReplacement = LEGACY_BROKEN_IMAGE_URLS[trimmed];
+  if (legacyReplacement) return legacyReplacement;
   if (trimmed.startsWith("/")) return trimmed;
   try {
     const parsed = new URL(trimmed);

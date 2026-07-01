@@ -128,7 +128,9 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1">{t("viewStoreProducts")}</Button>
+                    <Link href={`/stores/${store.slug}`} className="flex-1">
+                      <Button className="w-full">{t("viewStoreProducts")}</Button>
+                    </Link>
                     <Link href={store.website} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" className="flex items-center gap-2">
                         <ExternalLink className="w-4 h-4" />
