@@ -68,7 +68,7 @@ type ZorinoHomeCouponsPanelProps = {
 
 export default function ZorinoHomeCouponsPanel({ coupons }: ZorinoHomeCouponsPanelProps) {
   return (
-    <section className="zh-panel" aria-labelledby="zh-coupons-title">
+    <section className="zh-panel" id="zh-section-coupons" aria-labelledby="zh-coupons-title">
       <div className="zh-section-head">
         <h2 id="zh-coupons-title" className="zh-section-head__title">
           <span aria-hidden>🔥</span> Top Coupons

@@ -1,0 +1,207 @@
+/**
+ * Quick Access Navigation — premium sticky section navigator (.zh-page only)
+ */
+
+.zh-quick-nav-wrap {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.zh-quick-nav {
+  position: relative;
+  z-index: 40;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  transition:
+    box-shadow 250ms ease,
+    background 250ms ease,
+    border-color 250ms ease,
+    backdrop-filter 250ms ease;
+  will-change: transform;
+}
+
+.zh-quick-nav.is-sticky {
+  position: fixed;
+  top: var(--zh-nav-h, 72px);
+  left: 0;
+  right: 0;
+  z-index: 90;
+  padding: 0 var(--zh-pad);
+  background: rgba(9, 9, 11, 0.72);
+  border-bottom: 1px solid rgba(78, 168, 255, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 24px rgba(78, 168, 255, 0.06);
+}
+
+.zh-quick-nav__track {
+  width: 100%;
+  max-width: var(--zh-content);
+  margin: 0 auto;
+  padding: 10px 0;
+}
+
+.zh-quick-nav__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.zh-quick-nav__row::-webkit-scrollbar {
+  display: none;
+}
+
+.zh-quick-nav__pill {
+  --zh-qnav-glow-blue: rgba(78, 168, 255, 0.55);
+  --zh-qnav-glow-purple: rgba(139, 92, 246, 0.28);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border: 1px solid rgba(78, 168, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease,
+    color 200ms ease;
+  will-change: transform;
+}
+
+.zh-quick-nav__pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(78, 168, 255, 0.08) 0%,
+    rgba(139, 92, 246, 0.06) 100%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.zh-quick-nav__emoji {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.zh-quick-nav__label {
+  letter-spacing: 0.01em;
+}
+
+.zh-quick-nav__pill:hover,
+a.zh-quick-nav__pill:hover {
+  transform: translate3d(0, -2px, 0) scale(1);
+  border-color: rgba(91, 184, 255, 0.52);
+  box-shadow:
+    0 0 5px var(--zh-qnav-glow-blue),
+    0 0 6px var(--zh-qnav-glow-purple);
+}
+
+.zh-quick-nav__pill:hover::before,
+a.zh-quick-nav__pill:hover::before {
+  opacity: 1;
+}
+
+.zh-quick-nav__pill.is-active,
+a.zh-quick-nav__pill.is-active {
+  transform: translate3d(0, 0, 0) scale(1.05);
+  border-color: rgba(91, 184, 255, 0.65);
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.62);
+  box-shadow:
+    0 0 5px rgba(78, 168, 255, 0.5),
+    0 0 6px rgba(59, 130, 246, 0.35),
+    0 0 4px rgba(139, 92, 246, 0.22);
+}
+
+.zh-quick-nav__pill.is-active::before,
+a.zh-quick-nav__pill.is-active::before {
+  opacity: 1;
+}
+
+.zh-quick-nav__placeholder {
+  width: 100%;
+  pointer-events: none;
+}
+
+/* Scroll targets — offset when nav is sticky */
+#zh-section-trending-deals,
+#zh-section-coupons,
+#zh-section-features,
+#zh-section-stores,
+#zh-section-categories {
+  scroll-margin-top: calc(var(--zh-nav-h, 72px) + 68px);
+}
+
+@media (max-width: 1024px) {
+  .zh-quick-nav__pill {
+    padding: 7px 12px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .zh-quick-nav__emoji {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 767px) {
+  .zh-quick-nav__track {
+    padding: 8px 0;
+  }
+
+  .zh-quick-nav__row {
+    gap: 8px;
+    padding-bottom: 2px;
+  }
+
+  .zh-quick-nav__pill {
+    padding: 7px 11px;
+    font-size: 11.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zh-quick-nav,
+  .zh-quick-nav__pill,
+  .zh-quick-nav__pill::before {
+    transition: none;
+  }
+
+  .zh-quick-nav__pill:hover,
+  a.zh-quick-nav__pill:hover,
+  .zh-quick-nav__pill.is-active,
+  a.zh-quick-nav__pill.is-active {
+    transform: none;
+  }
+}

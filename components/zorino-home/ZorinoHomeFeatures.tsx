@@ -2,7 +2,7 @@ import { ZH_FEATURES } from "@/lib/zorino-home/content";
 
 export default function ZorinoHomeFeatures() {
   return (
-    <section className="zh-features" aria-label="Platform features">
+    <section className="zh-features" id="zh-section-features" aria-label="Platform features">
       {ZH_FEATURES.map((feature) => (
         <article key={feature.title} className={`zh-feature zh-feature--${feature.accent}`}>
           <div className="zh-feature__icon">

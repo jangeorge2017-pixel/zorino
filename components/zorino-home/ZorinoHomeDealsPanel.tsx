@@ -39,7 +39,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   };
 
   return (
-    <section className="zh-panel zh-deals-panel" aria-labelledby="zh-deals-title">
+    <section className="zh-panel zh-deals-panel" id="zh-section-trending-deals" aria-labelledby="zh-deals-title">
       <div className="zh-section-head">
         <h2 id="zh-deals-title" className="zh-section-head__title">
           <span aria-hidden>🔥</span> Trending Deals

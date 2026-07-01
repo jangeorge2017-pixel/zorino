@@ -2,6 +2,7 @@ import "@/app/zorino-home.css";
 import HomeHeroBackground from "@/components/zorino-home/HomeHeroBackground";
 import ZorinoHomeNav from "@/components/zorino-home/ZorinoHomeNav";
 import ZorinoHomeHero from "@/components/zorino-home/ZorinoHomeHero";
+import ZorinoHomeQuickNav from "@/components/zorino-home/ZorinoHomeQuickNav";
 import ZorinoHomeSearch from "@/components/zorino-home/ZorinoHomeSearch";
 import ZorinoHomeCategories from "@/components/zorino-home/ZorinoHomeCategories";
 import ZorinoHomeDealsPanel from "@/components/zorino-home/ZorinoHomeDealsPanel";
@@ -39,6 +40,8 @@ export default async function ZorinoHomePage() {
 
   return (
     <div className="zh-page">
+      <div className="zh-page__background" aria-hidden="true" />
+      <div className="zh-page__artwork" aria-hidden="true" />
       <ZorinoHomeNav />
 
       <div className="zh-shell">
@@ -53,6 +56,8 @@ export default async function ZorinoHomePage() {
               popularSearches={withFallbackPopularSearches(popularSearches)}
             />
           </div>
+
+          <ZorinoHomeQuickNav />
 
           <ZorinoHomeCategories
             categories={withFallbackCategories(categories)}

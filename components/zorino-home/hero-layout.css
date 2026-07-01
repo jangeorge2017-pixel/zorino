@@ -1,5 +1,5 @@
 /**
- * Hero — two side-by-side columns (copy | artwork)
+ * Hero layout — seamless canvas (structural grid only; no visible columns)
  */
 
 .zh-page .zh-hero {
@@ -10,12 +10,21 @@
   align-items: stretch;
   min-height: 420px;
   overflow: visible;
+  position: relative;
+  isolation: isolate;
+  background: transparent;
 }
 
 .zh-hero__col--left {
   grid-column: 1;
   grid-row: 1;
   min-width: 0;
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
 }
 
 .zh-hero__col--right {
@@ -25,11 +34,14 @@
   align-self: stretch;
   min-width: 0;
   overflow: visible;
-  background: none;
+  z-index: 1;
+  background: transparent;
   border: none;
   box-shadow: none;
+  outline: none;
 }
 
+/* ─── Orbit cards — composition only; translate matches artwork anchor ─── */
 .hero-artwork {
   position: absolute;
   inset: 0;
@@ -41,301 +53,18 @@
   background: none;
   border: none;
   box-shadow: none;
-  transform: translate(-58px, 48px);
-}
-
-.hero-artwork__backdrop {
-  position: absolute;
-  inset: 0;
-  bottom: calc(-1 * var(--zh-hero-bg-extend, 118px));
-  pointer-events: none;
-  overflow: visible;
-  -webkit-mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 0, 0, 0.12) 4%,
-      rgba(0, 0, 0, 0.42) 9%,
-      rgba(0, 0, 0, 0.72) 13%,
-      #000 17%,
-      #000 100%
-    ),
-    linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0, 0, 0, 0.08) 3%,
-      rgba(0, 0, 0, 0.28) 7%,
-      rgba(0, 0, 0, 0.52) 11%,
-      rgba(0, 0, 0, 0.78) 15%,
-      rgba(0, 0, 0, 0.94) 19%,
-      #000 24%,
-      #000 50%,
-      rgba(0, 0, 0, 0.96) 58%,
-      rgba(0, 0, 0, 0.84) 66%,
-      rgba(0, 0, 0, 0.66) 74%,
-      rgba(0, 0, 0, 0.46) 82%,
-      rgba(0, 0, 0, 0.28) 88%,
-      rgba(0, 0, 0, 0.14) 93%,
-      rgba(0, 0, 0, 0.05) 97%,
-      transparent 100%
-    );
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 0, 0, 0.12) 4%,
-      rgba(0, 0, 0, 0.42) 9%,
-      rgba(0, 0, 0, 0.72) 13%,
-      #000 17%,
-      #000 100%
-    ),
-    linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0, 0, 0, 0.08) 3%,
-      rgba(0, 0, 0, 0.28) 7%,
-      rgba(0, 0, 0, 0.52) 11%,
-      rgba(0, 0, 0, 0.78) 15%,
-      rgba(0, 0, 0, 0.94) 19%,
-      #000 24%,
-      #000 50%,
-      rgba(0, 0, 0, 0.96) 58%,
-      rgba(0, 0, 0, 0.84) 66%,
-      rgba(0, 0, 0, 0.66) 74%,
-      rgba(0, 0, 0, 0.46) 82%,
-      rgba(0, 0, 0, 0.28) 88%,
-      rgba(0, 0, 0, 0.14) 93%,
-      rgba(0, 0, 0, 0.05) 97%,
-      transparent 100%
-    );
-  mask-composite: intersect;
-}
-
-.hero-artwork__backdrop::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.34;
-  background:
-    linear-gradient(
-      to right,
-      #020611 0%,
-      rgba(2, 6, 17, 0.78) 5%,
-      rgba(46, 16, 72, 0.04) 12%,
-      transparent 20%,
-      transparent 54%,
-      rgba(46, 16, 72, 0.04) 68%,
-      rgba(14, 10, 28, 0.12) 80%,
-      rgba(4, 6, 17, 0.32) 90%,
-      rgba(2, 6, 17, 0.58) 96%,
-      #020611 100%
-    );
-}
-
-.hero-artwork__atmosphere {
-  position: absolute;
-  top: 0;
-  right: -18%;
-  bottom: calc(-1 * var(--zh-hero-bg-extend, 118px));
-  left: -18%;
-  transform: scaleY(1.48);
-  transform-origin: bottom center;
-  pointer-events: none;
-  overflow: visible;
-  background: none;
-  border: none;
-  box-shadow: none;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(0, 0, 0, 0.1) 4%,
-    rgba(0, 0, 0, 0.32) 8%,
-    rgba(0, 0, 0, 0.58) 12%,
-    rgba(0, 0, 0, 0.82) 16%,
-    #000 22%,
-    #000 48%,
-    rgba(0, 0, 0, 0.94) 56%,
-    rgba(0, 0, 0, 0.78) 66%,
-    rgba(0, 0, 0, 0.58) 76%,
-    rgba(0, 0, 0, 0.36) 84%,
-    rgba(0, 0, 0, 0.18) 91%,
-    rgba(0, 0, 0, 0.06) 96%,
-    transparent 100%
+  transform: translate(
+    calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
+    calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
   );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(0, 0, 0, 0.1) 4%,
-    rgba(0, 0, 0, 0.32) 8%,
-    rgba(0, 0, 0, 0.58) 12%,
-    rgba(0, 0, 0, 0.82) 16%,
-    #000 22%,
-    #000 48%,
-    rgba(0, 0, 0, 0.94) 56%,
-    rgba(0, 0, 0, 0.78) 66%,
-    rgba(0, 0, 0, 0.58) 76%,
-    rgba(0, 0, 0, 0.36) 84%,
-    rgba(0, 0, 0, 0.18) 91%,
-    rgba(0, 0, 0, 0.06) 96%,
-    transparent 100%
-  );
-}
-
-.hero-artwork__nebula {
-  position: absolute;
-  inset: 0;
-  opacity: 0.72;
-  background:
-    radial-gradient(ellipse 92% 68% at 44% 10%, rgba(168, 85, 247, 0.34), transparent 68%),
-    radial-gradient(ellipse 64% 52% at 74% 20%, rgba(59, 130, 246, 0.2), transparent 64%),
-    radial-gradient(ellipse 78% 58% at 54% 48%, rgba(139, 92, 246, 0.12), transparent 70%),
-    radial-gradient(ellipse 88% 64% at 48% 88%, rgba(3, 7, 18, 0.28), transparent 78%);
-}
-
-.hero-artwork__stars {
-  position: absolute;
-  inset: 0;
-  opacity: 0.22;
-  background-image:
-    radial-gradient(1px 1px at 22% 24%, rgba(255, 255, 255, 0.45), transparent),
-    radial-gradient(1px 1px at 48% 16%, rgba(196, 181, 253, 0.48), transparent),
-    radial-gradient(1px 1px at 68% 34%, rgba(147, 197, 253, 0.38), transparent),
-    radial-gradient(1px 1px at 84% 58%, rgba(255, 255, 255, 0.32), transparent);
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(0, 0, 0, 0.15) 8%,
-    #000 22%,
-    #000 52%,
-    rgba(0, 0, 0, 0.55) 78%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(0, 0, 0, 0.15) 8%,
-    #000 22%,
-    #000 52%,
-    rgba(0, 0, 0, 0.55) 78%,
-    transparent 100%
-  );
-}
-
-.hero-artwork__glow {
-  position: absolute;
-  left: 50%;
-  top: 28%;
-  width: 92%;
-  height: 92%;
-  transform: translate(-50%, -28%);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 50% 46%,
-    rgba(139, 92, 246, 0.38) 0%,
-    rgba(99, 102, 241, 0.18) 28%,
-    rgba(34, 211, 238, 0.08) 48%,
-    transparent 72%
-  );
-  filter: blur(24px);
-  opacity: 0.48;
-  animation: hero-artwork-glow-pulse 4.8s ease-in-out infinite;
-}
-
-@keyframes hero-artwork-glow-pulse {
-  0%,
-  100% {
-    opacity: 0.42;
-    transform: translate(-50%, -28%) scale(1);
-  }
-  50% {
-    opacity: 0.56;
-    transform: translate(-50%, -28%) scale(1.03);
-  }
-}
-
-.hero-artwork__logo-stage {
-  position: absolute;
-  top: auto;
-  bottom: 0;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  max-height: 100%;
-  transform: translateX(-50%) scaleX(1.48) scaleY(1.48);
-  transform-origin: bottom center;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.hero-artwork__lightning {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  object-position: bottom center;
-  pointer-events: none;
-  user-select: none;
-  border: none;
-  box-shadow: none;
-  background: none;
-  opacity: 1;
-  filter: none;
-}
-
-.hero-artwork__lightning--enhance {
-  z-index: 1;
-  filter:
-    brightness(1.12)
-    saturate(1.18)
-    drop-shadow(0 0 2px rgba(192, 132, 252, 0.98))
-    drop-shadow(0 0 6px rgba(167, 139, 250, 0.88))
-    drop-shadow(0 0 14px rgba(139, 92, 246, 0.62))
-    drop-shadow(0 0 28px rgba(99, 102, 241, 0.36))
-    drop-shadow(0 0 48px rgba(34, 211, 238, 0.14));
-  -webkit-mask-image: radial-gradient(
-    ellipse 36% 50% at 50% 77%,
-    #000 0%,
-    #000 54%,
-    rgba(0, 0, 0, 0.55) 70%,
-    transparent 86%
-  );
-  mask-image: radial-gradient(
-    ellipse 36% 50% at 50% 77%,
-    #000 0%,
-    #000 54%,
-    rgba(0, 0, 0, 0.55) 70%,
-    transparent 86%
-  );
-}
-
-.hero-artwork__logo-base-uplight {
-  position: absolute;
-  left: 50%;
-  bottom: 10%;
-  width: 20%;
-  height: 24%;
-  transform: translateX(-50%);
-  z-index: 2;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse at 50% 100%,
-    rgba(56, 189, 248, 0.2) 0%,
-    rgba(99, 102, 241, 0.11) 32%,
-    rgba(139, 92, 246, 0.04) 52%,
-    transparent 72%
-  );
-  mix-blend-mode: screen;
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 36%, transparent 100%);
-  mask-image: linear-gradient(to top, #000 0%, #000 36%, transparent 100%);
 }
 
 @media (max-width: 1279px) {
   .hero-artwork {
-    transform: translate(-42px, 44px);
+    transform: translate(
+      calc(-42px - var(--zh-hero-artwork-shift-left, 0px)),
+      calc(44px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+    );
   }
 }
 

@@ -1,4 +1,4 @@
-/** Hero section background — pixel source: public/hero-background.png */
+/** Hero floating artwork — pixel source: public/hero-background.png */
 export const HERO_BACKGROUND = "/hero-background.png";
 
 export const HERO_BACKGROUND_INTRINSIC = {
