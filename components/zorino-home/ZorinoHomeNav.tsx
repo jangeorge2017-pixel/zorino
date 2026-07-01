@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   Bell,
-  ChevronDown,
   Crown,
   Heart,
   Search,
@@ -9,16 +8,8 @@ import {
 import IntlNavSelectors from "@/components/international/IntlNavSelectors";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ZorinoLogo } from "@/components/ZorinoLogo";
+import ZorinoHomeNavLinks from "@/components/zorino-home/ZorinoHomeNavLinks";
 import "./nav.css";
-
-const NAV_LINKS = [
-  { href: "/deals", label: "Deals" },
-  { href: "/coupons", label: "Coupons" },
-  { href: "/compare", label: "Compare" },
-  { href: "/categories", label: "Categories", chevron: true },
-  { href: "/stores", label: "Stores" },
-  { href: "/blog", label: "Blog" },
-] as const;
 
 export default function ZorinoHomeNav() {
   return (
@@ -28,16 +19,7 @@ export default function ZorinoHomeNav() {
           <ZorinoLogo className="zh-nav__logo-lockup" />
         </Link>
 
-        <nav className="zh-nav__links" aria-label="Primary">
-          {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="zh-nav__link">
-              {link.label}
-              {"chevron" in link && link.chevron ? (
-                <ChevronDown size={14} className="zh-nav__chevron" aria-hidden />
-              ) : null}
-            </Link>
-          ))}
-        </nav>
+        <ZorinoHomeNavLinks />
 
         <div className="zh-nav__actions">
           <Link href="/search" className="zh-nav__icon-btn" aria-label="Search">

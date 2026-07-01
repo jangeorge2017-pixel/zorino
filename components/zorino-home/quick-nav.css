@@ -5,7 +5,6 @@
 .zh-quick-nav-wrap {
   position: relative;
   width: 100%;
-  margin: var(--zh-gap, 24px) 0 0;
   padding: 0;
 }
 

@@ -7,7 +7,7 @@
 .zh-hero-zone {
   position: relative;
   margin: 0 calc(-1 * var(--zh-pad));
-  padding: 0 var(--zh-pad) var(--zh-space-categories-deals);
+  padding: 0 var(--zh-pad) 0;
   overflow-x: clip;
   overflow-y: visible;
   background: transparent;
