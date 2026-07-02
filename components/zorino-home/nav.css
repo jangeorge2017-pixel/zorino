@@ -1,14 +1,19 @@
 /**
- * Zorino homepage header — locked premium navigation bar
+ * Zorino homepage header — premium balanced navigation bar
  */
 
 .zh-nav {
   --zh-nav-gap: 10px;
   --zh-nav-control-h: 36px;
   --zh-nav-radius: 8px;
-  --zh-nav-pad-x: 12px;
-  --zh-nav-neon-line: rgba(126, 232, 255, 0.48);
-  --zh-nav-neon-glow: rgba(111, 212, 255, 0.07);
+  --zh-nav-pad-x: 10px;
+  --zh-nav-logo-gap: 6px;
+  --zh-nav-link-gap: 10px;
+  --zh-nav-electric: #6fd4ff;
+  --zh-nav-electric-bright: #7ee8ff;
+  --zh-nav-glow-idle: rgba(111, 212, 255, 0.1);
+  --zh-nav-glow-hover: rgba(111, 212, 255, 0.24);
+  --zh-nav-glow-active: rgba(126, 232, 255, 0.32);
 
   position: sticky;
   top: 0;
@@ -25,12 +30,12 @@
 .zh-nav__inner {
   display: flex;
   align-items: center;
-  gap: var(--zh-nav-gap);
   width: 100%;
   max-width: var(--zh-content);
   height: 100%;
   margin: 0 auto;
   min-width: 0;
+  gap: 0;
 }
 
 /* ─── Logo ─── */
@@ -38,6 +43,7 @@
   display: flex;
   align-items: center;
   flex: 0 0 auto;
+  margin-right: var(--zh-nav-logo-gap);
   text-decoration: none;
   color: inherit;
 }
@@ -47,7 +53,7 @@
   width: auto !important;
   height: 36px !important;
   max-height: 36px;
-  transform: scale(1.12);
+  transform: scale(1.08);
   transform-origin: left center;
   object-fit: contain;
   object-position: left center;
@@ -58,9 +64,14 @@
   border-radius: 0;
 }
 
-/* ─── Primary navigation links (flattened into header flex row) ─── */
+/* ─── Primary navigation ─── */
 .zh-nav__links {
-  display: contents;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: var(--zh-nav-link-gap);
 }
 
 .zh-nav__link {
@@ -70,9 +81,9 @@
   justify-content: center;
   gap: 3px;
   height: var(--zh-nav-control-h);
-  padding: 0 var(--zh-nav-pad-x);
-  border-radius: var(--zh-nav-radius);
+  padding: 0;
   border: none;
+  border-radius: 0;
   background: transparent;
   font-size: 13.5px;
   font-weight: 500;
@@ -81,57 +92,52 @@
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
-  isolation: isolate;
-  transition: color 0.2s ease;
+  box-shadow: none;
+  text-shadow: 0 0 5px var(--zh-nav-glow-idle);
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
 }
 
-.zh-nav__link::before {
-  content: none;
-}
-
+.zh-nav__link::before,
 .zh-nav__link::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: -1;
-  background: transparent;
-  border: none;
-  box-shadow:
-    0 0 0 0.5px rgba(126, 232, 255, 0.55),
-    0 0 3px rgba(111, 212, 255, 0.08);
-  transition: box-shadow 0.2s ease;
+  content: none;
+  display: none;
 }
 
 .zh-nav__chevron {
-  opacity: 0.7;
+  opacity: 0.72;
+  filter: drop-shadow(0 0 3px rgba(111, 212, 255, 0.1));
 }
 
 .zh-nav__link:hover {
-  color: #e0f2fe;
-}
-
-.zh-nav__link:hover::after {
-  box-shadow:
-    0 0 0 0.5px rgba(126, 232, 255, 0.7),
-    0 0 4px rgba(111, 212, 255, 0.12);
+  color: var(--zh-nav-electric-bright);
+  text-shadow:
+    0 0 6px var(--zh-nav-glow-hover),
+    0 0 12px rgba(111, 212, 255, 0.08);
 }
 
 .zh-nav__link.is-active {
   color: #f0f9ff;
   font-weight: 600;
+  text-shadow:
+    0 0 7px var(--zh-nav-glow-active),
+    0 0 14px rgba(111, 212, 255, 0.1);
 }
 
-.zh-nav__link.is-active::after {
-  box-shadow:
-    0 0 0 0.5px rgba(126, 232, 255, 0.75),
-    0 0 4px rgba(111, 212, 255, 0.14);
-}
-
-/* ─── Right-side controls (flattened into header flex row) ─── */
+/* ─── Right-side controls ─── */
 .zh-nav__actions {
-  display: contents;
+  display: flex;
+  align-items: center;
+  gap: var(--zh-nav-gap);
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.zh-nav__actions > * {
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .zh-nav__icon-btn {
@@ -141,6 +147,7 @@
   gap: 5px;
   height: var(--zh-nav-control-h);
   min-height: var(--zh-nav-control-h);
+  max-height: var(--zh-nav-control-h);
   padding: 0 var(--zh-nav-pad-x);
   border-radius: var(--zh-nav-radius);
   border: none;
@@ -159,6 +166,7 @@
 .zh-nav__icon-btn--square {
   width: var(--zh-nav-control-h);
   min-width: var(--zh-nav-control-h);
+  max-width: var(--zh-nav-control-h);
   padding: 0;
 }
 
@@ -190,6 +198,8 @@
   display: flex;
   align-items: center;
   height: var(--zh-nav-control-h);
+  min-height: var(--zh-nav-control-h);
+  max-height: var(--zh-nav-control-h);
   padding: 3px;
   border-radius: var(--zh-nav-radius);
   border: none;
@@ -221,6 +231,8 @@
 
 .zh-nav .zor-intl__trigger {
   height: var(--zh-nav-control-h);
+  min-height: var(--zh-nav-control-h);
+  max-height: var(--zh-nav-control-h);
   padding: 0 var(--zh-nav-pad-x);
   border-radius: var(--zh-nav-radius);
   border: none;
@@ -243,7 +255,9 @@
   align-items: center;
   gap: 8px;
   height: var(--zh-nav-control-h);
-  max-width: 172px;
+  min-height: var(--zh-nav-control-h);
+  max-height: var(--zh-nav-control-h);
+  max-width: 168px;
   padding: 4px 10px 4px 4px;
   border-radius: var(--zh-nav-radius);
   border: none;
@@ -253,7 +267,6 @@
   flex-shrink: 0;
   transition: background 0.2s ease;
   overflow: hidden;
-  margin-left: auto;
 }
 
 .zh-nav__profile:hover {
@@ -271,6 +284,7 @@
 .zh-nav__profile-copy {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 0;
   min-width: 0;
   overflow: hidden;
@@ -280,7 +294,7 @@
   display: block;
   font-size: 11px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.15;
   color: #f8fafc;
   white-space: nowrap;
   overflow: hidden;
@@ -293,7 +307,7 @@
   gap: 3px;
   font-size: 10px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.15;
   color: #c4b5fd;
   white-space: nowrap;
 }
@@ -308,17 +322,22 @@
   .zh-nav .zor-intl__trigger-label {
     display: inline;
   }
+
+  .zh-nav__profile {
+    max-width: 180px;
+  }
 }
 
 @media (max-width: 1279px) {
   .zh-nav {
-    --zh-nav-pad-x: 9px;
+    --zh-nav-pad-x: 8px;
     --zh-nav-gap: 8px;
+    --zh-nav-logo-gap: 5px;
+    --zh-nav-link-gap: 8px;
   }
 
   .zh-nav__link {
     font-size: 12.5px;
-    padding: 0 8px;
   }
 
   .zh-nav__wishlist-label {
@@ -326,7 +345,7 @@
   }
 
   .zh-nav__profile {
-    max-width: 132px;
+    max-width: 128px;
   }
 
   .zh-nav .theme-option {
@@ -336,13 +355,13 @@
 }
 
 @media (max-width: 767px) {
-  .zh-nav__link {
+  .zh-nav__links {
     display: none;
   }
 
   .zh-nav__logo-lockup {
     height: 32px !important;
     max-height: 32px;
-    transform: scale(1.1);
+    transform: scale(1.06);
   }
 }

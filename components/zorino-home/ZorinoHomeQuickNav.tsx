@@ -44,11 +44,11 @@ export default function ZorinoHomeQuickNav() {
   }, []);
 
   useEffect(() => {
-    const heroZone = document.querySelector(".zh-hero-zone");
-    if (!heroZone) return;
+    const anchor = document.querySelector(".zh-home-discovery-nav");
+    if (!anchor) return;
 
     const onScroll = () => {
-      const bottom = heroZone.getBoundingClientRect().bottom;
+      const bottom = anchor.getBoundingClientRect().bottom;
       setIsSticky(bottom <= ZORINO_QUICK_NAV_STICKY_TOP + 4);
     };
 
