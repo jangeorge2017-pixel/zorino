@@ -5,7 +5,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap");
 
 .zh-featured-brands.zh-panel {
-  padding: 20px 18px 18px;
+  padding: 0 18px 18px;
   border-radius: 20px;
   backdrop-filter: none;
 }
@@ -14,20 +14,20 @@
   margin-bottom: 14px;
 }
 
-.zh-featured-brands__title {
+.zh-featured-brands .zh-featured-brands__title {
   font-family: "Plus Jakarta Sans", var(--font-geist-sans), system-ui, sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   line-height: 1.2;
-  color: var(--zh-premium-orange, #ffa01a);
-  text-shadow: 0 0 14px rgba(255, 160, 32, 0.14);
+  color: #ff8a00;
+  text-shadow: 0 0 14px rgba(255, 138, 0, 0.18);
 }
 
 .zh-featured-brands__icon {
-  color: var(--zh-premium-orange-soft, #ffb020);
+  color: #ff8a00;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 4px var(--zh-premium-orange-glow, rgba(255, 160, 32, 0.22)));
+  filter: drop-shadow(0 0 5px rgba(255, 138, 0, 0.22));
 }
 
 .zh-featured-brands .zh-section-head__link {

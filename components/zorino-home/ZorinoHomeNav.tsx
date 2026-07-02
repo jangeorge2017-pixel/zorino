@@ -22,25 +22,29 @@ export default function ZorinoHomeNav() {
         <ZorinoHomeNavLinks />
 
         <div className="zh-nav__actions">
-          <Link href="/search" className="zh-nav__icon-btn" aria-label="Search">
-            <Search size={18} strokeWidth={2} />
+          <Link
+            href="/search"
+            className="zh-nav__icon-btn zh-nav__icon-btn--square"
+            aria-label="Search"
+          >
+            <Search size={17} strokeWidth={2} />
           </Link>
           <IntlNavSelectors />
           <ThemeSwitcher />
           <Link href="/wishlist" className="zh-nav__icon-btn zh-nav__wishlist">
-            <Heart size={18} strokeWidth={2} aria-hidden />
-            Wishlist
+            <Heart size={17} strokeWidth={2} aria-hidden />
+            <span className="zh-nav__wishlist-label">Wishlist</span>
           </Link>
           <Link
             href="/notifications"
-            className="zh-nav__icon-btn"
+            className="zh-nav__icon-btn zh-nav__icon-btn--square"
             aria-label="Notifications"
           >
-            <Bell size={18} strokeWidth={2} aria-hidden />
+            <Bell size={17} strokeWidth={2} aria-hidden />
             <span className="zh-nav__badge">3</span>
           </Link>
           <Link href="/profile" className="zh-nav__profile">
-            <img src="https://i.pravatar.cc/40" alt="" width={32} height={32} />
+            <img src="https://i.pravatar.cc/40" alt="" width={28} height={28} />
             <div className="zh-nav__profile-copy">
               <strong>Hi, Ahmed</strong>
               <span className="zh-nav__premium">

@@ -1,0 +1,101 @@
+.zh-td-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.zh-td-skeleton-card {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(12, 14, 24, 0.55);
+  border: 1px solid rgba(255, 120, 60, 0.08);
+}
+
+.zh-td-skeleton-card__media {
+  aspect-ratio: 4 / 3;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    rgba(30, 35, 50, 0.55) 0%,
+    rgba(45, 52, 70, 0.75) 50%,
+    rgba(30, 35, 50, 0.55) 100%
+  );
+  background-size: 200% 100%;
+  animation: zh-td-shimmer 1.2s ease-in-out infinite;
+}
+
+.zh-td-skeleton-card__line {
+  height: 10px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(30, 35, 50, 0.55) 0%,
+    rgba(45, 52, 70, 0.75) 50%,
+    rgba(30, 35, 50, 0.55) 100%
+  );
+  background-size: 200% 100%;
+  animation: zh-td-shimmer 1.2s ease-in-out infinite;
+}
+
+.zh-td-skeleton-card__line--title {
+  height: 14px;
+  width: 88%;
+}
+
+.zh-td-skeleton-card__line--price {
+  width: 52%;
+}
+
+.zh-td-skeleton-card__line--meta {
+  width: 72%;
+}
+
+.zh-td-skeleton-card__cta {
+  height: 40px;
+  margin-top: 12px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    rgba(251, 146, 60, 0.12) 0%,
+    rgba(239, 68, 68, 0.2) 50%,
+    rgba(251, 146, 60, 0.12) 100%
+  );
+  background-size: 200% 100%;
+  animation: zh-td-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes zh-td-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 1279px) {
+  .zh-td-skeleton-grid {
+    grid-auto-columns: calc((100% - 16px) / 2);
+  }
+}
+
+@media (max-width: 767px) {
+  .zh-td-skeleton-grid {
+    grid-auto-flow: column;
+    grid-auto-columns: min(100%, 300px);
+    grid-template-columns: unset;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .zh-td-skeleton-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .zh-td-skeleton-card {
+    scroll-snap-align: start;
+  }
+}

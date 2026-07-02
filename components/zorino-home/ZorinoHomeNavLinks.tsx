@@ -33,7 +33,6 @@ export default function ZorinoHomeNavLinks() {
             className={`zh-nav__link${active ? " is-active" : ""}`}
             aria-current={active ? "page" : undefined}
           >
-            <span className="zh-nav__sweep" aria-hidden="true" />
             {link.label}
             {"chevron" in link && link.chevron ? (
               <ChevronDown size={14} className="zh-nav__chevron" aria-hidden />
