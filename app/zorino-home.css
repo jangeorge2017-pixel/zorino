@@ -14,7 +14,7 @@
   --zh-content: 1280px;
   --zh-pad: clamp(16px, calc((100vw - var(--zh-content)) / 2), 80px);
   --zh-gap: var(--zh-space-stats-search);
-  --zh-section-step: var(--zh-space-stats-search);
+  --zh-section-step: clamp(64px, 5vw, 80px);
   --zh-space-search-categories: var(--zh-space-stats-search);
   --zh-surface-glass: transparent;
   --zh-surface-border: transparent;

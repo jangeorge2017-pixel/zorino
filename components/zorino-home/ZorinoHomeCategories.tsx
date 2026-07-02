@@ -31,28 +31,32 @@ export default function ZorinoHomeCategories({ categories }: ZorinoHomeCategorie
   if (categories.length === 0) return null;
 
   return (
-    <nav className="zh-categories" id="zh-section-categories" aria-label="Categories">
-      {categories.map((category) => {
-        const Icon = ICONS[category.slug as keyof typeof ICONS] ?? MoreHorizontal;
-        const href =
-          category.slug === "more" ? "/categories" : `/categories/${category.slug}`;
-        const accent = category.accent ? ` zh-categories__item--${category.accent}` : "";
-        const highlighted =
-          category.active || category.slug === "home" ? " zh-categories__item--highlight" : "";
+    <nav className="zh-categories-nav" id="zh-section-categories" aria-label="Categories">
+      <div className="zh-categories">
+        {categories.map((category) => {
+          const Icon = ICONS[category.slug as keyof typeof ICONS] ?? MoreHorizontal;
+          const href =
+            category.slug === "more" ? "/categories" : `/categories/${category.slug}`;
+          const accent = category.accent ? ` zh-categories__item--${category.accent}` : "";
+          const highlighted =
+            category.active || category.slug === "home"
+              ? " zh-categories__item--highlight"
+              : "";
 
-        return (
-          <Link
-            key={category.slug}
-            href={href}
-            className={`zh-categories__item${accent}${highlighted}`}
-          >
-            <span className="zh-categories__icon-box">
-              <Icon size={28} strokeWidth={1.75} aria-hidden />
-            </span>
-            <span className="zh-categories__label">{category.label}</span>
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={category.slug}
+              href={href}
+              className={`zh-categories__item${accent}${highlighted}`}
+            >
+              <span className="zh-categories__icon-box">
+                <Icon size={28} strokeWidth={1.75} aria-hidden />
+              </span>
+              <span className="zh-categories__label">{category.label}</span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

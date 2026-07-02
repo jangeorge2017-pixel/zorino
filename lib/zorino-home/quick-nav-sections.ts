@@ -64,12 +64,6 @@ export const ZORINO_QUICK_NAV_ITEMS: readonly ZorinoQuickNavItem[] = [
     targetId: "zh-section-stores",
   },
   {
-    id: "categories",
-    emoji: "📱",
-    label: "Categories",
-    targetId: "zh-section-categories",
-  },
-  {
     id: "blog",
     emoji: "📰",
     label: "Blog",
@@ -81,7 +75,6 @@ export const ZORINO_QUICK_NAV_ITEMS: readonly ZorinoQuickNavItem[] = [
 /** Unique section roots observed for scroll-spy */
 export const ZORINO_QUICK_NAV_TARGETS = [
   "zh-section-featured-brands",
-  "zh-section-categories",
   "zh-section-trending-deals",
   "zh-section-coupons",
   "zh-section-flash-deals",

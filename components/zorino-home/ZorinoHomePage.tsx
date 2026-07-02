@@ -4,8 +4,8 @@ import "@/components/zorino-home/homepage-surface.css";
 import HomeHeroBackground from "@/components/zorino-home/HomeHeroBackground";
 import ZorinoHomeNav from "@/components/zorino-home/ZorinoHomeNav";
 import ZorinoHomeHero from "@/components/zorino-home/ZorinoHomeHero";
-import ZorinoHomeQuickNav from "@/components/zorino-home/ZorinoHomeQuickNav";
 import ZorinoHomeSearch from "@/components/zorino-home/ZorinoHomeSearch";
+import ZorinoHomeQuickNav from "@/components/zorino-home/ZorinoHomeQuickNav";
 import ZorinoHomeFeaturedCouponBrands from "@/components/zorino-home/ZorinoHomeFeaturedCouponBrands";
 import ZorinoHomeCategories from "@/components/zorino-home/ZorinoHomeCategories";
 import ZorinoHomeDealsPanel from "@/components/zorino-home/ZorinoHomeDealsPanel";
@@ -65,15 +65,16 @@ export default async function ZorinoHomePage() {
           </div>
         </div>
 
+        <div className="zh-home-discovery-nav">
+          <ZorinoHomeQuickNav />
+          <div className="zh-categories-wrap">
+            <ZorinoHomeCategories categories={withFallbackCategories(categories)} />
+          </div>
+        </div>
+
         <section className="zh-featured-brands-wrap" aria-label="Featured coupon brands">
           <ZorinoHomeFeaturedCouponBrands brands={[...ZH_FEATURED_COUPON_BRANDS]} />
         </section>
-
-        <div className="zh-categories-wrap">
-          <ZorinoHomeCategories categories={withFallbackCategories(categories)} />
-        </div>
-
-        <ZorinoHomeQuickNav />
 
         <HomeHeroBackground>
           <section className="zh-commerce" aria-label="Trending deals and coupons">
@@ -95,4 +96,4 @@ export default async function ZorinoHomePage() {
     </div>
   );
 }
-
+
