@@ -116,7 +116,18 @@ export function withFallbackFloatingProducts(
 export function withFallbackDeals(deals: TrendingDealCard[]): TrendingDealCard[] {
   if (deals.length > 0) return deals;
 
-  return ZH_TRENDING_DEALS.map((deal) => ({
+  const badgeByIndex: Array<TrendingDealCard["badge"] | undefined> = [
+    undefined,
+    "hot",
+    "bestseller",
+    "popular",
+    "hot",
+    undefined,
+    undefined,
+    undefined,
+  ];
+
+  return ZH_TRENDING_DEALS.map((deal, index) => ({
     id: deal.id,
     name: deal.name,
     imageSrc: deal.imageSrc,
@@ -131,6 +142,7 @@ export function withFallbackDeals(deals: TrendingDealCard[]): TrendingDealCard[]
     storeInitial: deal.storeInitial,
     updatedMins: deal.updatedMins,
     priceHistory: deal.priceHistory,
+    badge: badgeByIndex[index],
   }));
 }
 

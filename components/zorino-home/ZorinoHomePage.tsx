@@ -36,7 +36,7 @@ import {
 export default async function ZorinoHomePage() {
   const [deals, coupons, floatingProducts, categories, popularSearches, stats, sectionProducts] =
     await Promise.all([
-      getTrendingDeals(4),
+      getTrendingDeals(8),
       getTopCouponsForHomepage(4),
       getHeroFloatingProducts(),
       getHomepageCategories(),
