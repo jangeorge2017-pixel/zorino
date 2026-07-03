@@ -1,6 +1,9 @@
 import "@/app/zorino-home.css";
 import "@/components/zorino-home/hero-composition-lock.css";
 import "@/components/zorino-home/homepage-surface.css";
+import "@/components/zorino-home/homepage-premium.css";
+import "@/components/deals/deals-page.css";
+import "@/components/zorino-home/homepage-deals-preview.css";
 import HomeHeroBackground from "@/components/zorino-home/HomeHeroBackground";
 import ZorinoHomeNav from "@/components/zorino-home/ZorinoHomeNav";
 import ZorinoHomeHero from "@/components/zorino-home/ZorinoHomeHero";
@@ -11,6 +14,7 @@ import ZorinoHomeCategories from "@/components/zorino-home/ZorinoHomeCategories"
 import ZorinoHomeDealsPanel from "@/components/zorino-home/ZorinoHomeDealsPanel";
 import ZorinoHomeCouponsPanel from "@/components/zorino-home/ZorinoHomeCouponsPanel";
 import ZorinoHomeProductSections from "@/components/zorino-home/ZorinoHomeProductSections";
+import ZorinoHomeCtaBand from "@/components/zorino-home/ZorinoHomeCtaBand";
 import ZorinoHomeFooter from "@/components/zorino-home/ZorinoHomeFooter";
 import {
   getHeroFloatingProducts,
@@ -87,6 +91,10 @@ export default async function ZorinoHomePage() {
           <ZorinoHomeProductSections
             sections={withFallbackSectionProducts(sectionProducts)}
           />
+        </section>
+
+        <section className="zh-cta-wrap" aria-label="Call to action">
+          <ZorinoHomeCtaBand />
         </section>
 
         <section className="zh-footer-wrap">

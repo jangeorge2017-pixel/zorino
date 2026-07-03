@@ -1,22 +1,16 @@
 import { NextResponse } from "next/server";
-import { getCronSecret } from "@/lib/sync/config";
+import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { executeTrendingRefresh, isTrendingRefreshDue } from "@/services/trending";
 import { invalidateTrendingFromRoute } from "@/lib/revalidate";
 
-/**
- * Cron endpoint — recomputes trending rankings every ~4 hours.
- * Vercel cron example: schedule every 4 hours on /api/cron/trending
- */
+/** Cron endpoint — recomputes trending rankings every ~4 hours. */
 export async function GET(request: Request) {
-  const secret = getCronSecret();
-  const authHeader = request.headers.get("authorization");
-  const url = new URL(request.url);
-  const querySecret = url.searchParams.get("secret");
-  const force = url.searchParams.get("force") === "true";
-
-  if (secret && authHeader !== `Bearer ${secret}` && querySecret !== secret) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!authorizeCronRequest(request)) {
+    return cronUnauthorizedResponse();
   }
+
+  const url = new URL(request.url);
+  const force = url.searchParams.get("force") === "true";
 
   if (!force) {
     const due = await isTrendingRefreshDue();

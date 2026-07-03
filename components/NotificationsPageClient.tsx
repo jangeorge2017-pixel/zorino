@@ -23,13 +23,13 @@ import {
 import type { Notification, NotificationType } from "@/lib/types/entities";
 import type { NotificationPreferences } from "@/services/users";
 import {
-  actionDeleteNotification,
-  actionMarkAllNotificationsRead,
-  actionMarkNotificationRead,
-  actionSaveNotificationPreferences,
   fetchNotificationPreferences,
   fetchUserNotifications,
-} from "@/lib/user-actions";
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+  removeNotification,
+  updateNotificationPreferences,
+} from "@/lib/actions/notifications";
 
 const TYPE_ICONS: Record<
   NotificationType,
@@ -73,11 +73,11 @@ export default function NotificationsPageClient() {
     if (!user) return;
     setLoading(true);
     const [notifResult, prefResult] = await Promise.all([
-      fetchUserNotifications(user.id),
-      fetchNotificationPreferences(user.id),
+      fetchUserNotifications(),
+      fetchNotificationPreferences(),
     ]);
     setNotifications(notifResult.data);
-    if (prefResult.data) setPrefs(prefResult.data);
+    setPrefs(prefResult);
     setLoading(false);
   }, [user]);
 
@@ -89,26 +89,26 @@ export default function NotificationsPageClient() {
 
   const markAsRead = async (id: string) => {
     if (!user) return;
-    await actionMarkNotificationRead(id, user.id);
+    await markNotificationAsRead(id);
     await load();
   };
 
   const markAllAsRead = async () => {
     if (!user) return;
-    await actionMarkAllNotificationsRead(user.id);
+    await markAllNotificationsAsRead();
     await load();
   };
 
   const deleteNotification = async (id: string) => {
     if (!user) return;
-    await actionDeleteNotification(id, user.id);
+    await removeNotification(id);
     await load();
   };
 
   const handleSavePrefs = async () => {
     if (!user) return;
     setSavingPrefs(true);
-    await actionSaveNotificationPreferences(user.id, prefs);
+    await updateNotificationPreferences(prefs);
     setSavingPrefs(false);
   };
 

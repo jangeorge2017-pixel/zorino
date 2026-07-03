@@ -102,7 +102,7 @@ export function validateCSRFToken(token: string, sessionToken: string): boolean 
 }
 
 // Rate Limiting
-class RateLimiter {
+export class RateLimiter {
   private requests: Map<string, number[]>;
   private maxRequests: number;
   private windowMs: number;

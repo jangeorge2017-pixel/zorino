@@ -1,14 +1,14 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
-import ListingProductCard from "@/components/ListingProductCard";
 import DealsPageHero from "@/components/deals/DealsPageHero";
+import DealsPageSection from "@/components/deals/DealsPageSection";
+import DealsDealCard from "@/components/deals/DealsDealCard";
+import { buildDealSections } from "@/components/deals/deal-sections";
 import { PageEmptyState, PageFilterBar, PageLayout } from "@/components/pages";
-import { Clock, Flame } from "lucide-react";
 import type { Deal } from "@/lib/types/entities";
 import "@/components/deals/deals-page.css";
 
@@ -69,9 +69,7 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
     };
   }, [deals]);
 
-  const spotlightDeals = useMemo(() => {
-    return [...deals].sort((a, b) => b.discount - a.discount).slice(0, 3);
-  }, [deals]);
+  const sections = useMemo(() => buildDealSections(deals), [deals]);
 
   const filtered = useMemo(() => {
     return [...deals]
@@ -92,6 +90,11 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
       });
   }, [deals, selectedStore, sortBy, quickFilter]);
 
+  const showCuratedSections =
+    quickFilter === "all" && !selectedStore && sortBy === "discount";
+
+  const endsInLabel = (deal: Deal) => `${t("dealEndsIn")} ${daysUntil(deal.endsAt)}`;
+
   return (
     <PageLayout>
       <div className="zor-deals-page">
@@ -104,86 +107,77 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
           endingSoonCount={stats.endingSoonCount}
         />
 
-        {spotlightDeals.length > 0 && quickFilter === "all" && !selectedStore ? (
-          <section className="zor-deals-page__spotlight" aria-label="Top savings">
-            <div className="zor-deals-page__spotlight-head">
-              <h2 className="zor-deals-page__spotlight-title">Top savings right now</h2>
-              <span className="zor-deals-page__promo-tag">
-                <Flame size={12} aria-hidden />
-                {t("limitedTimeOffer")}
-              </span>
-            </div>
-            <div className="zor-deals-page__spotlight-grid">
-              {spotlightDeals.map((deal) => (
-                <Link
-                  key={`spotlight-${deal.id}`}
-                  href={`/product/${deal.product?.id ?? deal.id}`}
-                  className="zor-deals-page__spotlight-card"
-                >
-                  <span className="zor-deals-page__spotlight-discount">
-                    -{Math.round(deal.discount)}%
-                  </span>
-                  <div className="zor-deals-page__spotlight-copy">
-                    <strong>{deal.product?.name ?? deal.title}</strong>
-                    <span>
-                      ${deal.price.toLocaleString("en-US")} · {deal.store?.name}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <div
-          className="zor-deals-page__quick-filters"
-          role="tablist"
-          aria-label="Quick deal filters"
-        >
-          {QUICK_FILTERS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={quickFilter === item.id}
-              className={`zor-deals-page__quick-filter${
-                quickFilter === item.id ? " is-active" : ""
-              }`}
-              onClick={() => setQuickFilter(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <PageFilterBar className="zor-deals-page__filters">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Select
-              label={t("filterByStore")}
-              options={storeOptions}
-              value={selectedStore}
-              onChange={(e) => setSelectedStore(e.target.value)}
-            />
-            <Select
-              label={tCommon("sortBy")}
-              options={sortOptions}
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            />
-            <div className="flex items-end">
-              <Button className="w-full">{tCommon("filter")}</Button>
-            </div>
+        <div className="zor-deals-page__toolbar">
+          <div
+            className="zor-deals-page__quick-filters"
+            role="tablist"
+            aria-label="Quick deal filters"
+          >
+            {QUICK_FILTERS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={quickFilter === item.id}
+                className={`zor-deals-page__quick-filter${
+                  quickFilter === item.id ? " is-active" : ""
+                }`}
+                onClick={() => setQuickFilter(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
-        </PageFilterBar>
+
+          <PageFilterBar className="zor-deals-page__filters">
+            <div className="zor-deals-page__filter-grid">
+              <Select
+                label={t("filterByStore")}
+                options={storeOptions}
+                value={selectedStore}
+                onChange={(e) => setSelectedStore(e.target.value)}
+              />
+              <Select
+                label={tCommon("sortBy")}
+                options={sortOptions}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              />
+              <div className="zor-deals-page__filter-action">
+                <Button className="w-full">{tCommon("filter")}</Button>
+              </div>
+            </div>
+          </PageFilterBar>
+        </div>
 
         <div className="zor-deals-page__results-bar">
           <p className="zor-deals-page__results-count">
-            Showing <strong>{filtered.length}</strong> promotional{" "}
-            {filtered.length === 1 ? "deal" : "deals"}
+            {showCuratedSections ? (
+              <>
+                <strong>{stats.liveCount}</strong> active promotional deals
+              </>
+            ) : (
+              <>
+                Showing <strong>{filtered.length}</strong> promotional{" "}
+                {filtered.length === 1 ? "deal" : "deals"}
+              </>
+            )}
           </p>
         </div>
 
-        {filtered.length === 0 ? (
+        {showCuratedSections ? (
+          <div className="zor-deals-page__sections">
+            {sections.map((section) => (
+              <DealsPageSection
+                key={section.id}
+                sectionId={section.id}
+                deals={section.deals}
+                endsInLabel={endsInLabel}
+                featuredLabel={tCommon("featured")}
+              />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <PageEmptyState
             title="No deals found"
             description="Try adjusting your filters or check back later for new deals."
@@ -191,30 +185,12 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
         ) : (
           <div className="listing-products-grid zor-deals-page__grid">
             {filtered.map((deal) => (
-              <div key={deal.id} className="zor-deals-page__card">
-                {deal.isFeatured ? (
-                  <span className="zor-deals-page__featured-badge">{tCommon("featured")}</span>
-                ) : null}
-                <ListingProductCard
-                  product={{
-                    id: deal.product?.id ?? deal.id,
-                    name: deal.product?.name ?? deal.title,
-                    imageSrc: deal.product?.imageUrl ?? "",
-                    emoji: deal.product?.emoji ?? undefined,
-                    price: deal.price,
-                    originalPrice: deal.originalPrice,
-                    discount: Math.round(deal.discount),
-                    rating: deal.product?.rating ?? undefined,
-                    reviewCount: deal.product?.reviewCount ?? undefined,
-                    store: deal.store?.name ?? undefined,
-                  }}
-                  showWishlist={false}
-                />
-                <p className="listing-deal-meta">
-                  <Clock size={14} aria-hidden />
-                  {t("dealEndsIn")} {daysUntil(deal.endsAt)}
-                </p>
-              </div>
+              <DealsDealCard
+                key={deal.id}
+                deal={deal}
+                endsInLabel={endsInLabel(deal)}
+                featuredLabel={tCommon("featured")}
+              />
             ))}
           </div>
         )}

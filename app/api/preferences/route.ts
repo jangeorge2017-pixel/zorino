@@ -14,6 +14,7 @@ import {
 } from "@/lib/international/cookies";
 import { preferencesToJson } from "@/lib/international/preferences";
 import { locales, type Locale } from "@/i18n/config";
+import { enforceRateLimit, publicApiRateLimiter } from "@/lib/security/api-rate-limit";
 
 type PreferencesBody = {
   countryCode?: string;
@@ -30,7 +31,25 @@ function cookieOptions() {
   };
 }
 
+function isSameSiteRequest(request: Request): boolean {
+  const origin = request.headers.get("origin");
+  const host = request.headers.get("host");
+  if (!origin || !host) return true;
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
+  const rateLimited = enforceRateLimit(request, publicApiRateLimiter);
+  if (rateLimited) return rateLimited;
+
+  if (!isSameSiteRequest(request)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   let body: PreferencesBody;
 
   try {

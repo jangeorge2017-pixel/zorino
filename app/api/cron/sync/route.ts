@@ -1,25 +1,19 @@
 import { NextResponse } from "next/server";
-import { getCronSecret } from "@/lib/sync/config";
+import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { executeScheduledSync } from "@/services/sync";
 
 /**
  * Cron endpoint for automatic product/price refresh.
- * Protect with CRON_SECRET header or query param.
- *
- * Vercel cron example (vercel.json):
- * { "crons": [{ "path": "/api/cron/sync", "schedule": "0 * * * *" }] }
+ * Protect with Authorization: Bearer CRON_SECRET.
  */
 export async function GET(request: Request) {
-  const secret = getCronSecret();
-  const authHeader = request.headers.get("authorization");
+  if (!authorizeCronRequest(request)) {
+    return cronUnauthorizedResponse();
+  }
+
   const url = new URL(request.url);
-  const querySecret = url.searchParams.get("secret");
   const force =
     url.searchParams.get("force") === "true" || request.headers.get("x-vercel-cron") === "1";
-
-  if (secret && authHeader !== `Bearer ${secret}` && querySecret !== secret) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   const { data, error } = await executeScheduledSync();
 
@@ -31,6 +25,7 @@ export async function GET(request: Request) {
     success: true,
     jobsRun: data.length,
     results: data,
+    force,
   });
 }
 

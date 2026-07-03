@@ -1,11 +1,14 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
-import { PageHeader, PageLayout } from "@/components/pages";
-import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
+import BlogArticleCard from "@/components/blog/BlogArticleCard";
+import BlogPostHero from "@/components/blog/BlogPostHero";
+import PageIdentityCta from "@/components/page-identity/PageIdentityCta";
+import { PageLayout } from "@/components/pages";
 import type { MockBlogPost } from "@/lib/mock/types";
+import "@/components/blog/blog-page.css";
 
 type BlogPostPageClientProps = {
   post: MockBlogPost;
@@ -13,60 +16,57 @@ type BlogPostPageClientProps = {
 };
 
 export default function BlogPostPageClient({ post, related }: BlogPostPageClientProps) {
+  const t = useTranslations("blog");
+  const tCommon = useTranslations("common");
+
   return (
     <PageLayout>
-      <Link href="/blog" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
-        <ArrowLeft className="w-4 h-4" />
-        Back to Blog
-      </Link>
+      <div className="zor-blog-page">
+        <BlogPostHero post={post} featuredLabel={tCommon("featured")} />
 
-      <article>
-        <PageHeader title={post.title} subtitle={post.excerpt} />
+        <article className="zor-blog-page__article">
+          <div className="zor-blog-page__article-body">
+            {post.content.map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
+        </article>
 
-        <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400 mb-8">
-          <span className="flex items-center gap-2"><User className="w-4 h-4" />{post.author}</span>
-          <span className="flex items-center gap-2"><Calendar className="w-4 h-4" />{post.publishedAt}</span>
-          <span className="flex items-center gap-2"><Clock className="w-4 h-4" />{post.readingTime}</span>
-          <span className="text-purple-400">{post.category}</span>
-        </div>
-
-        <Card className="mb-8">
-          <div className="text-8xl text-center py-12">{post.image}</div>
-        </Card>
-
-        <div className="prose prose-invert max-w-none space-y-6 mb-12">
-          {post.content.map((paragraph, index) => (
-            <p key={index} className="text-gray-300 text-lg leading-relaxed">
-              {paragraph}
-            </p>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-12">
+        <div className="zor-blog-page__tags">
           {post.tags.map((tag) => (
-            <span key={tag} className="bg-gray-800 text-gray-300 text-xs px-3 py-1 rounded-full">
+            <span key={tag} className="zor-blog-page__tag">
               #{tag}
             </span>
           ))}
         </div>
-      </article>
 
-      {related.length > 0 ? (
-        <section>
-          <h2 className="text-2xl font-bold text-white mb-6">Related Articles</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {related.map((item) => (
-              <Card key={item.id} hover>
-                <div className="text-4xl mb-3">{item.image}</div>
-                <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">{item.title}</h3>
-                <Link href={`/blog/${item.slug}`}>
-                  <Button variant="outline" size="sm" className="w-full mt-2">Read More</Button>
-                </Link>
-              </Card>
-            ))}
-          </div>
-        </section>
-      ) : null}
+        {related.length > 0 ? (
+          <section aria-labelledby="related-articles-title">
+            <h2 id="related-articles-title" className="zor-blog-page__related-title">
+              {t("relatedArticles")}
+            </h2>
+            <div className="zor-blog-page__grid">
+              {related.map((item) => (
+                <BlogArticleCard
+                  key={item.id}
+                  post={item}
+                  readLabel={t("readArticle")}
+                  featuredLabel={tCommon("featured")}
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <PageIdentityCta
+          block="zor-blog-page"
+          title="Ready to put this guide into action?"
+          description="Compare live prices, grab verified coupons, and shop partner stores with confidence."
+        >
+          <Link href="/deals"><Button>Shop Deals</Button></Link>
+          <Link href="/blog"><Button variant="outline">Back to Blog</Button></Link>
+        </PageIdentityCta>
+      </div>
     </PageLayout>
   );
 }

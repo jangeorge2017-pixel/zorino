@@ -23,10 +23,10 @@ export default function DealsPageHero({
     <section className="zor-deals-page__hero" aria-labelledby="deals-page-title">
       <div className="zor-deals-page__hero-glow" aria-hidden />
 
-      <div className="zor-deals-page__hero-content">
+      <div className="zor-deals-page__hero-inner">
         <div className="zor-deals-page__hero-copy">
           <p className="zor-deals-page__eyebrow">
-            <Flame size={15} aria-hidden />
+            <Flame size={14} aria-hidden />
             Live promotions
           </p>
           <h1 id="deals-page-title" className="zor-deals-page__title">
@@ -38,34 +38,34 @@ export default function DealsPageHero({
         <div className="zor-deals-page__stats" aria-label="Deals overview">
           <div className="zor-deals-page__stat">
             <span className="zor-deals-page__stat-icon" aria-hidden>
-              <Sparkles size={16} />
+              <Sparkles size={15} />
             </span>
             <div>
               <strong>{liveCount}</strong>
-              <span>Live deals</span>
+              <span>Active deals</span>
             </div>
           </div>
           <div className="zor-deals-page__stat zor-deals-page__stat--hot">
             <span className="zor-deals-page__stat-icon" aria-hidden>
-              <Percent size={16} />
+              <Percent size={15} />
             </span>
             <div>
               <strong>Up to {maxDiscount}%</strong>
-              <span>Biggest savings</span>
+              <span>Top savings</span>
             </div>
           </div>
           <div className="zor-deals-page__stat">
             <span className="zor-deals-page__stat-icon" aria-hidden>
-              <Flame size={16} />
+              <Flame size={15} />
             </span>
             <div>
               <strong>{featuredCount}</strong>
-              <span>Featured picks</span>
+              <span>Featured</span>
             </div>
           </div>
           <div className="zor-deals-page__stat">
             <span className="zor-deals-page__stat-icon" aria-hidden>
-              <Timer size={16} />
+              <Timer size={15} />
             </span>
             <div>
               <strong>{endingSoonCount}</strong>

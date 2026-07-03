@@ -1,0 +1,132 @@
+/**
+ * Homepage deal previews — reuse Deals page card system inside .zh-page
+ * Pair with deals-page.css (imported from ZorinoHomePage).
+ */
+
+.zh-page .zh-deals-preview {
+  --deals-section-gap: clamp(40px, 4vw, 56px);
+}
+
+.zh-page .zh-deals-preview.zor-deals-page {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.zh-page .zh-product-section.zh-deals-preview {
+  margin-bottom: var(--deals-section-gap);
+}
+
+.zh-page .zh-product-sections .zh-product-section.zh-deals-preview {
+  margin-bottom: 0;
+}
+
+.zh-page .zh-product-sections .zh-product-section.zh-deals-preview + .zh-product-section.zh-deals-preview {
+  margin-top: var(--deals-section-gap);
+}
+
+.zh-page .zh-deals-preview .zor-deals-page__section-head {
+  margin-bottom: clamp(20px, 2.5vw, 28px);
+}
+
+.zh-page .zh-deals-preview__view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: var(--zor-radius-pill);
+  border: 1px solid rgba(251, 146, 60, 0.18);
+  background: rgba(12, 14, 24, 0.55);
+  font-size: var(--zor-text-sm);
+  font-weight: var(--zor-weight-semibold);
+  color: var(--deals-accent-soft);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color var(--zor-duration) var(--zor-ease),
+    border-color var(--zor-duration) var(--zor-ease),
+    background var(--zor-duration) var(--zor-ease),
+    box-shadow var(--zor-duration) var(--zor-ease),
+    transform var(--zor-duration) var(--zor-ease);
+}
+
+.zh-page .zh-deals-preview__view-all:hover {
+  color: #fff7ed;
+  border-color: rgba(251, 146, 60, 0.34);
+  background: rgba(251, 146, 60, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 0 14px var(--deals-glow);
+}
+
+.zh-page .zh-trending-deals.zh-deals-preview .zh-trending-deals__head {
+  margin-bottom: clamp(18px, 2.2vw, 24px);
+}
+
+.zh-page .zh-trending-deals.zh-deals-preview .zor-deals-page__section-subtitle {
+  max-width: none;
+}
+
+.zh-page .zh-trending-deals__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--zor-space-4);
+  flex-wrap: wrap;
+}
+
+.zh-page .zh-trending-deals__controls {
+  margin-top: var(--zor-space-4);
+}
+
+.zh-page .zh-trending-deals__track .zh-trending-deals__slide {
+  scroll-snap-align: start;
+  min-width: 0;
+}
+
+.zh-page .zh-trending-deals__track .zor-deals-page__card,
+.zh-page .zh-trending-deals__track .listing-product-card {
+  height: 100%;
+}
+
+.zh-page .zh-product-sections {
+  gap: 0;
+}
+
+.zh-page .zh-deals-preview .listing-products-grid {
+  gap: var(--zor-space-5);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zh-page .zh-deals-preview .zor-deals-page__card {
+    animation: zor-deals-fade-up 0.45s var(--zor-ease) both;
+  }
+
+  .zh-page .zh-trending-deals__track .zh-trending-deals__slide:nth-child(1) .zor-deals-page__card {
+    animation-delay: 0.04s;
+  }
+
+  .zh-page .zh-trending-deals__track .zh-trending-deals__slide:nth-child(2) .zor-deals-page__card {
+    animation-delay: 0.08s;
+  }
+
+  .zh-page .zh-trending-deals__track .zh-trending-deals__slide:nth-child(3) .zor-deals-page__card {
+    animation-delay: 0.12s;
+  }
+
+  .zh-page .zh-trending-deals__track .zh-trending-deals__slide:nth-child(4) .zor-deals-page__card {
+    animation-delay: 0.16s;
+  }
+}
+
+@media (max-width: 767px) {
+  .zh-page .zh-deals-preview .zor-deals-page__section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .zh-page .zh-deals-preview__view-all {
+    align-self: flex-start;
+  }
+}

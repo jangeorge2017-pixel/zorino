@@ -6,6 +6,7 @@ import { deleteRows, insertRow, updateRow } from "@/lib/database/writes";
 import { getAdminSupabaseClient, getAdminUser } from "@/lib/admin/auth";
 import { slugify } from "@/lib/admin/slug";
 import { mapCoupon, mapDeal, mapProduct, mapStore } from "@/lib/database/mappers";
+import { validateFileUpload } from "@/lib/security/security";
 import type { CouponRow, DealRow, ProductRow, StoreRow } from "@/lib/database/types";
 
 function revalidateAdmin() {
@@ -39,8 +40,21 @@ export async function uploadCatalogImage(formData: FormData) {
     return { url: null, error: "No file provided" };
   }
 
+  const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"] as const;
+  const validation = validateFileUpload(file, [...allowedTypes], 5 * 1024 * 1024);
+  if (!validation.isValid) {
+    return { url: null, error: validation.error ?? "Invalid file" };
+  }
+
+  const extByType: Record<(typeof allowedTypes)[number], string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+  };
+  const ext = extByType[file.type as (typeof allowedTypes)[number]] ?? "bin";
+
   const supabase = await getAdminSupabaseClient();
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
   const { error } = await supabase.storage.from("catalog-images").upload(path, file, {
