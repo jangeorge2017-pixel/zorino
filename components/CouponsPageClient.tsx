@@ -1,23 +1,38 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
-import AssetImage from "@/components/AssetImage";
-import { Copy, CheckCircle, ExternalLink } from "lucide-react";
-import { PageEmptyState, PageFilterBar, PageHeader, PageLayout } from "@/components/pages";
+import CouponsPageHero from "@/components/coupons/CouponsPageHero";
+import CouponsPageSection from "@/components/coupons/CouponsPageSection";
+import CouponsCouponCard from "@/components/coupons/CouponsCouponCard";
+import { buildCouponSections } from "@/components/coupons/coupon-sections";
+import PageIdentityCta from "@/components/page-identity/PageIdentityCta";
+import { PageEmptyState, PageFilterBar, PageLayout } from "@/components/pages";
 import type { TopCouponCard } from "@/lib/types/entities";
+import "@/components/coupons/coupons-page.css";
 
 type CouponsPageClientProps = {
   coupons: TopCouponCard[];
 };
 
+type QuickFilter = "all" | "verified" | "popular" | "big_offers";
+
+const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
+  { id: "all", label: "All Codes" },
+  { id: "verified", label: "Verified" },
+  { id: "popular", label: "Most Popular" },
+  { id: "big_offers", label: "Big Offers" },
+];
+
 export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
   const t = useTranslations("coupons");
+  const tCommon = useTranslations("common");
   const [selectedStore, setSelectedStore] = useState("");
   const [sortBy, setSortBy] = useState("popular");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const storeOptions = useMemo(() => {
@@ -31,15 +46,33 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
     { value: "code", label: "Code A-Z" },
   ];
 
+  const stats = useMemo(() => {
+    const verifiedCount = coupons.filter((coupon) => coupon.verified).length;
+    const storeCount = new Set(coupons.map((coupon) => coupon.store)).size;
+    const totalUses = coupons.reduce((sum, coupon) => sum + coupon.usedTimes, 0);
+    return { couponCount: coupons.length, verifiedCount, storeCount, totalUses };
+  }, [coupons]);
+
+  const sections = useMemo(() => buildCouponSections(coupons), [coupons]);
+
   const filtered = useMemo(() => {
     return [...coupons]
-      .filter((c) => !selectedStore || c.store === selectedStore)
+      .filter((coupon) => !selectedStore || coupon.store === selectedStore)
+      .filter((coupon) => {
+        if (quickFilter === "verified") return coupon.verified;
+        if (quickFilter === "popular") return coupon.usedTimes >= 1000;
+        if (quickFilter === "big_offers") return /%|\$|off/i.test(coupon.offer);
+        return true;
+      })
       .sort((a, b) => {
         if (sortBy === "store") return a.store.localeCompare(b.store);
         if (sortBy === "code") return a.code.localeCompare(b.code);
         return b.usedTimes - a.usedTimes;
       });
-  }, [coupons, selectedStore, sortBy]);
+  }, [coupons, selectedStore, sortBy, quickFilter]);
+
+  const showCuratedSections =
+    quickFilter === "all" && !selectedStore && sortBy === "popular";
 
   const copyToClipboard = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -49,91 +82,113 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
 
   return (
     <PageLayout>
-      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <div className="zor-coupons-page">
+        <CouponsPageHero
+          title={t("title")}
+          subtitle={t("subtitle")}
+          couponCount={stats.couponCount}
+          verifiedCount={stats.verifiedCount}
+          storeCount={stats.storeCount}
+          totalUses={stats.totalUses}
+        />
 
-      <PageFilterBar>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Select
-              label="Filter by Store"
-              options={storeOptions}
-              value={selectedStore}
-              onChange={(e) => setSelectedStore(e.target.value)}
-            />
-            <Select
-              label="Sort By"
-              options={sortOptions}
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            />
-            <div className="flex items-end">
-              <Button className="w-full">{t("filter")}</Button>
-            </div>
+        <div className="zor-coupons-page__toolbar">
+          <div className="zor-coupons-page__quick-filters" role="tablist" aria-label="Quick coupon filters">
+            {QUICK_FILTERS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={quickFilter === item.id}
+                className={`zor-coupons-page__quick-filter${quickFilter === item.id ? " is-active" : ""}`}
+                onClick={() => setQuickFilter(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
-      </PageFilterBar>
 
-        {filtered.length === 0 ? (
-          <PageEmptyState title="No coupons available yet" />
+          <PageFilterBar className="zor-coupons-page__filters">
+            <div className="zor-coupons-page__filter-grid">
+              <Select
+                label="Filter by Store"
+                options={storeOptions}
+                value={selectedStore}
+                onChange={(e) => setSelectedStore(e.target.value)}
+              />
+              <Select
+                label={tCommon("sortBy")}
+                options={sortOptions}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              />
+              <div className="zor-coupons-page__filter-action">
+                <Button className="w-full">{tCommon("filter")}</Button>
+              </div>
+            </div>
+          </PageFilterBar>
+        </div>
+
+        <div className="zor-coupons-page__results-bar">
+          <p className="zor-coupons-page__results-count">
+            {showCuratedSections ? (
+              <>
+                <strong>{stats.couponCount}</strong> verified coupon codes
+              </>
+            ) : (
+              <>
+                Showing <strong>{filtered.length}</strong>{" "}
+                {filtered.length === 1 ? "code" : "codes"}
+              </>
+            )}
+          </p>
+        </div>
+
+        {showCuratedSections ? (
+          <div className="zor-coupons-page__sections">
+            {sections.map((section) => (
+              <CouponsPageSection
+                key={section.id}
+                sectionId={section.id}
+                coupons={section.coupons}
+                copyLabel={t("copyCode")}
+                copiedLabel={t("codeCopied")}
+                useLabel={t("useCoupon")}
+                copiedCode={copiedCode}
+                onCopy={copyToClipboard}
+              />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <PageEmptyState
+            title="No coupons available yet"
+            description="Try adjusting your filters or check back later for new codes."
+          />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="zor-coupons-page__grid">
             {filtered.map((coupon) => (
-              <Card key={coupon.id} hover>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <AssetImage
-                      src={coupon.storeLogoSrc}
-                      alt=""
-                      width={42}
-                      height={42}
-                      className="coupon-store-logo-img rounded-xl"
-                      fallback={<span className="coupon-store-initial">{coupon.storeInitial}</span>}
-                    />
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">{coupon.store}</h3>
-                      <p className="text-sm text-gray-400">{coupon.offer}</p>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-gray-300">{coupon.minSpend}</p>
-
-                  <div className="bg-gray-800 rounded-lg p-4 flex items-center justify-between">
-                    <code className="text-lg font-mono text-purple-400">{coupon.code}</code>
-                    <Button
-                      size="sm"
-                      onClick={() => copyToClipboard(coupon.code)}
-                      className="flex items-center gap-2"
-                    >
-                      {copiedCode === coupon.code ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          {t("codeCopied")}
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          {t("copyCode")}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  <div className="text-sm text-gray-400">
-                    Used {coupon.usedTimes.toLocaleString("en-US")} times
-                    {coupon.verified && (
-                      <span className="ml-2 text-green-400 inline-flex items-center gap-1">
-                        <CheckCircle className="w-3 h-3" /> Verified
-                      </span>
-                    )}
-                  </div>
-
-                  <Button className="w-full flex items-center justify-center gap-2">
-                    {t("useCoupon")}
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
-                </div>
-              </Card>
+              <CouponsCouponCard
+                key={coupon.id}
+                coupon={coupon}
+                copyLabel={t("copyCode")}
+                copiedLabel={t("codeCopied")}
+                useLabel={t("useCoupon")}
+                isCopied={copiedCode === coupon.code}
+                onCopy={copyToClipboard}
+              />
             ))}
           </div>
         )}
+
+        <PageIdentityCta
+          block="zor-coupons-page"
+          title="Stack coupons with deals"
+          description="Combine verified codes with live deals and price comparisons to maximize every purchase."
+        >
+          <Link href="/deals"><Button>Browse Deals</Button></Link>
+          <Link href="/compare"><Button variant="outline">Compare Prices</Button></Link>
+        </PageIdentityCta>
+      </div>
     </PageLayout>
   );
 }

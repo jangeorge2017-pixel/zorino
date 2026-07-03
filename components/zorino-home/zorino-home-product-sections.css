@@ -6,6 +6,7 @@
 .zh-product-sections {
   display: flex;
   flex-direction: column;
+  gap: 0;
 }
 
 .zh-product-section.zh-panel {

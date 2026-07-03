@@ -97,11 +97,17 @@ export async function searchProducts(
     return { data: [], error: "Supabase not configured" };
   }
 
+  const { sanitizeSearchQuery } = await import("@/lib/marketplace-engine/search");
+  const sanitized = sanitizeSearchQuery(query);
+  if (!sanitized) {
+    return { data: [], error: null };
+  }
+
   const { data, error } = await supabase
     .from("products")
     .select("*")
     .eq("is_active", true)
-    .or(`name.ilike.%${query}%,name_ar.ilike.%${query}%,brand.ilike.%${query}%`)
+    .or(`name.ilike.%${sanitized}%,name_ar.ilike.%${sanitized}%,brand.ilike.%${sanitized}%`)
     .limit(limit);
 
   if (error) return { data: [], error: error.message };

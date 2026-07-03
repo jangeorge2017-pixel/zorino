@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ChevronDown, Flame } from "lucide-react";
-import ZorinoHomeTrendingDealCard from "@/components/zorino-home/ZorinoHomeTrendingDealCard";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import DealsDealCard from "@/components/deals/DealsDealCard";
 import ZorinoHomeTrendingDealsSkeleton from "@/components/zorino-home/ZorinoHomeTrendingDealsSkeleton";
-import type { TrendingDealCard } from "@/lib/types/entities";
+import { ZH_TRENDING_DEALS_META } from "@/lib/zorino-home/home-section-meta";
 import {
   TRENDING_DEAL_FILTERS,
   TRENDING_DEAL_SORTS,
@@ -15,6 +15,11 @@ import {
   type TrendingDealFilter,
   type TrendingDealSort,
 } from "@/lib/zorino-home/trending-deals-section";
+import {
+  trendingDealEndsInLabel,
+  trendingDealToDeal,
+} from "@/lib/zorino-home/trending-deal-to-deal";
+import type { TrendingDealCard } from "@/lib/types/entities";
 import "./zorino-home-deals.css";
 
 type ZorinoHomeDealsPanelProps = {
@@ -67,35 +72,45 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   const scroll = (direction: -1 | 1) => {
     const node = trackRef.current;
     if (!node) return;
-    const card = node.querySelector(".zh-td-card");
-    const cardWidth = card instanceof HTMLElement ? card.offsetWidth : 280;
-    node.scrollBy({ left: direction * (cardWidth + 16), behavior: "smooth" });
+    const slide = node.querySelector(".zh-trending-deals__slide");
+    const slideWidth = slide instanceof HTMLElement ? slide.offsetWidth : 280;
+    node.scrollBy({ left: direction * (slideWidth + 16), behavior: "smooth" });
     window.setTimeout(syncButtons, 420);
   };
 
   const isLoading = isPending || showSkeleton;
+  const TrendingIcon = ZH_TRENDING_DEALS_META.icon;
 
   return (
     <section
-      className="zh-panel zh-deals-panel zh-trending-deals"
+      className="zh-panel zh-deals-panel zh-trending-deals zh-deals-preview zor-deals-page zor-deals-page__section zor-deals-page__section--trending"
       id="zh-section-trending-deals"
       aria-labelledby="zh-deals-title"
     >
       <div className="zh-trending-deals__head">
-        <div className="zh-trending-deals__title-wrap">
-          <h2 id="zh-deals-title" className="zh-trending-deals__title">
-            <Flame size={22} aria-hidden className="zh-trending-deals__icon" />
-            Trending Deals
-          </h2>
-          <Link href="/deals" className="zh-trending-deals__view-all">
+        <header className="zor-deals-page__section-head zh-trending-deals__title-row">
+          <div className="zor-deals-page__section-title-wrap">
+            <span className="zor-deals-page__section-icon" aria-hidden>
+              <TrendingIcon size={18} />
+            </span>
+            <div>
+              <h2 id="zh-deals-title" className="zor-deals-page__section-title">
+                Trending Deals
+              </h2>
+              <p className="zor-deals-page__section-subtitle">
+                {ZH_TRENDING_DEALS_META.subtitle}
+              </p>
+            </div>
+          </div>
+          <Link href="/deals" className="zh-deals-preview__view-all">
             View all deals
-            <ChevronDown size={14} aria-hidden />
+            <ChevronRight size={14} aria-hidden />
           </Link>
-        </div>
+        </header>
 
         <div className="zh-trending-deals__controls">
           <div
-            className="zh-trending-deals__filters"
+            className="zh-trending-deals__filters zor-deals-page__quick-filters"
             role="tablist"
             aria-label="Filter trending deals"
           >
@@ -105,7 +120,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
                 type="button"
                 role="tab"
                 aria-selected={filter === item.id}
-                className={`zh-trending-deals__filter${
+                className={`zh-trending-deals__filter zor-deals-page__quick-filter${
                   filter === item.id ? " is-active" : ""
                 }`}
                 onClick={() => handleFilterChange(item.id)}
@@ -158,12 +173,16 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
               onScroll={syncButtons}
               aria-live="polite"
             >
-              {visibleDeals.map((deal, index) => (
-                <ZorinoHomeTrendingDealCard
-                  key={deal.id}
-                  deal={deal}
-                  priority={index < 2}
-                />
+              {visibleDeals.map((deal) => (
+                <div key={deal.id} className="zh-trending-deals__slide">
+                  <DealsDealCard
+                    deal={trendingDealToDeal(deal, {
+                      featured: deal.displayBadge === "hot" || deal.displayBadge === "limited",
+                    })}
+                    endsInLabel={trendingDealEndsInLabel(deal)}
+                    featuredLabel="Featured"
+                  />
+                </div>
               ))}
             </div>
           )}

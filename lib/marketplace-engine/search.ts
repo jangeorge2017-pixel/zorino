@@ -4,7 +4,7 @@ import { IMPORTED_PRODUCT_SYNC_STATUS } from "@/lib/catalog/imported-products";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/types/entities";
 
-function sanitizeSearchQuery(query: string): string {
+export function sanitizeSearchQuery(query: string): string {
   return query.trim().replace(/[^\w\s-]/g, " ").slice(0, 120);
 }
 
