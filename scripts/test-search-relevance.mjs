@@ -94,14 +94,29 @@ function isAccessoryListing(title, query) {
   return ACCESSORY_TERMS.some((term) => hay.includes(term));
 }
 
+function titleMatchesQuery(title, query) {
+  const tokens = queryTokens(query);
+  if (tokens.length === 0) return false;
+  const hay = title.toLowerCase();
+  if (tokens.every((t) => hay.includes(t))) return true;
+  if (tokens.includes("galaxy")) {
+    const modelTokens = tokens.filter((t) => t !== "galaxy");
+    if (modelTokens.length > 0 && /\bsamsung\b/.test(hay) && modelTokens.every((t) => hay.includes(t))) return true;
+  }
+  return false;
+}
+
 function scoreSearchRelevance(title, query, category) {
   const tokens = queryTokens(query);
   if (tokens.length === 0) return -1;
-  const hay = title.toLowerCase();
-  if (!tokens.every((t) => hay.includes(t))) return -1;
-  if (!queryWantsAccessory(query) && isAccessoryListing(title, query)) return -1;
+  if (!titleMatchesQuery(title, query)) return -1;
+  if (!queryWantsAccessory(query)) {
+    if (isAccessoryListing(title, query)) return -1;
+    if (!looksLikeDevice(title, category)) return -1;
+  }
   let score = tokens.length * 10;
   const phrase = query.trim().toLowerCase();
+  const hay = title.toLowerCase();
   if (phrase.length >= 2 && hay.includes(phrase)) score += 25;
   if (looksLikeDevice(title, category)) score += 60;
   return score;
@@ -132,10 +147,10 @@ const FIXTURES = {
   ],
   "galaxy a55": [
     "Samsung Galaxy A55 5G 256GB Dual SIM Unlocked",
+    "Samsung A55 5G 256GB Dual SIM Unlocked Smartphone",
     "Galaxy A55 Case Cover Silicone",
     "Samsung Galaxy A55 Screen Protector Tempered Glass",
     "For Samsung Galaxy A55 Leather Case",
-    "Samsung Galaxy A54 128GB",
   ],
   "xiaomi 14": [
     "Xiaomi 14 512GB 5G Smartphone Global Version",

@@ -67,6 +67,16 @@ export const ACCESSORY_TERMS = [
   "ring light",
   "sim tray",
   "sim card tool",
+  "magic keyboard",
+  "keyboard",
+  "sound card",
+  "audio interface",
+  "laminating machine",
+  "laminating",
+  "photo booth",
+  "steering wheel",
+  "organizer",
+  "oca glass",
 ] as const;
 
 /** Category names that strongly suggest a primary device listing. */
@@ -83,7 +93,7 @@ export const MARKETPLACE_SEARCH_DEFAULTS = {
   /** AliExpress affiliate API max page_size; eBay Browse max is also 50. */
   PAGE_SIZE: 50,
   /** Scan extra API pages when page 1 is mostly accessories. */
-  MAX_PAGES: 4,
+  MAX_PAGES: 6,
   /** Default search results shown on the first page. */
   DEFAULT_LIMIT: 24,
 } as const;
@@ -102,6 +112,33 @@ export function queryTokens(query: string): string[] {
 export function queryWantsAccessory(query: string): boolean {
   const phrase = query.trim().toLowerCase();
   return ACCESSORY_TERMS.some((term) => phrase.includes(term));
+}
+
+/** True when all query tokens appear in the title, with Samsung Galaxy shorthand. */
+export function titleMatchesQuery(title: string, query: string): boolean {
+  const tokens = queryTokens(query);
+  if (tokens.length === 0) return false;
+
+  const hay = title.toLowerCase();
+  if (tokens.every((token) => hay.includes(token))) return true;
+
+  // "galaxy a55" / "galaxy s24" — titles often omit the word "Galaxy".
+  if (tokens.includes("galaxy")) {
+    const modelTokens = tokens.filter((t) => t !== "galaxy");
+    if (
+      modelTokens.length > 0 &&
+      /\bsamsung\b/.test(hay) &&
+      modelTokens.every((t) => hay.includes(t))
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function mentionsDeviceInForClause(hay: string): boolean {
+  return /\bfor\b[^,.]{0,80}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi)\b/.test(hay);
 }
 
 function categorySuggestsDevice(category?: string): boolean {
@@ -157,7 +194,11 @@ export function looksLikeDevice(title: string, category?: string): boolean {
   if (/\bsmartphone\b/.test(hay)) return true;
   if (/\b(cell\s?phone|mobile\s+phone)\b/.test(hay)) return true;
 
-  if (/\bipad\b/.test(hay) && /\b(pro|air|mini)\b/.test(hay) && /\b\d+\s*(gb|tb)\b/i.test(title)) {
+  if (/\bipad\b/.test(hay) && /\b(pro|air|mini)\b/.test(hay)) {
+    if (/\b\d+\s*(gb|tb)\b/i.test(title) || /\b(wifi|cellular|5g)\b/.test(hay)) return true;
+  }
+
+  if (/\bipad\b/.test(hay) && /\b\d{4}\b/.test(hay) && /\b\d+\s*(gb|tb)\b/i.test(title)) {
     return true;
   }
 
@@ -177,8 +218,9 @@ export function isAccessoryListing(title: string, query: string): boolean {
   const hay = title.toLowerCase();
   const tokens = queryTokens(query);
 
-  if (/\bfor\s+/.test(hay)) {
+  if (/\bfor\s+/.test(hay) || mentionsDeviceInForClause(hay)) {
     if (tokens.some((t) => hay.includes(`for ${t}`))) return true;
+    if (mentionsDeviceInForClause(hay)) return true;
     if (/\bfor\s+(apple\s+)?iphone\b/.test(hay)) return true;
     if (/\bfor\s+samsung\b/.test(hay)) return true;
     if (/\bfor\s+galaxy\b/.test(hay)) return true;
@@ -207,10 +249,14 @@ export function scoreSearchRelevance(
   if (tokens.length === 0) return -1;
 
   const hay = title.toLowerCase();
-  if (!tokens.every((token) => hay.includes(token))) return -1;
+  if (!titleMatchesQuery(title, query)) return -1;
 
   const wantsAccessory = queryWantsAccessory(query);
-  if (!wantsAccessory && isAccessoryListing(title, query)) return -1;
+  if (!wantsAccessory) {
+    if (isAccessoryListing(title, query)) return -1;
+    // Device searches should only surface primary devices (phones/tablets).
+    if (!looksLikeDevice(title, options?.category)) return -1;
+  }
 
   let score = tokens.length * 10;
   const phrase = query.trim().toLowerCase();

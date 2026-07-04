@@ -4,6 +4,7 @@ export {
   MARKETPLACE_SEARCH_DEFAULTS,
   queryTokens,
   queryWantsAccessory,
+  titleMatchesQuery,
   looksLikeDevice,
   isAccessoryListing,
   scoreSearchRelevance,
