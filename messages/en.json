@@ -213,8 +213,8 @@
   "search": {
     "title": "Search Results",
     "subtitle": "Showing results for",
-    "noResults": "No results found for",
-    "tryDifferentKeywords": "Try different keywords",
+    "noResults": "No products found",
+    "tryDifferentKeywords": "Try different keywords or check back later",
     "filters": "Filters",
     "priceRange": "Price Range",
     "minPrice": "Min Price",

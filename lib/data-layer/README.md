@@ -132,12 +132,11 @@ const products = await manager.getProductsFromProductionProviders({ limit: 24 })
 ## Integration points
 
 - **Homepage / deals**: `lib/data/homepage.ts` → Supabase first, then `lib/integration/catalog-service`
-- **Search**: `getSearchResults()` → live AliExpress Affiliates API (`ALIEXPRESS_APP_KEY` / `ALIEXPRESS_APP_SECRET`), then catalog, then mock fallback
-- **Data layer**: `getProductsFromProductionProviders()` for AliExpress + eBay fan-out
-- **Sync pipeline**: Same mappers used for DB import and live reads
+- **Search / products / deals / homepage**: live AliExpress Affiliates API only (`ALIEXPRESS_APP_KEY` / `ALIEXPRESS_APP_SECRET`)
+- **Empty / error**: UI shows "No products found" — no mock, demo, Amazon, or Best Buy catalogs
+- **Sync pipeline**: Live adapters only; never falls back to mock connectors
 
 ## Current status
 
-- **AliExpress search**: Live via `aliexpress.affiliate.product.query` when credentials are set; falls back to catalog/mock on failure
-- **AliExpress + eBay catalog**: Live when `ALIEXPRESS_*` / `EBAY_*` credentials are set
-- **Other providers**: Stub mode — return `NOT_CONFIGURED` until implemented
+- **AliExpress**: Sole live product provider via `aliexpress.affiliate.product.query`
+- **Other providers**: Not used for product listings

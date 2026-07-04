@@ -1,7 +1,11 @@
 import ComparePageClient from "@/components/ComparePageClient";
-import { getMockComparePageProducts } from "@/lib/mock/page-data";
+import {
+  browseAliExpressLive,
+  searchItemToCompareResult,
+} from "@/services/aliexpress/search";
 
-export default function ComparePage() {
-  const products = getMockComparePageProducts();
+export default async function ComparePage() {
+  const items = await browseAliExpressLive(6);
+  const products = items.map(searchItemToCompareResult);
   return <ComparePageClient products={products} />;
 }

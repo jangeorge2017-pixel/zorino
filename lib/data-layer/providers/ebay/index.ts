@@ -1,14 +1,16 @@
-import { SyncLiveProvider } from "@/lib/data-layer/providers/live/sync-live-provider";
-import { isEbayConfigured } from "@/lib/integrations/ebay/config";
-import { createEbayProvider } from "@/lib/sync/providers/ebay";
+import { PROVIDER_REGISTRY } from "@/lib/data-layer/config/providers";
+import { BaseDataProvider } from "@/lib/data-layer/providers/base";
 
-class EbayLiveProvider extends SyncLiveProvider {
-  readonly providerId = "ebay" as const;
+/** eBay is not used for product listings — AliExpress is the sole live catalog. */
+class EbayStubProvider extends BaseDataProvider {
+  get meta() {
+    return PROVIDER_REGISTRY.ebay;
+  }
 
-  constructor() {
-    super(createEbayProvider(), isEbayConfigured);
+  isConfigured(): boolean {
+    return false;
   }
 }
 
-export const ebayProvider = new EbayLiveProvider();
+export const ebayProvider = new EbayStubProvider();
 export default ebayProvider;

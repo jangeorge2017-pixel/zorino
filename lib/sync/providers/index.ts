@@ -6,11 +6,6 @@ import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshippin
 import { createEbayProvider } from "@/lib/sync/providers/ebay";
 import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
-import { createDemoImportConnector } from "@/lib/sync/connectors/demo-import";
-import { MockConnector } from "@/lib/sync/connectors/mock";
-
-const mockConnector = new MockConnector();
-
 const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   amazon: createAmazonProvider(),
   aliexpress: createAliExpressProvider(),
@@ -20,27 +15,13 @@ const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   walmart: createWalmartProvider(),
 };
 
-const PHASE1_PROVIDER_IDS = new Set<ImportProviderId>(["cjdropshipping"]);
-
-/** Live API only — no demo/mock fallback (Phase 2+). */
-const LIVE_ONLY_PROVIDERS = new Set<ImportProviderId>(["aliexpress", "ebay"]);
-
-/** Resolve provider — demo catalog for CJ when keys absent; AliExpress/eBay wait for credentials. */
+/** Resolve provider — live adapters only; never fall back to mock/demo catalogs. */
 export function getProviderAdapter(providerId: ImportProviderId | string): PartnerConnector {
   const adapter = providerInstances[providerId as ImportProviderId];
-  if (!adapter) return mockConnector;
-
-  if (LIVE_ONLY_PROVIDERS.has(providerId as ImportProviderId)) {
-    return adapter;
+  if (!adapter) {
+    return createAliExpressProvider();
   }
-
-  if (PHASE1_PROVIDER_IDS.has(providerId as ImportProviderId)) {
-    if (adapter.isConfigured()) return adapter;
-    return createDemoImportConnector(providerId as ImportProviderId);
-  }
-
-  if (adapter.isConfigured()) return adapter;
-  return mockConnector;
+  return adapter;
 }
 
 export function listProviderAdapters(): PartnerConnector[] {
