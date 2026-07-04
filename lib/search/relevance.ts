@@ -127,6 +127,13 @@ export const REPAIR_AND_PARTS_TERMS = [
   "carte logique",
   "logic board",
   "logicboard",
+  "main board",
+  "mainboard",
+  "i/o board",
+  " i/o ",
+  "mlb for",
+  "mother ",
+  " mother",
 ] as const;
 
 /** Accessory-only product types excluded on device-model searches. */
@@ -180,7 +187,7 @@ export const MARKETPLACE_SEARCH_DEFAULTS = {
   /** AliExpress affiliate API max page_size; eBay Browse max is also 50. */
   PAGE_SIZE: 50,
   /** Scan extra API pages when page 1 is mostly accessories. */
-  MAX_PAGES: 6,
+  MAX_PAGES: 8,
   /** Default search results shown on the first page. */
   DEFAULT_LIMIT: 24,
 } as const;
@@ -205,7 +212,29 @@ export function queryWantsAccessory(query: string): boolean {
 }
 
 function isRepairOrPartsListing(hay: string): boolean {
-  return REPAIR_AND_PARTS_TERMS.some((term) => hay.includes(term));
+  if (REPAIR_AND_PARTS_TERMS.some((term) => hay.includes(term))) return true;
+  // Apple logic-board part numbers and shorthand ("Map ... Mother 820-3209-A").
+  if (/\b820[-\s]?\d{3,4}[-\sa-z0-9]*\b/i.test(hay)) return true;
+  if (/\bmap\b[^,.]{0,40}\b(a1\d{3}|mother|820)\b/i.test(hay)) return true;
+  if (/\b(a1\d{3})\b/i.test(hay) && /\b(mother|board|820|logic|mainboard)\b/i.test(hay)) {
+    return true;
+  }
+  return false;
+}
+
+function looksLikeMacBookLaptop(hay: string, category?: string): boolean {
+  if (!/\bmacbook\s+(air|pro)\b/.test(hay) && !/^apple\s+macbook/i.test(hay.trim())) {
+    return false;
+  }
+  if (
+    /\b(for\s+macbook|pour\s+macbook|replacement|panel|mother|magsafe|ssd|connector|jack|keycap|chip|stencil|genuine\s+for|genuine\s+oem|820-|logic\s*board|main\s*board|map\b)\b/.test(
+      hay
+    )
+  ) {
+    return false;
+  }
+  if (/\b(m1|m2|m3|m4|\d+\s*(gb|tb))\b/i.test(hay)) return true;
+  return categorySuggestsDevice(category);
 }
 
 /** Brand names required in title for model-specific device queries. */
@@ -346,8 +375,10 @@ export function looksLikeDevice(title: string, category?: string): boolean {
   // Phones / tablets with storage
   if (/\b\d+\s*(gb|tb)\b/i.test(title)) {
     if (/\b(iphone|ipad|galaxy|xiaomi|redmi|pixel|oneplus)\b/.test(hay)) return true;
-    if (/\bmacbook\b/.test(hay)) return true;
-    if (categorySuggestsDevice(category)) return true;
+    if (looksLikeMacBookLaptop(hay, category)) return true;
+    if (categorySuggestsDevice(category) && !/\b(for\s+macbook|pour\s+macbook|mother|820-|logic\s*board)\b/.test(hay)) {
+      return true;
+    }
     if (/\b(unlocked|smartphone|dual\s+sim|5g)\b/.test(hay)) return true;
   }
 
@@ -363,17 +394,7 @@ export function looksLikeDevice(title: string, category?: string): boolean {
   }
 
   // MacBook — whole laptops only, not panels/parts.
-  if (/\bmacbook\s+(air|pro)\b/.test(hay)) {
-    if (
-      /\b(for\s+macbook|replacement|panel|mother|magsafe|ssd|connector|jack|keycap|chip|stencil|genuine\s+for|genuine\s+oem)\b/.test(
-        hay
-      )
-    ) {
-      return false;
-    }
-    if (/\b(m1|m2|m3|m4|\d+\s*(gb|tb))\b/i.test(title)) return true;
-    if (categorySuggestsDevice(category)) return true;
-  }
+  if (looksLikeMacBookLaptop(hay, category)) return true;
 
   // PlayStation / PS5
   if (/\b(ps5|playstation\s*5)\b/.test(hay)) {
