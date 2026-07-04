@@ -1,9 +1,13 @@
 export {
   ACCESSORY_TERMS,
+  REPAIR_AND_PARTS_TERMS,
+  OFFICIAL_DEVICE_BRANDS,
   DEVICE_CATEGORY_HINTS,
   MARKETPLACE_SEARCH_DEFAULTS,
   queryTokens,
   queryWantsAccessory,
+  requiredBrandsForQuery,
+  hasOfficialBrand,
   titleMatchesQuery,
   looksLikeDevice,
   isAccessoryListing,
