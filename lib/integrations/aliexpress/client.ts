@@ -107,7 +107,14 @@ export class AliExpressAffiliateClient {
     const pageNo = options?.pageNo ?? 1;
     const currency = options?.currency ?? "USD";
 
-    logAliExpress("searchByKeyword start", { keyword, pageSize, pageNo, currency });
+    // Exact user query — no rewrite, no default/demo keywords.
+    const keywords = keyword.trim();
+    logAliExpress("searchByKeyword start", {
+      keywords,
+      pageSize,
+      pageNo,
+      currency,
+    });
 
     const batch = await this.call<{
       aliexpress_affiliate_product_query_response?: {
@@ -124,7 +131,7 @@ export class AliExpressAffiliateClient {
         resp_msg?: string;
       };
     }>("aliexpress.affiliate.product.query", {
-      keywords: keyword.trim(),
+      keywords,
       page_no: String(pageNo),
       page_size: String(pageSize),
       target_currency: currency,
