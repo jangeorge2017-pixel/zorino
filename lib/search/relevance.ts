@@ -135,6 +135,7 @@ export const DEVICE_ACCESSORY_TYPES = [
   "fold edition stylus",
   "pen for",
   "pencil for",
+  "stylus pen",
 ] as const;
 
 /** Official device brands to prioritize / require on model-specific searches. */
@@ -353,8 +354,15 @@ export function looksLikeDevice(title: string, category?: string): boolean {
     if (/\b\d+\s*(gb|tb)\b/i.test(title) || /\b(wifi|cellular|5g)\b/.test(hay)) return true;
   }
 
-  // MacBook
+  // MacBook — whole laptops only, not panels/parts.
   if (/\bmacbook\s+(air|pro)\b/.test(hay)) {
+    if (
+      /\b(for\s+macbook|replacement|panel|mother|magsafe|ssd|connector|jack|keycap|chip|stencil|genuine\s+for|genuine\s+oem)\b/.test(
+        hay
+      )
+    ) {
+      return false;
+    }
     if (/\b(m1|m2|m3|m4|\d+\s*(gb|tb))\b/i.test(title)) return true;
     if (categorySuggestsDevice(category)) return true;
   }
@@ -367,10 +375,15 @@ export function looksLikeDevice(title: string, category?: string): boolean {
     if (/\bsony\b/.test(hay) || /^playstation/i.test(title.trim())) return true;
   }
 
-  // Galaxy Fold
+  // Galaxy Fold / Flip — phones only, not styluses.
   if (/\b(fold|flip)\b/.test(hay) && /\b(samsung|galaxy)\b/.test(hay)) {
+    if (/\b(stylus|electromagnetic pen|touch pen|\ss pen\b|pen for)\b/.test(hay)) {
+      return false;
+    }
     if (/\b(unlocked|5g|\d+\s*(gb|tb))\b/i.test(title)) return true;
-    if (/\b(z\s*fold|z\s*flip|galaxy\s*fold)\b/i.test(title)) return true;
+    if (/\b(z\s*fold|z\s*flip|galaxy\s*fold)\b/i.test(title) && /\d+\s*(gb|tb)/i.test(title)) {
+      return true;
+    }
   }
 
   if (!isAccessoryDominantTitle(hay)) {
@@ -388,8 +401,6 @@ export function looksLikeDevice(title: string, category?: string): boolean {
 
 /** Accessory-style listing for a device query (not a primary device). */
 export function isAccessoryListing(title: string, query: string): boolean {
-  if (looksLikeDevice(title)) return false;
-
   const hay = title.toLowerCase();
 
   if (isRepairOrPartsListing(hay)) return true;
@@ -397,6 +408,8 @@ export function isAccessoryListing(title: string, query: string): boolean {
   for (const term of DEVICE_ACCESSORY_TYPES) {
     if (hay.includes(term)) return true;
   }
+
+  if (looksLikeDevice(title)) return false;
 
   const tokens = queryTokens(query);
 
