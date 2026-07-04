@@ -19,7 +19,7 @@ export type AliExpressValidationResult = {
 };
 
 export type AliExpressRawProduct = {
-  product_id?: string;
+  product_id?: string | number;
   product_title?: string;
   product_main_image_url?: string;
   product_small_image_urls?: string[] | { string?: string[] };

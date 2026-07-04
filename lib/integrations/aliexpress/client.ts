@@ -1,21 +1,62 @@
 import type { ImportJobConfig } from "@/lib/sync/providers/shared/import-config";
 import { ALIEXPRESS_API_URL } from "@/lib/integrations/aliexpress/config";
 import { buildSignedParams } from "@/lib/integrations/aliexpress/auth";
+import { logAliExpress, maskSecret } from "@/lib/integrations/aliexpress/logger";
 import type {
   AliExpressRawProduct,
   AliExpressValidationResult,
 } from "@/lib/integrations/aliexpress/types";
 
 type ApiEnvelope = {
-  error_response?: { msg?: string; sub_msg?: string; code?: string };
+  error_response?: {
+    msg?: string;
+    sub_msg?: string;
+    code?: string;
+    request_id?: string;
+  };
 };
+
+function isAuthOrSignatureError(message: string, code?: string): boolean {
+  const haystack = `${code ?? ""} ${message}`.toLowerCase();
+  return (
+    haystack.includes("sign") ||
+    haystack.includes("signature") ||
+    haystack.includes("invalid app") ||
+    haystack.includes("appkey") ||
+    haystack.includes("app_key") ||
+    haystack.includes("auth") ||
+    haystack.includes("permission") ||
+    haystack.includes("isp.invalid") ||
+    haystack.includes("isv.") ||
+    code === "27" ||
+    code === "25" ||
+    code === "26"
+  );
+}
+
+function extractProducts(
+  productsNode: AliExpressRawProduct[] | { product?: AliExpressRawProduct[] } | undefined
+): AliExpressRawProduct[] {
+  if (!productsNode) return [];
+  if (Array.isArray(productsNode)) return productsNode;
+  if (Array.isArray(productsNode.product)) return productsNode.product;
+  return [];
+}
 
 export class AliExpressAffiliateClient {
   constructor(
     private appKey: string,
     private appSecret: string,
     private trackingId?: string
-  ) {}
+  ) {
+    logAliExpress("client constructed", {
+      appKeyMasked: maskSecret(appKey),
+      appSecretMasked: maskSecret(appSecret),
+      hasTrackingId: Boolean(trackingId?.trim()),
+      trackingIdMasked: maskSecret(trackingId),
+      apiUrl: ALIEXPRESS_API_URL,
+    });
+  }
 
   async validateCredentials(): Promise<AliExpressValidationResult> {
     const testedAt = new Date().toISOString();
@@ -37,11 +78,12 @@ export class AliExpressAffiliateClient {
 
       const resp = batch.aliexpress_affiliate_product_query_response;
       if (resp?.resp_code && resp.resp_code !== 200) {
-        return {
-          ok: false,
-          message: resp.resp_msg ?? `API returned code ${resp.resp_code}`,
-          testedAt,
-        };
+        const message = resp.resp_msg ?? `API returned code ${resp.resp_code}`;
+        logAliExpress("credential validation failed (resp_code)", {
+          resp_code: resp.resp_code,
+          resp_msg: resp.resp_msg,
+        });
+        return { ok: false, message, testedAt };
       }
 
       return {
@@ -50,11 +92,9 @@ export class AliExpressAffiliateClient {
         testedAt,
       };
     } catch (err) {
-      return {
-        ok: false,
-        message: err instanceof Error ? err.message : "Validation failed",
-        testedAt,
-      };
+      const message = err instanceof Error ? err.message : "Validation failed";
+      logAliExpress("credential validation error", { message });
+      return { ok: false, message, testedAt };
     }
   }
 
@@ -67,12 +107,18 @@ export class AliExpressAffiliateClient {
     const pageNo = options?.pageNo ?? 1;
     const currency = options?.currency ?? "USD";
 
+    logAliExpress("searchByKeyword start", { keyword, pageSize, pageNo, currency });
+
     const batch = await this.call<{
       aliexpress_affiliate_product_query_response?: {
         resp_result?: {
           result?: {
             products?: AliExpressRawProduct[] | { product?: AliExpressRawProduct[] };
+            current_record_count?: number | string;
+            total_record_count?: number | string;
           };
+          resp_code?: number;
+          resp_msg?: string;
         };
         resp_code?: number;
         resp_msg?: string;
@@ -87,14 +133,34 @@ export class AliExpressAffiliateClient {
     });
 
     const resp = batch.aliexpress_affiliate_product_query_response;
-    if (resp?.resp_code && resp.resp_code !== 200) {
-      throw new Error(resp.resp_msg ?? `AliExpress API returned code ${resp.resp_code}`);
+    const respCode = resp?.resp_code ?? resp?.resp_result?.resp_code;
+    const respMsg = resp?.resp_msg ?? resp?.resp_result?.resp_msg;
+
+    if (respCode != null && Number(respCode) !== 200) {
+      const message = respMsg ?? `AliExpress API returned code ${respCode}`;
+      logAliExpress("searchByKeyword business error", {
+        resp_code: respCode,
+        resp_msg: respMsg,
+        fullResponse: batch,
+      });
+      if (isAuthOrSignatureError(message, String(respCode))) {
+        logAliExpress("AUTHENTICATION / SIGNATURE ERROR", {
+          resp_code: respCode,
+          resp_msg: respMsg,
+        });
+      }
+      throw new Error(message);
     }
 
     const productsNode = resp?.resp_result?.result?.products;
-    const products = Array.isArray(productsNode)
-      ? productsNode
-      : productsNode?.product ?? [];
+    const products = extractProducts(productsNode);
+
+    logAliExpress("searchByKeyword success", {
+      keyword,
+      productCount: products.length,
+      current_record_count: resp?.resp_result?.result?.current_record_count,
+      total_record_count: resp?.resp_result?.result?.total_record_count,
+    });
 
     return dedupeById(products);
   }
@@ -128,7 +194,15 @@ export class AliExpressAffiliateClient {
 
     const batch = await this.call<{
       aliexpress_affiliate_productdetail_get_response?: {
-        resp_result?: { result?: { products?: AliExpressRawProduct[] } };
+        resp_result?: {
+          result?: {
+            products?: AliExpressRawProduct[] | { product?: AliExpressRawProduct[] };
+          };
+          resp_code?: number;
+          resp_msg?: string;
+        };
+        resp_code?: number;
+        resp_msg?: string;
       };
     }>("aliexpress.affiliate.productdetail.get", {
       product_ids: ids.slice(0, 50).join(","),
@@ -137,10 +211,20 @@ export class AliExpressAffiliateClient {
       ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
     });
 
-    return (
-      batch.aliexpress_affiliate_productdetail_get_response?.resp_result?.result
-        ?.products ?? []
-    );
+    const resp = batch.aliexpress_affiliate_productdetail_get_response;
+    const respCode = resp?.resp_code ?? resp?.resp_result?.resp_code;
+    const respMsg = resp?.resp_msg ?? resp?.resp_result?.resp_msg;
+    if (respCode != null && Number(respCode) !== 200) {
+      const message = respMsg ?? `AliExpress productdetail code ${respCode}`;
+      logAliExpress("getProductsByIds business error", {
+        resp_code: respCode,
+        resp_msg: respMsg,
+        fullResponse: batch,
+      });
+      throw new Error(message);
+    }
+
+    return extractProducts(resp?.resp_result?.result?.products);
   }
 
   /** Generate tracked promotion links for product URLs. */
@@ -179,24 +263,83 @@ export class AliExpressAffiliateClient {
     const params = buildSignedParams(method, this.appKey, this.appSecret, bizParams);
     const body = new URLSearchParams(params);
 
-    const res = await fetch(ALIEXPRESS_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" },
+    logAliExpress("FULL API REQUEST", {
+      url: ALIEXPRESS_API_URL,
+      httpMethod: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+      },
+      params,
       body: body.toString(),
     });
 
-    const text = await res.text();
-    if (!res.ok) {
-      throw new Error(`AliExpress API ${res.status}: ${text.slice(0, 300)}`);
+    let res: Response;
+    try {
+      res = await fetch(ALIEXPRESS_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" },
+        body: body.toString(),
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logAliExpress("NETWORK ERROR calling AliExpress API", { message, method });
+      throw new Error(`AliExpress network error: ${message}`);
     }
 
-    const json = JSON.parse(text) as T & ApiEnvelope;
+    const text = await res.text();
+
+    logAliExpress("FULL API RESPONSE", {
+      method,
+      httpStatus: res.status,
+      httpStatusText: res.statusText,
+      body: text,
+    });
+
+    if (!res.ok) {
+      const message = `AliExpress API HTTP ${res.status}: ${text}`;
+      logAliExpress("HTTP ERROR", { message });
+      if (isAuthOrSignatureError(message)) {
+        logAliExpress("AUTHENTICATION / SIGNATURE ERROR (HTTP)", { message });
+      }
+      throw new Error(message);
+    }
+
+    let json: T & ApiEnvelope;
+    try {
+      json = JSON.parse(text) as T & ApiEnvelope;
+    } catch {
+      const message = `AliExpress API returned non-JSON body: ${text.slice(0, 500)}`;
+      logAliExpress("PARSE ERROR", { message });
+      throw new Error(message);
+    }
+
     if (json.error_response) {
-      throw new Error(
-        json.error_response.msg ??
-          json.error_response.sub_msg ??
-          `AliExpress API error (${json.error_response.code ?? "unknown"})`
-      );
+      const err = json.error_response;
+      const message = [
+        err.code ? `code=${err.code}` : null,
+        err.msg,
+        err.sub_msg,
+        err.request_id ? `request_id=${err.request_id}` : null,
+      ]
+        .filter(Boolean)
+        .join(" | ");
+
+      logAliExpress("API error_response (exact)", {
+        error_response: err,
+        message,
+        fullResponse: json,
+      });
+
+      if (isAuthOrSignatureError(message, err.code)) {
+        logAliExpress("AUTHENTICATION / SIGNATURE ERROR", {
+          code: err.code,
+          msg: err.msg,
+          sub_msg: err.sub_msg,
+          request_id: err.request_id,
+        });
+      }
+
+      throw new Error(message || "AliExpress API error_response");
     }
 
     return json;
@@ -206,7 +349,7 @@ export class AliExpressAffiliateClient {
 function dedupeById(products: AliExpressRawProduct[]): AliExpressRawProduct[] {
   const seen = new Set<string>();
   return products.filter((p) => {
-    const id = p.product_id ?? p.product_title ?? "";
+    const id = String(p.product_id ?? p.product_title ?? "");
     if (!id || seen.has(id)) return false;
     seen.add(id);
     return true;
