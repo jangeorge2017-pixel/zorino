@@ -107,6 +107,34 @@ export const REPAIR_AND_PARTS_TERMS = [
   "parts only",
   "for parts",
   "broken screen",
+  "dc jack",
+  "usb-c connector",
+  "power jack",
+  "type-c connector",
+  "touch id sensor",
+  "keycap",
+  "key cap",
+  "reballing",
+  "bga stencil",
+  "nand flash",
+  "motherboard",
+  "lcd panel",
+  "screen panel",
+  "ssd chip",
+  "speaker for",
+  "magsafe connector",
+  "usb hub",
+] as const;
+
+/** Accessory-only product types excluded on device-model searches. */
+export const DEVICE_ACCESSORY_TYPES = [
+  "stylus",
+  " s pen",
+  "touch pen",
+  "electromagnetic pen",
+  "fold edition stylus",
+  "pen for",
+  "pencil for",
 ] as const;
 
 /** Official device brands to prioritize / require on model-specific searches. */
@@ -206,7 +234,12 @@ export function hasOfficialBrand(title: string, query: string): boolean {
   const hay = title.toLowerCase();
   const required = requiredBrandsForQuery(query);
   if (required) {
-    return required.some((brand) => hay.includes(brand));
+    if (required.some((brand) => hay.includes(brand))) return true;
+    // PS5 listings often lead with "PlayStation 5" without "Sony".
+    if (/\b(ps5|playstation)\b/.test(query.toLowerCase()) && /\b(ps5|playstation\s*5)\b/.test(hay)) {
+      return true;
+    }
+    return false;
   }
   return OFFICIAL_DEVICE_BRANDS.some((brand) => hay.includes(brand));
 }
@@ -280,6 +313,15 @@ export function looksLikeDevice(title: string, category?: string): boolean {
 
   if (isRepairOrPartsListing(hay)) return false;
 
+  // Storage/components sold as parts — not whole devices.
+  if (
+    /\b(ssd|nvme|hard drive|hdd|motherboard|keycap|dc jack|connector jack|reballing|stencil|nand flash)\b/.test(
+      hay
+    )
+  ) {
+    return false;
+  }
+
   if (isAccessoryDominantTitle(hay)) {
     const hasStrongDeviceSignal =
       /\b\d+\s*(gb|tb)\b/i.test(title) &&
@@ -337,6 +379,8 @@ export function looksLikeDevice(title: string, category?: string): boolean {
     if (/^xiaomi\s+\d+/i.test(title)) return true;
     if (/^apple\s+macbook/i.test(title.trim())) return true;
     if (/^sony\s+playstation/i.test(title.trim())) return true;
+    // "iPhone 15 Pro 256GB" without leading Apple
+    if (/\biphone\s+\d{2}\b/.test(hay) && /\b(pro|plus|max|\d+\s*(gb|tb))\b/i.test(title)) return true;
   }
 
   return false;
@@ -349,6 +393,10 @@ export function isAccessoryListing(title: string, query: string): boolean {
   const hay = title.toLowerCase();
 
   if (isRepairOrPartsListing(hay)) return true;
+
+  for (const term of DEVICE_ACCESSORY_TYPES) {
+    if (hay.includes(term)) return true;
+  }
 
   const tokens = queryTokens(query);
 
@@ -394,7 +442,7 @@ export function scoreSearchRelevance(
     if (!looksLikeDevice(title, options?.category)) return -1;
 
     const requiredBrands = requiredBrandsForQuery(query);
-    if (requiredBrands && !requiredBrands.some((brand) => hay.includes(brand))) {
+    if (requiredBrands && !hasOfficialBrand(title, query)) {
       return -1;
     }
   }
