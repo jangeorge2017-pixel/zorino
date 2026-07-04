@@ -2,10 +2,7 @@
  * Marketplace-agnostic search relevance for device/product queries.
  * Used by AliExpress, eBay, and future provider integrations.
  *
- * - Requires all query tokens in the listing title.
- * - Rejects accessory listings (cases, chargers, mounts, etc.) unless the
- *   user explicitly searched for an accessory term.
- * - Boosts actual devices (phones, tablets) over ambiguous matches.
+ * Phase 3: device-first ranking, repair/parts exclusion, official-brand preference.
  */
 
 /** Accessory terms — longer phrases listed first for substring checks. */
@@ -36,6 +33,16 @@ export const ACCESSORY_TERMS = [
   "lavalier microphone",
   "lavalier mic",
   "wind muff",
+  "magic keyboard",
+  "keyboard",
+  "sound card",
+  "audio interface",
+  "laminating machine",
+  "laminating",
+  "photo booth",
+  "steering wheel",
+  "organizer",
+  "oca glass",
   "case",
   "cover",
   "charger",
@@ -67,16 +74,61 @@ export const ACCESSORY_TERMS = [
   "ring light",
   "sim tray",
   "sim card tool",
-  "magic keyboard",
-  "keyboard",
-  "sound card",
-  "audio interface",
-  "laminating machine",
-  "laminating",
-  "photo booth",
-  "steering wheel",
-  "organizer",
-  "oca glass",
+] as const;
+
+/** Repair tools and spare parts — always excluded on device-model searches. */
+export const REPAIR_AND_PARTS_TERMS = [
+  "screen separator",
+  "lcd separator",
+  "separator machine",
+  "vacuum separator",
+  "repair tool",
+  "opening tool",
+  "pry tool",
+  "spudger",
+  "suction cup",
+  "flex cable",
+  "digitizer",
+  "display assembly",
+  "lcd display",
+  "touch screen replacement",
+  "back cover glass",
+  "housing frame",
+  "middle frame",
+  "bezel frame",
+  "oca machine",
+  "refurbish tool",
+  "battery replacement",
+  "soldering station",
+  "heat gun",
+  "screen removal",
+  "phone repair",
+  "repair kit",
+  "parts only",
+  "for parts",
+  "broken screen",
+] as const;
+
+/** Official device brands to prioritize / require on model-specific searches. */
+export const OFFICIAL_DEVICE_BRANDS = [
+  "apple",
+  "samsung",
+  "xiaomi",
+  "redmi",
+  "poco",
+  "google",
+  "pixel",
+  "oneplus",
+  "one plus",
+  "sony",
+  "playstation",
+  "huawei",
+  "honor",
+  "oppo",
+  "vivo",
+  "realme",
+  "motorola",
+  "nokia",
 ] as const;
 
 /** Category names that strongly suggest a primary device listing. */
@@ -87,6 +139,9 @@ export const DEVICE_CATEGORY_HINTS = [
   "computer",
   "laptop",
   "notebook",
+  "video game",
+  "console",
+  "games",
 ] as const;
 
 export const MARKETPLACE_SEARCH_DEFAULTS = {
@@ -111,10 +166,52 @@ export function queryTokens(query: string): string[] {
 /** True when the user query explicitly asks for an accessory. */
 export function queryWantsAccessory(query: string): boolean {
   const phrase = query.trim().toLowerCase();
-  return ACCESSORY_TERMS.some((term) => phrase.includes(term));
+  return (
+    ACCESSORY_TERMS.some((term) => phrase.includes(term)) ||
+    REPAIR_AND_PARTS_TERMS.some((term) => phrase.includes(term))
+  );
 }
 
-/** True when all query tokens appear in the title, with Samsung Galaxy shorthand. */
+function isRepairOrPartsListing(hay: string): boolean {
+  return REPAIR_AND_PARTS_TERMS.some((term) => hay.includes(term));
+}
+
+/** Brand names required in title for model-specific device queries. */
+export function requiredBrandsForQuery(query: string): string[] | null {
+  const q = query.trim().toLowerCase();
+
+  if (/\b(iphone|ipad|macbook)\b/.test(q)) {
+    return ["apple", "iphone", "ipad", "macbook"];
+  }
+  if (/\b(galaxy|samsung|fold)\b/.test(q)) {
+    return ["samsung"];
+  }
+  if (/\b(xiaomi|redmi|poco)\b/.test(q)) {
+    return ["xiaomi", "redmi", "poco"];
+  }
+  if (/\b(pixel|google)\b/.test(q)) {
+    return ["google", "pixel"];
+  }
+  if (/\b(oneplus|one plus)\b/.test(q)) {
+    return ["oneplus", "one plus"];
+  }
+  if (/\b(ps5|playstation)\b/.test(q)) {
+    return ["sony", "playstation", "ps5"];
+  }
+
+  return null;
+}
+
+export function hasOfficialBrand(title: string, query: string): boolean {
+  const hay = title.toLowerCase();
+  const required = requiredBrandsForQuery(query);
+  if (required) {
+    return required.some((brand) => hay.includes(brand));
+  }
+  return OFFICIAL_DEVICE_BRANDS.some((brand) => hay.includes(brand));
+}
+
+/** True when all query tokens appear in the title, with device-family shorthand. */
 export function titleMatchesQuery(title: string, query: string): boolean {
   const tokens = queryTokens(query);
   if (tokens.length === 0) return false;
@@ -122,7 +219,7 @@ export function titleMatchesQuery(title: string, query: string): boolean {
   const hay = title.toLowerCase();
   if (tokens.every((token) => hay.includes(token))) return true;
 
-  // "galaxy a55" / "galaxy s24" — titles often omit the word "Galaxy".
+  // "galaxy a55" / "galaxy s24" / "galaxy fold" — titles often omit "Galaxy".
   if (tokens.includes("galaxy")) {
     const modelTokens = tokens.filter((t) => t !== "galaxy");
     if (
@@ -134,11 +231,23 @@ export function titleMatchesQuery(title: string, query: string): boolean {
     }
   }
 
+  // "macbook air" — accept "Apple MacBook Air M2".
+  if (tokens.includes("macbook") && tokens.includes("air") && /\bmacbook\b/.test(hay) && /\bair\b/.test(hay)) {
+    return true;
+  }
+
+  // "ps5" — accept "PlayStation 5" / "PS5 Console".
+  if (tokens.length === 1 && tokens[0] === "ps5") {
+    return /\b(ps5|playstation\s*5)\b/.test(hay);
+  }
+
   return false;
 }
 
 function mentionsDeviceInForClause(hay: string): boolean {
-  return /\bfor\b[^,.]{0,80}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi)\b/.test(hay);
+  return /\bfor\b[^,.]{0,80}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi|macbook|ps5|playstation)\b/.test(
+    hay
+  );
 }
 
 function categorySuggestsDevice(category?: string): boolean {
@@ -148,11 +257,13 @@ function categorySuggestsDevice(category?: string): boolean {
 }
 
 function isAccessoryDominantTitle(hay: string): boolean {
-  // In-box extras on a phone listing (e.g. "Includes Charging Cable") are not accessories.
+  if (isRepairOrPartsListing(hay)) return true;
+
+  // In-box extras on a device listing (e.g. "Includes Charging Cable") are not accessories.
   if (
     /\b\d+\s*(gb|tb)\b/.test(hay) &&
     /\b(includes|with)\b/.test(hay) &&
-    /\b(cable|charger|adapter)\b/.test(hay)
+    /\b(cable|charger|adapter|controller)\b/.test(hay)
   ) {
     return false;
   }
@@ -161,11 +272,13 @@ function isAccessoryDominantTitle(hay: string): boolean {
 }
 
 /**
- * Heuristic: listing looks like a primary device (phone/tablet/laptop),
- * not an accessory — even if the title mentions cables in the box.
+ * Heuristic: listing looks like a primary device (phone/tablet/laptop/console),
+ * not an accessory or repair part.
  */
 export function looksLikeDevice(title: string, category?: string): boolean {
   const hay = title.toLowerCase();
+
+  if (isRepairOrPartsListing(hay)) return false;
 
   if (isAccessoryDominantTitle(hay)) {
     const hasStrongDeviceSignal =
@@ -179,11 +292,10 @@ export function looksLikeDevice(title: string, category?: string): boolean {
     if (!hasStrongDeviceSignal) return false;
   }
 
+  // Phones / tablets with storage
   if (/\b\d+\s*(gb|tb)\b/i.test(title)) {
-    if (/\bipad\b/.test(hay)) return true;
-    if (/\biphone\b/.test(hay)) return true;
-    if (/\bgalaxy\b/.test(hay)) return true;
-    if (/\bxiaomi\b/.test(hay) || /\bredmi\b/.test(hay)) return true;
+    if (/\b(iphone|ipad|galaxy|xiaomi|redmi|pixel|oneplus)\b/.test(hay)) return true;
+    if (/\bmacbook\b/.test(hay)) return true;
     if (categorySuggestsDevice(category)) return true;
     if (/\b(unlocked|smartphone|dual\s+sim|5g)\b/.test(hay)) return true;
   }
@@ -194,18 +306,37 @@ export function looksLikeDevice(title: string, category?: string): boolean {
   if (/\bsmartphone\b/.test(hay)) return true;
   if (/\b(cell\s?phone|mobile\s+phone)\b/.test(hay)) return true;
 
+  // iPad
   if (/\bipad\b/.test(hay) && /\b(pro|air|mini)\b/.test(hay)) {
     if (/\b\d+\s*(gb|tb)\b/i.test(title) || /\b(wifi|cellular|5g)\b/.test(hay)) return true;
   }
 
-  if (/\bipad\b/.test(hay) && /\b\d{4}\b/.test(hay) && /\b\d+\s*(gb|tb)\b/i.test(title)) {
-    return true;
+  // MacBook
+  if (/\bmacbook\s+(air|pro)\b/.test(hay)) {
+    if (/\b(m1|m2|m3|m4|\d+\s*(gb|tb))\b/i.test(title)) return true;
+    if (categorySuggestsDevice(category)) return true;
+  }
+
+  // PlayStation / PS5
+  if (/\b(ps5|playstation\s*5)\b/.test(hay)) {
+    if (/\b(console|disc|digital|edition|bundle)\b/.test(hay) || categorySuggestsDevice(category)) {
+      return true;
+    }
+    if (/\bsony\b/.test(hay) || /^playstation/i.test(title.trim())) return true;
+  }
+
+  // Galaxy Fold
+  if (/\b(fold|flip)\b/.test(hay) && /\b(samsung|galaxy)\b/.test(hay)) {
+    if (/\b(unlocked|5g|\d+\s*(gb|tb))\b/i.test(title)) return true;
+    if (/\b(z\s*fold|z\s*flip|galaxy\s*fold)\b/i.test(title)) return true;
   }
 
   if (!isAccessoryDominantTitle(hay)) {
     if (/^(apple\s+)?iphone\s+\d/.test(hay)) return true;
     if (/^samsung\s+galaxy\s+[a-z]?\d+/i.test(title)) return true;
     if (/^xiaomi\s+\d+/i.test(title)) return true;
+    if (/^apple\s+macbook/i.test(title.trim())) return true;
+    if (/^sony\s+playstation/i.test(title.trim())) return true;
   }
 
   return false;
@@ -216,6 +347,9 @@ export function isAccessoryListing(title: string, query: string): boolean {
   if (looksLikeDevice(title)) return false;
 
   const hay = title.toLowerCase();
+
+  if (isRepairOrPartsListing(hay)) return true;
+
   const tokens = queryTokens(query);
 
   if (/\bfor\s+/.test(hay) || mentionsDeviceInForClause(hay)) {
@@ -226,6 +360,8 @@ export function isAccessoryListing(title: string, query: string): boolean {
     if (/\bfor\s+galaxy\b/.test(hay)) return true;
     if (/\bfor\s+ipad\b/.test(hay)) return true;
     if (/\bfor\s+xiaomi\b/.test(hay)) return true;
+    if (/\bfor\s+macbook\b/.test(hay)) return true;
+    if (/\bfor\s+(ps5|playstation)\b/.test(hay)) return true;
     if (/\bcompatible\s+with\b/.test(hay)) return true;
   }
 
@@ -253,9 +389,14 @@ export function scoreSearchRelevance(
 
   const wantsAccessory = queryWantsAccessory(query);
   if (!wantsAccessory) {
+    if (isRepairOrPartsListing(hay)) return -1;
     if (isAccessoryListing(title, query)) return -1;
-    // Device searches should only surface primary devices (phones/tablets).
     if (!looksLikeDevice(title, options?.category)) return -1;
+
+    const requiredBrands = requiredBrandsForQuery(query);
+    if (requiredBrands && !requiredBrands.some((brand) => hay.includes(brand))) {
+      return -1;
+    }
   }
 
   let score = tokens.length * 10;
@@ -265,10 +406,15 @@ export function scoreSearchRelevance(
 
   if (looksLikeDevice(title, options?.category)) score += 60;
 
+  if (hasOfficialBrand(title, query)) score += 25;
+
   const firstToken = tokens[0];
   if (hay.startsWith(firstToken) || hay.startsWith(`new ${firstToken}`)) score += 10;
   if (hay.startsWith(`apple ${firstToken}`) || hay.startsWith(`samsung ${firstToken}`)) {
     score += 15;
+  }
+  if (hay.startsWith("apple ") || hay.startsWith("samsung ") || hay.startsWith("sony ")) {
+    score += 10;
   }
 
   if (wantsAccessory && isAccessoryListing(title, query)) score += 20;
