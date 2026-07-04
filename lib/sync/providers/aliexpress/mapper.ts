@@ -9,7 +9,7 @@ export function mapAliExpressProduct(
   raw: AliExpressRawProduct,
   defaultCategory?: string
 ): ExternalProduct | null {
-  if (!raw.product_id || !raw.product_title) return null;
+  if (raw.product_id == null || !raw.product_title) return null;
 
   const price = parseFloat(raw.target_sale_price ?? "0");
   if (!price || price <= 0) return null;

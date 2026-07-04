@@ -53,7 +53,8 @@ function parseSalesCount(volume?: string | number): number {
 }
 
 function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null {
-  if (!raw.product_id || !raw.product_title) return null;
+  const productId = raw.product_id != null ? String(raw.product_id) : "";
+  if (!productId || !raw.product_title) return null;
 
   const price = parseFloat(raw.target_sale_price ?? "0");
   if (!price || price <= 0) return null;
@@ -78,7 +79,7 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
   const category = raw.first_level_category_name?.trim() || "General";
 
   return {
-    id: `aliexpress-${raw.product_id}`,
+    id: `aliexpress-${productId}`,
     name: raw.product_title.trim(),
     imageSrc: imageSrc || "/products/placeholder.svg",
     emoji: "🛍️",
@@ -97,13 +98,50 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
 }
 
 async function getClient() {
+  const { logAliExpress, maskSecret } = await import(
+    "@/lib/integrations/aliexpress/logger"
+  );
+  const { getAliExpressCredentialStatus } = await import(
+    "@/lib/integrations/aliexpress/config"
+  );
+
   await loadAliExpressCredentials();
+
+  const status = getAliExpressCredentialStatus();
+  const envKey = process.env.ALIEXPRESS_APP_KEY?.trim();
+  const envSecret = process.env.ALIEXPRESS_APP_SECRET?.trim();
+
+  logAliExpress("credential load check", {
+    hasAppKey: status.hasAppKey,
+    hasAppSecret: status.hasAppSecret,
+    hasTrackingId: status.hasTrackingId,
+    source: status.source,
+    configured: status.configured,
+    envAppKeyPresent: Boolean(envKey),
+    envAppSecretPresent: Boolean(envSecret),
+    envAppKeyMasked: maskSecret(envKey),
+    envAppSecretMasked: maskSecret(envSecret),
+  });
+
+  if (!status.configured) {
+    logAliExpress(
+      "AUTHENTICATION ERROR: ALIEXPRESS_APP_KEY and/or ALIEXPRESS_APP_SECRET not loaded from environment or integration_settings",
+      {
+        hasAppKey: status.hasAppKey,
+        hasAppSecret: status.hasAppSecret,
+        source: status.source,
+      }
+    );
+    return null;
+  }
+
   return createAliExpressClientFromEnv();
 }
 
 /**
  * Live AliExpress Affiliates product search.
  * Returns [] when credentials are missing, the API errors, or no products match.
+ * Errors are logged in full — never silently ignored.
  */
 export async function searchAliExpressLive(
   query: string,
@@ -112,9 +150,16 @@ export async function searchAliExpressLive(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
+  const { logAliExpress } = await import("@/lib/integrations/aliexpress/logger");
+
   try {
     const client = await getClient();
-    if (!client) return [];
+    if (!client) {
+      logAliExpress("search aborted: client not configured (no mock fallback)", {
+        query: trimmed,
+      });
+      return [];
+    }
 
     const products = await client.searchByKeyword(trimmed, {
       pageSize: limit,
@@ -122,15 +167,27 @@ export async function searchAliExpressLive(
       currency: "USD",
     });
 
-    return products
+    const mapped = products
       .map(mapRawToSearchItem)
       .filter((item): item is SearchResultItem => item !== null)
       .slice(0, limit);
+
+    logAliExpress("search mapped results", {
+      query: trimmed,
+      rawCount: products.length,
+      mappedCount: mapped.length,
+      droppedUnmapped: products.length - mapped.length,
+    });
+
+    return mapped;
   } catch (err) {
-    console.error(
-      "[aliexpress-search]",
-      err instanceof Error ? err.message : "AliExpress search failed"
-    );
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    logAliExpress("SEARCH ERROR (exact, no mock fallback)", {
+      query: trimmed,
+      message,
+      stack,
+    });
     return [];
   }
 }

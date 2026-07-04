@@ -7,7 +7,12 @@ export {
   getAliExpressCredentials,
   isAliExpressConfigured,
 } from "@/lib/integrations/aliexpress/config";
-export { signAliExpressParams, buildSignedParams } from "@/lib/integrations/aliexpress/auth";
+export {
+  signAliExpressParams,
+  buildSignedParams,
+  formatAliExpressTimestamp,
+} from "@/lib/integrations/aliexpress/auth";
+export { logAliExpress, maskSecret } from "@/lib/integrations/aliexpress/logger";
 export type {
   AliExpressCredentials,
   AliExpressCredentialStatus,
