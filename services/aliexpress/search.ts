@@ -1,5 +1,10 @@
 import { createAliExpressClientFromEnv } from "@/lib/integrations/aliexpress";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
+import {
+  filterRelevantProducts,
+  MARKETPLACE_SEARCH_DEFAULTS,
+  scoreSearchRelevance,
+} from "@/lib/integrations/aliexpress/relevance";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import type { ProductDetail } from "@/lib/data/product-detail";
 import type { Product, Store } from "@/lib/types/entities";
@@ -74,6 +79,9 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
   if (!affiliateLink) return null;
 
   const imageSrc = upgradeImageUrl(raw.product_main_image_url ?? "");
+  // Live pipeline only — no local placeholder / mock image assets.
+  if (!imageSrc.startsWith("http")) return null;
+
   const salesCount = parseSalesCount(raw.lastest_volume);
   const storeName = raw.shop_title?.trim() || "AliExpress";
   const category = raw.first_level_category_name?.trim() || "General";
@@ -81,7 +89,7 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
   return {
     id: `aliexpress-${productId}`,
     name: raw.product_title.trim(),
-    imageSrc: imageSrc || "/products/placeholder.svg",
+    imageSrc,
     emoji: "🛍️",
     price,
     originalPrice,
@@ -140,8 +148,8 @@ async function getClient() {
 
 /**
  * Live AliExpress Affiliates product search.
- * Returns [] when credentials are missing, the API errors, or no products match.
- * Errors are logged in full — never silently ignored.
+ * Exact user query → API `keywords` (no rewrite, no mock/demo/fallback catalog).
+ * Returns [] when credentials are missing, the API errors, or no relevant products match.
  */
 export async function searchAliExpressLive(
   query: string,
@@ -152,41 +160,110 @@ export async function searchAliExpressLive(
 
   const { logAliExpress } = await import("@/lib/integrations/aliexpress/logger");
 
+  const reportBase = {
+    searchInput: trimmed,
+    keywordsSent: trimmed,
+    method: "aliexpress.affiliate.product.query",
+  };
+
   try {
     const client = await getClient();
     if (!client) {
-      logAliExpress("search aborted: client not configured (no mock fallback)", {
-        query: trimmed,
+      logAliExpress("PHASE2 SEARCH REPORT", {
+        ...reportBase,
+        stage: "aborted",
+        reason: "ALIEXPRESS_APP_KEY / ALIEXPRESS_APP_SECRET not loaded from local env",
+        request: null,
+        apiResponse: null,
+        finalMappedProducts: [],
       });
       return [];
     }
 
-    const products = await client.searchByKeyword(trimmed, {
-      pageSize: limit,
-      pageNo: 1,
-      currency: "USD",
-    });
+    // Scan multiple API pages so relevance filtering can fill the page with devices.
+    const { PAGE_SIZE, MAX_PAGES } = MARKETPLACE_SEARCH_DEFAULTS;
+    const allRaw: AliExpressRawProduct[] = [];
+    const seenIds = new Set<string>();
+    let pagesScanned = 0;
 
-    const mapped = products
+    for (let pageNo = 1; pageNo <= MAX_PAGES; pageNo++) {
+      const batch = await client.searchByKeyword(trimmed, {
+        pageSize: PAGE_SIZE,
+        pageNo,
+        currency: "USD",
+      });
+      pagesScanned = pageNo;
+      if (batch.length === 0) break;
+
+      for (const product of batch) {
+        const id = product.product_id != null ? String(product.product_id) : "";
+        if (!id || seenIds.has(id)) continue;
+        seenIds.add(id);
+        allRaw.push(product);
+      }
+
+      const rankedSoFar = filterRelevantProducts(allRaw, trimmed);
+      if (rankedSoFar.length >= limit) break;
+      if (batch.length < PAGE_SIZE) break;
+    }
+
+    const products = allRaw;
+    const relevantRaw = filterRelevantProducts(products, trimmed);
+    const droppedIrrelevant = products
+      .filter(
+        (p) =>
+          scoreSearchRelevance(p.product_title ?? "", trimmed, {
+            category: p.first_level_category_name,
+          }) < 0
+      )
+      .map((p) => p.product_title)
+      .slice(0, 10);
+
+    const mapped = relevantRaw
       .map(mapRawToSearchItem)
       .filter((item): item is SearchResultItem => item !== null)
       .slice(0, limit);
 
-    logAliExpress("search mapped results", {
-      query: trimmed,
-      rawCount: products.length,
-      mappedCount: mapped.length,
-      droppedUnmapped: products.length - mapped.length,
+    logAliExpress("PHASE2 SEARCH REPORT", {
+      ...reportBase,
+      stage: "complete",
+      request: {
+        method: "aliexpress.affiliate.product.query",
+        keywords: trimmed,
+        page_no: "1",
+        page_size: String(PAGE_SIZE),
+        pages_scanned: String(pagesScanned),
+        target_currency: "USD",
+        target_language: "EN",
+      },
+      apiResponse: {
+        rawCount: products.length,
+        relevantCount: relevantRaw.length,
+        droppedIrrelevantSample: droppedIrrelevant,
+      },
+      finalMappedProducts: mapped.map((item) => ({
+        id: item.id,
+        title: item.name,
+        price: item.price,
+        originalPrice: item.originalPrice,
+        store: item.store,
+        rating: item.rating,
+        salesCount: item.salesCount,
+        affiliateUrl: item.affiliateUrl,
+        imageSrc: item.imageSrc,
+      })),
     });
 
     return mapped;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     const stack = err instanceof Error ? err.stack : undefined;
-    logAliExpress("SEARCH ERROR (exact, no mock fallback)", {
-      query: trimmed,
-      message,
+    logAliExpress("PHASE2 SEARCH REPORT", {
+      ...reportBase,
+      stage: "error",
+      error: message,
       stack,
+      finalMappedProducts: [],
     });
     return [];
   }

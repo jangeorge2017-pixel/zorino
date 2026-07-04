@@ -13,6 +13,13 @@ export {
   ebayMarketplaceId,
   getEbayAccessToken,
 } from "@/lib/integrations/ebay/auth";
+export {
+  filterRelevantEbayProducts,
+  rankBySearchRelevance,
+  scoreSearchRelevance,
+  queryTokens,
+  isRelevantTitle,
+} from "@/lib/integrations/ebay/relevance";
 export type {
   EbayCredentials,
   EbayCredentialStatus,

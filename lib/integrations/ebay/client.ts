@@ -55,24 +55,58 @@ export class EbayAffiliateClient {
     const all: EbayRawProduct[] = [];
 
     for (const keyword of keywords) {
-      for (let offset = 0, page = 0; page < maxPages; page++, offset += pageSize) {
-        const params = new URLSearchParams({
-          q: keyword,
-          limit: String(pageSize),
-          offset: String(offset),
-        });
+      const items = await this.searchByKeyword(keyword, {
+        countryCode,
+        pageSize,
+        maxPages,
+        token,
+        marketplaceId,
+      });
+      all.push(...items);
+    }
 
-        const batch = await fetchJson<SearchResponse>(
-          `${EBAY_BROWSE_API}/item_summary/search?${params}`,
-          {
-            headers: this.buildHeaders(token, marketplaceId),
-          }
-        );
+    return dedupeById(all);
+  }
 
-        const items = batch.itemSummaries ?? [];
-        all.push(...items);
-        if (items.length < pageSize) break;
-      }
+  /** Keyword search for live product discovery (search / compare flows). */
+  async searchByKeyword(
+    keyword: string,
+    options?: {
+      countryCode?: string;
+      pageSize?: number;
+      maxPages?: number;
+      token?: string;
+      marketplaceId?: string;
+    }
+  ): Promise<EbayRawProduct[]> {
+    const countryCode = options?.countryCode ?? "US";
+    const pageSize = Math.min(Math.max(options?.pageSize ?? 50, 1), 50);
+    const maxPages = options?.maxPages ?? 1;
+    const token = options?.token ?? (await getEbayAccessToken());
+    const marketplaceId = options?.marketplaceId ?? ebayMarketplaceId(countryCode);
+    const q = keyword.trim();
+    if (!q) return [];
+
+    const all: EbayRawProduct[] = [];
+
+    for (let page = 0; page < maxPages; page++) {
+      const offset = page * pageSize;
+      const params = new URLSearchParams({
+        q,
+        limit: String(pageSize),
+        offset: String(offset),
+      });
+
+      const batch = await fetchJson<SearchResponse>(
+        `${EBAY_BROWSE_API}/item_summary/search?${params}`,
+        {
+          headers: this.buildHeaders(token, marketplaceId),
+        }
+      );
+
+      const items = batch.itemSummaries ?? [];
+      all.push(...items);
+      if (items.length < pageSize) break;
     }
 
     return dedupeById(all);

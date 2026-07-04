@@ -13,6 +13,15 @@ export {
   formatAliExpressTimestamp,
 } from "@/lib/integrations/aliexpress/auth";
 export { logAliExpress, maskSecret } from "@/lib/integrations/aliexpress/logger";
+export {
+  queryTokens,
+  scoreSearchRelevance,
+  scoreTitleRelevance,
+  isRelevantTitle,
+  filterRelevantProducts,
+  rankBySearchRelevance,
+  MARKETPLACE_SEARCH_DEFAULTS,
+} from "@/lib/integrations/aliexpress/relevance";
 export type {
   AliExpressCredentials,
   AliExpressCredentialStatus,
