@@ -19,10 +19,12 @@ const QUERIES = [
 await mkdir(outDir, { recursive: true });
 
 const browser = await chromium.launch();
-const page = await browser.newPage({
+const context = await browser.newContext({
   viewport: { width: 1920, height: 1080 },
   deviceScaleFactor: 1,
+  locale: "en-US",
 });
+const page = await context.newPage();
 
 for (const { q, file } of QUERIES) {
   const url = `${baseUrl}/search?q=${encodeURIComponent(q)}`;
