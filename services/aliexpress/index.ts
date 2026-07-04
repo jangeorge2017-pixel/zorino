@@ -1,4 +1,5 @@
 export { loadAliExpressCredentials, getAliExpressStatus, validateAliExpressCredentials } from "./credentials";
+export { searchAliExpressLive } from "./search";
 export { logImportEvent, getImportEventLogs, getAliExpressSyncSummary } from "./monitoring";
 export { runAliExpressSync, runAliExpressScheduledSync } from "./scheduler";
 export {

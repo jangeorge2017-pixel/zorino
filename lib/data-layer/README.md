@@ -12,8 +12,8 @@ Production-ready, provider-agnostic marketplace data access for Zorino.
                            │
      ┌─────────────────────┼─────────────────────┐
      ▼                     ▼                     ▼
-  AmazonProvider      eBayProvider         NoonProvider  …
-  (stub)              (stub)               (stub)
+  AmazonProvider      eBayProvider (live)    NoonProvider  …
+  (stub)              AliExpress (live)
 ```
 
 Each provider is **independent** and implements `IDataProvider`. Live HTTP clients
@@ -111,13 +111,33 @@ Until keys are set, providers return `NOT_CONFIGURED` without calling external A
 5. Register in `providers/index.ts`
 6. Add env keys to `.env.example`
 
-## Integration points (future)
+## Production providers (AliExpress + eBay)
 
-- **Pages**: Replace direct `lib/mock/page-data` calls with manager methods + mock fallback
-- **Sync pipeline**: Bridge `lib/sync/providers` to `IDataProvider` adapters
-- **Cron jobs**: Use `getProductsFromAll()` for multi-provider refresh
+`aliexpress` and `ebay` data-layer providers are **live** — they delegate to
+`lib/sync/providers` HTTP clients when credentials are configured.
+
+The **integration catalog layer** (`lib/integration/`) normalizes both providers into
+`NormalizedCatalogItem`, merges cross-provider offers via the comparison engine, and
+feeds homepage sections + `/deals` when Supabase has no imported catalog yet.
+
+```typescript
+import { fetchMergedCatalog } from "@/lib/integration";
+import { getProviderManager } from "@/lib/data-layer";
+
+const { items } = await fetchMergedCatalog();
+const manager = getProviderManager();
+const products = await manager.getProductsFromProductionProviders({ limit: 24 });
+```
+
+## Integration points
+
+- **Homepage / deals**: `lib/data/homepage.ts` → Supabase first, then `lib/integration/catalog-service`
+- **Search**: `getSearchResults()` → live AliExpress Affiliates API (`ALIEXPRESS_APP_KEY` / `ALIEXPRESS_APP_SECRET`), then catalog, then mock fallback
+- **Data layer**: `getProductsFromProductionProviders()` for AliExpress + eBay fan-out
+- **Sync pipeline**: Same mappers used for DB import and live reads
 
 ## Current status
 
-**Stub mode only** — no live affiliate APIs are called. UI and homepage are unchanged.
-Providers return empty data or `NOT_CONFIGURED` until credentials and live clients are added.
+- **AliExpress search**: Live via `aliexpress.affiliate.product.query` when credentials are set; falls back to catalog/mock on failure
+- **AliExpress + eBay catalog**: Live when `ALIEXPRESS_*` / `EBAY_*` credentials are set
+- **Other providers**: Stub mode — return `NOT_CONFIGURED` until implemented

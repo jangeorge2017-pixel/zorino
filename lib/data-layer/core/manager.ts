@@ -10,6 +10,7 @@ import { globalRateLimiter } from "@/lib/data-layer/core/rate-limit";
 import { globalRequestQueue } from "@/lib/data-layer/core/queue";
 import { withRetry } from "@/lib/data-layer/core/retry";
 import { getDataProvider, listDataProviders } from "@/lib/data-layer/providers";
+import { PRODUCTION_PROVIDER_IDS } from "@/lib/integration/constants";
 import type {
   CategoryQueryParams,
   CouponQueryParams,
@@ -19,7 +20,7 @@ import type {
   StoreQueryParams,
 } from "@/lib/data-layer/types";
 import type { DataProviderId, IDataProvider, ProviderResult } from "@/lib/data-layer/types";
-import { isDataProviderId } from "@/lib/data-layer/types";
+import { dataProviderIds, isDataProviderId } from "@/lib/data-layer/types";
 
 export interface ExecuteOptions {
   skipCache?: boolean;
@@ -127,6 +128,22 @@ export class ProviderManager {
     return this.fanOut("products", (id) => this.getProducts(id, params, options));
   }
 
+  /** Fan-out across AliExpress + eBay production providers only. */
+  async getProductsFromProductionProviders(
+    params?: ProductQueryParams,
+    options?: ExecuteOptions,
+  ) {
+    return this.fanOutProviders(PRODUCTION_PROVIDER_IDS, (id) =>
+      this.getProducts(id, params, options),
+    );
+  }
+
+  async getConfiguredProductionProviders(): Promise<IDataProvider[]> {
+    return PRODUCTION_PROVIDER_IDS.map((id) => getDataProvider(id)).filter((provider) =>
+      provider.isConfigured(),
+    );
+  }
+
   async getConfiguredProviders(): Promise<IDataProvider[]> {
     return listDataProviders().filter((provider) => provider.isConfigured());
   }
@@ -146,9 +163,14 @@ export class ProviderManager {
     operation: DataLayerOperation,
     runner: (providerId: DataProviderId) => Promise<ProviderResult<T[]>>
   ) {
-    const results = await Promise.all(
-      listDataProviders().map((provider) => runner(provider.meta.id))
-    );
+    return this.fanOutProviders(dataProviderIds as unknown as DataProviderId[], runner);
+  }
+
+  private async fanOutProviders<T>(
+    providerIds: readonly DataProviderId[],
+    runner: (providerId: DataProviderId) => Promise<ProviderResult<T[]>>,
+  ) {
+    const results = await Promise.all(providerIds.map((id) => runner(id)));
 
     const data = results.flatMap((result) => (result.success ? result.data : []));
     const errors = results
