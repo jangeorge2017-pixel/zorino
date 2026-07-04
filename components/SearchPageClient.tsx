@@ -215,9 +215,12 @@ export default function SearchPageClient({
                       discount: product.discount,
                       rating: product.rating,
                       reviewCount: product.reviewCount,
+                      salesCount: product.salesCount,
                       store: product.store,
+                      storeSlug: product.storeSlug,
                       category: product.category,
                       inStock: product.inStock,
+                      affiliateUrl: product.affiliateUrl,
                     }}
                   />
                 ))}

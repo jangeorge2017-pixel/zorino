@@ -61,7 +61,22 @@ export class EbayProvider extends BaseConnector {
   }
 
   async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {
-    return [];
+    const products = await this.fetchProducts(ctx);
+    return products
+      .filter((p) => (p.discount ?? 0) > 0 || (p.originalPrice ?? p.price) > p.price)
+      .slice(0, 8)
+      .map((p) => ({
+        externalProductId: p.externalId,
+        title: p.title,
+        discount: p.discount ?? 0,
+        discountType: p.discountType ?? "percentage",
+        price: p.price,
+        originalPrice: p.originalPrice ?? p.price,
+        currency: p.currency,
+        countryCode: p.countryCode,
+        imageUrl: p.imageUrl,
+        productUrl: p.affiliateUrl ?? p.productUrl,
+      }));
   }
 
   async fetchPrices(

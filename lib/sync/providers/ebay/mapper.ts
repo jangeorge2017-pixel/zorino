@@ -14,6 +14,18 @@ export function mapEbayProduct(
   const price = parseFloat(raw.price?.value ?? "0");
   if (!price || price <= 0) return null;
 
+  const marketingOriginal = parseFloat(raw.marketingPrice?.originalPrice?.value ?? "0");
+  const originalPrice = marketingOriginal > price ? marketingOriginal : price;
+  const discountFromApi = raw.marketingPrice?.discountPercentage
+    ? Math.round(parseFloat(raw.marketingPrice.discountPercentage))
+    : 0;
+  const discount =
+    discountFromApi > 0
+      ? discountFromApi
+      : originalPrice > price
+        ? Math.round(((originalPrice - price) / originalPrice) * 100)
+        : 0;
+
   const productUrl = raw.itemAffiliateWebUrl ?? raw.itemWebUrl ?? "";
   if (!productUrl) return null;
 
@@ -41,7 +53,9 @@ export function mapEbayProduct(
     imageUrl,
     imageUrls: gallery.length > 0 ? gallery.map(upgradeEbayImage) : [imageUrl],
     price,
-    originalPrice: price,
+    originalPrice,
+    discount: discount > 0 ? discount : undefined,
+    discountType: discount > 0 ? "percentage" : undefined,
     currency: raw.price?.currency ?? ctx.currency,
     inStock,
     productUrl,

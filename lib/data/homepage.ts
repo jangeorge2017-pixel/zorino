@@ -6,6 +6,11 @@ import { getProducts, searchProducts } from "@/services/products";
 import { getCatalogStats } from "@/services/stats";
 import { getStores } from "@/services/stores";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import {
+  getIntegratedDeals,
+  getIntegratedSectionProducts,
+  getIntegratedTrendingDeals,
+} from "@/lib/integration/catalog-service";
 import type { Deal, Product, Store } from "@/lib/types/entities";
 import type {
   FloatingProductCard,
@@ -176,6 +181,19 @@ function prefixCards(cards: TrendingDealCard[], prefix: string): TrendingDealCar
   }));
 }
 
+function mergeSectionProducts(
+  primary: HomepageSectionProducts,
+  fallback: HomepageSectionProducts,
+): HomepageSectionProducts {
+  return {
+    flash: primary.flash.length > 0 ? primary.flash : fallback.flash,
+    priceDrops: primary.priceDrops.length > 0 ? primary.priceDrops : fallback.priceDrops,
+    newArrivals: primary.newArrivals.length > 0 ? primary.newArrivals : fallback.newArrivals,
+    topRated: primary.topRated.length > 0 ? primary.topRated : fallback.topRated,
+    editorsPicks: primary.editorsPicks.length > 0 ? primary.editorsPicks : fallback.editorsPicks,
+  };
+}
+
 /** Product grids below Trending Deals / Top Coupons on the homepage. */
 export async function getHomepageSectionProducts(): Promise<HomepageSectionProducts> {
   const pool: TrendingDealCard[] = [];
@@ -222,7 +240,7 @@ export async function getHomepageSectionProducts(): Promise<HomepageSectionProdu
   const byRating = [...cards].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
   const byRecent = [...cards].sort((a, b) => a.updatedMins - b.updatedMins);
 
-  return {
+  const fromDb = {
     flash: prefixCards(byDiscount.slice(0, SECTION_LIMIT), "flash"),
     priceDrops: prefixCards(
       (priceDrops.length > 0 ? priceDrops : byDiscount).slice(0, SECTION_LIMIT),
@@ -237,6 +255,13 @@ export async function getHomepageSectionProducts(): Promise<HomepageSectionProdu
       "pick",
     ),
   };
+
+  if (cards.length >= SECTION_LIMIT * 3) {
+    return fromDb;
+  }
+
+  const integrated = await getIntegratedSectionProducts();
+  return mergeSectionProducts(fromDb, integrated);
 }
 
 /** Homepage trending deals — active deals first, then active products. */
@@ -272,6 +297,16 @@ export async function getTrendingDeals(limit = 4): Promise<TrendingDealCard[]> {
       if (cards.length >= limit) break;
       if (usedProductIds.has(product.id)) continue;
       cards.push(await productToCard(product));
+    }
+  }
+
+  if (cards.length < limit) {
+    const integrated = await getIntegratedTrendingDeals(limit);
+    for (const card of integrated) {
+      if (cards.length >= limit) break;
+      const key = String(card.productId ?? card.id);
+      if (usedProductIds.has(key) || cards.some((c) => c.id === card.id)) continue;
+      cards.push(card);
     }
   }
 
@@ -399,11 +434,11 @@ export async function getCategoriesForPage() {
   return data;
 }
 
-/** Active deals for /deals page. */
+/** Active deals for /deals page — Supabase first, then live AliExpress/eBay. */
 export async function getDealsForPage() {
   const { data, error } = await getActiveDeals(48);
-  if (error) return [];
-  return data;
+  if (!error && data.length > 0) return data;
+  return getIntegratedDeals(48);
 }
 
 export type SearchResultItem = {
@@ -418,45 +453,56 @@ export type SearchResultItem = {
   storeSlug: string;
   rating: number;
   reviewCount: number;
+  /** Sales / order volume when provided by the marketplace API. */
+  salesCount?: number;
   inStock: boolean;
   category: string;
+  /** Outbound affiliate or product URL (live marketplace results). */
+  affiliateUrl?: string;
 };
 
-/** Product search for /search page. */
+/** Product search for /search page — live AliExpress first, then catalog, then mock. */
 export async function getSearchResults(query: string): Promise<SearchResultItem[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
+  const { searchAliExpressLive } = await import("@/services/aliexpress/search");
+  const live = await searchAliExpressLive(trimmed, 24);
+  if (live.length > 0) return live;
+
   const { data, error } = await searchProducts(trimmed, 24, { importedOnly: true });
-  if (error || data.length === 0) return [];
+  if (!error && data.length > 0) {
+    const results: SearchResultItem[] = [];
+    for (const product of data) {
+      const prices = await getCurrentPricesForProduct(product.id);
+      const lowest = prices.data[0];
+      const price = lowest?.price ?? 0;
+      const original = lowest?.originalPrice ?? price;
+      const discount =
+        original > 0 ? Math.max(0, Math.round(((original - price) / original) * 100)) : 0;
 
-  const results: SearchResultItem[] = [];
-  for (const product of data) {
-    const prices = await getCurrentPricesForProduct(product.id);
-    const lowest = prices.data[0];
-    const price = lowest?.price ?? 0;
-    const original = lowest?.originalPrice ?? price;
-    const discount =
-      original > 0 ? Math.max(0, Math.round(((original - price) / original) * 100)) : 0;
-
-    results.push({
-      id: product.id,
-      name: product.name,
-      imageSrc: normalizeProductImageUrl(product.imageUrl),
-      emoji: product.emoji ?? "🛍️",
-      price,
-      originalPrice: original || price,
-      discount,
-      store: lowest?.store?.name ?? "Zorino",
-      storeSlug: lowest?.store?.slug ?? "",
-      rating: product.rating ?? 4.5,
-      reviewCount: product.reviewCount,
-      inStock: product.inStock,
-      category: product.categorySlug ?? "General",
-    });
+      results.push({
+        id: product.id,
+        name: product.name,
+        imageSrc: normalizeProductImageUrl(product.imageUrl),
+        emoji: product.emoji ?? "🛍️",
+        price,
+        originalPrice: original || price,
+        discount,
+        store: lowest?.store?.name ?? "Zorino",
+        storeSlug: lowest?.store?.slug ?? "",
+        rating: product.rating ?? 4.5,
+        reviewCount: product.reviewCount,
+        salesCount: product.reviewCount,
+        inStock: product.inStock,
+        category: product.categorySlug ?? "General",
+      });
+    }
+    return results;
   }
 
-  return results;
+  const { getMockSearchResults } = await import("@/lib/mock/page-data");
+  return getMockSearchResults(trimmed);
 }
 
 /** Filter options for search page. */

@@ -58,6 +58,47 @@ export class AliExpressAffiliateClient {
     }
   }
 
+  /** Keyword search for live product discovery (search page). */
+  async searchByKeyword(
+    keyword: string,
+    options?: { pageSize?: number; pageNo?: number; currency?: string }
+  ): Promise<AliExpressRawProduct[]> {
+    const pageSize = Math.min(Math.max(options?.pageSize ?? 24, 1), 50);
+    const pageNo = options?.pageNo ?? 1;
+    const currency = options?.currency ?? "USD";
+
+    const batch = await this.call<{
+      aliexpress_affiliate_product_query_response?: {
+        resp_result?: {
+          result?: {
+            products?: AliExpressRawProduct[] | { product?: AliExpressRawProduct[] };
+          };
+        };
+        resp_code?: number;
+        resp_msg?: string;
+      };
+    }>("aliexpress.affiliate.product.query", {
+      keywords: keyword.trim(),
+      page_no: String(pageNo),
+      page_size: String(pageSize),
+      target_currency: currency,
+      target_language: "EN",
+      ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
+    });
+
+    const resp = batch.aliexpress_affiliate_product_query_response;
+    if (resp?.resp_code && resp.resp_code !== 200) {
+      throw new Error(resp.resp_msg ?? `AliExpress API returned code ${resp.resp_code}`);
+    }
+
+    const productsNode = resp?.resp_result?.result?.products;
+    const products = Array.isArray(productsNode)
+      ? productsNode
+      : productsNode?.product ?? [];
+
+    return dedupeById(products);
+  }
+
   async searchProducts(
     config: ImportJobConfig,
     currency: string
@@ -69,23 +110,11 @@ export class AliExpressAffiliateClient {
 
     for (const keyword of keywords) {
       for (let page = 1; page <= maxPages; page++) {
-        const batch = await this.call<{
-          aliexpress_affiliate_product_query_response?: {
-            resp_result?: { result?: { products?: AliExpressRawProduct[] } };
-          };
-        }>("aliexpress.affiliate.product.query", {
-          keywords: keyword,
-          page_no: String(page),
-          page_size: String(pageSize),
-          target_currency: currency,
-          target_language: "EN",
-          ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
+        const products = await this.searchByKeyword(keyword, {
+          pageNo: page,
+          pageSize,
+          currency,
         });
-
-        const products =
-          batch.aliexpress_affiliate_product_query_response?.resp_result?.result
-            ?.products ?? [];
-
         all.push(...products);
         if (products.length < pageSize) break;
       }

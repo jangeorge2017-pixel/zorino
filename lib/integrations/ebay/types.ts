@@ -25,6 +25,10 @@ export type EbayRawProduct = {
   itemId?: string;
   title?: string;
   price?: { value?: string; currency?: string };
+  marketingPrice?: {
+    originalPrice?: { value?: string; currency?: string };
+    discountPercentage?: string;
+  };
   image?: { imageUrl?: string };
   additionalImages?: { imageUrl?: string }[];
   itemWebUrl?: string;

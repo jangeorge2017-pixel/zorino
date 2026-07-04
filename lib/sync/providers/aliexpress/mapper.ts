@@ -19,12 +19,13 @@ export function mapAliExpressProduct(
   if (!productUrl) return null;
 
   const imageUrl = upgradeImageUrl(raw.product_main_image_url ?? "");
-  const gallery = (raw.product_small_image_urls ?? [])
-    .map(upgradeImageUrl)
-    .filter(Boolean);
+  const smallImages = Array.isArray(raw.product_small_image_urls)
+    ? raw.product_small_image_urls
+    : (raw.product_small_image_urls?.string ?? []);
+  const gallery = smallImages.map(upgradeImageUrl).filter(Boolean);
 
   const rating = raw.evaluate_rate ? parseFloat(raw.evaluate_rate) / 20 : undefined;
-  const reviews = raw.lastest_volume ? parseInt(raw.lastest_volume, 10) : 0;
+  const reviews = raw.lastest_volume != null ? parseInt(String(raw.lastest_volume), 10) : 0;
   const stockQty = raw.sku_available_stock ? parseInt(raw.sku_available_stock, 10) : null;
   const inStock = stockQty !== null ? stockQty > 0 : true;
 

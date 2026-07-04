@@ -1,7 +1,7 @@
 import DealsPageClient from "@/components/DealsPageClient";
-import { getMockDealsForPage } from "@/lib/mock/page-data";
+import { getDealsForPage } from "@/lib/data/homepage";
 
-export default function DealsPage() {
-  const deals = getMockDealsForPage();
+export default async function DealsPage() {
+  const deals = await getDealsForPage();
   return <DealsPageClient deals={deals} />;
 }
