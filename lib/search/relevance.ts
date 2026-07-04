@@ -124,6 +124,9 @@ export const REPAIR_AND_PARTS_TERMS = [
   "speaker for",
   "magsafe connector",
   "usb hub",
+  "carte logique",
+  "logic board",
+  "logicboard",
 ] as const;
 
 /** Accessory-only product types excluded on device-model searches. */
@@ -279,8 +282,13 @@ export function titleMatchesQuery(title: string, query: string): boolean {
 }
 
 function mentionsDeviceInForClause(hay: string): boolean {
-  return /\bfor\b[^,.]{0,80}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi|macbook|ps5|playstation)\b/.test(
-    hay
+  return (
+    /\bfor\b[^,.]{0,80}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi|macbook|ps5|playstation)\b/.test(
+      hay
+    ) ||
+    /\bpour\b[^,.]{0,80}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi|macbook|ps5|playstation)\b/.test(
+      hay
+    )
   );
 }
 
