@@ -99,6 +99,13 @@ export const REPAIR_AND_PARTS_TERMS = [
   "oca machine",
   "refurbish tool",
   "battery replacement",
+  "replacement battery",
+  "mobile phone battery",
+  "phone battery",
+  "mah battery",
+  "mah eb-",
+  " eb-b",
+  "long lasting",
   "soldering station",
   "heat gun",
   "screen removal",
@@ -213,6 +220,9 @@ export function queryWantsAccessory(query: string): boolean {
 
 function isRepairOrPartsListing(hay: string): boolean {
   if (REPAIR_AND_PARTS_TERMS.some((term) => hay.includes(term))) return true;
+  // Replacement batteries sold by mAh / Samsung part codes.
+  if (/\b\d{3,5}\s*mah\b/i.test(hay)) return true;
+  if (/\beb-[a-z0-9]{5,}\b/i.test(hay)) return true;
   // Apple logic-board part numbers and shorthand ("Map ... Mother 820-3209-A").
   if (/\b820[-\s]?\d{3,4}[-\sa-z0-9]*\b/i.test(hay)) return true;
   if (/\bmap\b[^,.]{0,40}\b(a1\d{3}|mother|820)\b/i.test(hay)) return true;
