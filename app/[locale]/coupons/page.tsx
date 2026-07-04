@@ -1,7 +1,7 @@
 import CouponsPageClient from "@/components/CouponsPageClient";
-import { getMockCouponsForPage } from "@/lib/mock/page-data";
+import { getCouponsForPage } from "@/lib/data/homepage";
 
-export default function CouponsPage() {
-  const coupons = getMockCouponsForPage();
+export default async function CouponsPage() {
+  const coupons = await getCouponsForPage();
   return <CouponsPageClient coupons={coupons} />;
 }

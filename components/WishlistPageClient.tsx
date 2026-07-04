@@ -12,14 +12,18 @@ import ListingProductCard from "@/components/ListingProductCard";
 import ProductCardActions from "@/components/ProductCardActions";
 import { PageEmptyState, PageHeader, PageLayout } from "@/components/pages";
 import type { MockWishlistItem } from "@/lib/mock/types";
-import { MOCK_SEARCH_ITEMS } from "@/lib/mock/sample-data";
+import type { SearchResultItem } from "@/lib/data/homepage";
 import { AlertTriangle, CheckCircle, Heart, Trash2 } from "lucide-react";
 
 type WishlistPageClientProps = {
   items: MockWishlistItem[];
+  recommendations?: SearchResultItem[];
 };
 
-export default function WishlistPageClient({ items: initialItems }: WishlistPageClientProps) {
+export default function WishlistPageClient({
+  items: initialItems,
+  recommendations = [],
+}: WishlistPageClientProps) {
   const t = useTranslations("wishlist");
   const { user } = useAuth();
   const router = useRouter();
@@ -235,12 +239,13 @@ export default function WishlistPageClient({ items: initialItems }: WishlistPage
         </div>
       </Card>
 
+      {recommendations.length > 0 ? (
       <section className="wishlist-recommendations mt-10" aria-labelledby="wishlist-rec-heading">
         <h2 id="wishlist-rec-heading" className="text-2xl font-bold text-white mb-6">
           You Might Also Like
         </h2>
         <div className="listing-products-grid">
-          {MOCK_SEARCH_ITEMS.slice(0, 4).map((product) => (
+          {recommendations.map((product) => (
             <ListingProductCard
               key={product.id}
               product={{
@@ -251,13 +256,17 @@ export default function WishlistPageClient({ items: initialItems }: WishlistPage
                 price: product.price,
                 discount: product.discount,
                 store: product.store,
+                storeSlug: product.storeSlug,
                 inStock: product.inStock,
+                affiliateUrl: product.affiliateUrl,
+                salesCount: product.salesCount,
               }}
               showWishlist={false}
             />
           ))}
         </div>
       </section>
+      ) : null}
     </PageLayout>
   );
 }

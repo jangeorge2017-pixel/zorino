@@ -1,7 +1,37 @@
 import { createAliExpressClientFromEnv } from "@/lib/integrations/aliexpress";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
+import type { ProductDetail } from "@/lib/data/product-detail";
+import type { Product, Store } from "@/lib/types/entities";
+import type { CompareProductResult } from "@/services/compare";
 import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
+
+const ALIEXPRESS_STORE: Store = {
+  id: "aliexpress",
+  name: "AliExpress",
+  slug: "aliexpress",
+  website: "https://www.aliexpress.com",
+  integrationType: "aliexpress",
+  commissionRate: 5,
+  supportedRegions: ["US", "GB", "DE", "FR", "ES", "IT", "AE", "SA", "EG"],
+  supportedCurrencies: ["USD", "EUR", "GBP", "AED", "SAR", "EGP"],
+  isActive: true,
+  logoInitial: "AE",
+};
+
+/** Filters for search/products pages — AliExpress only (no mock stores). */
+export const ALIEXPRESS_SEARCH_FILTERS = {
+  categories: [] as { value: string; label: string }[],
+  stores: [{ value: "aliexpress", label: "AliExpress" }],
+};
+
+const BROWSE_KEYWORDS = [
+  "electronics",
+  "phone accessories",
+  "smart watch",
+  "wireless earbuds",
+  "home gadgets",
+];
 
 function upgradeImageUrl(url: string): string {
   if (!url) return url;
@@ -9,10 +39,9 @@ function upgradeImageUrl(url: string): string {
 }
 
 function parseRating(evaluateRate?: string): number {
-  if (!evaluateRate) return 4.5;
+  if (!evaluateRate) return 0;
   const numeric = parseFloat(evaluateRate.replace("%", ""));
-  if (!Number.isFinite(numeric)) return 4.5;
-  // AliExpress evaluate_rate is typically a percentage (e.g. 94.8 → 4.74 stars).
+  if (!Number.isFinite(numeric)) return 0;
   if (numeric > 5) return Math.min(5, Math.round((numeric / 20) * 10) / 10);
   return Math.min(5, Math.round(numeric * 10) / 10);
 }
@@ -46,6 +75,7 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
   const imageSrc = upgradeImageUrl(raw.product_main_image_url ?? "");
   const salesCount = parseSalesCount(raw.lastest_volume);
   const storeName = raw.shop_title?.trim() || "AliExpress";
+  const category = raw.first_level_category_name?.trim() || "General";
 
   return {
     id: `aliexpress-${raw.product_id}`,
@@ -61,14 +91,19 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
     reviewCount: salesCount,
     salesCount,
     inStock: true,
-    category: raw.first_level_category_name?.trim() || "General",
+    category,
     affiliateUrl: affiliateLink,
   };
 }
 
+async function getClient() {
+  await loadAliExpressCredentials();
+  return createAliExpressClientFromEnv();
+}
+
 /**
  * Live AliExpress Affiliates product search.
- * Returns [] when credentials are missing or the API fails (caller falls back).
+ * Returns [] when credentials are missing, the API errors, or no products match.
  */
 export async function searchAliExpressLive(
   query: string,
@@ -78,8 +113,7 @@ export async function searchAliExpressLive(
   if (!trimmed) return [];
 
   try {
-    await loadAliExpressCredentials();
-    const client = createAliExpressClientFromEnv();
+    const client = await getClient();
     if (!client) return [];
 
     const products = await client.searchByKeyword(trimmed, {
@@ -99,4 +133,145 @@ export async function searchAliExpressLive(
     );
     return [];
   }
+}
+
+/** Browse live AliExpress catalog using default keywords (products / homepage). */
+export async function browseAliExpressLive(limit = 24): Promise<SearchResultItem[]> {
+  const results: SearchResultItem[] = [];
+  const seen = new Set<string>();
+
+  for (const keyword of BROWSE_KEYWORDS) {
+    if (results.length >= limit) break;
+    const batch = await searchAliExpressLive(keyword, Math.min(12, limit - results.length));
+    for (const item of batch) {
+      if (seen.has(item.id)) continue;
+      seen.add(item.id);
+      results.push(item);
+      if (results.length >= limit) break;
+    }
+  }
+
+  return results;
+}
+
+export function searchItemToProduct(item: SearchResultItem): Product {
+  const externalId = item.id.replace(/^aliexpress-/, "");
+  return {
+    id: item.id,
+    name: item.name,
+    slug: externalId,
+    description: item.name,
+    imageUrl: item.imageSrc,
+    emoji: item.emoji,
+    categorySlug: item.category.toLowerCase().replace(/\s+/g, "-"),
+    brand: item.store,
+    rating: item.rating,
+    reviewCount: item.salesCount ?? item.reviewCount,
+    currency: "USD",
+    countryCode: "US",
+    inStock: item.inStock,
+    tags: [item.category],
+    isActive: true,
+    lastSyncedAt: new Date().toISOString(),
+  };
+}
+
+export function searchItemToCompareResult(item: SearchResultItem): CompareProductResult {
+  const product = searchItemToProduct(item);
+  const discountPercent = item.discount;
+  const offer = {
+    id: `price-${item.id}`,
+    productId: item.id,
+    storeId: ALIEXPRESS_STORE.id,
+    price: item.price,
+    originalPrice: item.originalPrice,
+    currency: "USD",
+    countryCode: "US",
+    inStock: item.inStock,
+    isCurrent: true,
+    recordedAt: new Date().toISOString(),
+    store: ALIEXPRESS_STORE,
+    provider: "aliexpress" as const,
+    discountPercent,
+    isLowest: true,
+    isHighestDiscount: true,
+    externalUrl: item.affiliateUrl,
+  };
+
+  return {
+    product,
+    offers: [offer],
+    lowestPrice: item.price,
+    highestPrice: item.price,
+    highestDiscount: discountPercent,
+    savingsVsHighest: 0,
+    savingsPercent: 0,
+    providerCount: 1,
+    cheapestStoreName: item.store,
+    highestDiscountStoreName: item.store,
+  };
+}
+
+export function searchItemToProductDetail(item: SearchResultItem): ProductDetail {
+  const comparison = searchItemToCompareResult(item);
+  return {
+    product: comparison.product,
+    categoryName: item.category,
+    comparison,
+    images: [item.imageSrc],
+    specifications: {
+      Store: item.store,
+      Category: item.category,
+      Rating: item.rating > 0 ? `${item.rating} / 5` : "—",
+      Sales: String(item.salesCount ?? item.reviewCount ?? 0),
+      Availability: item.inStock ? "In Stock" : "Out of Stock",
+    },
+    variants: [],
+    priceHistory: [
+      {
+        id: `ph-${item.id}`,
+        productId: item.id,
+        price: item.price,
+        currency: "USD",
+        recordedAt: new Date().toISOString(),
+      },
+    ],
+  };
+}
+
+/** Resolve a live AliExpress product by id (`aliexpress-{productId}` or raw id). */
+export async function getAliExpressProductDetail(
+  id: string
+): Promise<ProductDetail | null> {
+  const externalId = id.replace(/^aliexpress-/, "").trim();
+  if (!externalId) return null;
+
+  try {
+    const client = await getClient();
+    if (!client) return null;
+
+    const products = await client.getProductsByIds([externalId], "USD");
+    const item = products.map(mapRawToSearchItem).find(Boolean);
+    return item ? searchItemToProductDetail(item) : null;
+  } catch (err) {
+    console.error(
+      "[aliexpress-detail]",
+      err instanceof Error ? err.message : "AliExpress product detail failed"
+    );
+    return null;
+  }
+}
+
+export function filtersFromSearchResults(results: SearchResultItem[]) {
+  const categories = [
+    ...new Map(
+      results
+        .filter((r) => r.category)
+        .map((r) => [r.category, { value: r.category, label: r.category }])
+    ).values(),
+  ];
+  return {
+    categories,
+    stores: ALIEXPRESS_SEARCH_FILTERS.stores,
+  };
 }

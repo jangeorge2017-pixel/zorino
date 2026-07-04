@@ -91,7 +91,13 @@ export default function SearchPageClient({
     <PageLayout>
       <PageHeader
         title={t("title")}
-        subtitle={initialQuery ? `${t("subtitle")} "${initialQuery}"` : t("noResults")}
+        subtitle={
+          initialQuery
+            ? filteredResults.length > 0
+              ? `${t("subtitle")} "${initialQuery}"`
+              : t("noResults")
+            : t("noResults")
+        }
       />
 
       <div className="zor-page-grid">
@@ -197,7 +203,7 @@ export default function SearchPageClient({
             {filteredResults.length === 0 ? (
               <div className="text-center py-12">
                 <Search className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">{t("noResults")}</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">No products found</h3>
                 <p className="text-gray-400 mb-4">{t("tryDifferentKeywords")}</p>
               </div>
             ) : (

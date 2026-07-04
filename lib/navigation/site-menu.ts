@@ -1,4 +1,14 @@
-import { MOCK_BLOG_POSTS, MOCK_CATEGORIES, MOCK_STORES } from "@/lib/mock/sample-data";
+/** Navigation labels only — not product catalogs. Products come from live AliExpress. */
+const NAV_CATEGORIES = [
+  { slug: "phones", name: "Phones" },
+  { slug: "laptops", name: "Laptops" },
+  { slug: "gaming", name: "Gaming" },
+  { slug: "tvs", name: "TVs" },
+  { slug: "home", name: "Home" },
+  { slug: "wearables", name: "Wearables" },
+] as const;
+
+const NAV_STORES = [{ slug: "aliexpress", name: "AliExpress" }] as const;
 
 export type NavMenuItem = {
   label: string;
@@ -46,7 +56,7 @@ export const SITE_NAV_MENUS: SiteNavMenuSection[] = [
       {
         label: "By Category",
         href: "/deals",
-        children: MOCK_CATEGORIES.slice(0, 6).map((cat) => ({
+        children: NAV_CATEGORIES.map((cat) => ({
           label: cat.name,
           href: `/deals?category=${cat.slug}`,
           children: [
@@ -69,7 +79,7 @@ export const SITE_NAV_MENUS: SiteNavMenuSection[] = [
       {
         label: "By Store",
         href: "/coupons",
-        children: MOCK_STORES.map((store) => ({
+        children: NAV_STORES.map((store) => ({
           label: store.name,
           href: `/coupons?store=${store.slug}`,
           children: [
@@ -130,10 +140,10 @@ export const SITE_NAV_MENUS: SiteNavMenuSection[] = [
     children: [
       { label: "All Categories", href: "/categories" },
       { label: "All Products", href: "/products" },
-      ...MOCK_CATEGORIES.map((cat) => ({
+      ...NAV_CATEGORIES.map((cat) => ({
         label: cat.name,
         href: `/categories/${cat.slug}`,
-        description: `${cat.productCount.toLocaleString()} products`,
+        description: `Live AliExpress ${cat.name.toLowerCase()}`,
         children: categorySubItems(cat.slug, cat.name),
       })),
     ],
@@ -145,14 +155,13 @@ export const SITE_NAV_MENUS: SiteNavMenuSection[] = [
     description: "Partner marketplaces and retailers",
     children: [
       { label: "All Stores", href: "/stores" },
-      ...MOCK_STORES.map((store) => ({
+      ...NAV_STORES.map((store) => ({
         label: store.name,
         href: `/stores/${store.slug}`,
-        description: "Verified partner store",
+        description: "Live AliExpress Affiliates catalog",
         children: [
           { label: `Shop ${store.name}`, href: `/stores/${store.slug}` },
           { label: `${store.name} Deals`, href: `/deals?store=${store.slug}` },
-          { label: `${store.name} Coupons`, href: `/coupons?store=${store.slug}` },
           { label: `${store.name} Products`, href: `/products?store=${store.slug}` },
         ],
       })),
@@ -175,11 +184,7 @@ export const SITE_NAV_MENUS: SiteNavMenuSection[] = [
           { label: "Product Guides", href: "/blog?category=guides" },
         ],
       },
-      ...MOCK_BLOG_POSTS.map((post) => ({
-        label: post.title,
-        href: `/blog/${post.slug}`,
-        description: post.readingTime,
-      })),
+      { label: "Latest Articles", href: "/blog" },
     ],
   },
 ];

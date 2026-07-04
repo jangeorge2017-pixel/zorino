@@ -16,12 +16,6 @@ const STORE_META: Record<
     integrationType: "aliexpress",
     name: "AliExpress",
   },
-  ebay: {
-    storeId: "store-ebay",
-    storeSlug: "ebay",
-    integrationType: "ebay",
-    name: "eBay",
-  },
 };
 
 export function getProviderStoreMeta(providerId: ProductionProviderId) {

@@ -1,15 +1,7 @@
 import CategoriesPageClient from "@/components/CategoriesPageClient";
-import { getMockCategoriesForPage } from "@/lib/mock/page-data";
-import { getServerIntlPreferences } from "@/lib/international/preferences";
-import type { Locale } from "@/i18n/config";
+import { getCategoriesForPage } from "@/lib/data/homepage";
 
-type CategoriesPageProps = {
-  params: Promise<{ locale: string }>;
-};
-
-export default async function CategoriesPage({ params }: CategoriesPageProps) {
-  const { locale } = await params;
-  const prefs = await getServerIntlPreferences(locale as Locale);
-  const categories = getMockCategoriesForPage(prefs.countryCode);
+export default async function CategoriesPage() {
+  const categories = await getCategoriesForPage();
   return <CategoriesPageClient categories={categories} />;
 }

@@ -1,12 +1,14 @@
 import ProductsPageClient from "@/components/ProductsPageClient";
 import {
-  getMockProductsForPage,
-  getMockSearchFilters,
-} from "@/lib/mock/page-data";
+  ALIEXPRESS_SEARCH_FILTERS,
+  browseAliExpressLive,
+  filtersFromSearchResults,
+} from "@/services/aliexpress/search";
 
-export default function ProductsPage() {
-  const products = getMockProductsForPage();
-  const filters = getMockSearchFilters();
+export default async function ProductsPage() {
+  const products = await browseAliExpressLive(24);
+  const filters =
+    products.length > 0 ? filtersFromSearchResults(products) : ALIEXPRESS_SEARCH_FILTERS;
 
   return (
     <ProductsPageClient

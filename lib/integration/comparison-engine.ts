@@ -6,29 +6,21 @@ import {
 import { externalProductsToCatalogItems } from "@/lib/integration/normalize";
 import { buildProviderSyncContext } from "@/lib/integration/provider-context";
 import { createAliExpressProvider } from "@/lib/sync/providers/aliexpress";
-import { createEbayProvider } from "@/lib/sync/providers/ebay";
 import { titleSimilarity } from "@/lib/marketplace-engine/utils";
 import type { ExternalProduct } from "@/lib/sync/types";
 import { isAliExpressConfigured } from "@/lib/integrations/aliexpress";
-import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 
 const MATCH_THRESHOLD = 0.52;
 
 function isProviderConfigured(providerId: ProductionProviderId): boolean {
-  if (providerId === "aliexpress") return isAliExpressConfigured();
-  return isEbayConfigured();
+  return providerId === "aliexpress" && isAliExpressConfigured();
 }
 
 async function fetchExternalProducts(
   providerId: ProductionProviderId,
 ): Promise<ExternalProduct[]> {
   const ctx = buildProviderSyncContext(providerId);
-
-  if (providerId === "aliexpress") {
-    return createAliExpressProvider().fetchProducts(ctx);
-  }
-
-  return createEbayProvider().fetchProducts(ctx);
+  return createAliExpressProvider().fetchProducts(ctx);
 }
 
 /** Fetch and normalize listings from a single marketplace provider. */

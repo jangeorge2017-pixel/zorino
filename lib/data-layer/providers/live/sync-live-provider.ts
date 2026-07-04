@@ -8,20 +8,16 @@ import {
 import { buildProviderSyncContext } from "@/lib/integration/provider-context";
 import type { ProductionProviderId } from "@/lib/integration/constants";
 import type { AliExpressProvider } from "@/lib/sync/providers/aliexpress";
-import type { EbayProvider } from "@/lib/sync/providers/ebay";
 import type { Product } from "@/lib/types/entities";
 
-type SyncConnector = AliExpressProvider | EbayProvider;
-
 /**
- * Bridges live sync connectors into the data-layer Product contract.
- * AliExpress and eBay only.
+ * Bridges the live AliExpress sync connector into the data-layer Product contract.
  */
 export abstract class SyncLiveProvider extends BaseDataProvider {
   abstract readonly providerId: ProductionProviderId;
 
   constructor(
-    private connector: SyncConnector,
+    private connector: AliExpressProvider,
     private configured: () => boolean,
   ) {
     super();

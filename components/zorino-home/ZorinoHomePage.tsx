@@ -26,16 +26,6 @@ import {
   getTrendingDeals,
 } from "@/lib/data/homepage";
 import { ZH_FEATURED_COUPON_BRANDS } from "@/lib/zorino-home/featured-coupon-brands";
-import {
-  withFallbackCategories,
-  withFallbackCoupons,
-  withFallbackDeals,
-  withFallbackFloatingProducts,
-  withFallbackFooterStats,
-  withFallbackHeroStats,
-  withFallbackPopularSearches,
-  withFallbackSectionProducts,
-} from "@/lib/zorino-home/presentation";
 
 export default async function ZorinoHomePage() {
   const [deals, coupons, floatingProducts, categories, popularSearches, stats, sectionProducts] =
@@ -57,22 +47,17 @@ export default async function ZorinoHomePage() {
 
       <div className="zh-shell">
         <div className="zh-hero-zone">
-          <ZorinoHomeHero
-            stats={withFallbackHeroStats(stats.hero)}
-            floatingProducts={withFallbackFloatingProducts(floatingProducts)}
-          />
+          <ZorinoHomeHero stats={stats.hero} floatingProducts={floatingProducts} />
 
           <div className="zh-hero-search">
-            <ZorinoHomeSearch
-              popularSearches={withFallbackPopularSearches(popularSearches)}
-            />
+            <ZorinoHomeSearch popularSearches={popularSearches} />
           </div>
         </div>
 
         <div className="zh-home-discovery-nav">
           <ZorinoHomeQuickNav />
           <div className="zh-categories-wrap">
-            <ZorinoHomeCategories categories={withFallbackCategories(categories)} />
+            <ZorinoHomeCategories categories={categories} />
           </div>
         </div>
 
@@ -82,15 +67,13 @@ export default async function ZorinoHomePage() {
 
         <HomeHeroBackground>
           <section className="zh-commerce" aria-label="Trending deals and coupons">
-            <ZorinoHomeDealsPanel deals={withFallbackDeals(deals)} />
-            <ZorinoHomeCouponsPanel coupons={withFallbackCoupons(coupons)} />
+            <ZorinoHomeDealsPanel deals={deals} />
+            <ZorinoHomeCouponsPanel coupons={coupons} />
           </section>
         </HomeHeroBackground>
 
         <section className="zh-product-sections-wrap" aria-label="Featured products">
-          <ZorinoHomeProductSections
-            sections={withFallbackSectionProducts(sectionProducts)}
-          />
+          <ZorinoHomeProductSections sections={sectionProducts} />
         </section>
 
         <section className="zh-cta-wrap" aria-label="Call to action">
@@ -98,10 +81,9 @@ export default async function ZorinoHomePage() {
         </section>
 
         <section className="zh-footer-wrap">
-          <ZorinoHomeFooter footerStats={withFallbackFooterStats(stats.footer)} />
+          <ZorinoHomeFooter footerStats={stats.footer} />
         </section>
       </div>
     </div>
   );
 }
-

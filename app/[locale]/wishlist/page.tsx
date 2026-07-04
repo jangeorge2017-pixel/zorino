@@ -1,7 +1,7 @@
 import WishlistPageClient from "@/components/WishlistPageClient";
-import { getMockWishlistItems } from "@/lib/mock/page-data";
+import { browseAliExpressLive } from "@/services/aliexpress/search";
 
-export default function WishlistPage() {
-  const items = getMockWishlistItems();
-  return <WishlistPageClient items={items} />;
+export default async function WishlistPage() {
+  const recommendations = await browseAliExpressLive(4);
+  return <WishlistPageClient items={[]} recommendations={recommendations} />;
 }

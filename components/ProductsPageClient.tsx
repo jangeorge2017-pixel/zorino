@@ -141,9 +141,12 @@ export default function ProductsPageClient({
                 originalPrice: product.originalPrice,
                 rating: product.rating,
                 reviewCount: product.reviewCount,
+                salesCount: product.salesCount,
                 store: product.store,
+                storeSlug: product.storeSlug,
                 category: product.category,
                 inStock: product.inStock,
+                affiliateUrl: product.affiliateUrl,
               }}
             />
           ))}
