@@ -1,6 +1,8 @@
 import SearchPageClient from "@/components/SearchPageClient";
 import { getSearchFilters, getSearchResults } from "@/lib/data/homepage";
 
+export const maxDuration = 60;
+
 type SearchPageProps = {
   searchParams: Promise<{ q?: string }>;
 };

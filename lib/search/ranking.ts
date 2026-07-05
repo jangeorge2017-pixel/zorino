@@ -32,8 +32,11 @@ export function rankRawListings(
     return devices;
   }
 
-  // Devices naturally rank above accessories due to higher scores.
-  return analyzed;
+  const accessories = analyzed.filter(
+    (row) => row.matchTier === "accessory" || (!row.isDevice && row.matchTier !== "repair")
+  );
+
+  return [...devices, ...accessories];
 }
 
 export function sortUnifiedByRelevance<T extends { relevanceScore: number; isDevice: boolean }>(
