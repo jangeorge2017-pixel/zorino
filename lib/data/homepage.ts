@@ -225,15 +225,15 @@ export type SearchResultItem = {
 };
 
 /**
- * Product search for /search page — live AliExpress Affiliates API only.
- * Returns [] on API error or zero results (UI shows "No products found").
+ * Product search for /search page — ZORINO Global Search Engine.
+ * Fans out to configured providers (AliExpress, eBay, …), ranks, dedupes, compares.
  */
 export async function getSearchResults(query: string): Promise<SearchResultItem[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const { searchAliExpressLive } = await import("@/services/aliexpress/search");
-  return searchAliExpressLive(trimmed, 24);
+  const { searchProducts } = await import("@/lib/search/engine");
+  return searchProducts(trimmed, 24);
 }
 
 /** Filter options for search page — AliExpress only. */

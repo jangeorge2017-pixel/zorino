@@ -2,7 +2,8 @@
  * Marketplace-agnostic search relevance for device/product queries.
  * Used by AliExpress, eBay, and future provider integrations.
  *
- * Phase 3: device-first ranking, repair/parts exclusion, official-brand preference.
+ * Phase 3 engine: score-and-rank (not hard-drop), device-first tiers,
+ * graduated accessory backfill when too few real products are found.
  */
 
 /** Accessory terms — longer phrases listed first for substring checks. */
@@ -175,6 +176,8 @@ export const OFFICIAL_DEVICE_BRANDS = [
   "realme",
   "motorola",
   "nokia",
+  "nvidia",
+  "geforce",
 ] as const;
 
 /** Category names that strongly suggest a primary device listing. */
@@ -193,11 +196,43 @@ export const DEVICE_CATEGORY_HINTS = [
 export const MARKETPLACE_SEARCH_DEFAULTS = {
   /** AliExpress affiliate API max page_size; eBay Browse max is also 50. */
   PAGE_SIZE: 50,
-  /** Scan extra API pages when page 1 is mostly accessories. */
-  MAX_PAGES: 8,
+  /** Scan API pages until MIN_FETCH_COUNT or catalog exhaustion. */
+  MAX_PAGES: 12,
+  /** Keep paging until at least this many unique listings are collected. */
+  MIN_FETCH_COUNT: 100,
+  /** Target ranking pool size. */
+  TARGET_FETCH_COUNT: 300,
+  /** Hide accessories when at least this many real devices are ranked. */
+  MIN_DEVICES_BEFORE_HIDING_ACCESSORIES: 6,
   /** Default search results shown on the first page. */
   DEFAULT_LIMIT: 24,
 } as const;
+
+/** Match tier used for smart ranking (highest tier wins). */
+export type ProductMatchTier =
+  | "exact"
+  | "model"
+  | "series"
+  | "brand"
+  | "accessory"
+  | "repair"
+  | "none";
+
+export interface SearchListingAnalysis {
+  tier: ProductMatchTier;
+  score: number;
+  isDevice: boolean;
+}
+
+const TIER_BASE_SCORE: Record<ProductMatchTier, number> = {
+  exact: 1000,
+  model: 800,
+  series: 600,
+  brand: 400,
+  accessory: 120,
+  repair: -1,
+  none: 0,
+};
 
 /** Significant tokens from the user query (lowercased). */
 export function queryTokens(query: string): string[] {
@@ -269,8 +304,97 @@ export function requiredBrandsForQuery(query: string): string[] | null {
   if (/\b(ps5|playstation)\b/.test(q)) {
     return ["sony", "playstation", "ps5"];
   }
+  if (/\brtx\b/.test(q)) {
+    return ["nvidia", "geforce", "rtx"];
+  }
 
   return null;
+}
+
+function brandMatchesQuery(hay: string, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (/\biphone\b/.test(q) && /\b(iphone|apple)\b/.test(hay)) return true;
+  if (/\b(galaxy|samsung|fold)\b/.test(q) && /\b(samsung|galaxy)\b/.test(hay)) return true;
+  if (/\bmacbook\b/.test(q) && /\b(macbook|apple)\b/.test(hay)) return true;
+  if (/\b(ps5|playstation)\b/.test(q) && /\b(ps5|playstation|sony)\b/.test(hay)) return true;
+  if (/\brtx\b/.test(q) && /\b(rtx|geforce|nvidia)\b/.test(hay)) return true;
+  return OFFICIAL_DEVICE_BRANDS.some((brand) => q.includes(brand) && hay.includes(brand));
+}
+
+function queryOverlapScore(title: string, query: string): number {
+  const tokens = queryTokens(query);
+  if (tokens.length === 0) return 0;
+
+  const hay = title.toLowerCase();
+  if (titleMatchesQuery(title, query)) return 100;
+
+  let matched = 0;
+  for (const token of tokens) {
+    if (hay.includes(token)) matched++;
+  }
+  if (matched === 0) {
+    return brandMatchesQuery(hay, query) ? 35 : 0;
+  }
+
+  return Math.round((matched / tokens.length) * 70);
+}
+
+function extractIphoneGeneration(hay: string): string | null {
+  const match = hay.match(/\biphone\s*(\d{1,2})\b/i);
+  return match ? match[1] : null;
+}
+
+function extractGalaxySModel(hay: string): string | null {
+  const match = hay.match(/\b(?:galaxy\s*)?s(\d{1,2})\b/i);
+  return match ? match[1] : null;
+}
+
+function extractRtxModel(hay: string): string | null {
+  const match = hay.match(/\brtx\s*(\d{4})\b/i);
+  return match ? match[1] : null;
+}
+
+/** Same model identifier (e.g. iPhone 15, S24, RTX 5090). */
+export function hasSameModel(title: string, query: string): boolean {
+  const q = query.toLowerCase();
+  const hay = title.toLowerCase();
+
+  const qIphone = extractIphoneGeneration(q);
+  const tIphone = extractIphoneGeneration(hay);
+  if (qIphone && tIphone) return qIphone === tIphone;
+
+  const qS = q.match(/\bs(\d{1,2})\b/);
+  const tS = extractGalaxySModel(hay);
+  if (qS && tS) return qS[1] === tS;
+
+  const qFold = q.match(/\bfold\s*(\d)?/);
+  const tFold = hay.match(/\b(?:z\s*)?fold\s*(\d)?/);
+  if (qFold && tFold) return (qFold[1] ?? "") === (tFold[1] ?? "");
+
+  const qRtx = extractRtxModel(q);
+  const tRtx = extractRtxModel(hay);
+  if (qRtx && tRtx) return qRtx === tRtx;
+
+  if (/\bps5\b/.test(q) && /\bps5\b/.test(hay)) return true;
+
+  return titleMatchesQuery(title, query);
+}
+
+/** Same product family / series (e.g. any iPhone, Galaxy S line, MacBook). */
+export function hasSameSeries(title: string, query: string): boolean {
+  const q = query.toLowerCase();
+  const hay = title.toLowerCase();
+
+  if (/\biphone\b/.test(q) && /\biphone\b/.test(hay)) return true;
+  if (/\b(galaxy|samsung|fold|flip)\b/.test(q) && /\b(galaxy|samsung|fold|flip)\b/.test(hay)) {
+    return true;
+  }
+  if (/\bmacbook\b/.test(q) && /\bmacbook\b/.test(hay)) return true;
+  if (/\b(ps5|playstation)\b/.test(q) && /\b(ps5|playstation)\b/.test(hay)) return true;
+  if (/\brtx\b/.test(q) && /\brtx\b/.test(hay)) return true;
+  if (/\bipad\b/.test(q) && /\bipad\b/.test(hay)) return true;
+
+  return false;
 }
 
 export function hasOfficialBrand(title: string, query: string): boolean {
@@ -315,6 +439,23 @@ export function titleMatchesQuery(title: string, query: string): boolean {
   // "ps5" — accept "PlayStation 5" / "PS5 Console".
   if (tokens.length === 1 && tokens[0] === "ps5") {
     return /\b(ps5|playstation\s*5)\b/.test(hay);
+  }
+
+  // "rtx 5090" — accept "NVIDIA GeForce RTX 5090".
+  if (tokens.includes("rtx")) {
+    const rtxTokens = tokens.filter((t) => t !== "rtx");
+    if (rtxTokens.length > 0 && /\brtx\b/.test(hay) && rtxTokens.every((t) => hay.includes(t))) {
+      return true;
+    }
+    if (tokens.length === 1 && tokens[0] === "rtx" && /\brtx\b/.test(hay)) return true;
+  }
+
+  // Brand-only queries: "Samsung", "iPhone", "MacBook".
+  if (tokens.length === 1) {
+    const token = tokens[0];
+    if (["iphone", "samsung", "macbook", "ipad", "xiaomi", "ps5", "playstation"].includes(token)) {
+      return hay.includes(token) || (token === "samsung" && /\bgalaxy\b/.test(hay));
+    }
   }
 
   return false;
@@ -406,6 +547,20 @@ export function looksLikeDevice(title: string, category?: string): boolean {
   // MacBook — whole laptops only, not panels/parts.
   if (looksLikeMacBookLaptop(hay, category)) return true;
 
+  // NVIDIA RTX graphics cards
+  if (/\brtx\s*\d{4}\b/i.test(hay) || /\bgeforce\s*rtx\b/i.test(hay)) {
+    if (
+      !/\b(water\s*block|backplate|bracket|riser|fan\s*only|cooler\s*only|thermal\s*paste|repaste)\b/.test(
+        hay
+      )
+    ) {
+      return true;
+    }
+  }
+  if (/\bgraphics\s+card\b/.test(hay) && /\b(nvidia|rtx|geforce)\b/.test(hay)) {
+    return true;
+  }
+
   // PlayStation / PS5
   if (/\b(ps5|playstation\s*5)\b/.test(hay)) {
     if (/\b(console|disc|digital|edition|bundle)\b/.test(hay) || categorySuggestsDevice(category)) {
@@ -473,53 +628,98 @@ export function isAccessoryListing(title: string, query: string): boolean {
 }
 
 /**
+ * Analyze a listing: assign match tier + composite score.
+ * Repair/parts and unrelated listings get tier "repair" / "none".
+ */
+export function analyzeSearchListing(
+  title: string,
+  query: string,
+  options?: { category?: string }
+): SearchListingAnalysis {
+  const tokens = queryTokens(query);
+  if (tokens.length === 0) {
+    return { tier: "none", score: 0, isDevice: false };
+  }
+
+  const hay = title.toLowerCase();
+  const phrase = query.trim().toLowerCase();
+  const wantsAccessory = queryWantsAccessory(query);
+  const overlap = queryOverlapScore(title, query);
+
+  if (isRepairOrPartsListing(hay)) {
+    return { tier: "repair", score: -1, isDevice: false };
+  }
+  if (
+    /\brtx\b/.test(query.toLowerCase()) &&
+    /\b(water\s*block|backplate|bracket|riser|fan\s*only|cooler\s*only)\b/.test(hay)
+  ) {
+    return { tier: "repair", score: -1, isDevice: false };
+  }
+  if (overlap === 0) {
+    return { tier: "none", score: 0, isDevice: false };
+  }
+
+  const isDevice = looksLikeDevice(title, options?.category);
+  const isAccessory = isAccessoryListing(title, query);
+
+  let tier: ProductMatchTier = "brand";
+
+  if (wantsAccessory && isAccessory) {
+    tier = phrase.length >= 2 && hay.includes(phrase) ? "exact" : "model";
+  } else if (isDevice) {
+    if (phrase.length >= 2 && hay.includes(phrase)) {
+      tier = "exact";
+    } else if (hasSameModel(title, query)) {
+      tier = "model";
+    } else if (hasSameSeries(title, query)) {
+      tier = "series";
+    } else if (hasOfficialBrand(title, query) || brandMatchesQuery(hay, query)) {
+      tier = "brand";
+    } else {
+      tier = "series";
+    }
+  } else if (isAccessory) {
+    tier = "accessory";
+  } else if (hasOfficialBrand(title, query) || brandMatchesQuery(hay, query)) {
+    tier = "brand";
+  } else if (overlap >= 50) {
+    tier = "accessory";
+  } else {
+    return { tier: "none", score: 0, isDevice: false };
+  }
+
+  let score = TIER_BASE_SCORE[tier] + overlap + tokens.length * 5;
+
+  if (isDevice) score += 60;
+  if (hasOfficialBrand(title, query)) score += 40;
+
+  const firstToken = tokens[0];
+  if (hay.startsWith(firstToken) || hay.startsWith(`new ${firstToken}`)) score += 15;
+  if (hay.startsWith(`apple ${firstToken}`) || hay.startsWith(`samsung ${firstToken}`)) {
+    score += 20;
+  }
+  if (hay.startsWith("apple ") || hay.startsWith("samsung ") || hay.startsWith("sony ")) {
+    score += 12;
+  }
+  if (hay.startsWith("nvidia ") || hay.startsWith("geforce ")) score += 12;
+
+  if (wantsAccessory && isAccessory) score += 30;
+
+  return { tier, score, isDevice };
+}
+
+/**
  * Score a listing title against the search query.
- * Returns -1 when the listing must be rejected.
+ * Returns -1 only for repair/parts and unrelated listings.
  */
 export function scoreSearchRelevance(
   title: string,
   query: string,
   options?: { category?: string }
 ): number {
-  const tokens = queryTokens(query);
-  if (tokens.length === 0) return -1;
-
-  const hay = title.toLowerCase();
-  if (!titleMatchesQuery(title, query)) return -1;
-
-  const wantsAccessory = queryWantsAccessory(query);
-  if (!wantsAccessory) {
-    if (isRepairOrPartsListing(hay)) return -1;
-    if (isAccessoryListing(title, query)) return -1;
-    if (!looksLikeDevice(title, options?.category)) return -1;
-
-    const requiredBrands = requiredBrandsForQuery(query);
-    if (requiredBrands && !hasOfficialBrand(title, query)) {
-      return -1;
-    }
-  }
-
-  let score = tokens.length * 10;
-  const phrase = query.trim().toLowerCase();
-
-  if (phrase.length >= 2 && hay.includes(phrase)) score += 25;
-
-  if (looksLikeDevice(title, options?.category)) score += 60;
-
-  if (hasOfficialBrand(title, query)) score += 25;
-
-  const firstToken = tokens[0];
-  if (hay.startsWith(firstToken) || hay.startsWith(`new ${firstToken}`)) score += 10;
-  if (hay.startsWith(`apple ${firstToken}`) || hay.startsWith(`samsung ${firstToken}`)) {
-    score += 15;
-  }
-  if (hay.startsWith("apple ") || hay.startsWith("samsung ") || hay.startsWith("sony ")) {
-    score += 10;
-  }
-
-  if (wantsAccessory && isAccessoryListing(title, query)) score += 20;
-
-  return score;
+  const analysis = analyzeSearchListing(title, query, options);
+  if (analysis.tier === "repair" || analysis.tier === "none") return -1;
+  return analysis.score;
 }
 
 export function isRelevantTitle(
@@ -527,24 +727,38 @@ export function isRelevantTitle(
   query: string,
   options?: { category?: string }
 ): boolean {
-  return scoreSearchRelevance(title, query, options) >= 0;
+  const analysis = analyzeSearchListing(title, query, options);
+  return analysis.tier !== "none" && analysis.tier !== "repair";
 }
 
-/** Filter and rank listings — highest device relevance first. */
+/**
+ * Rank listings by smart tiers. Devices first; accessories backfill only when
+ * fewer than MIN_DEVICES_BEFORE_HIDING_ACCESSORIES real products were found.
+ */
 export function rankBySearchRelevance<T>(
   items: T[],
   query: string,
   getTitle: (item: T) => string,
   getCategory?: (item: T) => string | undefined
 ): T[] {
-  return items
-    .map((item) => ({
-      item,
-      score: scoreSearchRelevance(getTitle(item), query, {
+  const { MIN_DEVICES_BEFORE_HIDING_ACCESSORIES } = MARKETPLACE_SEARCH_DEFAULTS;
+
+  const ranked = items
+    .map((item) => {
+      const title = getTitle(item);
+      const analysis = analyzeSearchListing(title, query, {
         category: getCategory?.(item),
-      }),
-    }))
-    .filter((row) => row.score >= 0)
-    .sort((a, b) => b.score - a.score)
-    .map((row) => row.item);
+      });
+      return { item, ...analysis };
+    })
+    .filter((row) => row.tier !== "none" && row.tier !== "repair")
+    .sort((a, b) => b.score - a.score);
+
+  const devices = ranked.filter((row) => row.isDevice && row.tier !== "accessory");
+
+  if (devices.length >= MIN_DEVICES_BEFORE_HIDING_ACCESSORIES) {
+    return devices.map((row) => row.item);
+  }
+
+  return ranked.map((row) => row.item);
 }
