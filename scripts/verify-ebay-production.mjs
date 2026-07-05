@@ -14,11 +14,11 @@ const base = process.argv[2] ?? "https://www.zorino.org/en/search?q=";
 
 function parseStoreCounts(html) {
   const counts = { ebay: 0, aliexpress: 0, amazon: 0, other: 0 };
-  for (const m of html.matchAll(/class="trending-card-store">([^<]+)/g)) {
-    const text = m[1].toLowerCase();
-    if (text.includes("ebay")) counts.ebay++;
-    else if (text.includes("aliexpress")) counts.aliexpress++;
-    else if (text.includes("amazon")) counts.amazon++;
+  for (const m of html.matchAll(/api\/affiliate\/go\?[^"']+/g)) {
+    const link = m[0];
+    if (link.includes("store=ebay")) counts.ebay++;
+    else if (link.includes("store=aliexpress")) counts.aliexpress++;
+    else if (link.includes("store=amazon")) counts.amazon++;
     else counts.other++;
   }
   return counts;
@@ -44,6 +44,8 @@ function parseEbayRedirectHosts(html) {
 console.log("=== eBay Production Verification ===\n");
 
 let totalEbayCards = 0;
+let totalAliExpressCards = 0;
+let totalAmazonCards = 0;
 let sandboxHosts = 0;
 let productionHosts = 0;
 
@@ -57,6 +59,8 @@ for (const q of QUERIES) {
   const stores = parseStoreCounts(html);
   const ebayHosts = parseEbayRedirectHosts(html);
   totalEbayCards += stores.ebay;
+  totalAliExpressCards += stores.aliexpress;
+  totalAmazonCards += stores.amazon;
 
   for (const host of ebayHosts) {
     if (host.includes("sandbox")) sandboxHosts++;
@@ -64,7 +68,7 @@ for (const q of QUERIES) {
   }
 
   console.log(
-    `${q}: ${ms}ms | eBay cards=${stores.ebay} AliExpress=${stores.aliexpress} Amazon=${stores.amazon} | ebayHosts=${ebayHosts.join(",") || "none"}`
+    `${q}: ${ms}ms | eBay=${stores.ebay} AliExpress=${stores.aliexpress} Amazon=${stores.amazon} | ebayHosts=${ebayHosts.join(",") || "none"}`
   );
 }
 
@@ -83,7 +87,9 @@ if (sandboxHosts > 0) {
 
 console.log("\n--- Summary ---");
 console.log({
-  totalEbayProductCards: totalEbayCards,
+  totalEbayOffers: totalEbayCards,
+  totalAliExpressOffers: totalAliExpressCards,
+  totalAmazonOffers: totalAmazonCards,
   productionEbayHosts: productionHosts,
   sandboxEbayHosts: sandboxHosts,
   queries: QUERIES.length,
