@@ -10,6 +10,25 @@ export const EBAY_CREDENTIAL_KEYS = {
 
 export const EBAY_PROVIDER_ID = "ebay" as const;
 
+/** Accept common Vercel/dashboard key aliases for Client ID. */
+const EBAY_APP_ID_ALIASES = ["EBAY_APP_ID", "EBAY_CLIENT_ID", "EBAY_Client_ID"] as const;
+
+function resolveEbayAppId(): string | undefined {
+  for (const key of EBAY_APP_ID_ALIASES) {
+    const val = getIntegrationCredential(key);
+    if (val) return val;
+  }
+  return undefined;
+}
+
+function resolveEbayCertId(): string | undefined {
+  return (
+    getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CERT_ID) ??
+    getIntegrationCredential("EBAY_CLIENT_SECRET") ??
+    getIntegrationCredential("EBAY_Client_Secret")
+  );
+}
+
 const EBAY_PRODUCTION = {
   browseApi: "https://api.ebay.com/buy/browse/v1",
   tokenUrl: "https://api.ebay.com/identity/v1/oauth2/token",
@@ -26,8 +45,8 @@ export function isEbaySandboxMode(): boolean {
   if (flag === "true" || flag === "1" || flag === "yes") return true;
   if (flag === "false" || flag === "0" || flag === "no") return false;
 
-  const appId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.APP_ID) ?? "";
-  const certId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CERT_ID) ?? "";
+  const appId = resolveEbayAppId() ?? "";
+  const certId = resolveEbayCertId() ?? "";
   return appId.includes("-SBX-") || certId.startsWith("SBX-");
 }
 
@@ -45,8 +64,8 @@ export const EBAY_BROWSE_API = EBAY_PRODUCTION.browseApi;
 export const EBAY_TOKEN_URL = EBAY_PRODUCTION.tokenUrl;
 
 export function getEbayCredentialStatus(): EbayCredentialStatus {
-  const appId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.APP_ID);
-  const certId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CERT_ID);
+  const appId = resolveEbayAppId();
+  const certId = resolveEbayCertId();
   const campaignId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CAMPAIGN_ID);
   const oauthToken = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.OAUTH_TOKEN);
   const referenceId = getIntegrationCredential("EBAY_REFERENCE_ID");
@@ -74,8 +93,8 @@ export function getEbayCredentialStatus(): EbayCredentialStatus {
 
 export function getEbayCredentials(): EbayCredentials | null {
   const oauthToken = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.OAUTH_TOKEN);
-  const appId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.APP_ID);
-  const certId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CERT_ID);
+  const appId = resolveEbayAppId();
+  const certId = resolveEbayCertId();
 
   if (oauthToken) {
     return {
