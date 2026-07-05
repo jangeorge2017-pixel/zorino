@@ -1,4 +1,9 @@
 import { getActiveSearchConnectors } from "@/lib/search/connectors/registry";
+import {
+  buildSearchCacheKey,
+  getCachedSearch,
+  setCachedSearch,
+} from "@/lib/search/cache";
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
@@ -11,12 +16,13 @@ export type GlobalSearchOptions = {
   providers?: SearchProviderId[];
   minFetch?: number;
   targetFetch?: number;
+  skipCache?: boolean;
 };
 
 /**
  * ZORINO Global Search Engine
  *
- * Pipeline: Provider Connectors → Normalization → Ranking →
+ * Pipeline: Provider Connectors (parallel) → Normalization → Ranking →
  *           Duplicate Detection → Price Comparison → UI mapping
  */
 export async function executeGlobalSearch(
@@ -24,9 +30,29 @@ export async function executeGlobalSearch(
   options?: GlobalSearchOptions
 ): Promise<SearchEngineResult> {
   const trimmed = query.trim();
-  const limit = options?.limit ?? SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT;
-  const connectors = await getActiveSearchConnectors(options?.providers);
+  const limit = Math.min(
+    options?.limit ?? SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT,
+    SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT
+  );
 
+  if (!trimmed) {
+    return {
+      products: [],
+      totalFetched: 0,
+      totalRanked: 0,
+      totalUnified: 0,
+      providers: [],
+      query: "",
+    };
+  }
+
+  const cacheKey = buildSearchCacheKey(trimmed, limit);
+  if (!options?.skipCache) {
+    const cached = getCachedSearch(cacheKey);
+    if (cached) return cached;
+  }
+
+  const connectors = await getActiveSearchConnectors(options?.providers);
   const providerStats: SearchEngineResult["providers"] = [];
   const allRaw: Awaited<ReturnType<(typeof connectors)[0]["search"]>> = [];
 
@@ -60,7 +86,7 @@ export async function executeGlobalSearch(
   const ranked = rankRawListings(allRaw, trimmed);
   const unified = sortUnifiedByRelevance(mergeDuplicateListings(ranked));
 
-  return {
+  const result: SearchEngineResult = {
     products: unified,
     totalFetched: allRaw.length,
     totalRanked: ranked.length,
@@ -68,6 +94,9 @@ export async function executeGlobalSearch(
     providers: providerStats,
     query: trimmed,
   };
+
+  setCachedSearch(cacheKey, result);
+  return result;
 }
 
 /** Search entry point for UI — returns SearchResultItem[] without UI changes. */
@@ -75,6 +104,7 @@ export async function searchProducts(
   query: string,
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT
 ): Promise<SearchResultItem[]> {
-  const result = await executeGlobalSearch(query, { limit });
-  return result.products.slice(0, limit).map(unifiedToSearchResultItem);
+  const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
+  const result = await executeGlobalSearch(query, { limit: capped });
+  return result.products.slice(0, capped).map(unifiedToSearchResultItem);
 }

@@ -10,7 +10,7 @@ import { globalRateLimiter } from "@/lib/data-layer/core/rate-limit";
 import { globalRequestQueue } from "@/lib/data-layer/core/queue";
 import { withRetry } from "@/lib/data-layer/core/retry";
 import { getDataProvider, listDataProviders } from "@/lib/data-layer/providers";
-import { PRODUCTION_PROVIDER_IDS } from "@/lib/integration/constants";
+import { DATA_LAYER_PRODUCTION_IDS } from "@/lib/integration/provider-map";
 import type {
   CategoryQueryParams,
   CouponQueryParams,
@@ -133,13 +133,13 @@ export class ProviderManager {
     params?: ProductQueryParams,
     options?: ExecuteOptions,
   ) {
-    return this.fanOutProviders(PRODUCTION_PROVIDER_IDS, (id) =>
+    return this.fanOutProviders(DATA_LAYER_PRODUCTION_IDS, (id) =>
       this.getProducts(id, params, options),
     );
   }
 
   async getConfiguredProductionProviders(): Promise<IDataProvider[]> {
-    return PRODUCTION_PROVIDER_IDS.map((id) => getDataProvider(id)).filter((provider) =>
+    return DATA_LAYER_PRODUCTION_IDS.map((id) => getDataProvider(id)).filter((provider) =>
       provider.isConfigured(),
     );
   }

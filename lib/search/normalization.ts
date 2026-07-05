@@ -1,11 +1,17 @@
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { EbayRawProduct } from "@/lib/integrations/ebay/types";
+import { computeDiscountPercent } from "@/lib/integration/normalize";
+import {
+  getProviderStoreMeta,
+  searchProviderToProductionId,
+} from "@/lib/integration/provider-context";
+import type { ProductMatchTier } from "@/lib/search/relevance";
 import type {
   NormalizedSearchListing,
   RawProviderListing,
   SearchProviderId,
 } from "@/lib/search/types";
-import type { ProductMatchTier } from "@/lib/search/relevance";
+import type { ExternalProduct } from "@/lib/sync/types";
 
 function upgradeAliExpressImage(url: string): string {
   if (!url) return url;
@@ -126,6 +132,37 @@ export function normalizeEbayRaw(raw: EbayRawProduct): RawProviderListing | null
   };
 }
 
+/** Map sync-layer ExternalProduct → search RawProviderListing. */
+export function externalProductToRawListing(
+  product: ExternalProduct,
+  providerId: SearchProviderId
+): RawProviderListing | null {
+  const productionId = searchProviderToProductionId(providerId);
+  if (!productionId) return null;
+
+  const meta = getProviderStoreMeta(productionId);
+  const originalPrice = product.originalPrice ?? product.price;
+  const discount = product.discount ?? computeDiscountPercent(product.price, originalPrice);
+
+  return {
+    providerId,
+    externalId: product.externalId,
+    title: product.title,
+    imageUrl: product.imageUrl,
+    price: product.price,
+    originalPrice,
+    discount,
+    currency: product.currency,
+    storeName: meta.name,
+    category: product.categorySlug,
+    rating: product.rating ?? 0,
+    reviewCount: product.reviewCount ?? 0,
+    inStock: product.inStock,
+    productUrl: product.affiliateUrl ?? product.productUrl,
+    affiliateUrl: product.affiliateUrl ?? product.productUrl,
+  };
+}
+
 export function toNormalizedListing(
   raw: RawProviderListing,
   analysis: { score: number; tier: ProductMatchTier; isDevice: boolean }
@@ -140,7 +177,6 @@ export function toNormalizedListing(
   };
 }
 
-/** Normalize any raw provider listing with optional provider-specific upgrade. */
 export function normalizeRawListing(
   raw: RawProviderListing,
   analysis: { score: number; tier: ProductMatchTier; isDevice: boolean }

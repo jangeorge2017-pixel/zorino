@@ -7,6 +7,7 @@ import {
 } from "@/lib/integration/normalize";
 import { buildProviderSyncContext } from "@/lib/integration/provider-context";
 import type { ProductionProviderId } from "@/lib/integration/constants";
+import { productionIdToDataProviderId } from "@/lib/integration/provider-map";
 import type { AliExpressProvider } from "@/lib/sync/providers/aliexpress";
 import type { Product } from "@/lib/types/entities";
 
@@ -24,7 +25,11 @@ export abstract class SyncLiveProvider extends BaseDataProvider {
   }
 
   get meta() {
-    return PROVIDER_REGISTRY[this.providerId];
+    const dataId = productionIdToDataProviderId(this.providerId);
+    if (!dataId) {
+      return PROVIDER_REGISTRY.aliexpress;
+    }
+    return PROVIDER_REGISTRY[dataId];
   }
 
   isConfigured(): boolean {

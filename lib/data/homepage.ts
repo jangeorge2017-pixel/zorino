@@ -233,7 +233,8 @@ export async function getSearchResults(query: string): Promise<SearchResultItem[
   if (!trimmed) return [];
 
   const { searchProducts } = await import("@/lib/search/engine");
-  return searchProducts(trimmed, 24);
+  const { SEARCH_ENGINE_DEFAULTS } = await import("@/lib/search/types");
+  return searchProducts(trimmed, SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT);
 }
 
 /** Filter options for search page — AliExpress only. */
