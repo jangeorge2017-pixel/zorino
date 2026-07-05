@@ -8,10 +8,37 @@ export {
   queryWantsAccessory,
   requiredBrandsForQuery,
   hasOfficialBrand,
+  hasSameModel,
+  hasSameSeries,
   titleMatchesQuery,
   looksLikeDevice,
   isAccessoryListing,
+  analyzeSearchListing,
   scoreSearchRelevance,
   isRelevantTitle,
   rankBySearchRelevance,
 } from "@/lib/search/relevance";
+
+export type { ProductMatchTier, SearchListingAnalysis } from "@/lib/search/relevance";
+
+export {
+  SEARCH_PROVIDER_IDS,
+  SEARCH_ENGINE_DEFAULTS,
+  LIVE_SEARCH_PROVIDER_IDS,
+} from "@/lib/search/types";
+
+export type {
+  SearchProviderId,
+  RawProviderListing,
+  NormalizedSearchListing,
+  UnifiedSearchProduct,
+  SearchEngineResult,
+} from "@/lib/search/types";
+
+export { executeGlobalSearch, searchProducts } from "@/lib/search/engine";
+export type { GlobalSearchOptions } from "@/lib/search/engine";
+
+export { getActiveSearchConnectors, getAllSearchConnectors } from "@/lib/search/connectors/registry";
+export { mergeDuplicateListings } from "@/lib/search/deduplication";
+export { rankRawListings } from "@/lib/search/ranking";
+export { unifiedToSearchResultItem, summarizePriceComparison } from "@/lib/search/price-comparison";

@@ -1,10 +1,5 @@
 import { createAliExpressClientFromEnv } from "@/lib/integrations/aliexpress";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
-import {
-  filterRelevantProducts,
-  MARKETPLACE_SEARCH_DEFAULTS,
-  scoreSearchRelevance,
-} from "@/lib/integrations/aliexpress/relevance";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import type { ProductDetail } from "@/lib/data/product-detail";
 import type { Product, Store } from "@/lib/types/entities";
@@ -155,118 +150,8 @@ export async function searchAliExpressLive(
   query: string,
   limit = 24
 ): Promise<SearchResultItem[]> {
-  const trimmed = query.trim();
-  if (!trimmed) return [];
-
-  const { logAliExpress } = await import("@/lib/integrations/aliexpress/logger");
-
-  const reportBase = {
-    searchInput: trimmed,
-    keywordsSent: trimmed,
-    method: "aliexpress.affiliate.product.query",
-  };
-
-  try {
-    const client = await getClient();
-    if (!client) {
-      logAliExpress("PHASE2 SEARCH REPORT", {
-        ...reportBase,
-        stage: "aborted",
-        reason: "ALIEXPRESS_APP_KEY / ALIEXPRESS_APP_SECRET not loaded from local env",
-        request: null,
-        apiResponse: null,
-        finalMappedProducts: [],
-      });
-      return [];
-    }
-
-    // Scan multiple API pages so relevance filtering can fill the page with devices.
-    const { PAGE_SIZE, MAX_PAGES } = MARKETPLACE_SEARCH_DEFAULTS;
-    const allRaw: AliExpressRawProduct[] = [];
-    const seenIds = new Set<string>();
-    let pagesScanned = 0;
-
-    for (let pageNo = 1; pageNo <= MAX_PAGES; pageNo++) {
-      const batch = await client.searchByKeyword(trimmed, {
-        pageSize: PAGE_SIZE,
-        pageNo,
-        currency: "USD",
-      });
-      pagesScanned = pageNo;
-      if (batch.length === 0) break;
-
-      for (const product of batch) {
-        const id = product.product_id != null ? String(product.product_id) : "";
-        if (!id || seenIds.has(id)) continue;
-        seenIds.add(id);
-        allRaw.push(product);
-      }
-
-      const rankedSoFar = filterRelevantProducts(allRaw, trimmed);
-      if (rankedSoFar.length >= limit) break;
-      if (batch.length < PAGE_SIZE) break;
-    }
-
-    const products = allRaw;
-    const relevantRaw = filterRelevantProducts(products, trimmed);
-    const droppedIrrelevant = products
-      .filter(
-        (p) =>
-          scoreSearchRelevance(p.product_title ?? "", trimmed, {
-            category: p.first_level_category_name,
-          }) < 0
-      )
-      .map((p) => p.product_title)
-      .slice(0, 10);
-
-    const mapped = relevantRaw
-      .map(mapRawToSearchItem)
-      .filter((item): item is SearchResultItem => item !== null)
-      .slice(0, limit);
-
-    logAliExpress("PHASE2 SEARCH REPORT", {
-      ...reportBase,
-      stage: "complete",
-      request: {
-        method: "aliexpress.affiliate.product.query",
-        keywords: trimmed,
-        page_no: "1",
-        page_size: String(PAGE_SIZE),
-        pages_scanned: String(pagesScanned),
-        target_currency: "USD",
-        target_language: "EN",
-      },
-      apiResponse: {
-        rawCount: products.length,
-        relevantCount: relevantRaw.length,
-        droppedIrrelevantSample: droppedIrrelevant,
-      },
-      finalMappedProducts: mapped.map((item) => ({
-        id: item.id,
-        title: item.name,
-        price: item.price,
-        originalPrice: item.originalPrice,
-        store: item.store,
-        rating: item.rating,
-        salesCount: item.salesCount,
-        affiliateUrl: item.affiliateUrl,
-        imageSrc: item.imageSrc,
-      })),
-    });
-
-    return mapped;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    const stack = err instanceof Error ? err.stack : undefined;
-    logAliExpress("PHASE2 SEARCH REPORT", {
-      ...reportBase,
-      stage: "error",
-      error: message,
-      stack,
-      finalMappedProducts: [],
-    });
-    return [];
-  }
+  const { searchProducts } = await import("@/lib/search/engine");
+  return searchProducts(query, limit);
 }
 
 /** Browse live AliExpress catalog using default keywords (products / homepage). */
@@ -404,8 +289,15 @@ export function filtersFromSearchResults(results: SearchResultItem[]) {
         .map((r) => [r.category, { value: r.category, label: r.category }])
     ).values(),
   ];
+  const stores = [
+    ...new Map(
+      results
+        .filter((r) => r.storeSlug)
+        .map((r) => [r.storeSlug, { value: r.storeSlug, label: r.store }])
+    ).values(),
+  ];
   return {
     categories,
-    stores: ALIEXPRESS_SEARCH_FILTERS.stores,
+    stores: stores.length > 0 ? stores : ALIEXPRESS_SEARCH_FILTERS.stores,
   };
 }

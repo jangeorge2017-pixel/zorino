@@ -10,6 +10,7 @@ export {
   queryWantsAccessory,
   looksLikeDevice,
   isAccessoryListing,
+  analyzeSearchListing,
   scoreSearchRelevance,
   isRelevantTitle,
   rankBySearchRelevance,
