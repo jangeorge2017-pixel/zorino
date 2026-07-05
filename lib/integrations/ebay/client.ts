@@ -101,6 +101,7 @@ export class EbayAffiliateClient {
         `${getEbayBrowseApiBase()}/item_summary/search?${params}`,
         {
           headers: this.buildHeaders(token, marketplaceId),
+          timeoutMs: 12_000,
         }
       );
 
