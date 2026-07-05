@@ -1,7 +1,7 @@
 import { aliExpressSearchConnector } from "@/lib/search/connectors/aliexpress";
+import { amazonSearchConnector } from "@/lib/search/connectors/amazon";
 import { ebaySearchConnector } from "@/lib/search/connectors/ebay";
 import {
-  amazonSearchConnector,
   bestBuySearchConnector,
   jumiaSearchConnector,
   noonSearchConnector,

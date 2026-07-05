@@ -1,3 +1,5 @@
+import type { AmazonRawProduct } from "@/lib/integrations/amazon/client";
+import { getAmazonAssociateTag } from "@/lib/integrations/amazon/config";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { EbayRawProduct } from "@/lib/integrations/ebay/types";
 import { computeDiscountPercent } from "@/lib/integration/normalize";
@@ -81,6 +83,45 @@ export function normalizeAliExpressRaw(raw: AliExpressRawProduct): RawProviderLi
     inStock: true,
     productUrl: affiliateLink,
     affiliateUrl: affiliateLink,
+  };
+}
+
+/** Amazon PA-API → raw provider listing. */
+export function normalizeAmazonRaw(raw: AmazonRawProduct): RawProviderListing | null {
+  if (!raw.asin || !raw.title) return null;
+
+  const associateTag = getAmazonAssociateTag();
+  const affiliateUrl = raw.affiliateUrl?.trim() || raw.productUrl?.trim() || "";
+  if (!affiliateUrl || !affiliateUrl.includes(associateTag)) return null;
+
+  const price = raw.price;
+  if (!price || price <= 0) return null;
+
+  const originalPrice = raw.originalPrice > price ? raw.originalPrice : price;
+  const discount =
+    originalPrice > price
+      ? Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100))
+      : 0;
+
+  const imageUrl = raw.imageUrl ?? "";
+  if (!imageUrl.startsWith("http")) return null;
+
+  return {
+    providerId: "amazon",
+    externalId: raw.asin,
+    title: raw.title.trim(),
+    imageUrl,
+    price,
+    originalPrice,
+    discount,
+    currency: raw.currency?.trim() || "USD",
+    storeName: "Amazon",
+    category: raw.category?.trim() || "General",
+    rating: raw.rating ?? 0,
+    reviewCount: raw.reviewCount ?? 0,
+    inStock: raw.inStock,
+    productUrl: raw.productUrl,
+    affiliateUrl,
   };
 }
 

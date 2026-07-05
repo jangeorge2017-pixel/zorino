@@ -1,3 +1,9 @@
+import { createAmazonClientFromEnv } from "@/lib/integrations/amazon";
+import {
+  getAmazonPaApiConfig,
+  mapAmazonItemToNormalized,
+} from "@/lib/sync/providers/amazon/paapi-types";
+import { mapAmazonProduct } from "@/lib/sync/providers/amazon/mapper";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
 import { BaseConnector } from "@/lib/sync/connectors/base";
 import {
@@ -5,17 +11,15 @@ import {
   type ImportProviderId,
   type ProviderAdapterMeta,
 } from "@/lib/sync/providers/types";
-import { getAmazonPaApiConfig } from "@/lib/sync/providers/amazon/paapi-types";
 
 const CREDENTIAL_KEYS = [
   "AMAZON_PAAPI_ACCESS_KEY",
   "AMAZON_PAAPI_SECRET_KEY",
-  "AMAZON_ASSOCIATE_TAG",
 ] as const;
 
 /**
- * Amazon Product Advertising API 5.0 adapter.
- * Prepared for Phase 2 — types and config helpers ready; live calls pending.
+ * Amazon Product Advertising API 5.0 — live search + catalog sync.
+ * @see https://webservices.amazon.com/paapi5/documentation/
  */
 export class AmazonProvider extends BaseConnector {
   id = "amazon" as const;
@@ -23,42 +27,62 @@ export class AmazonProvider extends BaseConnector {
   readonly meta: ProviderAdapterMeta = {
     id: "amazon",
     name: "Amazon",
-    phase: "placeholder",
+    phase: "live",
     apiDocs: "https://webservices.amazon.com/paapi5/documentation/",
   };
 
   isConfigured(): boolean {
-    return checkProviderCredentials([...CREDENTIAL_KEYS]).configured;
+    return checkProviderCredentials([...CREDENTIAL_KEYS, "AMAZON_ASSOCIATE_TAG"]).configured ||
+      checkProviderCredentials([...CREDENTIAL_KEYS]).configured;
   }
 
   getCredentials() {
     return checkProviderCredentials([...CREDENTIAL_KEYS]);
   }
 
-  getPaApiConfig() {
-    return getAmazonPaApiConfig();
-  }
-
   async fetchProducts(ctx: SyncContext): Promise<ExternalProduct[]> {
     if (!this.isConfigured()) {
       throw this.notConfiguredError();
     }
-    const config = getAmazonPaApiConfig();
-    if (!config) return [];
 
-    // Phase 2: Sign and POST to /paapi5/searchitems
-    if (process.env.NODE_ENV !== "production") {
-      console.info("[AmazonProvider] fetchProducts — PA-API 5.0 integration pending", {
-        marketplace: config.marketplace,
-        store: ctx.storeSlug,
+    const client = createAmazonClientFromEnv();
+    if (!client) return [];
+
+    const keywords = ctx.jobConfig?.keywords ?? ["electronics"];
+    const maxPages = Math.min(ctx.jobConfig?.maxPages ?? 5, 10);
+    const products: ExternalProduct[] = [];
+
+    for (const keyword of keywords) {
+      const items = await client.searchByKeyword(keyword, {
+        itemCount: 10,
+        maxPages,
       });
+      for (const raw of items) {
+        const external = mapAmazonProduct(ctx, raw);
+        if (external) products.push(external);
+      }
     }
-    return [];
+
+    return products;
   }
 
   async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {
-    if (!this.isConfigured()) return [];
-    return [];
+    const products = await this.fetchProducts(ctx);
+    return products
+      .filter((p) => (p.discount ?? 0) > 0 || (p.originalPrice ?? p.price) > p.price)
+      .slice(0, 12)
+      .map((p) => ({
+        externalProductId: p.externalId,
+        title: p.title,
+        discount: p.discount ?? 0,
+        discountType: p.discountType ?? "percentage",
+        price: p.price,
+        originalPrice: p.originalPrice ?? p.price,
+        currency: p.currency,
+        countryCode: p.countryCode,
+        imageUrl: p.imageUrl,
+        productUrl: p.affiliateUrl ?? p.productUrl,
+      }));
   }
 }
 
@@ -69,3 +93,6 @@ export function createAmazonProvider(): AmazonProvider {
 export function getAmazonProviderId(): ImportProviderId {
   return "amazon";
 }
+
+// Re-export for backward compatibility
+export { getAmazonPaApiConfig, mapAmazonItemToNormalized };

@@ -22,6 +22,24 @@ export const INTEGRATION_SETTING_FIELDS: Omit<
   { key: "EBAY_CAMPAIGN_ID", label: "eBay Campaign ID (ePN)", provider: "ebay", isSecret: false },
   { key: "EBAY_OAUTH_TOKEN", label: "eBay OAuth Token (optional)", provider: "ebay", isSecret: true },
   { key: "EBAY_REFERENCE_ID", label: "eBay Reference ID (optional)", provider: "ebay", isSecret: false },
+  {
+    key: "AMAZON_PAAPI_ACCESS_KEY",
+    label: "Amazon PA-API Access Key",
+    provider: "amazon",
+    isSecret: false,
+  },
+  {
+    key: "AMAZON_PAAPI_SECRET_KEY",
+    label: "Amazon PA-API Secret Key",
+    provider: "amazon",
+    isSecret: true,
+  },
+  {
+    key: "AMAZON_ASSOCIATE_TAG",
+    label: "Amazon Associate Tag",
+    provider: "amazon",
+    isSecret: false,
+  },
   { key: "CJDROPSHIPPING_API_KEY", label: "CJdropshipping API Key", provider: "cjdropshipping", isSecret: true },
 ];
 
