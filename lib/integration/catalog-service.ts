@@ -1,8 +1,5 @@
 import type { HomepageSectionProducts } from "@/lib/data/homepage";
-import {
-  fetchMergedCatalog,
-  isAnyProductionProviderConfigured,
-} from "@/lib/integration/comparison-engine";
+import { fetchMergedCatalog } from "@/lib/integration/comparison-engine";
 import {
   catalogItemToDeal,
   catalogItemToTrendingDealCard,
@@ -14,6 +11,9 @@ let catalogCache: { items: NormalizedCatalogItem[]; expiresAt: number } | null =
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 async function getCatalogItems(): Promise<NormalizedCatalogItem[]> {
+  const { isAnyProductionProviderConfigured } = await import(
+    "@/lib/integration/comparison-engine"
+  );
   if (!isAnyProductionProviderConfigured()) return [];
 
   const now = Date.now();
@@ -104,4 +104,7 @@ export async function getIntegratedSectionProducts(): Promise<HomepageSectionPro
   };
 }
 
-export { isAnyProductionProviderConfigured };
+export {
+  isAnyProductionProviderConfigured,
+  getConfiguredProductionProvidersList as getConfiguredProductionProviders,
+} from "@/lib/integration/comparison-engine";

@@ -1,34 +1,75 @@
 import type { CatalogFetchResult, NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import {
+  CATALOG_FETCH_DEFAULTS,
   PRODUCTION_PROVIDER_IDS,
   type ProductionProviderId,
 } from "@/lib/integration/constants";
 import { externalProductsToCatalogItems } from "@/lib/integration/normalize";
-import { buildProviderSyncContext } from "@/lib/integration/provider-context";
-import { createAliExpressProvider } from "@/lib/sync/providers/aliexpress";
+import {
+  buildProviderSyncContext,
+  getProviderStoreMeta,
+} from "@/lib/integration/provider-context";
+import {
+  getConfiguredProductionProviders,
+  isProductionProviderConfigured,
+} from "@/lib/integration/provider-config";
 import { titleSimilarity } from "@/lib/marketplace-engine/utils";
+import { DEFAULT_IMPORT_KEYWORDS } from "@/lib/sync/providers/shared/import-config";
 import type { ExternalProduct } from "@/lib/sync/types";
-import { isAliExpressConfigured } from "@/lib/integrations/aliexpress";
+import type { PartnerConnector } from "@/lib/sync/types";
+import { createAliExpressProvider } from "@/lib/sync/providers/aliexpress";
+import { createAmazonProvider } from "@/lib/sync/providers/amazon";
+import { createEbayProvider } from "@/lib/sync/providers/ebay";
+import { createTemuProvider } from "@/lib/sync/providers/temu";
+import { createWalmartProvider } from "@/lib/sync/providers/walmart";
 
 const MATCH_THRESHOLD = 0.52;
 
-function isProviderConfigured(providerId: ProductionProviderId): boolean {
-  return providerId === "aliexpress" && isAliExpressConfigured();
+function getSyncConnector(providerId: ProductionProviderId): PartnerConnector | null {
+  switch (providerId) {
+    case "aliexpress":
+      return createAliExpressProvider();
+    case "ebay":
+      return createEbayProvider();
+    case "amazon":
+      return createAmazonProvider();
+    case "walmart":
+      return createWalmartProvider();
+    case "temu":
+      return createTemuProvider();
+    default:
+      return null;
+  }
 }
 
 async function fetchExternalProducts(
   providerId: ProductionProviderId,
 ): Promise<ExternalProduct[]> {
-  const ctx = buildProviderSyncContext(providerId);
-  return createAliExpressProvider().fetchProducts(ctx);
+  const connector = getSyncConnector(providerId);
+  if (!connector) return [];
+
+  const ctx = buildProviderSyncContext(providerId, {
+    jobConfig: {
+      keywords: DEFAULT_IMPORT_KEYWORDS[providerId] ?? ["electronics", "deals"],
+      maxPages: CATALOG_FETCH_DEFAULTS.maxPages,
+      pageSize: CATALOG_FETCH_DEFAULTS.pageSize,
+    },
+  });
+
+  return connector.fetchProducts(ctx);
 }
 
 /** Fetch and normalize listings from a single marketplace provider. */
 export async function fetchProviderCatalog(
   providerId: ProductionProviderId,
 ): Promise<{ items: NormalizedCatalogItem[]; error?: string }> {
-  if (!isProviderConfigured(providerId)) {
+  if (!isProductionProviderConfigured(providerId)) {
     return { items: [], error: "not_configured" };
+  }
+
+  const connector = getSyncConnector(providerId);
+  if (!connector) {
+    return { items: [], error: "connector_pending" };
   }
 
   try {
@@ -106,20 +147,27 @@ export function mergeProviderCatalogs(
   return merged;
 }
 
-/** Fan-out across AliExpress + eBay, normalize, and merge for comparison. */
+/** Fan-out across all configured providers, normalize, and merge for comparison. */
 export async function fetchMergedCatalog(): Promise<CatalogFetchResult> {
   const providers: CatalogFetchResult["providers"] = {};
   const batches: NormalizedCatalogItem[][] = [];
 
   await Promise.all(
     PRODUCTION_PROVIDER_IDS.map(async (providerId) => {
-      const result = await fetchProviderCatalog(providerId);
-      providers[providerId] = {
-        count: result.items.length,
-        error: result.error,
-      };
-      if (result.items.length > 0) {
-        batches.push(result.items);
+      try {
+        const result = await fetchProviderCatalog(providerId);
+        providers[providerId] = {
+          count: result.items.length,
+          error: result.error,
+        };
+        if (result.items.length > 0) {
+          batches.push(result.items);
+        }
+      } catch (error) {
+        providers[providerId] = {
+          count: 0,
+          error: error instanceof Error ? error.message : "fetch_failed",
+        };
       }
     }),
   );
@@ -131,9 +179,11 @@ export async function fetchMergedCatalog(): Promise<CatalogFetchResult> {
 }
 
 export function isAnyProductionProviderConfigured(): boolean {
-  return PRODUCTION_PROVIDER_IDS.some((id) => isProviderConfigured(id));
+  return getConfiguredProductionProviders().length > 0;
 }
 
-export function getConfiguredProductionProviders(): ProductionProviderId[] {
-  return PRODUCTION_PROVIDER_IDS.filter((id) => isProviderConfigured(id));
+export function getConfiguredProductionProvidersList(): ProductionProviderId[] {
+  return getConfiguredProductionProviders();
 }
+
+export { getProviderStoreMeta };

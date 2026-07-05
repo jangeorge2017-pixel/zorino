@@ -35,7 +35,14 @@ export function getAllSearchConnectors(): SearchConnector[] {
   return ALL_CONNECTORS;
 }
 
-/** Connectors that are configured and ready to search. */
+/** All 8 marketplace connectors (availability checked separately). */
+export function getRegisteredSearchConnectors(): SearchConnector[] {
+  return SEARCH_PROVIDER_IDS.map((id) => CONNECTOR_MAP.get(id)).filter(
+    (c): c is SearchConnector => c !== undefined
+  );
+}
+
+/** Connectors that are configured and ready to search — never blocks on failures. */
 export async function getActiveSearchConnectors(
   providerIds?: SearchProviderId[]
 ): Promise<SearchConnector[]> {
@@ -52,4 +59,9 @@ export async function getActiveSearchConnectors(
   );
 
   return availability.filter((row) => row.available).map((row) => row.connector);
+}
+
+/** Count how many of the 8 providers are registered (always 8). */
+export function getRegisteredProviderCount(): number {
+  return ALL_CONNECTORS.length;
 }

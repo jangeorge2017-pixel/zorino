@@ -10,6 +10,9 @@ export type ImportJobConfig = {
 export const DEFAULT_IMPORT_KEYWORDS: Record<string, string[]> = {
   aliexpress: ["wireless earbuds", "smart watch", "phone case", "bluetooth speaker"],
   ebay: ["iphone", "macbook", "playstation", "nike shoes"],
+  amazon: ["electronics", "laptop", "smartphone", "headphones"],
+  walmart: ["electronics", "tv", "laptop", "gaming"],
+  temu: ["home gadgets", "phone accessories", "fashion deals"],
   cjdropshipping: ["phone accessories", "home decor", "pet supplies"],
 };
 

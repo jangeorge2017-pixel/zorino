@@ -27,7 +27,10 @@ export const SEARCH_ENGINE_DEFAULTS = {
   MIN_FETCH_COUNT: 100,
   /** Target pool size for ranking depth. */
   TARGET_FETCH_COUNT: 300,
-  DEFAULT_LIMIT: 24,
+  /** Default results returned to the search UI. */
+  DEFAULT_LIMIT: 200,
+  /** Max results the UI can receive from one search. */
+  MAX_DISPLAY_LIMIT: 200,
   MIN_DEVICES_BEFORE_ACCESSORIES: 6,
   DUPLICATE_TITLE_THRESHOLD: 0.55,
   DUPLICATE_STRONG_THRESHOLD: 0.72,
