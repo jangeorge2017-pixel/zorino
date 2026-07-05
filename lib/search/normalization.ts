@@ -147,7 +147,11 @@ export function normalizeEbayRaw(raw: EbayRawProduct): RawProviderListing | null
   const productUrl = raw.itemAffiliateWebUrl ?? raw.itemWebUrl ?? "";
   if (!productUrl) return null;
 
-  const imageUrl = upgradeEbayImage(raw.image?.imageUrl ?? "");
+  const imageCandidate =
+    raw.image?.imageUrl ??
+    raw.additionalImages?.[0]?.imageUrl ??
+    "";
+  const imageUrl = upgradeEbayImage(imageCandidate);
   if (!imageUrl.startsWith("http")) return null;
 
   const qty = raw.estimatedAvailabilities?.[0]?.estimatedAvailableQuantity;

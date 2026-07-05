@@ -33,24 +33,28 @@ export const ebaySearchConnector: SearchConnector = {
     const maxPagesNeeded = Math.ceil(targetFetch / pageSize);
     const pagesToScan = Math.min(maxPages, maxPagesNeeded);
 
-    const batch = await client.searchByKeyword(trimmed, {
-      pageSize,
-      maxPages: pagesToScan,
-      countryCode,
-    });
+    try {
+      const batch = await client.searchByKeyword(trimmed, {
+        pageSize,
+        maxPages: pagesToScan,
+        countryCode,
+      });
 
-    const listings: RawProviderListing[] = [];
-    const seenIds = new Set<string>();
+      const listings: RawProviderListing[] = [];
+      const seenIds = new Set<string>();
 
-    for (const raw of batch) {
-      const id = raw.itemId ?? "";
-      if (!id || seenIds.has(id)) continue;
-      seenIds.add(id);
+      for (const raw of batch) {
+        const id = raw.itemId ?? "";
+        if (!id || seenIds.has(id)) continue;
+        seenIds.add(id);
 
-      const normalized = normalizeEbayRaw(raw);
-      if (normalized) listings.push(normalized);
+        const normalized = normalizeEbayRaw(raw);
+        if (normalized) listings.push(normalized);
+      }
+
+      return listings;
+    } catch {
+      return [];
     }
-
-    return listings;
   },
 };

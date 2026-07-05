@@ -4,9 +4,12 @@ export {
   EBAY_CREDENTIAL_KEYS,
   EBAY_PROVIDER_ID,
   EBAY_TOKEN_URL,
+  getEbayBrowseApiBase,
   getEbayCredentialStatus,
   getEbayCredentials,
+  getEbayTokenUrl,
   isEbayConfigured,
+  isEbaySandboxMode,
 } from "@/lib/integrations/ebay/config";
 export {
   buildEbayAffiliateContext,
@@ -40,9 +43,11 @@ export type { EbayEpnPrepStatus, EbayEpnCredentialSlot } from "@/lib/integration
 
 import { EbayAffiliateClient } from "@/lib/integrations/ebay/client";
 import { getEbayCredentials } from "@/lib/integrations/ebay/config";
+import { getIntegrationCredential } from "@/lib/integration/credentials";
 
 export function createEbayClientFromEnv(): EbayAffiliateClient | null {
   const creds = getEbayCredentials();
   if (!creds) return null;
-  return new EbayAffiliateClient(creds.campaignId);
+  const referenceId = getIntegrationCredential("EBAY_REFERENCE_ID") ?? undefined;
+  return new EbayAffiliateClient(creds.campaignId, referenceId);
 }

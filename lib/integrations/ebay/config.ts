@@ -10,8 +10,39 @@ export const EBAY_CREDENTIAL_KEYS = {
 
 export const EBAY_PROVIDER_ID = "ebay" as const;
 
-export const EBAY_BROWSE_API = "https://api.ebay.com/buy/browse/v1";
-export const EBAY_TOKEN_URL = "https://api.ebay.com/identity/v1/oauth2/token";
+const EBAY_PRODUCTION = {
+  browseApi: "https://api.ebay.com/buy/browse/v1",
+  tokenUrl: "https://api.ebay.com/identity/v1/oauth2/token",
+} as const;
+
+const EBAY_SANDBOX_ENDPOINTS = {
+  browseApi: "https://api.sandbox.ebay.com/buy/browse/v1",
+  tokenUrl: "https://api.sandbox.ebay.com/identity/v1/oauth2/token",
+} as const;
+
+/** True when sandbox Browse/OAuth endpoints should be used. */
+export function isEbaySandboxMode(): boolean {
+  const flag = getIntegrationCredential("EBAY_SANDBOX")?.trim().toLowerCase();
+  if (flag === "true" || flag === "1" || flag === "yes") return true;
+  if (flag === "false" || flag === "0" || flag === "no") return false;
+
+  const appId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.APP_ID) ?? "";
+  const certId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CERT_ID) ?? "";
+  return appId.includes("-SBX-") || certId.startsWith("SBX-");
+}
+
+export function getEbayBrowseApiBase(): string {
+  return isEbaySandboxMode() ? EBAY_SANDBOX_ENDPOINTS.browseApi : EBAY_PRODUCTION.browseApi;
+}
+
+export function getEbayTokenUrl(): string {
+  return isEbaySandboxMode() ? EBAY_SANDBOX_ENDPOINTS.tokenUrl : EBAY_PRODUCTION.tokenUrl;
+}
+
+/** @deprecated Use getEbayBrowseApiBase() — kept for backward compatibility. */
+export const EBAY_BROWSE_API = EBAY_PRODUCTION.browseApi;
+/** @deprecated Use getEbayTokenUrl() — kept for backward compatibility. */
+export const EBAY_TOKEN_URL = EBAY_PRODUCTION.tokenUrl;
 
 export function getEbayCredentialStatus(): EbayCredentialStatus {
   const appId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.APP_ID);

@@ -1,6 +1,6 @@
 import {
-  EBAY_TOKEN_URL,
   getEbayCredentials,
+  getEbayTokenUrl,
 } from "@/lib/integrations/ebay/config";
 
 const TOKEN_CACHE_KEY = "__zorino_ebay_token__";
@@ -41,7 +41,7 @@ export async function getEbayAccessToken(): Promise<string> {
     scope: "https://api.ebay.com/oauth/api_scope",
   });
 
-  const res = await fetch(EBAY_TOKEN_URL, {
+  const res = await fetch(getEbayTokenUrl(), {
     method: "POST",
     headers: {
       Authorization: `Basic ${credentials}`,
