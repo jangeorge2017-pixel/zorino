@@ -5,7 +5,7 @@ import {
   ebayMarketplaceId,
   getEbayAccessToken,
 } from "@/lib/integrations/ebay/auth";
-import { EBAY_BROWSE_API } from "@/lib/integrations/ebay/config";
+import { getEbayBrowseApiBase } from "@/lib/integrations/ebay/config";
 import type { EbayRawProduct, EbayValidationResult } from "@/lib/integrations/ebay/types";
 
 type SearchResponse = {
@@ -98,7 +98,7 @@ export class EbayAffiliateClient {
       });
 
       const batch = await fetchJson<SearchResponse>(
-        `${EBAY_BROWSE_API}/item_summary/search?${params}`,
+        `${getEbayBrowseApiBase()}/item_summary/search?${params}`,
         {
           headers: this.buildHeaders(token, marketplaceId),
         }
@@ -122,7 +122,7 @@ export class EbayAffiliateClient {
     for (const itemId of itemIds.slice(0, 20)) {
       try {
         const item = await fetchJson<EbayRawProduct>(
-          `${EBAY_BROWSE_API}/item/${encodeURIComponent(itemId)}`,
+          `${getEbayBrowseApiBase()}/item/${encodeURIComponent(itemId)}`,
           {
             headers: this.buildHeaders(token, marketplaceId),
           }
