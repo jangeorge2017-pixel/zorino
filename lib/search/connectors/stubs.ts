@@ -21,13 +21,6 @@ function createEnvGatedStub(
   };
 }
 
-export const amazonSearchConnector = createSyncBridgeConnector({
-  id: "amazon",
-  name: "Amazon",
-  importId: "amazon",
-  productionId: "amazon",
-});
-
 export const walmartSearchConnector = createSyncBridgeConnector({
   id: "walmart",
   name: "Walmart",

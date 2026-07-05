@@ -3,9 +3,9 @@ import {
   type ProductionProviderId,
 } from "@/lib/integration/constants";
 import { isAliExpressConfigured } from "@/lib/integrations/aliexpress";
+import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 import { isIntegrationConfigured } from "@/lib/integration/credentials";
-import { createAmazonProvider } from "@/lib/sync/providers/amazon";
 import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
 
@@ -17,7 +17,7 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
     case "ebay":
       return isEbayConfigured();
     case "amazon":
-      return createAmazonProvider().isConfigured();
+      return isAmazonConfigured();
     case "walmart":
       return createWalmartProvider().isConfigured();
     case "temu":

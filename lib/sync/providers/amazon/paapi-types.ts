@@ -35,11 +35,16 @@ export interface AmazonPaApiItem {
     Title?: { DisplayValue?: string };
     Features?: { DisplayValues?: string[] };
     ByLineInfo?: { Brand?: { DisplayValue?: string } };
+    Classifications?: { ProductGroup?: { DisplayValue?: string } };
+  };
+  CustomerReviews?: {
+    StarRating?: { Value?: number };
+    Count?: number;
   };
   Offers?: {
     Listings?: Array<{
-      Price?: { Amount?: number; Currency?: string };
-      SavingBasis?: { Amount?: number };
+      Price?: { Amount?: number; Currency?: string; DisplayAmount?: string };
+      SavingBasis?: { Amount?: number; DisplayAmount?: string };
       Availability?: { Message?: string };
     }>;
   };
@@ -49,12 +54,13 @@ export function getAmazonPaApiConfig(): AmazonPaApiConfig | null {
   const accessKey = process.env.AMAZON_PAAPI_ACCESS_KEY?.trim();
   const secretKey = process.env.AMAZON_PAAPI_SECRET_KEY?.trim();
   const associateTag = process.env.AMAZON_ASSOCIATE_TAG?.trim();
-  if (!accessKey || !secretKey || !associateTag) return null;
+  if (!accessKey || !secretKey) return null;
+  const tag = associateTag || "zorino-20";
 
   return {
     accessKey,
     secretKey,
-    associateTag,
+    associateTag: tag,
     marketplace: process.env.AMAZON_PAAPI_MARKETPLACE ?? "www.amazon.com",
     region: process.env.AMAZON_PAAPI_REGION ?? "us-east-1",
   };

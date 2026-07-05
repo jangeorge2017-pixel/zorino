@@ -1,3 +1,4 @@
+import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
 import { getActiveSearchConnectors } from "@/lib/search/connectors/registry";
 import {
   buildSearchCacheKey,
@@ -51,6 +52,8 @@ export async function executeGlobalSearch(
     const cached = getCachedSearch(cacheKey);
     if (cached) return cached;
   }
+
+  await hydrateIntegrationCredentials();
 
   const connectors = await getActiveSearchConnectors(options?.providers);
   const providerStats: SearchEngineResult["providers"] = [];

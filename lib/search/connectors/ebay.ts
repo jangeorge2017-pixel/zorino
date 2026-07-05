@@ -4,12 +4,14 @@ import { normalizeEbayRaw } from "@/lib/search/normalization";
 import type { RawProviderListing } from "@/lib/search/types";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { ConnectorSearchOptions, SearchConnector } from "@/lib/search/connectors/types";
+import { loadEbayCredentials } from "@/services/ebay/credentials";
 
 export const ebaySearchConnector: SearchConnector = {
   id: "ebay",
   name: "eBay",
 
   async isAvailable() {
+    await loadEbayCredentials();
     return isEbayConfigured();
   },
 
@@ -17,6 +19,7 @@ export const ebaySearchConnector: SearchConnector = {
     const trimmed = query.trim();
     if (!trimmed) return [];
 
+    await loadEbayCredentials();
     if (!isEbayConfigured()) return [];
 
     const client = createEbayClientFromEnv();
