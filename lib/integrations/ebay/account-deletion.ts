@@ -35,10 +35,22 @@ export function getEbayVerificationToken(): string | null {
 /**
  * Public HTTPS URL registered in the eBay Developer Portal.
  * Must match exactly when computing the challenge response hash.
+ *
+ * Prefer the incoming request URL (what eBay actually calls) so www/non-www
+ * always matches the portal registration.
  */
-export function getEbayNotificationEndpointUrl(): string {
+export function getEbayNotificationEndpointUrl(requestUrl?: string): string {
   const explicit = process.env.EBAY_NOTIFICATION_ENDPOINT_URL?.trim();
   if (explicit) return explicit.replace(/\/$/, "");
+
+  if (requestUrl) {
+    try {
+      const parsed = new URL(requestUrl);
+      return `${parsed.origin}${parsed.pathname}`.replace(/\/$/, "");
+    } catch {
+      // fall through
+    }
+  }
 
   const site = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
   if (site) return `${site}/api/ebay/notifications`;
