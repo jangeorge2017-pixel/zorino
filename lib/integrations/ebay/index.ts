@@ -41,6 +41,15 @@ export {
 } from "@/lib/integrations/ebay/epn";
 export type { EbayEpnPrepStatus, EbayEpnCredentialSlot } from "@/lib/integrations/ebay/epn";
 
+export {
+  buildEbayChallengeResponse,
+  getEbayNotificationEndpointUrl,
+  getEbayVerificationToken,
+  handleEbayAccountDeletionNotification,
+  isValidEbayVerificationToken,
+} from "@/lib/integrations/ebay/account-deletion";
+export type { EbayAccountDeletionNotification } from "@/lib/integrations/ebay/account-deletion";
+
 import { EbayAffiliateClient } from "@/lib/integrations/ebay/client";
 import { getEbayCredentials } from "@/lib/integrations/ebay/config";
 import { getIntegrationCredential } from "@/lib/integration/credentials";
