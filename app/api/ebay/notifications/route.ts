@@ -7,6 +7,8 @@ import {
   type EbayAccountDeletionNotification,
 } from "@/lib/integrations/ebay/account-deletion";
 
+export const dynamic = "force-dynamic";
+
 /**
  * eBay Marketplace Account Deletion / Closure Notifications
  * @see https://developer.ebay.com/marketplace-account-deletion
@@ -32,18 +34,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing challenge_code query parameter" }, { status: 400 });
   }
 
-  const endpointUrl = getEbayNotificationEndpointUrl();
+  const endpointUrl = getEbayNotificationEndpointUrl(request.url);
   const challengeResponse = buildEbayChallengeResponse(
     challengeCode,
     verificationToken,
     endpointUrl
   );
 
-  return NextResponse.json(
+  return Response.json(
     { challengeResponse },
     {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json; charset=utf-8" },
     }
   );
 }
