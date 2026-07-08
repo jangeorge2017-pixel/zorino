@@ -1,0 +1,69 @@
+/**
+ * Homepage refinements — final alignment & readability pass.
+ * Scoped to .zh-page so no other route is affected.
+ * Layered last (imported after every other homepage stylesheet) so it wins
+ * cascade ties without needing !important. Uses existing --zor-* design tokens.
+ */
+
+/* ─────────────────────────────────────────────────────────────
+   Product cards — identical rhythm across every section
+   The cards feed 6 sections (Trending + Flash/Price Drops/New
+   Arrivals/Top Rated/Editor's Picks). Titles vary between 1 and 2
+   lines and some items lack a discount/original price, which used to
+   push the store, rating, price and action rows to different heights.
+   Reserving a 2-line title block realigns everything below it.
+   ───────────────────────────────────────────────────────────── */
+.zh-page .deal-name,
+.zh-page .trending-card-title,
+.zh-page .lowest-price-name {
+  min-height: calc(1.4em * 2);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Card actions — matched, premium, single-line buttons
+   "Shop Now" used a 14px radius while "Compare Prices" used 12px, and
+   the compare label wrapped to two lines on narrow cards. Unify both.
+   ───────────────────────────────────────────────────────────── */
+.zh-page .home-shop-btn,
+.zh-page .home-compare-btn,
+.zh-page .deal-compare-btn,
+.zh-page .trending-card-cta {
+  border-radius: 14px;
+  white-space: nowrap;
+}
+
+.zh-page .home-compare-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 13px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+
+/* Keep both card CTAs on one visual weight/height so a row reads evenly */
+.zh-page .product-card-actions-dual > * {
+  min-height: 48px;
+}
+
+/* The Trending Deals carousel cards are much narrower than the full-width
+   grid cards, so two side-by-side buttons don't fit. Stack them there. */
+.zh-page .zh-trending-deals__track .product-card-actions-dual {
+  grid-template-columns: 1fr;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Responsiveness — stack card CTAs on phones
+   At <=767px the product grid drops to ~160-175px wide cards, which is
+   too tight for two side-by-side buttons. Stacking them full-width
+   removes the wrapping and gives comfortable tap targets.
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .zh-page .product-card-actions-dual {
+    grid-template-columns: 1fr;
+  }
+}
