@@ -57,6 +57,39 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Section headers — keep titles on one line, let the "view all"
+   link drop below only when there is genuinely no room.
+   Fixes the "Top Coupons" title wrapping to two lines in the
+   narrow right-hand panel.
+   ───────────────────────────────────────────────────────────── */
+.zh-page .zh-section-head {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+.zh-page .zh-section-head__title {
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Top Coupons rows — readable, non-colliding meta
+   The "Used N times / Verified" meta used to sit in a single row
+   wider than its column, overflowing left across the code box.
+   Stacking it right-aligned keeps each row clean and aligned.
+   ───────────────────────────────────────────────────────────── */
+.zh-page .zh-coupon__meta {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.zh-page .zh-coupon__code-wrap {
+  gap: 6px;
+}
+
+/* ─────────────────────────────────────────────────────────────
    Responsiveness — stack card CTAs on phones
    At <=767px the product grid drops to ~160-175px wide cards, which is
    too tight for two side-by-side buttons. Stacking them full-width
