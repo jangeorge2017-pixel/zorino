@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { getCategories } from "@/services/categories";
 import { getTopCoupons as fetchTopCoupons, getAllCoupons } from "@/services/coupons";
 import { getCatalogStats } from "@/services/stats";
@@ -16,6 +17,40 @@ import type {
   TopCouponCard,
   TrendingDealCard,
 } from "@/lib/types/entities";
+
+/**
+ * Homepage data is global (not per-visitor), so the underlying Supabase reads
+ * and the live "popular searches" call are cached in Next's Data Cache. Entries
+ * are shared across requests/instances and revalidated in the background, so the
+ * homepage render is no longer gated on database round-trips or a live API call.
+ */
+const loadCatalogStatsCached = unstable_cache(
+  () => getCatalogStats(),
+  ["homepage:catalog-stats"],
+  { revalidate: 600, tags: ["homepage-stats"] },
+);
+
+const loadCategoriesCached = unstable_cache(
+  () => getCategories(),
+  ["homepage:categories"],
+  { revalidate: 3600, tags: ["homepage-categories"] },
+);
+
+const loadTopCouponsCached = unstable_cache(
+  (limit: number) => fetchTopCoupons(limit),
+  ["homepage:top-coupons"],
+  { revalidate: 600, tags: ["homepage-coupons"] },
+);
+
+const loadPopularSearchesCached = unstable_cache(
+  async (): Promise<string[]> => {
+    const { browseAliExpressLive } = await import("@/services/aliexpress/search");
+    const items = await browseAliExpressLive(6);
+    return items.map((item) => item.name);
+  },
+  ["homepage:popular-searches"],
+  { revalidate: 900, tags: ["homepage-popular-searches"] },
+);
 
 const HERO_ORBIT_POSITIONS = [
   "orbit-top",
@@ -81,7 +116,7 @@ export async function getTrendingDeals(limit = 4): Promise<TrendingDealCard[]> {
 
 /** Top coupons for homepage. */
 export async function getTopCouponsForHomepage(limit = 4): Promise<TopCouponCard[]> {
-  const { data, error } = await fetchTopCoupons(limit);
+  const { data, error } = await loadTopCouponsCached(limit);
   if (error) return [];
   return data.map(couponToCard);
 }
@@ -121,7 +156,7 @@ export async function getHeroFloatingProducts(): Promise<FloatingProductCard[]> 
 
 /** Category grid from Supabase. */
 export async function getHomepageCategories(): Promise<HomepageCategoryItem[]> {
-  const { data, error } = await getCategories();
+  const { data, error } = await loadCategoriesCached();
   if (error || data.length === 0) return [];
 
   return [
@@ -137,9 +172,7 @@ export async function getHomepageCategories(): Promise<HomepageCategoryItem[]> {
 
 /** Popular searches from live AliExpress catalog. */
 export async function getPopularSearches(): Promise<string[]> {
-  const { browseAliExpressLive } = await import("@/services/aliexpress/search");
-  const items = await browseAliExpressLive(6);
-  return items.map((item) => item.name);
+  return loadPopularSearchesCached();
 }
 
 /** Live catalog stats for hero + footer. */
@@ -147,7 +180,7 @@ export async function getHomepageStats(): Promise<{
   hero: HeroStatItem[];
   footer: FooterStatItem[];
 }> {
-  const { data, error } = await getCatalogStats();
+  const { data, error } = await loadCatalogStatsCached();
   if (error || !data) {
     return {
       hero: [

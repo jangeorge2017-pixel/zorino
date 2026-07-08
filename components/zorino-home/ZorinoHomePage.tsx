@@ -5,7 +5,9 @@ import "@/components/zorino-home/homepage-premium.css";
 import "@/components/deals/deals-page.css";
 import "@/components/zorino-home/homepage-deals-preview.css";
 import "@/components/zorino-home/homepage-refinements.css";
+import { Suspense } from "react";
 import HomeHeroBackground from "@/components/zorino-home/HomeHeroBackground";
+import HeroArtwork from "@/components/zorino-home/HeroArtwork";
 import ZorinoHomeNav from "@/components/zorino-home/ZorinoHomeNav";
 import ZorinoHomeHero from "@/components/zorino-home/ZorinoHomeHero";
 import ZorinoHomeSearch from "@/components/zorino-home/ZorinoHomeSearch";
@@ -28,17 +30,46 @@ import {
 } from "@/lib/data/homepage";
 import { ZH_FEATURED_COUPON_BRANDS } from "@/lib/zorino-home/featured-coupon-brands";
 
+/**
+ * Hero orbit artwork depends on the live merged catalog (the slowest data
+ * source). Streaming it keeps that fetch off the above-the-fold critical path;
+ * the fallback is the artwork's own empty state, so nothing shifts (orbit cards
+ * are absolutely positioned).
+ */
+async function HeroArtworkSection() {
+  const floatingProducts = await getHeroFloatingProducts();
+  return <HeroArtwork floatingProducts={floatingProducts} />;
+}
+
+/** Trending deals + top coupons — streamed so they never block first paint. */
+async function CommerceSection() {
+  const [deals, coupons] = await Promise.all([
+    getTrendingDeals(8),
+    getTopCouponsForHomepage(4),
+  ]);
+
+  return (
+    <>
+      <ZorinoHomeDealsPanel deals={deals} />
+      <ZorinoHomeCouponsPanel coupons={coupons} />
+    </>
+  );
+}
+
+/** Below-the-fold product grids — streamed independently of the shell. */
+async function ProductSectionsContent() {
+  const sectionProducts = await getHomepageSectionProducts();
+  return <ZorinoHomeProductSections sections={sectionProducts} />;
+}
+
 export default async function ZorinoHomePage() {
-  const [deals, coupons, floatingProducts, categories, popularSearches, stats, sectionProducts] =
-    await Promise.all([
-      getTrendingDeals(8),
-      getTopCouponsForHomepage(4),
-      getHeroFloatingProducts(),
-      getHomepageCategories(),
-      getPopularSearches(),
-      getHomepageStats(),
-      getHomepageSectionProducts(),
-    ]);
+  // Only fast, cached, above-the-fold data is on the critical path. Everything
+  // that depends on the live marketplace catalog streams in via <Suspense>.
+  const [stats, categories, popularSearches] = await Promise.all([
+    getHomepageStats(),
+    getHomepageCategories(),
+    getPopularSearches(),
+  ]);
 
   return (
     <div className="zh-page" dir="ltr">
@@ -48,7 +79,14 @@ export default async function ZorinoHomePage() {
 
       <div className="zh-shell">
         <div className="zh-hero-zone">
-          <ZorinoHomeHero stats={stats.hero} floatingProducts={floatingProducts} />
+          <ZorinoHomeHero
+            stats={stats.hero}
+            artworkSlot={
+              <Suspense fallback={<HeroArtwork floatingProducts={[]} />}>
+                <HeroArtworkSection />
+              </Suspense>
+            }
+          />
 
           <div className="zh-hero-search">
             <ZorinoHomeSearch popularSearches={popularSearches} />
@@ -68,13 +106,27 @@ export default async function ZorinoHomePage() {
 
         <HomeHeroBackground>
           <section className="zh-commerce" aria-label="Trending deals and coupons">
-            <ZorinoHomeDealsPanel deals={deals} />
-            <ZorinoHomeCouponsPanel coupons={coupons} />
+            <Suspense
+              fallback={
+                <>
+                  <div className="zh-panel" aria-hidden style={{ minHeight: 560 }} />
+                  <div className="zh-panel" aria-hidden style={{ minHeight: 560 }} />
+                </>
+              }
+            >
+              <CommerceSection />
+            </Suspense>
           </section>
         </HomeHeroBackground>
 
         <section className="zh-product-sections-wrap" aria-label="Featured products">
-          <ZorinoHomeProductSections sections={sectionProducts} />
+          <Suspense
+            fallback={
+              <div className="zh-product-sections" aria-hidden style={{ minHeight: 900 }} />
+            }
+          >
+            <ProductSectionsContent />
+          </Suspense>
         </section>
 
         <section className="zh-cta-wrap" aria-label="Call to action">

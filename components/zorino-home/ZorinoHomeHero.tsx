@@ -1,5 +1,5 @@
-import HeroArtwork from "@/components/zorino-home/HeroArtwork";
-import type { FloatingProductCard, HeroStatItem } from "@/lib/types/entities";
+import type { ReactNode } from "react";
+import type { HeroStatItem } from "@/lib/types/entities";
 import { Package, Sparkles, Store, Tag, TrendingUp } from "lucide-react";
 import "./hero.css";
 import "./hero-layout.css";
@@ -13,12 +13,13 @@ const STAT_ICONS = {
 
 type ZorinoHomeHeroProps = {
   stats: HeroStatItem[];
-  floatingProducts: FloatingProductCard[];
+  /** Right-hand orbit artwork, streamed in via <Suspense> from the page. */
+  artworkSlot: ReactNode;
 };
 
 export default function ZorinoHomeHero({
   stats,
-  floatingProducts,
+  artworkSlot,
 }: ZorinoHomeHeroProps) {
   return (
     <section className="zh-hero" aria-label="Hero">
@@ -60,7 +61,7 @@ export default function ZorinoHomeHero({
       </div>
 
       <div className="zh-hero__col zh-hero__col--right">
-        <HeroArtwork floatingProducts={floatingProducts} />
+        {artworkSlot}
       </div>
     </section>
   );
