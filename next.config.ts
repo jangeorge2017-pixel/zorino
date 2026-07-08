@@ -14,9 +14,19 @@ const securityHeaders = [
 
 const isProduction = process.env.NODE_ENV === "production";
 
+// Sandbox marketplace image hosts (e.g. eBay Sandbox) are only encountered when
+// running locally against sandbox credentials. They are never served in
+// production, so we only whitelist them outside of production builds.
+const devOnlyImagePatterns = isProduction
+  ? []
+  : [
+      { protocol: "http" as const, hostname: "**.ebay.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "**.ebay.com", pathname: "/**" },
+    ];
+
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: PRODUCT_IMAGE_REMOTE_PATTERNS,
+    remotePatterns: [...PRODUCT_IMAGE_REMOTE_PATTERNS, ...devOnlyImagePatterns],
     formats: ["image/avif", "image/webp"],
   },
   poweredByHeader: false,

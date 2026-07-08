@@ -4,6 +4,7 @@ import "@/components/zorino-home/homepage-surface.css";
 import "@/components/zorino-home/homepage-premium.css";
 import "@/components/deals/deals-page.css";
 import "@/components/zorino-home/homepage-deals-preview.css";
+import "@/components/zorino-home/homepage-refinements.css";
 import HomeHeroBackground from "@/components/zorino-home/HomeHeroBackground";
 import ZorinoHomeNav from "@/components/zorino-home/ZorinoHomeNav";
 import ZorinoHomeHero from "@/components/zorino-home/ZorinoHomeHero";
