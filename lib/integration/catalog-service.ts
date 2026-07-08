@@ -1,3 +1,5 @@
+import { unstable_cache } from "next/cache";
+import { cache as reactCache } from "react";
 import type { HomepageSectionProducts } from "@/lib/data/homepage";
 import { fetchMergedCatalog } from "@/lib/integration/comparison-engine";
 import {
@@ -7,24 +9,37 @@ import {
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
 
-let catalogCache: { items: NormalizedCatalogItem[]; expiresAt: number } | null = null;
-const CACHE_TTL_MS = 5 * 60 * 1000;
+/** How long a merged live-catalog snapshot stays fresh (seconds). */
+const CATALOG_REVALIDATE_SECONDS = 5 * 60;
 
-async function getCatalogItems(): Promise<NormalizedCatalogItem[]> {
+/**
+ * Persist the expensive multi-provider live fetch in Next's Data Cache so it is
+ * shared across requests and serverless instances (the previous in-memory cache
+ * was lost on every cold start). Time-based revalidation serves the cached
+ * snapshot instantly while refreshing in the background, so no visitor waits on
+ * the live marketplace APIs.
+ */
+const loadMergedCatalogItems = unstable_cache(
+  async (): Promise<NormalizedCatalogItem[]> => {
+    const { items } = await fetchMergedCatalog();
+    return items;
+  },
+  ["homepage:merged-catalog"],
+  { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
+);
+
+/**
+ * Deduplicate the catalog read within a single render pass so the trending
+ * deals, hero artwork, product sections and /deals grid all share one lookup.
+ */
+const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> => {
   const { isAnyProductionProviderConfigured } = await import(
     "@/lib/integration/comparison-engine"
   );
   if (!isAnyProductionProviderConfigured()) return [];
 
-  const now = Date.now();
-  if (catalogCache && catalogCache.expiresAt > now) {
-    return catalogCache.items;
-  }
-
-  const { items } = await fetchMergedCatalog();
-  catalogCache = { items, expiresAt: now + CACHE_TTL_MS };
-  return items;
-}
+  return loadMergedCatalogItems();
+});
 
 function uniqueCards(cards: TrendingDealCard[]): TrendingDealCard[] {
   const seen = new Set<string>();
