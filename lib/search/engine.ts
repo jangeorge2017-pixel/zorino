@@ -17,6 +17,7 @@ export type GlobalSearchOptions = {
   providers?: SearchProviderId[];
   minFetch?: number;
   targetFetch?: number;
+  maxPages?: number;
   skipCache?: boolean;
 };
 
@@ -66,6 +67,7 @@ export async function executeGlobalSearch(
         const batch = await connector.search(trimmed, {
           minFetch: options?.minFetch ?? SEARCH_ENGINE_DEFAULTS.MIN_FETCH_COUNT,
           targetFetch: options?.targetFetch ?? SEARCH_ENGINE_DEFAULTS.TARGET_FETCH_COUNT,
+          maxPages: options?.maxPages,
         });
         allRaw.push(...batch);
         providerStats.push({
@@ -108,6 +110,12 @@ export async function searchProducts(
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT
 ): Promise<SearchResultItem[]> {
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
-  const result = await executeGlobalSearch(query, { limit: capped });
+  const shallow = capped <= 24;
+  const result = await executeGlobalSearch(query, {
+    limit: capped,
+    minFetch: shallow ? capped : undefined,
+    targetFetch: shallow ? capped * 2 : undefined,
+    maxPages: shallow ? 1 : undefined,
+  });
   return result.products.slice(0, capped).map(unifiedToSearchResultItem);
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import AssetImage from "@/components/AssetImage";
 import { ChevronRight, Clock, ImageOff, Star } from "lucide-react";
 import TrendingDealBadge from "@/components/zorino-home/TrendingDealBadge";
 import type { TrendingDealCard } from "@/lib/types/entities";
@@ -26,7 +26,6 @@ export default function ZorinoHomeTrendingDealCard({
   deal,
   priority = false,
 }: ZorinoHomeTrendingDealCardProps) {
-  const [imgError, setImgError] = useState(false);
   const compareHref = deal.productId ? `/product/${deal.productId}` : "/deals";
   const hasDiscount = deal.discount > 0 && deal.originalPrice > deal.price;
 
@@ -37,15 +36,20 @@ export default function ZorinoHomeTrendingDealCard({
         {hasDiscount ? (
           <span className="zh-td-card__discount">-{Math.round(deal.discount)}%</span>
         ) : null}
-        {!imgError && deal.imageSrc ? (
-          <img
+        {deal.imageSrc ? (
+          <AssetImage
             src={deal.imageSrc}
             alt={deal.name}
-            width={280}
-            height={210}
-            loading={priority ? "eager" : "lazy"}
-            decoding="async"
-            onError={() => setImgError(true)}
+            fill
+            sizes="(max-width: 767px) 85vw, 280px"
+            priority={priority}
+            className="zh-td-card__image"
+            fallback={
+              <div className="zh-td-card__media-fallback" aria-hidden>
+                <ImageOff size={28} />
+                <span>No image</span>
+              </div>
+            }
           />
         ) : (
           <div className="zh-td-card__media-fallback" aria-hidden>

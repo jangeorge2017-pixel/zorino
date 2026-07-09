@@ -19,11 +19,11 @@
 }
 
 .zh-td-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(255, 138, 60, 0.22);
+  transform: translateY(-2px);
+  border-color: rgba(255, 138, 60, 0.2);
   box-shadow:
-    0 14px 32px rgba(0, 0, 0, 0.28),
-    0 0 20px rgba(255, 100, 40, 0.08);
+    0 12px 32px rgba(0, 0, 0, 0.28),
+    0 0 15px rgba(255, 100, 40, 0.06);
 }
 
 .zh-td-card__media {
@@ -39,7 +39,8 @@
   justify-content: center;
 }
 
-.zh-td-card__media img {
+.zh-td-card__media img,
+.zh-td-card__media .zh-td-card__image {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -77,9 +78,10 @@
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
-  color: #fff7ed;
-  background: linear-gradient(135deg, #f97316, #ef4444);
-  box-shadow: 0 0 12px rgba(249, 115, 22, 0.28);
+  color: #fdf4ea;
+  background: linear-gradient(135deg, #c9a07a, #b88468);
+  border: 1px solid rgba(201, 160, 122, 0.28);
+  box-shadow: 0 0 10px rgba(201, 160, 122, 0.16);
 }
 
 .zh-td-card__body {

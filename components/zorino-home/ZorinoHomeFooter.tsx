@@ -56,7 +56,7 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
               title={brand.name}
             >
               {brand.logoSrc ? (
-                <img src={brand.logoSrc} alt={brand.name} />
+                <img src={brand.logoSrc} alt={brand.name} loading="lazy" decoding="async" />
               ) : (
                 <span>{brand.logoInitial}</span>
               )}

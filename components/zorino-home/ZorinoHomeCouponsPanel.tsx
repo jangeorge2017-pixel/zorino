@@ -21,6 +21,8 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
         <img
           src={coupon.storeLogoSrc}
           alt=""
+          loading="lazy"
+          decoding="async"
           onError={(e) => {
             e.currentTarget.style.display = "none";
             if (e.currentTarget.parentElement) {

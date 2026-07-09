@@ -4,7 +4,7 @@
  */
 
 .zh-page .zh-deals-preview {
-  --deals-section-gap: clamp(40px, 4vw, 56px);
+  --deals-section-gap: clamp(32px, 3.6vw, 44px);
 }
 
 .zh-page .zh-deals-preview.zor-deals-page {
@@ -37,27 +37,22 @@
   flex-shrink: 0;
   padding: 7px 14px;
   border-radius: var(--zor-radius-pill);
-  border: 1px solid rgba(251, 146, 60, 0.18);
-  background: rgba(12, 14, 24, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
   font-size: var(--zor-text-sm);
   font-weight: var(--zor-weight-semibold);
-  color: var(--deals-accent-soft);
+  color: rgba(255, 255, 255, 0.82);
   text-decoration: none;
   white-space: nowrap;
   transition:
     color var(--zor-duration) var(--zor-ease),
     border-color var(--zor-duration) var(--zor-ease),
     background var(--zor-duration) var(--zor-ease),
-    box-shadow var(--zor-duration) var(--zor-ease),
-    transform var(--zor-duration) var(--zor-ease);
+    box-shadow var(--zor-duration) var(--zor-ease);
 }
 
 .zh-page .zh-deals-preview__view-all:hover {
-  color: #fff7ed;
-  border-color: rgba(251, 146, 60, 0.34);
-  background: rgba(251, 146, 60, 0.12);
-  transform: translateY(-1px);
-  box-shadow: 0 0 14px var(--deals-glow);
+  color: var(--zh-section-accent-soft, #ffffff);
 }
 
 .zh-page .zh-trending-deals.zh-deals-preview .zh-trending-deals__head {

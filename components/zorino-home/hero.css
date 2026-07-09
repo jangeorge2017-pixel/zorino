@@ -301,6 +301,8 @@
     0 10px 36px rgba(0, 0, 0, 0.34),
     0 0 24px rgba(99, 102, 241, 0.12),
     0 0 48px rgba(139, 92, 246, 0.1),
+    0 0 22px rgba(139, 92, 246, 0.07),
+    0 0 38px rgba(111, 212, 255, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   transition: border-color 0.25s, box-shadow 0.25s;
@@ -329,7 +331,7 @@
 }
 
 .zh-search__bar input::placeholder {
-  color: #64748b;
+  color: color-mix(in srgb, #64748b 82%, #e2e8f0 18%);
 }
 
 .zh-search__icon {
