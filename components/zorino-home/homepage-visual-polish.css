@@ -1,352 +1,316 @@
-/**
- * Final homepage premium polish — visual quality only.
- * Scoped to .zh-page. No layout, spacing, or sizing changes.
- */
-
-/* ─── Design tokens (homepage) ─── */
-.zh-page {
-  font-family: var(--zor-font-sans);
-  --zh-transition: 250ms ease;
-  --zh-lift-hover: -2px;
-  --zh-glow-strength: 0.165;
-  --zh-shadow-rest: var(--zor-shadow-card);
-  --zh-shadow-hover: var(--zor-shadow-card-hover);
-  --zh-radius-card: var(--zor-radius-lg);
-  --zh-radius-control: var(--zor-radius-md);
-  --zh-radius-pill: var(--zor-radius-pill);
-}
-
-/* ─── Section accent tokens ─── */
-.zh-page #zh-section-featured-brands,
-.zh-page #zh-section-coupons {
-  --zh-section-accent: #22c55e;
-  --zh-section-accent-soft: #4ade80;
-  --zh-section-glow: rgba(34, 197, 94, var(--zh-glow-strength));
-}
-
-.zh-page #zh-section-trending-deals {
-  --zh-section-accent: #f97316;
-  --zh-section-accent-soft: #fb923c;
-  --zh-section-glow: rgba(249, 115, 22, var(--zh-glow-strength));
-}
-
-.zh-page #zh-section-flash-deals {
-  --zh-section-accent: #ef4444;
-  --zh-section-accent-soft: #f87171;
-  --zh-section-glow: rgba(239, 68, 68, var(--zh-glow-strength));
-}
-
-.zh-page #zh-section-price-drops {
-  --zh-section-accent: #3b82f6;
-  --zh-section-accent-soft: #60a5fa;
-  --zh-section-glow: rgba(59, 130, 246, var(--zh-glow-strength));
-}
-
-.zh-page #zh-section-new-arrivals {
-  --zh-section-accent: #3b82f6;
-  --zh-section-accent-soft: #60a5fa;
-  --zh-section-glow: rgba(59, 130, 246, var(--zh-glow-strength));
-}
-
-.zh-page #zh-section-top-rated {
-  --zh-section-accent: #fbbf24;
-  --zh-section-accent-soft: #fde68a;
-  --zh-section-glow: rgba(251, 191, 36, var(--zh-glow-strength));
-}
-
-.zh-page #zh-section-editors-picks {
-  --zh-section-accent: #ef4444;
-  --zh-section-accent-soft: #f87171;
-  --zh-section-glow: rgba(239, 68, 68, var(--zh-glow-strength));
-}
-
-/* ─── Section titles — premium white ─── */
-.zh-page .zh-deals-preview .zor-deals-page__section-title,
-.zh-page .zh-featured-brands__title {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: clamp(21px, 2.05vw, 25px);
-  letter-spacing: -0.035em;
-  text-shadow: none;
-  background: none;
-  -webkit-background-clip: unset;
-  background-clip: unset;
-  -webkit-text-fill-color: unset;
-}
-
-/* Top Coupons — yellow title + yellow icon */
-.zh-page #zh-section-coupons .zh-section-head__title {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(95deg, #fef3c7, #fbbf24);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  font-weight: 700;
-  font-size: clamp(21px, 2.05vw, 25px);
-  letter-spacing: -0.03em;
-}
-
-.zh-page #zh-section-coupons .zh-section-head__title > [aria-hidden] {
-  -webkit-text-fill-color: initial;
-  color: #fbbf24;
-  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.32));
-}
-
-/* ─── Section subtitles ─── */
-.zh-page .zh-deals-preview .zor-deals-page__section-subtitle,
-.zh-page .zh-hero__subtitle {
-  color: #a8b4c4;
-  line-height: 1.55;
-}
-
-/* ─── Section icons — accent colors only ─── */
-.zh-page #zh-section-featured-brands .zh-featured-brands__icon {
-  color: #22c55e;
-  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.28));
-}
-
-.zh-page #zh-section-trending-deals .zor-deals-page__section-icon {
-  background: rgba(249, 115, 22, 0.12);
-  color: #fb923c;
-  border-color: rgba(249, 115, 22, 0.22);
-}
-
-.zh-page #zh-section-flash-deals .zor-deals-page__section-icon {
-  background: rgba(239, 68, 68, 0.12);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.24);
-}
-
-.zh-page #zh-section-price-drops .zor-deals-page__section-icon {
-  background: rgba(59, 130, 246, 0.12);
-  color: #60a5fa;
-  border-color: rgba(59, 130, 246, 0.22);
-}
-
-.zh-page #zh-section-new-arrivals .zor-deals-page__section-icon {
-  background: rgba(59, 130, 246, 0.12);
-  color: #60a5fa;
-  border-color: rgba(59, 130, 246, 0.22);
-}
-
-.zh-page #zh-section-top-rated .zor-deals-page__section-icon {
-  background: rgba(251, 191, 36, 0.14);
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.24);
-}
-
-.zh-page #zh-section-editors-picks .zor-deals-page__section-icon {
-  background: rgba(239, 68, 68, 0.12);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.24);
-}
-
-/* ─── View all links — calm white, section glow on hover ─── */
-.zh-page .zh-deals-preview__view-all,
-.zh-page .zh-section-head__link {
-  color: rgba(255, 255, 255, 0.82);
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: var(--zh-radius-pill);
-  transition:
-    color var(--zh-transition),
-    background var(--zh-transition),
-    border-color var(--zh-transition),
-    box-shadow var(--zh-transition);
-}
-
-.zh-page .zh-deals-preview__view-all:hover,
-.zh-page .zh-section-head__link:hover {
-  color: #ffffff;
-  transform: none;
-  filter: none;
-  border-color: color-mix(
-    in srgb,
-    var(--zh-section-accent, #ffffff) 24%,
-    transparent
-  );
-  background: color-mix(
-    in srgb,
-    var(--zh-section-accent, #ffffff) 8%,
-    transparent
-  );
-  box-shadow: 0 0 14px var(--zh-section-glow, rgba(255, 255, 255, 0.08));
-}
-
-/* ─── Card hover — 2px lift, softer glow, no scale ─── */
-.zh-page .listing-product-card,
-.zh-page .zor-deals-page__card,
-.zh-page .zor-deals-page .deal-card,
-.zh-page .zh-td-card,
-.zh-page .zh-coupon,
-.zh-page .zh-brand-card {
-  transition:
-    transform var(--zh-transition),
-    border-color var(--zh-transition),
-    box-shadow var(--zh-transition);
-}
-
-.zh-page .listing-product-card:hover,
-.zh-page .zor-deals-page__card:hover,
-.zh-page .zor-deals-page .deal-card:hover,
-.zh-page .zh-td-card:hover {
-  transform: translateY(var(--zh-lift-hover));
-  border-color: color-mix(
-    in srgb,
-    var(--zh-section-accent, #fb923c) 28%,
-    rgba(255, 255, 255, 0.1)
-  );
-  box-shadow:
-    var(--zh-shadow-hover),
-    0 0 15px var(--zh-section-glow, rgba(251, 146, 60, 0.135));
-}
-
-.zh-page #zh-section-coupons .zh-coupon:hover {
-  transform: translateY(var(--zh-lift-hover));
-  border-color: color-mix(in srgb, var(--zh-section-accent) 26%, transparent);
-  box-shadow:
-    var(--zh-shadow-hover),
-    0 0 14px var(--zh-section-glow);
-}
-
-.zh-page #zh-section-featured-brands .zh-brand-card:hover {
-  transform: translateY(var(--zh-lift-hover));
-  border-color: color-mix(in srgb, var(--zh-section-accent) 24%, rgba(255, 255, 255, 0.08));
-  box-shadow:
-    var(--zor-shadow-inset-highlight),
-    var(--zh-shadow-hover),
-    0 0 14px var(--zh-section-glow);
-}
-
-/* ─── Badges — typography only, keep orange ─── */
-.zh-page .deal-discount,
-.zh-page .zor-deals-page__featured-badge,
-.zh-page .zh-td-badge,
-.zh-page .trending-badge,
-.zh-page .dynamic-badge--flash-deal,
-.zh-page .dynamic-badge--hot {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-rendering: optimizeLegibility;
-  border-radius: var(--zh-radius-pill);
-}
-
-/* ─── Search bar — glass, soft border, AI-style glow ─── */
-.zh-page .zh-search__bar {
-  border-color: rgba(139, 92, 246, 0.22);
-  box-shadow:
-    var(--zh-shadow-rest),
-    0 0 28px rgba(99, 102, 241, 0.12),
-    0 0 48px rgba(139, 92, 246, 0.08),
-    var(--zor-shadow-inset-highlight);
-  transition:
-    border-color var(--zh-transition),
-    box-shadow var(--zh-transition);
-}
-
-.zh-page .zh-search__bar:focus-within {
-  border-color: rgba(139, 92, 246, 0.42);
-  box-shadow:
-    var(--zh-shadow-hover),
-    0 0 32px rgba(99, 102, 241, 0.16),
-    0 0 56px rgba(139, 92, 246, 0.12),
-    var(--zor-shadow-inset-highlight);
-}
-
-.zh-page .zh-search__bar input::placeholder {
-  color: color-mix(in srgb, #94a3b8 58%, #e2e8f0 42%);
-}
-
-.zh-page .zh-search__ai,
-.zh-page .zh-search__submit {
-  border-radius: var(--zh-radius-control);
-  transition:
-    background var(--zh-transition),
-    border-color var(--zh-transition),
-    box-shadow var(--zh-transition),
-    transform var(--zh-transition);
-}
-
-/* ─── Buttons — unified radius, shadow, speed ─── */
-.zh-page .zh-brand-card__copy,
-.zh-page .zh-td-card__cta,
-.zh-page .zh-coupon__copy,
-.zh-page .zh-search__submit {
-  border-radius: var(--zh-radius-control);
-  box-shadow: var(--zor-shadow-sm);
-  transition:
-    transform var(--zh-transition),
-    box-shadow var(--zh-transition),
-    background var(--zh-transition),
-    opacity var(--zh-transition);
-}
-
-/* ─── Glass panels — unified shadow system ─── */
-.zh-page .zh-panel,
-.zh-page .zh-product-section.zh-panel,
-.zh-page .zh-trending-deals,
-.zh-page .zh-search__bar {
-  border-color: rgba(255, 255, 255, 0.09);
-  box-shadow:
-    var(--zh-shadow-rest),
-    var(--zor-shadow-inset-highlight);
-}
-
-.zh-page .zh-panel:hover,
-.zh-page .zh-product-section.zh-panel:hover {
-  transform: none;
-}
-
-/* ─── Image quality ─── */
-.zh-page img:not([src*="hero-background"]) {
-  image-rendering: auto;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
-.zh-page .zh-td-card__media img,
-.zh-page .zh-brand-card__logo,
-.zh-page .listing-product-card img,
-.zh-page .zor-deals-page__card img {
-  object-fit: contain;
-  object-position: center;
-}
-
-/* ─── Calm micro-interactions ─── */
-.zh-page .zh-categories__item,
-.zh-page .zh-quick-nav__pill,
-.zh-page .zh-stat,
-.zh-page .zh-orbit-card {
-  transition:
-    transform var(--zh-transition),
-    border-color var(--zh-transition),
-    box-shadow var(--zh-transition),
-    background var(--zh-transition),
-    color var(--zh-transition);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .zh-page .listing-product-card,
-  .zh-page .zor-deals-page__card,
-  .zh-page .zh-td-card,
-  .zh-page .zh-coupon,
-  .zh-page .zh-brand-card,
-  .zh-page .zh-deals-preview__view-all,
-  .zh-page .zh-section-head__link {
-    transition: none;
-  }
-
-  .zh-page .listing-product-card:hover,
-  .zh-page .zor-deals-page__card:hover,
-  .zh-page .zh-td-card:hover,
-  .zh-page .zh-coupon:hover,
-  .zh-page .zh-brand-card:hover {
-    transform: none;
-  }
-}
-
+/**
+ * Final homepage premium polish — visual quality only.
+ * Scoped to .zh-page. No layout, spacing, or sizing changes.
+ */
+
+/* ─── Design tokens (homepage) ─── */
+.zh-page {
+  font-family: var(--zor-font-sans);
+  --zh-transition: 250ms ease;
+  --zh-lift-hover: -2px;
+  --zh-glow-strength: 0.165;
+  --zh-shadow-rest: var(--zor-shadow-card);
+  --zh-shadow-hover: var(--zor-shadow-card-hover);
+  --zh-radius-card: var(--zor-radius-lg);
+  --zh-radius-control: var(--zor-radius-md);
+  --zh-radius-pill: var(--zor-radius-pill);
+}
+
+/* ─── Section accent tokens ─── */
+.zh-page #zh-section-featured-brands,
+.zh-page #zh-section-coupons {
+  --zh-section-accent: #22c55e;
+  --zh-section-accent-soft: #4ade80;
+  --zh-section-glow: rgba(34, 197, 94, var(--zh-glow-strength));
+}
+
+.zh-page #zh-section-trending-deals {
+  --zh-section-accent: #f97316;
+  --zh-section-accent-soft: #fb923c;
+  --zh-section-glow: rgba(249, 115, 22, var(--zh-glow-strength));
+}
+
+.zh-page #zh-section-flash-deals {
+  --zh-section-accent: #ef4444;
+  --zh-section-accent-soft: #f87171;
+  --zh-section-glow: rgba(239, 68, 68, var(--zh-glow-strength));
+}
+
+.zh-page #zh-section-price-drops {
+  --zh-section-accent: #3b82f6;
+  --zh-section-accent-soft: #60a5fa;
+  --zh-section-glow: rgba(59, 130, 246, var(--zh-glow-strength));
+}
+
+.zh-page #zh-section-new-arrivals {
+  --zh-section-accent: #3b82f6;
+  --zh-section-accent-soft: #60a5fa;
+  --zh-section-glow: rgba(59, 130, 246, var(--zh-glow-strength));
+}
+
+.zh-page #zh-section-top-rated {
+  --zh-section-accent: #fbbf24;
+  --zh-section-accent-soft: #fde68a;
+  --zh-section-glow: rgba(251, 191, 36, var(--zh-glow-strength));
+}
+
+.zh-page #zh-section-editors-picks {
+  --zh-section-accent: #ef4444;
+  --zh-section-accent-soft: #f87171;
+  --zh-section-glow: rgba(239, 68, 68, var(--zh-glow-strength));
+}
+
+/* ─── Section titles — premium white ─── */
+.zh-page .zh-deals-preview .zor-deals-page__section-title,
+.zh-page .zh-featured-brands__title {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: clamp(21px, 2.05vw, 25px);
+  letter-spacing: -0.035em;
+  text-shadow: none;
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: unset;
+}
+
+/* Top Coupons — yellow title + yellow icon */
+.zh-page #zh-section-coupons .zh-section-head__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(95deg, #fef3c7, #fbbf24);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-weight: 700;
+  font-size: clamp(21px, 2.05vw, 25px);
+  letter-spacing: -0.03em;
+}
+
+.zh-page #zh-section-coupons .zh-section-head__title > [aria-hidden] {
+  -webkit-text-fill-color: initial;
+  color: #fbbf24;
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.32));
+}
+
+/* ─── Section subtitles ─── */
+.zh-page .zh-deals-preview .zor-deals-page__section-subtitle,
+.zh-page .zh-hero__subtitle {
+  color: #a8b4c4;
+  line-height: 1.55;
+}
+
+/* ─── Section icons — accent colors only ─── */
+.zh-page #zh-section-featured-brands .zh-featured-brands__icon {
+  color: #22c55e;
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.28));
+}
+
+.zh-page #zh-section-trending-deals .zor-deals-page__section-icon {
+  background: rgba(249, 115, 22, 0.12);
+  color: #fb923c;
+  border-color: rgba(249, 115, 22, 0.22);
+}
+
+.zh-page #zh-section-flash-deals .zor-deals-page__section-icon {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.24);
+}
+
+.zh-page #zh-section-price-drops .zor-deals-page__section-icon {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.22);
+}
+
+.zh-page #zh-section-new-arrivals .zor-deals-page__section-icon {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.22);
+}
+
+.zh-page #zh-section-top-rated .zor-deals-page__section-icon {
+  background: rgba(251, 191, 36, 0.14);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.24);
+}
+
+.zh-page #zh-section-editors-picks .zor-deals-page__section-icon {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.24);
+}
+
+/* ─── Section icons — accent colors only ─── */
+.zh-page .listing-product-card,
+.zh-page .zor-deals-page__card,
+.zh-page .zor-deals-page .deal-card,
+.zh-page .zh-td-card,
+.zh-page .zh-coupon,
+.zh-page .zh-brand-card {
+  transition:
+    transform var(--zh-transition),
+    border-color var(--zh-transition),
+    box-shadow var(--zh-transition);
+}
+
+.zh-page .listing-product-card:hover,
+.zh-page .zor-deals-page__card:hover,
+.zh-page .zor-deals-page .deal-card:hover,
+.zh-page .zh-td-card:hover {
+  transform: translateY(var(--zh-lift-hover));
+  border-color: color-mix(
+    in srgb,
+    var(--zh-section-accent, #fb923c) 28%,
+    rgba(255, 255, 255, 0.1)
+  );
+  box-shadow:
+    var(--zh-shadow-hover),
+    0 0 15px var(--zh-section-glow, rgba(251, 146, 60, 0.135));
+}
+
+.zh-page #zh-section-coupons .zh-coupon:hover {
+  transform: translateY(var(--zh-lift-hover));
+  border-color: color-mix(in srgb, var(--zh-section-accent) 26%, transparent);
+  box-shadow:
+    var(--zh-shadow-hover),
+    0 0 14px var(--zh-section-glow);
+}
+
+.zh-page #zh-section-featured-brands .zh-brand-card:hover {
+  transform: translateY(var(--zh-lift-hover));
+  border-color: color-mix(in srgb, var(--zh-section-accent) 24%, rgba(255, 255, 255, 0.08));
+  box-shadow:
+    var(--zor-shadow-inset-highlight),
+    var(--zh-shadow-hover),
+    0 0 14px var(--zh-section-glow);
+}
+
+/* ─── Badges — typography only ─── */
+.zh-page .deal-discount,
+.zh-page .zor-deals-page__featured-badge,
+.zh-page .zh-td-card__discount,
+.zh-page .zh-td-badge,
+.zh-page .trending-badge,
+.zh-page .dynamic-badge--flash-deal,
+.zh-page .dynamic-badge--hot {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─── Search bar — glass, soft border, AI-style glow ─── */
+.zh-page .zh-search__bar {
+  border-color: rgba(139, 92, 246, 0.22);
+  box-shadow:
+    var(--zh-shadow-rest),
+    0 0 28px rgba(99, 102, 241, 0.12),
+    0 0 48px rgba(139, 92, 246, 0.08),
+    var(--zor-shadow-inset-highlight);
+  transition:
+    border-color var(--zh-transition),
+    box-shadow var(--zh-transition);
+}
+
+.zh-page .zh-search__bar:focus-within {
+  border-color: rgba(139, 92, 246, 0.42);
+  box-shadow:
+    var(--zh-shadow-hover),
+    0 0 32px rgba(99, 102, 241, 0.16),
+    0 0 56px rgba(139, 92, 246, 0.12),
+    var(--zor-shadow-inset-highlight);
+}
+
+.zh-page .zh-search__bar input::placeholder {
+  color: color-mix(in srgb, #94a3b8 58%, #e2e8f0 42%);
+}
+
+.zh-page .zh-search__ai,
+.zh-page .zh-search__submit {
+  border-radius: var(--zh-radius-control);
+  transition:
+    background var(--zh-transition),
+    border-color var(--zh-transition),
+    box-shadow var(--zh-transition),
+    transform var(--zh-transition);
+}
+
+/* ─── Buttons — unified radius, shadow, speed ─── */
+.zh-page .zh-brand-card__copy,
+.zh-page .zh-td-card__cta,
+.zh-page .zh-coupon__copy,
+.zh-page .zh-search__submit {
+  border-radius: var(--zh-radius-control);
+  box-shadow: var(--zor-shadow-sm);
+  transition:
+    transform var(--zh-transition),
+    box-shadow var(--zh-transition),
+    background var(--zh-transition),
+    opacity var(--zh-transition);
+}
+
+/* ─── Glass panels — unified shadow system ─── */
+.zh-page .zh-panel,
+.zh-page .zh-product-section.zh-panel,
+.zh-page .zh-trending-deals,
+.zh-page .zh-search__bar {
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow:
+    var(--zh-shadow-rest),
+    var(--zor-shadow-inset-highlight);
+}
+
+.zh-page .zh-panel:hover,
+.zh-page .zh-product-section.zh-panel:hover {
+  transform: none;
+}
+
+/* ─── Image quality ─── */
+.zh-page img:not([src*="hero-background"]) {
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.zh-page .zh-td-card__media img,
+.zh-page .zh-brand-card__logo,
+.zh-page .listing-product-card img,
+.zh-page .zor-deals-page__card img {
+  object-fit: contain;
+  object-position: center;
+}
+
+/* ─── Calm micro-interactions ─── */
+.zh-page .zh-categories__item,
+.zh-page .zh-quick-nav__pill,
+.zh-page .zh-stat,
+.zh-page .zh-orbit-card {
+  transition:
+    transform var(--zh-transition),
+    border-color var(--zh-transition),
+    box-shadow var(--zh-transition),
+    background var(--zh-transition),
+    color var(--zh-transition);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zh-page .listing-product-card,
+  .zh-page .zor-deals-page__card,
+  .zh-page .zh-td-card,
+  .zh-page .zh-coupon,
+  .zh-page .zh-brand-card {
+    transition: none;
+  }
+
+  .zh-page .listing-product-card:hover,
+  .zh-page .zor-deals-page__card:hover,
+  .zh-page .zh-td-card:hover,
+  .zh-page .zh-coupon:hover,
+  .zh-page .zh-brand-card:hover {
+    transform: none;
+  }
+}
+

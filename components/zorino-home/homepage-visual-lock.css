@@ -1,133 +1,39 @@
-/**
- * Final visualization lock — micro-polish only.
- * Scoped to .zh-page. No layout, structure, or hero changes.
- */
-
-.zh-page {
-  --zh-view-all-transition: 180ms ease;
-  --zh-badge-orange-from: #c9a07a;
-  --zh-badge-orange-to: #b88468;
-  --zh-badge-orange-text: #fdf4ea;
-  --zh-badge-orange-glow: rgba(201, 160, 122, 0.16);
-  --zh-badge-orange-border: rgba(201, 160, 122, 0.28);
-  --zh-ends-in: #b8a088;
-  --zh-ends-in-icon: #a8947e;
-}
-
-/* ─── Section rhythm — 10px tighter ─── */
-.zh-page {
-  --zh-section-step: clamp(60px, 5.2vw, 84px);
-}
-
-.zh-page .zh-deals-preview {
-  --deals-section-gap: clamp(32px, 3.6vw, 44px);
-}
-
-/* ─── New Arrivals — cyan accent ─── */
-.zh-page #zh-section-new-arrivals {
-  --zh-section-accent: #06b6d4;
-  --zh-section-accent-soft: #67e8f9;
-  --zh-section-glow: rgba(6, 182, 212, var(--zh-glow-strength));
-}
-
-.zh-page #zh-section-new-arrivals .zor-deals-page__section-icon {
-  background: rgba(6, 182, 212, 0.12);
-  color: #67e8f9;
-  border-color: rgba(6, 182, 212, 0.22);
-}
-
-/* ─── View all — title alignment + accent hover ─── */
-.zh-page .zh-deals-preview .zor-deals-page__section-head,
-.zh-page .zh-trending-deals__title-row {
-  align-items: flex-start;
-}
-
-.zh-page .zh-deals-preview .zor-deals-page__section-title-wrap {
-  align-items: center;
-}
-
-.zh-page .zh-section-head {
-  align-items: center;
-}
-
-.zh-page .zh-deals-preview__view-all,
-.zh-page .zh-section-head__link {
-  align-self: flex-start;
-  margin-top: 5px;
-  transition:
-    color var(--zh-view-all-transition),
-    background var(--zh-view-all-transition),
-    border-color var(--zh-view-all-transition),
-    box-shadow var(--zh-view-all-transition);
-}
-
-.zh-page .zh-section-head__link {
-  margin-top: 0;
-}
-
-.zh-page .zh-deals-preview__view-all:hover,
-.zh-page .zh-section-head__link:hover {
-  color: var(--zh-section-accent-soft, rgba(255, 255, 255, 0.92));
-  border-color: color-mix(in srgb, var(--zh-section-accent, #ffffff) 32%, transparent);
-  background: color-mix(in srgb, var(--zh-section-accent, #ffffff) 10%, transparent);
-  box-shadow: 0 0 12px var(--zh-section-glow, rgba(255, 255, 255, 0.08));
-}
-
-/* ─── Badges — desaturated premium orange ─── */
-.zh-page .deal-discount,
-.zh-page .zor-deals-page__featured-badge,
-.zh-page .zh-td-card__discount {
-  background: linear-gradient(135deg, var(--zh-badge-orange-from), var(--zh-badge-orange-to));
-  color: var(--zh-badge-orange-text);
-  box-shadow: 0 0 10px var(--zh-badge-orange-glow);
-  border: 1px solid var(--zh-badge-orange-border);
-}
-
-.zh-page .zh-td-badge--trending {
-  color: #e8d4bc;
-  background: rgba(201, 160, 122, 0.14);
-  border: 1px solid rgba(201, 160, 122, 0.26);
-}
-
-.zh-page .dynamic-badge--flash-deal,
-.zh-page .dynamic-badge--hot {
-  color: #e8c4bc;
-  background: rgba(184, 132, 104, 0.16);
-  border: 1px solid rgba(184, 132, 104, 0.26);
-  box-shadow: none;
-}
-
-.zh-page .trending-badge-hot {
-  color: #e8d4bc;
-  background: rgba(201, 160, 122, 0.14);
-  border: 1px solid rgba(201, 160, 122, 0.24);
-}
-
-/* Ends in… — softer orange meta */
-.zh-page .zor-deals-page .listing-deal-meta {
-  color: var(--zh-ends-in);
-}
-
-.zh-page .zor-deals-page .listing-deal-meta svg {
-  color: var(--zh-ends-in-icon);
-}
-
-/* ─── Image sharpness (hero excluded) ─── */
-.zh-page img:not([src*="hero-background"]) {
-  image-rendering: auto;
-  -webkit-font-smoothing: subpixel-antialiased;
-}
-
-.zh-page .product-card-image,
-.zh-page .zh-td-card__media img,
-.zh-page .zh-brand-card__logo {
-  object-fit: contain;
-  object-position: center;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .zh-page .zh-deals-preview__view-all,
-  .zh-page .zh-section-head__link {
-    transition: none;
-  }
-}
+/**
+ * Final visualization lock — micro-polish only.
+ * Scoped to .zh-page. No layout, structure, or hero changes.
+ */
+
+.zh-page {
+  --zh-section-step: clamp(64px, 5vw, 80px);
+}
+
+.zh-page .zh-deals-preview {
+  --deals-section-gap: 40px;
+}
+
+/* ─── New Arrivals — cyan accent ─── */
+.zh-page #zh-section-new-arrivals {
+  --zh-section-accent: #06b6d4;
+  --zh-section-accent-soft: #67e8f9;
+  --zh-section-glow: rgba(6, 182, 212, var(--zh-glow-strength));
+}
+
+.zh-page #zh-section-new-arrivals .zor-deals-page__section-icon {
+  background: rgba(6, 182, 212, 0.12);
+  color: #67e8f9;
+  border-color: rgba(6, 182, 212, 0.22);
+}
+
+/* ─── Image sharpness (hero excluded) ─── */
+.zh-page img:not([src*="hero-background"]) {
+  image-rendering: auto;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.zh-page .product-card-image,
+.zh-page .zh-td-card__media img,
+.zh-page .zh-brand-card__logo {
+  object-fit: contain;
+  object-position: center;
+}
+

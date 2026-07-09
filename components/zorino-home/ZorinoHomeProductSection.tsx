@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import DealsDealCard from "@/components/deals/DealsDealCard";
 import { ZH_HOME_SECTION_META } from "@/lib/zorino-home/home-section-meta";
 import type { ZhHomeProductSection } from "@/lib/zorino-home/sections";
@@ -23,6 +22,9 @@ export default function ZorinoHomeProductSection({
   const meta = ZH_HOME_SECTION_META[section.key];
   const Icon = meta.icon;
 
+  const viewAllVariant =
+    section.key === "flash" || section.key === "priceDrops" ? "deals" : "products";
+
   return (
     <section
       className={`zh-panel zh-product-section zh-deals-preview zor-deals-page zor-deals-page__section zor-deals-page__section--${meta.sectionClass}`}
@@ -41,10 +43,7 @@ export default function ZorinoHomeProductSection({
             <p className="zor-deals-page__section-subtitle">{meta.subtitle}</p>
           </div>
         </div>
-        <Link href={section.viewAllHref} className="zh-deals-preview__view-all">
-          {section.viewAllLabel}
-          <ChevronRight size={14} aria-hidden />
-        </Link>
+        <ZorinoHomeViewAllLink href={section.viewAllHref} variant={viewAllVariant} />
       </header>
 
       {products.length === 0 ? (

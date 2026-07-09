@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import Link from "next/link";
+import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import DealsDealCard from "@/components/deals/DealsDealCard";
 import ZorinoHomeTrendingDealsSkeleton from "@/components/zorino-home/ZorinoHomeTrendingDealsSkeleton";
@@ -102,10 +102,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
               </p>
             </div>
           </div>
-          <Link href="/deals" className="zh-deals-preview__view-all">
-            View all deals
-            <ChevronRight size={14} aria-hidden />
-          </Link>
+          <ZorinoHomeViewAllLink href="/deals" variant="deals" />
         </header>
 
         <div className="zh-trending-deals__controls">

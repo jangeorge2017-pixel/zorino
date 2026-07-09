@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Check, CheckCircle, Copy, Users } from "lucide-react";
+import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
 
@@ -75,9 +75,7 @@ export default function ZorinoHomeCouponsPanel({ coupons }: ZorinoHomeCouponsPan
         <h2 id="zh-coupons-title" className="zh-section-head__title">
           <span aria-hidden>🔥</span> Top Coupons
         </h2>
-        <Link href="/coupons" className="zh-section-head__link">
-          View all coupons →
-        </Link>
+        <ZorinoHomeViewAllLink href="/coupons" variant="coupons" />
       </div>
       <div className="zh-coupons">
         {coupons.length === 0 ? (

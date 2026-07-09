@@ -7,6 +7,7 @@ import "@/components/zorino-home/homepage-deals-preview.css";
 import "@/components/zorino-home/homepage-refinements.css";
 import "@/components/zorino-home/homepage-visual-polish.css";
 import "@/components/zorino-home/homepage-visual-lock.css";
+import "@/app/badge-amber.css";
 import { Suspense } from "react";
 import HomeHeroBackground from "@/components/zorino-home/HomeHeroBackground";
 import HeroArtwork from "@/components/zorino-home/HeroArtwork";

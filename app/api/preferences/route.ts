@@ -13,6 +13,7 @@ import {
   INTL_COOKIE_MAX_AGE,
 } from "@/lib/international/cookies";
 import { preferencesToJson } from "@/lib/international/preferences";
+import { syncIntlPreferencesToProfile } from "@/lib/global-marketplace/preferences/profile-sync";
 import { locales, type Locale } from "@/i18n/config";
 import { enforceRateLimit, publicApiRateLimiter } from "@/lib/security/api-rate-limit";
 
@@ -102,13 +103,15 @@ export async function POST(request: Request) {
       ? (body.locale as Locale)
       : getCountryConfig(countryCode).defaultLocale;
 
-  const response = NextResponse.json(
-    preferencesToJson({
-      countryCode: countryCode as CountryCode,
-      currencyCode: currencyCode as CurrencyCode,
-      locale,
-    })
-  );
+  const prefs = {
+    countryCode: countryCode as CountryCode,
+    currencyCode: currencyCode as CurrencyCode,
+    locale,
+  };
+
+  await syncIntlPreferencesToProfile(prefs);
+
+  const response = NextResponse.json(preferencesToJson(prefs));
 
   response.cookies.set(INTL_COOKIE_COUNTRY, countryCode, cookieOptions());
   response.cookies.set(INTL_COOKIE_CURRENCY, currencyCode, cookieOptions());

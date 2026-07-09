@@ -1,0 +1,85 @@
+/**
+ * Shared homepage section action — View All Coupons / Deals / Products
+ */
+
+.zh-page {
+  --zh-view-all-width: 156px;
+  --zh-view-all-height: 36px;
+  --zh-view-all-transition: 180ms ease;
+  --zh-section-head-gap: 16px;
+}
+
+/* ─── Unified section header alignment ─── */
+.zh-page .zh-section-head,
+.zh-page .zor-deals-page__section-head,
+.zh-page .zh-trending-deals__title-row {
+  align-items: flex-start;
+}
+
+.zh-page .zh-deals-preview .zor-deals-page__section-title-wrap {
+  align-items: center;
+}
+
+/* ─── View all CTA ─── */
+.zh-page .zh-view-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  width: var(--zh-view-all-width);
+  min-width: var(--zh-view-all-width);
+  height: var(--zh-view-all-height);
+  min-height: var(--zh-view-all-height);
+  padding: 0 12px;
+  margin: 0;
+  flex-shrink: 0;
+  align-self: flex-start;
+  border-radius: var(--zor-radius-pill, 999px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: none;
+  transition:
+    color var(--zh-view-all-transition),
+    background var(--zh-view-all-transition),
+    border-color var(--zh-view-all-transition),
+    box-shadow var(--zh-view-all-transition);
+}
+
+.zh-page .zh-view-all__label {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.zh-page .zh-view-all__icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  opacity: 0.88;
+}
+
+.zh-page .zh-view-all:hover {
+  color: var(--zh-section-accent-soft, #ffffff);
+  border-color: color-mix(in srgb, var(--zh-section-accent, #ffffff) 32%, transparent);
+  background: color-mix(in srgb, var(--zh-section-accent, #ffffff) 10%, transparent);
+  box-shadow: 0 0 12px var(--zh-section-glow, rgba(255, 255, 255, 0.08));
+}
+
+@media (max-width: 767px) {
+  .zh-page .zh-view-all {
+    align-self: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zh-page .zh-view-all {
+    transition: none;
+  }
+}

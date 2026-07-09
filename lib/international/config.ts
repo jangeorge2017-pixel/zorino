@@ -5,7 +5,7 @@ export const currencyCodes = ["USD", "EUR", "GBP", "AED", "SAR", "EGP", "CAD"] a
 export type CurrencyCode = (typeof currencyCodes)[number];
 
 /** ISO 3166-1 alpha-2 country codes supported in the UI. */
-export const countryCodes = ["US", "GB", "DE", "AE", "SA", "EG", "CA", "GLOBAL"] as const;
+export const countryCodes = ["US", "GB", "DE", "FR", "AE", "SA", "EG", "CA", "GLOBAL"] as const;
 export type CountryCode = (typeof countryCodes)[number];
 
 export type CurrencyConfig = {
@@ -87,6 +87,14 @@ export const countries: Record<CountryCode, CountryConfig> = {
     defaultCurrency: "EUR",
     storeRegions: ["DE", "EU", "GLOBAL"],
   },
+  FR: {
+    code: "FR",
+    name: "France",
+    flag: "🇫🇷",
+    defaultLocale: "en",
+    defaultCurrency: "EUR",
+    storeRegions: ["FR", "EU", "GLOBAL"],
+  },
   AE: {
     code: "AE",
     name: "United Arab Emirates",
@@ -125,7 +133,7 @@ export const countries: Record<CountryCode, CountryConfig> = {
     flag: "🌍",
     defaultLocale: "en",
     defaultCurrency: "USD",
-    storeRegions: ["GLOBAL", "US", "UK", "GB", "DE", "EU", "AE", "SA", "EG", "CA"],
+    storeRegions: ["GLOBAL", "US", "UK", "GB", "DE", "FR", "EU", "AE", "SA", "EG", "CA"],
   },
 };
 
@@ -139,6 +147,7 @@ export const countryCategoryPriority: Partial<Record<CountryCode, string[]>> = {
   US: ["gaming", "laptops", "phones"],
   GB: ["fashion", "gaming", "phones"],
   DE: ["laptops", "gaming", "tvs"],
+  FR: ["electronics", "fashion", "gaming"],
 };
 
 export const DEFAULT_COUNTRY: CountryCode = "US";
