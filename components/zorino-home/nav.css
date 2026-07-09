@@ -10,8 +10,10 @@
   --zh-nav-logo-gap: 6px;
   --zh-nav-link-gap: 10px;
   --zh-nav-electric: #6fd4ff;
-  --zh-nav-crystal-glow: rgba(111, 212, 255, 0.16);
-  --zh-nav-crystal-glow-soft: rgba(111, 212, 255, 0.06);
+  --zh-nav-electric-bright: #7ee8ff;
+  --zh-nav-glow-idle: rgba(111, 212, 255, 0.1);
+  --zh-nav-glow-hover: rgba(111, 212, 255, 0.24);
+  --zh-nav-glow-active: rgba(126, 232, 255, 0.32);
 
   position: sticky;
   top: 0;
@@ -91,7 +93,10 @@
   white-space: nowrap;
   flex-shrink: 0;
   box-shadow: none;
-  text-shadow: none;
+  text-shadow: 0 0 5px var(--zh-nav-glow-idle);
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
 }
 
 .zh-nav__link::before,
@@ -100,60 +105,24 @@
   display: none;
 }
 
-.zh-nav__link-text {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  text-shadow:
-    0 0 6px transparent,
-    0 0 10px transparent;
-  transition: text-shadow 0.25s ease-out;
-}
-
-.zh-nav__link-text::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -5px;
-  height: 1px;
-  background: var(--zh-nav-electric);
-  transform: scaleX(0);
-  transform-origin: center center;
-  transition: transform 0.25s ease-out;
-  pointer-events: none;
-}
-
 .zh-nav__chevron {
   opacity: 0.72;
   filter: drop-shadow(0 0 3px rgba(111, 212, 255, 0.1));
 }
 
-.zh-nav__link:hover .zh-nav__link-text {
+.zh-nav__link:hover {
+  color: var(--zh-nav-electric-bright);
   text-shadow:
-    0 0 6px var(--zh-nav-crystal-glow),
-    0 0 10px var(--zh-nav-crystal-glow-soft);
-}
-
-.zh-nav__link:hover .zh-nav__link-text::after {
-  transform: scaleX(1);
+    0 0 6px var(--zh-nav-glow-hover),
+    0 0 12px rgba(111, 212, 255, 0.08);
 }
 
 .zh-nav__link.is-active {
   color: #f0f9ff;
   font-weight: 600;
-  text-shadow: none;
-}
-
-.zh-nav__link.is-active .zh-nav__link-text {
   text-shadow:
-    0 0 6px var(--zh-nav-crystal-glow),
-    0 0 10px var(--zh-nav-crystal-glow-soft);
-}
-
-.zh-nav__link.is-active .zh-nav__link-text::after {
-  transform: scaleX(1);
+    0 0 7px var(--zh-nav-glow-active),
+    0 0 14px rgba(111, 212, 255, 0.1);
 }
 
 /* ─── Right-side controls ─── */

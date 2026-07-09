@@ -22,7 +22,7 @@ export const ZORINO_LOGO_VARIANTS = {
   "@4x": "/logo/hero-z-logo@4x.png",
 } as const;
 
-export const ZORINO_LOGO_DISPLAY_HEIGHT = 54;
+export const ZORINO_LOGO_DISPLAY_HEIGHT = 40;
 
 /** @deprecated Use ZORINO_LOGO_SVG */
 export const ZORINO_LOGO = ZORINO_LOGO_SVG;
