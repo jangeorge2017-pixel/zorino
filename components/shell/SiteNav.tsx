@@ -1,59 +1,59 @@
-import Link from "next/link";
-import {
-  Bell,
-  Crown,
-  Heart,
-  Search,
-} from "lucide-react";
-import IntlNavSelectors from "@/components/international/IntlNavSelectors";
-import SiteNavMenu from "@/components/shell/SiteNavMenu";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
-import { ZORINO_LOGO_SOURCE } from "@/lib/assets";
-
-export default function SiteNav() {
-  return (
-    <header className="zor-nav">
-      <div className="zor-nav__inner">
-        <Link href="/" className="zor-nav__logo">
-          <img src={ZORINO_LOGO_SOURCE} alt="ZORINO" width={118} height={40} />
-          <span className="zor-nav__tagline">Find Better Deals Faster</span>
-        </Link>
-
-        <nav className="zor-nav__links" aria-label="Primary">
-          <SiteNavMenu />
-        </nav>
-
-        <div className="zor-nav__actions">
-          <Link href="/search" className="zor-nav__icon-btn" aria-label="Search">
-            <Search size={18} />
-          </Link>
-          <IntlNavSelectors />
-          <ThemeSwitcher />
-          <Link href="/wishlist" className="zor-nav__icon-btn">
-            <Heart size={18} aria-hidden />
-            Wishlist
-          </Link>
-          <Link
-            href="/notifications"
-            className="zor-nav__icon-btn"
-            aria-label="Notifications"
-          >
-            <Bell size={18} aria-hidden />
-            <span className="zor-nav__badge">3</span>
-          </Link>
-          <Link href="/profile" className="zor-nav__profile">
-            <img src="https://i.pravatar.cc/40" alt="" width={32} height={32} />
-            <div>
-              <strong>Hi, Ahmed</strong>
-              <span className="zor-nav__premium">
-                <Crown size={11} aria-hidden />
-                Premium
-              </span>
-            </div>
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
-
+import Link from "next/link";
+import {
+  Bell,
+  Crown,
+  Heart,
+  Search,
+} from "lucide-react";
+import IntlNavSelectors from "@/components/international/IntlNavSelectors";
+import SiteNavMenu from "@/components/shell/SiteNavMenu";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
+import { ZORINO_LOGO_SOURCE } from "@/lib/assets";
+
+export default function SiteNav() {
+  return (
+    <header className="zor-nav">
+      <div className="zor-nav__inner">
+        <Link href="/" className="zor-nav__logo">
+          <img src={ZORINO_LOGO_SOURCE} alt="ZORINO" width={155} height={54} />
+          <span className="zor-nav__tagline">Find Better Deals Faster</span>
+        </Link>
+
+        <nav className="zor-nav__links" aria-label="Primary">
+          <SiteNavMenu />
+        </nav>
+
+        <div className="zor-nav__actions">
+          <Link href="/search" className="zor-nav__icon-btn" aria-label="Search">
+            <Search size={18} />
+          </Link>
+          <IntlNavSelectors />
+          <ThemeSwitcher />
+          <Link href="/wishlist" className="zor-nav__icon-btn">
+            <Heart size={18} aria-hidden />
+            Wishlist
+          </Link>
+          <Link
+            href="/notifications"
+            className="zor-nav__icon-btn"
+            aria-label="Notifications"
+          >
+            <Bell size={18} aria-hidden />
+            <span className="zor-nav__badge">3</span>
+          </Link>
+          <Link href="/profile" className="zor-nav__profile">
+            <img src="https://i.pravatar.cc/40" alt="" width={32} height={32} />
+            <div>
+              <strong>Hi, Ahmed</strong>
+              <span className="zor-nav__premium">
+                <Crown size={11} aria-hidden />
+                Premium
+              </span>
+            </div>
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
