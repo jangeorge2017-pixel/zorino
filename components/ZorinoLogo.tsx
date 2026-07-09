@@ -10,7 +10,6 @@ type ZorinoLogoProps = {
   displayHeight?: number;
 };
 
-/** Navbar lockup only — hero Z is part of hero-background.png (not duplicated here). */
 export function ZorinoLogo({
   className,
   displayHeight = ZORINO_LOGO_DISPLAY_HEIGHT,
