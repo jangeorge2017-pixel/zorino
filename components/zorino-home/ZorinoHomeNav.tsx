@@ -16,12 +16,12 @@ export default function ZorinoHomeNav() {
     <header className="zh-nav">
       <div className="zh-nav__inner">
         <Link href="/" className="zh-nav__logo">
-          <ZorinoLogo className="zh-nav__logo-lockup" />
+          <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={61.6} />
         </Link>
 
         <ZorinoHomeNavLinks />
 
-        <div className="zh-nav__actions">
+        <div className="zh-nav__search-slot">
           <Link
             href="/search"
             className="zh-nav__icon-btn zh-nav__icon-btn--square"
@@ -29,6 +29,9 @@ export default function ZorinoHomeNav() {
           >
             <Search size={17} strokeWidth={2} />
           </Link>
+        </div>
+
+        <div className="zh-nav__actions">
           <IntlNavSelectors />
           <ThemeSwitcher />
           <Link href="/wishlist" className="zh-nav__icon-btn zh-nav__wishlist">

@@ -5,6 +5,8 @@ import "@/components/zorino-home/homepage-premium.css";
 import "@/components/deals/deals-page.css";
 import "@/components/zorino-home/homepage-deals-preview.css";
 import "@/components/zorino-home/homepage-refinements.css";
+import "@/components/zorino-home/homepage-visual-polish.css";
+import "@/components/zorino-home/homepage-visual-lock.css";
 import { Suspense } from "react";
 import HomeHeroBackground from "@/components/zorino-home/HomeHeroBackground";
 import HeroArtwork from "@/components/zorino-home/HeroArtwork";
@@ -24,7 +26,8 @@ import {
   getHomepageCategories,
   getHomepageSectionProducts,
   getHomepageStats,
-  getPopularSearches,
+  getPopularSearchesLive,
+  getPopularSearchesStatic,
   getTopCouponsForHomepage,
   getTrendingDeals,
 } from "@/lib/data/homepage";
@@ -62,19 +65,26 @@ async function ProductSectionsContent() {
   return <ZorinoHomeProductSections sections={sectionProducts} />;
 }
 
+/** Search bar — live popular terms stream in without blocking the shell. */
+async function SearchSection() {
+  const popularSearches = await getPopularSearchesLive();
+  return <ZorinoHomeSearch popularSearches={popularSearches} />;
+}
+
 export default async function ZorinoHomePage() {
   // Only fast, cached, above-the-fold data is on the critical path. Everything
   // that depends on the live marketplace catalog streams in via <Suspense>.
-  const [stats, categories, popularSearches] = await Promise.all([
+  const [stats, categories] = await Promise.all([
     getHomepageStats(),
     getHomepageCategories(),
-    getPopularSearches(),
   ]);
 
   return (
     <div className="zh-page" dir="ltr">
       <div className="zh-page__background" aria-hidden="true" />
-      <div className="zh-page__artwork" aria-hidden="true" />
+      <div className="zh-page__artwork-clip" aria-hidden="true">
+        <div className="zh-page__artwork" />
+      </div>
       <ZorinoHomeNav />
 
       <div className="zh-shell">
@@ -89,7 +99,11 @@ export default async function ZorinoHomePage() {
           />
 
           <div className="zh-hero-search">
-            <ZorinoHomeSearch popularSearches={popularSearches} />
+            <Suspense
+              fallback={<ZorinoHomeSearch popularSearches={getPopularSearchesStatic()} />}
+            >
+              <SearchSection />
+            </Suspense>
           </div>
         </div>
 

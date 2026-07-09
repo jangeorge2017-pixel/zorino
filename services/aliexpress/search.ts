@@ -5,6 +5,7 @@ import type { ProductDetail } from "@/lib/data/product-detail";
 import type { Product, Store } from "@/lib/types/entities";
 import type { CompareProductResult } from "@/services/compare";
 import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
+import { HOMEPAGE_POPULAR_SEARCH_FETCH } from "@/lib/integration/homepage-fetch-profile";
 
 const ALIEXPRESS_STORE: Store = {
   id: "aliexpress",
@@ -24,14 +25,6 @@ export const ALIEXPRESS_SEARCH_FILTERS = {
   categories: [] as { value: string; label: string }[],
   stores: [{ value: "aliexpress", label: "AliExpress" }],
 };
-
-const BROWSE_KEYWORDS = [
-  "electronics",
-  "phone accessories",
-  "smart watch",
-  "wireless earbuds",
-  "home gadgets",
-];
 
 function upgradeImageUrl(url: string): string {
   if (!url) return url;
@@ -154,25 +147,28 @@ export async function searchAliExpressLive(
   return searchProducts(query, limit);
 }
 
-/** Browse live AliExpress catalog using default keywords (products / homepage). */
+/** Browse live AliExpress catalog using a single lightweight affiliate query. */
 export async function browseAliExpressLive(limit = 24): Promise<SearchResultItem[]> {
-  const results: SearchResultItem[] = [];
-  const seen = new Set<string>();
+  const client = await getClient();
+  if (!client) return [];
 
-  for (const keyword of BROWSE_KEYWORDS) {
+  const { keyword, maxPages, pageSize } = HOMEPAGE_POPULAR_SEARCH_FETCH;
+  const cappedLimit = Math.min(limit, pageSize);
+
+  const rawProducts = await client.searchProducts(
+    { keywords: [keyword], maxPages, pageSize: cappedLimit },
+    "USD",
+  );
+
+  const results: SearchResultItem[] = [];
+  for (const raw of rawProducts) {
+    const item = mapRawToSearchItem(raw);
+    if (item) results.push(item);
     if (results.length >= limit) break;
-    const batch = await searchAliExpressLive(keyword, Math.min(12, limit - results.length));
-    for (const item of batch) {
-      if (seen.has(item.id)) continue;
-      seen.add(item.id);
-      results.push(item);
-      if (results.length >= limit) break;
-    }
   }
 
   return results;
 }
-
 export function searchItemToProduct(item: SearchResultItem): Product {
   const externalId = item.id.replace(/^aliexpress-/, "");
   return {

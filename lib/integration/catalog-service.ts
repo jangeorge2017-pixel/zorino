@@ -2,13 +2,17 @@ import { unstable_cache } from "next/cache";
 import { cache as reactCache } from "react";
 import type { HomepageSectionProducts } from "@/lib/data/homepage";
 import { fetchMergedCatalog } from "@/lib/integration/comparison-engine";
+import { HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
 import {
   catalogItemToDeal,
   catalogItemToTrendingDealCard,
 } from "@/lib/integration/normalize";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
-
+import {
+  withFallbackDeals,
+  withFallbackSectionProducts,
+} from "@/lib/zorino-home/presentation";
 /** How long a merged live-catalog snapshot stays fresh (seconds). */
 const CATALOG_REVALIDATE_SECONDS = 5 * 60;
 
@@ -33,6 +37,8 @@ const loadMergedCatalogItems = unstable_cache(
  * deals, hero artwork, product sections and /deals grid all share one lookup.
  */
 const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> => {
+  if (!HOMEPAGE_LIVE_FETCH_ENABLED) return [];
+
   const { isAnyProductionProviderConfigured } = await import(
     "@/lib/integration/comparison-engine"
   );
@@ -64,12 +70,13 @@ function itemsToCards(items: NormalizedCatalogItem[]): TrendingDealCard[] {
 /** Live trending deals from configured AliExpress/eBay providers. */
 export async function getIntegratedTrendingDeals(limit = 8): Promise<TrendingDealCard[]> {
   const items = await getCatalogItems();
-  if (items.length === 0) return [];
+  if (items.length === 0) {
+    return withFallbackDeals([]).slice(0, limit);
+  }
 
   const byDiscount = [...items].sort((a, b) => b.discount - a.discount);
   return itemsToCards(byDiscount).slice(0, limit);
 }
-
 /** Live deals for /deals page from integrated providers. */
 export async function getIntegratedDeals(limit = 48): Promise<Deal[]> {
   const items = await getCatalogItems();
@@ -85,15 +92,14 @@ export async function getIntegratedDeals(limit = 48): Promise<Deal[]> {
 export async function getIntegratedSectionProducts(): Promise<HomepageSectionProducts> {
   const items = await getCatalogItems();
   if (items.length === 0) {
-    return {
+    return withFallbackSectionProducts({
       flash: [],
       priceDrops: [],
       newArrivals: [],
       topRated: [],
       editorsPicks: [],
-    };
+    });
   }
-
   const cards = uniqueCards(itemsToCards(items));
   const byDiscount = [...cards].sort((a, b) => b.discount - a.discount);
   const priceDrops = cards

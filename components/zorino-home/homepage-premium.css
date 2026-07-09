@@ -40,7 +40,7 @@
 
 /* ─── Canvas & section rhythm ─── */
 .zh-page {
-  --zh-section-step: clamp(72px, 6vw, 96px);
+  --zh-section-step: clamp(60px, 5.2vw, 84px);
   --zh-premium-glass: rgba(12, 16, 32, 0.55);
   --zh-premium-border: rgba(255, 255, 255, 0.08);
   --zh-premium-glow-purple: rgba(139, 92, 246, 0.14);
@@ -129,6 +129,8 @@
     0 16px 48px rgba(0, 0, 0, 0.38),
     0 0 32px rgba(99, 102, 241, 0.14),
     0 0 64px rgba(34, 211, 238, 0.08),
+    0 0 24px rgba(139, 92, 246, 0.08),
+    0 0 42px rgba(167, 139, 250, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
@@ -240,12 +242,7 @@
   padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid transparent;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-}
-
-.zh-page .zh-section-head__link:hover {
-  background: rgba(139, 92, 246, 0.12);
-  border-color: rgba(139, 92, 246, 0.2);
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* ─── Featured brands premium ─── */
@@ -259,8 +256,8 @@
 }
 
 .zh-page .zh-brand-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  border-color: color-mix(in srgb, var(--zh-brand-color) 40%, transparent);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--zh-brand-color) 32%, transparent);
 }
 
 .zh-page .zh-coupons-panel .zh-section-head__title,
@@ -272,10 +269,6 @@
 }
 
 /* ─── Trending deals panel (premium preview) ─── */
-.zh-page .zh-trending-deals.zh-deals-preview .zor-deals-page__section-title {
-  text-shadow: 0 0 24px rgba(251, 146, 60, 0.2);
-}
-
 .zh-page .zh-coupon {
   border-radius: 18px;
   border: 1px solid rgba(251, 191, 36, 0.12);
@@ -287,7 +280,6 @@
 }
 
 .zh-page .zh-coupon:hover {
-  transform: translateY(-3px);
   border-color: rgba(251, 191, 36, 0.28);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3), 0 0 20px rgba(251, 191, 36, 0.1);
 }

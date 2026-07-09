@@ -4,6 +4,7 @@ import {
   PRODUCTION_PROVIDER_IDS,
   type ProductionProviderId,
 } from "@/lib/integration/constants";
+import { HOMEPAGE_CATALOG_FETCH } from "@/lib/integration/homepage-fetch-profile";
 import { externalProductsToCatalogItems } from "@/lib/integration/normalize";
 import {
   buildProviderSyncContext,
@@ -48,9 +49,12 @@ async function fetchExternalProducts(
   const connector = getSyncConnector(providerId);
   if (!connector) return [];
 
+  const keywords = DEFAULT_IMPORT_KEYWORDS[providerId] ?? ["electronics", "deals"];
+  const limitedKeywords = keywords.slice(0, HOMEPAGE_CATALOG_FETCH.maxKeywords);
+
   const ctx = buildProviderSyncContext(providerId, {
     jobConfig: {
-      keywords: DEFAULT_IMPORT_KEYWORDS[providerId] ?? ["electronics", "deals"],
+      keywords: limitedKeywords,
       maxPages: CATALOG_FETCH_DEFAULTS.maxPages,
       pageSize: CATALOG_FETCH_DEFAULTS.pageSize,
     },

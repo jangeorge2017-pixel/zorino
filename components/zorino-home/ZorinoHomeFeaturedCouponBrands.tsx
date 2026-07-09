@@ -41,6 +41,8 @@ function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
             src={brand.logoSrc}
             alt=""
             className="zh-brand-card__logo"
+            loading="lazy"
+            decoding="async"
             onError={() => setLogoFailed(true)}
           />
         ) : (

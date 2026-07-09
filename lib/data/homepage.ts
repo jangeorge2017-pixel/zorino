@@ -9,6 +9,15 @@ import {
   getIntegratedSectionProducts,
   getIntegratedTrendingDeals,
 } from "@/lib/integration/catalog-service";
+import { HOMEPAGE_POPULAR_SEARCH_FETCH, HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
+import { ZH_POPULAR_SEARCHES } from "@/lib/zorino-home/content";
+import {
+  withFallbackCategories,
+  withFallbackCoupons,
+  withFallbackFooterStats,
+  withFallbackHeroStats,
+  withFallbackPopularSearches,
+} from "@/lib/zorino-home/presentation";
 import type {
   FloatingProductCard,
   FooterStatItem,
@@ -45,13 +54,12 @@ const loadTopCouponsCached = unstable_cache(
 const loadPopularSearchesCached = unstable_cache(
   async (): Promise<string[]> => {
     const { browseAliExpressLive } = await import("@/services/aliexpress/search");
-    const items = await browseAliExpressLive(6);
+    const items = await browseAliExpressLive(HOMEPAGE_POPULAR_SEARCH_FETCH.limit);
     return items.map((item) => item.name);
   },
   ["homepage:popular-searches"],
   { revalidate: 900, tags: ["homepage-popular-searches"] },
 );
-
 const HERO_ORBIT_POSITIONS = [
   "orbit-top",
   "orbit-upper-left",
@@ -116,11 +124,14 @@ export async function getTrendingDeals(limit = 4): Promise<TrendingDealCard[]> {
 
 /** Top coupons for homepage. */
 export async function getTopCouponsForHomepage(limit = 4): Promise<TopCouponCard[]> {
+  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
+    return withFallbackCoupons([]).slice(0, limit);
+  }
+
   const { data, error } = await loadTopCouponsCached(limit);
-  if (error) return [];
+  if (error) return withFallbackCoupons([]).slice(0, limit);
   return data.map(couponToCard);
 }
-
 /** All active coupons (coupons listing page). */
 export async function getCouponsForPage() {
   const { data, error } = await getAllCoupons();
@@ -156,10 +167,14 @@ export async function getHeroFloatingProducts(): Promise<FloatingProductCard[]> 
 
 /** Category grid from Supabase. */
 export async function getHomepageCategories(): Promise<HomepageCategoryItem[]> {
-  const { data, error } = await loadCategoriesCached();
-  if (error || data.length === 0) return [];
+  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
+    return withFallbackCategories([]);
+  }
 
-  return [
+  const { data, error } = await loadCategoriesCached();
+  if (error || data.length === 0) return withFallbackCategories([]);
+
+  return withFallbackCategories([
     ...data.map((category, index) => ({
       slug: category.slug,
       label: category.name,
@@ -167,45 +182,59 @@ export async function getHomepageCategories(): Promise<HomepageCategoryItem[]> {
       accent: CATEGORY_ACCENTS[category.slug] ?? null,
     })),
     { slug: "more", label: "More", active: false, accent: "gray" },
-  ];
+  ]);
+}
+/** Popular searches — static chips on the critical path; live terms stream in. */
+export function getPopularSearchesStatic(): string[] {
+  return ZH_POPULAR_SEARCHES;
 }
 
-/** Popular searches from live AliExpress catalog. */
+/** Live popular searches (cached). Used by streamed search section. */
+export async function getPopularSearchesLive(): Promise<string[]> {
+  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
+    return ZH_POPULAR_SEARCHES;
+  }
+
+  try {
+    const live = await loadPopularSearchesCached();
+    return withFallbackPopularSearches(live);
+  } catch {
+    return ZH_POPULAR_SEARCHES;
+  }
+}
+
+/** @deprecated Use getPopularSearchesStatic + getPopularSearchesLive */
 export async function getPopularSearches(): Promise<string[]> {
-  return loadPopularSearchesCached();
+  return getPopularSearchesLive();
 }
-
 /** Live catalog stats for hero + footer. */
 export async function getHomepageStats(): Promise<{
   hero: HeroStatItem[];
   footer: FooterStatItem[];
 }> {
+  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
+    return {
+      hero: withFallbackHeroStats([]),
+      footer: withFallbackFooterStats([]),
+    };
+  }
+
   const { data, error } = await loadCatalogStatsCached();
   if (error || !data) {
     return {
-      hero: [
-        { key: "stores", value: "0", label: "Stores", tone: "purple" },
-        { key: "products", value: "0", label: "Products", tone: "blue" },
-        { key: "coupons", value: "0", label: "Coupons", tone: "green" },
-        { key: "tracking", value: "Real-time", label: "Price Tracking", tone: "violet" },
-      ],
-      footer: [
-        { key: "stores", value: "0", label: "Stores" },
-        { key: "products", value: "0", label: "Products" },
-        { key: "coupons", value: "0", label: "Coupons" },
-        { key: "users", value: "0", label: "Happy Users" },
-      ],
+      hero: withFallbackHeroStats([]),
+      footer: withFallbackFooterStats([]),
     };
   }
 
   return {
-    hero: [
+    hero: withFallbackHeroStats([
       { key: "stores", value: formatStatCount(data.stores), label: "Stores", tone: "purple" },
       { key: "products", value: formatStatCount(data.products), label: "Products", tone: "blue" },
       { key: "coupons", value: formatStatCount(data.coupons), label: "Coupons", tone: "green" },
       { key: "tracking", value: "Real-time", label: "Price Tracking", tone: "violet" },
-    ],
-    footer: [
+    ]),
+    footer: withFallbackFooterStats([
       { key: "stores", value: formatStatCount(data.stores), label: "Stores" },
       { key: "products", value: formatStatCount(data.products), label: "Products" },
       { key: "coupons", value: formatStatCount(data.coupons), label: "Coupons" },
@@ -214,10 +243,9 @@ export async function getHomepageStats(): Promise<{
         value: data.users > 0 ? formatStatCount(data.users) : "0",
         label: "Happy Users",
       },
-    ],
+    ]),
   };
 }
-
 /** Active stores for /stores page. */
 export async function getStoresForPage() {
   const { data, error } = await getStores();

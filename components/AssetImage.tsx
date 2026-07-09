@@ -82,7 +82,9 @@ export default function AssetImage({
     alt,
     className: `${className ?? ""}${loaded ? " asset-image-loaded" : " asset-image-loading"}`.trim(),
     priority,
+    quality: 92,
     loading: priority ? ("eager" as const) : ("lazy" as const),
+    decoding: "async" as const,
     style: { objectFit: "contain" as const, objectPosition: "center" as const },
     onError: handleError,
     onLoad: () => setLoaded(true),
@@ -97,7 +99,7 @@ export default function AssetImage({
       {...shared}
       width={width ?? 120}
       height={height ?? 120}
-      sizes={sizes}
+      sizes={sizes ?? `(max-width: 767px) 50vw, ${width ?? 120}px`}
     />
   );
 }

@@ -1,7 +1,8 @@
+import { cache as reactCache } from "react";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 /** Load integration API keys from DB into process.env for the current request. */
-export async function hydrateIntegrationCredentials(): Promise<void> {
+export const hydrateIntegrationCredentials = reactCache(async (): Promise<void> => {
   const supabase = createSupabaseServiceClient();
   if (!supabase) return;
 
@@ -11,7 +12,7 @@ export async function hydrateIntegrationCredentials(): Promise<void> {
       process.env[row.key] = row.value;
     }
   }
-}
+});
 
 export function getIntegrationCredential(key: string): string | undefined {
   const val = process.env[key]?.trim();

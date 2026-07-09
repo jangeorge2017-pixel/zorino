@@ -4,6 +4,7 @@ import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 import "./globals.css";
 import "./zorino-fixes.css";
 import "./design-system.css";
+import "./site-final-polish.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
