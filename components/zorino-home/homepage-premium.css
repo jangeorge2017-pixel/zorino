@@ -40,7 +40,7 @@
 
 /* ─── Canvas & section rhythm ─── */
 .zh-page {
-  --zh-section-step: clamp(60px, 5.2vw, 84px);
+  --zh-section-step: clamp(64px, 5vw, 80px);
   --zh-premium-glass: rgba(12, 16, 32, 0.55);
   --zh-premium-border: rgba(255, 255, 255, 0.08);
   --zh-premium-glow-purple: rgba(139, 92, 246, 0.14);
@@ -236,13 +236,6 @@
 .zh-page .zh-section-head__title {
   font-size: clamp(20px, 2vw, 24px);
   letter-spacing: -0.03em;
-}
-
-.zh-page .zh-section-head__link {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* ─── Featured brands premium ─── */

@@ -1,5 +1,6 @@
 import { cookies, headers } from "next/headers";
 import type { Locale } from "@/i18n/config";
+import { locales } from "@/i18n/config";
 import {
   DEFAULT_COUNTRY,
   type CountryCode,
@@ -14,6 +15,7 @@ import {
   INTL_COOKIE_COUNTRY,
   INTL_COOKIE_CURRENCY,
 } from "@/lib/international/cookies";
+import { resolveMarketplacePreferences } from "@/lib/global-marketplace/preferences/resolve";
 
 export type IntlPreferences = {
   countryCode: CountryCode;
@@ -25,21 +27,17 @@ export async function getServerIntlPreferences(locale: Locale): Promise<IntlPref
   const cookieStore = await cookies();
   const headerStore = await headers();
 
-  let countryCode = cookieStore.get(INTL_COOKIE_COUNTRY)?.value;
-  if (!countryCode || !isSupportedCountry(countryCode)) {
-    const geoCountry = headerStore.get("x-zor-detected-country");
-    countryCode = geoCountry && isSupportedCountry(geoCountry) ? geoCountry : DEFAULT_COUNTRY;
-  }
-
-  let currencyCode = cookieStore.get(INTL_COOKIE_CURRENCY)?.value;
-  if (!currencyCode || !isSupportedCurrency(currencyCode)) {
-    currencyCode = getDefaultCurrencyForCountry(countryCode);
-  }
+  const resolved = await resolveMarketplacePreferences({
+    locale,
+    cookieCountry: cookieStore.get(INTL_COOKIE_COUNTRY)?.value,
+    cookieCurrency: cookieStore.get(INTL_COOKIE_CURRENCY)?.value,
+    geoCountry: headerStore.get("x-zor-detected-country"),
+  });
 
   return {
-    countryCode: countryCode as CountryCode,
-    currencyCode: currencyCode as CurrencyCode,
-    locale,
+    countryCode: resolved.countryCode,
+    currencyCode: resolved.currencyCode,
+    locale: locales.includes(resolved.locale as Locale) ? (resolved.locale as Locale) : locale,
   };
 }
 

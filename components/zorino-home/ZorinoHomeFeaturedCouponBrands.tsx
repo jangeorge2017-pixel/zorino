@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import Link from "next/link";
+import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import {
   Check,
   CheckCircle,
@@ -121,10 +121,7 @@ export default function ZorinoHomeFeaturedCouponBrands({
           <Ticket size={22} aria-hidden className="zh-featured-brands__icon" />
           Featured Coupon Brands
         </h2>
-        <Link href="/coupons" className="zh-section-head__link">
-          View All Coupons
-          <ChevronRight size={14} aria-hidden />
-        </Link>
+        <ZorinoHomeViewAllLink href="/coupons" variant="coupons" />
       </div>
 
       <div className="zh-featured-brands__carousel">

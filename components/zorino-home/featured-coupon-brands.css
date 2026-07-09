@@ -9,7 +9,7 @@
 }
 
 .zh-featured-brands .zh-section-head {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .zh-featured-brands .zh-featured-brands__title {
@@ -25,12 +25,6 @@
   color: #22c55e;
   flex-shrink: 0;
   filter: drop-shadow(0 0 5px rgba(34, 197, 94, 0.28));
-}
-
-.zh-featured-brands .zh-section-head__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
 }
 
 .zh-featured-brands__carousel {

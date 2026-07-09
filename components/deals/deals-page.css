@@ -432,13 +432,6 @@
     0 0 20px var(--deals-glow-strong);
 }
 
-.zor-deals-page .deal-discount {
-  background: linear-gradient(135deg, #fb923c, #ef4444);
-  color: #fff7ed;
-  font-weight: var(--zor-weight-bold);
-  box-shadow: 0 0 12px rgba(249, 115, 22, 0.28);
-}
-
 .zor-deals-page .deal-price {
   color: #fff7ed;
 }
@@ -448,12 +441,7 @@
 }
 
 .zor-deals-page .listing-deal-meta {
-  color: var(--deals-accent-soft);
-  font-weight: var(--zor-weight-medium);
-}
-
-.zor-deals-page .listing-deal-meta svg {
-  color: var(--deals-accent);
+  font-weight: 600;
 }
 
 .zor-deals-page__featured-badge {
@@ -461,15 +449,6 @@
   top: 12px;
   right: 12px;
   z-index: 2;
-  padding: 5px 10px;
-  border-radius: var(--zor-radius-pill);
-  background: linear-gradient(135deg, #fb923c, #ef4444);
-  color: #fff7ed;
-  font-size: var(--zor-text-xs);
-  font-weight: var(--zor-weight-bold);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  box-shadow: 0 0 14px rgba(249, 115, 22, 0.32);
 }
 
 .zor-deals-page .zor-page-state__icon {

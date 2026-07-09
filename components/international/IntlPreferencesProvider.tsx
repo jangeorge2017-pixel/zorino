@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import type { CountryCode, CurrencyCode } from "@/lib/international/config";
 import { formatCurrency as formatCurrencyValue } from "@/lib/international/format";
+import { writeIntlToLocalStorage } from "@/lib/global-marketplace/preferences/storage";
 
 export type IntlPreferencesSnapshot = {
   country: { code: CountryCode; name: string; flag: string };
@@ -56,6 +57,10 @@ export function IntlPreferencesProvider({ initial, children }: IntlPreferencesPr
 
         const data = (await response.json()) as IntlPreferencesSnapshot;
         setSnapshot(data);
+        writeIntlToLocalStorage({
+          countryCode: data.country.code,
+          currencyCode: data.currency.code,
+        });
         router.refresh();
       } finally {
         setIsUpdating(false);
