@@ -106,26 +106,30 @@ export default function IntlNavSelectors() {
     };
   }, [open, updatePosition]);
 
-  const switchLocale = async (newLocale: Locale) => {
-    setOpen(false);
-    if (newLocale === locale) return;
-    // Persist first, then a single navigation — avoids refresh loops.
-    try {
-      await updatePreferences({ locale: newLocale }, { skipNavigation: true });
-    } catch {
-      // Still navigate so the UI language changes even if persistence fails.
+  const switchLocale = (newLocale: Locale) => {
+    if (newLocale === locale) {
+      setOpen(false);
+      return;
     }
+    setOpen(false);
+    // Navigate immediately — never await persistence (avoids slow AR↔EN switches).
     router.replace(pathname, { locale: newLocale });
+    void updatePreferences({ locale: newLocale }, { skipNavigation: true }).catch(
+      () => undefined
+    );
   };
 
   const handleCountryChange = async (code: CountryCode) => {
     setOpen(false);
-    await updatePreferences({ countryCode: code });
+    // Country/currency only — language stays independent (no locale redirect).
+    await updatePreferences({ countryCode: code }, { skipNavigation: true });
+    router.refresh();
   };
 
   const handleCurrencyChange = async (code: CurrencyCode) => {
     setOpen(false);
-    await updatePreferences({ currencyCode: code });
+    await updatePreferences({ currencyCode: code }, { skipNavigation: true });
+    router.refresh();
   };
 
   const langLabel = locale.toUpperCase();

@@ -57,15 +57,12 @@ function resolveLocale(
   countryCode: CountryCode,
   cookieLocale: string | undefined
 ): Locale {
+  // Explicit language choice always wins.
   if (body.locale && locales.includes(body.locale as Locale)) {
     return body.locale as Locale;
   }
 
-  // Country change suggests that market's default language.
-  if (body.countryCode) {
-    return getCountryConfig(countryCode).defaultLocale;
-  }
-
+  // Preserve the user's selected language across country/currency changes.
   if (cookieLocale && locales.includes(cookieLocale as Locale)) {
     return cookieLocale as Locale;
   }

@@ -9,7 +9,7 @@ type ZorinoHomeProductSectionsProps = {
   sections: HomepageSectionProducts;
 };
 
-export default function ZorinoHomeProductSections({
+export default async function ZorinoHomeProductSections({
   sections,
 }: ZorinoHomeProductSectionsProps) {
   return (
