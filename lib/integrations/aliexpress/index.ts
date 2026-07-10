@@ -31,6 +31,7 @@ export {
 export {
   mapAliExpressRawToOpenApiProduct,
   formatAliExpressShipping,
+  formatAliExpressStoreName,
 } from "@/lib/integrations/aliexpress/map-product";
 export type { AliExpressOpenApiProduct } from "@/lib/integrations/aliexpress/open-api-types";
 export type {

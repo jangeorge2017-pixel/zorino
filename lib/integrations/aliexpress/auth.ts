@@ -30,9 +30,7 @@ export function signAliExpressParams(
     encoding: "utf8",
     paramKeysSorted: sorted,
     signLength: sign.length,
-    signPreview: `${sign.slice(0, 8)}…${sign.slice(-8)}`,
     appSecretLoaded: Boolean(appSecret?.trim()),
-    appSecretMasked: maskSecret(appSecret),
     // Length of the bookend string without revealing the secret values.
     baseLengthWithoutSecrets: base.length - appSecret.length * 2,
   });

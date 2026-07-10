@@ -1,11 +1,39 @@
 import type { ImportJobConfig } from "@/lib/sync/providers/shared/import-config";
 import { ALIEXPRESS_API_URL } from "@/lib/integrations/aliexpress/config";
 import { buildSignedParams } from "@/lib/integrations/aliexpress/auth";
-import { logAliExpress, maskSecret } from "@/lib/integrations/aliexpress/logger";
+import {
+  logAliExpress,
+  maskSecret,
+  redactRequestForLog,
+} from "@/lib/integrations/aliexpress/logger";
 import type {
   AliExpressRawProduct,
   AliExpressValidationResult,
 } from "@/lib/integrations/aliexpress/types";
+
+/** Explicit Open Platform fields required by ZORINO product cards + affiliate links. */
+export const ALIEXPRESS_PRODUCT_FIELDS = [
+  "product_id",
+  "product_title",
+  "product_main_image_url",
+  "product_small_image_urls",
+  "product_detail_url",
+  "promotion_link",
+  "target_sale_price",
+  "target_original_price",
+  "target_sale_price_currency",
+  "sale_price",
+  "original_price",
+  "sale_price_currency",
+  "discount",
+  "evaluate_rate",
+  "lastest_volume",
+  "first_level_category_name",
+  "shop_id",
+  "shop_title",
+  "shop_url",
+  "ship_to_days",
+].join(",");
 
 type ApiEnvelope = {
   error_response?: {
@@ -73,6 +101,8 @@ export class AliExpressAffiliateClient {
         page_size: "1",
         target_currency: "USD",
         target_language: "EN",
+        ship_to_country: "US",
+        fields: ALIEXPRESS_PRODUCT_FIELDS,
         ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
       });
 
@@ -101,11 +131,17 @@ export class AliExpressAffiliateClient {
   /** Keyword search for live product discovery (search page). */
   async searchByKeyword(
     keyword: string,
-    options?: { pageSize?: number; pageNo?: number; currency?: string }
+    options?: {
+      pageSize?: number;
+      pageNo?: number;
+      currency?: string;
+      shipToCountry?: string;
+    }
   ): Promise<AliExpressRawProduct[]> {
     const pageSize = Math.min(Math.max(options?.pageSize ?? 24, 1), 50);
     const pageNo = options?.pageNo ?? 1;
     const currency = options?.currency ?? "USD";
+    const shipToCountry = options?.shipToCountry?.trim() || "US";
 
     // Exact user query — no rewrite, no default/demo keywords.
     const keywords = keyword.trim();
@@ -114,6 +150,8 @@ export class AliExpressAffiliateClient {
       pageSize,
       pageNo,
       currency,
+      shipToCountry,
+      hasTrackingId: Boolean(this.trackingId?.trim()),
     });
 
     const batch = await this.call<{
@@ -136,6 +174,8 @@ export class AliExpressAffiliateClient {
       page_size: String(pageSize),
       target_currency: currency,
       target_language: "EN",
+      ship_to_country: shipToCountry,
+      fields: ALIEXPRESS_PRODUCT_FIELDS,
       ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
     });
 
@@ -215,6 +255,8 @@ export class AliExpressAffiliateClient {
       product_ids: ids.slice(0, 50).join(","),
       target_currency: currency,
       target_language: "EN",
+      ship_to_country: "US",
+      fields: ALIEXPRESS_PRODUCT_FIELDS,
       ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
     });
 
@@ -239,6 +281,12 @@ export class AliExpressAffiliateClient {
     const result = new Map<string, string>();
     if (sourceUrls.length === 0) return result;
 
+    const trackingId = this.trackingId?.trim();
+    if (!trackingId) {
+      logAliExpress("generatePromotionLinks skipped — ALIEXPRESS_TRACKING_ID missing");
+      return result;
+    }
+
     const batch = await this.call<{
       aliexpress_affiliate_link_generate_response?: {
         resp_result?: {
@@ -250,7 +298,7 @@ export class AliExpressAffiliateClient {
     }>("aliexpress.affiliate.link.generate", {
       promotion_link_type: "0",
       source_values: sourceUrls.slice(0, 50).join(","),
-      ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
+      tracking_id: trackingId,
     });
 
     const links =
@@ -297,14 +345,11 @@ export class AliExpressAffiliateClient {
     const params = buildSignedParams(method, this.appKey, this.appSecret, bizParams);
     const body = new URLSearchParams(params);
 
-    logAliExpress("FULL API REQUEST", {
+    logAliExpress("API REQUEST", {
       url: ALIEXPRESS_API_URL,
       httpMethod: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-      },
-      params,
-      body: body.toString(),
+      method,
+      params: redactRequestForLog(params),
     });
 
     let res: Response;
@@ -322,11 +367,11 @@ export class AliExpressAffiliateClient {
 
     const text = await res.text();
 
-    logAliExpress("FULL API RESPONSE", {
+    logAliExpress("API RESPONSE", {
       method,
       httpStatus: res.status,
       httpStatusText: res.statusText,
-      body: text,
+      bodyLength: text.length,
     });
 
     if (res.status === 429 || res.status === 503) {
