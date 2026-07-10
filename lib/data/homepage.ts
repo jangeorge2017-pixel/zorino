@@ -53,9 +53,14 @@ const loadTopCouponsCached = unstable_cache(
 
 const loadPopularSearchesCached = unstable_cache(
   async (): Promise<string[]> => {
-    const { browseAliExpressLive } = await import("@/services/aliexpress/search");
-    const items = await browseAliExpressLive(HOMEPAGE_POPULAR_SEARCH_FETCH.limit);
-    return items.map((item) => item.name);
+    try {
+      const { browseAliExpressLive } = await import("@/services/aliexpress/search");
+      const items = await browseAliExpressLive(HOMEPAGE_POPULAR_SEARCH_FETCH.limit);
+      return items.map((item) => item.name);
+    } catch (error) {
+      console.error("[homepage] popular searches fetch failed:", error);
+      return [];
+    }
   },
   ["homepage:popular-searches"],
   { revalidate: 900, tags: ["homepage-popular-searches"] },
@@ -196,6 +201,10 @@ export async function getPopularSearchesLive(): Promise<string[]> {
   }
 
   try {
+    const { isAliExpressConfigured } = await import("@/lib/integrations/aliexpress/config");
+    if (!isAliExpressConfigured()) {
+      return ZH_POPULAR_SEARCHES;
+    }
     const live = await loadPopularSearchesCached();
     return withFallbackPopularSearches(live);
   } catch {

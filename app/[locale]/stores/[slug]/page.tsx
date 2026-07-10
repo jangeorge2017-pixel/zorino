@@ -3,9 +3,10 @@ import StoreDetailPageClient from "@/components/StoreDetailPageClient";
 import { browseAliExpressLive } from "@/services/aliexpress/search";
 import type { MockStoreDetail } from "@/lib/mock/types";
 import type { Store } from "@/lib/types/entities";
+import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 
 type StoreDetailPageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 };
 
 const ALIEXPRESS_STORE: Store = {
@@ -20,6 +21,20 @@ const ALIEXPRESS_STORE: Store = {
   isActive: true,
   logoInitial: "AE",
 };
+
+export async function generateMetadata({ params }: StoreDetailPageProps) {
+  const { slug, locale } = await params;
+  if (slug !== "aliexpress") {
+    return { title: "Store" };
+  }
+  return buildSeoMetadata({
+    title: "AliExpress",
+    description:
+      "Live AliExpress Affiliates catalog — products, prices, and affiliate links.",
+    pathname: `/stores/${slug}`,
+    locale: locale === "ar" ? "ar" : "en",
+  });
+}
 
 export default async function StoreDetailPage({ params }: StoreDetailPageProps) {
   const { slug } = await params;

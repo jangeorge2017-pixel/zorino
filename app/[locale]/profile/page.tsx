@@ -9,7 +9,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
-import { User, Settings, Heart, Bell, Shield, CreditCard, LogOut, Camera, Edit3, CheckCircle } from 'lucide-react';
+import { User, Settings, Bell, Shield, LogOut, Camera, Edit3, CheckCircle } from 'lucide-react';
 
 export default function ProfilePage() {
   const t = useTranslations('profile');

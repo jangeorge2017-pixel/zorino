@@ -20,6 +20,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   logout: () => void;
   loginWithGoogle: () => Promise<void>;
   loginWithFacebook: () => Promise<void>;
@@ -71,7 +72,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const supabase = createSupabaseBrowserClient();
+        let supabase;
+        try {
+          supabase = createSupabaseBrowserClient();
+        } catch (clientError) {
+          console.error("Supabase browser client failed:", clientError);
+          if (!cancelled) setIsLoading(false);
+          return;
+        }
+
         if (!supabase) {
           if (!cancelled) setIsLoading(false);
           return;
@@ -126,6 +135,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user ? mapSupabaseUser(data.user) : null);
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Authentication is not configured");
+    }
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) throw new Error("Authentication is not configured");
+    const redirectTo = `${window.location.origin}/auth/callback?next=/auth/login`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) throw error;
+  }, []);
+
   const logout = useCallback(() => {
     void (async () => {
       if (isSupabaseConfigured()) {
@@ -172,11 +192,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       login,
       register,
+      resetPassword,
       logout,
       loginWithGoogle,
       loginWithFacebook,
     }),
-    [user, isLoading, login, register, logout, loginWithGoogle, loginWithFacebook]
+    [user, isLoading, login, register, resetPassword, logout, loginWithGoogle, loginWithFacebook]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

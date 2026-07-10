@@ -5,6 +5,7 @@ import DocumentAttributes from "@/components/international/DocumentAttributes";
 import IntlClientProvider from "@/components/international/IntlClientProvider";
 import { IntlPreferencesProvider } from "@/components/international/IntlPreferencesProvider";
 import { AuthProvider } from "@/lib/auth/auth-context";
+import AppThemeProvider from "@/components/AppThemeProvider";
 import { locales, type Locale } from "@/i18n/config";
 import {
   getServerIntlPreferences,
@@ -34,11 +35,13 @@ export default async function LocaleLayout({
     <IntlClientProvider locale={activeLocale} messages={messages}>
       <DocumentAttributes locale={activeLocale} />
       <AuthProvider>
-        <IntlPreferencesProvider initial={preferencesToJson(prefs)}>
-          <div lang={activeLocale} dir={dir}>
-            <LocaleShell>{children}</LocaleShell>
-          </div>
-        </IntlPreferencesProvider>
+        <AppThemeProvider>
+          <IntlPreferencesProvider initial={preferencesToJson(prefs)}>
+            <div lang={activeLocale} dir={dir}>
+              <LocaleShell>{children}</LocaleShell>
+            </div>
+          </IntlPreferencesProvider>
+        </AppThemeProvider>
       </AuthProvider>
     </IntlClientProvider>
   );

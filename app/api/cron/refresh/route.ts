@@ -4,7 +4,6 @@ import { executeScheduledSync } from "@/services/sync";
 import { executeTrendingRefresh, isTrendingRefreshDue } from "@/services/trending";
 import {
   executeLowestPriceRefresh,
-  isLowestPriceRefreshDue,
 } from "@/services/lowest-prices";
 import { triggerPhase1Imports } from "@/services/sync";
 import { runAliExpressScheduledSync } from "@/services/aliexpress";

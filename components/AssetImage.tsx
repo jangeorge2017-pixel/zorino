@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   normalizeProductImageUrl,
   PRODUCT_IMAGE_PLACEHOLDER,
@@ -35,19 +35,19 @@ export default function AssetImage({
   fallback,
   priority,
 }: AssetImageProps) {
-  const normalized = normalizeProductImageUrl(src);
-  const [activeSrc, setActiveSrc] = useState(normalized || PRODUCT_IMAGE_PLACEHOLDER);
-  const [showFallbackUi, setShowFallbackUi] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const normalized = normalizeProductImageUrl(src) || PRODUCT_IMAGE_PLACEHOLDER;
+  const [broken, setBroken] = useState(false);
+  const [loaded, setLoaded] = useState(() => isLocalProductImage(normalized));
 
-  useEffect(() => {
-    const next = normalizeProductImageUrl(src) || PRODUCT_IMAGE_PLACEHOLDER;
-    setActiveSrc(next);
-    setShowFallbackUi(false);
-    setLoaded(isLocalProductImage(next));
-  }, [src]);
+  // Reset failure state when the source identity changes (render-time, no effect).
+  const [srcKey, setSrcKey] = useState(src);
+  if (src !== srcKey) {
+    setSrcKey(src);
+    setBroken(false);
+    setLoaded(isLocalProductImage(normalized));
+  }
 
-  if (showFallbackUi) {
+  if (broken && normalized === PRODUCT_IMAGE_PLACEHOLDER) {
     return (
       <span
         className={`asset-image-fallback ${className ?? ""}`}
@@ -78,19 +78,19 @@ export default function AssetImage({
     );
   }
 
-  const displaySrc = activeSrc || PRODUCT_IMAGE_PLACEHOLDER;
+  const displaySrc = broken ? PRODUCT_IMAGE_PLACEHOLDER : normalized;
 
   const handleError = () => {
     if (displaySrc !== PRODUCT_IMAGE_PLACEHOLDER) {
-      setActiveSrc(PRODUCT_IMAGE_PLACEHOLDER);
+      setBroken(true);
       return;
     }
-    setShowFallbackUi(true);
+    setBroken(true);
   };
 
   const shared = {
     src: displaySrc,
-    alt,
+    alt: alt || "",
     className: `${className ?? ""}${loaded ? " asset-image-loaded" : " asset-image-loading"}`.trim(),
     priority,
     quality: 92,
@@ -102,12 +102,13 @@ export default function AssetImage({
   };
 
   if (fill) {
-    return <Image {...shared} fill sizes={sizes ?? "100vw"} />;
+    return <Image {...shared} alt={shared.alt} fill sizes={sizes ?? "100vw"} />;
   }
 
   return (
     <Image
       {...shared}
+      alt={shared.alt}
       width={width ?? 120}
       height={height ?? 120}
       sizes={sizes ?? `(max-width: 767px) 50vw, ${width ?? 120}px`}

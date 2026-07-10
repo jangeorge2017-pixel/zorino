@@ -39,7 +39,7 @@ export default function RegisterPage() {
     try {
       await register(name, email, password);
       router.push('/');
-    } catch (err) {
+    } catch {
       setError(t('userExists'));
     } finally {
       setIsLoading(false);
@@ -49,7 +49,7 @@ export default function RegisterPage() {
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
-    } catch (err) {
+    } catch {
       setError('Google login failed');
     }
   };
@@ -57,7 +57,7 @@ export default function RegisterPage() {
   const handleFacebookLogin = async () => {
     try {
       await loginWithFacebook();
-    } catch (err) {
+    } catch {
       setError('Facebook login failed');
     }
   };

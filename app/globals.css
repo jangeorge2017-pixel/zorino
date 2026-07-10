@@ -4406,3 +4406,18 @@ img {
     grid-template-columns: 1fr;
   }
 }
+
+/* Light theme — token-level only; dark remains the primary brand look */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background: #f4f6fb;
+  color: #0f172a;
+}
+
+html.light .zh-page__background,
+html.light .zor-page-shell {
+  filter: none;
+}

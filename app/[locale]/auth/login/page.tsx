@@ -2,9 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link, useRouter } from '@/i18n/navigation';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { Globe, Share2 } from 'lucide-react';
@@ -26,7 +25,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
       router.push('/');
-    } catch (err) {
+    } catch {
       setError(t('invalidCredentials'));
     } finally {
       setIsLoading(false);
@@ -36,7 +35,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
-    } catch (err) {
+    } catch {
       setError('Google login failed');
     }
   };
@@ -44,7 +43,7 @@ export default function LoginPage() {
   const handleFacebookLogin = async () => {
     try {
       await loginWithFacebook();
-    } catch (err) {
+    } catch {
       setError('Facebook login failed');
     }
   };
@@ -88,7 +87,7 @@ export default function LoginPage() {
                 <input type="checkbox" className="mr-2" />
                 <span className="text-sm text-gray-400">{t('rememberMe')}</span>
               </label>
-              <Link href="/forgot-password" className="text-sm text-purple-400 hover:text-purple-300">
+              <Link href="/auth/forgot-password" className="text-sm text-purple-400 hover:text-purple-300">
                 {t('forgotPassword')}
               </Link>
             </div>

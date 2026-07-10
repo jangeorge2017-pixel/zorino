@@ -127,6 +127,7 @@
     "noResults": "لا توجد نتائج",
     "tryAgain": "حاول مرة أخرى",
     "somethingWentWrong": "حدث خطأ ما",
+    "pageLoadFailed": "تعذر تحميل هذه الصفحة. يرجى المحاولة مرة أخرى.",
     "pageNotFound": "الصفحة غير موجودة",
     "goHome": "العودة للرئيسية",
     "readMore": "اقرأ المزيد",
@@ -661,7 +662,9 @@
     "topics": "المواضيع",
     "totalReads": "إجمالي القراءات",
     "sectionGuidesTitle": "أدلة",
-    "sectionGuidesSubtitle": "خطط تسوق خطوة بخطوة."
+    "sectionGuidesSubtitle": "خطط تسوق خطوة بخطوة.",
+    "sectionPopularTitle": "الأكثر شعبية",
+    "sectionPopularSubtitle": "المقالات التي يفتحها القرّاء أكثر."
   },
   "about": {
     "title": "من نحن",
@@ -723,7 +726,14 @@
     "signIn": "تسجيل الدخول",
     "signUp": "إنشاء حساب",
     "welcome": "مرحبًا",
-    "welcomeBack": "مرحبًا بعودتك"
+    "welcomeBack": "مرحبًا بعودتك",
+    "checkEmail": "تحقق من بريدك",
+    "resetEmailSent": "أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك. يرجى التحقق من صندوق الوارد.",
+    "backToLogin": "العودة لتسجيل الدخول",
+    "resetPasswordHint": "أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.",
+    "sendResetLink": "إرسال رابط إعادة التعيين",
+    "rememberPassword": "تتذكر كلمة المرور؟",
+    "resetEmailFailed": "تعذر إرسال بريد إعادة التعيين"
   },
   "profile": {
     "title": "ملفي الشخصي",

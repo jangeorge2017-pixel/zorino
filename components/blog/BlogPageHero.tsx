@@ -71,7 +71,7 @@ export default function BlogPageHero({
               <Eye size={15} />
             </span>
             <div>
-              <strong>{totalViews.toLocaleString()}</strong>
+              <strong>{totalViews.toLocaleString("en-US")}</strong>
               <span>{t("totalReads")}</span>
             </div>
           </div>

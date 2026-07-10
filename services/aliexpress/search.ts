@@ -94,9 +94,6 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
 }
 
 async function getClient() {
-  const { logAliExpress, maskSecret } = await import(
-    "@/lib/integrations/aliexpress/logger"
-  );
   const { getAliExpressCredentialStatus } = await import(
     "@/lib/integrations/aliexpress/config"
   );
@@ -104,30 +101,8 @@ async function getClient() {
   await loadAliExpressCredentials();
 
   const status = getAliExpressCredentialStatus();
-  const envKey = process.env.ALIEXPRESS_APP_KEY?.trim();
-  const envSecret = process.env.ALIEXPRESS_APP_SECRET?.trim();
-
-  logAliExpress("credential load check", {
-    hasAppKey: status.hasAppKey,
-    hasAppSecret: status.hasAppSecret,
-    hasTrackingId: status.hasTrackingId,
-    source: status.source,
-    configured: status.configured,
-    envAppKeyPresent: Boolean(envKey),
-    envAppSecretPresent: Boolean(envSecret),
-    envAppKeyMasked: maskSecret(envKey),
-    envAppSecretMasked: maskSecret(envSecret),
-  });
-
   if (!status.configured) {
-    logAliExpress(
-      "AUTHENTICATION ERROR: ALIEXPRESS_APP_KEY and/or ALIEXPRESS_APP_SECRET not loaded from environment or integration_settings",
-      {
-        hasAppKey: status.hasAppKey,
-        hasAppSecret: status.hasAppSecret,
-        source: status.source,
-      }
-    );
+    // Expected when marketplace keys are not set — fall back to empty results.
     return null;
   }
 

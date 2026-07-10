@@ -72,7 +72,7 @@ export default function CouponsPageHero({
               <Sparkles size={15} />
             </span>
             <div>
-              <strong>{totalUses.toLocaleString()}</strong>
+              <strong>{totalUses.toLocaleString("en-US")}</strong>
               <span>{t("totalUses")}</span>
             </div>
           </div>

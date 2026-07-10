@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import {
@@ -146,9 +147,22 @@ function MegaMenuTrigger({ section }: { section: SiteNavMenuSection }) {
 }
 
 export default function SiteNavMenu() {
+  const t = useTranslations("nav");
+
+  const menus = SITE_NAV_MENUS.map((section) => {
+    const labelKey = section.id as
+      | "deals"
+      | "coupons"
+      | "compare"
+      | "categories"
+      | "stores"
+      | "blog";
+    return { ...section, label: t(labelKey) };
+  });
+
   return (
     <>
-      {SITE_NAV_MENUS.map((section) => (
+      {menus.map((section) => (
         <MegaMenuTrigger key={section.id} section={section} />
       ))}
     </>

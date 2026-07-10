@@ -127,6 +127,7 @@
     "noResults": "No Results Found",
     "tryAgain": "Try Again",
     "somethingWentWrong": "Something went wrong",
+    "pageLoadFailed": "We couldn't load this page. Please try again.",
     "pageNotFound": "Page Not Found",
     "goHome": "Go Home",
     "readMore": "Read More",
@@ -661,7 +662,9 @@
     "topics": "Topics",
     "totalReads": "Total reads",
     "sectionGuidesTitle": "Guides",
-    "sectionGuidesSubtitle": "Step-by-step shopping playbooks."
+    "sectionGuidesSubtitle": "Step-by-step shopping playbooks.",
+    "sectionPopularTitle": "Most popular",
+    "sectionPopularSubtitle": "Articles readers open most often."
   },
   "about": {
     "title": "About Us",
@@ -723,7 +726,14 @@
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "welcome": "Welcome",
-    "welcomeBack": "Welcome back"
+    "welcomeBack": "Welcome back",
+    "checkEmail": "Check Your Email",
+    "resetEmailSent": "We've sent a password reset link to your email address. Please check your inbox.",
+    "backToLogin": "Back to Login",
+    "resetPasswordHint": "Enter your email address and we'll send you a link to reset your password.",
+    "sendResetLink": "Send Reset Link",
+    "rememberPassword": "Remember your password?",
+    "resetEmailFailed": "Failed to send reset email"
   },
   "profile": {
     "title": "My Profile",

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
 import { ArrowRight, Calendar, Clock, User } from "lucide-react";
 import type { MockBlogPost } from "@/lib/mock/types";

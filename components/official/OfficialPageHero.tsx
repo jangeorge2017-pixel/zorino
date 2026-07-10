@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { Calendar } from "lucide-react";
 import { OFFICIAL_LAST_UPDATED } from "@/lib/content/official-pages";
 

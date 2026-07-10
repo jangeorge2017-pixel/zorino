@@ -45,7 +45,7 @@ export default function StoreDetailHero({ detail }: StoreDetailHeroProps) {
         <div className="zor-stores-page__stats zor-stores-page__detail-stats">
           <div className="zor-stores-page__stat">
             <span className="zor-stores-page__stat-icon" aria-hidden><Tag size={15} /></span>
-            <div><strong>{productCount.toLocaleString()}</strong><span>Products</span></div>
+            <div><strong>{productCount.toLocaleString("en-US")}</strong><span>Products</span></div>
           </div>
           <div className="zor-stores-page__stat zor-stores-page__stat--hot">
             <span className="zor-stores-page__stat-icon" aria-hidden><Star size={15} /></span>
