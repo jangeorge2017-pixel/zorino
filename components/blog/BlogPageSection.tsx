@@ -14,7 +14,7 @@ const SECTION_ICONS: Record<BlogSectionId, typeof BookOpen> = {
 };
 
 const SECTION_KEYS: Record<BlogSectionId, { title: string; subtitle: string }> = {
-  editors: { title: "sectionEditorsTitle", subtitle: "sectionEditorsSubtitle" },
+  editors: { title: "sectionFeaturedTitle", subtitle: "sectionFeaturedSubtitle" },
   latest: { title: "sectionLatestTitle", subtitle: "sectionLatestSubtitle" },
   popular: { title: "sectionPopularTitle", subtitle: "sectionPopularSubtitle" },
   guides: { title: "sectionGuidesTitle", subtitle: "sectionGuidesSubtitle" },

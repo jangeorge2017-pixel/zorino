@@ -1,9 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link, useRouter } from '@/i18n/navigation';
+import { useAuth } from '@/lib/auth/auth-context';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
@@ -11,6 +11,7 @@ import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 export default function ForgotPasswordPage() {
   const t = useTranslations('auth');
   const router = useRouter();
+  const { resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -22,11 +23,10 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await resetPassword(email.trim());
       setIsSuccess(true);
     } catch {
-      setError('Failed to send reset email');
+      setError(t('resetEmailFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -38,12 +38,10 @@ export default function ForgotPasswordPage() {
         <div className="max-w-md w-full">
           <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Check Your Email</h2>
-            <p className="text-gray-400 mb-6">
-              We&apos;ve sent a password reset link to your email address. Please check your inbox.
-            </p>
+            <h2 className="text-2xl font-bold text-white mb-2">{t('checkEmail')}</h2>
+            <p className="text-gray-400 mb-6">{t('resetEmailSent')}</p>
             <Button onClick={() => router.push('/auth/login')} className="w-full">
-              Back to Login
+              {t('backToLogin')}
             </Button>
           </div>
         </div>
@@ -56,7 +54,7 @@ export default function ForgotPasswordPage() {
       <div className="max-w-md w-full">
         <Link href="/auth/login" className="inline-flex items-center text-gray-400 hover:text-white mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Login
+          {t('backToLogin')}
         </Link>
 
         <div className="text-center mb-8">
@@ -64,9 +62,7 @@ export default function ForgotPasswordPage() {
             <Mail className="w-8 h-8 text-purple-500" />
           </div>
           <h1 className="text-4xl font-bold text-white mb-2">{t('forgotPassword')}</h1>
-          <p className="text-gray-400">
-            Enter your email address and we&apos;ll send you a link to reset your password.
-          </p>
+          <p className="text-gray-400">{t('resetPasswordHint')}</p>
         </div>
 
         <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
@@ -87,12 +83,12 @@ export default function ForgotPasswordPage() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? t('pleaseWait') : 'Send Reset Link'}
+              {isLoading ? t('pleaseWait') : t('sendResetLink')}
             </Button>
           </form>
 
           <p className="mt-8 text-center text-sm text-gray-400">
-            Remember your password?{' '}
+            {t('rememberPassword')}{' '}
             <Link href="/auth/login" className="text-purple-400 hover:text-purple-300 font-medium">
               {t('signInLink')}
             </Link>

@@ -25,7 +25,7 @@ export default function CategoriesCategoryCard({
         <div className="zor-categories-page__card-body">
           <h3 className="zor-categories-page__card-title">{category.name}</h3>
           <p className="zor-categories-page__card-count">
-            {category.productCount.toLocaleString()} products
+            {category.productCount.toLocaleString("en-US")} products
           </p>
         </div>
         <Link href={`/categories/${category.slug}`}>
@@ -45,7 +45,7 @@ export default function CategoriesCategoryCard({
       </span>
       <h3 className="zor-categories-page__card-title">{category.name}</h3>
       <p className="zor-categories-page__card-count">
-        {category.productCount.toLocaleString()} products
+        {category.productCount.toLocaleString("en-US")} products
       </p>
       <Link href={`/categories/${category.slug}`} className="zor-categories-page__card-link">
         <Button variant="outline" size="sm" className="w-full">

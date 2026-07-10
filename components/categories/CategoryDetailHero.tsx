@@ -36,7 +36,7 @@ export default function CategoryDetailHero({ detail, categoriesLabel }: Category
         <div className="zor-categories-page__stats zor-categories-page__detail-stats">
           <div className="zor-categories-page__stat zor-categories-page__stat--hot">
             <div>
-              <strong>{category.productCount.toLocaleString()}</strong>
+              <strong>{category.productCount.toLocaleString("en-US")}</strong>
               <span>Products tracked</span>
             </div>
           </div>

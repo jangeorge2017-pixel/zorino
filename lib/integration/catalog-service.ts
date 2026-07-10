@@ -25,8 +25,13 @@ const CATALOG_REVALIDATE_SECONDS = 5 * 60;
  */
 const loadMergedCatalogItems = unstable_cache(
   async (): Promise<NormalizedCatalogItem[]> => {
-    const { items } = await fetchMergedCatalog();
-    return items;
+    try {
+      const { items } = await fetchMergedCatalog();
+      return items;
+    } catch (error) {
+      console.error("[catalog] merged fetch failed:", error);
+      return [];
+    }
   },
   ["homepage:merged-catalog"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },

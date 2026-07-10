@@ -4,18 +4,15 @@ import { isAliExpressConfigured } from "@/lib/integrations/aliexpress/config";
 import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import { executeGlobalSearch } from "@/lib/search/engine";
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
+import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 
 /**
  * Search provider health check — returns fetch counts per provider (no secrets).
- * Protected by CRON_SECRET when set.
+ * Always protected the same way as /api/cron/* (Bearer CRON_SECRET).
  */
 export async function GET(request: Request) {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (cronSecret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!authorizeCronRequest(request)) {
+    return cronUnauthorizedResponse();
   }
 
   await hydrateIntegrationCredentials();

@@ -54,7 +54,7 @@ export default function CategoriesPageHero({
               <TrendingUp size={15} />
             </span>
             <div>
-              <strong>{productCount.toLocaleString()}</strong>
+              <strong>{productCount.toLocaleString("en-US")}</strong>
               <span>{t("productsListed")}</span>
             </div>
           </div>
