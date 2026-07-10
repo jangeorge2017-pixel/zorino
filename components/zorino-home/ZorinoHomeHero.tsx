@@ -26,6 +26,24 @@ export default function ZorinoHomeHero({
 }: ZorinoHomeHeroProps) {
   const t = useTranslations("hero");
 
+  const statLabel = (key: HeroStatItem["key"], fallback: string) => {
+    switch (key) {
+      case "stores":
+        return t("statStores");
+      case "products":
+        return t("statProducts");
+      case "coupons":
+        return t("statCoupons");
+      case "tracking":
+        return t("statTracking");
+      default:
+        return fallback;
+    }
+  };
+
+  const statValue = (stat: HeroStatItem) =>
+    stat.key === "tracking" ? t("statTrackingValue") : stat.value;
+
   return (
     <section className="zh-hero" aria-label="Hero">
       <div className="zh-hero__col zh-hero__col--left">
@@ -48,12 +66,12 @@ export default function ZorinoHomeHero({
               const Icon = STAT_ICONS[stat.key];
               return (
                 <article key={stat.key} className={`zh-stat zh-stat--${stat.tone}`}>
-                  <p className="zh-stat__value">{stat.value}</p>
+                  <p className="zh-stat__value">{statValue(stat)}</p>
                   <div className="zh-stat__meta">
                     <div className="zh-stat__icon">
                       <Icon size={18} aria-hidden />
                     </div>
-                    <p className="zh-stat__label">{stat.label}</p>
+                    <p className="zh-stat__label">{statLabel(stat.key, stat.label)}</p>
                   </div>
                 </article>
               );

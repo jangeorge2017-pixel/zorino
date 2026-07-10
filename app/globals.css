@@ -52,7 +52,36 @@ body {
 }
 
 html[dir="rtl"] body {
-  font-family: var(--font-arabic), var(--font-geist-sans), "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+  font-feature-settings: "kern" 1;
+  letter-spacing: 0;
+  line-height: 1.65;
+}
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] .zh-hero__title,
+html[dir="rtl"] .zh-cta-band__title {
+  font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+/* Mirror directional chevrons / arrows in RTL */
+html[dir="rtl"] .zh-view-all__icon,
+html[dir="rtl"] .zh-cta-band__btn--primary svg:last-child {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .zh-page {
+  --zh-view-all-width: 172px;
+}
+
+html[dir="rtl"] .zh-trending-deals__nav--prev svg,
+html[dir="rtl"] .zh-trending-deals__nav--next svg {
+  transform: scaleX(-1);
 }
 
 a {

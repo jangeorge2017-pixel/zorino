@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Sans_Arabic } from "next/font/google";
+import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 import { languages } from "@/lib/international/config";
@@ -22,11 +22,12 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const notoArabic = Noto_Sans_Arabic({
+const plexArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-arabic",
   subsets: ["arabic"],
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
+  preload: true,
 });
 
 export const metadata: Metadata = buildSeoMetadata({
@@ -48,7 +49,7 @@ export default async function RootLayout({
       lang={locale}
       dir={dir}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${notoArabic.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${plexArabic.variable} h-full antialiased`}
       data-locale={locale}
     >
       <body className="min-h-full">{children}</body>

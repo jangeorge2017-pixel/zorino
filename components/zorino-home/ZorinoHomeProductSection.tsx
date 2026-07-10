@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import DealsDealCard from "@/components/deals/DealsDealCard";
 import { ZH_HOME_SECTION_META } from "@/lib/zorino-home/home-section-meta";
@@ -9,6 +12,22 @@ import {
 import type { TrendingDealCard } from "@/lib/types/entities";
 import "./zorino-home-product-sections.css";
 
+const SECTION_TITLE_KEYS: Record<ZhHomeProductSection["key"], string> = {
+  flash: "quickFlashDeals",
+  priceDrops: "quickPriceDrops",
+  newArrivals: "quickNewArrivals",
+  topRated: "quickTopRated",
+  editorsPicks: "quickEditorsPicks",
+};
+
+const SECTION_SUBTITLE_KEYS: Record<ZhHomeProductSection["key"], string> = {
+  flash: "sectionFlashSubtitle",
+  priceDrops: "sectionPriceDropsSubtitle",
+  newArrivals: "sectionNewArrivalsSubtitle",
+  topRated: "sectionTopRatedSubtitle",
+  editorsPicks: "sectionEditorsSubtitle",
+};
+
 type ZorinoHomeProductSectionProps = {
   section: ZhHomeProductSection;
   products: TrendingDealCard[];
@@ -18,6 +37,7 @@ export default function ZorinoHomeProductSection({
   section,
   products,
 }: ZorinoHomeProductSectionProps) {
+  const t = useTranslations("home");
   const titleId = `${section.targetId}-title`;
   const meta = ZH_HOME_SECTION_META[section.key];
   const Icon = meta.icon;
@@ -38,16 +58,18 @@ export default function ZorinoHomeProductSection({
           </span>
           <div>
             <h2 id={titleId} className="zor-deals-page__section-title">
-              {section.title}
+              {t(SECTION_TITLE_KEYS[section.key] as "quickFlashDeals")}
             </h2>
-            <p className="zor-deals-page__section-subtitle">{meta.subtitle}</p>
+            <p className="zor-deals-page__section-subtitle">
+              {t(SECTION_SUBTITLE_KEYS[section.key] as "sectionFlashSubtitle")}
+            </p>
           </div>
         </div>
         <ZorinoHomeViewAllLink href={section.viewAllHref} variant={viewAllVariant} />
       </header>
 
       {products.length === 0 ? (
-        <p className="zh-panel__empty">No products in this section right now. Check back soon.</p>
+        <p className="zh-panel__empty">{t("emptyProducts")}</p>
       ) : (
         <div className="listing-products-grid zor-deals-page__grid zor-deals-page__section-grid">
           {products.map((product) => (
@@ -55,7 +77,7 @@ export default function ZorinoHomeProductSection({
               key={product.id}
               deal={trendingDealToDeal(product)}
               endsInLabel={trendingDealEndsInLabel(product)}
-              featuredLabel="Featured"
+              featuredLabel={t("featured")}
             />
           ))}
         </div>

@@ -2,11 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import { Link } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { Mail, Package, Send, Star, Store, Tag, Users } from "lucide-react";
 import { TRUSTPILOT_LOGO } from "@/lib/assets";
 import { useNewsletter } from "@/lib/features/newsletter-system";
 import { ZH_FEATURED_COUPON_BRANDS } from "@/lib/zorino-home/featured-coupon-brands";
 import type { FooterStatItem } from "@/lib/types/entities";
+import type { Locale } from "@/i18n/config";
 
 const ICONS = {
   stores: Store,
@@ -20,21 +22,39 @@ type ZorinoHomeFooterProps = {
 };
 
 export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps) {
+  const t = useTranslations("home");
+  const tHero = useTranslations("hero");
+  const locale = useLocale() as Locale;
   const [logoFailed, setLogoFailed] = useState(false);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const { loading, subscribe } = useNewsletter();
+
+  const statLabel = (key: FooterStatItem["key"], fallback: string) => {
+    switch (key) {
+      case "stores":
+        return tHero("statStores");
+      case "products":
+        return tHero("statProducts");
+      case "coupons":
+        return tHero("statCoupons");
+      case "users":
+        return t("statHappyUsers");
+      default:
+        return fallback;
+    }
+  };
 
   const handleNewsletter = async (event: FormEvent) => {
     event.preventDefault();
     const value = email.trim();
     if (!value) return;
     try {
-      await subscribe(value, undefined, "en");
-      setMessage("You're subscribed! Watch your inbox for the best deals.");
+      await subscribe(value, undefined, locale);
+      setMessage(t("newsletterSuccess"));
       setEmail("");
     } catch {
-      setMessage("Thanks! We'll keep you posted on new deals.");
+      setMessage(t("newsletterThanks"));
     }
   };
 
@@ -42,9 +62,9 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
     <footer className="zh-footer" id="zh-section-stores">
       <div className="zh-footer__featured-stores">
         <div className="zh-footer__featured-head">
-          <h2 className="zh-footer__featured-title">Featured Stores</h2>
+          <h2 className="zh-footer__featured-title">{t("featuredStores")}</h2>
           <Link href="/stores" className="zh-footer__featured-link">
-            View all stores →
+            {t("viewAllStores")}
           </Link>
         </div>
         <div className="zh-footer__store-logos">
@@ -69,25 +89,22 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
         <div className="zh-footer__newsletter-copy">
           <h2 className="zh-footer__newsletter-title">
             <Mail size={18} aria-hidden />
-            Newsletter
+            {t("newsletterTitle")}
           </h2>
-          <p className="zh-footer__newsletter-text">
-            Get weekly deal alerts, price drops, and exclusive coupon codes delivered to
-            your inbox.
-          </p>
+          <p className="zh-footer__newsletter-text">{t("newsletterText")}</p>
         </div>
         <form className="zh-footer__newsletter-form" onSubmit={handleNewsletter}>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            aria-label="Email address"
+            placeholder={t("newsletterPlaceholder")}
+            aria-label={t("newsletterPlaceholder")}
             required
           />
           <button type="submit" className="zh-footer__newsletter-submit" disabled={loading}>
             <Send size={16} aria-hidden />
-            {loading ? "Subscribing…" : "Subscribe"}
+            {loading ? t("newsletterSubscribing") : t("newsletterSubscribe")}
           </button>
         </form>
         {message ? <p className="zh-footer__newsletter-msg">{message}</p> : null}
@@ -101,7 +118,7 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
               <div key={stat.key} className="zh-footer__stat">
                 <Icon size={16} aria-hidden />
                 <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
+                <span>{statLabel(stat.key, stat.label)}</span>
               </div>
             );
           })}
