@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [...PRODUCT_IMAGE_REMOTE_PATTERNS, ...devOnlyImagePatterns],
     formats: ["image/avif", "image/webp"],
+    qualities: [75, 85, 92],
   },
   poweredByHeader: false,
   compress: true,

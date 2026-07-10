@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Mail, Package, Send, Star, Store, Tag, Users } from "lucide-react";
 import { TRUSTPILOT_LOGO } from "@/lib/assets";
 import { useNewsletter } from "@/lib/features/newsletter-system";

@@ -9,7 +9,7 @@ import CategoriesCategoryCard from "@/components/categories/CategoriesCategoryCa
 import { buildCategorySections } from "@/components/categories/category-sections";
 import PageIdentityCta from "@/components/page-identity/PageIdentityCta";
 import { PageEmptyState, PageLayout } from "@/components/pages";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Grid3X3, List } from "lucide-react";
 import type { Category } from "@/lib/types/entities";
 import "@/components/categories/categories-page.css";

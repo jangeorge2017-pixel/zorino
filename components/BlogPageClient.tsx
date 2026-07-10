@@ -10,7 +10,7 @@ import BlogArticleCard from "@/components/blog/BlogArticleCard";
 import { buildBlogSections } from "@/components/blog/blog-sections";
 import PageIdentityCta from "@/components/page-identity/PageIdentityCta";
 import { PageEmptyState, PageFilterBar, PageLayout } from "@/components/pages";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { MockBlogPost } from "@/lib/mock/types";
 import "@/components/blog/blog-page.css";
 

@@ -8,8 +8,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import type { Locale } from "@/i18n/config";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import type { CountryCode, CurrencyCode } from "@/lib/international/config";
 import { formatCurrency as formatCurrencyValue } from "@/lib/international/format";
 import { writeIntlToLocalStorage } from "@/lib/global-marketplace/preferences/storage";
@@ -20,12 +21,15 @@ export type IntlPreferencesSnapshot = {
   locale: Locale;
 };
 
+type PreferenceUpdate = {
+  countryCode?: CountryCode;
+  currencyCode?: CurrencyCode;
+  locale?: Locale;
+};
+
 type IntlPreferencesContextValue = IntlPreferencesSnapshot & {
   formatPrice: (amount: number, fromCurrency?: CurrencyCode) => string;
-  updatePreferences: (prefs: {
-    countryCode?: CountryCode;
-    currencyCode?: CurrencyCode;
-  }) => Promise<void>;
+  updatePreferences: (prefs: PreferenceUpdate) => Promise<IntlPreferencesSnapshot>;
   isUpdating: boolean;
 };
 
@@ -38,11 +42,13 @@ type IntlPreferencesProviderProps = {
 
 export function IntlPreferencesProvider({ initial, children }: IntlPreferencesProviderProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const activeLocale = useLocale() as Locale;
   const [snapshot, setSnapshot] = useState(initial);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const updatePreferences = useCallback(
-    async (prefs: { countryCode?: CountryCode; currencyCode?: CurrencyCode }) => {
+    async (prefs: PreferenceUpdate) => {
       setIsUpdating(true);
       try {
         const response = await fetch("/api/preferences", {
@@ -61,12 +67,22 @@ export function IntlPreferencesProvider({ initial, children }: IntlPreferencesPr
           countryCode: data.country.code,
           currencyCode: data.currency.code,
         });
-        router.refresh();
+
+        const localeChangedByIntent =
+          prefs.locale !== undefined || prefs.countryCode !== undefined;
+
+        if (localeChangedByIntent && data.locale !== activeLocale) {
+          router.replace(pathname, { locale: data.locale });
+        } else {
+          router.refresh();
+        }
+
+        return data;
       } finally {
         setIsUpdating(false);
       }
     },
-    [router]
+    [activeLocale, pathname, router]
   );
 
   const formatPrice = useCallback(

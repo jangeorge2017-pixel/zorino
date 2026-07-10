@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Search, Sparkles, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type ZorinoHomeSearchProps = {
   popularSearches: string[];
 };
 
 export default function ZorinoHomeSearch({ popularSearches }: ZorinoHomeSearchProps) {
+  const t = useTranslations("hero");
   const router = useRouter();
   const [focused, setFocused] = useState(false);
   const [query, setQuery] = useState("");
@@ -36,22 +38,22 @@ export default function ZorinoHomeSearch({ popularSearches }: ZorinoHomeSearchPr
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for products, brands or categories..."
+          placeholder={t("searchPlaceholder")}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 150)}
         />
         <button type="button" className="zh-search__ai" onClick={() => goToSearch()}>
           <Sparkles size={14} aria-hidden />
-          AI Search
+          {t("aiSearch")}
         </button>
         <button type="submit" className="zh-search__submit">
-          Search
+          {t("searchButton")}
         </button>
       </form>
 
       {showDropdown ? (
         <div className="zh-search__dropdown">
-          <h4>Popular searches</h4>
+          <h4>{t("popularSearches")}</h4>
           <ul>
             {popularSearches.map((term) => (
               <li key={term} role="button" tabIndex={0} onMouseDown={() => goToSearch(term)}>
@@ -61,7 +63,7 @@ export default function ZorinoHomeSearch({ popularSearches }: ZorinoHomeSearchPr
             ))}
           </ul>
           <button type="button" className="zh-search__view-all" onMouseDown={() => goToSearch()}>
-            View all suggestions →
+            {t("viewAllSuggestions")}
           </button>
         </div>
       ) : null}

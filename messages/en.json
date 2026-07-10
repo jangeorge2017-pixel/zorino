@@ -19,6 +19,12 @@
     "notifications": "Notifications",
     "settings": "Settings",
     "language": "Language",
+    "country": "Country",
+    "currency": "Currency",
+    "regionPreferences": "Language, country, and currency",
+    "hiUser": "Hi, {name}",
+    "premium": "Premium",
+    "primaryNav": "Primary",
     "theme": "Theme",
     "dark": "Dark",
     "light": "Light",
@@ -160,10 +166,15 @@
   "hero": {
     "badge": "AI-Powered",
     "title": "Find Better Deals Faster",
+    "titleLine1": "Find Better",
+    "titleLine2": "Deals Faster",
     "titleHighlight": "Deals",
     "subtitle": "Compare prices across thousands of stores and discover the best deals in seconds.",
-    "searchPlaceholder": "Search for products or stores...",
-    "searchButton": "Explore"
+    "searchPlaceholder": "Search for products, brands or categories...",
+    "searchButton": "Search",
+    "aiSearch": "AI Search",
+    "popularSearches": "Popular searches",
+    "viewAllSuggestions": "View all suggestions →"
   },
   "home": {
     "featuredDeals": "Featured Deals",
@@ -182,7 +193,8 @@
     "filterByPrice": "Filter by Price",
     "dealEndsIn": "Deal ends in",
     "limitedTimeOffer": "Limited Time Offer",
-    "viewAllDeals": "View All Deals"
+    "viewAllDeals": "View All Deals",
+    "viewAllProducts": "View All Products"
   },
   "coupons": {
     "title": "Coupons",
@@ -329,7 +341,20 @@
     "savedComparisons": "Saved Comparisons",
     "notifications": "Notifications",
     "markAllRead": "Mark All as Read",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "save": "Save"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "loginRequired": "Sign in required",
+    "loginToViewNotifications": "Sign in to view your notifications and alerts.",
+    "login": "Sign In",
+    "unreadCount": "{count} unread",
+    "all": "All",
+    "unread": "Unread",
+    "markAllRead": "Mark All Read",
+    "loading": "Loading notifications…",
+    "empty": "No notifications yet"
   },
   "wishlist": {
     "title": "My Wishlist",

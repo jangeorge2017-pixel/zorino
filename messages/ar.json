@@ -19,6 +19,12 @@
     "notifications": "إشعارات",
     "settings": "الإعدادات",
     "language": "اللغة",
+    "country": "الدولة",
+    "currency": "العملة",
+    "regionPreferences": "اللغة والدولة والعملة",
+    "hiUser": "مرحباً، {name}",
+    "premium": "بريميوم",
+    "primaryNav": "القائمة الرئيسية",
     "theme": "السمة",
     "dark": "داكن",
     "light": "فاتح",
@@ -160,10 +166,15 @@
   "hero": {
     "badge": "مدعوم بالذكاء الاصطناعي",
     "title": "اعثر على العروض بشكل أفضل وأسرع",
+    "titleLine1": "اعثر على",
+    "titleLine2": "العروض بشكل أفضل وأسرع",
     "titleHighlight": "العروض",
     "subtitle": "قارن الأسعار عبر آلاف المتاجر واكتشف أفضل العروض في ثوانٍ.",
-    "searchPlaceholder": "ابحث عن المنتجات أو المتاجر...",
-    "searchButton": "استكشف"
+    "searchPlaceholder": "ابحث عن المنتجات أو العلامات التجارية أو الفئات...",
+    "searchButton": "بحث",
+    "aiSearch": "بحث ذكي",
+    "popularSearches": "عمليات بحث شائعة",
+    "viewAllSuggestions": "عرض كل الاقتراحات ←"
   },
   "home": {
     "featuredDeals": "عروض مميزة",
@@ -182,7 +193,8 @@
     "filterByPrice": "تصفية حسب السعر",
     "dealEndsIn": "ينتهي العرض في",
     "limitedTimeOffer": "عرض لفترة محدودة",
-    "viewAllDeals": "عرض جميع العروض"
+    "viewAllDeals": "عرض جميع العروض",
+    "viewAllProducts": "عرض جميع المنتجات"
   },
   "coupons": {
     "title": "قسائم",
@@ -329,7 +341,20 @@
     "savedComparisons": "المقارنات المحفوظة",
     "notifications": "الإشعارات",
     "markAllRead": "تحديد الكل كمقروء",
-    "noNotifications": "لا توجد إشعارات"
+    "noNotifications": "لا توجد إشعارات",
+    "save": "حفظ"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "loginRequired": "يلزم تسجيل الدخول",
+    "loginToViewNotifications": "سجّل الدخول لعرض إشعاراتك وتنبيهاتك.",
+    "login": "تسجيل الدخول",
+    "unreadCount": "{count} غير مقروء",
+    "all": "الكل",
+    "unread": "غير مقروء",
+    "markAllRead": "تحديد الكل كمقروء",
+    "loading": "جاري تحميل الإشعارات…",
+    "empty": "لا توجد إشعارات بعد"
   },
   "wishlist": {
     "title": "قائمة رغباتي",

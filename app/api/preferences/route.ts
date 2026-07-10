@@ -10,6 +10,7 @@ import {
 import {
   INTL_COOKIE_COUNTRY,
   INTL_COOKIE_CURRENCY,
+  INTL_COOKIE_LOCALE,
   INTL_COOKIE_MAX_AGE,
 } from "@/lib/international/cookies";
 import { preferencesToJson } from "@/lib/international/preferences";
@@ -43,6 +44,35 @@ function isSameSiteRequest(request: Request): boolean {
   }
 }
 
+function readCookie(cookieHeader: string, name: string): string | undefined {
+  return cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`))
+    ?.split("=")[1];
+}
+
+function resolveLocale(
+  body: PreferencesBody,
+  countryCode: CountryCode,
+  cookieLocale: string | undefined
+): Locale {
+  if (body.locale && locales.includes(body.locale as Locale)) {
+    return body.locale as Locale;
+  }
+
+  // Country change suggests that market's default language.
+  if (body.countryCode) {
+    return getCountryConfig(countryCode).defaultLocale;
+  }
+
+  if (cookieLocale && locales.includes(cookieLocale as Locale)) {
+    return cookieLocale as Locale;
+  }
+
+  return getCountryConfig(countryCode).defaultLocale;
+}
+
 export async function POST(request: Request) {
   const rateLimited = enforceRateLimit(request, publicApiRateLimiter);
   if (rateLimited) return rateLimited;
@@ -60,16 +90,9 @@ export async function POST(request: Request) {
   }
 
   const requestCookies = request.headers.get("cookie") ?? "";
-  const currentCountry = requestCookies
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${INTL_COOKIE_COUNTRY}=`))
-    ?.split("=")[1];
-  const currentCurrency = requestCookies
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${INTL_COOKIE_CURRENCY}=`))
-    ?.split("=")[1];
+  const currentCountry = readCookie(requestCookies, INTL_COOKIE_COUNTRY);
+  const currentCurrency = readCookie(requestCookies, INTL_COOKIE_CURRENCY);
+  const currentLocale = readCookie(requestCookies, INTL_COOKIE_LOCALE);
 
   let countryCode = currentCountry;
   let currencyCode = currentCurrency;
@@ -98,10 +121,7 @@ export async function POST(request: Request) {
     currencyCode = getDefaultCurrencyForCountry(countryCode);
   }
 
-  const locale =
-    body.locale && locales.includes(body.locale as Locale)
-      ? (body.locale as Locale)
-      : getCountryConfig(countryCode).defaultLocale;
+  const locale = resolveLocale(body, countryCode as CountryCode, currentLocale);
 
   const prefs = {
     countryCode: countryCode as CountryCode,
@@ -115,34 +135,32 @@ export async function POST(request: Request) {
 
   response.cookies.set(INTL_COOKIE_COUNTRY, countryCode, cookieOptions());
   response.cookies.set(INTL_COOKIE_CURRENCY, currencyCode, cookieOptions());
+  response.cookies.set(INTL_COOKIE_LOCALE, locale, cookieOptions());
 
   return response;
 }
 
 export async function GET(request: Request) {
   const requestCookies = request.headers.get("cookie") ?? "";
-  const countryCode = requestCookies
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${INTL_COOKIE_COUNTRY}=`))
-    ?.split("=")[1];
-  const currencyCode = requestCookies
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${INTL_COOKIE_CURRENCY}=`))
-    ?.split("=")[1];
+  const countryCode = readCookie(requestCookies, INTL_COOKIE_COUNTRY);
+  const currencyCode = readCookie(requestCookies, INTL_COOKIE_CURRENCY);
+  const cookieLocale = readCookie(requestCookies, INTL_COOKIE_LOCALE);
 
   const country = isSupportedCountry(countryCode ?? "") ? countryCode! : "US";
   const currency =
     currencyCode && isSupportedCurrency(currencyCode)
       ? currencyCode
       : getDefaultCurrencyForCountry(country);
+  const locale =
+    cookieLocale && locales.includes(cookieLocale as Locale)
+      ? (cookieLocale as Locale)
+      : getCountryConfig(country as CountryCode).defaultLocale;
 
   return NextResponse.json(
     preferencesToJson({
       countryCode: country as CountryCode,
       currencyCode: currency as CurrencyCode,
-      locale: getCountryConfig(country).defaultLocale,
+      locale,
     })
   );
 }

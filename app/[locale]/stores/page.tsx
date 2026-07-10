@@ -2,7 +2,7 @@ import StoresPageClient from "@/components/StoresPageClient";
 import { getStoresForPage } from "@/lib/data/homepage";
 import { locales, type Locale } from "@/i18n/config";
 import type { CountryCode } from "@/lib/international/config";
-import { filterStoresByCountry } from "@/lib/international/stores";
+import { filterStoresByMarketplaceVisibility } from "@/lib/international/stores";
 import { getServerIntlPreferences } from "@/lib/international/preferences";
 import type { Store } from "@/lib/types/entities";
 
@@ -21,7 +21,7 @@ async function loadStores(countryCode: CountryCode): Promise<Store[]> {
   // Only surface AliExpress as a live product store — no Amazon/Best Buy mock catalogs.
   const aliexpressOnly = liveStores.filter((s) => s.slug === "aliexpress" || s.integrationType === "aliexpress");
   if (aliexpressOnly.length > 0) {
-    return filterStoresByCountry(aliexpressOnly, countryCode);
+    return filterStoresByMarketplaceVisibility(aliexpressOnly, countryCode);
   }
   return [
     {

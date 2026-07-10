@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { ChevronRight, Clock, ImageOff, Star, TrendingDown, TrendingUp } from "lucide-react";
 import ZorinoHomeSparkline from "@/components/zorino-home/ZorinoHomeSparkline";
 import type { TrendingDealCard } from "@/lib/types/entities";

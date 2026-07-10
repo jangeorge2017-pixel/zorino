@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "generate:logo": "node scripts/generate-hero-z-logo-svg.mjs",
     "generate:background": "node scripts/generate-homepage-background.mjs",
     "process:hero-z": "node scripts/process-hero-z.mjs",
