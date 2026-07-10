@@ -57,8 +57,8 @@ export function IntlPreferencesProvider({ initial, children }: IntlPreferencesPr
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    setSnapshot(initial);
-  }, [initial]);
+    setSnapshot({ ...initial, locale: activeLocale });
+  }, [initial, activeLocale]);
 
   const updatePreferences = useCallback(
     async (prefs: PreferenceUpdate, options?: UpdateOptions) => {

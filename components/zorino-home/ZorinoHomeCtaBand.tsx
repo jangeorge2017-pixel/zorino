@@ -1,11 +1,9 @@
-"use client";
-
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight, Scale, Sparkles, Ticket } from "lucide-react";
-import { useTranslations } from "next-intl";
 
-export default function ZorinoHomeCtaBand() {
-  const t = useTranslations("home");
+export default async function ZorinoHomeCtaBand() {
+  const t = await getTranslations("home");
 
   return (
     <section className="zh-cta-band" aria-labelledby="zh-cta-band-title">

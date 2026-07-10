@@ -1,6 +1,4 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import DealsDealCard from "@/components/deals/DealsDealCard";
 import { ZH_HOME_SECTION_META } from "@/lib/zorino-home/home-section-meta";
@@ -33,11 +31,11 @@ type ZorinoHomeProductSectionProps = {
   products: TrendingDealCard[];
 };
 
-export default function ZorinoHomeProductSection({
+export default async function ZorinoHomeProductSection({
   section,
   products,
 }: ZorinoHomeProductSectionProps) {
-  const t = useTranslations("home");
+  const t = await getTranslations("home");
   const titleId = `${section.targetId}-title`;
   const meta = ZH_HOME_SECTION_META[section.key];
   const Icon = meta.icon;

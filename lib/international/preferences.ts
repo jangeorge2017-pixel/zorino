@@ -1,6 +1,5 @@
 import { cookies, headers } from "next/headers";
 import type { Locale } from "@/i18n/config";
-import { locales } from "@/i18n/config";
 import {
   DEFAULT_COUNTRY,
   type CountryCode,
@@ -37,7 +36,8 @@ export async function getServerIntlPreferences(locale: Locale): Promise<IntlPref
   return {
     countryCode: resolved.countryCode,
     currencyCode: resolved.currencyCode,
-    locale: locales.includes(resolved.locale as Locale) ? (resolved.locale as Locale) : locale,
+    // Always prefer the active route locale over profile/cookie defaults.
+    locale,
   };
 }
 

@@ -2,15 +2,19 @@
  * Approved homepage hero composition lock.
  * Reference: public/reference/zorino-final-design.png
  *
- * Arabic RTL applies to page chrome (nav text, sections).
- * Hero artwork composition stays physically anchored (Z on the right)
- * so the visual design does not mirror.
+ * CRITICAL: The hero visual plane must stay physically LTR in every locale.
+ * html[dir=rtl] would otherwise reverse CSS Grid and flip the Z artwork.
+ * Only copy/text inside the left column adapts for Arabic reading direction.
  */
 
-/* Artwork stays physically LTR (Z on the right). Copy/search follow page dir. */
+/* Lock the entire hero visual composition to physical LTR */
+.zh-page .zh-hero-zone,
+.zh-page .zh-hero,
+.zh-page .zh-hero-search,
+.zh-page .zh-page__artwork-clip,
 .zh-page .zh-page__artwork,
 .zh-page .hero-artwork {
-  direction: ltr;
+  direction: ltr !important;
   unicode-bidi: isolate;
 }
 
@@ -22,16 +26,28 @@
 .zh-page .zh-hero__col--left {
   grid-column: 1;
   grid-row: 1;
-  text-align: start;
-}
-
-html[dir="rtl"] .zh-page .zh-hero__col--left {
-  text-align: start;
 }
 
 .zh-page .zh-hero__col--right {
   grid-column: 2;
   grid-row: 1;
+}
+
+/* Arabic text reads RTL inside the locked LTR composition */
+html[dir="rtl"] .zh-page .zh-hero__copy,
+html[dir="rtl"] .zh-page .zh-hero__badge,
+html[dir="rtl"] .zh-page .zh-hero__title,
+html[dir="rtl"] .zh-page .zh-hero__subtitle,
+html[dir="rtl"] .zh-page .zh-hero__stats,
+html[dir="rtl"] .zh-page .zh-stat,
+html[dir="rtl"] .zh-page .zh-search {
+  direction: rtl;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+html[dir="rtl"] .zh-page .zh-hero__col--left {
+  text-align: start;
 }
 
 /* Z artwork anchor stays on the physical right edge */
@@ -53,7 +69,7 @@ html[dir="rtl"] .zh-page .zh-hero__col--left {
   transform: translateX(120px);
 }
 
-/* Nav mirrors for RTL while keeping sticky stacking above content */
+/* Nav: RTL text order only — do not flip logo artwork */
 html[dir="rtl"] .zh-page .zh-nav__inner {
   direction: rtl;
 }
@@ -68,10 +84,6 @@ html[dir="rtl"] .zh-page .zh-nav__actions {
   margin-right: var(--zh-nav-gap);
 }
 
-html[dir="rtl"] .zh-page .zh-nav__logo-lockup {
-  object-position: right center;
-}
-
 @media (max-width: 1279px) {
   .zh-page .hero-artwork {
     transform: translate(
@@ -79,10 +91,17 @@ html[dir="rtl"] .zh-page .zh-nav__logo-lockup {
       calc(44px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
     );
   }
-}
 
-@media (max-width: 1279px) {
-  .zh-page .zh-hero__col--left {
+  .zh-page .zh-hero__col--left,
+  html[dir="rtl"] .zh-page .zh-hero__col--left {
+    text-align: center;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__copy,
+  html[dir="rtl"] .zh-page .zh-hero__badge,
+  html[dir="rtl"] .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle,
+  html[dir="rtl"] .zh-page .zh-hero__stats {
     text-align: center;
   }
 }

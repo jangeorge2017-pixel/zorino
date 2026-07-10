@@ -1,5 +1,4 @@
-"use client";
-
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
   Gamepad2,
@@ -11,7 +10,6 @@ import {
   Tv,
   Watch,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import type { HomepageCategoryItem } from "@/lib/types/entities";
 import "./categories.css";
 
@@ -41,8 +39,10 @@ type ZorinoHomeCategoriesProps = {
   categories: HomepageCategoryItem[];
 };
 
-export default function ZorinoHomeCategories({ categories }: ZorinoHomeCategoriesProps) {
-  const t = useTranslations("home");
+export default async function ZorinoHomeCategories({
+  categories,
+}: ZorinoHomeCategoriesProps) {
+  const t = await getTranslations("home");
 
   if (categories.length === 0) return null;
 

@@ -22,12 +22,14 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+/** Loaded only for Arabic routes — avoids shipping Arabic font bytes on EN. */
 const plexArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-arabic",
   subsets: ["arabic"],
   display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
-  preload: true,
+  weight: ["400", "500", "600", "700"],
+  preload: false,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = buildSeoMetadata({
@@ -43,13 +45,16 @@ export default async function RootLayout({
 }>) {
   const locale = (await getLocale()) as Locale;
   const dir = languages[locale]?.dir ?? "ltr";
+  const isArabic = locale === "ar";
 
   return (
     <html
       lang={locale}
       dir={dir}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${plexArabic.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable}${
+        isArabic ? ` ${plexArabic.variable}` : ""
+      } h-full antialiased`}
       data-locale={locale}
     >
       <body className="min-h-full">{children}</body>

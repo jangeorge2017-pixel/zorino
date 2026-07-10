@@ -1,6 +1,4 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { ZH_FEATURES } from "@/lib/zorino-home/content";
 
 const FEATURE_KEYS = [
@@ -10,8 +8,8 @@ const FEATURE_KEYS = [
   { title: "featureGlobalTitle", text: "featureGlobalText" },
 ] as const;
 
-export default function ZorinoHomeFeatures() {
-  const t = useTranslations("home");
+export default async function ZorinoHomeFeatures() {
+  const t = await getTranslations("home");
 
   return (
     <section
@@ -27,6 +25,7 @@ export default function ZorinoHomeFeatures() {
             className={`zh-feature zh-feature--${feature.accent}`}
           >
             <div className="zh-feature__icon">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={feature.icon} alt="" width={22} height={22} />
             </div>
             <h3>{t(keys.title)}</h3>
