@@ -26,10 +26,15 @@ export type AliExpressRawProduct = {
   target_sale_price?: string;
   target_original_price?: string;
   target_sale_price_currency?: string;
+  /** Fallback price fields when target_* are absent. */
+  sale_price?: string;
+  original_price?: string;
+  sale_price_currency?: string;
   promotion_link?: string;
   product_detail_url?: string;
-  shop_id?: string;
+  shop_id?: string | number;
   shop_title?: string;
+  shop_name?: string;
   shop_url?: string;
   evaluate_rate?: string;
   lastest_volume?: string | number;

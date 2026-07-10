@@ -1,4 +1,4 @@
-import { formatAliExpressShipping } from "@/lib/integrations/aliexpress/map-product";
+import { formatAliExpressShipping, formatAliExpressStoreName } from "@/lib/integrations/aliexpress/map-product";
 import type { AmazonRawProduct } from "@/lib/integrations/amazon/client";
 import { getAmazonAssociateTag } from "@/lib/integrations/amazon/config";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
@@ -45,10 +45,10 @@ export function normalizeAliExpressRaw(raw: AliExpressRawProduct): RawProviderLi
   const externalId = raw.product_id != null ? String(raw.product_id) : "";
   if (!externalId || !raw.product_title) return null;
 
-  const price = parseFloat(raw.target_sale_price ?? "0");
+  const price = parseFloat(raw.target_sale_price ?? raw.sale_price ?? "0");
   if (!price || price <= 0) return null;
 
-  const original = parseFloat(raw.target_original_price ?? "0");
+  const original = parseFloat(raw.target_original_price ?? raw.original_price ?? "0");
   const originalPrice = original > price ? original : price;
   const discount =
     originalPrice > price
@@ -75,8 +75,11 @@ export function normalizeAliExpressRaw(raw: AliExpressRawProduct): RawProviderLi
     price,
     originalPrice,
     discount,
-    currency: raw.target_sale_price_currency?.trim() || "USD",
-    storeName: raw.shop_title?.trim() || "AliExpress",
+    currency:
+      raw.target_sale_price_currency?.trim() ||
+      raw.sale_price_currency?.trim() ||
+      "USD",
+    storeName: formatAliExpressStoreName(raw),
     category: raw.first_level_category_name?.trim() || "General",
     rating: parseRating(raw.evaluate_rate),
     reviewCount: salesCount,
