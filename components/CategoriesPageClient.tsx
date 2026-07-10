@@ -23,18 +23,18 @@ type QuickFilter = "all" | "popular" | "tech" | "lifestyle";
 const TECH_SLUGS = new Set(["phones", "laptops", "gaming", "tvs", "wearables"]);
 const LIFESTYLE_SLUGS = new Set(["home", "fashion"]);
 
-const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
-  { id: "all", label: "All Categories" },
-  { id: "popular", label: "Popular" },
-  { id: "tech", label: "Tech" },
-  { id: "lifestyle", label: "Lifestyle" },
-];
-
 export default function CategoriesPageClient({ categories }: CategoriesPageClientProps) {
   const t = useTranslations("categories");
   const tCommon = useTranslations("common");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
+
+  const quickFilters: { id: QuickFilter; label: string }[] = [
+    { id: "all", label: t("filterAll") },
+    { id: "popular", label: tCommon("popular") },
+    { id: "tech", label: t("filterTech") },
+    { id: "lifestyle", label: t("filterLifestyle") },
+  ];
 
   const stats = useMemo(() => {
     const active = categories.filter((category) => category.isActive);
@@ -81,9 +81,9 @@ export default function CategoriesPageClient({ categories }: CategoriesPageClien
           <div
             className="zor-categories-page__quick-filters"
             role="tablist"
-            aria-label="Quick category filters"
+            aria-label={t("quickFiltersAria")}
           >
-            {QUICK_FILTERS.map((item) => (
+            {quickFilters.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -104,7 +104,7 @@ export default function CategoriesPageClient({ categories }: CategoriesPageClien
               variant={viewMode === "grid" ? "primary" : "outline"}
               size="sm"
               onClick={() => setViewMode("grid")}
-              aria-label="Grid view"
+              aria-label={t("gridView")}
             >
               <Grid3X3 size={16} aria-hidden />
             </Button>
@@ -112,7 +112,7 @@ export default function CategoriesPageClient({ categories }: CategoriesPageClien
               variant={viewMode === "list" ? "primary" : "outline"}
               size="sm"
               onClick={() => setViewMode("list")}
-              aria-label="List view"
+              aria-label={t("listView")}
             >
               <List size={16} aria-hidden />
             </Button>
@@ -123,12 +123,12 @@ export default function CategoriesPageClient({ categories }: CategoriesPageClien
           <p className="zor-categories-page__results-count">
             {showCuratedSections ? (
               <>
-                <strong>{stats.categoryCount}</strong> categories to explore
+                <strong>{stats.categoryCount}</strong> {t("resultsActiveLabel")}
               </>
             ) : (
               <>
-                Showing <strong>{filtered.length}</strong>{" "}
-                {filtered.length === 1 ? "category" : "categories"}
+                {t("resultsShowingPrefix")} <strong>{filtered.length}</strong>{" "}
+                {filtered.length === 1 ? t("resultsCategoryOne") : t("resultsCategoryMany")}
               </>
             )}
           </p>
@@ -147,10 +147,7 @@ export default function CategoriesPageClient({ categories }: CategoriesPageClien
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <PageEmptyState
-            title="No categories available yet"
-            description="Try a different filter or check back later for new departments."
-          />
+          <PageEmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
         ) : viewMode === "grid" ? (
           <div className="zor-categories-page__grid">
             {filtered.map((category) => (
@@ -175,11 +172,15 @@ export default function CategoriesPageClient({ categories }: CategoriesPageClien
         )}
         <PageIdentityCta
           block="zor-categories-page"
-          title="Find the best price in every category"
-          description="Jump from browsing to comparing prices and redeeming coupons without leaving Zorino."
+          title={t("ctaTitle")}
+          description={t("ctaDescription")}
         >
-          <Link href="/deals"><Button>View Deals</Button></Link>
-          <Link href="/search"><Button variant="outline">Search Products</Button></Link>
+          <Link href="/deals">
+            <Button>{t("ctaViewDeals")}</Button>
+          </Link>
+          <Link href="/search">
+            <Button variant="outline">{t("ctaSearchProducts")}</Button>
+          </Link>
         </PageIdentityCta>
       </div>
     </PageLayout>

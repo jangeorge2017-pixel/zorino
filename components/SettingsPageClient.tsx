@@ -11,7 +11,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { PageHeader, PageLayout } from "@/components/pages";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
-import { useRouter as useIntlRouter, usePathname } from "@/i18n/navigation";
+import { getPathname, usePathname } from "@/i18n/navigation";
 import {
   listCountries,
   listCurrencies,
@@ -20,14 +20,15 @@ import {
   type CurrencyCode,
 } from "@/lib/international/config";
 import type { Locale } from "@/i18n/config";
+import { INTL_COOKIE_LOCALE, INTL_COOKIE_MAX_AGE } from "@/lib/international/cookies";
 import { Bell, CheckCircle, Globe, Moon, Shield } from "lucide-react";
 
 export default function SettingsPageClient() {
   const t = useTranslations("profile");
+  const tCommon = useTranslations("common");
   const locale = useLocale() as Locale;
   const { user } = useAuth();
   const router = useRouter();
-  const intlRouter = useIntlRouter();
   const pathname = usePathname();
   const { country, currency, updatePreferences } = useIntlPreferences();
   const [saved, setSaved] = useState(false);
@@ -51,13 +52,30 @@ export default function SettingsPageClient() {
   }, [locale, currency.code, country.code]);
 
   const handleSave = async () => {
-    await updatePreferences({
-      countryCode: settings.country as CountryCode,
-      currencyCode: settings.currency as CurrencyCode,
-    });
+    const nextLocale = settings.locale as Locale;
+    const localeChanged = nextLocale !== locale;
 
-    if (settings.locale !== locale) {
-      intlRouter.replace(pathname, { locale: settings.locale as Locale });
+    await updatePreferences(
+      {
+        countryCode: settings.country as CountryCode,
+        currencyCode: settings.currency as CurrencyCode,
+        ...(localeChanged ? { locale: nextLocale } : {}),
+      },
+      { skipNavigation: true }
+    );
+
+    if (localeChanged) {
+      const maxAge = INTL_COOKIE_MAX_AGE;
+      document.cookie = `NEXT_LOCALE=${nextLocale}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+      document.cookie = `${INTL_COOKIE_LOCALE}=${nextLocale}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+      window.location.assign(
+        getPathname({
+          href: pathname || "/",
+          locale: nextLocale,
+          forcePrefix: true,
+        })
+      );
+      return;
     }
 
     setSaved(true);
@@ -68,9 +86,11 @@ export default function SettingsPageClient() {
     return (
       <PageLayout>
         <div className="zor-page-state zor-page-state--empty">
-          <h2 className="zor-page-state__title">Please log in</h2>
-          <p className="zor-page-state__text">Sign in to manage your account settings.</p>
-          <Button onClick={() => router.push("/auth/login")} className="mt-4">Login</Button>
+          <h2 className="zor-page-state__title">{t("pleaseLogIn")}</h2>
+          <p className="zor-page-state__text">{t("signInToManage")}</p>
+          <Button onClick={() => router.push("/auth/login")} className="mt-4">
+            {tCommon("login")}
+          </Button>
         </div>
       </PageLayout>
     );
@@ -79,11 +99,11 @@ export default function SettingsPageClient() {
   return (
     <PageLayout>
       <PageHeader
-        title="Settings"
-        subtitle="Manage your preferences, notifications, and account security"
+        title={tCommon("settings")}
+        subtitle={t("accountSettings")}
         actions={
           <Button variant="outline" onClick={() => router.push("/profile")}>
-            Back to Profile
+            {tCommon("back")}
           </Button>
         }
       />
@@ -92,7 +112,7 @@ export default function SettingsPageClient() {
         <Card className="mb-6 border-green-500/30 bg-green-500/10">
           <div className="flex items-center gap-2 text-green-400">
             <CheckCircle className="w-5 h-5" />
-            Settings saved successfully
+            {tCommon("success")}
           </div>
         </Card>
       ) : null}
@@ -101,11 +121,11 @@ export default function SettingsPageClient() {
         <Card>
           <div className="flex items-center gap-3 mb-6">
             <Globe className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-semibold text-white">Regional Preferences</h2>
+            <h2 className="text-xl font-semibold text-white">{t("regionalPreferences")}</h2>
           </div>
           <div className="space-y-4">
             <Select
-              label="Language"
+              label={tCommon("language")}
               options={Object.values(languages).map((lang) => ({
                 value: lang.code,
                 label: lang.nativeLabel,
@@ -116,7 +136,7 @@ export default function SettingsPageClient() {
               }
             />
             <Select
-              label="Currency"
+              label={tCommon("currency")}
               options={listCurrencies().map((item) => ({
                 value: item.code,
                 label: `${item.code} (${item.symbol})`,
@@ -127,7 +147,7 @@ export default function SettingsPageClient() {
               }
             />
             <Select
-              label="Country"
+              label={tCommon("country")}
               options={listCountries().map((item) => ({
                 value: item.code,
                 label: item.name,
@@ -143,13 +163,13 @@ export default function SettingsPageClient() {
         <Card>
           <div className="flex items-center gap-3 mb-6">
             <Bell className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-semibold text-white">Notifications</h2>
+            <h2 className="text-xl font-semibold text-white">{t("notifications")}</h2>
           </div>
           <div className="space-y-4">
             {[
-              { key: "emailNotifications" as const, label: "Email notifications" },
-              { key: "priceAlerts" as const, label: "Price drop alerts" },
-              { key: "dealDigest" as const, label: "Weekly deal digest" },
+              { key: "emailNotifications" as const, label: t("emailNotifications") },
+              { key: "priceAlerts" as const, label: t("priceAlerts") },
+              { key: "dealDigest" as const, label: t("dealDigest") },
             ].map((item) => (
               <label key={item.key} className="flex items-center justify-between gap-4 cursor-pointer">
                 <span className="text-gray-300">{item.label}</span>
@@ -167,14 +187,14 @@ export default function SettingsPageClient() {
         <Card>
           <div className="flex items-center gap-3 mb-6">
             <Moon className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-semibold text-white">Appearance</h2>
+            <h2 className="text-xl font-semibold text-white">{t("theme")}</h2>
           </div>
           <Select
-            label="Theme"
+            label={t("theme")}
             options={[
-              { value: "dark", label: "Dark" },
-              { value: "light", label: "Light" },
-              { value: "system", label: "System" },
+              { value: "dark", label: t("dark") },
+              { value: "light", label: t("light") },
+              { value: "system", label: tCommon("recommended") },
             ]}
             value={settings.theme}
             onChange={(e) => setSettings({ ...settings, theme: e.target.value })}
@@ -184,12 +204,12 @@ export default function SettingsPageClient() {
         <Card>
           <div className="flex items-center gap-3 mb-6">
             <Shield className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-semibold text-white">Security</h2>
+            <h2 className="text-xl font-semibold text-white">{t("security")}</h2>
           </div>
           <div className="space-y-4">
-            <Input label="Current Password" type="password" placeholder="••••••••" />
-            <Input label="New Password" type="password" placeholder="••••••••" />
-            <Input label="Confirm Password" type="password" placeholder="••••••••" />
+            <Input label={tCommon("password")} type="password" placeholder="••••••••" />
+            <Input label={t("changePassword")} type="password" placeholder="••••••••" />
+            <Input label={tCommon("confirmPassword")} type="password" placeholder="••••••••" />
           </div>
         </Card>
       </div>

@@ -27,6 +27,7 @@ type ProductDetailsPageClientProps = {
 
 export default function ProductDetailsPageClient({ detail }: ProductDetailsPageClientProps) {
   const t = useTranslations("product");
+  const tCommon = useTranslations("common");
   const { product, categoryName, comparison, images, specifications, variants, priceHistory } =
     detail;
   const { offers, lowestPrice, highestDiscount, providerCount, cheapestStoreName, savingsVsHighest, savingsPercent } =
@@ -68,12 +69,12 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
   };
 
   const detailRows = [
-    product.brand ? ["Brand", product.brand] : null,
-    ["Category", categoryName],
-    ["Stores compared", String(providerCount || offers.length)],
-    product.currency ? ["Currency", product.currency] : null,
-    product.countryCode ? ["Country", product.countryCode] : null,
-    ...(product.tags.length > 0 ? [["Tags", product.tags.join(", ")]] : []),
+    product.brand ? [t("brand"), product.brand] : null,
+    [t("category"), categoryName],
+    [t("storesCompared"), String(providerCount || offers.length)],
+    product.currency ? [t("currency"), product.currency] : null,
+    product.countryCode ? [t("country"), product.countryCode] : null,
+    ...(product.tags.length > 0 ? [[t("tags"), product.tags.join(", ")]] : []),
   ].filter(Boolean) as [string, string][];
 
   return (
@@ -81,7 +82,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
     <div>
         <div className="text-sm text-gray-400 mb-6">
           <Link href="/" className="hover:text-white">
-            Home
+            {t("breadcrumbHome")}
           </Link>
           {" > "}
           <Link href="/categories" className="hover:text-white">
@@ -131,12 +132,12 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
               </span>
               {providerCount >= 2 && (
                 <span className="bg-green-500/20 text-green-400 text-sm font-medium px-3 py-1 rounded-full">
-                  {providerCount} stores compared
+                  {t("storesComparedCount", { count: providerCount })}
                 </span>
               )}
               {cheapestStoreName && (
                 <span className="bg-blue-500/20 text-blue-400 text-sm font-medium px-3 py-1 rounded-full">
-                  Cheapest at {cheapestStoreName}
+                  {t("cheapestAt", { store: cheapestStoreName })}
                 </span>
               )}
             </div>
@@ -147,10 +148,12 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 text-yellow-500 fill-current" />
                 <span className="text-white font-semibold">{product.rating ?? 4.5}</span>
-                <span className="text-gray-400">({product.reviewCount} reviews)</span>
+                <span className="text-gray-400">
+                  ({t("reviewsCount", { count: product.reviewCount })})
+                </span>
               </div>
               <span className={`text-sm ${product.inStock ? "text-green-400" : "text-red-400"}`}>
-                {product.inStock ? t("inStock") : t("outOfStock")}
+                {product.inStock ? tCommon("inStock") : tCommon("outOfStock")}
               </span>
             </div>
 
@@ -170,12 +173,12 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
 
             <div className="flex items-center gap-4 mb-8">
               <Link href="#compare-prices" className="deal-compare-btn flex-1 text-center">
-                Compare Prices
+                {t("comparePrices")}
               </Link>
-              <Button variant="outline">
+              <Button variant="outline" aria-label={tCommon("addToWishlist")}>
                 <Heart className="w-5 h-5" />
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" aria-label={t("shareProduct")}>
                 <Share2 className="w-5 h-5" />
               </Button>
             </div>
@@ -195,12 +198,10 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
 
         <section id="compare-prices" className="mb-12 scroll-mt-24">
           <Card>
-            <h2 className="text-2xl font-bold text-white mb-2">Compare Prices</h2>
-            <p className="text-gray-400 text-sm mb-6">
-              Prices from Amazon, AliExpress, eBay, Walmart and Temu — updated every 4 hours
-            </p>
+            <h2 className="text-2xl font-bold text-white mb-2">{t("comparePrices")}</h2>
+            <p className="text-gray-400 text-sm mb-6">{t("comparePricesSubtitle")}</p>
             {offers.length === 0 ? (
-              <p className="text-gray-400 text-sm">No store prices listed yet.</p>
+              <p className="text-gray-400 text-sm">{t("noStorePrices")}</p>
             ) : (
               <PriceComparisonTable
                 offers={offers}
@@ -222,7 +223,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                 onClick={() => trackClick("product_detail_cheapest")}
               >
                 <Button className="w-full mt-6 flex items-center justify-center gap-2">
-                  Shop cheapest at {cheapestStoreName}
+                  {t("shopCheapestAt", { store: cheapestStoreName })}
                   <ExternalLink className="w-4 h-4" />
                 </Button>
               </Link>
@@ -234,7 +235,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
           <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
             <h3 className="text-lg font-semibold text-white mb-4">{t("description")}</h3>
             <p className="text-gray-300 leading-relaxed mb-6">
-              {product.description ?? "No description available."}
+              {product.description ?? t("noDescription")}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {detailRows.map(([key, value]) => (
@@ -256,7 +257,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
         {variants.length > 0 && (
           <section className="mb-12">
             <Card>
-              <h2 className="text-2xl font-bold text-white mb-4">Available variants</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">{t("availableVariants")}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {variants.map((variant) => (
                   <div
@@ -278,7 +279,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                         </p>
                       )}
                       <p className={`text-xs ${variant.inStock ? "text-green-400" : "text-red-400"}`}>
-                        {variant.inStock ? "In stock" : "Out of stock"}
+                        {variant.inStock ? tCommon("inStock") : tCommon("outOfStock")}
                       </p>
                     </div>
                   </div>
@@ -291,15 +292,15 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
         {priceHistory.length > 1 && (
           <section className="mb-12">
             <Card>
-              <h2 className="text-2xl font-bold text-white mb-4">Price history</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">{t("priceHistory")}</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-gray-400 border-b border-gray-800">
-                      <th className="text-left py-2">Date</th>
-                      <th className="text-right py-2">Price</th>
-                      <th className="text-right py-2">Change</th>
-                      <th className="text-left py-2">Source</th>
+                      <th className="text-left py-2">{t("historyDate")}</th>
+                      <th className="text-right py-2">{tCommon("price")}</th>
+                      <th className="text-right py-2">{t("historyChange")}</th>
+                      <th className="text-left py-2">{t("historySource")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -319,7 +320,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                             <span className="text-red-400">↑ {point.changePercent}%</span>
                           )}
                           {point.changeDirection === "new" && (
-                            <span className="text-gray-400">New</span>
+                            <span className="text-gray-400">{t("historyNew")}</span>
                           )}
                           {point.changeDirection === "same" && (
                             <span className="text-gray-500">—</span>
@@ -339,12 +340,10 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
           <TrendingUp className="w-8 h-8 text-green-400" />
           <div>
             <p className="text-white font-semibold flex items-center gap-2">
-              Price tracking active
+              {t("priceTrackingActive")}
               <CheckCircle className="w-4 h-4 text-green-400" />
             </p>
-            <p className="text-sm text-gray-400">
-              We compare prices across Amazon, AliExpress, eBay, Walmart and Temu every 4 hours.
-            </p>
+            <p className="text-sm text-gray-400">{t("priceTrackingDescription")}</p>
           </div>
         </Card>
     </div>

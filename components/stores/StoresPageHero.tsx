@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Globe, ShoppingBag, Star, Store } from "lucide-react";
 
 type StoresPageHeroProps = {
@@ -19,6 +20,8 @@ export default function StoresPageHero({
   regionCount,
   topCommission,
 }: StoresPageHeroProps) {
+  const t = useTranslations("stores");
+
   return (
     <section className="zor-stores-page__hero" aria-labelledby="stores-page-title">
       <div className="zor-stores-page__hero-glow" aria-hidden />
@@ -27,7 +30,7 @@ export default function StoresPageHero({
         <div className="zor-stores-page__hero-copy">
           <p className="zor-stores-page__eyebrow">
             <Store size={14} aria-hidden />
-            Trusted marketplaces
+            {t("eyebrow")}
           </p>
           <h1 id="stores-page-title" className="zor-stores-page__title">
             {title}
@@ -35,14 +38,14 @@ export default function StoresPageHero({
           <p className="zor-stores-page__subtitle">{subtitle}</p>
         </div>
 
-        <div className="zor-stores-page__stats" aria-label="Stores overview">
+        <div className="zor-stores-page__stats" aria-label={t("overviewAria")}>
           <div className="zor-stores-page__stat">
             <span className="zor-stores-page__stat-icon" aria-hidden>
               <ShoppingBag size={15} />
             </span>
             <div>
               <strong>{storeCount}</strong>
-              <span>Active stores</span>
+              <span>{t("activeStores")}</span>
             </div>
           </div>
           <div className="zor-stores-page__stat zor-stores-page__stat--hot">
@@ -51,7 +54,7 @@ export default function StoresPageHero({
             </span>
             <div>
               <strong>{partnerCount}</strong>
-              <span>Partner stores</span>
+              <span>{t("partnerStores")}</span>
             </div>
           </div>
           <div className="zor-stores-page__stat">
@@ -60,7 +63,7 @@ export default function StoresPageHero({
             </span>
             <div>
               <strong>{regionCount}</strong>
-              <span>Regions covered</span>
+              <span>{t("regionsCovered")}</span>
             </div>
           </div>
           <div className="zor-stores-page__stat">
@@ -68,8 +71,8 @@ export default function StoresPageHero({
               <Store size={15} />
             </span>
             <div>
-              <strong>Up to {topCommission}%</strong>
-              <span>Top commission</span>
+              <strong>{t("upToPercent", { percent: topCommission })}</strong>
+              <span>{t("topCommission")}</span>
             </div>
           </div>
         </div>

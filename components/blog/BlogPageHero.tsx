@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { BookOpen, Eye, Feather, Newspaper } from "lucide-react";
 
 type BlogPageHeroProps = {
@@ -19,6 +20,8 @@ export default function BlogPageHero({
   categoryCount,
   totalViews,
 }: BlogPageHeroProps) {
+  const t = useTranslations("blog");
+
   return (
     <section className="zor-blog-page__hero" aria-labelledby="blog-page-title">
       <div className="zor-blog-page__hero-glow" aria-hidden />
@@ -27,7 +30,7 @@ export default function BlogPageHero({
         <div className="zor-blog-page__hero-copy">
           <p className="zor-blog-page__eyebrow">
             <Feather size={14} aria-hidden />
-            Zorino editorial
+            {t("eyebrow")}
           </p>
           <h1 id="blog-page-title" className="zor-blog-page__title">
             {title}
@@ -35,14 +38,14 @@ export default function BlogPageHero({
           <p className="zor-blog-page__subtitle">{subtitle}</p>
         </div>
 
-        <div className="zor-blog-page__stats" aria-label="Blog overview">
+        <div className="zor-blog-page__stats" aria-label={t("overviewAria")}>
           <div className="zor-blog-page__stat">
             <span className="zor-blog-page__stat-icon" aria-hidden>
               <Newspaper size={15} />
             </span>
             <div>
               <strong>{articleCount}</strong>
-              <span>Articles</span>
+              <span>{t("articles")}</span>
             </div>
           </div>
           <div className="zor-blog-page__stat zor-blog-page__stat--hot">
@@ -51,7 +54,7 @@ export default function BlogPageHero({
             </span>
             <div>
               <strong>{featuredCount}</strong>
-              <span>Editor&apos;s picks</span>
+              <span>{t("editorsPicks")}</span>
             </div>
           </div>
           <div className="zor-blog-page__stat">
@@ -60,7 +63,7 @@ export default function BlogPageHero({
             </span>
             <div>
               <strong>{categoryCount}</strong>
-              <span>Topics</span>
+              <span>{t("topics")}</span>
             </div>
           </div>
           <div className="zor-blog-page__stat">
@@ -69,7 +72,7 @@ export default function BlogPageHero({
             </span>
             <div>
               <strong>{totalViews.toLocaleString()}</strong>
-              <span>Total reads</span>
+              <span>{t("totalReads")}</span>
             </div>
           </div>
         </div>

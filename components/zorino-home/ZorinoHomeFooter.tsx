@@ -125,13 +125,13 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
         </div>
 
         <div className="zh-footer__trustpilot">
-          <strong>Excellent</strong>
-          <span className="zh-footer__stars" aria-label="5 out of 5 stars">
+          <strong>{t("trustExcellent")}</strong>
+          <span className="zh-footer__stars" aria-label={t("outOfStars", { rating: 5 })}>
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} size={16} fill="#22c55e" color="#22c55e" />
             ))}
           </span>
-          <span>4.8 out of 5 based on 12,340 reviews on</span>
+          <span>{t("trustReviews")}</span>
           {logoFailed ? (
             <strong>Trustpilot</strong>
           ) : (

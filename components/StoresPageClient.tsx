@@ -22,13 +22,6 @@ type QuickFilter = "all" | "marketplace" | "partner" | "global";
 
 const MARKETPLACE_TYPES = new Set(["amazon", "ebay", "aliexpress", "walmart", "noon"]);
 
-const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
-  { id: "all", label: "All Stores" },
-  { id: "marketplace", label: "Marketplaces" },
-  { id: "partner", label: "Partners" },
-  { id: "global", label: "Global" },
-];
-
 function isGlobalStore(store: Store): boolean {
   return store.supportedRegions.includes("GLOBAL") || store.supportedRegions.length >= 3;
 }
@@ -36,22 +29,33 @@ function isGlobalStore(store: Store): boolean {
 export default function StoresPageClient({ stores }: StoresPageClientProps) {
   const t = useTranslations("stores");
   const tCommon = useTranslations("common");
+  const tProduct = useTranslations("product");
   const [selectedIntegration, setSelectedIntegration] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
 
+  const quickFilters: { id: QuickFilter; label: string }[] = [
+    { id: "all", label: t("allStores") },
+    { id: "marketplace", label: t("filterMarketplaces") },
+    { id: "partner", label: t("filterPartners") },
+    { id: "global", label: t("filterGlobal") },
+  ];
+
   const integrationOptions = useMemo(() => {
     const types = [...new Set(stores.map((store) => store.integrationType))];
     return [
-      { value: "", label: "All Integrations" },
-      ...types.map((type) => ({ value: type, label: type.charAt(0).toUpperCase() + type.slice(1) })),
+      { value: "", label: t("allIntegrations") },
+      ...types.map((type) => ({
+        value: type,
+        label: type.charAt(0).toUpperCase() + type.slice(1),
+      })),
     ];
-  }, [stores]);
+  }, [stores, t]);
 
   const sortOptions = [
-    { value: "name", label: "Name A-Z" },
-    { value: "commission", label: "Highest Commission" },
-    { value: "regions", label: "Most Regions" },
+    { value: "name", label: t("sortName") },
+    { value: "commission", label: t("sortCommission") },
+    { value: "regions", label: t("sortRegions") },
   ];
 
   const stats = useMemo(() => {
@@ -103,9 +107,9 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
           <div
             className="zor-stores-page__quick-filters"
             role="tablist"
-            aria-label="Quick store filters"
+            aria-label={t("quickFiltersAria")}
           >
-            {QUICK_FILTERS.map((item) => (
+            {quickFilters.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -124,7 +128,7 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
           <PageFilterBar className="zor-stores-page__filters">
             <div className="zor-stores-page__filter-grid">
               <Select
-                label="Filter by Integration"
+                label={t("filterByIntegration")}
                 options={integrationOptions}
                 value={selectedIntegration}
                 onChange={(e) => setSelectedIntegration(e.target.value)}
@@ -146,12 +150,12 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
           <p className="zor-stores-page__results-count">
             {showCuratedSections ? (
               <>
-                <strong>{stats.storeCount}</strong> trusted marketplace stores
+                <strong>{stats.storeCount}</strong> {t("resultsActiveLabel")}
               </>
             ) : (
               <>
-                Showing <strong>{filtered.length}</strong>{" "}
-                {filtered.length === 1 ? "store" : "stores"}
+                {t("resultsShowingPrefix")} <strong>{filtered.length}</strong>{" "}
+                {filtered.length === 1 ? t("resultsStoreOne") : t("resultsStoreMany")}
               </>
             )}
           </p>
@@ -169,10 +173,7 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <PageEmptyState
-            title="No stores found"
-            description="Try adjusting your filters or check back later for new partner stores."
-          />
+          <PageEmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
         ) : (
           <div className="zor-stores-page__grid">
             {filtered.map((store) => (
@@ -186,11 +187,15 @@ export default function StoresPageClient({ stores }: StoresPageClientProps) {
         )}
         <PageIdentityCta
           block="zor-stores-page"
-          title="Shop smarter across every marketplace"
-          description="Compare live prices, unlock coupon codes, and track the best deals from your favorite stores."
+          title={t("ctaTitle")}
+          description={t("ctaDescription")}
         >
-          <Link href="/compare"><Button>Compare Prices</Button></Link>
-          <Link href="/coupons"><Button variant="outline">Browse Coupons</Button></Link>
+          <Link href="/compare">
+            <Button>{tProduct("comparePrices")}</Button>
+          </Link>
+          <Link href="/coupons">
+            <Button variant="outline">{t("ctaBrowseCoupons")}</Button>
+          </Link>
         </PageIdentityCta>
       </div>
     </PageLayout>

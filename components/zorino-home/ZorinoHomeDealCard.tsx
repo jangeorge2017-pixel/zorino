@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChevronRight, Clock, ImageOff, Star, TrendingDown, TrendingUp } from "lucide-react";
 import ZorinoHomeSparkline from "@/components/zorino-home/ZorinoHomeSparkline";
@@ -17,6 +18,8 @@ function formatUsd(value: number): string {
 }
 
 export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard }) {
+  const t = useTranslations("home");
+  const tCommon = useTranslations("common");
   const [imgError, setImgError] = useState(false);
   const dropped = deal.originalPrice > deal.price;
   const increased = deal.originalPrice < deal.price;
@@ -38,7 +41,7 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
         ) : (
           <div className="zh-deal-card__media-fallback" aria-hidden>
             <ImageOff size={28} />
-            <span>No image</span>
+            <span>{tCommon("noImage")}</span>
           </div>
         )}
       </div>
@@ -46,7 +49,10 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
       <h3 className="zh-deal-card__name">{deal.name}</h3>
 
       <div className="zh-deal-card__rating">
-        <span className="zh-deal-card__stars" aria-label={`${deal.rating} out of 5 stars`}>
+        <span
+          className="zh-deal-card__stars"
+          aria-label={t("outOfStars", { rating: deal.rating })}
+        >
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
@@ -64,12 +70,12 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
       {dropped ? (
         <span className="zh-deal-card__drop">
           <TrendingDown size={12} aria-hidden />
-          Price dropped
+          {t("priceDropped")}
         </span>
       ) : increased ? (
         <span className="zh-deal-card__rise">
           <TrendingUp size={12} aria-hidden />
-          Price up
+          {t("priceUp")}
         </span>
       ) : null}
 
@@ -98,7 +104,7 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
         </div>
         <span className="zh-deal-card__updated">
           <Clock size={11} aria-hidden />
-          Updated {deal.updatedMins} min ago
+          {t("updatedMinsAgo", { mins: deal.updatedMins })}
         </span>
       </div>
 
@@ -107,7 +113,7 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
       </div>
 
       <Link href={compareHref} className="zh-deal-card__cta">
-        Compare Prices
+        {tCommon("comparePrices")}
         <ChevronRight size={16} aria-hidden />
       </Link>
     </article>

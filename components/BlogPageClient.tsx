@@ -20,14 +20,6 @@ type BlogPageClientProps = {
 
 type QuickFilter = "all" | "deals" | "guides" | "reviews" | "tips";
 
-const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
-  { id: "all", label: "All Articles" },
-  { id: "deals", label: "Deals & Discounts" },
-  { id: "guides", label: "Shopping Guides" },
-  { id: "reviews", label: "Product Reviews" },
-  { id: "tips", label: "Money Saving Tips" },
-];
-
 export default function BlogPageClient({ posts }: BlogPageClientProps) {
   const t = useTranslations("blog");
   const tCommon = useTranslations("common");
@@ -35,12 +27,26 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
   const [sortBy, setSortBy] = useState("newest");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
 
+  const quickFilters: { id: QuickFilter; label: string }[] = [
+    { id: "all", label: t("filterAll") },
+    { id: "deals", label: t("filterDeals") },
+    { id: "guides", label: t("filterGuides") },
+    { id: "reviews", label: t("filterReviews") },
+    { id: "tips", label: t("filterTips") },
+  ];
+
   const categories = [
-    { value: "", label: "All Categories" },
-    { value: "deals", label: "Deals & Discounts" },
-    { value: "guides", label: "Shopping Guides" },
-    { value: "reviews", label: "Product Reviews" },
-    { value: "tips", label: "Money Saving Tips" },
+    { value: "", label: t("allCategories") },
+    { value: "deals", label: t("filterDeals") },
+    { value: "guides", label: t("filterGuides") },
+    { value: "reviews", label: t("filterReviews") },
+    { value: "tips", label: t("filterTips") },
+  ];
+
+  const sortOptions = [
+    { value: "newest", label: t("sortNewest") },
+    { value: "popular", label: t("sortPopular") },
+    { value: "oldest", label: t("sortOldest") },
   ];
 
   const stats = useMemo(() => {
@@ -90,9 +96,9 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
           <div
             className="zor-blog-page__quick-filters"
             role="tablist"
-            aria-label="Quick article filters"
+            aria-label={t("quickFiltersAria")}
           >
-            {QUICK_FILTERS.map((item) => (
+            {quickFilters.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -118,11 +124,7 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
               />
               <Select
                 label={tCommon("sortBy")}
-                options={[
-                  { value: "newest", label: "Newest First" },
-                  { value: "popular", label: "Most Popular" },
-                  { value: "oldest", label: "Oldest First" },
-                ]}
+                options={sortOptions}
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               />
@@ -137,12 +139,12 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
           <p className="zor-blog-page__results-count">
             {showCuratedSections ? (
               <>
-                <strong>{stats.articleCount}</strong> editorial articles
+                <strong>{stats.articleCount}</strong> {t("resultsActiveLabel")}
               </>
             ) : (
               <>
-                Showing <strong>{filtered.length}</strong>{" "}
-                {filtered.length === 1 ? "article" : "articles"}
+                {t("resultsShowingPrefix")} <strong>{filtered.length}</strong>{" "}
+                {filtered.length === 1 ? t("resultsArticleOne") : t("resultsArticleMany")}
               </>
             )}
           </p>
@@ -161,10 +163,7 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <PageEmptyState
-            title="No articles found"
-            description="Try adjusting your filters or check back later for new stories."
-          />
+          <PageEmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
         ) : (
           <div className="zor-blog-page__grid">
             {filtered.map((post) => (
@@ -180,11 +179,15 @@ export default function BlogPageClient({ posts }: BlogPageClientProps) {
         )}
         <PageIdentityCta
           block="zor-blog-page"
-          title="Turn reading into real savings"
-          description="Apply what you learn — compare prices, grab coupon codes, and shop verified partner stores."
+          title={t("ctaTitle")}
+          description={t("ctaDescription")}
         >
-          <Link href="/deals"><Button>Shop Deals</Button></Link>
-          <Link href="/blog"><Button variant="outline">More Articles</Button></Link>
+          <Link href="/deals">
+            <Button>{t("ctaShopDeals")}</Button>
+          </Link>
+          <Link href="/blog">
+            <Button variant="outline">{t("ctaMoreArticles")}</Button>
+          </Link>
         </PageIdentityCta>
       </div>
     </PageLayout>

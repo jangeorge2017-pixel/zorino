@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Star, Heart } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
@@ -32,6 +33,9 @@ export default function ListingProductCard({
   product,
   showWishlist = true,
 }: ListingProductCardProps) {
+  const tCommon = useTranslations("common");
+  const tProduct = useTranslations("product");
+
   const discount =
     product.discount ??
     (product.originalPrice && product.originalPrice > product.price
@@ -71,7 +75,9 @@ export default function ListingProductCard({
             <span className="deal-reviews">
               {product.rating}
               {salesLabel
-                ? ` (${salesLabel.toLocaleString("en-US")}${product.salesCount != null ? " sold" : ""})`
+                ? ` (${salesLabel.toLocaleString("en-US")}${
+                    product.salesCount != null ? ` ${tProduct("sold")}` : ""
+                  })`
                 : ""}
             </span>
           </div>
@@ -86,7 +92,7 @@ export default function ListingProductCard({
 
         {product.inStock !== undefined && (
           <p className={`listing-stock ${product.inStock ? "in-stock" : "out-of-stock"}`}>
-            {product.inStock ? "In stock" : "Out of stock"}
+            {product.inStock ? tCommon("inStock") : tCommon("outOfStock")}
           </p>
         )}
       </div>
@@ -99,7 +105,11 @@ export default function ListingProductCard({
 
       {showWishlist && (
         <div className="listing-secondary-actions">
-          <button type="button" className="listing-icon-btn" aria-label="Add to wishlist">
+          <button
+            type="button"
+            className="listing-icon-btn"
+            aria-label={tCommon("addToWishlist")}
+          >
             <Heart size={18} />
           </button>
         </div>
@@ -107,4 +117,3 @@ export default function ListingProductCard({
     </article>
   );
 }
-

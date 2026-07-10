@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Flame, Percent, Sparkles, Timer } from "lucide-react";
 
 type DealsPageHeroProps = {
@@ -19,6 +20,9 @@ export default function DealsPageHero({
   featuredCount,
   endingSoonCount,
 }: DealsPageHeroProps) {
+  const t = useTranslations("deals");
+  const tCommon = useTranslations("common");
+
   return (
     <section className="zor-deals-page__hero" aria-labelledby="deals-page-title">
       <div className="zor-deals-page__hero-glow" aria-hidden />
@@ -27,7 +31,7 @@ export default function DealsPageHero({
         <div className="zor-deals-page__hero-copy">
           <p className="zor-deals-page__eyebrow">
             <Flame size={14} aria-hidden />
-            Live promotions
+            {t("eyebrow")}
           </p>
           <h1 id="deals-page-title" className="zor-deals-page__title">
             {title}
@@ -35,14 +39,14 @@ export default function DealsPageHero({
           <p className="zor-deals-page__subtitle">{subtitle}</p>
         </div>
 
-        <div className="zor-deals-page__stats" aria-label="Deals overview">
+        <div className="zor-deals-page__stats" aria-label={t("overviewAria")}>
           <div className="zor-deals-page__stat">
             <span className="zor-deals-page__stat-icon" aria-hidden>
               <Sparkles size={15} />
             </span>
             <div>
               <strong>{liveCount}</strong>
-              <span>Active deals</span>
+              <span>{t("activeDeals")}</span>
             </div>
           </div>
           <div className="zor-deals-page__stat zor-deals-page__stat--hot">
@@ -50,8 +54,8 @@ export default function DealsPageHero({
               <Percent size={15} />
             </span>
             <div>
-              <strong>Up to {maxDiscount}%</strong>
-              <span>Top savings</span>
+              <strong>{t("upToPercent", { percent: maxDiscount })}</strong>
+              <span>{t("topSavings")}</span>
             </div>
           </div>
           <div className="zor-deals-page__stat">
@@ -60,7 +64,7 @@ export default function DealsPageHero({
             </span>
             <div>
               <strong>{featuredCount}</strong>
-              <span>Featured</span>
+              <span>{tCommon("featured")}</span>
             </div>
           </div>
           <div className="zor-deals-page__stat">
@@ -69,7 +73,7 @@ export default function DealsPageHero({
             </span>
             <div>
               <strong>{endingSoonCount}</strong>
-              <span>Ending soon</span>
+              <span>{t("endingSoon")}</span>
             </div>
           </div>
         </div>

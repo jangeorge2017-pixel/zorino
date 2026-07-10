@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ExternalLink } from "lucide-react";
 import { ComparePricesButton } from "@/components/PriceComparisonTable";
@@ -20,6 +23,7 @@ export default function ProductCardActions({
   onShopClick,
   shopExternal = false,
 }: ProductCardActionsProps) {
+  const t = useTranslations("common");
   const href = shopHref ?? `/product/${productId}#compare-prices`;
   const showShopButton = showShop && !compareOnly;
 
@@ -36,12 +40,12 @@ export default function ProductCardActions({
             className="home-shop-btn"
             onClick={onShopClick}
           >
-            Shop Now
+            {t("shopNow")}
             <ExternalLink size={16} />
           </a>
         ) : (
           <Link href={href} className="home-shop-btn" onClick={onShopClick}>
-            Shop Now
+            {t("shopNow")}
             <ExternalLink size={16} />
           </Link>
         )

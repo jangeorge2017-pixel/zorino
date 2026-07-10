@@ -1,34 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Compass, Grid3x3, Home, TrendingUp } from "lucide-react";
 import CategoriesCategoryCard from "@/components/categories/CategoriesCategoryCard";
 import type { CategorySectionId } from "@/components/categories/category-sections";
 import type { Category } from "@/lib/types/entities";
 
-const SECTION_META: Record<
-  CategorySectionId,
-  { title: string; subtitle: string; icon: typeof TrendingUp }
-> = {
-  trending: {
-    title: "Trending Categories",
-    subtitle: "The most browsed departments on Zorino right now",
-    icon: TrendingUp,
-  },
-  tech: {
-    title: "Tech & Electronics",
-    subtitle: "Phones, laptops, gaming, and smart devices",
-    icon: Grid3x3,
-  },
-  lifestyle: {
-    title: "Lifestyle & Home",
-    subtitle: "Fashion, home essentials, and everyday favorites",
-    icon: Home,
-  },
-  explore: {
-    title: "Explore More",
-    subtitle: "Discover additional departments and collections",
-    icon: Compass,
-  },
+const SECTION_ICONS: Record<CategorySectionId, typeof TrendingUp> = {
+  trending: TrendingUp,
+  tech: Grid3x3,
+  lifestyle: Home,
+  explore: Compass,
+};
+
+const SECTION_KEYS: Record<CategorySectionId, { title: string; subtitle: string }> = {
+  trending: { title: "sectionTrendingTitle", subtitle: "sectionTrendingSubtitle" },
+  tech: { title: "sectionTechTitle", subtitle: "sectionTechSubtitle" },
+  lifestyle: { title: "sectionLifestyleTitle", subtitle: "sectionLifestyleSubtitle" },
+  explore: { title: "sectionExploreTitle", subtitle: "sectionExploreSubtitle" },
 };
 
 type CategoriesPageSectionProps = {
@@ -44,8 +33,9 @@ export default function CategoriesPageSection({
   viewLabel,
   viewMode = "grid",
 }: CategoriesPageSectionProps) {
-  const meta = SECTION_META[sectionId];
-  const Icon = meta.icon;
+  const t = useTranslations("categories");
+  const keys = SECTION_KEYS[sectionId];
+  const Icon = SECTION_ICONS[sectionId];
 
   return (
     <section
@@ -62,13 +52,13 @@ export default function CategoriesPageSection({
               id={`categories-section-${sectionId}`}
               className="zor-categories-page__section-title"
             >
-              {meta.title}
+              {t(keys.title)}
             </h2>
-            <p className="zor-categories-page__section-subtitle">{meta.subtitle}</p>
+            <p className="zor-categories-page__section-subtitle">{t(keys.subtitle)}</p>
           </div>
         </div>
         <span className="zor-categories-page__section-count">
-          {categories.length} categories
+          {t("sectionCount", { count: categories.length })}
         </span>
       </header>
 

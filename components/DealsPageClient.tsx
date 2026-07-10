@@ -18,21 +18,6 @@ type DealsPageClientProps = {
 
 type QuickFilter = "all" | "featured" | "big_savings" | "ending_soon";
 
-const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
-  { id: "all", label: "All Deals" },
-  { id: "featured", label: "Featured" },
-  { id: "big_savings", label: "Biggest Savings" },
-  { id: "ending_soon", label: "Ending Soon" },
-];
-
-function daysUntil(iso: string): string {
-  const diff = new Date(iso).getTime() - Date.now();
-  const days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  if (days === 0) return "Today";
-  if (days === 1) return "1 day";
-  return `${days} days`;
-}
-
 function daysLeft(iso: string): number {
   const diff = new Date(iso).getTime() - Date.now();
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
@@ -41,20 +26,38 @@ function daysLeft(iso: string): number {
 export default function DealsPageClient({ deals }: DealsPageClientProps) {
   const t = useTranslations("deals");
   const tCommon = useTranslations("common");
+  const tStores = useTranslations("stores");
   const [selectedStore, setSelectedStore] = useState("");
   const [sortBy, setSortBy] = useState("discount");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
 
+  const quickFilters: { id: QuickFilter; label: string }[] = [
+    { id: "all", label: t("filterAll") },
+    { id: "featured", label: tCommon("featured") },
+    { id: "big_savings", label: t("filterBiggestSavings") },
+    { id: "ending_soon", label: t("endingSoon") },
+  ];
+
+  const daysUntil = (iso: string): string => {
+    const days = daysLeft(iso);
+    if (days === 0) return t("endsToday");
+    if (days === 1) return t("endsInOneDay");
+    return t("endsInDays", { count: days });
+  };
+
   const storeOptions = useMemo(() => {
     const names = [...new Set(deals.map((d) => d.store?.name).filter(Boolean))] as string[];
-    return [{ value: "", label: "All Stores" }, ...names.map((n) => ({ value: n, label: n }))];
-  }, [deals]);
+    return [
+      { value: "", label: tStores("allStores") },
+      ...names.map((n) => ({ value: n, label: n })),
+    ];
+  }, [deals, tStores]);
 
   const sortOptions = [
-    { value: "discount", label: "Highest Discount" },
-    { value: "price_low", label: "Price: Low to High" },
-    { value: "price_high", label: "Price: High to Low" },
-    { value: "ending_soon", label: "Ending Soon" },
+    { value: "discount", label: t("sortHighestDiscount") },
+    { value: "price_low", label: tCommon("priceLow") },
+    { value: "price_high", label: tCommon("priceHigh") },
+    { value: "ending_soon", label: t("endingSoon") },
   ];
 
   const stats = useMemo(() => {
@@ -111,9 +114,9 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
           <div
             className="zor-deals-page__quick-filters"
             role="tablist"
-            aria-label="Quick deal filters"
+            aria-label={t("quickFiltersAria")}
           >
-            {QUICK_FILTERS.map((item) => (
+            {quickFilters.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -154,12 +157,12 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
           <p className="zor-deals-page__results-count">
             {showCuratedSections ? (
               <>
-                <strong>{stats.liveCount}</strong> active promotional deals
+                <strong>{stats.liveCount}</strong> {t("resultsActiveLabel")}
               </>
             ) : (
               <>
-                Showing <strong>{filtered.length}</strong> promotional{" "}
-                {filtered.length === 1 ? "deal" : "deals"}
+                {t("resultsShowingPrefix")} <strong>{filtered.length}</strong>{" "}
+                {filtered.length === 1 ? t("resultsDealOne") : t("resultsDealMany")}
               </>
             )}
           </p>
@@ -178,10 +181,7 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <PageEmptyState
-            title="No deals found"
-            description="Try adjusting your filters or check back later for new deals."
-          />
+          <PageEmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
         ) : (
           <div className="listing-products-grid zor-deals-page__grid">
             {filtered.map((deal) => (

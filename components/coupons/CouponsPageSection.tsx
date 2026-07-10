@@ -1,34 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { BadgePercent, CheckCircle, Sparkles, Store } from "lucide-react";
 import CouponsCouponCard from "@/components/coupons/CouponsCouponCard";
 import type { CouponSectionId } from "@/components/coupons/coupon-sections";
 import type { TopCouponCard } from "@/lib/types/entities";
 
-const SECTION_META: Record<
-  CouponSectionId,
-  { title: string; subtitle: string; icon: typeof CheckCircle }
-> = {
-  verified: {
-    title: "Verified Codes",
-    subtitle: "Trusted coupon codes checked by the Zorino team",
-    icon: CheckCircle,
-  },
-  popular: {
-    title: "Most Popular",
-    subtitle: "Codes shoppers are using most right now",
-    icon: BadgePercent,
-  },
-  top_stores: {
-    title: "Top Store Offers",
-    subtitle: "Best savings from your favorite retailers",
-    icon: Store,
-  },
-  fresh: {
-    title: "Fresh Codes",
-    subtitle: "Recently added discounts ready to redeem",
-    icon: Sparkles,
-  },
+const SECTION_ICONS: Record<CouponSectionId, typeof CheckCircle> = {
+  verified: CheckCircle,
+  popular: BadgePercent,
+  top_stores: Store,
+  fresh: Sparkles,
+};
+
+const SECTION_KEYS: Record<CouponSectionId, { title: string; subtitle: string }> = {
+  verified: { title: "sectionVerifiedTitle", subtitle: "sectionVerifiedSubtitle" },
+  popular: { title: "sectionPopularTitle", subtitle: "sectionPopularSubtitle" },
+  top_stores: { title: "sectionTopStoresTitle", subtitle: "sectionTopStoresSubtitle" },
+  fresh: { title: "sectionFreshTitle", subtitle: "sectionFreshSubtitle" },
 };
 
 type CouponsPageSectionProps = {
@@ -50,8 +39,9 @@ export default function CouponsPageSection({
   copiedCode,
   onCopy,
 }: CouponsPageSectionProps) {
-  const meta = SECTION_META[sectionId];
-  const Icon = meta.icon;
+  const t = useTranslations("coupons");
+  const keys = SECTION_KEYS[sectionId];
+  const Icon = SECTION_ICONS[sectionId];
 
   return (
     <section
@@ -65,12 +55,14 @@ export default function CouponsPageSection({
           </span>
           <div>
             <h2 id={`coupons-section-${sectionId}`} className="zor-coupons-page__section-title">
-              {meta.title}
+              {t(keys.title)}
             </h2>
-            <p className="zor-coupons-page__section-subtitle">{meta.subtitle}</p>
+            <p className="zor-coupons-page__section-subtitle">{t(keys.subtitle)}</p>
           </div>
         </div>
-        <span className="zor-coupons-page__section-count">{coupons.length} codes</span>
+        <span className="zor-coupons-page__section-count">
+          {t("sectionCount", { count: coupons.length })}
+        </span>
       </header>
 
       <div className="zor-coupons-page__grid zor-coupons-page__section-grid">

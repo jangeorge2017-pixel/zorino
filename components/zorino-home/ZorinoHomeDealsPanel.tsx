@@ -199,7 +199,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
                       featured: deal.displayBadge === "hot" || deal.displayBadge === "limited",
                     })}
                     endsInLabel={trendingDealEndsInLabel(deal)}
-                    featuredLabel="Featured"
+                    featuredLabel={t("featured")}
                   />
                 </div>
               ))}
