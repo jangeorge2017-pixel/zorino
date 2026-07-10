@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReactNode } from "react";
 import type { HeroStatItem } from "@/lib/types/entities";
 import { Package, Sparkles, Store, Tag, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import "./hero.css";
 import "./hero-layout.css";
 
@@ -21,25 +24,24 @@ export default function ZorinoHomeHero({
   stats,
   artworkSlot,
 }: ZorinoHomeHeroProps) {
+  const t = useTranslations("hero");
+
   return (
     <section className="zh-hero" aria-label="Hero">
       <div className="zh-hero__col zh-hero__col--left">
         <div className="zh-hero__copy">
           <div className="zh-hero__badge">
             <Sparkles size={13} aria-hidden />
-            Powered by AI
+            {t("badge")}
           </div>
 
           <h1 className="zh-hero__title">
-            Find Better
+            {t("titleLine1")}
             <br />
-            <span>Deals Faster</span>
+            <span>{t("titleLine2")}</span>
           </h1>
 
-          <p className="zh-hero__subtitle">
-            Compare prices across thousands of stores, discover exclusive deals and save
-            more on everything you love.
-          </p>
+          <p className="zh-hero__subtitle">{t("subtitle")}</p>
 
           <div className="zh-hero__stats">
             {stats.map((stat) => {

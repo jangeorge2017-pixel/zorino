@@ -81,7 +81,7 @@ export default async function ZorinoHomePage() {
   ]);
 
   return (
-    <div className="zh-page" dir="ltr">
+    <div className="zh-page">
       <div className="zh-page__background" aria-hidden="true" />
       <div className="zh-page__artwork-clip" aria-hidden="true">
         <div className="zh-page__artwork" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useLocale } from "next-intl";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, Globe } from "lucide-react";
 import { locales, type Locale } from "@/i18n/config";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   currencies,
   languages,
@@ -16,53 +16,199 @@ import {
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import "./intl-selectors.css";
 
+type PanelCoords = {
+  top: number;
+  left: number;
+};
+
 export default function IntlNavSelectors() {
+  const t = useTranslations("common");
   const locale = useLocale() as Locale;
-  const pathname = usePathname();
-  const router = useRouter();
   const { country, currency, updatePreferences, isUpdating } = useIntlPreferences();
   const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<PanelCoords>({ top: 0, left: 0 });
+  const [mounted, setMounted] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updatePosition = useCallback(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
+    const rect = trigger.getBoundingClientRect();
+    const panelWidth = Math.min(300, window.innerWidth - 24);
+    const gap = 8;
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile) {
+      setCoords({
+        top: Math.min(rect.bottom + gap, window.innerHeight - 24),
+        left: 12,
+      });
+      return;
+    }
+
+    let left = rect.right - panelWidth;
+    left = Math.max(12, Math.min(left, window.innerWidth - panelWidth - 12));
+
+    const estimatedHeight = 420;
+    const spaceBelow = window.innerHeight - rect.bottom - gap;
+    const openUpward = spaceBelow < Math.min(estimatedHeight, 280) && rect.top > spaceBelow;
+    const top = openUpward
+      ? Math.max(12, rect.top - gap - Math.min(estimatedHeight, spaceBelow + rect.height))
+      : rect.bottom + gap;
+
+    setCoords({ top, left });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePosition();
+  }, [open, updatePosition]);
 
   useEffect(() => {
     if (!open) return;
 
     const handleClick = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
         setOpen(false);
+        triggerRef.current?.focus();
       }
     };
 
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
+    const handleReposition = () => updatePosition();
 
-  const switchLocale = (newLocale: Locale) => {
-    router.replace(pathname, { locale: newLocale });
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    window.addEventListener("resize", handleReposition);
+    window.addEventListener("scroll", handleReposition, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+      window.removeEventListener("resize", handleReposition);
+      window.removeEventListener("scroll", handleReposition, true);
+    };
+  }, [open, updatePosition]);
+
+  const switchLocale = async (newLocale: Locale) => {
     setOpen(false);
+    if (newLocale === locale) return;
+    await updatePreferences({ locale: newLocale });
   };
 
   const handleCountryChange = async (code: CountryCode) => {
-    await updatePreferences({ countryCode: code });
     setOpen(false);
+    await updatePreferences({ countryCode: code });
   };
 
   const handleCurrencyChange = async (code: CurrencyCode) => {
-    await updatePreferences({ currencyCode: code });
     setOpen(false);
+    await updatePreferences({ currencyCode: code });
   };
 
   const langLabel = languages[locale].nativeLabel.slice(0, 2).toUpperCase();
 
+  const panel =
+    open && mounted
+      ? createPortal(
+          <>
+            <div
+              className="zor-intl__backdrop"
+              aria-hidden
+              onClick={() => setOpen(false)}
+            />
+            <div
+              ref={panelRef}
+              className="zor-intl__panel"
+              role="dialog"
+              aria-label={t("regionPreferences")}
+              style={{ top: coords.top, left: coords.left }}
+            >
+              <section className="zor-intl__section">
+                <p className="zor-intl__heading">{t("language")}</p>
+                <div className="zor-intl__options">
+                  {locales.map((code) => (
+                    <button
+                      key={code}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={locale === code}
+                      className={`zor-intl__option${locale === code ? " zor-intl__option--active" : ""}`}
+                      onClick={() => switchLocale(code)}
+                    >
+                      <span>{languages[code].flag}</span>
+                      {languages[code].nativeLabel}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="zor-intl__section">
+                <p className="zor-intl__heading">{t("country")}</p>
+                <div className="zor-intl__options zor-intl__options--scroll">
+                  {listCountries().map((item) => (
+                    <button
+                      key={item.code}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={country.code === item.code}
+                      className={`zor-intl__option${country.code === item.code ? " zor-intl__option--active" : ""}`}
+                      onClick={() => handleCountryChange(item.code)}
+                    >
+                      <span>{item.flag}</span>
+                      {item.name}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="zor-intl__section">
+                <p className="zor-intl__heading">{t("currency")}</p>
+                <div className="zor-intl__options zor-intl__options--scroll">
+                  {listCurrencies().map((item) => (
+                    <button
+                      key={item.code}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={currency.code === item.code}
+                      className={`zor-intl__option${currency.code === item.code ? " zor-intl__option--active" : ""}`}
+                      onClick={() => handleCurrencyChange(item.code)}
+                    >
+                      <span>{currencies[item.code].symbol}</span>
+                      {item.code} — {item.name}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </>,
+          document.body
+        )
+      : null;
+
   return (
-    <div className="zor-intl" ref={panelRef}>
+    <div className="zor-intl" ref={rootRef}>
       <button
+        ref={triggerRef}
         type="button"
         className="zor-intl__trigger"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        aria-haspopup="true"
-        aria-label="Language, country, and currency"
+        aria-haspopup="dialog"
+        aria-label={t("regionPreferences")}
         disabled={isUpdating}
       >
         <Globe size={16} aria-hidden />
@@ -71,67 +217,7 @@ export default function IntlNavSelectors() {
         </span>
         <ChevronDown size={14} className={open ? "zor-intl__chevron-open" : ""} aria-hidden />
       </button>
-
-      {open ? (
-        <div className="zor-intl__panel" role="menu">
-          <section className="zor-intl__section">
-            <p className="zor-intl__heading">Language</p>
-            <div className="zor-intl__options">
-              {locales.map((code) => (
-                <button
-                  key={code}
-                  type="button"
-                  role="menuitemradio"
-                  aria-checked={locale === code}
-                  className={`zor-intl__option${locale === code ? " zor-intl__option--active" : ""}`}
-                  onClick={() => switchLocale(code)}
-                >
-                  <span>{languages[code].flag}</span>
-                  {languages[code].nativeLabel}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="zor-intl__section">
-            <p className="zor-intl__heading">Country</p>
-            <div className="zor-intl__options zor-intl__options--scroll">
-              {listCountries().map((item) => (
-                <button
-                  key={item.code}
-                  type="button"
-                  role="menuitemradio"
-                  aria-checked={country.code === item.code}
-                  className={`zor-intl__option${country.code === item.code ? " zor-intl__option--active" : ""}`}
-                  onClick={() => handleCountryChange(item.code)}
-                >
-                  <span>{item.flag}</span>
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="zor-intl__section">
-            <p className="zor-intl__heading">Currency</p>
-            <div className="zor-intl__options zor-intl__options--scroll">
-              {listCurrencies().map((item) => (
-                <button
-                  key={item.code}
-                  type="button"
-                  role="menuitemradio"
-                  aria-checked={currency.code === item.code}
-                  className={`zor-intl__option${currency.code === item.code ? " zor-intl__option--active" : ""}`}
-                  onClick={() => handleCurrencyChange(item.code)}
-                >
-                  <span>{currencies[item.code].symbol}</span>
-                  {item.code} — {item.name}
-                </button>
-              ))}
-            </div>
-          </section>
-        </div>
-      ) : null}
+      {panel}
     </div>
   );
 }

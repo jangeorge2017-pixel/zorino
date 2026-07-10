@@ -5,6 +5,7 @@ import {
   INTL_COOKIE_COUNTRY,
   INTL_COOKIE_CURRENCY,
   INTL_COOKIE_GEO_DONE,
+  INTL_COOKIE_LOCALE,
   INTL_COOKIE_MAX_AGE,
 } from "@/lib/international/cookies";
 import {
@@ -12,6 +13,7 @@ import {
   shouldAutoRedirectToArabic,
 } from "@/lib/international/detect";
 import {
+  getCountryConfig,
   getDefaultCurrencyForCountry,
   type CountryCode,
 } from "@/lib/international/config";
@@ -35,6 +37,14 @@ function applyPreferenceCookies(
     response.cookies.set(
       INTL_COOKIE_CURRENCY,
       getDefaultCurrencyForCountry(country),
+      opts
+    );
+  }
+
+  if (!request.cookies.get(INTL_COOKIE_LOCALE)) {
+    response.cookies.set(
+      INTL_COOKIE_LOCALE,
+      getCountryConfig(country).defaultLocale,
       opts
     );
   }

@@ -2,17 +2,16 @@
  * Approved homepage hero composition lock.
  * Reference: public/reference/zorino-final-design.png
  *
- * Global locale RTL (html[dir="rtl"]) must not mirror hero layout:
- * copy left, Z artwork right, orbit cards, stats, and search spacing unchanged.
+ * Arabic RTL applies to page chrome (nav text, sections).
+ * Hero artwork composition stays physically anchored (Z on the right)
+ * so the visual design does not mirror.
  */
 
-.zh-page {
+/* Artwork stays physically LTR (Z on the right). Copy/search follow page dir. */
+.zh-page .zh-page__artwork,
+.zh-page .hero-artwork {
   direction: ltr;
   unicode-bidi: isolate;
-}
-
-html[dir="rtl"] .zh-page {
-  direction: ltr;
 }
 
 /* Physical grid columns — never swap in RTL */
@@ -23,7 +22,11 @@ html[dir="rtl"] .zh-page {
 .zh-page .zh-hero__col--left {
   grid-column: 1;
   grid-row: 1;
-  text-align: left;
+  text-align: start;
+}
+
+html[dir="rtl"] .zh-page .zh-hero__col--left {
+  text-align: start;
 }
 
 .zh-page .zh-hero__col--right {
@@ -50,13 +53,23 @@ html[dir="rtl"] .zh-page {
   transform: translateX(120px);
 }
 
-/* Nav keeps reference left-to-right composition on homepage */
-.zh-page .zh-nav,
-.zh-page .zh-nav__inner,
-.zh-page .zh-hero-zone,
-.zh-page .zh-hero-search,
-.zh-page .zh-search {
-  direction: ltr;
+/* Nav mirrors for RTL while keeping sticky stacking above content */
+html[dir="rtl"] .zh-page .zh-nav__inner {
+  direction: rtl;
+}
+
+html[dir="rtl"] .zh-page .zh-nav__logo {
+  margin-right: 0;
+  margin-left: var(--zh-nav-logo-gap);
+}
+
+html[dir="rtl"] .zh-page .zh-nav__actions {
+  margin-left: 0;
+  margin-right: var(--zh-nav-gap);
+}
+
+html[dir="rtl"] .zh-page .zh-nav__logo-lockup {
+  object-position: right center;
 }
 
 @media (max-width: 1279px) {

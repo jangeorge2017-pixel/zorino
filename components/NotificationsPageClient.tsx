@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/auth-context";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import {
@@ -134,7 +134,7 @@ export default function NotificationsPageClient() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">{t("title")}</h1>
           <p className="text-gray-400">
-            {unreadCount} unread {unreadCount === 1 ? "notification" : "notifications"}
+            {t("unreadCount", { count: unreadCount })}
           </p>
         </div>
 
@@ -145,25 +145,25 @@ export default function NotificationsPageClient() {
               size="sm"
               onClick={() => setFilter("all")}
             >
-              All ({notifications.length})
+              {t("all")} ({notifications.length})
             </Button>
             <Button
               variant={filter === "unread" ? "primary" : "outline"}
               size="sm"
               onClick={() => setFilter("unread")}
             >
-              Unread ({unreadCount})
+              {t("unread")} ({unreadCount})
             </Button>
           </div>
           <Button variant="outline" size="sm" onClick={markAllAsRead}>
             <CheckCheck className="w-4 h-4 mr-2" />
-            Mark All Read
+            {t("markAllRead")}
           </Button>
         </div>
 
         {loading ? (
           <Card>
-            <p className="text-gray-400 text-center py-12">Loading notifications…</p>
+            <p className="text-gray-400 text-center py-12">{t("loading")}</p>
           </Card>
         ) : (
           <div className="space-y-4">

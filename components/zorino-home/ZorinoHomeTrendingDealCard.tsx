@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
 import { ChevronRight, Clock, ImageOff, Star } from "lucide-react";
 import TrendingDealBadge from "@/components/zorino-home/TrendingDealBadge";

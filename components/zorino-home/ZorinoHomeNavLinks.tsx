@@ -1,16 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 
 const NAV_LINKS = [
-  { href: "/deals", label: "Deals" },
-  { href: "/coupons", label: "Coupons" },
-  { href: "/compare", label: "Compare" },
-  { href: "/categories", label: "Categories", chevron: true },
-  { href: "/stores", label: "Stores" },
-  { href: "/blog", label: "Blog" },
+  { href: "/deals", key: "deals" as const },
+  { href: "/coupons", key: "coupons" as const },
+  { href: "/compare", key: "compare" as const },
+  { href: "/categories", key: "categories" as const, chevron: true },
+  { href: "/stores", key: "stores" as const },
+  { href: "/blog", key: "blog" as const },
 ] as const;
 
 function isLinkActive(pathname: string, href: string): boolean {
@@ -20,9 +20,11 @@ function isLinkActive(pathname: string, href: string): boolean {
 
 export default function ZorinoHomeNavLinks() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
+  const tCommon = useTranslations("common");
 
   return (
-    <nav className="zh-nav__links" aria-label="Primary">
+    <nav className="zh-nav__links" aria-label={tCommon("primaryNav")}>
       {NAV_LINKS.map((link) => {
         const active = isLinkActive(pathname, link.href);
 
@@ -34,7 +36,7 @@ export default function ZorinoHomeNavLinks() {
             aria-current={active ? "page" : undefined}
           >
             <span className="zh-nav__link-text">
-              {link.label}
+              {t(link.key)}
               {"chevron" in link && link.chevron ? (
                 <ChevronDown size={14} className="zh-nav__chevron" aria-hidden />
               ) : null}

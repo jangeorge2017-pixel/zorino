@@ -1,14 +1,11 @@
-import Link from "next/link";
+"use client";
+
 import { ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import "./view-all-link.css";
 
 export type ZorinoHomeViewAllVariant = "coupons" | "deals" | "products";
-
-const VIEW_ALL_LABELS: Record<ZorinoHomeViewAllVariant, string> = {
-  coupons: "View All Coupons",
-  deals: "View All Deals",
-  products: "View All Products",
-};
 
 type ZorinoHomeViewAllLinkProps = {
   href: string;
@@ -16,9 +13,19 @@ type ZorinoHomeViewAllLinkProps = {
 };
 
 export default function ZorinoHomeViewAllLink({ href, variant }: ZorinoHomeViewAllLinkProps) {
+  const tDeals = useTranslations("deals");
+  const tCoupons = useTranslations("coupons");
+
+  const label =
+    variant === "coupons"
+      ? tCoupons("viewAllCoupons")
+      : variant === "deals"
+        ? tDeals("viewAllDeals")
+        : tDeals("viewAllProducts");
+
   return (
     <Link href={href} className="zh-view-all">
-      <span className="zh-view-all__label">{VIEW_ALL_LABELS[variant]}</span>
+      <span className="zh-view-all__label">{label}</span>
       <ChevronRight size={14} className="zh-view-all__icon" aria-hidden />
     </Link>
   );

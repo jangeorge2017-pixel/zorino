@@ -22,13 +22,14 @@
 
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 200;
   height: 72px;
   margin-top: 0;
   padding: 0 var(--zh-pad);
   border-bottom: none;
   background: #070b16;
   box-shadow: none;
+  overflow: visible;
 }
 
 .zh-nav__inner {
@@ -247,6 +248,9 @@
   margin-left: var(--zh-nav-gap);
   flex: 0 0 auto;
   min-width: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 2;
 }
 
 .zh-nav__actions > * {

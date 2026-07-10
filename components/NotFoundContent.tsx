@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
 import { PageLayout } from "@/components/pages";
 import { Home, Search } from "lucide-react";

@@ -11,7 +11,7 @@ import { buildStoreSections } from "@/components/stores/store-sections";
 import PageIdentityCta from "@/components/page-identity/PageIdentityCta";
 import { PageEmptyState, PageFilterBar, PageLayout } from "@/components/pages";
 import type { Store } from "@/lib/types/entities";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import "@/components/stores/stores-page.css";
 
 type StoresPageClientProps = {

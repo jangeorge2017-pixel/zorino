@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       setIsSuccess(true);
-    } catch (err) {
+    } catch {
       setError('Failed to send reset email');
     } finally {
       setIsLoading(false);
@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Check Your Email</h2>
             <p className="text-gray-400 mb-6">
-              We've sent a password reset link to your email address. Please check your inbox.
+              We&apos;ve sent a password reset link to your email address. Please check your inbox.
             </p>
             <Button onClick={() => router.push('/auth/login')} className="w-full">
               Back to Login
@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
           </div>
           <h1 className="text-4xl font-bold text-white mb-2">{t('forgotPassword')}</h1>
           <p className="text-gray-400">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
 

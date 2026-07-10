@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import {
   ZORINO_QUICK_NAV_ITEMS,
   ZORINO_QUICK_NAV_SCROLL_PADDING,

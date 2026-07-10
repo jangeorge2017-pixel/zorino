@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
 import BlogArticleCard from "@/components/blog/BlogArticleCard";
 import BlogPostHero from "@/components/blog/BlogPostHero";
