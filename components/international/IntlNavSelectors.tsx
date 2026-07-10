@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, Globe } from "lucide-react";
 import { locales, type Locale } from "@/i18n/config";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   currencies,
   languages,
@@ -24,6 +25,8 @@ type PanelCoords = {
 export default function IntlNavSelectors() {
   const t = useTranslations("common");
   const locale = useLocale() as Locale;
+  const pathname = usePathname();
+  const router = useRouter();
   const { country, currency, updatePreferences, isUpdating } = useIntlPreferences();
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<PanelCoords>({ top: 0, left: 0 });
@@ -106,7 +109,13 @@ export default function IntlNavSelectors() {
   const switchLocale = async (newLocale: Locale) => {
     setOpen(false);
     if (newLocale === locale) return;
-    await updatePreferences({ locale: newLocale });
+    // Persist first, then a single navigation — avoids refresh loops.
+    try {
+      await updatePreferences({ locale: newLocale }, { skipNavigation: true });
+    } catch {
+      // Still navigate so the UI language changes even if persistence fails.
+    }
+    router.replace(pathname, { locale: newLocale });
   };
 
   const handleCountryChange = async (code: CountryCode) => {
@@ -119,7 +128,7 @@ export default function IntlNavSelectors() {
     await updatePreferences({ currencyCode: code });
   };
 
-  const langLabel = languages[locale].nativeLabel.slice(0, 2).toUpperCase();
+  const langLabel = locale.toUpperCase();
 
   const panel =
     open && mounted

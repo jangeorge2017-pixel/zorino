@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import {
   ZORINO_QUICK_NAV_ITEMS,
   ZORINO_QUICK_NAV_SCROLL_PADDING,
@@ -10,11 +11,25 @@ import {
 } from "@/lib/zorino-home/quick-nav-sections";
 import "./quick-nav.css";
 
+const QUICK_NAV_LABEL_KEYS: Record<string, string> = {
+  "featured-brands": "quickCouponBrands",
+  "trending-deals": "quickTrendingDeals",
+  coupons: "quickCoupons",
+  "flash-deals": "quickFlashDeals",
+  "price-drops": "quickPriceDrops",
+  "new-arrivals": "quickNewArrivals",
+  "top-rated": "quickTopRated",
+  "editors-picks": "quickEditorsPicks",
+  stores: "quickStores",
+  blog: "quickBlog",
+};
+
 function getScrollOffset(navHeight: number) {
   return ZORINO_QUICK_NAV_STICKY_TOP + navHeight + ZORINO_QUICK_NAV_SCROLL_PADDING;
 }
 
 export default function ZorinoHomeQuickNav() {
+  const t = useTranslations("home");
   const navRef = useRef<HTMLElement>(null);
   const [navHeight, setNavHeight] = useState(52);
   const [isSticky, setIsSticky] = useState(false);
@@ -34,10 +49,8 @@ export default function ZorinoHomeQuickNav() {
   useEffect(() => {
     const node = navRef.current;
     if (!node) return;
-
     const syncHeight = () => setNavHeight(node.offsetHeight);
     syncHeight();
-
     const resizeObserver = new ResizeObserver(syncHeight);
     resizeObserver.observe(node);
     return () => resizeObserver.disconnect();
@@ -46,12 +59,10 @@ export default function ZorinoHomeQuickNav() {
   useEffect(() => {
     const anchor = document.querySelector(".zh-home-discovery-nav");
     if (!anchor) return;
-
     const onScroll = () => {
       const bottom = anchor.getBoundingClientRect().bottom;
       setIsSticky(bottom <= ZORINO_QUICK_NAV_STICKY_TOP + 4);
     };
-
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
@@ -65,15 +76,12 @@ export default function ZorinoHomeQuickNav() {
     const sections = ZORINO_QUICK_NAV_TARGETS.map((id) =>
       document.getElementById(id),
     ).filter((node): node is HTMLElement => node !== null);
-
     if (sections.length === 0) return;
-
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
         const topEntry = visible[0];
         if (topEntry?.target.id) {
           setActiveTargetId(topEntry.target.id);
@@ -85,7 +93,6 @@ export default function ZorinoHomeQuickNav() {
         threshold: [0.08, 0.2, 0.35, 0.5],
       },
     );
-
     sections.forEach((section) => sectionObserver.observe(section));
     return () => sectionObserver.disconnect();
   }, []);
@@ -93,12 +100,9 @@ export default function ZorinoHomeQuickNav() {
   const scrollToTarget = useCallback((targetId: string, itemId: string) => {
     const target = document.getElementById(targetId);
     if (!target) return;
-
-    const navHeight = navRef.current?.offsetHeight ?? 52;
-    const offset = getScrollOffset(navHeight);
-    const top =
-      target.getBoundingClientRect().top + window.scrollY - offset;
-
+    const height = navRef.current?.offsetHeight ?? 52;
+    const offset = getScrollOffset(height);
+    const top = target.getBoundingClientRect().top + window.scrollY - offset;
     setClickedItemId(itemId);
     setActiveTargetId(targetId);
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
@@ -122,6 +126,11 @@ export default function ZorinoHomeQuickNav() {
     [activeTargetId, clickedItemId, targetToItemIds],
   );
 
+  const labelFor = (item: (typeof ZORINO_QUICK_NAV_ITEMS)[number]) => {
+    const key = QUICK_NAV_LABEL_KEYS[item.id];
+    return key ? t(key as "quickCoupons") : item.label;
+  };
+
   return (
     <div className="zh-quick-nav-wrap">
       {isSticky ? (
@@ -134,29 +143,24 @@ export default function ZorinoHomeQuickNav() {
       <nav
         ref={navRef}
         className={`zh-quick-nav${isSticky ? " is-sticky" : ""}`}
-        aria-label="Quick section navigation"
+        aria-label={t("quickNav")}
       >
         <div className="zh-quick-nav__track">
           <div className="zh-quick-nav__row">
             {ZORINO_QUICK_NAV_ITEMS.map((item) => {
               const isActive = isItemActive(item);
               const className = `zh-quick-nav__pill${isActive ? " is-active" : ""}`;
-
+              const label = labelFor(item);
               if (item.href) {
                 return (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className={className}
-                  >
+                  <Link key={item.id} href={item.href} className={className}>
                     <span className="zh-quick-nav__emoji" aria-hidden="true">
                       {item.emoji}
                     </span>
-                    <span className="zh-quick-nav__label">{item.label}</span>
+                    <span className="zh-quick-nav__label">{label}</span>
                   </Link>
                 );
               }
-
               return (
                 <button
                   key={item.id}
@@ -168,7 +172,7 @@ export default function ZorinoHomeQuickNav() {
                   <span className="zh-quick-nav__emoji" aria-hidden="true">
                     {item.emoji}
                   </span>
-                  <span className="zh-quick-nav__label">{item.label}</span>
+                  <span className="zh-quick-nav__label">{label}</span>
                 </button>
               );
             })}

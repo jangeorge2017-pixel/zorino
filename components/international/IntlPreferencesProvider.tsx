@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -27,9 +28,17 @@ type PreferenceUpdate = {
   locale?: Locale;
 };
 
+type UpdateOptions = {
+  /** Persist only — caller handles locale navigation (avoids double refresh). */
+  skipNavigation?: boolean;
+};
+
 type IntlPreferencesContextValue = IntlPreferencesSnapshot & {
   formatPrice: (amount: number, fromCurrency?: CurrencyCode) => string;
-  updatePreferences: (prefs: PreferenceUpdate) => Promise<IntlPreferencesSnapshot>;
+  updatePreferences: (
+    prefs: PreferenceUpdate,
+    options?: UpdateOptions
+  ) => Promise<IntlPreferencesSnapshot>;
   isUpdating: boolean;
 };
 
@@ -47,8 +56,12 @@ export function IntlPreferencesProvider({ initial, children }: IntlPreferencesPr
   const [snapshot, setSnapshot] = useState(initial);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  useEffect(() => {
+    setSnapshot(initial);
+  }, [initial]);
+
   const updatePreferences = useCallback(
-    async (prefs: PreferenceUpdate) => {
+    async (prefs: PreferenceUpdate, options?: UpdateOptions) => {
       setIsUpdating(true);
       try {
         const response = await fetch("/api/preferences", {
@@ -67,6 +80,10 @@ export function IntlPreferencesProvider({ initial, children }: IntlPreferencesPr
           countryCode: data.country.code,
           currencyCode: data.currency.code,
         });
+
+        if (options?.skipNavigation) {
+          return data;
+        }
 
         const localeChangedByIntent =
           prefs.locale !== undefined || prefs.countryCode !== undefined;
@@ -89,19 +106,20 @@ export function IntlPreferencesProvider({ initial, children }: IntlPreferencesPr
     (amount: number, fromCurrency?: CurrencyCode) =>
       formatCurrencyValue(amount, snapshot.currency.code, {
         fromCurrency,
-        locale: snapshot.locale === "ar" ? "ar" : undefined,
+        locale: activeLocale === "ar" ? "ar" : undefined,
       }),
-    [snapshot.currency.code, snapshot.locale]
+    [snapshot.currency.code, activeLocale]
   );
 
   const value = useMemo(
     () => ({
       ...snapshot,
+      locale: activeLocale,
       formatPrice,
       updatePreferences,
       isUpdating,
     }),
-    [snapshot, formatPrice, updatePreferences, isUpdating]
+    [snapshot, activeLocale, formatPrice, updatePreferences, isUpdating]
   );
 
   return (

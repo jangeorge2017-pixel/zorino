@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import DealsDealCard from "@/components/deals/DealsDealCard";
 import ZorinoHomeTrendingDealsSkeleton from "@/components/zorino-home/ZorinoHomeTrendingDealsSkeleton";
 import { ZH_TRENDING_DEALS_META } from "@/lib/zorino-home/home-section-meta";
@@ -22,11 +23,28 @@ import {
 import type { TrendingDealCard } from "@/lib/types/entities";
 import "./zorino-home-deals.css";
 
+const FILTER_KEYS: Record<TrendingDealFilter, string> = {
+  all: "filterAll",
+  trending: "filterTrending",
+  hot: "filterHot",
+  limited: "filterLimited",
+  "best-value": "filterBestValue",
+};
+
+const SORT_KEYS: Record<TrendingDealSort, string> = {
+  biggest_discount: "sortBiggestDiscount",
+  most_popular: "sortMostPopular",
+  newest: "sortNewest",
+  lowest_price: "sortLowestPrice",
+};
+
 type ZorinoHomeDealsPanelProps = {
   deals: TrendingDealCard[];
 };
 
 export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProps) {
+  const t = useTranslations("home");
+  const locale = useLocale();
   const trackRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<TrendingDealFilter>("all");
   const [sort, setSort] = useState<TrendingDealSort>("biggest_discount");
@@ -74,7 +92,11 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
     if (!node) return;
     const slide = node.querySelector(".zh-trending-deals__slide");
     const slideWidth = slide instanceof HTMLElement ? slide.offsetWidth : 280;
-    node.scrollBy({ left: direction * (slideWidth + 16), behavior: "smooth" });
+    const rtlFactor = locale === "ar" ? -1 : 1;
+    node.scrollBy({
+      left: direction * rtlFactor * (slideWidth + 16),
+      behavior: "smooth",
+    });
     window.setTimeout(syncButtons, 420);
   };
 
@@ -95,10 +117,10 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
             </span>
             <div>
               <h2 id="zh-deals-title" className="zor-deals-page__section-title">
-                Trending Deals
+                {t("trendingDeals")}
               </h2>
               <p className="zor-deals-page__section-subtitle">
-                {ZH_TRENDING_DEALS_META.subtitle}
+                {t("trendingDealsSubtitle")}
               </p>
             </div>
           </div>
@@ -109,7 +131,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
           <div
             className="zh-trending-deals__filters zor-deals-page__quick-filters"
             role="tablist"
-            aria-label="Filter trending deals"
+            aria-label={t("filterDeals")}
           >
             {TRENDING_DEAL_FILTERS.map((item) => (
               <button
@@ -122,22 +144,22 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
                 }`}
                 onClick={() => handleFilterChange(item.id)}
               >
-                {item.label}
+                {t(FILTER_KEYS[item.id] as "filterAll")}
               </button>
             ))}
           </div>
 
           <label className="zh-trending-deals__sort">
-            <span className="zh-trending-deals__sort-label">Sort by</span>
+            <span className="zh-trending-deals__sort-label">{t("sortBy")}</span>
             <select
               value={sort}
               onChange={handleSortChange}
-              aria-label="Sort trending deals"
+              aria-label={t("sortBy")}
               className="zh-trending-deals__sort-select"
             >
               {TRENDING_DEAL_SORTS.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {item.label}
+                  {t(SORT_KEYS[item.id] as "sortNewest")}
                 </option>
               ))}
             </select>
@@ -146,15 +168,15 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
       </div>
 
       {deals.length === 0 ? (
-        <p className="zh-panel__empty">No trending deals right now. Check back soon.</p>
+        <p className="zh-panel__empty">{t("emptyTrending")}</p>
       ) : visibleDeals.length === 0 ? (
-        <p className="zh-panel__empty">No deals match this filter. Try another category.</p>
+        <p className="zh-panel__empty">{t("emptyFilter")}</p>
       ) : (
         <div className="zh-trending-deals__carousel">
           <button
             type="button"
             className="zh-trending-deals__nav zh-trending-deals__nav--prev"
-            aria-label="Previous deals"
+            aria-label={t("prevDeals")}
             disabled={!canScrollLeft}
             onClick={() => scroll(-1)}
           >
@@ -187,7 +209,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
           <button
             type="button"
             className="zh-trending-deals__nav zh-trending-deals__nav--next"
-            aria-label="Next deals"
+            aria-label={t("nextDeals")}
             disabled={!canScrollRight}
             onClick={() => scroll(1)}
           >

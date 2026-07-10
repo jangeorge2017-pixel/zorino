@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { Check, CheckCircle, Copy, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
 
 function CouponRow({ coupon }: { coupon: TopCouponCard }) {
+  const t = useTranslations("home");
+  const tCoupons = useTranslations("coupons");
   const [copied, setCopied] = useState(false);
 
   const copyCode = () => {
@@ -43,7 +46,7 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
             type="button"
             className="zh-coupon__copy"
             onClick={copyCode}
-            aria-label={`Copy ${coupon.code}`}
+            aria-label={`${t("copyCode")} ${coupon.code}`}
           >
             {copied ? <Check size={16} /> : <Copy size={16} />}
           </button>
@@ -51,15 +54,16 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
         <div className="zh-coupon__meta">
           <span>
             <Users size={12} aria-hidden />
-            Used {formatCompactCount(coupon.usedTimes)} times
+            {t("usedTimes", { count: formatCompactCount(coupon.usedTimes) })}
           </span>
           {coupon.verified ? (
             <span className="zh-coupon__verified">
-              <CheckCircle size={12} aria-hidden /> Verified
+              <CheckCircle size={12} aria-hidden /> {t("verified")}
             </span>
           ) : null}
         </div>
       </div>
+      <span className="sr-only">{copied ? tCoupons("codeCopied") : null}</span>
     </article>
   );
 }
@@ -69,17 +73,19 @@ type ZorinoHomeCouponsPanelProps = {
 };
 
 export default function ZorinoHomeCouponsPanel({ coupons }: ZorinoHomeCouponsPanelProps) {
+  const t = useTranslations("home");
+
   return (
     <section className="zh-panel" id="zh-section-coupons" aria-labelledby="zh-coupons-title">
       <div className="zh-section-head">
         <h2 id="zh-coupons-title" className="zh-section-head__title">
-          <span aria-hidden>🔥</span> Top Coupons
+          <span aria-hidden>🔥</span> {t("topCoupons")}
         </h2>
         <ZorinoHomeViewAllLink href="/coupons" variant="coupons" />
       </div>
       <div className="zh-coupons">
         {coupons.length === 0 ? (
-          <p className="zh-panel__empty">No coupons available right now.</p>
+          <p className="zh-panel__empty">{t("emptyCoupons")}</p>
         ) : (
           coupons.map((coupon) => <CouponRow key={coupon.id} coupon={coupon} />)
         )}

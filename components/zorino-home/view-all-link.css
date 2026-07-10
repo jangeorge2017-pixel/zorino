@@ -65,6 +65,10 @@
   opacity: 0.88;
 }
 
+html[dir="rtl"] .zh-page .zh-view-all__icon {
+  transform: scaleX(-1);
+}
+
 .zh-page .zh-view-all:hover {
   color: var(--zh-section-accent-soft, #ffffff);
   border-color: color-mix(in srgb, var(--zh-section-accent, #ffffff) 32%, transparent);
