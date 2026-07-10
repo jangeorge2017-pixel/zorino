@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
-import { ChevronRight, Clock, ImageOff, Star } from "lucide-react";
+import { ChevronRight, Clock, Star } from "lucide-react";
 import TrendingDealBadge from "@/components/zorino-home/TrendingDealBadge";
 import type { TrendingDealCard } from "@/lib/types/entities";
 import type { TrendingDealDisplayBadge } from "@/lib/zorino-home/trending-deals-section";
@@ -39,27 +39,14 @@ export default function ZorinoHomeTrendingDealCard({
         {hasDiscount ? (
           <span className="zh-td-card__discount">-{Math.round(deal.discount)}%</span>
         ) : null}
-        {deal.imageSrc ? (
-          <AssetImage
-            src={deal.imageSrc}
-            alt={deal.name}
-            fill
-            sizes="(max-width: 767px) 85vw, 280px"
-            priority={priority}
-            className="zh-td-card__image"
-            fallback={
-              <div className="zh-td-card__media-fallback" aria-hidden>
-                <ImageOff size={28} />
-                <span>{tCommon("noImage")}</span>
-              </div>
-            }
-          />
-        ) : (
-          <div className="zh-td-card__media-fallback" aria-hidden>
-            <ImageOff size={28} />
-            <span>{tCommon("noImage")}</span>
-          </div>
-        )}
+        <AssetImage
+          src={deal.imageSrc || ""}
+          alt={deal.name}
+          fill
+          sizes="(max-width: 767px) 85vw, 280px"
+          priority={priority}
+          className="zh-td-card__image"
+        />
       </div>
 
       <div className="zh-td-card__body">
@@ -74,20 +61,7 @@ export default function ZorinoHomeTrendingDealCard({
 
         <div className="zh-td-card__store-row">
           <span className="zh-td-card__store-logo" aria-hidden>
-            <img
-              src={deal.storeLogoSrc}
-              alt=""
-              width={24}
-              height={24}
-              loading="lazy"
-              decoding="async"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                if (e.currentTarget.parentElement) {
-                  e.currentTarget.parentElement.textContent = deal.storeInitial;
-                }
-              }}
-            />
+            <AssetImage src={deal.storeLogoSrc || ""} alt="" width={24} height={24} />
           </span>
           <span className="zh-td-card__store">{deal.store}</span>
         </div>

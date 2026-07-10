@@ -12,6 +12,7 @@ import {
   Ticket,
 } from "lucide-react";
 import type { FeaturedCouponBrand } from "@/lib/zorino-home/featured-coupon-brands";
+import { getCarouselScrollState } from "@/lib/ui/carousel-scroll";
 import "./featured-coupon-brands.css";
 
 function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
@@ -96,8 +97,9 @@ export default function ZorinoHomeFeaturedCouponBrands({
   const syncButtons = useCallback(() => {
     const node = trackRef.current;
     if (!node) return;
-    setCanScrollLeft(node.scrollLeft > 4);
-    setCanScrollRight(node.scrollLeft < node.scrollWidth - node.clientWidth - 4);
+    const { canScrollPrev, canScrollNext } = getCarouselScrollState(node);
+    setCanScrollLeft(canScrollPrev);
+    setCanScrollRight(canScrollNext);
   }, []);
 
   useEffect(() => {

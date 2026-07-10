@@ -57,7 +57,7 @@ export default function ListingProductCard({
       <ProductCardMedia
         src={product.imageSrc}
         alt={product.name}
-        fallback={<span className="deal-emoji">{product.emoji ?? "🛍️"}</span>}
+        fallback={undefined}
         badges={discount > 0 ? <span className="deal-discount">-{discount}%</span> : null}
       />
 

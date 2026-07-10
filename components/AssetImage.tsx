@@ -22,7 +22,7 @@ type AssetImageProps = {
 
 /**
  * Renders product/marketplace images via next/image.
- * Falls back to a local placeholder SVG, then optional fallback UI (e.g. emoji).
+ * Falls back to the local professional placeholder SVG — never blank/broken media.
  */
 export default function AssetImage({
   src,
@@ -36,18 +36,18 @@ export default function AssetImage({
   priority,
 }: AssetImageProps) {
   const normalized = normalizeProductImageUrl(src);
-  const [activeSrc, setActiveSrc] = useState(normalized);
+  const [activeSrc, setActiveSrc] = useState(normalized || PRODUCT_IMAGE_PLACEHOLDER);
   const [showFallbackUi, setShowFallbackUi] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setActiveSrc(normalizeProductImageUrl(src));
+    const next = normalizeProductImageUrl(src) || PRODUCT_IMAGE_PLACEHOLDER;
+    setActiveSrc(next);
     setShowFallbackUi(false);
-    const next = normalizeProductImageUrl(src);
     setLoaded(isLocalProductImage(next));
   }, [src]);
 
-  if (showFallbackUi || (!activeSrc && fallback)) {
+  if (showFallbackUi) {
     return (
       <span
         className={`asset-image-fallback ${className ?? ""}`}
@@ -64,13 +64,24 @@ export default function AssetImage({
         }
         aria-hidden={alt === ""}
       >
-        {fallback ?? <span className="product-card-emoji-fallback" aria-hidden="true">🛍️</span>}
+        {fallback ?? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={PRODUCT_IMAGE_PLACEHOLDER}
+            alt=""
+            width={width ?? 120}
+            height={height ?? 120}
+            style={{ objectFit: "contain", width: "100%", height: "100%" }}
+          />
+        )}
       </span>
     );
   }
 
+  const displaySrc = activeSrc || PRODUCT_IMAGE_PLACEHOLDER;
+
   const handleError = () => {
-    if (activeSrc !== PRODUCT_IMAGE_PLACEHOLDER) {
+    if (displaySrc !== PRODUCT_IMAGE_PLACEHOLDER) {
       setActiveSrc(PRODUCT_IMAGE_PLACEHOLDER);
       return;
     }
@@ -78,7 +89,7 @@ export default function AssetImage({
   };
 
   const shared = {
-    src: activeSrc,
+    src: displaySrc,
     alt,
     className: `${className ?? ""}${loaded ? " asset-image-loaded" : " asset-image-loading"}`.trim(),
     priority,

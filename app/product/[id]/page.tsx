@@ -1,60 +1,11 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function ProductPage() {
-  return (
-    <div
-      style={{
-        padding: "50px",
-        direction: "rtl",
-        textAlign: "center",
-      }}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="https://picsum.photos/500/300"
-        alt="منتج"
-        style={{
-          width: "500px",
-          maxWidth: "100%",
-          borderRadius: "15px",
-        }}
-      />
+type ProductStubProps = {
+  params: Promise<{ id: string }>;
+};
 
-      <h1 style={{ marginTop: "20px" }}>هاتف ذكي</h1>
-
-      <h2 style={{ color: "#00aaff" }}>5000 جنيه</h2>
-
-      <p
-        style={{
-          maxWidth: "700px",
-          margin: "20px auto",
-          lineHeight: "2",
-        }}
-      >
-        هذا وصف تجريبي للمنتج. لاحقاً سيتم جلب البيانات من قاعدة البيانات أو من
-        AliExpress و Alibaba.
-      </p>
-
-      <Link href="/cart">
-        <button
-          type="button"
-          style={{
-            background: "#00aaff",
-            color: "white",
-            border: "none",
-            padding: "15px 30px",
-            borderRadius: "10px",
-            cursor: "pointer",
-          }}
-        >
-          أضف إلى السلة
-        </button>
-      </Link>
-
-      <br />
-      <br />
-
-      <Link href="/">العودة للمتجر</Link>
-    </div>
-  );
+/** Legacy non-locale route — send traffic to the real localized product page. */
+export default async function ProductStubRedirect({ params }: ProductStubProps) {
+  const { id } = await params;
+  redirect(`/product/${encodeURIComponent(id)}`);
 }

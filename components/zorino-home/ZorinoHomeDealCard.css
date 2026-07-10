@@ -40,7 +40,8 @@
   justify-content: center;
 }
 
-.zh-deal-card__media img {
+.zh-deal-card__media img,
+.zh-deal-card__media .zh-deal-card__image {
   max-width: 90%;
   max-height: 90%;
   object-fit: contain;
