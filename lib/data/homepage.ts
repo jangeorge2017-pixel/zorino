@@ -288,6 +288,8 @@ export type SearchResultItem = {
   reviewCount: number;
   /** Sales / order volume when provided by the marketplace API. */
   salesCount?: number;
+  /** Shipping / delivery summary when provided by the marketplace API. */
+  shipping?: string;
   inStock: boolean;
   category: string;
   /** Outbound affiliate or product URL (live marketplace results). */

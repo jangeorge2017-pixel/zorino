@@ -1,4 +1,6 @@
 import { createAliExpressClientFromEnv } from "@/lib/integrations/aliexpress";
+import { mapAliExpressRawToOpenApiProduct } from "@/lib/integrations/aliexpress/map-product";
+import { attachOpenApiAffiliateLinks } from "@/lib/integrations/aliexpress/open-api-service";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import type { ProductDetail } from "@/lib/data/product-detail";
@@ -26,70 +28,27 @@ export const ALIEXPRESS_SEARCH_FILTERS = {
   stores: [{ value: "aliexpress", label: "AliExpress" }],
 };
 
-function upgradeImageUrl(url: string): string {
-  if (!url) return url;
-  return url.replace(/_\d+x\d+\./, "_960x960.");
-}
-
-function parseRating(evaluateRate?: string): number {
-  if (!evaluateRate) return 0;
-  const numeric = parseFloat(evaluateRate.replace("%", ""));
-  if (!Number.isFinite(numeric)) return 0;
-  if (numeric > 5) return Math.min(5, Math.round((numeric / 20) * 10) / 10);
-  return Math.min(5, Math.round(numeric * 10) / 10);
-}
-
-function parseSalesCount(volume?: string | number): number {
-  if (volume == null) return 0;
-  const n = typeof volume === "number" ? volume : parseInt(volume, 10);
-  return Number.isFinite(n) ? n : 0;
-}
-
 function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null {
-  const productId = raw.product_id != null ? String(raw.product_id) : "";
-  if (!productId || !raw.product_title) return null;
-
-  const price = parseFloat(raw.target_sale_price ?? "0");
-  if (!price || price <= 0) return null;
-
-  const original = parseFloat(raw.target_original_price ?? "0");
-  const originalPrice = original > price ? original : price;
-  const discount =
-    originalPrice > price
-      ? Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100))
-      : 0;
-
-  const affiliateLink =
-    raw.promotion_link?.trim() ||
-    raw.product_detail_url?.trim() ||
-    raw.shop_url?.trim() ||
-    "";
-  if (!affiliateLink) return null;
-
-  const imageSrc = upgradeImageUrl(raw.product_main_image_url ?? "");
-  // Live pipeline only — no local placeholder / mock image assets.
-  if (!imageSrc.startsWith("http")) return null;
-
-  const salesCount = parseSalesCount(raw.lastest_volume);
-  const storeName = raw.shop_title?.trim() || "AliExpress";
-  const category = raw.first_level_category_name?.trim() || "General";
+  const mapped = mapAliExpressRawToOpenApiProduct(raw);
+  if (!mapped) return null;
 
   return {
-    id: `aliexpress-${productId}`,
-    name: raw.product_title.trim(),
-    imageSrc,
+    id: `aliexpress-${mapped.productId}`,
+    name: mapped.title,
+    imageSrc: mapped.image,
     emoji: "🛍️",
-    price,
-    originalPrice,
-    discount,
-    store: storeName,
+    price: mapped.currentPrice,
+    originalPrice: mapped.originalPrice,
+    discount: mapped.discount,
+    store: mapped.storeName,
     storeSlug: "aliexpress",
-    rating: parseRating(raw.evaluate_rate),
-    reviewCount: salesCount,
-    salesCount,
-    inStock: true,
-    category,
-    affiliateUrl: affiliateLink,
+    rating: mapped.rating,
+    reviewCount: mapped.salesCount,
+    salesCount: mapped.salesCount,
+    shipping: mapped.shipping,
+    inStock: mapped.inStock,
+    category: mapped.category,
+    affiliateUrl: mapped.affiliateUrl,
   };
 }
 
@@ -102,7 +61,6 @@ async function getClient() {
 
   const status = getAliExpressCredentialStatus();
   if (!status.configured) {
-    // Expected when marketplace keys are not set — fall back to empty results.
     return null;
   }
 
@@ -110,13 +68,13 @@ async function getClient() {
 }
 
 /**
- * Live AliExpress Affiliates product search.
+ * Live AliExpress Affiliates product search (Open Platform).
  * Exact user query → API `keywords` (no rewrite, no mock/demo/fallback catalog).
  * Returns [] when credentials are missing, the API errors, or no relevant products match.
  */
 export async function searchAliExpressLive(
   query: string,
-  limit = 24
+  limit = 24,
 ): Promise<SearchResultItem[]> {
   const { searchProducts } = await import("@/lib/search/engine");
   return searchProducts(query, limit);
@@ -127,23 +85,36 @@ export async function browseAliExpressLive(limit = 24): Promise<SearchResultItem
   const client = await getClient();
   if (!client) return [];
 
-  const { keyword, maxPages, pageSize } = HOMEPAGE_POPULAR_SEARCH_FETCH;
-  const cappedLimit = Math.min(limit, pageSize);
+  try {
+    const { keyword, maxPages, pageSize } = HOMEPAGE_POPULAR_SEARCH_FETCH;
+    const cappedLimit = Math.min(limit, pageSize);
 
-  const rawProducts = await client.searchProducts(
-    { keywords: [keyword], maxPages, pageSize: cappedLimit },
-    "USD",
-  );
+    const rawProducts = await client.searchProducts(
+      { keywords: [keyword], maxPages, pageSize: cappedLimit },
+      "USD",
+    );
+    const withLinks = await attachOpenApiAffiliateLinks(
+      client,
+      rawProducts.slice(0, limit),
+    );
 
-  const results: SearchResultItem[] = [];
-  for (const raw of rawProducts) {
-    const item = mapRawToSearchItem(raw);
-    if (item) results.push(item);
-    if (results.length >= limit) break;
+    const results: SearchResultItem[] = [];
+    for (const raw of withLinks) {
+      const item = mapRawToSearchItem(raw);
+      if (item) results.push(item);
+      if (results.length >= limit) break;
+    }
+
+    return results;
+  } catch (error) {
+    console.error(
+      "[aliexpress-browse]",
+      error instanceof Error ? error.message : "AliExpress browse failed",
+    );
+    return [];
   }
-
-  return results;
 }
+
 export function searchItemToProduct(item: SearchResultItem): Product {
   const externalId = item.id.replace(/^aliexpress-/, "");
   return {
@@ -214,6 +185,7 @@ export function searchItemToProductDetail(item: SearchResultItem): ProductDetail
       Category: item.category,
       Rating: item.rating > 0 ? `${item.rating} / 5` : "—",
       Sales: String(item.salesCount ?? item.reviewCount ?? 0),
+      Shipping: item.shipping ?? "Shipping varies by seller",
       Availability: item.inStock ? "In Stock" : "Out of Stock",
     },
     variants: [],
@@ -231,7 +203,7 @@ export function searchItemToProductDetail(item: SearchResultItem): ProductDetail
 
 /** Resolve a live AliExpress product by id (`aliexpress-{productId}` or raw id). */
 export async function getAliExpressProductDetail(
-  id: string
+  id: string,
 ): Promise<ProductDetail | null> {
   const externalId = id.replace(/^aliexpress-/, "").trim();
   if (!externalId) return null;
@@ -241,12 +213,13 @@ export async function getAliExpressProductDetail(
     if (!client) return null;
 
     const products = await client.getProductsByIds([externalId], "USD");
-    const item = products.map(mapRawToSearchItem).find(Boolean);
+    const withLinks = await attachOpenApiAffiliateLinks(client, products);
+    const item = withLinks.map(mapRawToSearchItem).find(Boolean) ?? null;
     return item ? searchItemToProductDetail(item) : null;
   } catch (err) {
     console.error(
       "[aliexpress-detail]",
-      err instanceof Error ? err.message : "AliExpress product detail failed"
+      err instanceof Error ? err.message : "AliExpress product detail failed",
     );
     return null;
   }
@@ -257,14 +230,14 @@ export function filtersFromSearchResults(results: SearchResultItem[]) {
     ...new Map(
       results
         .filter((r) => r.category)
-        .map((r) => [r.category, { value: r.category, label: r.category }])
+        .map((r) => [r.category, { value: r.category, label: r.category }]),
     ).values(),
   ];
   const stores = [
     ...new Map(
       results
         .filter((r) => r.storeSlug)
-        .map((r) => [r.storeSlug, { value: r.storeSlug, label: r.store }])
+        .map((r) => [r.storeSlug, { value: r.storeSlug, label: r.store }]),
     ).values(),
   ];
   return {

@@ -51,6 +51,7 @@ export function unifiedToSearchResultItem(product: UnifiedSearchProduct): Search
     rating: product.rating,
     reviewCount: product.reviewCount,
     salesCount: product.salesCount,
+    shipping: cheapest.shipping,
     inStock: product.inStock,
     category: product.category,
     affiliateUrl: cheapest.affiliateUrl ?? cheapest.productUrl,

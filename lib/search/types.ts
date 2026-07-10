@@ -51,6 +51,7 @@ export type RawProviderListing = {
   rating: number;
   reviewCount: number;
   salesCount?: number;
+  shipping?: string;
   inStock: boolean;
   productUrl: string;
   affiliateUrl?: string;

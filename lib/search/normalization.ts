@@ -1,3 +1,4 @@
+import { formatAliExpressShipping } from "@/lib/integrations/aliexpress/map-product";
 import type { AmazonRawProduct } from "@/lib/integrations/amazon/client";
 import { getAmazonAssociateTag } from "@/lib/integrations/amazon/config";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
@@ -80,6 +81,7 @@ export function normalizeAliExpressRaw(raw: AliExpressRawProduct): RawProviderLi
     rating: parseRating(raw.evaluate_rate),
     reviewCount: salesCount,
     salesCount,
+    shipping: formatAliExpressShipping(raw),
     inStock: true,
     productUrl: affiliateLink,
     affiliateUrl: affiliateLink,

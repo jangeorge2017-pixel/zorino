@@ -22,6 +22,17 @@ export {
   rankBySearchRelevance,
   MARKETPLACE_SEARCH_DEFAULTS,
 } from "@/lib/integrations/aliexpress/relevance";
+export {
+  searchAliExpressOpenApi,
+  getAliExpressOpenApiProduct,
+  generateAliExpressOpenApiAffiliateLink,
+  attachOpenApiAffiliateLinks,
+} from "@/lib/integrations/aliexpress/open-api-service";
+export {
+  mapAliExpressRawToOpenApiProduct,
+  formatAliExpressShipping,
+} from "@/lib/integrations/aliexpress/map-product";
+export type { AliExpressOpenApiProduct } from "@/lib/integrations/aliexpress/open-api-types";
 export type {
   AliExpressCredentials,
   AliExpressCredentialStatus,
