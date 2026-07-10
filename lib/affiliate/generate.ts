@@ -29,6 +29,31 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
 
   if (!marketplace) return input.destinationUrl;
 
+  // AliExpress: never invent tracking IDs — portal service owns this path.
+  if (marketplace === "aliexpress") {
+    const trackingId =
+      input.partnerTag?.trim() ||
+      process.env.ALIEXPRESS_TRACKING_ID?.trim() ||
+      null;
+    if (!trackingId) return input.destinationUrl;
+    try {
+      const url = new URL(input.destinationUrl);
+      const base = process.env.ALIEXPRESS_AFFILIATE_BASE_URL?.trim();
+      if (base) {
+        const wrapped = new URL(base);
+        wrapped.searchParams.set("dl_target_url", input.destinationUrl);
+        wrapped.searchParams.set("aff_short_key", trackingId);
+        wrapped.searchParams.set("tracking_id", trackingId);
+        return wrapped.toString();
+      }
+      url.searchParams.set("aff_platform", "portals-promotion");
+      url.searchParams.set("aff_trace_key", trackingId);
+      return url.toString();
+    } catch {
+      return input.destinationUrl;
+    }
+  }
+
   const tag =
     input.partnerTag?.trim() ||
     getPartnerTagFromEnv(marketplace) ||
@@ -42,11 +67,6 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
     switch (marketplace) {
       case "amazon":
         url.searchParams.set("tag", tag);
-        break;
-      case "aliexpress":
-        url.searchParams.set("aff_platform", "api-new");
-        url.searchParams.set("aff_trace_key", tag);
-        url.searchParams.set("dp", trackingId.slice(0, 12));
         break;
       case "ebay":
         url.searchParams.set("campid", tag);

@@ -1,102 +1,58 @@
-import { buildAffiliateUrl } from "@/lib/affiliate/generate";
-import {
-  AliExpressAffiliateClient,
-  createAliExpressClientFromEnv,
-  isAliExpressConfigured,
-} from "@/lib/integrations/aliexpress";
-import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
-import { logImportEvent } from "@/services/aliexpress/monitoring";
+import { affiliateLinkService } from "@/lib/affiliate/affiliate-link-service";
+import type { AffiliateLinkResult as PortalAffiliateLinkResult } from "@/lib/affiliate/providers/types";
 
 export type AffiliateLinkInput = {
   productUrl: string;
   promotionLink?: string | null;
+  /** @deprecated Ignored — tracking ID is read only from ALIEXPRESS_TRACKING_ID. */
   trackingId?: string;
 };
 
 export type AffiliateLinkResult = {
   url: string;
-  source: "api" | "promotion_link" | "fallback";
+  source: "portal" | "portal_base" | "promotion_link" | "original" | "api" | "fallback";
 };
 
-/** Generate a tracked AliExpress affiliate URL (API-first, no mock data). */
+function mapResult(result: PortalAffiliateLinkResult): AffiliateLinkResult {
+  return {
+    url: result.url,
+    source:
+      result.source === "portal" ||
+      result.source === "portal_base" ||
+      result.source === "promotion_link" ||
+      result.source === "original"
+        ? result.source
+        : "fallback",
+  };
+}
+
+/**
+ * Generate a tracked AliExpress affiliate URL via the Affiliate Portal infrastructure.
+ * Open API link generation is not used here — reserved for a future adapter.
+ * Missing ALIEXPRESS_TRACKING_ID → original product URL (graceful fallback).
+ */
 export async function generateAliExpressAffiliateLink(
-  input: AffiliateLinkInput
+  input: AffiliateLinkInput,
 ): Promise<AffiliateLinkResult> {
-  if (input.promotionLink?.trim()) {
-    return { url: input.promotionLink.trim(), source: "promotion_link" };
-  }
-
-  await loadAliExpressCredentials();
-
-  if (isAliExpressConfigured()) {
-    const client = createAliExpressClientFromEnv();
-    if (client) {
-      try {
-        const links = await client.generatePromotionLinks([input.productUrl]);
-        const generated = links.get(input.productUrl);
-        if (generated) {
-          return { url: generated, source: "api" };
-        }
-      } catch (err) {
-        await logImportEvent({
-          jobType: "affiliate_link",
-          level: "warn",
-          message: err instanceof Error ? err.message : "Link generate API failed",
-          metadata: { productUrl: input.productUrl },
-        });
-      }
-    }
-  }
-
-  const fallback = buildAffiliateUrl({
-    destinationUrl: input.productUrl,
-    marketplace: "aliexpress",
-    trackingId: input.trackingId,
+  const result = await affiliateLinkService.generateAliExpressLink({
+    productUrl: input.productUrl,
+    promotionLink: input.promotionLink,
   });
-
-  return { url: fallback, source: "fallback" };
+  return mapResult(result);
 }
 
 export async function generateAliExpressAffiliateLinks(
-  inputs: AffiliateLinkInput[]
+  inputs: AffiliateLinkInput[],
 ): Promise<Map<string, AffiliateLinkResult>> {
-  const results = new Map<string, AffiliateLinkResult>();
-  if (inputs.length === 0) return results;
-
-  await loadAliExpressCredentials();
-  const client = createAliExpressClientFromEnv();
-
-  const needsApi: string[] = [];
-  for (const input of inputs) {
-    if (input.promotionLink?.trim()) {
-      results.set(input.productUrl, {
-        url: input.promotionLink.trim(),
-        source: "promotion_link",
-      });
-    } else {
-      needsApi.push(input.productUrl);
-    }
+  const mapped = new Map<string, AffiliateLinkResult>();
+  const results = await affiliateLinkService.generateAliExpressLinks(
+    inputs.map((input) => ({
+      productUrl: input.productUrl,
+      promotionLink: input.promotionLink,
+    })),
+  );
+  for (const [url, result] of results) {
+    mapped.set(url, mapResult(result));
   }
-
-  if (client && needsApi.length > 0) {
-    try {
-      const generated = await client.generatePromotionLinks(needsApi);
-      for (const url of needsApi) {
-        const link = generated.get(url);
-        if (link) {
-          results.set(url, { url: link, source: "api" });
-        }
-      }
-    } catch {
-      // fall through to per-item fallback
-    }
-  }
-
-  for (const input of inputs) {
-    if (results.has(input.productUrl)) continue;
-    const fallback = await generateAliExpressAffiliateLink(input);
-    results.set(input.productUrl, fallback);
-  }
-
-  return results;
+  return mapped;
 }
