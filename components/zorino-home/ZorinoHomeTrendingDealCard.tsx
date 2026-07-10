@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
 import { ChevronRight, Clock, ImageOff, Star } from "lucide-react";
@@ -26,6 +27,8 @@ export default function ZorinoHomeTrendingDealCard({
   deal,
   priority = false,
 }: ZorinoHomeTrendingDealCardProps) {
+  const t = useTranslations("home");
+  const tCommon = useTranslations("common");
   const compareHref = deal.productId ? `/product/${deal.productId}` : "/deals";
   const hasDiscount = deal.discount > 0 && deal.originalPrice > deal.price;
 
@@ -47,14 +50,14 @@ export default function ZorinoHomeTrendingDealCard({
             fallback={
               <div className="zh-td-card__media-fallback" aria-hidden>
                 <ImageOff size={28} />
-                <span>No image</span>
+                <span>{tCommon("noImage")}</span>
               </div>
             }
           />
         ) : (
           <div className="zh-td-card__media-fallback" aria-hidden>
             <ImageOff size={28} />
-            <span>No image</span>
+            <span>{tCommon("noImage")}</span>
           </div>
         )}
       </div>
@@ -90,7 +93,10 @@ export default function ZorinoHomeTrendingDealCard({
         </div>
 
         <div className="zh-td-card__rating">
-          <span className="zh-td-card__stars" aria-label={`${deal.rating} out of 5 stars`}>
+          <span
+            className="zh-td-card__stars"
+            aria-label={t("outOfStars", { rating: deal.rating })}
+          >
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
@@ -108,12 +114,12 @@ export default function ZorinoHomeTrendingDealCard({
 
         <p className="zh-td-card__updated">
           <Clock size={11} aria-hidden />
-          Updated {deal.updatedMins} min ago
+          {t("updatedMinsAgo", { mins: deal.updatedMins })}
         </p>
       </div>
 
       <Link href={compareHref} className="zh-td-card__cta">
-        Compare Prices
+        {tCommon("comparePrices")}
         <ChevronRight size={15} aria-hidden />
       </Link>
     </article>

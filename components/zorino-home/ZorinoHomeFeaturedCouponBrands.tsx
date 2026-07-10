@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import {
   Check,
@@ -14,6 +15,8 @@ import type { FeaturedCouponBrand } from "@/lib/zorino-home/featured-coupon-bran
 import "./featured-coupon-brands.css";
 
 function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
+  const t = useTranslations("home");
+  const tCommon = useTranslations("common");
   const [copied, setCopied] = useState(false);
   const [logoFailed, setLogoFailed] = useState(!brand.logoSrc);
 
@@ -53,7 +56,7 @@ function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
         {brand.verified ? (
           <span className="zh-brand-card__verified">
             <CheckCircle size={11} aria-hidden />
-            Verified
+            {tCommon("verified")}
           </span>
         ) : null}
       </div>
@@ -67,10 +70,10 @@ function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
           type="button"
           className="zh-brand-card__copy"
           onClick={copyCode}
-          aria-label={`Copy coupon code ${brand.code}`}
+          aria-label={`${t("copyCoupon")} ${brand.code}`}
         >
           {copied ? <Check size={14} /> : <Copy size={14} />}
-          <span>{copied ? "Copied" : "Copy Coupon"}</span>
+          <span>{copied ? t("copied") : t("copyCoupon")}</span>
         </button>
       </div>
     </article>
@@ -84,6 +87,8 @@ type ZorinoHomeFeaturedCouponBrandsProps = {
 export default function ZorinoHomeFeaturedCouponBrands({
   brands,
 }: ZorinoHomeFeaturedCouponBrandsProps) {
+  const t = useTranslations("home");
+  const locale = useLocale();
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -106,7 +111,8 @@ export default function ZorinoHomeFeaturedCouponBrands({
     if (!node) return;
     const card = node.querySelector(".zh-brand-card");
     const cardWidth = card instanceof HTMLElement ? card.offsetWidth : 220;
-    node.scrollBy({ left: direction * (cardWidth + 14), behavior: "smooth" });
+    const rtlFactor = locale === "ar" ? -1 : 1;
+    node.scrollBy({ left: direction * rtlFactor * (cardWidth + 14), behavior: "smooth" });
     window.setTimeout(syncButtons, 420);
   };
 
@@ -119,7 +125,7 @@ export default function ZorinoHomeFeaturedCouponBrands({
       <div className="zh-section-head">
         <h2 id="zh-featured-brands-title" className="zh-section-head__title zh-featured-brands__title">
           <Ticket size={22} aria-hidden className="zh-featured-brands__icon" />
-          Featured Coupon Brands
+          {t("featuredCouponBrands")}
         </h2>
         <ZorinoHomeViewAllLink href="/coupons" variant="coupons" />
       </div>
@@ -128,7 +134,7 @@ export default function ZorinoHomeFeaturedCouponBrands({
         <button
           type="button"
           className="zh-featured-brands__nav zh-featured-brands__nav--prev"
-          aria-label="Previous brands"
+          aria-label={t("prevBrands")}
           disabled={!canScrollLeft}
           onClick={() => scroll(-1)}
         >
@@ -144,7 +150,7 @@ export default function ZorinoHomeFeaturedCouponBrands({
         <button
           type="button"
           className="zh-featured-brands__nav zh-featured-brands__nav--next"
-          aria-label="Next brands"
+          aria-label={t("nextBrands")}
           disabled={!canScrollRight}
           onClick={() => scroll(1)}
         >

@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, Globe } from "lucide-react";
 import { locales, type Locale } from "@/i18n/config";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { getPathname, usePathname, useRouter } from "@/i18n/navigation";
 import {
   currencies,
   languages,
@@ -15,12 +15,20 @@ import {
   type CurrencyCode,
 } from "@/lib/international/config";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
+import { INTL_COOKIE_LOCALE, INTL_COOKIE_MAX_AGE } from "@/lib/international/cookies";
 import "./intl-selectors.css";
 
 type PanelCoords = {
   top: number;
   left: number;
 };
+
+function writeLocaleCookies(nextLocale: Locale) {
+  const maxAge = INTL_COOKIE_MAX_AGE;
+  // next-intl cookie — must be updated before landing on unprefixed `/`
+  document.cookie = `NEXT_LOCALE=${nextLocale}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+  document.cookie = `${INTL_COOKIE_LOCALE}=${nextLocale}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+}
 
 export default function IntlNavSelectors() {
   const t = useTranslations("common");
@@ -112,11 +120,24 @@ export default function IntlNavSelectors() {
       return;
     }
     setOpen(false);
-    // Navigate immediately — never await persistence (avoids slow AR↔EN switches).
-    router.replace(pathname, { locale: newLocale });
+
+    writeLocaleCookies(newLocale);
+
+    // Persist preference without blocking navigation.
     void updatePreferences({ locale: newLocale }, { skipNavigation: true }).catch(
       () => undefined
     );
+
+    // forcePrefix: true → /en or /en/... so middleware updates locale state,
+    // then as-needed redirects default locale to unprefixed `/`.
+    const href = getPathname({
+      href: pathname || "/",
+      locale: newLocale,
+      forcePrefix: true,
+    });
+
+    // Full navigation avoids stale App Router RSC/locale cache on AR↔EN.
+    window.location.assign(href);
   };
 
   const handleCountryChange = async (code: CountryCode) => {

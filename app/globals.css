@@ -90,6 +90,8 @@ html[dir="rtl"] .zh-page {
   --zh-view-all-width: 168px;
 }
 
+html[dir="rtl"] .zh-featured-brands__nav--prev svg,
+html[dir="rtl"] .zh-featured-brands__nav--next svg,
 html[dir="rtl"] .zh-trending-deals__nav--prev svg,
 html[dir="rtl"] .zh-trending-deals__nav--next svg {
   transform: scaleX(-1);

@@ -20,30 +20,35 @@ type CouponsPageClientProps = {
 
 type QuickFilter = "all" | "verified" | "popular" | "big_offers";
 
-const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
-  { id: "all", label: "All Codes" },
-  { id: "verified", label: "Verified" },
-  { id: "popular", label: "Most Popular" },
-  { id: "big_offers", label: "Big Offers" },
-];
-
 export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
   const t = useTranslations("coupons");
   const tCommon = useTranslations("common");
+  const tStores = useTranslations("stores");
+  const tProduct = useTranslations("product");
   const [selectedStore, setSelectedStore] = useState("");
   const [sortBy, setSortBy] = useState("popular");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
+  const quickFilters: { id: QuickFilter; label: string }[] = [
+    { id: "all", label: t("filterAll") },
+    { id: "verified", label: tCommon("verified") },
+    { id: "popular", label: t("filterPopular") },
+    { id: "big_offers", label: t("filterBigOffers") },
+  ];
+
   const storeOptions = useMemo(() => {
     const names = [...new Set(coupons.map((c) => c.store))];
-    return [{ value: "", label: "All Stores" }, ...names.map((n) => ({ value: n, label: n }))];
-  }, [coupons]);
+    return [
+      { value: "", label: tStores("allStores") },
+      ...names.map((n) => ({ value: n, label: n })),
+    ];
+  }, [coupons, tStores]);
 
   const sortOptions = [
-    { value: "popular", label: "Most Popular" },
-    { value: "store", label: "Store Name" },
-    { value: "code", label: "Code A-Z" },
+    { value: "popular", label: t("filterPopular") },
+    { value: "store", label: t("sortStoreName") },
+    { value: "code", label: t("sortCode") },
   ];
 
   const stats = useMemo(() => {
@@ -93,8 +98,12 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
         />
 
         <div className="zor-coupons-page__toolbar">
-          <div className="zor-coupons-page__quick-filters" role="tablist" aria-label="Quick coupon filters">
-            {QUICK_FILTERS.map((item) => (
+          <div
+            className="zor-coupons-page__quick-filters"
+            role="tablist"
+            aria-label={t("quickFiltersAria")}
+          >
+            {quickFilters.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -111,7 +120,7 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
           <PageFilterBar className="zor-coupons-page__filters">
             <div className="zor-coupons-page__filter-grid">
               <Select
-                label="Filter by Store"
+                label={t("filterByStore")}
                 options={storeOptions}
                 value={selectedStore}
                 onChange={(e) => setSelectedStore(e.target.value)}
@@ -133,12 +142,12 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
           <p className="zor-coupons-page__results-count">
             {showCuratedSections ? (
               <>
-                <strong>{stats.couponCount}</strong> verified coupon codes
+                <strong>{stats.couponCount}</strong> {t("resultsActiveLabel")}
               </>
             ) : (
               <>
-                Showing <strong>{filtered.length}</strong>{" "}
-                {filtered.length === 1 ? "code" : "codes"}
+                {t("resultsShowingPrefix")} <strong>{filtered.length}</strong>{" "}
+                {filtered.length === 1 ? t("resultsCodeOne") : t("resultsCodeMany")}
               </>
             )}
           </p>
@@ -160,10 +169,7 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <PageEmptyState
-            title="No coupons available yet"
-            description="Try adjusting your filters or check back later for new codes."
-          />
+          <PageEmptyState title={t("emptyTitle")} description={t("emptyDescription")} />
         ) : (
           <div className="zor-coupons-page__grid">
             {filtered.map((coupon) => (
@@ -182,11 +188,15 @@ export default function CouponsPageClient({ coupons }: CouponsPageClientProps) {
 
         <PageIdentityCta
           block="zor-coupons-page"
-          title="Stack coupons with deals"
-          description="Combine verified codes with live deals and price comparisons to maximize every purchase."
+          title={t("ctaTitle")}
+          description={t("ctaDescription")}
         >
-          <Link href="/deals"><Button>Browse Deals</Button></Link>
-          <Link href="/compare"><Button variant="outline">Compare Prices</Button></Link>
+          <Link href="/deals">
+            <Button>{t("ctaBrowseDeals")}</Button>
+          </Link>
+          <Link href="/compare">
+            <Button variant="outline">{tProduct("comparePrices")}</Button>
+          </Link>
         </PageIdentityCta>
       </div>
     </PageLayout>

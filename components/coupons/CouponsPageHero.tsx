@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { BadgePercent, CheckCircle, Sparkles, Ticket } from "lucide-react";
 
 type CouponsPageHeroProps = {
@@ -19,6 +20,9 @@ export default function CouponsPageHero({
   storeCount,
   totalUses,
 }: CouponsPageHeroProps) {
+  const t = useTranslations("coupons");
+  const tCommon = useTranslations("common");
+
   return (
     <section className="zor-coupons-page__hero" aria-labelledby="coupons-page-title">
       <div className="zor-coupons-page__hero-glow" aria-hidden />
@@ -27,7 +31,7 @@ export default function CouponsPageHero({
         <div className="zor-coupons-page__hero-copy">
           <p className="zor-coupons-page__eyebrow">
             <Ticket size={14} aria-hidden />
-            Verified savings codes
+            {t("eyebrow")}
           </p>
           <h1 id="coupons-page-title" className="zor-coupons-page__title">
             {title}
@@ -35,14 +39,14 @@ export default function CouponsPageHero({
           <p className="zor-coupons-page__subtitle">{subtitle}</p>
         </div>
 
-        <div className="zor-coupons-page__stats" aria-label="Coupons overview">
+        <div className="zor-coupons-page__stats" aria-label={t("overviewAria")}>
           <div className="zor-coupons-page__stat">
             <span className="zor-coupons-page__stat-icon" aria-hidden>
               <Ticket size={15} />
             </span>
             <div>
               <strong>{couponCount}</strong>
-              <span>Live codes</span>
+              <span>{t("liveCodes")}</span>
             </div>
           </div>
           <div className="zor-coupons-page__stat zor-coupons-page__stat--hot">
@@ -51,7 +55,7 @@ export default function CouponsPageHero({
             </span>
             <div>
               <strong>{verifiedCount}</strong>
-              <span>Verified</span>
+              <span>{tCommon("verified")}</span>
             </div>
           </div>
           <div className="zor-coupons-page__stat">
@@ -60,7 +64,7 @@ export default function CouponsPageHero({
             </span>
             <div>
               <strong>{storeCount}</strong>
-              <span>Stores</span>
+              <span>{tCommon("stores")}</span>
             </div>
           </div>
           <div className="zor-coupons-page__stat">
@@ -69,7 +73,7 @@ export default function CouponsPageHero({
             </span>
             <div>
               <strong>{totalUses.toLocaleString()}</strong>
-              <span>Total uses</span>
+              <span>{t("totalUses")}</span>
             </div>
           </div>
         </div>

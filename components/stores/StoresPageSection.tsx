@@ -1,34 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Globe, ShoppingBag, Star, Store as StoreIcon } from "lucide-react";
 import StoresStoreCard from "@/components/stores/StoresStoreCard";
 import type { StoreSectionId } from "@/components/stores/store-sections";
 import type { Store } from "@/lib/types/entities";
 
-const SECTION_META: Record<
-  StoreSectionId,
-  { title: string; subtitle: string; icon: typeof StoreIcon }
-> = {
-  featured: {
-    title: "Featured Marketplaces",
-    subtitle: "Top-performing stores with the best commission rates",
-    icon: Star,
-  },
-  marketplaces: {
-    title: "Major Marketplaces",
-    subtitle: "Shop from the world's leading e-commerce platforms",
-    icon: ShoppingBag,
-  },
-  partners: {
-    title: "Partner Stores",
-    subtitle: "Verified brand partners with exclusive offers",
-    icon: StoreIcon,
-  },
-  global: {
-    title: "Global Stores",
-    subtitle: "Marketplaces shipping across multiple regions",
-    icon: Globe,
-  },
+const SECTION_ICONS: Record<StoreSectionId, typeof StoreIcon> = {
+  featured: Star,
+  marketplaces: ShoppingBag,
+  partners: StoreIcon,
+  global: Globe,
+};
+
+const SECTION_KEYS: Record<StoreSectionId, { title: string; subtitle: string }> = {
+  featured: { title: "sectionFeaturedTitle", subtitle: "sectionFeaturedSubtitle" },
+  marketplaces: { title: "sectionMarketplacesTitle", subtitle: "sectionMarketplacesSubtitle" },
+  partners: { title: "sectionPartnersTitle", subtitle: "sectionPartnersSubtitle" },
+  global: { title: "sectionGlobalTitle", subtitle: "sectionGlobalSubtitle" },
 };
 
 type StoresPageSectionProps = {
@@ -42,8 +31,9 @@ export default function StoresPageSection({
   stores,
   viewProductsLabel,
 }: StoresPageSectionProps) {
-  const meta = SECTION_META[sectionId];
-  const Icon = meta.icon;
+  const t = useTranslations("stores");
+  const keys = SECTION_KEYS[sectionId];
+  const Icon = SECTION_ICONS[sectionId];
 
   return (
     <section
@@ -57,12 +47,14 @@ export default function StoresPageSection({
           </span>
           <div>
             <h2 id={`stores-section-${sectionId}`} className="zor-stores-page__section-title">
-              {meta.title}
+              {t(keys.title)}
             </h2>
-            <p className="zor-stores-page__section-subtitle">{meta.subtitle}</p>
+            <p className="zor-stores-page__section-subtitle">{t(keys.subtitle)}</p>
           </div>
         </div>
-        <span className="zor-stores-page__section-count">{stores.length} stores</span>
+        <span className="zor-stores-page__section-count">
+          {t("sectionCount", { count: stores.length })}
+        </span>
       </header>
 
       <div className="zor-stores-page__grid zor-stores-page__section-grid">

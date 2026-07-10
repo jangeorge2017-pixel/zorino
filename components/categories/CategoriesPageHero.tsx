@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Grid3x3, Layers, Sparkles, TrendingUp } from "lucide-react";
 
 type CategoriesPageHeroProps = {
@@ -19,6 +20,9 @@ export default function CategoriesPageHero({
   topCategory,
   activeCount,
 }: CategoriesPageHeroProps) {
+  const t = useTranslations("categories");
+  const tCommon = useTranslations("common");
+
   return (
     <section className="zor-categories-page__hero" aria-labelledby="categories-page-title">
       <div className="zor-categories-page__hero-glow" aria-hidden />
@@ -27,7 +31,7 @@ export default function CategoriesPageHero({
         <div className="zor-categories-page__hero-copy">
           <p className="zor-categories-page__eyebrow">
             <Grid3x3 size={14} aria-hidden />
-            Product discovery
+            {t("eyebrow")}
           </p>
           <h1 id="categories-page-title" className="zor-categories-page__title">
             {title}
@@ -35,14 +39,14 @@ export default function CategoriesPageHero({
           <p className="zor-categories-page__subtitle">{subtitle}</p>
         </div>
 
-        <div className="zor-categories-page__stats" aria-label="Categories overview">
+        <div className="zor-categories-page__stats" aria-label={t("overviewAria")}>
           <div className="zor-categories-page__stat">
             <span className="zor-categories-page__stat-icon" aria-hidden>
               <Layers size={15} />
             </span>
             <div>
               <strong>{categoryCount}</strong>
-              <span>Categories</span>
+              <span>{tCommon("categories")}</span>
             </div>
           </div>
           <div className="zor-categories-page__stat zor-categories-page__stat--hot">
@@ -51,7 +55,7 @@ export default function CategoriesPageHero({
             </span>
             <div>
               <strong>{productCount.toLocaleString()}</strong>
-              <span>Products listed</span>
+              <span>{t("productsListed")}</span>
             </div>
           </div>
           <div className="zor-categories-page__stat">
@@ -60,7 +64,7 @@ export default function CategoriesPageHero({
             </span>
             <div>
               <strong>{topCategory}</strong>
-              <span>Top category</span>
+              <span>{t("topCategory")}</span>
             </div>
           </div>
           <div className="zor-categories-page__stat">
@@ -69,7 +73,7 @@ export default function CategoriesPageHero({
             </span>
             <div>
               <strong>{activeCount}</strong>
-              <span>Active now</span>
+              <span>{t("activeNow")}</span>
             </div>
           </div>
         </div>

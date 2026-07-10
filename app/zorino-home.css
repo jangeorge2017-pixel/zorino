@@ -96,6 +96,10 @@
   font-family: "Plus Jakarta Sans", var(--font-geist-sans), system-ui, sans-serif;
 }
 
+html[dir="rtl"] .zh-page {
+  font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+}
+
 /* Page canvas — uniform premium dark base behind hero artwork */
 .zh-page__background {
   position: absolute;

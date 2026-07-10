@@ -1,34 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { TrendingUp, Zap, Percent, Sparkles } from "lucide-react";
 import DealsDealCard from "@/components/deals/DealsDealCard";
 import type { DealSectionId } from "@/components/deals/deal-sections";
 import type { Deal } from "@/lib/types/entities";
 
-const SECTION_META: Record<
-  DealSectionId,
-  { title: string; subtitle: string; icon: typeof TrendingUp }
-> = {
-  trending: {
-    title: "Trending Deals",
-    subtitle: "Most popular picks shoppers are saving on right now",
-    icon: TrendingUp,
-  },
-  flash: {
-    title: "Flash Deals",
-    subtitle: "Limited-time offers ending soon — grab them before they expire",
-    icon: Zap,
-  },
-  best: {
-    title: "Best Discounts",
-    subtitle: "Highest savings across every store on Zorino",
-    icon: Percent,
-  },
-  recent: {
-    title: "Recently Added",
-    subtitle: "Fresh deals just landed in the marketplace",
-    icon: Sparkles,
-  },
+const SECTION_ICONS: Record<DealSectionId, typeof TrendingUp> = {
+  trending: TrendingUp,
+  flash: Zap,
+  best: Percent,
+  recent: Sparkles,
+};
+
+const SECTION_KEYS: Record<DealSectionId, { title: string; subtitle: string }> = {
+  trending: { title: "sectionTrendingTitle", subtitle: "sectionTrendingSubtitle" },
+  flash: { title: "sectionFlashTitle", subtitle: "sectionFlashSubtitle" },
+  best: { title: "sectionBestTitle", subtitle: "sectionBestSubtitle" },
+  recent: { title: "sectionRecentTitle", subtitle: "sectionRecentSubtitle" },
 };
 
 type DealsPageSectionProps = {
@@ -44,8 +33,9 @@ export default function DealsPageSection({
   endsInLabel,
   featuredLabel,
 }: DealsPageSectionProps) {
-  const meta = SECTION_META[sectionId];
-  const Icon = meta.icon;
+  const t = useTranslations("deals");
+  const keys = SECTION_KEYS[sectionId];
+  const Icon = SECTION_ICONS[sectionId];
 
   return (
     <section
@@ -59,12 +49,14 @@ export default function DealsPageSection({
           </span>
           <div>
             <h2 id={`deals-section-${sectionId}`} className="zor-deals-page__section-title">
-              {meta.title}
+              {t(keys.title)}
             </h2>
-            <p className="zor-deals-page__section-subtitle">{meta.subtitle}</p>
+            <p className="zor-deals-page__section-subtitle">{t(keys.subtitle)}</p>
           </div>
         </div>
-        <span className="zor-deals-page__section-count">{deals.length} deals</span>
+        <span className="zor-deals-page__section-count">
+          {t("sectionCount", { count: deals.length })}
+        </span>
       </header>
 
       <div className="listing-products-grid zor-deals-page__grid zor-deals-page__section-grid">

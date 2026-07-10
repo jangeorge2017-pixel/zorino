@@ -1,5 +1,10 @@
-import Link from "next/link";
+"use client";
+
+"use client";
+
+import { useTranslations } from "next-intl";
 import { ExternalLink, Tag, TrendingDown, Trophy, ChevronRight } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import type { CompareOffer } from "@/services/compare";
@@ -15,6 +20,9 @@ export default function PriceComparisonTable({
   productId,
   onShopClick,
 }: PriceComparisonTableProps) {
+  const t = useTranslations("product");
+  const tCommon = useTranslations("common");
+
   if (offers.length === 0) return null;
 
   return (
@@ -22,18 +30,18 @@ export default function PriceComparisonTable({
       <table className="price-comparison-table">
         <thead>
           <tr>
-            <th scope="col">Store</th>
-            <th scope="col">Price</th>
-            <th scope="col">Discount</th>
-            <th scope="col">Stock</th>
+            <th scope="col">{t("tableStore")}</th>
+            <th scope="col">{tCommon("price")}</th>
+            <th scope="col">{tCommon("discount")}</th>
+            <th scope="col">{t("tableStock")}</th>
             <th scope="col" className="price-comparison-action-col">
-              Action
+              {t("tableAction")}
             </th>
           </tr>
         </thead>
         <tbody>
           {offers.map((offer) => {
-            const storeName = offer.store?.name ?? "Store";
+            const storeName = offer.store?.name ?? tCommon("stores");
             const storeSlug = offer.store?.slug ?? offer.provider ?? "store";
             const destination = offer.externalUrl ?? offer.store?.website ?? `/product/${productId}`;
             const shopUrl = buildAffiliateRedirectPath({
@@ -65,13 +73,13 @@ export default function PriceComparisonTable({
                     {offer.isLowest && (
                       <span className="price-comparison-badge price-comparison-badge-cheapest">
                         <Trophy size={12} />
-                        Cheapest
+                        {t("cheapest")}
                       </span>
                     )}
                     {offer.isHighestDiscount && offer.discountPercent > 0 && (
                       <span className="price-comparison-badge price-comparison-badge-discount">
                         <Tag size={12} />
-                        Best deal
+                        {t("bestDeal")}
                       </span>
                     )}
                   </div>
@@ -93,7 +101,7 @@ export default function PriceComparisonTable({
                 </td>
                 <td>
                   <span className={offer.inStock ? "price-comparison-in-stock" : "price-comparison-oos"}>
-                    {offer.inStock ? "In stock" : "Out of stock"}
+                    {offer.inStock ? tCommon("inStock") : tCommon("outOfStock")}
                   </span>
                 </td>
                 <td>
@@ -104,7 +112,7 @@ export default function PriceComparisonTable({
                     className="price-comparison-shop-link"
                     onClick={() => onShopClick?.(storeName)}
                   >
-                    Shop
+                    {t("shop")}
                     <ExternalLink size={12} />
                   </a>
                 </td>
@@ -134,27 +142,33 @@ export function ComparePriceSummary({
   savingsVsHighest,
   savingsPercent,
 }: ComparePriceSummaryProps) {
+  const t = useTranslations("product");
+
   return (
     <div className="compare-price-summary">
       <div className="compare-price-stat">
-        <span className="compare-price-stat-label">Lowest price</span>
+        <span className="compare-price-stat-label">{t("lowestPrice")}</span>
         <span className="compare-price-stat-value">${lowestPrice.toLocaleString("en-US")}</span>
-        <span className="compare-price-stat-meta">at {cheapestStoreName}</span>
+        <span className="compare-price-stat-meta">
+          {t("atStore", { store: cheapestStoreName })}
+        </span>
       </div>
       <div className="compare-price-stat">
-        <span className="compare-price-stat-label">Highest discount</span>
+        <span className="compare-price-stat-label">{t("highestDiscount")}</span>
         <span className="compare-price-stat-value">-{highestDiscount}%</span>
         <span className="compare-price-stat-meta">
           <TrendingDown size={14} />
-          across {providerCount} stores
+          {t("acrossStores", { count: providerCount })}
         </span>
       </div>
       {savingsVsHighest > 0 && (
         <div className="compare-price-stat">
-          <span className="compare-price-stat-label">You save up to</span>
+          <span className="compare-price-stat-label">{t("youSaveUpTo")}</span>
           <span className="compare-price-stat-value">${savingsVsHighest.toLocaleString("en-US")}</span>
           <span className="compare-price-stat-meta">
-            {savingsPercent ? `${savingsPercent}% vs highest offer` : "vs highest offer"}
+            {savingsPercent
+              ? t("vsHighestPercent", { percent: savingsPercent })
+              : t("vsHighest")}
           </span>
         </div>
       )}
@@ -171,13 +185,15 @@ export function ComparePricesButton({
   className?: string;
   onClick?: () => void;
 }) {
+  const t = useTranslations("product");
+
   return (
     <Link
       href={`/product/${productId}#compare-prices`}
       className={className}
       onClick={onClick}
     >
-      Compare Prices
+      {t("comparePrices")}
       <ChevronRight size={16} />
     </Link>
   );

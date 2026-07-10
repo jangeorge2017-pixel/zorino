@@ -1,34 +1,23 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { BookOpen, Compass, Newspaper, TrendingUp } from "lucide-react";
 import BlogArticleCard from "@/components/blog/BlogArticleCard";
 import type { BlogSectionId } from "@/components/blog/blog-sections";
 import type { MockBlogPost } from "@/lib/mock/types";
 
-const SECTION_META: Record<
-  BlogSectionId,
-  { title: string; subtitle: string; icon: typeof BookOpen }
-> = {
-  editors: {
-    title: "Editor's Picks",
-    subtitle: "Hand-selected stories from the Zorino editorial team",
-    icon: BookOpen,
-  },
-  latest: {
-    title: "Latest Articles",
-    subtitle: "Fresh insights, guides, and deal coverage",
-    icon: Newspaper,
-  },
-  popular: {
-    title: "Most Popular",
-    subtitle: "The articles readers are engaging with most",
-    icon: TrendingUp,
-  },
-  guides: {
-    title: "Shopping Guides",
-    subtitle: "Expert advice to shop smarter and save more",
-    icon: Compass,
-  },
+const SECTION_ICONS: Record<BlogSectionId, typeof BookOpen> = {
+  editors: BookOpen,
+  latest: Newspaper,
+  popular: TrendingUp,
+  guides: Compass,
+};
+
+const SECTION_KEYS: Record<BlogSectionId, { title: string; subtitle: string }> = {
+  editors: { title: "sectionEditorsTitle", subtitle: "sectionEditorsSubtitle" },
+  latest: { title: "sectionLatestTitle", subtitle: "sectionLatestSubtitle" },
+  popular: { title: "sectionPopularTitle", subtitle: "sectionPopularSubtitle" },
+  guides: { title: "sectionGuidesTitle", subtitle: "sectionGuidesSubtitle" },
 };
 
 type BlogPageSectionProps = {
@@ -44,8 +33,9 @@ export default function BlogPageSection({
   readLabel,
   featuredLabel,
 }: BlogPageSectionProps) {
-  const meta = SECTION_META[sectionId];
-  const Icon = meta.icon;
+  const t = useTranslations("blog");
+  const keys = SECTION_KEYS[sectionId];
+  const Icon = SECTION_ICONS[sectionId];
   const useFeaturedLayout = sectionId === "editors" && posts.length === 1;
 
   return (
@@ -60,12 +50,14 @@ export default function BlogPageSection({
           </span>
           <div>
             <h2 id={`blog-section-${sectionId}`} className="zor-blog-page__section-title">
-              {meta.title}
+              {t(keys.title)}
             </h2>
-            <p className="zor-blog-page__section-subtitle">{meta.subtitle}</p>
+            <p className="zor-blog-page__section-subtitle">{t(keys.subtitle)}</p>
           </div>
         </div>
-        <span className="zor-blog-page__section-count">{posts.length} articles</span>
+        <span className="zor-blog-page__section-count">
+          {t("sectionCount", { count: posts.length })}
+        </span>
       </header>
 
       {useFeaturedLayout ? (
