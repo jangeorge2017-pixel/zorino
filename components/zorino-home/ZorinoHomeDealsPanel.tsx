@@ -21,6 +21,7 @@ import {
   trendingDealToDeal,
 } from "@/lib/zorino-home/trending-deal-to-deal";
 import type { TrendingDealCard } from "@/lib/types/entities";
+import { getCarouselScrollState } from "@/lib/ui/carousel-scroll";
 import "./zorino-home-deals.css";
 
 const FILTER_KEYS: Record<TrendingDealFilter, string> = {
@@ -63,8 +64,9 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   const syncButtons = useCallback(() => {
     const node = trackRef.current;
     if (!node) return;
-    setCanScrollLeft(node.scrollLeft > 4);
-    setCanScrollRight(node.scrollLeft < node.scrollWidth - node.clientWidth - 4);
+    const { canScrollPrev, canScrollNext } = getCarouselScrollState(node);
+    setCanScrollLeft(canScrollPrev);
+    setCanScrollRight(canScrollNext);
   }, []);
 
   useEffect(() => {

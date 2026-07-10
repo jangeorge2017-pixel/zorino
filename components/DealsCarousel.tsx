@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { useLocale } from "next-intl";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type DealsCarouselProps = {
@@ -9,12 +10,14 @@ type DealsCarouselProps = {
 
 export default function DealsCarousel({ children }: DealsCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const locale = useLocale();
 
   const scroll = (direction: -1 | 1) => {
     const node = scrollRef.current;
     if (!node) return;
     const cardWidth = node.querySelector(".home-product-card")?.clientWidth ?? 280;
-    node.scrollBy({ left: direction * (cardWidth + 14), behavior: "smooth" });
+    const rtlFactor = locale === "ar" ? -1 : 1;
+    node.scrollBy({ left: direction * rtlFactor * (cardWidth + 14), behavior: "smooth" });
   };
 
   return (

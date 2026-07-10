@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
 import { CheckCircle, ExternalLink, Star } from "lucide-react";
+import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import type { Store } from "@/lib/types/entities";
 
 type StoresStoreCardProps = {
@@ -17,17 +19,29 @@ export default function StoresStoreCard({
   viewProductsLabel,
   visitLabel = "Visit",
 }: StoresStoreCardProps) {
+  const [logoFailed, setLogoFailed] = useState(false);
+  const showLogo = Boolean(store.logoUrl) && !logoFailed;
+
   return (
     <article className="zor-stores-page__card">
       <div className="zor-stores-page__card-head">
         <div className="zor-stores-page__card-logo">
-          {store.logoUrl ? (
+          {showLogo ? (
             <Image
-              src={store.logoUrl}
+              src={store.logoUrl!}
               alt={store.name}
               fill
               className="zor-stores-page__card-logo-img"
               unoptimized
+              onError={() => setLogoFailed(true)}
+            />
+          ) : store.logoUrl && logoFailed ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={PRODUCT_IMAGE_PLACEHOLDER}
+              alt=""
+              className="zor-stores-page__card-logo-img"
+              style={{ objectFit: "contain", width: "100%", height: "100%" }}
             />
           ) : (
             <span className="zor-stores-page__card-logo-fallback">
@@ -70,12 +84,12 @@ export default function StoresStoreCard({
         <Link href={`/stores/${store.slug}`} className="zor-stores-page__card-action-link">
           <Button className="w-full">{viewProductsLabel}</Button>
         </Link>
-        <Link href={store.website} target="_blank" rel="noopener noreferrer">
+        <a href={store.website} target="_blank" rel="noopener noreferrer">
           <Button variant="outline" className="zor-stores-page__card-visit">
             <ExternalLink size={14} aria-hidden />
             {visitLabel}
           </Button>
-        </Link>
+        </a>
       </div>
     </article>
   );

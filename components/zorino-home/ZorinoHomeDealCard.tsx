@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { ChevronRight, Clock, ImageOff, Star, TrendingDown, TrendingUp } from "lucide-react";
+import { ChevronRight, Clock, Star, TrendingDown, TrendingUp } from "lucide-react";
+import AssetImage from "@/components/AssetImage";
 import ZorinoHomeSparkline from "@/components/zorino-home/ZorinoHomeSparkline";
 import type { TrendingDealCard } from "@/lib/types/entities";
 import "./ZorinoHomeDealCard.css";
@@ -20,7 +20,6 @@ function formatUsd(value: number): string {
 export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard }) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
-  const [imgError, setImgError] = useState(false);
   const dropped = deal.originalPrice > deal.price;
   const increased = deal.originalPrice < deal.price;
   const compareHref = deal.productId ? `/product/${deal.productId}` : "/deals";
@@ -31,19 +30,13 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
         {deal.discount > 0 ? (
           <span className="zh-deal-card__discount">-{Math.round(deal.discount)}%</span>
         ) : null}
-        {!imgError && deal.imageSrc ? (
-          <img
-            src={deal.imageSrc}
-            alt={deal.name}
-            decoding="async"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div className="zh-deal-card__media-fallback" aria-hidden>
-            <ImageOff size={28} />
-            <span>{tCommon("noImage")}</span>
-          </div>
-        )}
+        <AssetImage
+          src={deal.imageSrc || ""}
+          alt={deal.name}
+          fill
+          sizes="(max-width: 767px) 85vw, 280px"
+          className="zh-deal-card__image"
+        />
       </div>
 
       <h3 className="zh-deal-card__name">{deal.name}</h3>
@@ -89,15 +82,11 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
       <div className="zh-deal-card__store-row">
         <div className="zh-deal-card__store">
           <span className="zh-deal-card__store-logo">
-            <img
-              src={deal.storeLogoSrc}
+            <AssetImage
+              src={deal.storeLogoSrc || ""}
               alt=""
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                if (e.currentTarget.parentElement) {
-                  e.currentTarget.parentElement.textContent = deal.storeInitial;
-                }
-              }}
+              width={24}
+              height={24}
             />
           </span>
           {deal.store}

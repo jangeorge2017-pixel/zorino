@@ -4,6 +4,7 @@ import { locales, type Locale } from "@/i18n/config";
 import type { CountryCode } from "@/lib/international/config";
 import { filterStoresByMarketplaceVisibility } from "@/lib/international/stores";
 import { getServerIntlPreferences } from "@/lib/international/preferences";
+import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 import type { Store } from "@/lib/types/entities";
 
 type StoresPageProps = {
@@ -11,6 +12,16 @@ type StoresPageProps = {
 };
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: StoresPageProps) {
+  const { locale } = await params;
+  return buildSeoMetadata({
+    title: "Stores",
+    description: "Shop from your favorite marketplaces",
+    pathname: "/stores",
+    locale: locale === "ar" ? "ar" : "en",
+  });
+}
 
 function resolveLocale(value: string): Locale {
   return locales.includes(value as Locale) ? (value as Locale) : "en";

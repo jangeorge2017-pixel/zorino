@@ -41,7 +41,7 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   { protocol: "https" as const, hostname: "i.pravatar.cc", pathname: "/**" },
 ];
 
-/** Normalize product image URL — empty values use the local placeholder. */
+/** Normalize product image URL — empty/invalid/sandbox values use the local placeholder. */
 export function normalizeProductImageUrl(url?: string | null): string {
   const trimmed = url?.trim();
   if (!trimmed) return PRODUCT_IMAGE_PLACEHOLDER;
@@ -50,7 +50,13 @@ export function normalizeProductImageUrl(url?: string | null): string {
   if (trimmed.startsWith("/")) return trimmed;
   try {
     const parsed = new URL(trimmed);
-    if (parsed.protocol === "http:" || parsed.protocol === "https:") return trimmed;
+    // next/image in production only allows https remotes from the allowlist.
+    if (parsed.protocol !== "https:") return PRODUCT_IMAGE_PLACEHOLDER;
+    const host = parsed.hostname.toLowerCase();
+    if (host.includes("sandbox.ebay.com") || host.includes("ebayimg.sandbox")) {
+      return PRODUCT_IMAGE_PLACEHOLDER;
+    }
+    return trimmed;
   } catch {
     // invalid URL
   }
