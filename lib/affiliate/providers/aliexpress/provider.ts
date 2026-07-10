@@ -1,5 +1,12 @@
 import { buildAliExpressPortalAffiliateLink } from "@/lib/affiliate/providers/aliexpress/portal-links";
 import { validateAliExpressPortalEnv } from "@/lib/affiliate/providers/aliexpress/portal-config";
+import {
+  getAliExpressOpenApiProduct,
+  searchAliExpressOpenApi,
+  generateAliExpressOpenApiAffiliateLink,
+} from "@/lib/integrations/aliexpress/open-api-service";
+import { isAliExpressConfigured } from "@/lib/integrations/aliexpress/config";
+import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
 import type {
   AffiliateCoupon,
   AffiliateCouponQuery,
@@ -14,23 +21,47 @@ import type {
 
 /**
  * AliExpress marketplace provider.
- * Link generation uses Affiliate Portal env today.
- * Search / product details / coupons are stubs for future Open API adapters.
+ * Search / product details / affiliate links use Open Platform when configured.
+ * Portal tracking remains the fallback for link generation.
  */
 export const aliexpressAffiliateProvider: MarketplaceAffiliateProvider = {
   id: "aliexpress",
   displayName: "AliExpress",
 
-  async search(_query: AffiliateSearchQuery): Promise<AffiliateSearchResult> {
-    // Future: Open API product.query adapter
-    return { items: [], total: 0 };
+  async search(query: AffiliateSearchQuery): Promise<AffiliateSearchResult> {
+    await loadAliExpressCredentials();
+    if (!isAliExpressConfigured()) {
+      return { items: [], total: 0 };
+    }
+
+    const items = await searchAliExpressOpenApi(query.keywords, {
+      limit: query.pageSize ?? 24,
+      pageNo: query.page ?? 1,
+      pageSize: query.pageSize ?? 24,
+      currency: query.currency ?? "USD",
+    });
+
+    return { items, total: items.length };
   },
 
   async getProductDetails(
-    _query: AffiliateProductDetailsQuery,
+    query: AffiliateProductDetailsQuery,
   ): Promise<AffiliateProductDetails | null> {
-    // Future: Open API productdetail.get adapter
-    return null;
+    await loadAliExpressCredentials();
+    if (!isAliExpressConfigured()) return null;
+
+    const product = await getAliExpressOpenApiProduct(
+      query.productId,
+      query.currency ?? "USD",
+    );
+    if (!product) return null;
+
+    return {
+      productId: product.productId,
+      title: product.title,
+      productUrl: product.affiliateUrl || product.productUrl,
+      raw: product,
+    };
   },
 
   async generateAffiliateLink(
@@ -46,6 +77,19 @@ export const aliexpressAffiliateProvider: MarketplaceAffiliateProvider = {
       };
     }
 
+    await loadAliExpressCredentials();
+    if (isAliExpressConfigured()) {
+      const openApiUrl = await generateAliExpressOpenApiAffiliateLink(input.productUrl);
+      if (openApiUrl) {
+        return {
+          url: openApiUrl,
+          source: "open_api",
+          providerId: "aliexpress",
+          trackingApplied: true,
+        };
+      }
+    }
+
     const config = validateAliExpressPortalEnv();
     return buildAliExpressPortalAffiliateLink(input.productUrl, config);
   },
@@ -53,29 +97,14 @@ export const aliexpressAffiliateProvider: MarketplaceAffiliateProvider = {
   async generateAffiliateLinks(
     inputs: GenerateAffiliateLinkInput[],
   ): Promise<Map<string, AffiliateLinkResult>> {
-    const config = validateAliExpressPortalEnv();
     const results = new Map<string, AffiliateLinkResult>();
     for (const input of inputs) {
-      const promotion = input.promotionLink?.trim();
-      if (promotion) {
-        results.set(input.productUrl, {
-          url: promotion,
-          source: "promotion_link",
-          providerId: "aliexpress",
-          trackingApplied: true,
-        });
-        continue;
-      }
-      results.set(
-        input.productUrl,
-        buildAliExpressPortalAffiliateLink(input.productUrl, config),
-      );
+      results.set(input.productUrl, await this.generateAffiliateLink(input));
     }
     return results;
   },
 
   async listCoupons(_query?: AffiliateCouponQuery): Promise<AffiliateCoupon[]> {
-    // Future: Coupon API adapter
     return [];
   },
 };

@@ -267,6 +267,33 @@ export class AliExpressAffiliateClient {
   }
 
   private async call<T>(method: string, bizParams: Record<string, string>): Promise<T> {
+    const maxAttempts = 3;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await this.callOnce<T>(method, bizParams);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        lastError = error instanceof Error ? error : new Error(message);
+        const retryable = isRateLimitOrTransientError(message);
+        logAliExpress("API call failed", {
+          method,
+          attempt,
+          maxAttempts,
+          retryable,
+          message,
+        });
+        if (!retryable || attempt === maxAttempts) break;
+        const delayMs = 400 * attempt * attempt;
+        await sleep(delayMs);
+      }
+    }
+
+    throw lastError ?? new Error(`AliExpress API call failed: ${method}`);
+  }
+
+  private async callOnce<T>(method: string, bizParams: Record<string, string>): Promise<T> {
     const params = buildSignedParams(method, this.appKey, this.appSecret, bizParams);
     const body = new URLSearchParams(params);
 
@@ -301,6 +328,10 @@ export class AliExpressAffiliateClient {
       httpStatusText: res.statusText,
       body: text,
     });
+
+    if (res.status === 429 || res.status === 503) {
+      throw new Error(`AliExpress rate limit / unavailable HTTP ${res.status}: ${text}`);
+    }
 
     if (!res.ok) {
       const message = `AliExpress API HTTP ${res.status}: ${text}`;
@@ -351,6 +382,26 @@ export class AliExpressAffiliateClient {
 
     return json;
   }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRateLimitOrTransientError(message: string): boolean {
+  const haystack = message.toLowerCase();
+  return (
+    haystack.includes("rate limit") ||
+    haystack.includes("too many") ||
+    haystack.includes("http 429") ||
+    haystack.includes("http 503") ||
+    haystack.includes("timeout") ||
+    haystack.includes("network error") ||
+    haystack.includes("econnreset") ||
+    haystack.includes("etimedout") ||
+    haystack.includes("flow limit") ||
+    haystack.includes("isp.remote-service-timeout")
+  );
 }
 
 function dedupeById(products: AliExpressRawProduct[]): AliExpressRawProduct[] {

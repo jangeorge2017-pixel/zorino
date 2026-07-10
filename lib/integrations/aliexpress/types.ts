@@ -35,6 +35,12 @@ export type AliExpressRawProduct = {
   lastest_volume?: string | number;
   first_level_category_name?: string;
   sku_available_stock?: string;
+  /** Shipping / delivery fields returned by some Affiliate API responses. */
+  ship_to_days?: string | number;
+  delivery_time?: string;
+  freight?: string | number;
+  ship_cost?: string | number;
+  shipping_info?: string;
 };
 
 export type AliExpressSyncJobKind = "products" | "prices" | "stock" | "images" | "full";

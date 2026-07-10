@@ -1,10 +1,12 @@
-import { createAliExpressClientFromEnv } from "@/lib/integrations/aliexpress";
+﻿import { createAliExpressClientFromEnv } from "@/lib/integrations/aliexpress";
 import { isAliExpressConfigured } from "@/lib/integrations/aliexpress/config";
+import { attachOpenApiAffiliateLinks } from "@/lib/integrations/aliexpress/open-api-service";
 import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
 import { normalizeAliExpressRaw } from "@/lib/search/normalization";
 import type { RawProviderListing } from "@/lib/search/types";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { ConnectorSearchOptions, SearchConnector } from "@/lib/search/connectors/types";
+import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 
 const PARALLEL_PAGE_BATCH = 4;
 
@@ -15,9 +17,9 @@ async function getClient() {
 }
 
 function ingestBatch(
-  batch: Parameters<typeof normalizeAliExpressRaw>[0][],
+  batch: AliExpressRawProduct[],
   listings: RawProviderListing[],
-  seenIds: Set<string>
+  seenIds: Set<string>,
 ) {
   for (const raw of batch) {
     const id = raw.product_id != null ? String(raw.product_id) : "";
@@ -53,34 +55,48 @@ export const aliExpressSearchConnector: SearchConnector = {
     const listings: RawProviderListing[] = [];
     const seenIds = new Set<string>();
     let exhausted = false;
+    const collectedRaw: AliExpressRawProduct[] = [];
 
-    for (let startPage = 1; startPage <= maxPages && !exhausted; startPage += PARALLEL_PAGE_BATCH) {
-      const pageNumbers = Array.from(
-        { length: PARALLEL_PAGE_BATCH },
-        (_, index) => startPage + index
-      ).filter((pageNo) => pageNo <= maxPages);
+    try {
+      for (let startPage = 1; startPage <= maxPages && !exhausted; startPage += PARALLEL_PAGE_BATCH) {
+        const pageNumbers = Array.from(
+          { length: PARALLEL_PAGE_BATCH },
+          (_, index) => startPage + index,
+        ).filter((pageNo) => pageNo <= maxPages);
 
-      const batches = await Promise.all(
-        pageNumbers.map((pageNo) =>
-          client.searchByKeyword(trimmed, { pageSize, pageNo, currency })
-        )
-      );
+        const batches = await Promise.all(
+          pageNumbers.map((pageNo) =>
+            client.searchByKeyword(trimmed, { pageSize, pageNo, currency }),
+          ),
+        );
 
-      let shortestBatch = pageSize;
-      for (const batch of batches) {
-        if (batch.length === 0) {
-          exhausted = true;
-          continue;
+        let shortestBatch = pageSize;
+        for (const batch of batches) {
+          if (batch.length === 0) {
+            exhausted = true;
+            continue;
+          }
+          shortestBatch = Math.min(shortestBatch, batch.length);
+          collectedRaw.push(...batch);
         }
-        shortestBatch = Math.min(shortestBatch, batch.length);
-        ingestBatch(batch, listings, seenIds);
+
+        if (collectedRaw.length >= targetFetch) break;
+        if (shortestBatch < pageSize) break;
+        if (collectedRaw.length >= minFetch && exhausted) break;
       }
 
-      if (listings.length >= targetFetch) break;
-      if (shortestBatch < pageSize) break;
-      if (listings.length >= minFetch && exhausted) break;
+      const withLinks = await attachOpenApiAffiliateLinks(
+        client,
+        collectedRaw.slice(0, Math.max(targetFetch, minFetch)),
+      );
+      ingestBatch(withLinks, listings, seenIds);
+      return listings;
+    } catch (error) {
+      console.error(
+        "[aliexpress-connector]",
+        error instanceof Error ? error.message : "AliExpress search failed",
+      );
+      return listings;
     }
-
-    return listings;
   },
 };
