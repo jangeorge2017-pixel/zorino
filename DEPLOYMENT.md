@@ -60,22 +60,26 @@ DATABASE_URL=postgresql://user:password@localhost:5432/zorino
 NEXTAUTH_SECRET=your-secret-key
 NEXTAUTH_URL=http://localhost:3000
 
-# Marketplace API Keys
-AMAZON_ACCESS_KEY_ID=your-key
-AMAZON_SECRET_ACCESS_KEY=your-secret
-ALIBABA_API_KEY=your-key
-ALIEXPRESS_API_KEY=your-key
-NOON_API_KEY=your-key
-TEMU_API_KEY=your-key
+# Required for production cron routes (/api/cron/*)
+CRON_SECRET=generate-a-long-random-secret
+
+# Marketplace API Keys (production)
+ALIEXPRESS_APP_KEY=your-key
+ALIEXPRESS_APP_SECRET=your-secret
+ALIEXPRESS_TRACKING_ID=your-tracking-id
+EBAY_APP_ID=your-app-id
+EBAY_CERT_ID=your-cert-id
+EBAY_CAMPAIGN_ID=your-campaign-id
+# Optional until Creators API / PA-API access:
+# AMAZON_PAAPI_ACCESS_KEY=
+# AMAZON_PAAPI_SECRET_KEY=
+# AMAZON_ASSOCIATE_TAG=zorino-20
 
 # Email Service (for notifications)
 SMTP_HOST=smtp.example.com
 SMTP_PORT=587
 SMTP_USER=your-email
 SMTP_PASSWORD=your-password
-
-# Redis (for caching)
-REDIS_URL=redis://localhost:6379
 ```
 
 ## Deployment Options
