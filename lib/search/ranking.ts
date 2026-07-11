@@ -1,4 +1,4 @@
-import { analyzeSearchListing, type ProductMatchTier } from "@/lib/search/relevance";
+import { analyzeSearchListing, queryWantsAccessory, type ProductMatchTier } from "@/lib/search/relevance";
 import { normalizeRawListing } from "@/lib/search/normalization";
 import type {
   NormalizedSearchListing,
@@ -22,7 +22,8 @@ function popularityScore(listing: NormalizedSearchListing): number {
 
 /**
  * Relevance ranking — score every listing, rank devices first.
- * Accessories only appear after matching devices when enough devices exist.
+ * Accessories only appear after matching devices when enough devices exist,
+ * unless the query explicitly asks for accessories.
  * Call this per marketplace so one provider's device count cannot wipe another.
  *
  * Sort order: relevance tier/score → price → rating → popularity → availability.
@@ -32,6 +33,7 @@ export function rankRawListings(
   query: string
 ): NormalizedSearchListing[] {
   const { MIN_DEVICES_BEFORE_ACCESSORIES } = SEARCH_ENGINE_DEFAULTS;
+  const wantsAccessory = queryWantsAccessory(query);
 
   const analyzed = listings
     .map((raw) => {
@@ -45,6 +47,11 @@ export function rankRawListings(
     })
     .filter((item): item is NormalizedSearchListing => item !== null)
     .sort((a, b) => compareListings(a, b));
+
+  // Accessory-intent queries must keep accessory matches (earbuds, cases, cables, …).
+  if (wantsAccessory) {
+    return analyzed;
+  }
 
   const devices = analyzed.filter((row) => row.isDevice && row.matchTier !== "accessory");
 
