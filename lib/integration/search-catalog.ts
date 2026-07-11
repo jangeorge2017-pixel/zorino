@@ -1,8 +1,9 @@
 import type { SearchResultItem } from "@/lib/data/homepage";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import type { ProductionProviderId } from "@/lib/integration/constants";
-import { getProviderStoreMeta } from "@/lib/integration/provider-context";
+import { getProviderStoreMeta, searchProviderToProductionId } from "@/lib/integration/provider-context";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 
 /** Curated queries that feed homepage widgets from the same search engine as /search. */
 export const HOMEPAGE_SEARCH_QUERIES = [
@@ -17,18 +18,20 @@ export const HOMEPAGE_SEARCH_QUERIES = [
 ] as const;
 
 function providerFromStoreSlug(storeSlug: string): ProductionProviderId {
-  const slug = storeSlug.trim().toLowerCase();
-  if (slug === "ebay") return "ebay";
-  if (slug === "amazon") return "amazon";
-  if (slug === "walmart") return "walmart";
-  if (slug === "temu") return "temu";
-  return "aliexpress";
+  const resolved = resolveMarketplaceId(storeSlug);
+  const mapped = searchProviderToProductionId(resolved);
+  if (mapped) return mapped;
+  // Live connectors emit ids that match production providers 1:1.
+  return resolved as ProductionProviderId;
 }
 
 /** Map a search-engine card into the homepage catalog schema (keeps affiliate URL). */
 export function searchResultToCatalogItem(item: SearchResultItem): NormalizedCatalogItem {
   const providerId = providerFromStoreSlug(item.storeSlug || item.store);
-  const meta = getProviderStoreMeta(providerId);
+  const meta = getProviderStoreMeta(providerId) ?? {
+    storeSlug: providerId,
+    name: item.store || providerId,
+  };
   const externalId = item.id.replace(new RegExp(`^${providerId}-`), "");
   const productUrl = item.affiliateUrl || "";
 
@@ -51,7 +54,7 @@ export function searchResultToCatalogItem(item: SearchResultItem): NormalizedCat
       {
         providerId,
         storeSlug: meta.storeSlug,
-        storeName: meta.name,
+        storeName: "name" in meta ? meta.name : providerId,
         externalId: externalId || item.id,
         price: item.price,
         originalPrice: item.originalPrice,

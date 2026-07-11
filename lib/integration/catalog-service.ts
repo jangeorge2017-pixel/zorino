@@ -9,6 +9,7 @@ import {
 } from "@/lib/integration/normalize";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
+import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
 import {
   withFallbackDeals,
@@ -34,7 +35,7 @@ const loadMergedCatalogItems = unstable_cache(
       return [];
     }
   },
-  ["homepage:merged-catalog-v3-balanced"],
+  ["homepage:merged-catalog-v4-equal-balance"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
 );
 
@@ -70,21 +71,15 @@ function itemsToCards(items: NormalizedCatalogItem[]): TrendingDealCard[] {
 }
 
 function providerIdFromCatalogItem(item: NormalizedCatalogItem): string {
-  return item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown";
+  return resolveMarketplaceId(
+    item.providerIds[0] ?? item.offers[0]?.providerId ?? item.offers[0]?.storeSlug ?? "unknown",
+  );
 }
 
 function providerIdFromCard(card: TrendingDealCard): string {
-  const raw = String(card.productId ?? card.id);
-  const match = raw.match(/^(?:[a-z]+-)?(aliexpress|ebay|amazon|walmart|temu|bestbuy|noon|jumia)/i);
-  if (match) return match[1]!.toLowerCase();
-  // Fallback: store name → slug-ish
-  const store = (card.store || "").toLowerCase();
-  if (store.includes("ebay")) return "ebay";
-  if (store.includes("amazon")) return "amazon";
-  if (store.includes("walmart")) return "walmart";
-  if (store.includes("temu")) return "temu";
-  if (store.includes("ali")) return "aliexpress";
-  return store || "unknown";
+  const fromId = resolveMarketplaceId(String(card.productId ?? card.id));
+  if (fromId !== "unknown") return fromId;
+  return resolveMarketplaceId(card.store || "unknown");
 }
 
 /** Mix catalog items fairly across whatever marketplaces are present. */

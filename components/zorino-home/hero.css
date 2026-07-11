@@ -286,6 +286,9 @@
   max-width: 900px;
   margin-inline: auto;
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .zh-search__bar {
@@ -371,8 +374,8 @@
 }
 
 /*
- * Suggestions panel sits in normal document flow so it pushes discovery
- * nav / categories down instead of painting over icons and labels.
+ * Suggestions panel sits in normal document flow directly under the input.
+ * It must push discovery nav / category icons down — never paint over them.
  */
 .zh-search__dropdown {
   position: relative;
@@ -389,6 +392,25 @@
   max-height: min(58vh, 360px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* When open: clear hero overlap/transform so categories stay fully visible below */
+.zh-hero-search:has(.zh-search--open) {
+  z-index: 120;
+  margin-bottom: calc(19px + var(--zh-space-search-categories, 22px));
+  padding-bottom: 4px;
+}
+
+.zh-search--open {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.zh-home-discovery-nav {
+  position: relative;
+  z-index: 2;
 }
 
 .zh-search__dropdown h4 {
@@ -487,9 +509,13 @@
   }
 
   .zh-search__dropdown {
-    max-height: min(50vh, 300px);
+    max-height: min(48vh, 280px);
     padding: 14px 12px 12px;
     border-radius: 0 0 16px 16px;
+  }
+
+  .zh-hero-search:has(.zh-search--open) {
+    margin-bottom: calc(19px + var(--zh-space-search-categories, 22px) + 8px);
   }
 
   .zh-search__dropdown li {

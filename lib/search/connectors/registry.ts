@@ -46,10 +46,11 @@ export function getRegisteredSearchConnectors(): SearchConnector[] {
 export async function getActiveSearchConnectors(
   providerIds?: SearchProviderId[]
 ): Promise<SearchConnector[]> {
-  const ids = providerIds ?? [...SEARCH_PROVIDER_IDS];
-  const connectors = ids
-    .map((id) => CONNECTOR_MAP.get(id))
-    .filter((c): c is SearchConnector => c !== undefined);
+  // Single source of truth: registered connectors. Optional filter only.
+  // New connectors added to ALL_CONNECTORS are included automatically.
+  const connectors = (providerIds
+    ? providerIds.map((id) => CONNECTOR_MAP.get(id)).filter((c): c is SearchConnector => c !== undefined)
+    : [...ALL_CONNECTORS]);
 
   const availability = await Promise.all(
     connectors.map(async (connector) => ({
@@ -61,7 +62,7 @@ export async function getActiveSearchConnectors(
   return availability.filter((row) => row.available).map((row) => row.connector);
 }
 
-/** Count how many of the 8 providers are registered (always 8). */
+/** Count of registered marketplace connectors (grows when connectors are added). */
 export function getRegisteredProviderCount(): number {
   return ALL_CONNECTORS.length;
 }

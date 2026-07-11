@@ -4,7 +4,7 @@
 
 .zh-home-discovery-nav {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
 }
 
@@ -45,6 +45,7 @@
 }
 
 .zh-quick-nav.is-sticky {
+  z-index: 90;
   background: rgba(7, 11, 22, 0.92);
   border-bottom: none;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);

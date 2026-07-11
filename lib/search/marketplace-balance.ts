@@ -2,8 +2,8 @@
  * Marketplace-agnostic result balancer.
  *
  * No hardcoded marketplace shares or percentages.
- * Fair opportunity is derived dynamically from whatever providers
- * currently have remaining, comparable inventory.
+ * Active marketplaces are whatever providers currently have stock —
+ * adding a new marketplace that returns results automatically rebalances.
  */
 
 export type BalanceableItem = {
@@ -12,30 +12,33 @@ export type BalanceableItem = {
 
 export type MarketplaceBalanceOptions<T extends BalanceableItem> = {
   limit: number;
-  /** Higher-quality / more-relevant first. */
+  /** Higher-quality / more-relevant first (orders first-round rotation). */
   compare: (a: T, b: T) => number;
   /**
-   * True when `candidate` is close enough in quality/relevance to `best`
-   * that diversity may prefer it without harming results.
+   * Kept for API compatibility. Equal distribution does not gate on this —
+   * every active marketplace gets the same opportunity.
    */
   isComparable: (candidate: T, best: T) => boolean;
   /**
-   * Max consecutive picks from one marketplace while peers still have
-   * comparable items. Defaults to 2 (quality-preserving diversity).
+   * Max consecutive picks from one marketplace while peers still have stock.
+   * Defaults to 2.
    */
   maxConsecutive?: number;
 };
 
 /**
- * Build balanced results from per-marketplace queues.
- * Queues must already be sorted best-first within each marketplace.
- * Adding a new marketplace = add another queue; no algorithm changes.
+ * Equal-opportunity interleave across all marketplaces that have inventory.
+ *
+ * - Detects active providers from the queue map (no hardcoded list/%).
+ * - Each active marketplace gets the same target: ceil(limit / n).
+ * - Round-robin fill; leftovers fill from remaining stock.
+ * - New marketplaces participate automatically when they appear in the map.
  */
 export function balanceMarketplaceQueues<T extends BalanceableItem>(
   providerQueues: ReadonlyMap<string, readonly T[]>,
   options: MarketplaceBalanceOptions<T>,
 ): T[] {
-  const { limit, compare, isComparable } = options;
+  const { limit, compare } = options;
   const maxConsecutive = Math.max(1, options.maxConsecutive ?? 2);
 
   if (limit <= 0 || providerQueues.size === 0) return [];
@@ -46,92 +49,100 @@ export function balanceMarketplaceQueues<T extends BalanceableItem>(
   }
   if (working.size === 0) return [];
 
+  // First-round order: best head first (quality), then equal rotation.
+  const rotation = [...working.keys()].sort((a, b) =>
+    compare(working.get(a)![0]!, working.get(b)![0]!),
+  );
+
+  const activeCount = rotation.length;
+  const equalTarget = Math.ceil(limit / activeCount);
   const result: T[] = [];
   const taken = new Map<string, number>();
   let streakProvider: string | null = null;
   let streakCount = 0;
+  let cursor = 0;
 
-  while (result.length < limit && working.size > 0) {
-    const heads: { providerId: string; item: T }[] = [];
-    for (const [providerId, queue] of working) {
-      if (queue.length === 0) {
-        working.delete(providerId);
-        continue;
-      }
-      heads.push({ providerId, item: queue[0]! });
-    }
-    if (heads.length === 0) break;
-
-    heads.sort((a, b) => compare(a.item, b.item));
-    let chosen = heads[0]!;
-
-    const activeWithStock = heads.length;
-    const fairShare = Math.ceil((result.length + 1) / activeWithStock);
-    const chosenTaken = taken.get(chosen.providerId) ?? 0;
-
-    // Soft fairness: when peers are comparable, prefer under-represented marketplaces.
-    // fairShare adapts automatically as providers are added/removed.
-    const underrepresented = heads
-      .filter(
-        (row) =>
-          row.providerId !== chosen.providerId &&
-          isComparable(row.item, chosen.item) &&
-          isComparable(chosen.item, row.item) &&
-          (taken.get(row.providerId) ?? 0) < chosenTaken,
-      )
-      .sort(
-        (a, b) =>
-          (taken.get(a.providerId) ?? 0) - (taken.get(b.providerId) ?? 0) ||
-          compare(a.item, b.item),
-      )[0];
-
-    if (underrepresented && chosenTaken >= fairShare) {
-      chosen = underrepresented;
-    } else if (underrepresented && chosenTaken > (taken.get(underrepresented.providerId) ?? 0)) {
-      // Near-tie: keep counts roughly even without fixed percentages.
-      if (isComparable(underrepresented.item, chosen.item)) {
-        chosen = underrepresented;
-      }
-    }
-
-    const wouldDominateStreak =
-      streakProvider !== null &&
-      streakCount >= maxConsecutive &&
-      chosen.providerId === streakProvider;
-
-    if (wouldDominateStreak) {
-      const alternative = heads
-        .filter((row) => row.providerId !== streakProvider)
-        .find((row) => isComparable(row.item, chosen.item));
-      if (alternative) chosen = alternative;
-    }
-
-    // Hard dominance guard: never let one marketplace run far ahead while peers
-    // still have comparable stock (share ceiling = fairShare + 1).
-    const chosenAfter = (taken.get(chosen.providerId) ?? 0) + 1;
-    if (chosenAfter > fairShare + 1 && heads.length > 1) {
-      const peer = heads
-        .filter((row) => row.providerId !== chosen.providerId)
-        .find((row) => isComparable(row.item, chosen.item));
-      if (peer) chosen = peer;
-    }
-
-    const queue = working.get(chosen.providerId);
+  const takeFrom = (providerId: string): T | null => {
+    const queue = working.get(providerId);
     if (!queue?.length) {
-      working.delete(chosen.providerId);
-      continue;
+      working.delete(providerId);
+      return null;
     }
-    queue.shift();
-    if (queue.length === 0) working.delete(chosen.providerId);
-
-    result.push(chosen.item);
-    taken.set(chosen.providerId, (taken.get(chosen.providerId) ?? 0) + 1);
-
-    if (chosen.providerId === streakProvider) {
+    const item = queue.shift()!;
+    if (queue.length === 0) working.delete(providerId);
+    taken.set(providerId, (taken.get(providerId) ?? 0) + 1);
+    if (providerId === streakProvider) {
       streakCount += 1;
     } else {
-      streakProvider = chosen.providerId;
+      streakProvider = providerId;
       streakCount = 1;
+    }
+    result.push(item);
+    return item;
+  };
+
+  // Phase 1 — equal round-robin up to equalTarget per marketplace.
+  while (result.length < limit && working.size > 0) {
+    let progressed = false;
+
+    for (let step = 0; step < rotation.length; step++) {
+      if (result.length >= limit) break;
+      const providerId = rotation[(cursor + step) % rotation.length]!;
+      if (!working.has(providerId)) continue;
+
+      const count = taken.get(providerId) ?? 0;
+      if (count >= equalTarget) continue;
+
+      const wouldDominate =
+        streakProvider === providerId &&
+        streakCount >= maxConsecutive &&
+        working.size > 1;
+
+      if (wouldDominate) continue;
+
+      if (takeFrom(providerId)) {
+        progressed = true;
+        cursor = (cursor + step + 1) % rotation.length;
+        break;
+      }
+    }
+
+    if (!progressed) {
+      // Everyone at equalTarget or streak-blocked — allow fill below.
+      break;
+    }
+  }
+
+  // Phase 2 — fill remaining slots equally from whoever still has stock.
+  while (result.length < limit && working.size > 0) {
+    let progressed = false;
+
+    for (let step = 0; step < rotation.length; step++) {
+      if (result.length >= limit) break;
+      const providerId = rotation[(cursor + step) % rotation.length]!;
+      if (!working.has(providerId)) continue;
+
+      const wouldDominate =
+        streakProvider === providerId &&
+        streakCount >= maxConsecutive &&
+        working.size > 1;
+
+      if (wouldDominate) continue;
+
+      if (takeFrom(providerId)) {
+        progressed = true;
+        cursor = (cursor + step + 1) % rotation.length;
+        break;
+      }
+    }
+
+    if (!progressed) {
+      // Streak blocked everyone — force-take the best remaining head.
+      const heads = [...working.entries()]
+        .map(([providerId, queue]) => ({ providerId, item: queue[0]! }))
+        .sort((a, b) => compare(a.item, b.item));
+      if (heads.length === 0) break;
+      takeFrom(heads[0]!.providerId);
     }
   }
 

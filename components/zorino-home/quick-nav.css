@@ -27,8 +27,11 @@
   top: var(--zh-nav-h, 72px);
   left: 0;
   right: 0;
-  /* Stay below the search suggestions stack (z-index 120). */
-  z-index: 50;
+  /*
+   * Stacking: main nav (200) > search suggestions (120) > sticky quick-nav (90)
+   * > sticky section heads (40) > page content.
+   */
+  z-index: 90;
   padding: 0 var(--zh-pad);
   background: rgba(9, 9, 11, 0.72);
   border-bottom: 1px solid rgba(78, 168, 255, 0.12);
@@ -154,7 +157,7 @@ a.zh-quick-nav__pill.is-active::before {
   pointer-events: none;
 }
 
-/* Scroll targets — offset when nav is sticky */
+/* Scroll targets — clear main nav + sticky quick-nav on all viewports */
 #zh-section-featured-brands,
 #zh-section-trending-deals,
 #zh-section-coupons,
@@ -165,7 +168,11 @@ a.zh-quick-nav__pill.is-active::before {
 #zh-section-editors-picks,
 #zh-section-stores,
 #zh-section-categories {
-  scroll-margin-top: calc(var(--zh-nav-h, 72px) + 68px);
+  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+}
+
+.zh-page {
+  scroll-padding-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
 }
 
 @media (max-width: 1024px) {
