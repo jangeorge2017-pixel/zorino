@@ -24,7 +24,8 @@ const intlMiddleware = createIntlMiddleware(routing);
 function applyPreferenceCookies(
   response: NextResponse,
   country: CountryCode,
-  request: NextRequest
+  request: NextRequest,
+  localeOverride?: "en" | "ar",
 ) {
   const secure = process.env.NODE_ENV === "production";
   const opts = { maxAge: INTL_COOKIE_MAX_AGE, path: "/", sameSite: "lax" as const, secure };
@@ -41,12 +42,14 @@ function applyPreferenceCookies(
     );
   }
 
-  if (!request.cookies.get(INTL_COOKIE_LOCALE)) {
-    response.cookies.set(
-      INTL_COOKIE_LOCALE,
-      getCountryConfig(country).defaultLocale,
-      opts
-    );
+  const preferredLocale =
+    localeOverride ??
+    (request.cookies.get(INTL_COOKIE_LOCALE)?.value as "en" | "ar" | undefined) ??
+    getCountryConfig(country).defaultLocale;
+
+  if (localeOverride || !request.cookies.get(INTL_COOKIE_LOCALE)) {
+    response.cookies.set(INTL_COOKIE_LOCALE, preferredLocale, opts);
+    response.cookies.set("NEXT_LOCALE", preferredLocale, opts);
   }
 
   response.headers.set("x-zor-detected-country", country);
@@ -58,11 +61,15 @@ export function proxy(request: NextRequest) {
   const geoInitialized = request.cookies.get(INTL_COOKIE_GEO_DONE)?.value === "1";
   const pathname = request.nextUrl.pathname;
   const pathWithoutLocale = stripLocaleFromPathname(pathname);
+  const explicitEnglish = pathname === "/en" || pathname.startsWith("/en/");
+  const explicitArabic = pathname === "/ar" || pathname.startsWith("/ar/");
 
+  // Geo auto-Arabic is first-visit only, and never overrides an explicit /en URL.
   if (
     !geoInitialized &&
     shouldAutoRedirectToArabic(detectedCountry) &&
-    !pathname.startsWith("/ar") &&
+    !explicitArabic &&
+    !explicitEnglish &&
     !pathname.startsWith("/api")
   ) {
     const url = request.nextUrl.clone();
@@ -72,7 +79,7 @@ export function proxy(request: NextRequest) {
       maxAge: INTL_COOKIE_MAX_AGE,
       path: "/",
     });
-    applyPreferenceCookies(response, detectedCountry, request);
+    applyPreferenceCookies(response, detectedCountry, request, "ar");
     return response;
   }
 
@@ -85,7 +92,8 @@ export function proxy(request: NextRequest) {
     });
   }
 
-  applyPreferenceCookies(response, detectedCountry, request);
+  const localeOverride = explicitEnglish ? "en" : explicitArabic ? "ar" : undefined;
+  applyPreferenceCookies(response, detectedCountry, request, localeOverride);
   return response;
 }
 
