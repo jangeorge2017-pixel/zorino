@@ -8,3 +8,5 @@ build
 supabase/.temp
 tsconfig.tsbuildinfo
 .vercel
+
+.cron-secret.tmp

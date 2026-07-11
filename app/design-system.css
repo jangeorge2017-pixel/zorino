@@ -101,6 +101,9 @@
   background: var(--zor-bg-deep);
   color: var(--zor-text);
   font-family: var(--zor-font-sans);
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
 }
 
 .zor-public-shell__main {
@@ -126,6 +129,7 @@
 
 .zor-nav__inner {
   max-width: var(--zor-content);
+  width: 100%;
   height: 100%;
   margin: 0 auto;
   display: flex;
@@ -133,6 +137,7 @@
   justify-content: space-between;
   gap: var(--zor-space-5);
   min-width: 0;
+  overflow: hidden;
 }
 
 .zor-nav__logo {
@@ -179,8 +184,11 @@
 .zor-nav__actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--zor-space-2);
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .zor-nav__icon-btn {
@@ -234,11 +242,21 @@
   color: inherit;
 }
 
-.zor-nav__profile img {
+.zor-nav__profile img,
+.zor-nav__profile-fallback {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.zor-nav__profile-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 92, 246, 0.22);
+  color: var(--zor-text);
+  flex-shrink: 0;
 }
 
 .zor-nav__profile strong {
@@ -1265,9 +1283,45 @@
   }
 }
 
+@media (max-width: 1023px) {
+  .zor-nav .zor-intl__trigger-label {
+    display: none;
+  }
+
+  .zor-nav .theme-option-label {
+    display: none;
+  }
+
+  .zor-nav .theme-option {
+    padding: 6px 8px;
+  }
+
+  .zor-nav .zor-intl__trigger {
+    padding: 0 8px;
+  }
+}
+
 @media (max-width: 767px) {
+  .zor-nav__inner {
+    gap: var(--zor-space-2);
+  }
+
+  .zor-nav__actions {
+    gap: 4px;
+  }
+
+  .zor-nav__icon-btn {
+    min-width: 40px;
+    width: 40px;
+    padding: 0;
+  }
+
   .zor-nav__icon-btn span:not(.zor-nav__badge) {
     display: none;
+  }
+
+  .zor-nav__profile {
+    padding: 4px;
   }
 
   .zor-nav__profile div {

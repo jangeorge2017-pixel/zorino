@@ -158,18 +158,9 @@ class WishlistSystem {
    */
   async checkPriceAlerts(userId: string): Promise<WishlistItem[]> {
     const items = await this.getWishlistItems(userId);
-    const triggeredAlerts: WishlistItem[] = [];
-
-    // In production, fetch current prices and compare with alerts
-    for (const item of items) {
-      if (item.priceAlert) {
-        // Check if current price is at or below alert price
-        // This would involve fetching the current price from the product API
-        // For now, this is a placeholder
-      }
-    }
-
-    return triggeredAlerts;
+    // Price-alert evaluation requires a live product price service.
+    // Until that service is wired, do not fabricate alerts.
+    return [];
   }
 
   // Local storage helpers (for client-side demo)

@@ -440,13 +440,22 @@
     0 0 20px var(--zh-nav-control-glow-purple);
 }
 
-.zh-nav__profile img {
+.zh-nav__profile img,
+.zh-nav__profile-fallback {
   width: 28px;
   height: 28px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
   transition: box-shadow 250ms ease;
+}
+
+.zh-nav__profile-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 92, 246, 0.22);
+  color: #e2e8f0;
 }
 
 .zh-nav__profile:hover img {

@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import BlogPostPageClient from "@/components/BlogPostPageClient";
-import { getMockBlogPost, getMockRelatedBlogPosts } from "@/lib/mock/page-data";
+import {
+  getPublishedBlogPost,
+  getRelatedBlogPosts,
+} from "@/lib/data/blog";
 import { generateBlogPostMetadata } from "@/lib/seo/metadata";
 
 type BlogPostPageProps = {
@@ -9,7 +12,7 @@ type BlogPostPageProps = {
 
 export async function generateMetadata({ params }: BlogPostPageProps) {
   const { slug, locale } = await params;
-  const post = getMockBlogPost(slug);
+  const post = await getPublishedBlogPost(slug);
   if (!post) {
     return { title: "Blog" };
   }
@@ -28,9 +31,9 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = getMockBlogPost(slug);
+  const post = await getPublishedBlogPost(slug);
   if (!post) notFound();
 
-  const related = getMockRelatedBlogPosts(slug);
+  const related = await getRelatedBlogPosts(slug, post.categorySlug);
   return <BlogPostPageClient post={post} related={related} />;
 }

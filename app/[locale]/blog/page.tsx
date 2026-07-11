@@ -1,5 +1,5 @@
 import BlogPageClient from "@/components/BlogPageClient";
-import { getMockBlogPosts } from "@/lib/mock/page-data";
+import { getPublishedBlogPosts } from "@/lib/data/blog";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata({
@@ -16,7 +16,7 @@ export async function generateMetadata({
   });
 }
 
-export default function BlogPage() {
-  const posts = getMockBlogPosts();
+export default async function BlogPage() {
+  const posts = await getPublishedBlogPosts();
   return <BlogPageClient posts={posts} />;
 }
