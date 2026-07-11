@@ -10,12 +10,6 @@ export type ZorinoQuickNavItem = {
 
 export const ZORINO_QUICK_NAV_ITEMS: readonly ZorinoQuickNavItem[] = [
   {
-    id: "featured-brands",
-    emoji: "🎟️",
-    label: "Coupon Brands",
-    targetId: "zh-section-featured-brands",
-  },
-  {
     id: "trending-deals",
     emoji: "🔥",
     label: "Trending Deals",
@@ -26,6 +20,12 @@ export const ZORINO_QUICK_NAV_ITEMS: readonly ZorinoQuickNavItem[] = [
     emoji: "🎟️",
     label: "Coupons",
     targetId: "zh-section-coupons",
+  },
+  {
+    id: "featured-brands",
+    emoji: "🎟️",
+    label: "Coupon Brands",
+    targetId: "zh-section-featured-brands",
   },
   {
     id: "flash-deals",
@@ -74,9 +74,9 @@ export const ZORINO_QUICK_NAV_ITEMS: readonly ZorinoQuickNavItem[] = [
 
 /** Unique section roots observed for scroll-spy */
 export const ZORINO_QUICK_NAV_TARGETS = [
-  "zh-section-featured-brands",
   "zh-section-trending-deals",
   "zh-section-coupons",
+  "zh-section-featured-brands",
   "zh-section-flash-deals",
   "zh-section-price-drops",
   "zh-section-new-arrivals",
