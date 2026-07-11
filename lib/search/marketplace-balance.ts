@@ -166,19 +166,27 @@ export function balanceFlatMarketplaceList<T>(
 ): T[] {
   if (items.length === 0 || limit <= 0) return [];
 
-  const grouped = groupByMarketplace(items, getProviderId);
-  const queues = new Map<string, T[]>();
+  type Wrapped = BalanceableItem & { item: T };
+  const wrapped: Wrapped[] = items.map((item) => ({
+    providerId: getProviderId(item),
+    item,
+  }));
+
+  const grouped = groupByMarketplace(wrapped, (row) => row.providerId);
+  const queues = new Map<string, Wrapped[]>();
   for (const [id, bucket] of grouped) {
-    const sorted = compare ? [...bucket].sort(compare) : [...bucket];
+    const sorted = compare
+      ? [...bucket].sort((a, b) => compare(a.item, b.item))
+      : [...bucket];
     queues.set(id, sorted);
   }
 
-  const identityCompare = compare ?? (() => 0);
-
-  return balanceMarketplaceQueues(queues, {
+  const balanced = balanceMarketplaceQueues<Wrapped>(queues, {
     limit,
-    compare: identityCompare,
+    compare: (a, b) => (compare ? compare(a.item, b.item) : 0),
     isComparable: () => true,
     maxConsecutive: 2,
   });
+
+  return balanced.map((row) => row.item);
 }
