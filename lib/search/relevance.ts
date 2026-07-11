@@ -88,6 +88,20 @@ export const ACCESSORY_TERMS = [
   "vacuum cleaner head",
   "clip latch",
   "latch tab",
+  "backpack",
+  "laptop stand",
+  "laptop holder",
+  "laptop bag",
+  "cleaning pen",
+  "charging port",
+  "charging dock",
+  "dock for",
+  "capture card",
+  "video capture",
+  "hepa filter",
+  "roller brush",
+  "brush head",
+  "filter roller",
 ] as const;
 
 /** Repair tools and spare parts — always excluded on device-model searches. */
@@ -165,6 +179,13 @@ export const REPAIR_AND_PARTS_TERMS = [
   "clip latch",
   "latch tab",
   "head clip",
+  "display only",
+  "oem genuine part",
+  "genuine part",
+  "damaged flex",
+  "flex shaft",
+  "part damaged",
+  "for parts or repair",
 ] as const;
 
 /** Accessory-only product types excluded on device-model searches. */
@@ -295,7 +316,7 @@ function looksLikeMacBookLaptop(hay: string, category?: string): boolean {
     return false;
   }
   if (
-    /\b(for\s+macbook|pour\s+macbook|replacement|panel|mother|magsafe|ssd|connector|jack|keycap|chip|stencil|genuine\s+for|genuine\s+oem|820-|logic\s*board|main\s*board|map\b)\b/.test(
+    /\b(for\s+macbook|pour\s+macbook|replacement|panel|mother|magsafe|ssd|connector|jack|keycap|chip|stencil|genuine\s+for|genuine\s+oem|820-|logic\s*board|main\s*board|map\b|display\s+only|oem\s+genuine\s+part|flex\s+shaft|damaged)\b/.test(
       hay
     )
   ) {
@@ -586,19 +607,23 @@ export function looksLikeDevice(title: string, category?: string): boolean {
     return true;
   }
 
-  // PlayStation / PS5
+  // Nintendo Switch consoles (not controllers / cases / docks)
+  if (/\b(nintendo\s+)?switch\b/.test(hay)) {
+    if (isAccessoryDominantTitle(hay)) return false;
+    if (/\b(dock|charging\s+port|joy[-\s]?con|grip|screen\s+protector)\b/.test(hay)) return false;
+    if (/\b(console|oled|lite|bundle)\b/.test(hay)) return true;
+    if (/\bnintendo\b/.test(hay) && !/\b(for\s+switch|pour\s+switch)\b/.test(hay)) return true;
+  }
+
+  // PlayStation / PS5 consoles — not capture cards / accessories
   if (/\b(ps5|playstation\s*5)\b/.test(hay)) {
+    if (/\b(capture\s+card|game\s+grabber|controller|headset|charging|stand|cover|skin)\b/.test(hay)) {
+      return false;
+    }
     if (/\b(console|disc|digital|edition|bundle)\b/.test(hay) || categorySuggestsDevice(category)) {
       return true;
     }
     if (/\bsony\b/.test(hay) || /^playstation/i.test(title.trim())) return true;
-  }
-
-  // Nintendo Switch consoles (not controllers / cases)
-  if (/\b(nintendo\s+)?switch\b/.test(hay)) {
-    if (isAccessoryDominantTitle(hay)) return false;
-    if (/\b(console|oled|lite|bundle)\b/.test(hay)) return true;
-    if (/\bnintendo\b/.test(hay) && !/\b(for\s+switch|pour\s+switch)\b/.test(hay)) return true;
   }
 
   // Generic laptops / notebooks (non-MacBook)
@@ -718,7 +743,11 @@ export function analyzeSearchListing(
     /\b(laptop|notebook|monitor|keyboard|mouse|smartwatch|camera|\btv\b|television|tablet)\b/.test(
       phrase,
     ) &&
-    titleMatchesQuery(title, query)
+    titleMatchesQuery(title, query) &&
+    !isAccessoryDominantTitle(hay) &&
+    !/\b(backpack|stand|holder|bag|sleeve|cooler|cooling pad|dock|capture|filter|brush|case|cover)\b/.test(
+      hay,
+    )
   ) {
     isDevice = true;
   }
