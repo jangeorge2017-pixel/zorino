@@ -91,13 +91,13 @@ export function parseMarketplaceProductId(id: string): {
   providerId: SearchProviderId | "unknown";
   externalId: string;
 } {
-  const trimmed = id.trim();
+  const trimmed = id.trim().split("#")[0]!.split("?")[0]!.trim();
   for (const provider of SEARCH_PROVIDER_IDS) {
     const prefix = `${provider}-`;
     if (trimmed.toLowerCase().startsWith(prefix)) {
       return {
         providerId: provider,
-        externalId: trimmed.slice(prefix.length),
+        externalId: decodeURIComponent(trimmed.slice(prefix.length)),
       };
     }
   }
@@ -105,7 +105,7 @@ export function parseMarketplaceProductId(id: string): {
   if (/^\d{6,}$/.test(trimmed)) {
     return { providerId: "aliexpress", externalId: trimmed };
   }
-  return { providerId: "unknown", externalId: trimmed };
+  return { providerId: "unknown", externalId: decodeURIComponent(trimmed) };
 }
 
 function rawListingToSearchItem(listing: RawProviderListing): SearchResultItem {
