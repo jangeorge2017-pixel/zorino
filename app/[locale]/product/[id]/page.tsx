@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import ProductDetailsPageClient from "@/components/ProductDetailsPageClient";
+import { ProductJsonLd } from "@/components/ProductJsonLd";
 import { resolveMarketplaceProductDetail } from "@/lib/data/marketplace-product-detail";
 import { generateProductMetadata } from "@/lib/seo/metadata";
 
@@ -29,5 +30,10 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
   const { id } = await params;
   const detail = await resolveMarketplaceProductDetail(id);
   if (!detail) notFound();
-  return <ProductDetailsPageClient detail={detail} />;
+  return (
+    <>
+      <ProductJsonLd detail={detail} />
+      <ProductDetailsPageClient detail={detail} />
+    </>
+  );
 }

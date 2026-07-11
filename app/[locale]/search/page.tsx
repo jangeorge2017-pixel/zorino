@@ -20,6 +20,7 @@ export async function generateMetadata({
     description: "Search products, deals, and stores across marketplaces",
     pathname: "/search",
     locale: locale === "ar" ? "ar" : "en",
+    noIndex: true,
   });
 }
 
