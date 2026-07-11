@@ -4,7 +4,7 @@
 
 .hhb {
   position: relative;
-  isolation: isolate;
+  /* Avoid isolate here — it can trap sticky Trending head under siblings */
   margin: 0 calc(-1 * var(--zh-pad)) 0;
   padding: 0 var(--zh-pad) 36px;
   background: transparent;
@@ -14,11 +14,13 @@
 .hhb__content {
   position: relative;
   z-index: 1;
+  overflow: visible;
 }
 
 .hhb__content .zh-commerce {
   position: relative;
   z-index: 1;
+  overflow: visible;
 }
 
 .hhb .zh-commerce {

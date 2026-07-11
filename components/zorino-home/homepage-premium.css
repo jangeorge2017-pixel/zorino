@@ -47,13 +47,13 @@
   --zh-premium-glow-cyan: rgba(34, 211, 238, 0.1);
 }
 
-/* Discovery + Trending stay tight under the hero/search/category block */
+/* Discovery + Trending spacing (matches homepage-surface.css) */
 .zh-page .zh-home-discovery-nav {
-  margin-top: 10px;
+  margin-top: 24px;
 }
 
 .zh-page .hhb {
-  margin-top: 14px;
+  margin-top: 28px;
 }
 
 .zh-page .zh-featured-brands-wrap,

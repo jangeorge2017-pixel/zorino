@@ -47,7 +47,7 @@
 }
 
 .zh-page .zh-trending-deals__controls {
-  margin-top: var(--zor-space-4);
+  margin-top: 0;
 }
 
 .zh-page .zh-trending-deals__track .zh-trending-deals__slide {

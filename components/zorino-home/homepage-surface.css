@@ -5,18 +5,23 @@
 .zh-home-discovery-nav {
   position: relative;
   z-index: 2;
-  /* Tight gap under category row so Trending stays close to Hero/Search */
-  margin-top: 10px;
+  /* Categories → Quick Nav: +14px breathing room; keep glow unclipped */
+  margin-top: 24px;
+  overflow: visible;
 }
 
 .zh-quick-nav-wrap {
   margin-top: 0;
+  overflow: visible;
 }
 
 .zh-categories-wrap {
   position: relative;
   z-index: 2;
   margin-top: calc(4px + var(--zh-space-search-categories, 22px));
+  /* Room for category hover lift / icon glow */
+  padding-bottom: 6px;
+  overflow: visible;
 }
 
 .zh-featured-brands-wrap,
@@ -25,9 +30,9 @@
   margin-top: var(--zh-section-step, clamp(64px, 5vw, 80px));
 }
 
-/* Trending starts immediately after Hero/Search/Categories with normal spacing */
+/* Quick Nav → Trending: modest extra top spacing */
 .hhb {
-  margin-top: 14px;
+  margin-top: 28px;
 }
 
 .zh-featured-brands.zh-panel,

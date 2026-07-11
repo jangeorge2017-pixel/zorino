@@ -6,6 +6,7 @@
 .zh-categories-nav {
   position: relative;
   width: 100%;
+  overflow: visible;
 }
 
 .zh-categories {
@@ -13,6 +14,9 @@
   grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 8px;
   margin-top: 0;
+  overflow: visible;
+  /* Hover lift / icon glow room without changing tile size */
+  padding-block: 4px;
 }
 
 .zh-categories__item {
