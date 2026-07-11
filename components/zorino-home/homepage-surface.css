@@ -4,9 +4,10 @@
 
 .zh-home-discovery-nav {
   position: relative;
-  z-index: 2;
+  z-index: 5;
   /* Categories → Quick Nav: +14px breathing room; keep glow unclipped */
   margin-top: 24px;
+  padding-bottom: 4px;
   overflow: visible;
 }
 
@@ -30,9 +31,11 @@
   margin-top: var(--zh-section-step, clamp(64px, 5vw, 80px));
 }
 
-/* Quick Nav → Trending: modest extra top spacing */
+/* Quick Nav fully visible above Trending — clear gap, no overlap */
 .hhb {
-  margin-top: 28px;
+  margin-top: 36px;
+  position: relative;
+  z-index: 1;
 }
 
 .zh-featured-brands.zh-panel,

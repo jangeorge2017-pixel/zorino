@@ -14,6 +14,7 @@
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow: visible;
   transition:
     box-shadow 250ms ease,
     background 250ms ease,

@@ -2,6 +2,7 @@
 
 import {
   Bell,
+  Crown,
   Heart,
   Search,
   User,
@@ -18,6 +19,9 @@ import "./nav.css";
 export default function ZorinoHomeNav() {
   const t = useTranslations("common");
   const { user } = useAuth();
+  const displayName = user
+    ? user.name.split(" ")[0] || user.name
+    : null;
 
   return (
     <header className="zh-nav">
@@ -64,11 +68,15 @@ export default function ZorinoHomeNav() {
                 <User size={16} strokeWidth={2} />
               </span>
             )}
-            {user ? (
-              <div className="zh-nav__profile-copy">
-                <strong>{t("hiUser", { name: user.name.split(" ")[0] || user.name })}</strong>
-              </div>
-            ) : null}
+            <div className="zh-nav__profile-copy">
+              <strong>
+                {displayName ? t("hiUser", { name: displayName }) : t("signIn")}
+              </strong>
+              <span className="zh-nav__premium">
+                {t("premium")}
+                <Crown size={11} aria-hidden />
+              </span>
+            </div>
           </Link>
         </div>
       </div>
