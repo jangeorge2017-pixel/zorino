@@ -54,10 +54,9 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
     }
   }
 
-  const tag =
-    input.partnerTag?.trim() ||
-    getPartnerTagFromEnv(marketplace) ||
-    `zorino-${marketplace}`;
+  // Never invent partner tags — untracked destinations stay untracked.
+  const tag = input.partnerTag?.trim() || getPartnerTagFromEnv(marketplace);
+  if (!tag) return input.destinationUrl;
 
   const trackingId = input.trackingId ?? generateTrackingToken();
 

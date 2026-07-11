@@ -33,7 +33,7 @@ export async function generateEbayAffiliateLink(
     const client = createEbayClientFromEnv();
     if (client && creds?.campaignId) {
       try {
-        const itemId = extractEbayItemId(input.productUrl);
+        const itemId = resolveEbayItemIdFromProductRef(input.productUrl);
         if (itemId) {
           const items = await client.getItemsByIds([itemId], "US");
           const affiliateUrl = items[0]?.itemAffiliateWebUrl?.trim();
@@ -81,8 +81,25 @@ function extractEbayItemId(url: string): string | null {
     const pathMatch = parsed.pathname.match(/\/itm\/(\d+)/);
     if (pathMatch?.[1]) return pathMatch[1];
     const legacy = parsed.searchParams.get("item");
-    return legacy?.trim() || null;
+    if (legacy?.trim()) return legacy.trim();
+    // Browse API ids sometimes appear in query or hash (v1|123|0)
+    const browse =
+      parsed.searchParams.get("itemid") ||
+      parsed.searchParams.get("itemId") ||
+      "";
+    if (browse.includes("|") || browse.startsWith("v1")) return browse.trim();
+    return null;
   } catch {
+    // Allow raw Browse item ids passed as "URL"
+    if (url.includes("|") || url.startsWith("v1")) return url.trim();
     return null;
   }
+}
+
+/** Prefer Browse API item ids from product route segments. */
+export function resolveEbayItemIdFromProductRef(ref: string): string | null {
+  const trimmed = ref.trim();
+  if (!trimmed) return null;
+  if (trimmed.includes("|") || trimmed.startsWith("v1")) return trimmed;
+  return extractEbayItemId(trimmed);
 }
