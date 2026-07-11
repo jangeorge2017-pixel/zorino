@@ -161,7 +161,7 @@ export async function searchProducts(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const cacheKey = `prod-v9:${trimmed.toLowerCase()}:${capped}`;
+  const cacheKey = `prod-v10:${trimmed.toLowerCase()}:${capped}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -169,9 +169,9 @@ export async function searchProducts(
 
   const { allRaw } = await fetchProvidersInParallel(trimmed, {
     providers: [...LIVE_SEARCH_PROVIDER_IDS],
-    minFetch: 50,
-    targetFetch: 100,
-    maxPages: 3,
+    minFetch: 60,
+    targetFetch: 120,
+    maxPages: 4,
   });
 
   const mixed = assembleProductionSearchResults(allRaw, trimmed, capped);
