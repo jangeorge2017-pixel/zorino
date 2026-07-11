@@ -113,6 +113,7 @@ export const ACCESSORY_TERMS = [
   "sim eject",
   "ejector tool",
   "ejector",
+  "ejetor",
   "r-sim",
   "rsim",
   "unlock card",
@@ -120,6 +121,8 @@ export const ACCESSORY_TERMS = [
   "mouse pad",
   "mousepad",
   "desk pad",
+  "power bank",
+  "powerbank",
 ] as const;
 
 /** Repair tools and spare parts — always excluded on device-model searches. */
@@ -209,10 +212,13 @@ export const REPAIR_AND_PARTS_TERMS = [
   "cooling fan",
   "sim eject",
   "ejector tool",
+  "ejetor",
   "r-sim",
   "rsim",
   "unlock card",
   "nano unlock",
+  "power bank",
+  "powerbank",
 ] as const;
 
 /** Accessory-only product types excluded on device-model searches. */
