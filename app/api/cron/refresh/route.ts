@@ -13,6 +13,8 @@ import { runNotificationAlerts } from "@/services/notifications/alerts";
 import { invalidateLowestPricesFromRoute, invalidateTrendingFromRoute } from "@/lib/revalidate";
 
 /** Bundled maintenance cron — keeps Vercel Hobby plan within the 2-cron limit. */
+export const maxDuration = 300;
+
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();

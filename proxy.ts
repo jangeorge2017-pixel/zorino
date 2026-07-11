@@ -52,7 +52,8 @@ function applyPreferenceCookies(
   response.headers.set("x-zor-detected-country", country);
 }
 
-export default function middleware(request: NextRequest) {
+/** Next.js 16+ proxy entry (replaces deprecated middleware.ts). */
+export function proxy(request: NextRequest) {
   const detectedCountry = detectCountryFromHeaders(request);
   const geoInitialized = request.cookies.get(INTL_COOKIE_GEO_DONE)?.value === "1";
   const pathname = request.nextUrl.pathname;
