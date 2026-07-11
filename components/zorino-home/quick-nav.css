@@ -46,7 +46,8 @@
   width: 100%;
   max-width: var(--zh-content);
   margin: 0 auto;
-  padding: 10px 0;
+  /* Vertical padding so pill hover/active glow is not clipped */
+  padding: 12px 0;
 }
 
 .zh-quick-nav__row {
@@ -55,7 +56,8 @@
   gap: 10px;
   flex-wrap: nowrap;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
+  padding-block: 4px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   overscroll-behavior-x: contain;
