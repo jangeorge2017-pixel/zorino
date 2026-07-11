@@ -28,70 +28,32 @@ export function pickBestOffer(
   })[0]!;
 }
 
-function prepareProviderQueue(
+function isPrimaryDeviceListing(row: NormalizedSearchListing): boolean {
+  return row.isDevice && row.matchTier !== "accessory" && row.matchTier !== "repair";
+}
+
+function splitProviderQueues(
   ranked: NormalizedSearchListing[],
   query: string,
-): NormalizedSearchListing[] {
+): { primary: NormalizedSearchListing[]; secondary: NormalizedSearchListing[] } {
   const wantsAccessory = queryWantsAccessory(query);
 
   if (wantsAccessory) {
-    return ranked.filter((row) => row.matchTier !== "repair" && row.matchTier !== "none");
+    const kept = ranked.filter((row) => row.matchTier !== "repair" && row.matchTier !== "none");
+    return { primary: kept, secondary: [] };
   }
 
-  const primary = ranked.filter(
-    (row) => row.isDevice && row.matchTier !== "accessory",
-  );
-  const secondary = ranked.filter(
-    (row) => row.matchTier === "accessory" || !row.isDevice,
-  );
-  return [...primary, ...secondary];
+  const primary = ranked.filter(isPrimaryDeviceListing);
+  const secondary = ranked.filter((row) => !isPrimaryDeviceListing(row));
+  return { primary, secondary };
 }
 
-/**
- * Production search assembly:
- * 1) Query/rank each marketplace independently (device-first within each)
- * 2) Fair round-robin across marketplaces (no provider bias)
- * 3) Skip cross-marketplace duplicates as the list is built
- * 4) Preserve marketplace-correct affiliate URLs on every card
- */
-export function assembleProductionSearchResults(
-  allRaw: RawProviderListing[],
-  query: string,
+function roundRobinTake(
+  working: NormalizedSearchListing[][],
   limit: number,
-): SearchResultItem[] {
-  if (allRaw.length === 0 || limit <= 0) return [];
-
-  const byProvider = new Map<SearchProviderId, RawProviderListing[]>();
-  for (const listing of allRaw) {
-    const bucket = byProvider.get(listing.providerId) ?? [];
-    bucket.push(listing);
-    byProvider.set(listing.providerId, bucket);
-  }
-
-  const queues: NormalizedSearchListing[][] = [];
-
-  for (const providerId of LIVE_SEARCH_PROVIDER_IDS) {
-    const raw = byProvider.get(providerId);
-    if (!raw?.length) continue;
-    const ranked = rankRawListings(raw, query);
-    const queue = prepareProviderQueue(ranked, query);
-    if (queue.length) queues.push(queue);
-  }
-
-  for (const [providerId, raw] of byProvider) {
-    if ((LIVE_SEARCH_PROVIDER_IDS as readonly string[]).includes(providerId)) continue;
-    if (!raw.length) continue;
-    const ranked = rankRawListings(raw, query);
-    const queue = prepareProviderQueue(ranked, query);
-    if (queue.length) queues.push(queue);
-  }
-
-  if (queues.length === 0) return [];
-
-  const result: SearchResultItem[] = [];
-  const accepted: NormalizedSearchListing[] = [];
-  const working = queues.map((queue) => [...queue]);
-
+  result: SearchResultItem[],
+  accepted: NormalizedSearchListing[],
+): void {
   while (result.length < limit) {
     let progressed = false;
 
@@ -113,6 +75,69 @@ export function assembleProductionSearchResults(
     }
 
     if (!progressed) break;
+  }
+}
+
+/**
+ * Production search assembly:
+ * 1) Query/rank each marketplace independently
+ * 2) Globally device-first: fair-mix devices from all marketplaces before any accessories
+ * 3) Then fair-mix accessories / non-devices (unless the query asks for accessories)
+ * 4) Skip cross-marketplace duplicates as the list is built
+ * 5) Preserve marketplace-correct affiliate URLs on every card
+ */
+export function assembleProductionSearchResults(
+  allRaw: RawProviderListing[],
+  query: string,
+  limit: number,
+): SearchResultItem[] {
+  if (allRaw.length === 0 || limit <= 0) return [];
+
+  const byProvider = new Map<SearchProviderId, RawProviderListing[]>();
+  for (const listing of allRaw) {
+    const bucket = byProvider.get(listing.providerId) ?? [];
+    bucket.push(listing);
+    byProvider.set(listing.providerId, bucket);
+  }
+
+  const primaryQueues: NormalizedSearchListing[][] = [];
+  const secondaryQueues: NormalizedSearchListing[][] = [];
+
+  const providerOrder: SearchProviderId[] = [
+    ...LIVE_SEARCH_PROVIDER_IDS,
+    ...[...byProvider.keys()].filter(
+      (id) => !(LIVE_SEARCH_PROVIDER_IDS as readonly string[]).includes(id),
+    ),
+  ];
+
+  for (const providerId of providerOrder) {
+    const raw = byProvider.get(providerId);
+    if (!raw?.length) continue;
+    const ranked = rankRawListings(raw, query);
+    const { primary, secondary } = splitProviderQueues(ranked, query);
+    if (primary.length) primaryQueues.push(primary);
+    if (secondary.length) secondaryQueues.push(secondary);
+  }
+
+  if (primaryQueues.length === 0 && secondaryQueues.length === 0) return [];
+
+  const result: SearchResultItem[] = [];
+  const accepted: NormalizedSearchListing[] = [];
+
+  roundRobinTake(
+    primaryQueues.map((queue) => [...queue]),
+    limit,
+    result,
+    accepted,
+  );
+
+  if (result.length < limit) {
+    roundRobinTake(
+      secondaryQueues.map((queue) => [...queue]),
+      limit,
+      result,
+      accepted,
+    );
   }
 
   return result;

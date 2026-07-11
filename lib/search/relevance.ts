@@ -75,6 +75,19 @@ export const ACCESSORY_TERMS = [
   "ring light",
   "sim tray",
   "sim card tool",
+  "sticker ring",
+  "magsafe ring",
+  "magsafe sticker",
+  "gamepad",
+  "game controller",
+  "telescopic",
+  "thermal paste",
+  "thermal grease",
+  "thermal pad",
+  "paste grease",
+  "vacuum cleaner head",
+  "clip latch",
+  "latch tab",
 ] as const;
 
 /** Repair tools and spare parts — always excluded on device-model searches. */
@@ -129,6 +142,8 @@ export const REPAIR_AND_PARTS_TERMS = [
   "lcd panel",
   "screen panel",
   "ssd chip",
+  "ssd for",
+  "ssfor",
   "speaker for",
   "magsafe connector",
   "usb hub",
@@ -142,6 +157,14 @@ export const REPAIR_AND_PARTS_TERMS = [
   "mlb for",
   "mother ",
   " mother",
+  "thermal paste",
+  "thermal grease",
+  "thermal conductivity",
+  "paste grease",
+  "conductivity paste",
+  "clip latch",
+  "latch tab",
+  "head clip",
 ] as const;
 
 /** Accessory-only product types excluded on device-model searches. */
@@ -393,6 +416,8 @@ export function hasSameSeries(title: string, query: string): boolean {
   if (/\b(ps5|playstation)\b/.test(q) && /\b(ps5|playstation)\b/.test(hay)) return true;
   if (/\brtx\b/.test(q) && /\brtx\b/.test(hay)) return true;
   if (/\bipad\b/.test(q) && /\bipad\b/.test(hay)) return true;
+  if (/\bswitch\b/.test(q) && /\b(switch|nintendo)\b/.test(hay)) return true;
+  if (/\b(laptop|notebook)\b/.test(q) && /\b(laptop|notebook|macbook)\b/.test(hay)) return true;
 
   return false;
 }
@@ -569,6 +594,29 @@ export function looksLikeDevice(title: string, category?: string): boolean {
     if (/\bsony\b/.test(hay) || /^playstation/i.test(title.trim())) return true;
   }
 
+  // Nintendo Switch consoles (not controllers / cases)
+  if (/\b(nintendo\s+)?switch\b/.test(hay)) {
+    if (isAccessoryDominantTitle(hay)) return false;
+    if (/\b(console|oled|lite|bundle)\b/.test(hay)) return true;
+    if (/\bnintendo\b/.test(hay) && !/\b(for\s+switch|pour\s+switch)\b/.test(hay)) return true;
+  }
+
+  // Generic laptops / notebooks (non-MacBook)
+  if (/\b(laptop|notebook)\b/.test(hay) && !isAccessoryDominantTitle(hay)) {
+    if (/\b\d+\s*(gb|tb|inch|"|hz)\b/i.test(title) || /\b(intel|amd|ryzen|core\s*i\d)\b/.test(hay)) {
+      return true;
+    }
+  }
+
+  // Monitors / TVs / cameras as primary products
+  if (
+    /\b(monitor|television|\btv\b|camera|smartwatch|smart\s+watch)\b/.test(hay) &&
+    !isAccessoryDominantTitle(hay) &&
+    !/\bfor\s+(iphone|samsung|galaxy|ipad|macbook|ps5|switch)\b/.test(hay)
+  ) {
+    return true;
+  }
+
   // Galaxy Fold / Flip — phones only, not styluses.
   if (/\b(fold|flip)\b/.test(hay) && /\b(samsung|galaxy)\b/.test(hay)) {
     if (/\b(stylus|electromagnetic pen|touch pen|\ss pen\b|pen for)\b/.test(hay)) {
@@ -659,8 +707,21 @@ export function analyzeSearchListing(
     return { tier: "none", score: 0, isDevice: false };
   }
 
-  const isDevice = looksLikeDevice(title, options?.category);
+  let isDevice = looksLikeDevice(title, options?.category);
   const isAccessory = isAccessoryListing(title, query);
+
+  // Category-style queries (laptop, monitor, …): matching non-accessory titles count as primary products.
+  if (
+    !isDevice &&
+    !isAccessory &&
+    !wantsAccessory &&
+    /\b(laptop|notebook|monitor|keyboard|mouse|smartwatch|camera|\btv\b|television|tablet)\b/.test(
+      phrase,
+    ) &&
+    titleMatchesQuery(title, query)
+  ) {
+    isDevice = true;
+  }
 
   let tier: ProductMatchTier = "brand";
 

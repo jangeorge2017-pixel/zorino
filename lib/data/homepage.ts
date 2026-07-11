@@ -9,7 +9,7 @@ import {
   getIntegratedSectionProducts,
   getIntegratedTrendingDeals,
 } from "@/lib/integration/catalog-service";
-import { HOMEPAGE_POPULAR_SEARCH_FETCH, HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
+import { HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
 import { ZH_POPULAR_SEARCHES } from "@/lib/zorino-home/content";
 import {
   withFallbackCategories,
@@ -54,15 +54,16 @@ const loadTopCouponsCached = unstable_cache(
 const loadPopularSearchesCached = unstable_cache(
   async (): Promise<string[]> => {
     try {
-      const { browseAliExpressLive } = await import("@/services/aliexpress/search");
-      const items = await browseAliExpressLive(HOMEPAGE_POPULAR_SEARCH_FETCH.limit);
-      return items.map((item) => item.name);
+      const { searchProducts } = await import("@/lib/search/engine");
+      const items = await searchProducts("electronics", 12);
+      const names = items.map((item) => item.name).filter(Boolean);
+      return names.slice(0, 8);
     } catch (error) {
       console.error("[homepage] popular searches fetch failed:", error);
       return [];
     }
   },
-  ["homepage:popular-searches"],
+  ["homepage:popular-searches-v2"],
   { revalidate: 900, tags: ["homepage-popular-searches"] },
 );
 const HERO_ORBIT_POSITIONS = [
@@ -117,12 +118,12 @@ export type HomepageSectionProducts = {
   editorsPicks: TrendingDealCard[];
 };
 
-/** Product grids below Trending Deals / Top Coupons — live AliExpress only. */
+/** Product grids below Trending Deals / Top Coupons — live multi-marketplace search. */
 export async function getHomepageSectionProducts(): Promise<HomepageSectionProducts> {
   return getIntegratedSectionProducts();
 }
 
-/** Homepage trending deals — live AliExpress only. */
+/** Homepage trending deals — live multi-marketplace search. */
 export async function getTrendingDeals(limit = 4): Promise<TrendingDealCard[]> {
   return getIntegratedTrendingDeals(limit);
 }
@@ -144,7 +145,7 @@ export async function getCouponsForPage() {
   return data.map(couponToCard);
 }
 
-/** Hero orbit — live AliExpress products only (empty slots when API has no data). */
+/** Hero orbit — live marketplace products (empty slots when APIs have no data). */
 export async function getHeroFloatingProducts(): Promise<FloatingProductCard[]> {
   const deals = await getTrendingDeals(4);
   const positions = HERO_ORBIT_POSITIONS;
@@ -194,15 +195,17 @@ export function getPopularSearchesStatic(): string[] {
   return ZH_POPULAR_SEARCHES;
 }
 
-/** Live popular searches (cached). Used by streamed search section. */
+/** Popular searches — live multi-marketplace search titles when configured. */
 export async function getPopularSearchesLive(): Promise<string[]> {
   if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
     return ZH_POPULAR_SEARCHES;
   }
 
   try {
-    const { isAliExpressConfigured } = await import("@/lib/integrations/aliexpress/config");
-    if (!isAliExpressConfigured()) {
+    const { getActiveSearchConnectors } = await import("@/lib/search/connectors/registry");
+    const { LIVE_SEARCH_PROVIDER_IDS } = await import("@/lib/search/types");
+    const active = await getActiveSearchConnectors([...LIVE_SEARCH_PROVIDER_IDS]);
+    if (active.length === 0) {
       return ZH_POPULAR_SEARCHES;
     }
     const live = await loadPopularSearchesCached();
@@ -269,7 +272,7 @@ export async function getCategoriesForPage() {
   return data;
 }
 
-/** Active deals for /deals page — live AliExpress only. */
+/** Active deals for /deals page — live multi-marketplace search. */
 export async function getDealsForPage() {
   return getIntegratedDeals(48);
 }
