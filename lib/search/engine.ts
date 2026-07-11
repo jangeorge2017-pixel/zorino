@@ -8,10 +8,15 @@ import {
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
 import {
-  unifiedToMarketplaceSearchItems,
+  fairMixSearchResults,
+  listingToSearchResultItem,
   unifiedToSearchResultItem,
 } from "@/lib/search/price-comparison";
-import type { SearchEngineResult, SearchProviderId } from "@/lib/search/types";
+import type {
+  RawProviderListing,
+  SearchEngineResult,
+  SearchProviderId,
+} from "@/lib/search/types";
 import {
   LIVE_SEARCH_PROVIDER_IDS,
   SEARCH_ENGINE_DEFAULTS,
@@ -27,10 +32,16 @@ export type GlobalSearchOptions = {
   skipCache?: boolean;
 };
 
+const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
+const fairSearchCache = new Map<
+  string,
+  { items: SearchResultItem[]; expiresAt: number }
+>();
+
 /**
  * ZORINO Global Search Engine
  *
- * Pipeline: Provider Connectors (parallel) → Normalization → Ranking →
+ * Pipeline: Provider Connectors (parallel) → per-marketplace Ranking →
  *           Duplicate Detection → Price Comparison → UI mapping
  */
 export async function executeGlobalSearch(
@@ -61,18 +72,60 @@ export async function executeGlobalSearch(
     if (cached) return cached;
   }
 
+  const { allRaw, providerStats } = await fetchProvidersInParallel(trimmed, options);
+
+  // Rank each marketplace independently so one provider cannot suppress another.
+  const ranked: ReturnType<typeof rankRawListings> = [];
+  const byProvider = groupByProvider(allRaw);
+  for (const listings of byProvider.values()) {
+    ranked.push(...rankRawListings(listings, trimmed));
+  }
+
+  const unified = sortUnifiedByRelevance(mergeDuplicateListings(ranked));
+
+  const result: SearchEngineResult = {
+    products: unified,
+    totalFetched: allRaw.length,
+    totalRanked: ranked.length,
+    totalUnified: unified.length,
+    providers: providerStats,
+    query: trimmed,
+  };
+
+  setCachedSearch(cacheKey, result);
+  return result;
+}
+
+function groupByProvider(
+  listings: RawProviderListing[],
+): Map<SearchProviderId, RawProviderListing[]> {
+  const byProvider = new Map<SearchProviderId, RawProviderListing[]>();
+  for (const listing of listings) {
+    const bucket = byProvider.get(listing.providerId) ?? [];
+    bucket.push(listing);
+    byProvider.set(listing.providerId, bucket);
+  }
+  return byProvider;
+}
+
+async function fetchProvidersInParallel(
+  query: string,
+  options?: GlobalSearchOptions,
+): Promise<{
+  allRaw: RawProviderListing[];
+  providerStats: SearchEngineResult["providers"];
+}> {
   await hydrateIntegrationCredentials();
 
   const connectors = await getActiveSearchConnectors(options?.providers);
   const providerStats: SearchEngineResult["providers"] = [];
-  const allRaw: Awaited<ReturnType<(typeof connectors)[0]["search"]>> = [];
+  const allRaw: RawProviderListing[] = [];
 
-  // Fan out in parallel — a single provider failure never blocks the others.
   await Promise.all(
     connectors.map(async (connector) => {
       const started = Date.now();
       try {
-        const batch = await connector.search(trimmed, {
+        const batch = await connector.search(query, {
           minFetch: options?.minFetch ?? SEARCH_ENGINE_DEFAULTS.MIN_FETCH_COUNT,
           targetFetch: options?.targetFetch ?? SEARCH_ENGINE_DEFAULTS.TARGET_FETCH_COUNT,
           maxPages: options?.maxPages,
@@ -93,73 +146,60 @@ export async function executeGlobalSearch(
           durationMs: Date.now() - started,
         });
       }
-    })
+    }),
   );
 
-  const ranked = rankRawListings(allRaw, trimmed);
-  const unified = sortUnifiedByRelevance(mergeDuplicateListings(ranked));
-
-  const result: SearchEngineResult = {
-    products: unified,
-    totalFetched: allRaw.length,
-    totalRanked: ranked.length,
-    totalUnified: unified.length,
-    providers: providerStats,
-    query: trimmed,
-  };
-
-  setCachedSearch(cacheKey, result);
-  return result;
+  return { allRaw, providerStats };
 }
 
 /**
- * Search entry point for UI.
- * Queries live marketplaces in parallel and returns one card per marketplace
- * so eBay + AliExpress (etc.) appear together in the merged list.
+ * Search UI entry point — fair multi-marketplace aggregation.
+ * Queries live APIs in parallel, ranks each marketplace on its own,
+ * then round-robins equal shares into one list.
  */
 export async function searchProducts(
   query: string,
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT
 ): Promise<SearchResultItem[]> {
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
+  const trimmed = query.trim();
+  if (!trimmed) return [];
 
-  // Balanced, fast fetch: only live connectors, shallow pagination per marketplace.
-  const result = await executeGlobalSearch(query, {
-    limit: capped,
+  const cacheKey = `fair-v2:${trimmed.toLowerCase()}:${capped}`;
+  const cached = fairSearchCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.items.slice(0, capped);
+  }
+
+  const { allRaw } = await fetchProvidersInParallel(trimmed, {
     providers: [...LIVE_SEARCH_PROVIDER_IDS],
-    minFetch: Math.min(40, capped),
-    targetFetch: Math.min(100, Math.max(capped, 60)),
-    maxPages: 2,
+    minFetch: 50,
+    targetFetch: 100,
+    maxPages: 3,
   });
 
-  const items = result.products.flatMap(unifiedToMarketplaceSearchItems);
-  return interleaveMarketplaces(items).slice(0, capped);
-}
+  const byProvider = groupByProvider(allRaw);
+  const buckets: SearchResultItem[][] = [];
 
-/** Prefer alternating marketplaces so one provider cannot dominate the first page. */
-function interleaveMarketplaces(items: SearchResultItem[]): SearchResultItem[] {
-  const buckets = new Map<string, SearchResultItem[]>();
-  for (const item of items) {
-    const key = item.storeSlug || "other";
-    const list = buckets.get(key);
-    if (list) list.push(item);
-    else buckets.set(key, [item]);
+  for (const providerId of LIVE_SEARCH_PROVIDER_IDS) {
+    const raw = byProvider.get(providerId);
+    if (!raw?.length) continue;
+    buckets.push(rankRawListings(raw, trimmed).map(listingToSearchResultItem));
   }
 
-  const queues = [...buckets.values()];
-  if (queues.length <= 1) return items;
-
-  const merged: SearchResultItem[] = [];
-  let remaining = items.length;
-  while (remaining > 0) {
-    for (const queue of queues) {
-      const next = queue.shift();
-      if (!next) continue;
-      merged.push(next);
-      remaining -= 1;
-    }
+  for (const [providerId, raw] of byProvider) {
+    if ((LIVE_SEARCH_PROVIDER_IDS as readonly string[]).includes(providerId)) continue;
+    if (!raw.length) continue;
+    buckets.push(rankRawListings(raw, trimmed).map(listingToSearchResultItem));
   }
-  return merged;
+
+  const mixed = fairMixSearchResults(buckets, capped);
+  fairSearchCache.set(cacheKey, {
+    items: mixed,
+    expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
+  });
+
+  return mixed;
 }
 
 /** Keep cheapest-offer mapping available for non-search callers. */

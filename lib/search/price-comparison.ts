@@ -68,6 +68,78 @@ function offerToSearchResultItem(
   };
 }
 
+/** Map a single ranked listing → search card (marketplace-labeled). */
+export function listingToSearchResultItem(
+  listing: NormalizedSearchListing,
+): SearchResultItem {
+  return {
+    id: listing.id,
+    name: listing.title,
+    imageSrc: listing.imageUrl,
+    emoji: "🛍️",
+    price: listing.price,
+    originalPrice: listing.originalPrice,
+    discount: listing.discount,
+    store: marketplaceDisplayName(listing.providerId),
+    storeSlug: listing.storeSlug || listing.providerId,
+    rating: listing.rating,
+    reviewCount: listing.reviewCount,
+    salesCount: listing.salesCount,
+    shipping: listing.shipping,
+    inStock: listing.inStock,
+    category: listing.category,
+    affiliateUrl: listing.affiliateUrl ?? listing.productUrl,
+  };
+}
+
+/**
+ * Fair round-robin mix across marketplace buckets.
+ * Each active marketplace gets an equal share of slots when it has results.
+ */
+export function fairMixSearchResults(
+  providerBuckets: SearchResultItem[][],
+  limit: number,
+): SearchResultItem[] {
+  const queues = providerBuckets
+    .map((items) => [...items])
+    .filter((queue) => queue.length > 0);
+
+  if (queues.length === 0) return [];
+  if (queues.length === 1) return queues[0].slice(0, limit);
+
+  const perProviderTarget = Math.ceil(limit / queues.length);
+  const result: SearchResultItem[] = [];
+  const taken = queues.map(() => 0);
+
+  while (result.length < limit) {
+    let progressed = false;
+    for (let i = 0; i < queues.length; i++) {
+      if (result.length >= limit) break;
+      if (taken[i] >= perProviderTarget) continue;
+      const next = queues[i].shift();
+      if (!next) continue;
+      result.push(next);
+      taken[i] += 1;
+      progressed = true;
+    }
+    if (!progressed) break;
+  }
+
+  while (result.length < limit) {
+    let progressed = false;
+    for (const queue of queues) {
+      if (result.length >= limit) break;
+      const next = queue.shift();
+      if (!next) continue;
+      result.push(next);
+      progressed = true;
+    }
+    if (!progressed) break;
+  }
+
+  return result;
+}
+
 /**
  * One search card per marketplace offer group.
  * Keeps eBay + AliExpress (and future marketplaces) visible side-by-side

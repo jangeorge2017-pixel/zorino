@@ -44,6 +44,8 @@ export { rankRawListings } from "@/lib/search/ranking";
 export {
   unifiedToSearchResultItem,
   unifiedToMarketplaceSearchItems,
+  listingToSearchResultItem,
+  fairMixSearchResults,
   marketplaceDisplayName,
   summarizePriceComparison,
 } from "@/lib/search/price-comparison";
