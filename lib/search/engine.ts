@@ -158,7 +158,7 @@ export async function searchProducts(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const cacheKey = `prod-v12:${trimmed.toLowerCase()}:${capped}`;
+  const cacheKey = `prod-v13-equal:${trimmed.toLowerCase()}:${capped}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);

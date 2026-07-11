@@ -94,7 +94,8 @@ if (providers.length < 3) {
   failures.push(`Expected 3 marketplaces in first 30, got ${providers.join(",")}`);
 }
 for (const [id, n] of Object.entries(counts)) {
-  if (n < 6) failures.push(`${id} under-represented in first 30: ${n}`);
+  // Equal share of 30 across 3 marketplaces = 10 each (±1 for ordering).
+  if (n < 9 || n > 11) failures.push(`${id} unequal share in first 30: ${n} (expected ~10)`);
 }
 
 if (interleaved.some((r) => !r.affiliateUrl?.includes("aff=1"))) {

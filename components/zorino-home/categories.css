@@ -96,18 +96,6 @@
   text-align: center;
 }
 
-/* Section scroll offset when category nav is sticky */
-#zh-section-featured-brands,
-#zh-section-trending-deals,
-#zh-section-coupons,
-#zh-section-flash-deals,
-#zh-section-price-drops,
-#zh-section-new-arrivals,
-#zh-section-top-rated,
-#zh-section-editors-picks {
-  scroll-margin-top: calc(var(--zh-nav-h, 72px) + 88px);
-}
-
 @media (max-width: 1279px) {
   .zh-categories {
     display: flex;

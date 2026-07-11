@@ -25,6 +25,33 @@
   margin-bottom: 16px;
 }
 
+/*
+ * Keep the Trending Deals heading clear of sticky main nav + quick-nav.
+ * Title sticks under the sticky stack; filter/sort stay in normal document flow.
+ */
+.zh-trending-deals__title-row {
+  position: sticky;
+  top: var(--zh-sticky-stack, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px)));
+  z-index: 40;
+  margin-inline: -18px;
+  margin-bottom: -4px;
+  padding: 10px 18px 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 12, 20, 0.98) 0%,
+    rgba(12, 14, 24, 0.96) 55%,
+    rgba(12, 14, 24, 0.92) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 120, 60, 0.08);
+  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+}
+
+#zh-deals-title {
+  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+}
+
 .zh-trending-deals__title-wrap {
   display: flex;
   align-items: center;

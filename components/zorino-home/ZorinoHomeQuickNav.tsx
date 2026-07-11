@@ -4,10 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
+  ZORINO_QUICK_NAV_DEFAULT_HEIGHT,
   ZORINO_QUICK_NAV_ITEMS,
-  ZORINO_QUICK_NAV_SCROLL_PADDING,
   ZORINO_QUICK_NAV_STICKY_TOP,
   ZORINO_QUICK_NAV_TARGETS,
+  getStickyScrollOffset,
 } from "@/lib/zorino-home/quick-nav-sections";
 import "./quick-nav.css";
 
@@ -24,14 +25,22 @@ const QUICK_NAV_LABEL_KEYS: Record<string, string> = {
   blog: "quickBlog",
 };
 
-function getScrollOffset(navHeight: number) {
-  return ZORINO_QUICK_NAV_STICKY_TOP + navHeight + ZORINO_QUICK_NAV_SCROLL_PADDING;
+function syncStickyCssVars(quickNavHeight: number) {
+  const root = document.querySelector(".zh-page") as HTMLElement | null;
+  const target = root ?? document.documentElement;
+  const height = Math.max(quickNavHeight, ZORINO_QUICK_NAV_DEFAULT_HEIGHT);
+  const stack = ZORINO_QUICK_NAV_STICKY_TOP + height;
+  const clearance = getStickyScrollOffset(height);
+  target.style.setProperty("--zh-quick-nav-h", `${height}px`);
+  target.style.setProperty("--zh-sticky-stack", `${stack}px`);
+  target.style.setProperty("--zh-sticky-clearance", `${clearance}px`);
+  document.documentElement.style.setProperty("--zh-sticky-clearance", `${clearance}px`);
 }
 
 export default function ZorinoHomeQuickNav() {
   const t = useTranslations("home");
   const navRef = useRef<HTMLElement>(null);
-  const [navHeight, setNavHeight] = useState(52);
+  const [navHeight, setNavHeight] = useState(ZORINO_QUICK_NAV_DEFAULT_HEIGHT);
   const [isSticky, setIsSticky] = useState(false);
   const [activeTargetId, setActiveTargetId] = useState<string | null>(null);
   const [clickedItemId, setClickedItemId] = useState<string | null>(null);
@@ -49,11 +58,22 @@ export default function ZorinoHomeQuickNav() {
   useEffect(() => {
     const node = navRef.current;
     if (!node) return;
-    const syncHeight = () => setNavHeight(node.offsetHeight);
+    const syncHeight = () => {
+      const height = node.offsetHeight;
+      setNavHeight(height);
+      syncStickyCssVars(height);
+    };
     syncHeight();
     const resizeObserver = new ResizeObserver(syncHeight);
     resizeObserver.observe(node);
-    return () => resizeObserver.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+      const root = document.querySelector(".zh-page") as HTMLElement | null;
+      root?.style.removeProperty("--zh-quick-nav-h");
+      root?.style.removeProperty("--zh-sticky-stack");
+      root?.style.removeProperty("--zh-sticky-clearance");
+      document.documentElement.style.removeProperty("--zh-sticky-clearance");
+    };
   }, []);
 
   useEffect(() => {
@@ -77,6 +97,8 @@ export default function ZorinoHomeQuickNav() {
       document.getElementById(id),
     ).filter((node): node is HTMLElement => node !== null);
     if (sections.length === 0) return;
+
+    const stickyOffset = getStickyScrollOffset(navHeight);
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -89,19 +111,20 @@ export default function ZorinoHomeQuickNav() {
         }
       },
       {
-        rootMargin: "-20% 0px -55% 0px",
+        /* Treat the sticky stack as outside the active observation band */
+        rootMargin: `-${stickyOffset}px 0px -45% 0px`,
         threshold: [0.08, 0.2, 0.35, 0.5],
       },
     );
     sections.forEach((section) => sectionObserver.observe(section));
     return () => sectionObserver.disconnect();
-  }, []);
+  }, [navHeight]);
 
   const scrollToTarget = useCallback((targetId: string, itemId: string) => {
     const target = document.getElementById(targetId);
     if (!target) return;
-    const height = navRef.current?.offsetHeight ?? 52;
-    const offset = getScrollOffset(height);
+    const height = navRef.current?.offsetHeight ?? ZORINO_QUICK_NAV_DEFAULT_HEIGHT;
+    const offset = getStickyScrollOffset(height);
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     setClickedItemId(itemId);
     setActiveTargetId(targetId);
