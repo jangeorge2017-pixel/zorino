@@ -3,6 +3,7 @@ import type { AmazonRawProduct } from "@/lib/integrations/amazon/client";
 import { getAmazonAssociateTag } from "@/lib/integrations/amazon/config";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { EbayRawProduct } from "@/lib/integrations/ebay/types";
+import { getIntegrationCredential } from "@/lib/integration/credentials";
 import { computeDiscountPercent } from "@/lib/integration/normalize";
 import {
   getProviderStoreMeta,
@@ -149,8 +150,28 @@ export function normalizeEbayRaw(raw: EbayRawProduct): RawProviderListing | null
         ? Math.round(((originalPrice - price) / originalPrice) * 100)
         : 0;
 
-  const productUrl = raw.itemAffiliateWebUrl ?? raw.itemWebUrl ?? "";
-  if (!productUrl) return null;
+  const rawProductUrl = raw.itemWebUrl?.trim() || "";
+  const affiliateFromApi = raw.itemAffiliateWebUrl?.trim() || "";
+  let affiliateUrl = affiliateFromApi || rawProductUrl;
+  if (!affiliateUrl) return null;
+
+  // Ensure ePN tracking when Browse API omitted itemAffiliateWebUrl.
+  const campaignId =
+    getIntegrationCredential("EBAY_CAMPAIGN_ID")?.trim() ||
+    process.env.EBAY_CAMPAIGN_ID?.trim() ||
+    "";
+  if (!affiliateFromApi && campaignId && rawProductUrl) {
+    try {
+      const url = new URL(rawProductUrl);
+      url.searchParams.set("campid", campaignId);
+      url.searchParams.set("customid", `zorino-${raw.itemId}`);
+      affiliateUrl = url.toString();
+    } catch {
+      affiliateUrl = rawProductUrl;
+    }
+  }
+
+  const productUrl = affiliateUrl;
 
   const imageCandidate =
     raw.image?.imageUrl ??
@@ -178,7 +199,7 @@ export function normalizeEbayRaw(raw: EbayRawProduct): RawProviderListing | null
     reviewCount: 0,
     inStock,
     productUrl,
-    affiliateUrl: raw.itemAffiliateWebUrl ?? productUrl,
+    affiliateUrl,
   };
 }
 

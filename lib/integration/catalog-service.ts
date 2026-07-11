@@ -26,6 +26,14 @@ const CATALOG_REVALIDATE_SECONDS = 5 * 60;
 const loadMergedCatalogItems = unstable_cache(
   async (): Promise<NormalizedCatalogItem[]> => {
     try {
+      // Prefer the production search engine so homepage widgets share connectors,
+      // ranking, fair mix, and affiliate URLs with /search.
+      const { fetchCatalogFromSearchEngine } = await import(
+        "@/lib/integration/search-catalog"
+      );
+      const fromSearch = await fetchCatalogFromSearchEngine();
+      if (fromSearch.length > 0) return fromSearch;
+
       const { items } = await fetchMergedCatalog();
       return items;
     } catch (error) {
@@ -33,7 +41,7 @@ const loadMergedCatalogItems = unstable_cache(
       return [];
     }
   },
-  ["homepage:merged-catalog"],
+  ["homepage:merged-catalog-v2-search"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
 );
 
