@@ -124,6 +124,15 @@ export function generateProductMetadata(
     pathname: options?.pathname ?? `/product/${product.name}`,
     openGraph: {
       type: "website",
+      ...(product.price > 0
+        ? {
+            // Product commerce hints without changing page UI.
+            product: {
+              price: String(product.price),
+              currency,
+            },
+          }
+        : {}),
     },
   });
 }
