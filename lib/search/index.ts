@@ -40,10 +40,17 @@ export type { GlobalSearchOptions } from "@/lib/search/engine";
 
 export { getActiveSearchConnectors, getAllSearchConnectors } from "@/lib/search/connectors/registry";
 export { mergeDuplicateListings } from "@/lib/search/deduplication";
-export { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
+export {
+  rankRawListings,
+  sortUnifiedByRelevance,
+  compareByRelevanceThenQuality,
+  isComparablyRelevant,
+  listingQualityScore,
+} from "@/lib/search/ranking";
 export {
   assembleProductionSearchResults,
   pickBestOffer,
+  MAX_CONSECUTIVE_SAME_MARKETPLACE,
 } from "@/lib/search/production-pipeline";
 export {
   unifiedToSearchResultItem,
