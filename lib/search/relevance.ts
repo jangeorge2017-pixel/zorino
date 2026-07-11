@@ -110,6 +110,16 @@ export const ACCESSORY_TERMS = [
   "mast pole",
   "tpms",
   "tire pressure",
+  "sim eject",
+  "ejector tool",
+  "ejector",
+  "r-sim",
+  "rsim",
+  "unlock card",
+  "nano unlock",
+  "mouse pad",
+  "mousepad",
+  "desk pad",
 ] as const;
 
 /** Repair tools and spare parts — always excluded on device-model searches. */
@@ -197,6 +207,12 @@ export const REPAIR_AND_PARTS_TERMS = [
   "laptop battery",
   "battery for",
   "cooling fan",
+  "sim eject",
+  "ejector tool",
+  "r-sim",
+  "rsim",
+  "unlock card",
+  "nano unlock",
 ] as const;
 
 /** Accessory-only product types excluded on device-model searches. */
@@ -591,6 +607,7 @@ export function looksLikeDevice(title: string, category?: string): boolean {
   }
 
   if (/\b(gsm\s+)?unlocked\b/.test(hay) && /\b(iphone|galaxy|xiaomi|ipad)\b/.test(hay)) {
+    if (/\b(r-?sim|unlock\s+card|ejector|sim\s+eject)\b/.test(hay)) return false;
     return true;
   }
   if (/\bsmartphone\b/.test(hay)) return true;
@@ -643,6 +660,9 @@ export function looksLikeDevice(title: string, category?: string): boolean {
 
   // Generic laptops / notebooks (non-MacBook)
   if (/\b(laptop|notebook)\b/.test(hay) && !isAccessoryDominantTitle(hay)) {
+    if (/\b(mouse\s*pad|desk\s*pad|sleeve|bag|stand|cooler|cooling\s+pad)\b/.test(hay)) {
+      return false;
+    }
     if (/\b\d+\s*(gb|tb|inch|"|hz)\b/i.test(title) || /\b(intel|amd|ryzen|core\s*i\d)\b/.test(hay)) {
       return true;
     }
