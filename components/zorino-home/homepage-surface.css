@@ -5,8 +5,8 @@
 .zh-home-discovery-nav {
   position: relative;
   z-index: 2;
-  /* After Trending Deals — keep section rhythm */
-  margin-top: var(--zh-section-step, clamp(64px, 5vw, 80px));
+  /* Original spacing — category row sits just under search */
+  margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
 }
 
 .zh-quick-nav-wrap {
@@ -23,7 +23,7 @@
   margin-top: var(--zh-section-step, clamp(64px, 5vw, 80px));
 }
 
-/* Trending Deals sits directly under the hero/search zone — tighten the empty gap */
+/* Trending follows categories — keep close under the hero/search/category block */
 .hhb {
   margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
 }
