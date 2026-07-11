@@ -3,19 +3,21 @@
 import { Link } from "@/i18n/navigation";
 import {
   Bell,
-  Crown,
   Heart,
   Search,
+  User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import IntlNavSelectors from "@/components/international/IntlNavSelectors";
 import SiteNavMenu from "@/components/shell/SiteNavMenu";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import { useAuth } from "@/lib/auth/auth-context";
 import { ZORINO_LOGO_SOURCE } from "@/lib/assets";
 
 export default function SiteNav() {
   const t = useTranslations("common");
   const tHero = useTranslations("hero");
+  const { user } = useAuth();
 
   return (
     <header className="zor-nav">
@@ -35,9 +37,9 @@ export default function SiteNav() {
           </Link>
           <IntlNavSelectors />
           <ThemeSwitcher />
-          <Link href="/wishlist" className="zor-nav__icon-btn">
+          <Link href="/wishlist" className="zor-nav__icon-btn" aria-label={t("wishlist")}>
             <Heart size={18} aria-hidden />
-            {t("wishlist")}
+            <span>{t("wishlist")}</span>
           </Link>
           <Link
             href="/notifications"
@@ -45,17 +47,24 @@ export default function SiteNav() {
             aria-label={t("notifications")}
           >
             <Bell size={18} aria-hidden />
-            <span className="zor-nav__badge">3</span>
           </Link>
-          <Link href="/profile" className="zor-nav__profile">
-            <img src="https://i.pravatar.cc/40" alt="" width={32} height={32} />
-            <div>
-              <strong>{t("hiUser", { name: "Ahmed" })}</strong>
-              <span className="zor-nav__premium">
-                <Crown size={11} aria-hidden />
-                {t("premium")}
+          <Link
+            href={user ? "/profile" : "/auth/login"}
+            className="zor-nav__profile"
+            aria-label={user ? t("profile") : t("signIn")}
+          >
+            {user?.avatar ? (
+              <img src={user.avatar} alt="" width={32} height={32} />
+            ) : (
+              <span className="zor-nav__profile-fallback" aria-hidden>
+                <User size={18} />
               </span>
-            </div>
+            )}
+            {user ? (
+              <div>
+                <strong>{t("hiUser", { name: user.name.split(" ")[0] || user.name })}</strong>
+              </div>
+            ) : null}
           </Link>
         </div>
       </div>

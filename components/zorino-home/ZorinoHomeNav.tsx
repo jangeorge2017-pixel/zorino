@@ -2,9 +2,9 @@
 
 import {
   Bell,
-  Crown,
   Heart,
   Search,
+  User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -12,10 +12,12 @@ import IntlNavSelectors from "@/components/international/IntlNavSelectors";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ZorinoLogo } from "@/components/ZorinoLogo";
 import ZorinoHomeNavLinks from "@/components/zorino-home/ZorinoHomeNavLinks";
+import { useAuth } from "@/lib/auth/auth-context";
 import "./nav.css";
 
 export default function ZorinoHomeNav() {
   const t = useTranslations("common");
+  const { user } = useAuth();
 
   return (
     <header className="zh-nav">
@@ -49,17 +51,24 @@ export default function ZorinoHomeNav() {
             aria-label={t("notifications")}
           >
             <Bell size={17} strokeWidth={2} aria-hidden />
-            <span className="zh-nav__badge">3</span>
           </Link>
-          <Link href="/profile" className="zh-nav__profile">
-            <img src="https://i.pravatar.cc/40" alt="" width={28} height={28} />
-            <div className="zh-nav__profile-copy">
-              <strong>{t("hiUser", { name: "Ahmed" })}</strong>
-              <span className="zh-nav__premium">
-                {t("premium")}
-                <Crown size={11} aria-hidden />
+          <Link
+            href={user ? "/profile" : "/auth/login"}
+            className="zh-nav__profile"
+            aria-label={user ? t("profile") : t("signIn")}
+          >
+            {user?.avatar ? (
+              <img src={user.avatar} alt="" width={28} height={28} />
+            ) : (
+              <span className="zh-nav__profile-fallback" aria-hidden>
+                <User size={16} strokeWidth={2} />
               </span>
-            </div>
+            )}
+            {user ? (
+              <div className="zh-nav__profile-copy">
+                <strong>{t("hiUser", { name: user.name.split(" ")[0] || user.name })}</strong>
+              </div>
+            ) : null}
           </Link>
         </div>
       </div>

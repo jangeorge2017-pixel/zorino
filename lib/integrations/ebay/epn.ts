@@ -1,9 +1,7 @@
 /**
- * eBay Partner Network (EPN) preparation layer.
- *
- * This module documents required credentials, validates readiness, and exposes
- * placeholder keys. It does NOT activate live EPN traffic — production remains
- * idle until credentials are saved and validated in Admin → Marketplaces.
+ * eBay Partner Network (EPN) readiness helpers.
+ * Reports whether Browse API and Campaign credentials are configured.
+ * Live Browse search runs when API credentials exist.
  *
  * @see https://partnernetwork.ebay.com/
  * @see https://developer.ebay.com/api-docs/buy/static/api-browse.html

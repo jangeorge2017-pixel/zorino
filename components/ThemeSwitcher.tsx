@@ -25,11 +25,11 @@ export default function ThemeSwitcher() {
     >
       <span className={`theme-option ${isDark ? "theme-option-active" : ""}`}>
         <Moon size={14} />
-        {t("dark")}
+        <span className="theme-option-label">{t("dark")}</span>
       </span>
       <span className={`theme-option ${!isDark ? "theme-option-active" : ""}`}>
         <Sun size={14} />
-        {t("light")}
+        <span className="theme-option-label">{t("light")}</span>
       </span>
     </button>
   );
