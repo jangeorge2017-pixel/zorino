@@ -79,8 +79,8 @@ export type EbayEpnPrepStatus = {
   affiliateReady: boolean;
   /** True when both API and affiliate slots are filled. */
   fullyReady: boolean;
-  /** Production behavior unchanged — always false until explicit EPN activation phase. */
-  liveEnabled: false;
+  /** True when Browse search can run in production (API credentials present). */
+  liveEnabled: boolean;
   credentialStatus: EbayCredentialStatus;
   missingRequired: string[];
   optionalPresent: string[];
@@ -124,7 +124,7 @@ export function getEbayEpnPrepStatus(): EbayEpnPrepStatus {
     apiReady,
     affiliateReady,
     fullyReady: apiReady && affiliateReady,
-    liveEnabled: false,
+    liveEnabled: apiReady,
     credentialStatus,
     missingRequired,
     optionalPresent,
