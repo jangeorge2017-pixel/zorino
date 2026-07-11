@@ -23,7 +23,7 @@
 /* ─── Hero search wrapper — sits just below platform with small gap ─── */
 .zh-hero-search {
   position: relative;
-  z-index: 30;
+  z-index: 120;
   display: flex;
   justify-content: center;
   width: 100%;
@@ -281,13 +281,16 @@
 /* ─── Hero search bar ─── */
 .zh-search {
   position: relative;
-  z-index: 30;
-  width: min(900px, 77%);
+  z-index: 120;
+  width: min(900px, 92%);
   max-width: 900px;
   margin-inline: auto;
+  isolation: isolate;
 }
 
 .zh-search__bar {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
@@ -305,7 +308,7 @@
     0 0 38px rgba(111, 212, 255, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition: border-color 0.25s, box-shadow 0.25s, border-radius 0.2s;
 }
 
 .zh-search--open .zh-search__bar {
@@ -367,67 +370,142 @@
   cursor: pointer;
 }
 
+/*
+ * Suggestions panel sits in normal document flow so it pushes discovery
+ * nav / categories down instead of painting over icons and labels.
+ */
 .zh-search__dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 31;
-  padding: 18px 20px 14px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin: 0;
+  padding: 16px 18px 14px;
   border: 1px solid rgba(139, 92, 246, 0.35);
   border-top: none;
   border-radius: 0 0 18px 18px;
   background: rgba(12, 18, 35, 0.98);
-  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.48);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.42);
   backdrop-filter: blur(20px);
+  max-height: min(58vh, 360px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .zh-search__dropdown h4 {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
+  margin: 0 0 12px;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 .zh-search__dropdown ul {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  gap: 4px;
 }
 
 .zh-search__dropdown li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 8px;
-  border-radius: 10px;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
   font-size: 14px;
+  line-height: 1.35;
   color: #e2e8f0;
   cursor: pointer;
 }
 
-.zh-search__dropdown li:hover {
-  background: rgba(147, 51, 234, 0.12);
+.zh-search__suggestion-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zh-search__dropdown li:hover,
+.zh-search__dropdown li:focus-visible {
+  background: rgba(147, 51, 234, 0.14);
+  outline: none;
 }
 
 .zh-search__dropdown li svg {
+  flex-shrink: 0;
   color: #22c55e;
 }
 
 .zh-search__view-all {
   display: block;
   width: 100%;
-  margin-top: 8px;
-  padding: 10px;
+  margin-top: 10px;
+  padding: 12px 10px;
   border: none;
-  background: none;
-  color: #a855f7;
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.08);
+  color: #c4b5fd;
   font-size: 13px;
   font-weight: 600;
-  text-align: center;
   cursor: pointer;
+  text-align: center;
+}
+
+.zh-search__view-all:hover {
+  background: rgba(139, 92, 246, 0.16);
+}
+
+@media (max-width: 720px) {
+  .zh-search {
+    width: min(100%, 100%);
+  }
+
+  .zh-search__bar {
+    min-height: 52px;
+    padding: 5px 5px 5px 14px;
+    gap: 6px;
+    border-radius: 16px;
+  }
+
+  .zh-search--open .zh-search__bar {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .zh-search__ai {
+    display: none;
+  }
+
+  .zh-search__submit {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .zh-search__dropdown {
+    max-height: min(50vh, 300px);
+    padding: 14px 12px 12px;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .zh-search__dropdown li {
+    min-height: 48px;
+    padding: 12px;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1024px) {
+  .zh-search {
+    width: min(860px, 88%);
+  }
+
+  .zh-search__dropdown {
+    max-height: min(54vh, 340px);
+  }
 }
 
 /* ─── Hero responsive ─── */

@@ -195,24 +195,11 @@ export function getPopularSearchesStatic(): string[] {
   return ZH_POPULAR_SEARCHES;
 }
 
-/** Popular searches — live multi-marketplace search titles when configured. */
+/** Popular searches — short keyword chips for the search dropdown. */
 export async function getPopularSearchesLive(): Promise<string[]> {
-  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
-    return ZH_POPULAR_SEARCHES;
-  }
-
-  try {
-    const { getActiveSearchConnectors } = await import("@/lib/search/connectors/registry");
-    const { LIVE_SEARCH_PROVIDER_IDS } = await import("@/lib/search/types");
-    const active = await getActiveSearchConnectors([...LIVE_SEARCH_PROVIDER_IDS]);
-    if (active.length === 0) {
-      return ZH_POPULAR_SEARCHES;
-    }
-    const live = await loadPopularSearchesCached();
-    return withFallbackPopularSearches(live);
-  } catch {
-    return ZH_POPULAR_SEARCHES;
-  }
+  // Prefer curated short chips so the dropdown never overflows with product titles.
+  // Marketplace enablement is unrelated to chip text — search engine still fans out dynamically.
+  return ZH_POPULAR_SEARCHES;
 }
 
 /** @deprecated Use getPopularSearchesStatic + getPopularSearchesLive */

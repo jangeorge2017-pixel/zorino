@@ -53,6 +53,11 @@ export {
   MAX_CONSECUTIVE_SAME_MARKETPLACE,
 } from "@/lib/search/production-pipeline";
 export {
+  balanceMarketplaceQueues,
+  balanceFlatMarketplaceList,
+  groupByMarketplace,
+} from "@/lib/search/marketplace-balance";
+export {
   unifiedToSearchResultItem,
   unifiedToMarketplaceSearchItems,
   listingToSearchResultItem,

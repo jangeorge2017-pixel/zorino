@@ -8,26 +8,19 @@ import {
   catalogItemToTrendingDealCard,
 } from "@/lib/integration/normalize";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
+import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
 import {
   withFallbackDeals,
   withFallbackSectionProducts,
 } from "@/lib/zorino-home/presentation";
+
 /** How long a merged live-catalog snapshot stays fresh (seconds). */
 const CATALOG_REVALIDATE_SECONDS = 5 * 60;
 
-/**
- * Persist the expensive multi-provider live fetch in Next's Data Cache so it is
- * shared across requests and serverless instances (the previous in-memory cache
- * was lost on every cold start). Time-based revalidation serves the cached
- * snapshot instantly while refreshing in the background, so no visitor waits on
- * the live marketplace APIs.
- */
 const loadMergedCatalogItems = unstable_cache(
   async (): Promise<NormalizedCatalogItem[]> => {
     try {
-      // Prefer the production search engine so homepage widgets share connectors,
-      // ranking, fair mix, and affiliate URLs with /search.
       const { fetchCatalogFromSearchEngine } = await import(
         "@/lib/integration/search-catalog"
       );
@@ -41,14 +34,10 @@ const loadMergedCatalogItems = unstable_cache(
       return [];
     }
   },
-  ["homepage:merged-catalog-v2-search"],
+  ["homepage:merged-catalog-v3-balanced"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
 );
 
-/**
- * Deduplicate the catalog read within a single render pass so the trending
- * deals, hero artwork, product sections and /deals grid all share one lookup.
- */
 const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> => {
   if (!HOMEPAGE_LIVE_FETCH_ENABLED) return [];
 
@@ -80,7 +69,42 @@ function itemsToCards(items: NormalizedCatalogItem[]): TrendingDealCard[] {
   return items.map((item) => catalogItemToTrendingDealCard(item));
 }
 
-/** Live trending deals from configured AliExpress/eBay providers. */
+function providerIdFromCatalogItem(item: NormalizedCatalogItem): string {
+  return item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown";
+}
+
+function providerIdFromCard(card: TrendingDealCard): string {
+  const raw = String(card.productId ?? card.id);
+  const match = raw.match(/^(?:[a-z]+-)?(aliexpress|ebay|amazon|walmart|temu|bestbuy|noon|jumia)/i);
+  if (match) return match[1]!.toLowerCase();
+  // Fallback: store name → slug-ish
+  const store = (card.store || "").toLowerCase();
+  if (store.includes("ebay")) return "ebay";
+  if (store.includes("amazon")) return "amazon";
+  if (store.includes("walmart")) return "walmart";
+  if (store.includes("temu")) return "temu";
+  if (store.includes("ali")) return "aliexpress";
+  return store || "unknown";
+}
+
+/** Mix catalog items fairly across whatever marketplaces are present. */
+function balanceCatalogItems(
+  items: NormalizedCatalogItem[],
+  limit: number,
+  compare?: (a: NormalizedCatalogItem, b: NormalizedCatalogItem) => number,
+): NormalizedCatalogItem[] {
+  return balanceFlatMarketplaceList(items, providerIdFromCatalogItem, limit, compare);
+}
+
+function balanceCards(
+  cards: TrendingDealCard[],
+  limit: number,
+  compare?: (a: TrendingDealCard, b: TrendingDealCard) => number,
+): TrendingDealCard[] {
+  return balanceFlatMarketplaceList(cards, providerIdFromCard, limit, compare);
+}
+
+/** Live trending deals — multi-marketplace balanced. */
 export async function getIntegratedTrendingDeals(limit = 8): Promise<TrendingDealCard[]> {
   const items = await getCatalogItems();
   if (items.length === 0) {
@@ -88,9 +112,11 @@ export async function getIntegratedTrendingDeals(limit = 8): Promise<TrendingDea
   }
 
   const byDiscount = [...items].sort((a, b) => b.discount - a.discount);
-  return itemsToCards(byDiscount).slice(0, limit);
+  const balanced = balanceCatalogItems(byDiscount, limit, (a, b) => b.discount - a.discount);
+  return itemsToCards(balanced);
 }
-/** Live deals for /deals page from integrated providers. */
+
+/** Live deals for /deals page — multi-marketplace balanced. */
 export async function getIntegratedDeals(limit = 48): Promise<Deal[]> {
   const items = await getCatalogItems();
   if (items.length === 0) return [];
@@ -98,10 +124,15 @@ export async function getIntegratedDeals(limit = 48): Promise<Deal[]> {
   const sorted = [...items].sort(
     (a, b) => b.discount - a.discount || b.reviewCount - a.reviewCount,
   );
-  return sorted.slice(0, limit).map((item, index) => catalogItemToDeal(item, index));
+  const balanced = balanceCatalogItems(
+    sorted,
+    limit,
+    (a, b) => b.discount - a.discount || b.reviewCount - a.reviewCount,
+  );
+  return balanced.map((item, index) => catalogItemToDeal(item, index));
 }
 
-/** Live homepage section buckets from integrated catalog. */
+/** Live homepage section buckets — each section mixes all enabled marketplaces. */
 export async function getIntegratedSectionProducts(): Promise<HomepageSectionProducts> {
   const items = await getCatalogItems();
   if (items.length === 0) {
@@ -122,17 +153,32 @@ export async function getIntegratedSectionProducts(): Promise<HomepageSectionPro
   const byRecent = [...cards].sort((a, b) => a.updatedMins - b.updatedMins);
 
   return {
-    flash: prefixCards(byDiscount.slice(0, SECTION_LIMIT), "flash"),
+    flash: prefixCards(
+      balanceCards(byDiscount, SECTION_LIMIT, (a, b) => b.discount - a.discount),
+      "flash",
+    ),
     priceDrops: prefixCards(
-      (priceDrops.length > 0 ? priceDrops : byDiscount).slice(0, SECTION_LIMIT),
+      balanceCards(
+        priceDrops.length > 0 ? priceDrops : byDiscount,
+        SECTION_LIMIT,
+        (a, b) => b.discount - a.discount,
+      ),
       "drop",
     ),
-    newArrivals: prefixCards(byRecent.slice(0, SECTION_LIMIT), "new"),
-    topRated: prefixCards(byRating.slice(0, SECTION_LIMIT), "rated"),
+    newArrivals: prefixCards(
+      balanceCards(byRecent, SECTION_LIMIT, (a, b) => a.updatedMins - b.updatedMins),
+      "new",
+    ),
+    topRated: prefixCards(
+      balanceCards(byRating, SECTION_LIMIT, (a, b) => b.rating - a.rating || b.reviews - a.reviews),
+      "rated",
+    ),
     editorsPicks: prefixCards(
-      byRating.slice(SECTION_LIMIT, SECTION_LIMIT * 2).length > 0
-        ? byRating.slice(SECTION_LIMIT, SECTION_LIMIT * 2)
-        : cards.slice(0, SECTION_LIMIT),
+      balanceCards(
+        byRating.slice(SECTION_LIMIT).length > 0 ? byRating.slice(SECTION_LIMIT) : cards,
+        SECTION_LIMIT,
+        (a, b) => b.rating - a.rating || b.reviews - a.reviews,
+      ),
       "pick",
     ),
   };

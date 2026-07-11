@@ -5,15 +5,15 @@ import {
   rankRawListings,
 } from "@/lib/search/ranking";
 import { listingToSearchResultItem } from "@/lib/search/price-comparison";
+import { balanceMarketplaceQueues } from "@/lib/search/marketplace-balance";
 import type {
   NormalizedSearchListing,
   RawProviderListing,
   SearchProviderId,
 } from "@/lib/search/types";
-import { LIVE_SEARCH_PROVIDER_IDS } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 
-/** Max consecutive cards from one marketplace when peers have comparable relevance. */
+/** @deprecated Use dynamic fairShare in marketplace-balance — kept for tests. */
 export const MAX_CONSECUTIVE_SAME_MARKETPLACE = 2;
 
 /**
@@ -57,8 +57,7 @@ function splitProviderQueues(
 /**
  * Search-card dedupe:
  * - Drop exact same listing (provider + external id) only
- * - Keep cross-marketplace offers and distinct variants for comparison
- *   (broader fuzzy merge remains available via mergeDuplicateListings / pickBestOffer)
+ * - Keep cross-marketplace offers for price comparison
  */
 function isSearchCardDuplicate(
   accepted: NormalizedSearchListing[],
@@ -71,113 +70,39 @@ function isSearchCardDuplicate(
   );
 }
 
-function skipDuplicates(
+function dedupeQueue(
   queue: NormalizedSearchListing[],
   accepted: NormalizedSearchListing[],
-): NormalizedSearchListing | null {
-  while (queue.length > 0) {
-    const candidate = queue[0]!;
-    if (!isSearchCardDuplicate(accepted, candidate)) return candidate;
-    queue.shift();
-  }
-  return null;
+): NormalizedSearchListing[] {
+  return queue.filter((candidate) => !isSearchCardDuplicate(accepted, candidate));
 }
 
-/**
- * Relevance-first selection with marketplace interleaving.
- *
- * 1) Always prefer the highest relevance → quality candidate across providers
- * 2) Never allow > MAX_CONSECUTIVE_SAME_MARKETPLACE cards from one marketplace
- *    when another marketplace still has a comparably relevant product
- * 3) Never force a weaker product just to hit equal counts
- */
-function interleaveByRelevance(
-  providerQueues: NormalizedSearchListing[][],
+function balancePhase(
+  queuesByProvider: Map<string, NormalizedSearchListing[]>,
   limit: number,
-  result: SearchResultItem[],
   accepted: NormalizedSearchListing[],
-): void {
-  const working = providerQueues
-    .map((queue) => [...queue])
-    .filter((queue) => queue.length > 0);
-
-  if (working.length === 0) return;
-
-  let streakProvider: SearchProviderId | null = null;
-  let streakCount = 0;
-
-  while (result.length < limit) {
-    const heads: { queue: NormalizedSearchListing[]; listing: NormalizedSearchListing }[] = [];
-
-    for (const queue of working) {
-      const listing = skipDuplicates(queue, accepted);
-      if (listing) heads.push({ queue, listing });
-    }
-
-    if (heads.length === 0) break;
-
-    heads.sort((a, b) => compareByRelevanceThenQuality(a.listing, b.listing));
-    let chosen = heads[0]!;
-
-    // Near-ties: prefer the marketplace that appears less often so far (quality-neutral).
-    if (heads.length > 1) {
-      const runnerUp = heads.find(
-        (row) =>
-          row.listing.providerId !== chosen.listing.providerId &&
-          isComparablyRelevant(row.listing, chosen.listing) &&
-          isComparablyRelevant(chosen.listing, row.listing),
-      );
-      if (runnerUp) {
-        const chosenCount = accepted.filter(
-          (row) => row.providerId === chosen.listing.providerId,
-        ).length;
-        const runnerCount = accepted.filter(
-          (row) => row.providerId === runnerUp.listing.providerId,
-        ).length;
-        if (runnerCount < chosenCount) {
-          chosen = runnerUp;
-        }
-      }
-    }
-
-    const wouldExtendStreak =
-      streakProvider !== null &&
-      streakCount >= MAX_CONSECUTIVE_SAME_MARKETPLACE &&
-      chosen.listing.providerId === streakProvider;
-
-    if (wouldExtendStreak) {
-      const alternative = heads
-        .filter((row) => row.listing.providerId !== streakProvider)
-        .find((row) => isComparablyRelevant(row.listing, chosen.listing));
-
-      if (alternative) {
-        chosen = alternative;
-      }
-    }
-
-    const picked = chosen.queue.shift()!;
-    if (isSearchCardDuplicate(accepted, picked)) {
-      continue;
-    }
-
-    accepted.push(picked);
-    result.push(listingToSearchResultItem(picked));
-
-    if (picked.providerId === streakProvider) {
-      streakCount += 1;
-    } else {
-      streakProvider = picked.providerId;
-      streakCount = 1;
-    }
+): NormalizedSearchListing[] {
+  const cleaned = new Map<string, NormalizedSearchListing[]>();
+  for (const [providerId, queue] of queuesByProvider) {
+    const next = dedupeQueue(queue, accepted);
+    if (next.length) cleaned.set(providerId, next);
   }
+
+  return balanceMarketplaceQueues(cleaned, {
+    limit,
+    compare: compareByRelevanceThenQuality,
+    isComparable: isComparablyRelevant,
+    maxConsecutive: MAX_CONSECUTIVE_SAME_MARKETPLACE,
+  });
 }
 
 /**
- * Production search assembly:
- * 1) Rank each marketplace independently (device-first within each)
- * 2) Relevance → quality selection with marketplace interleave (max 2 consecutive)
- * 3) Same-marketplace dedupe; keep cross-marketplace offers for price comparison
- * 4) Preserve marketplace-correct affiliate URLs on every card
+ * Production search assembly — marketplace-agnostic:
+ * 1) Rank each present marketplace independently
+ * 2) Balance dynamically across whatever providers returned results
+ * 3) Preserve affiliate URLs; keep cross-marketplace offers for comparison
+ *
+ * New marketplaces participate automatically when their connector returns data.
  */
 export function assembleProductionSearchResults(
   allRaw: RawProviderListing[],
@@ -193,37 +118,34 @@ export function assembleProductionSearchResults(
     byProvider.set(listing.providerId, bucket);
   }
 
-  const primaryQueues: NormalizedSearchListing[][] = [];
-  const secondaryQueues: NormalizedSearchListing[][] = [];
+  const primaryQueues = new Map<string, NormalizedSearchListing[]>();
+  const secondaryQueues = new Map<string, NormalizedSearchListing[]>();
 
-  const providerOrder: SearchProviderId[] = [
-    ...LIVE_SEARCH_PROVIDER_IDS,
-    ...[...byProvider.keys()].filter(
-      (id) => !(LIVE_SEARCH_PROVIDER_IDS as readonly string[]).includes(id),
-    ),
-  ];
-
-  for (const providerId of providerOrder) {
-    const raw = byProvider.get(providerId);
-    if (!raw?.length) continue;
+  // Dynamic provider set — no hardcoded marketplace list.
+  for (const [providerId, raw] of byProvider) {
+    if (!raw.length) continue;
     const ranked = rankRawListings(raw, query);
     const { primary, secondary } = splitProviderQueues(ranked, query);
-    if (primary.length) primaryQueues.push(primary);
-    if (secondary.length) secondaryQueues.push(secondary);
+    if (primary.length) primaryQueues.set(providerId, primary);
+    if (secondary.length) secondaryQueues.set(providerId, secondary);
   }
 
-  if (primaryQueues.length === 0 && secondaryQueues.length === 0) return [];
+  if (primaryQueues.size === 0 && secondaryQueues.size === 0) return [];
 
-  const result: SearchResultItem[] = [];
   const accepted: NormalizedSearchListing[] = [];
+  const primaryPicks = balancePhase(primaryQueues, limit, accepted);
+  for (const item of primaryPicks) accepted.push(item);
 
-  interleaveByRelevance(primaryQueues, limit, result, accepted);
-
-  if (result.length < limit) {
-    interleaveByRelevance(secondaryQueues, limit, result, accepted);
+  if (accepted.length < limit) {
+    const secondaryPicks = balancePhase(
+      secondaryQueues,
+      limit - accepted.length,
+      accepted,
+    );
+    for (const item of secondaryPicks) accepted.push(item);
   }
 
-  return result;
+  return accepted.map(listingToSearchResultItem);
 }
 
 export { listingToSearchResultItem };

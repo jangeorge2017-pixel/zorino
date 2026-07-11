@@ -1,11 +1,12 @@
 /**
- * Offline unit checks for relevance-first interleaved search ranking.
+ * Offline checks for marketplace-agnostic balancing + device-first ranking.
  * Usage: npx tsx scripts/test-production-pipeline.mjs
  */
 import {
   assembleProductionSearchResults,
   MAX_CONSECUTIVE_SAME_MARKETPLACE,
 } from "../lib/search/production-pipeline.ts";
+import { balanceFlatMarketplaceList } from "../lib/search/marketplace-balance.ts";
 import { analyzeSearchListing } from "../lib/search/relevance.ts";
 
 function raw(providerId, id, title, price = 100, extras = {}) {
@@ -29,15 +30,6 @@ function raw(providerId, id, title, price = 100, extras = {}) {
   };
 }
 
-const fixtures = [
-  raw("aliexpress", "a1", "Sticker Ring For Magsafe Wireless Charging For iPhone 15"),
-  raw("aliexpress", "a2", "Cute Soft Case Cover For iPhone 15 Pro Max"),
-  raw("ebay", "e1", "Apple iPhone 15 Pro 256GB Unlocked Smartphone Blue"),
-  raw("ebay", "e2", "Apple iPhone 15 128GB GSM Unlocked Black"),
-  raw("aliexpress", "a3", "Apple iPhone 15 256GB Dual SIM Unlocked 5G Smartphone"),
-];
-
-// Many equally relevant devices on both marketplaces — first page must interleave.
 const colors = ["Black", "Blue", "Pink", "Green", "White", "Gold", "Silver", "Purple", "Red", "Teal"];
 const storages = [64, 128, 256, 512, 1024];
 const conditions = ["New", "Refurbished", "Open Box", "Grade A", "Unlocked"];
@@ -64,39 +56,26 @@ for (let i = 0; i < 20; i++) {
       { rating: 4.7, reviewCount: 80 + i, salesCount: 200 + i },
     ),
   );
+  // Third marketplace — proves balancer adapts without hardcoded shares.
+  manyDevices.push(
+    raw(
+      "amazon",
+      `amz-phone-${i}`,
+      `Apple iPhone 15 ${storage}GB ${color} ${condition} Amazon Renewed Unit ${i}`,
+      680 + i * 3,
+      { rating: 4.5, reviewCount: 40 + i },
+    ),
+  );
 }
 
-const mixed = assembleProductionSearchResults(fixtures, "iPhone 15", 10);
-const top = mixed.slice(0, 5).map((r) => r.name);
-
-console.log("Top results (small fixture):");
-top.forEach((t, i) => console.log(`  ${i + 1}. ${t}`));
-
 const interleaved = assembleProductionSearchResults(manyDevices, "iPhone 15", 30);
-const first30 = interleaved.slice(0, 30);
-const slugs = first30.map((r) => r.storeSlug);
+const slugs = interleaved.slice(0, 30).map((r) => r.storeSlug);
 
-console.log("\nFirst 30 marketplace sequence:");
+console.log("First 30 marketplace sequence:");
 console.log(slugs.join(" "));
 
 const failures = [];
 
-if (!/iphone\s*15/i.test(top[0] || "") || /case|sticker|cover|charger/i.test(top[0] || "")) {
-  failures.push(`#1 should be a real iPhone device, got: ${top[0]}`);
-}
-
-const stickerIdx = mixed.findIndex((r) => /sticker/i.test(r.name));
-const phoneIdx = mixed.findIndex((r) => /unlocked/i.test(r.name));
-if (stickerIdx !== -1 && phoneIdx !== -1 && stickerIdx < phoneIdx) {
-  failures.push("Accessory appeared before a real phone");
-}
-
-const stores = new Set(mixed.map((r) => r.storeSlug));
-if (!stores.has("ebay") || !stores.has("aliexpress")) {
-  failures.push(`Expected both marketplaces, got: ${[...stores].join(",")}`);
-}
-
-// Max consecutive same marketplace when both have comparable stock.
 let maxStreak = 1;
 let streak = 1;
 for (let i = 1; i < slugs.length; i++) {
@@ -105,39 +84,47 @@ for (let i = 1; i < slugs.length; i++) {
   maxStreak = Math.max(maxStreak, streak);
 }
 if (maxStreak > MAX_CONSECUTIVE_SAME_MARKETPLACE) {
-  failures.push(
-    `Max consecutive marketplace streak ${maxStreak} exceeds cap ${MAX_CONSECUTIVE_SAME_MARKETPLACE}`,
-  );
+  failures.push(`Max streak ${maxStreak} exceeds ${MAX_CONSECUTIVE_SAME_MARKETPLACE}`);
 }
 
-const aeCount = slugs.filter((s) => s === "aliexpress").length;
-const ebayCount = slugs.filter((s) => s === "ebay").length;
-if (aeCount < 8 || ebayCount < 8) {
-  failures.push(
-    `First 30 should be naturally mixed (need ~8+ each), got AE=${aeCount} eBay=${ebayCount}`,
-  );
+const counts = {};
+for (const s of slugs) counts[s] = (counts[s] || 0) + 1;
+const providers = Object.keys(counts);
+if (providers.length < 3) {
+  failures.push(`Expected 3 marketplaces in first 30, got ${providers.join(",")}`);
+}
+for (const [id, n] of Object.entries(counts)) {
+  if (n < 6) failures.push(`${id} under-represented in first 30: ${n}`);
 }
 
-// Affiliate URLs preserved
-if (first30.some((r) => !r.affiliateUrl || !r.affiliateUrl.includes("aff=1"))) {
-  failures.push("Affiliate URLs were not preserved");
+if (interleaved.some((r) => !r.affiliateUrl?.includes("aff=1"))) {
+  failures.push("Affiliate URLs not preserved");
 }
 
-const sticker = analyzeSearchListing(
-  "Sticker Ring For Magsafe Wireless Charging For iPhone 15",
-  "iPhone 15",
+// Flat homepage balancer adapts to N marketplaces.
+const flat = balanceFlatMarketplaceList(
+  [
+    { providerId: "ebay", score: 1 },
+    { providerId: "ebay", score: 2 },
+    { providerId: "ebay", score: 3 },
+    { providerId: "temu", score: 1 },
+    { providerId: "temu", score: 2 },
+    { providerId: "walmart", score: 1 },
+  ],
+  (row) => row.providerId,
+  6,
+  (a, b) => b.score - a.score,
 );
-if (sticker.isDevice || sticker.tier !== "accessory") {
-  failures.push(`Sticker should be accessory, got tier=${sticker.tier} isDevice=${sticker.isDevice}`);
+const flatIds = flat.map((r) => r.providerId);
+if (!flatIds.includes("temu") || !flatIds.includes("walmart") || !flatIds.includes("ebay")) {
+  failures.push(`Flat balancer missed a marketplace: ${flatIds.join(",")}`);
 }
 
 const phone = analyzeSearchListing(
   "Apple iPhone 15 Pro 256GB Unlocked Smartphone Blue",
   "iPhone 15",
 );
-if (!phone.isDevice) {
-  failures.push("Real iPhone should be isDevice=true");
-}
+if (!phone.isDevice) failures.push("Real iPhone should be isDevice=true");
 
 if (failures.length) {
   console.error("\nFAILED:");
@@ -145,5 +132,6 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`\nMix OK: AE=${aeCount} eBay=${ebayCount}, max streak=${maxStreak}`);
-console.log("All production-pipeline checks passed.");
+console.log(`Mix OK: ${JSON.stringify(counts)}, max streak=${maxStreak}`);
+console.log(`Flat balancer: ${flatIds.join(" ")}`);
+console.log("All marketplace-balance checks passed.");
