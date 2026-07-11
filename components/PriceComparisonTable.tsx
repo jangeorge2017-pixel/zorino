@@ -189,7 +189,7 @@ export function ComparePricesButton({
 
   return (
     <Link
-      href={`/product/${productId}#compare-prices`}
+      href={`/product/${encodeURIComponent(productId)}#compare-prices`}
       className={className}
       onClick={onClick}
     >
