@@ -102,6 +102,14 @@ export const ACCESSORY_TERMS = [
   "roller brush",
   "brush head",
   "filter roller",
+  "laptop battery",
+  "battery for",
+  "cooling fan",
+  "usb cooling",
+  "aerial mast",
+  "mast pole",
+  "tpms",
+  "tire pressure",
 ] as const;
 
 /** Repair tools and spare parts — always excluded on device-model searches. */
@@ -186,6 +194,9 @@ export const REPAIR_AND_PARTS_TERMS = [
   "flex shaft",
   "part damaged",
   "for parts or repair",
+  "laptop battery",
+  "battery for",
+  "cooling fan",
 ] as const;
 
 /** Accessory-only product types excluded on device-model searches. */
@@ -617,7 +628,11 @@ export function looksLikeDevice(title: string, category?: string): boolean {
 
   // PlayStation / PS5 consoles — not capture cards / accessories
   if (/\b(ps5|playstation\s*5)\b/.test(hay)) {
-    if (/\b(capture\s+card|game\s+grabber|controller|headset|charging|stand|cover|skin)\b/.test(hay)) {
+    if (
+      /\b(capture\s+card|game\s+grabber|controller|headset|charging|stand|cover|skin|cooling\s+fan|cooler|fan\s+with)\b/.test(
+        hay,
+      )
+    ) {
       return false;
     }
     if (/\b(console|disc|digital|edition|bundle)\b/.test(hay) || categorySuggestsDevice(category)) {
