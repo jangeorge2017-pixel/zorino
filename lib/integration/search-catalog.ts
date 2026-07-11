@@ -69,11 +69,12 @@ export function searchResultToCatalogItem(item: SearchResultItem): NormalizedCat
 
 /**
  * Homepage / deals catalog sourced from the production search engine
- * (same connectors, ranking, fair mix, and affiliate URLs as /search).
+ * (same connectors + marketplace-agnostic balancer as /search).
  */
 export async function fetchCatalogFromSearchEngine(): Promise<NormalizedCatalogItem[]> {
   const { searchProducts } = await import("@/lib/search/engine");
-  const perQuery = 12;
+  const { balanceFlatMarketplaceList } = await import("@/lib/search/marketplace-balance");
+  const perQuery = 16;
 
   const batches = await Promise.all(
     HOMEPAGE_SEARCH_QUERIES.map(async (query) => {
@@ -101,5 +102,10 @@ export async function fetchCatalogFromSearchEngine(): Promise<NormalizedCatalogI
     }
   }
 
-  return items;
+  // Final pass: ensure the homepage pool itself is marketplace-balanced.
+  return balanceFlatMarketplaceList(
+    items,
+    (item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
+    items.length,
+  );
 }

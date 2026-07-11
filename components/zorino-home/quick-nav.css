@@ -10,7 +10,7 @@
 
 .zh-quick-nav {
   position: relative;
-  z-index: 40;
+  z-index: 10;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -27,7 +27,8 @@
   top: var(--zh-nav-h, 72px);
   left: 0;
   right: 0;
-  z-index: 90;
+  /* Stay below the search suggestions stack (z-index 120). */
+  z-index: 50;
   padding: 0 var(--zh-pad);
   background: rgba(9, 9, 11, 0.72);
   border-bottom: 1px solid rgba(78, 168, 255, 0.12);

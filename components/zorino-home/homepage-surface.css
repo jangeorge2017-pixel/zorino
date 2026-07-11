@@ -3,6 +3,8 @@
  */
 
 .zh-home-discovery-nav {
+  position: relative;
+  z-index: 1;
   margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
 }
 
