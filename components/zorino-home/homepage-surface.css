@@ -5,8 +5,8 @@
 .zh-home-discovery-nav {
   position: relative;
   z-index: 2;
-  /* Original spacing — category row sits just under search */
-  margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
+  /* Tight gap under category row so Trending stays close to Hero/Search */
+  margin-top: 10px;
 }
 
 .zh-quick-nav-wrap {
@@ -14,7 +14,9 @@
 }
 
 .zh-categories-wrap {
-  margin-top: 12px;
+  position: relative;
+  z-index: 2;
+  margin-top: calc(4px + var(--zh-space-search-categories, 22px));
 }
 
 .zh-featured-brands-wrap,
@@ -23,9 +25,9 @@
   margin-top: var(--zh-section-step, clamp(64px, 5vw, 80px));
 }
 
-/* Trending follows categories — keep close under the hero/search/category block */
+/* Trending starts immediately after Hero/Search/Categories with normal spacing */
 .hhb {
-  margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
+  margin-top: 14px;
 }
 
 .zh-featured-brands.zh-panel,
@@ -39,13 +41,14 @@
 }
 
 .zh-categories__item {
-  background: transparent;
-  border: none;
+  /* Keep tile presence — surface canvas should not erase category chrome */
+  background: rgba(15, 23, 42, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: none;
 }
 
 .zh-categories__item:hover {
-  background: rgba(7, 11, 22, 0.35);
+  background: rgba(15, 23, 42, 0.42);
   box-shadow: none;
 }
 

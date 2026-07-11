@@ -43,13 +43,25 @@ export default async function ZorinoHomeCategories({
   categories,
 }: ZorinoHomeCategoriesProps) {
   const t = await getTranslations("home");
-
-  if (categories.length === 0) return null;
+  // Never hide the shortcut row — fall back to the canonical 8 tiles.
+  const items =
+    categories.length > 0
+      ? categories
+      : [
+          { slug: "phones", label: "Phones", active: false, accent: "blue" },
+          { slug: "laptops", label: "Laptops", active: false, accent: "cyan" },
+          { slug: "gaming", label: "Gaming", active: false, accent: "purple" },
+          { slug: "tvs", label: "TVs", active: false, accent: "orange" },
+          { slug: "home", label: "Home", active: true, accent: "green" },
+          { slug: "wearables", label: "Wearables", active: false, accent: "pink" },
+          { slug: "fashion", label: "Fashion", active: false, accent: "indigo" },
+          { slug: "more", label: "More", active: false, accent: "gray" },
+        ];
 
   return (
     <nav className="zh-categories-nav" id="zh-section-categories" aria-label={t("categoriesNav")}>
       <div className="zh-categories">
-        {categories.map((category) => {
+        {items.map((category) => {
           const Icon = ICONS[category.slug as keyof typeof ICONS] ?? MoreHorizontal;
           const href =
             category.slug === "more" ? "/categories" : `/categories/${category.slug}`;
