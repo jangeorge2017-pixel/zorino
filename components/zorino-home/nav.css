@@ -75,11 +75,12 @@
 .zh-nav__links {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
   min-width: 0;
   padding: 0 var(--zh-nav-logo-gap);
-  gap: 6px;
+  /* Even horizontal rhythm between Deals → Blog */
+  gap: 10px;
 }
 
 .zh-nav__link {
@@ -279,6 +280,7 @@
   display: flex;
   align-items: center;
   flex: 0 0 auto;
+  margin-left: var(--zh-nav-gap);
 }
 
 .zh-nav__actions {
@@ -469,7 +471,7 @@
     background 250ms ease,
     transform 250ms ease,
     box-shadow 250ms ease;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .zh-nav__profile:hover {
@@ -560,7 +562,7 @@
 
   .zh-nav__links {
     padding: 0 var(--zh-nav-logo-gap);
-    gap: 4px;
+    gap: 8px;
   }
 
   .zh-nav__link {
