@@ -95,7 +95,8 @@ export default function EbaySettingsPanel({ status, logs, recentRuns }: EbaySett
             </h2>
             <p className="text-sm text-gray-400 mt-1">
               Browse API with eBay Partner Network affiliate context. Credentials below are
-              placeholders until you validate and enable live sync. Production stays idle until
+              placeholders until you validate credentials. Live Browse search runs when API
+              credentials are configured; affiliate attribution requires Campaign ID.
               then.
             </p>
           </div>
