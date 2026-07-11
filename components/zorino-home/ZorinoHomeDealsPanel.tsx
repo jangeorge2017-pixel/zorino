@@ -126,7 +126,24 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
               </p>
             </div>
           </div>
-          <ZorinoHomeViewAllLink href="/deals" variant="deals" />
+          <div className="zh-trending-deals__title-actions">
+            <ZorinoHomeViewAllLink href="/deals" variant="deals" />
+            <label className="zh-trending-deals__sort">
+              <span className="zh-trending-deals__sort-label">{t("sortBy")}</span>
+              <select
+                value={sort}
+                onChange={handleSortChange}
+                aria-label={t("sortBy")}
+                className="zh-trending-deals__sort-select"
+              >
+                {TRENDING_DEAL_SORTS.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {t(SORT_KEYS[item.id] as "sortNewest")}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </header>
 
         <div className="zh-trending-deals__controls">
@@ -150,22 +167,6 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
               </button>
             ))}
           </div>
-
-          <label className="zh-trending-deals__sort">
-            <span className="zh-trending-deals__sort-label">{t("sortBy")}</span>
-            <select
-              value={sort}
-              onChange={handleSortChange}
-              aria-label={t("sortBy")}
-              className="zh-trending-deals__sort-select"
-            >
-              {TRENDING_DEAL_SORTS.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {t(SORT_KEYS[item.id] as "sortNewest")}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
       </div>
 

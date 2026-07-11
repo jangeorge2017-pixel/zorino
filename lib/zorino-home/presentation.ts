@@ -67,14 +67,16 @@ const HERO_ORBIT_COMPOSITION = [
 export function withFallbackCategories(
   categories: HomepageCategoryItem[]
 ): HomepageCategoryItem[] {
-  if (categories.length > 0) return categories;
-
-  return ZH_CATEGORIES.map((category) => ({
-    slug: category.slug,
-    label: category.label,
-    active: category.slug === "home",
-    accent: category.accent ?? null,
-  }));
+  // Always render the canonical 8 homepage shortcuts in fixed order.
+  return ZH_CATEGORIES.map((category) => {
+    const match = categories.find((item) => item.slug === category.slug);
+    return {
+      slug: category.slug,
+      label: match?.label || category.label,
+      active: Boolean(category.highlighted) || category.slug === "home",
+      accent: category.accent ?? match?.accent ?? null,
+    };
+  });
 }
 
 export function withFallbackPopularSearches(searches: string[]): string[] {

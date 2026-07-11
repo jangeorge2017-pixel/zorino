@@ -114,14 +114,14 @@
     filter 250ms ease;
 }
 
-/* Outer outline — darker blue idle; bright electric glow only on hover/active */
+/* Outer outline — subtle dark blue only at idle (no bright glow) */
 .zh-nav__link::before {
   content: "";
   position: absolute;
   inset: -1px;
   border-radius: 999px;
   background: transparent;
-  border: 1px solid rgba(96, 165, 250, 0.4);
+  border: 1px solid rgba(37, 99, 235, 0.34);
   box-shadow: none;
   opacity: 1;
   z-index: -2;
@@ -132,17 +132,16 @@
     opacity 250ms ease;
 }
 
-/* Inner outline — darker blue/purple glass at idle (pill design preserved) */
+/* Inner glass — muted dark blue at idle; pill geometry unchanged */
 .zh-nav__link::after {
   content: "";
   display: block;
   position: absolute;
   inset: 0;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(96, 165, 250, 0.32);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   opacity: 1;

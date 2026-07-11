@@ -14,9 +14,9 @@
     animation: zh-premium-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .zh-page .zh-home-discovery-nav { animation-delay: 0.06s; }
-  .zh-page .zh-featured-brands-wrap { animation-delay: 0.14s; }
+  .zh-page .zh-home-discovery-nav { animation-delay: 0.08s; }
   .zh-page .hhb { animation-delay: 0.1s; }
+  .zh-page .zh-featured-brands-wrap { animation-delay: 0.14s; }
 .zh-page .zh-product-sections-wrap .zh-product-section.zh-deals-preview:nth-child(1) { animation-delay: 0.18s; }
 .zh-page .zh-product-sections-wrap .zh-product-section.zh-deals-preview:nth-child(2) { animation-delay: 0.22s; }
 .zh-page .zh-product-sections-wrap .zh-product-section.zh-deals-preview:nth-child(3) { animation-delay: 0.26s; }
@@ -47,21 +47,20 @@
   --zh-premium-glow-cyan: rgba(34, 211, 238, 0.1);
 }
 
+/* Discovery + Trending stay tight under the hero/search/category block */
+.zh-page .zh-home-discovery-nav {
+  margin-top: 10px;
+}
+
+.zh-page .hhb {
+  margin-top: 14px;
+}
+
 .zh-page .zh-featured-brands-wrap,
 .zh-page .zh-product-sections-wrap,
 .zh-page .zh-cta-wrap,
 .zh-page .zh-footer-wrap {
   margin-top: var(--zh-section-step);
-}
-
-/* Discovery keeps the tighter post-search gap (not the full section step) */
-.zh-page .zh-home-discovery-nav {
-  margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
-}
-
-/* Trending sits just under categories / search */
-.zh-page .hhb {
-  margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
 }
 
 .zh-page .zh-shell > * + * {

@@ -106,13 +106,14 @@ export default async function ZorinoHomePage() {
               <SearchSection />
             </Suspense>
           </div>
+
+          <div className="zh-categories-wrap">
+            <ZorinoHomeCategories categories={categories} />
+          </div>
         </div>
 
         <div className="zh-home-discovery-nav">
           <ZorinoHomeQuickNav />
-          <div className="zh-categories-wrap">
-            <ZorinoHomeCategories categories={categories} />
-          </div>
         </div>
 
         <HomeHeroBackground>

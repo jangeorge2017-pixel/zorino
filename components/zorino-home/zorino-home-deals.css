@@ -27,7 +27,6 @@
 
 /*
  * Keep the Trending Deals heading clear of sticky main nav + quick-nav.
- * Title sticks under the sticky stack; filter/sort stay in normal document flow.
  */
 .zh-trending-deals__title-row {
   position: sticky;
@@ -55,6 +54,17 @@
 .zh-trending-deals__title-row.zor-deals-page__section-head {
   align-items: center;
   margin-bottom: 0;
+}
+
+.zh-trending-deals__title-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.zh-trending-deals__title-actions .zh-trending-deals__sort {
+  margin-left: 0;
 }
 
 #zh-deals-title {
@@ -255,6 +265,17 @@
 }
 
 @media (max-width: 767px) {
+  .zh-trending-deals__title-row {
+    flex-wrap: wrap;
+  }
+
+  .zh-trending-deals__title-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
   .zh-trending-deals__controls {
     flex-direction: column;
     align-items: stretch;
