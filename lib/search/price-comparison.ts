@@ -1,5 +1,9 @@
-import type { UnifiedSearchProduct } from "@/lib/search/types";
+import type { NormalizedSearchListing, UnifiedSearchProduct } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
+import {
+  getProviderStoreMeta,
+  searchProviderToProductionId,
+} from "@/lib/integration/provider-context";
 
 export type PriceComparisonSummary = {
   lowestPrice: number;
@@ -10,6 +14,13 @@ export type PriceComparisonSummary = {
   providerCount: number;
   cheapestProviderId: string;
 };
+
+/** Marketplace brand label for badges / filters (eBay, AliExpress, …). */
+export function marketplaceDisplayName(providerId: string): string {
+  const productionId = searchProviderToProductionId(providerId);
+  if (productionId) return getProviderStoreMeta(productionId).name;
+  return providerId;
+}
 
 /** Compute cross-store price comparison stats for a unified product. */
 export function summarizePriceComparison(product: UnifiedSearchProduct): PriceComparisonSummary {
@@ -32,28 +43,56 @@ export function summarizePriceComparison(product: UnifiedSearchProduct): PriceCo
   };
 }
 
+function offerToSearchResultItem(
+  product: UnifiedSearchProduct,
+  offer: NormalizedSearchListing,
+): SearchResultItem {
+  const marketplace = marketplaceDisplayName(offer.providerId);
+  return {
+    id: offer.id,
+    name: offer.title || product.title,
+    imageSrc: offer.imageUrl || product.imageUrl,
+    emoji: product.emoji,
+    price: offer.price,
+    originalPrice: offer.originalPrice,
+    discount: offer.discount,
+    store: marketplace,
+    storeSlug: offer.storeSlug || offer.providerId,
+    rating: offer.rating || product.rating,
+    reviewCount: offer.reviewCount || product.reviewCount,
+    salesCount: offer.salesCount ?? product.salesCount,
+    shipping: offer.shipping,
+    inStock: offer.inStock,
+    category: offer.category || product.category,
+    affiliateUrl: offer.affiliateUrl ?? offer.productUrl,
+  };
+}
+
+/**
+ * One search card per marketplace offer group.
+ * Keeps eBay + AliExpress (and future marketplaces) visible side-by-side
+ * instead of collapsing to only the cheapest offer.
+ */
+export function unifiedToMarketplaceSearchItems(
+  product: UnifiedSearchProduct,
+): SearchResultItem[] {
+  const bestByProvider = new Map<string, NormalizedSearchListing>();
+  for (const offer of product.offers) {
+    const existing = bestByProvider.get(offer.providerId);
+    if (!existing || offer.price < existing.price) {
+      bestByProvider.set(offer.providerId, offer);
+    }
+  }
+
+  return [...bestByProvider.values()]
+    .sort((a, b) => a.price - b.price)
+    .map((offer) => offerToSearchResultItem(product, offer));
+}
+
 /** Map unified search product → UI SearchResultItem (lowest-price offer). */
 export function unifiedToSearchResultItem(product: UnifiedSearchProduct): SearchResultItem {
   const cheapest = product.offers.reduce((best, offer) =>
     offer.price < best.price ? offer : best
   );
-
-  return {
-    id: product.canonicalId,
-    name: product.title,
-    imageSrc: product.imageUrl,
-    emoji: product.emoji,
-    price: product.price,
-    originalPrice: product.originalPrice,
-    discount: product.discount,
-    store: cheapest.storeName,
-    storeSlug: cheapest.storeSlug,
-    rating: product.rating,
-    reviewCount: product.reviewCount,
-    salesCount: product.salesCount,
-    shipping: cheapest.shipping,
-    inStock: product.inStock,
-    category: product.category,
-    affiliateUrl: cheapest.affiliateUrl ?? cheapest.productUrl,
-  };
+  return offerToSearchResultItem(product, cheapest);
 }

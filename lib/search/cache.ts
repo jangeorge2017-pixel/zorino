@@ -10,8 +10,12 @@ type CacheEntry = {
 
 const searchCache = new Map<string, CacheEntry>();
 
-export function buildSearchCacheKey(query: string, limit: number): string {
-  return `${query.trim().toLowerCase()}:${limit}`;
+export function buildSearchCacheKey(
+  query: string,
+  limit: number,
+  providers = "all",
+): string {
+  return `${query.trim().toLowerCase()}:${limit}:${providers}`;
 }
 
 export function getCachedSearch(key: string): SearchEngineResult | null {
