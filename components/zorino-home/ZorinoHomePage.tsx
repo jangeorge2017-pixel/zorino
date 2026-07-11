@@ -108,17 +108,6 @@ export default async function ZorinoHomePage() {
           </div>
         </div>
 
-        <div className="zh-home-discovery-nav">
-          <ZorinoHomeQuickNav />
-          <div className="zh-categories-wrap">
-            <ZorinoHomeCategories categories={categories} />
-          </div>
-        </div>
-
-        <section className="zh-featured-brands-wrap" aria-label="Featured coupon brands">
-          <ZorinoHomeFeaturedCouponBrands brands={[...ZH_FEATURED_COUPON_BRANDS]} />
-        </section>
-
         <HomeHeroBackground>
           <section className="zh-commerce" aria-label="Trending deals and coupons">
             <Suspense
@@ -133,6 +122,17 @@ export default async function ZorinoHomePage() {
             </Suspense>
           </section>
         </HomeHeroBackground>
+
+        <div className="zh-home-discovery-nav">
+          <ZorinoHomeQuickNav />
+          <div className="zh-categories-wrap">
+            <ZorinoHomeCategories categories={categories} />
+          </div>
+        </div>
+
+        <section className="zh-featured-brands-wrap" aria-label="Featured coupon brands">
+          <ZorinoHomeFeaturedCouponBrands brands={[...ZH_FEATURED_COUPON_BRANDS]} />
+        </section>
 
         <section className="zh-product-sections-wrap" aria-label="Featured products">
           <Suspense

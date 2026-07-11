@@ -79,6 +79,7 @@
   width: 100%;
   min-width: 0;
   padding: 0 var(--zh-nav-logo-gap);
+  gap: 6px;
 }
 
 .zh-nav__link {
@@ -86,10 +87,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: var(--zh-nav-control-h);
-  padding: 0 var(--zh-nav-link-pad-x);
+  height: auto;
+  min-height: 0;
+  /* Match .zh-hero__badge ("Powered by AI") pill height — do not grow taller */
+  padding: 6px 13px;
   border: none;
-  border-radius: 0;
+  border-radius: 999px;
   background: transparent;
   font-size: 13.5px;
   font-weight: 600;
@@ -103,6 +106,7 @@
   text-shadow: none;
   transform: translateY(0);
   cursor: pointer;
+  isolation: isolate;
   transition:
     color 250ms ease,
     transform 250ms ease,
@@ -110,34 +114,48 @@
     filter 250ms ease;
 }
 
+/* Outer outline — bright electric blue neon ring */
 .zh-nav__link::before {
   content: "";
   position: absolute;
-  top: 0;
-  right: -10px;
-  bottom: 0;
-  left: -10px;
+  inset: -1px;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.14);
-  border: 1px solid rgba(96, 165, 250, 0.48);
+  background: transparent;
+  border: 1px solid rgba(126, 232, 255, 0.62);
   box-shadow:
-    0 0 18px rgba(96, 165, 250, 0.34),
-    0 0 32px rgba(59, 130, 246, 0.2),
+    0 0 8px rgba(111, 212, 255, 0.42),
+    0 0 16px rgba(34, 211, 238, 0.22);
+  opacity: 1;
+  z-index: -2;
+  pointer-events: none;
+  transition:
+    box-shadow 250ms ease,
+    border-color 250ms ease,
+    opacity 250ms ease;
+}
+
+/* Inner outline — light purple glass (same family as Powered by AI) */
+.zh-nav__link::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.14);
+  border: 1px solid rgba(196, 181, 253, 0.42);
+  box-shadow:
+    0 0 14px rgba(167, 139, 250, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(12px);
-  opacity: 0;
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 1;
   z-index: -1;
   pointer-events: none;
   transition:
-    opacity 250ms ease,
     box-shadow 250ms ease,
+    border-color 250ms ease,
     background 250ms ease,
-    border-color 250ms ease;
-}
-
-.zh-nav__link::after {
-  content: none;
-  display: none;
+    opacity 250ms ease;
 }
 
 .zh-nav__link-text {
@@ -179,7 +197,18 @@
 }
 
 .zh-nav__link:hover::before {
-  opacity: 1;
+  border-color: rgba(126, 232, 255, 0.85);
+  box-shadow:
+    0 0 12px rgba(111, 212, 255, 0.55),
+    0 0 22px rgba(34, 211, 238, 0.28);
+}
+
+.zh-nav__link:hover::after {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(196, 181, 253, 0.58);
+  box-shadow:
+    0 0 18px rgba(167, 139, 250, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .zh-nav__link:hover .zh-nav__link-text {
@@ -203,6 +232,18 @@
   text-shadow: 0 0 10px var(--zh-nav-active-glow);
 }
 
+.zh-nav__link.is-active::before {
+  border-color: rgba(126, 232, 255, 0.78);
+  box-shadow:
+    0 0 10px rgba(111, 212, 255, 0.5),
+    0 0 20px rgba(34, 211, 238, 0.26);
+}
+
+.zh-nav__link.is-active::after {
+  background: rgba(139, 92, 246, 0.22);
+  border-color: rgba(196, 181, 253, 0.55);
+}
+
 .zh-nav__link.is-active .zh-nav__link-text {
   color: var(--zh-nav-active-color);
   filter: brightness(1.04);
@@ -217,7 +258,10 @@
 }
 
 .zh-nav__link.is-active:hover::before {
-  opacity: 1;
+  border-color: rgba(126, 232, 255, 0.9);
+  box-shadow:
+    0 0 12px rgba(111, 212, 255, 0.58),
+    0 0 24px rgba(34, 211, 238, 0.3);
 }
 
 .zh-nav__link.is-active:hover .zh-nav__link-text {
@@ -520,10 +564,13 @@
 
   .zh-nav__links {
     padding: 0 var(--zh-nav-logo-gap);
+    gap: 4px;
   }
 
   .zh-nav__link {
     font-size: 12.5px;
+    /* Keep badge height; trim only horizontal padding so pills fit the bar */
+    padding: 6px 10px;
   }
 
   .zh-nav__wishlist-label {

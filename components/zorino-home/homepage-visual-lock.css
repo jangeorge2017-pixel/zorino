@@ -1,39 +1,46 @@
-/**
- * Final visualization lock — micro-polish only.
- * Scoped to .zh-page. No layout, structure, or hero changes.
- */
-
-.zh-page {
-  --zh-section-step: clamp(64px, 5vw, 80px);
-}
-
-.zh-page .zh-deals-preview {
-  --deals-section-gap: 40px;
-}
-
-/* ─── New Arrivals — cyan accent ─── */
-.zh-page #zh-section-new-arrivals {
-  --zh-section-accent: #06b6d4;
-  --zh-section-accent-soft: #67e8f9;
-  --zh-section-glow: rgba(6, 182, 212, var(--zh-glow-strength));
-}
-
-.zh-page #zh-section-new-arrivals .zor-deals-page__section-icon {
-  background: rgba(6, 182, 212, 0.12);
-  color: #67e8f9;
-  border-color: rgba(6, 182, 212, 0.22);
-}
-
-/* ─── Image sharpness (hero excluded) ─── */
-.zh-page img:not([src*="hero-background"]) {
-  image-rendering: auto;
-  -webkit-font-smoothing: subpixel-antialiased;
-}
-
-.zh-page .product-card-image,
-.zh-page .zh-td-card__media img,
-.zh-page .zh-brand-card__logo {
-  object-fit: contain;
-  object-position: center;
-}
-
+/**
+ * Final visualization lock — micro-polish only.
+ * Scoped to .zh-page. No layout, structure, or hero changes.
+ */
+
+.zh-page {
+  --zh-section-step: clamp(64px, 5vw, 80px);
+}
+
+.zh-page .zh-deals-preview {
+  --deals-section-gap: 40px;
+}
+
+/* ─── New Arrivals — cyan accent ─── */
+.zh-page #zh-section-new-arrivals {
+  --zh-section-accent: #06b6d4;
+  --zh-section-accent-soft: #67e8f9;
+  --zh-section-glow: rgba(6, 182, 212, var(--zh-glow-strength));
+}
+
+.zh-page #zh-section-new-arrivals .zor-deals-page__section-icon {
+  background: rgba(6, 182, 212, 0.12);
+  color: #67e8f9;
+  border-color: rgba(6, 182, 212, 0.22);
+}
+
+/* ─── Image sharpness (hero excluded) ─── */
+.zh-page img:not([src*="hero-background"]) {
+  image-rendering: auto;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.zh-page .product-card-image,
+.zh-page .zh-td-card__media img,
+.zh-page .zh-brand-card__logo {
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Orbit card images fill the square — polish lock must not force contain */
+.zh-page .zh-orbit-card__img {
+  object-fit: cover !important;
+  object-position: center;
+  padding: 0 !important;
+}
+

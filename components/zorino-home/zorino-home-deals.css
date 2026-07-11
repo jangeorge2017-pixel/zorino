@@ -26,12 +26,11 @@
 }
 
 /*
- * Keep the Trending Deals heading clear of sticky main nav + quick-nav.
- * Title sticks under the sticky stack; filter/sort stay in normal document flow.
+ * Trending sits above the discovery quick-nav, so sticky clearance is nav-only.
  */
 .zh-trending-deals__title-row {
   position: sticky;
-  top: var(--zh-sticky-stack, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px)));
+  top: var(--zh-nav-h, 72px);
   z-index: 40;
   margin-inline: -18px;
   margin-bottom: -4px;
@@ -45,11 +44,11 @@
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 120, 60, 0.08);
-  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+  scroll-margin-top: calc(var(--zh-nav-h, 72px) + 16px);
 }
 
 #zh-deals-title {
-  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+  scroll-margin-top: calc(var(--zh-nav-h, 72px) + 16px);
 }
 
 .zh-trending-deals__title-wrap {
