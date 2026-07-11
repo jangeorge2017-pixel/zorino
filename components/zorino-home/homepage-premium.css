@@ -14,9 +14,9 @@
     animation: zh-premium-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .zh-page .zh-home-discovery-nav { animation-delay: 0.14s; }
-  .zh-page .zh-featured-brands-wrap { animation-delay: 0.18s; }
-  .zh-page .hhb { animation-delay: 0.06s; }
+  .zh-page .zh-home-discovery-nav { animation-delay: 0.06s; }
+  .zh-page .zh-featured-brands-wrap { animation-delay: 0.14s; }
+  .zh-page .hhb { animation-delay: 0.1s; }
 .zh-page .zh-product-sections-wrap .zh-product-section.zh-deals-preview:nth-child(1) { animation-delay: 0.18s; }
 .zh-page .zh-product-sections-wrap .zh-product-section.zh-deals-preview:nth-child(2) { animation-delay: 0.22s; }
 .zh-page .zh-product-sections-wrap .zh-product-section.zh-deals-preview:nth-child(3) { animation-delay: 0.26s; }
@@ -50,12 +50,16 @@
 .zh-page .zh-featured-brands-wrap,
 .zh-page .zh-product-sections-wrap,
 .zh-page .zh-cta-wrap,
-.zh-page .zh-footer-wrap,
-.zh-page .zh-home-discovery-nav {
+.zh-page .zh-footer-wrap {
   margin-top: var(--zh-section-step);
 }
 
-/* Keep Trending Deals tight under the hero — do not use the full section step */
+/* Discovery keeps the tighter post-search gap (not the full section step) */
+.zh-page .zh-home-discovery-nav {
+  margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
+}
+
+/* Trending sits just under categories / search */
 .zh-page .hhb {
   margin-top: var(--zh-space-search-categories, var(--zh-space-stats-search, 22px));
 }
@@ -83,7 +87,7 @@
   pointer-events: none;
 }
 
-/* No hairline above Trending — it sits directly under the hero */
+/* Trending sits close under discovery — skip the section hairline */
 .zh-page .hhb::before {
   content: none;
   display: none;
