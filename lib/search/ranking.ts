@@ -22,8 +22,10 @@ function popularityScore(listing: NormalizedSearchListing): number {
 
 /**
  * Relevance ranking — score every listing, rank devices first.
- * Accessories only appear after all matching devices when enough devices exist.
+ * Accessories only appear after matching devices when enough devices exist.
  * Call this per marketplace so one provider's device count cannot wipe another.
+ *
+ * Sort order: relevance tier/score → price → rating → popularity → availability.
  */
 export function rankRawListings(
   listings: RawProviderListing[],
@@ -65,12 +67,16 @@ function compareListings(a: NormalizedSearchListing, b: NormalizedSearchListing)
 
   if (a.relevanceScore !== b.relevanceScore) return b.relevanceScore - a.relevanceScore;
 
-  const popDiff = popularityScore(b) - popularityScore(a);
-  if (popDiff !== 0) return popDiff;
+  if (a.price !== b.price) return a.price - b.price;
 
   if (a.rating !== b.rating) return b.rating - a.rating;
 
-  return a.price - b.price;
+  const popDiff = popularityScore(b) - popularityScore(a);
+  if (popDiff !== 0) return popDiff;
+
+  if (a.inStock !== b.inStock) return a.inStock ? -1 : 1;
+
+  return 0;
 }
 
 export function sortUnifiedByRelevance<
@@ -82,6 +88,7 @@ export function sortUnifiedByRelevance<
     reviewCount: number;
     salesCount?: number;
     rating: number;
+    inStock?: boolean;
   },
 >(products: T[]): T[] {
   return [...products].sort((a, b) => {
@@ -92,12 +99,16 @@ export function sortUnifiedByRelevance<
 
     if (a.relevanceScore !== b.relevanceScore) return b.relevanceScore - a.relevanceScore;
 
+    if (a.price !== b.price) return a.price - b.price;
+
+    if (a.rating !== b.rating) return b.rating - a.rating;
+
     const popA = (a.salesCount ?? 0) + a.reviewCount * 2 + a.rating * 10;
     const popB = (b.salesCount ?? 0) + b.reviewCount * 2 + b.rating * 10;
     if (popA !== popB) return popB - popA;
 
-    if (a.rating !== b.rating) return b.rating - a.rating;
+    if (a.inStock !== b.inStock) return a.inStock ? -1 : 1;
 
-    return a.price - b.price;
+    return 0;
   });
 }

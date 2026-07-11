@@ -7,11 +7,8 @@ import {
 } from "@/lib/search/cache";
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
-import {
-  fairMixSearchResults,
-  listingToSearchResultItem,
-  unifiedToSearchResultItem,
-} from "@/lib/search/price-comparison";
+import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
+import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
 import type {
   RawProviderListing,
   SearchEngineResult,
@@ -66,7 +63,7 @@ export async function executeGlobalSearch(
   }
 
   const providerKey = (options?.providers ?? ["all"]).join(",");
-  const cacheKey = buildSearchCacheKey(trimmed, limit, providerKey);
+  const cacheKey = buildSearchCacheKey(trimmed, limit, `prod-v1:${providerKey}`);
   if (!options?.skipCache) {
     const cached = getCachedSearch(cacheKey);
     if (cached) return cached;
@@ -74,7 +71,6 @@ export async function executeGlobalSearch(
 
   const { allRaw, providerStats } = await fetchProvidersInParallel(trimmed, options);
 
-  // Rank each marketplace independently so one provider cannot suppress another.
   const ranked: ReturnType<typeof rankRawListings> = [];
   const byProvider = groupByProvider(allRaw);
   for (const listings of byProvider.values()) {
@@ -153,9 +149,9 @@ async function fetchProvidersInParallel(
 }
 
 /**
- * Search UI entry point — fair multi-marketplace aggregation.
- * Queries live APIs in parallel, ranks each marketplace on its own,
- * then round-robins equal shares into one list.
+ * Production search UI entry point.
+ * Aggregates all enabled live marketplaces with device-first ranking,
+ * cross-marketplace dedupe, fair mixing, and marketplace-correct affiliate URLs.
  */
 export async function searchProducts(
   query: string,
@@ -165,7 +161,7 @@ export async function searchProducts(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const cacheKey = `fair-v2:${trimmed.toLowerCase()}:${capped}`;
+  const cacheKey = `prod-v3:${trimmed.toLowerCase()}:${capped}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -178,22 +174,7 @@ export async function searchProducts(
     maxPages: 3,
   });
 
-  const byProvider = groupByProvider(allRaw);
-  const buckets: SearchResultItem[][] = [];
-
-  for (const providerId of LIVE_SEARCH_PROVIDER_IDS) {
-    const raw = byProvider.get(providerId);
-    if (!raw?.length) continue;
-    buckets.push(rankRawListings(raw, trimmed).map(listingToSearchResultItem));
-  }
-
-  for (const [providerId, raw] of byProvider) {
-    if ((LIVE_SEARCH_PROVIDER_IDS as readonly string[]).includes(providerId)) continue;
-    if (!raw.length) continue;
-    buckets.push(rankRawListings(raw, trimmed).map(listingToSearchResultItem));
-  }
-
-  const mixed = fairMixSearchResults(buckets, capped);
+  const mixed = assembleProductionSearchResults(allRaw, trimmed, capped);
   fairSearchCache.set(cacheKey, {
     items: mixed,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
