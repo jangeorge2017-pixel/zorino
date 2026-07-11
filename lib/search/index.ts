@@ -41,4 +41,9 @@ export type { GlobalSearchOptions } from "@/lib/search/engine";
 export { getActiveSearchConnectors, getAllSearchConnectors } from "@/lib/search/connectors/registry";
 export { mergeDuplicateListings } from "@/lib/search/deduplication";
 export { rankRawListings } from "@/lib/search/ranking";
-export { unifiedToSearchResultItem, summarizePriceComparison } from "@/lib/search/price-comparison";
+export {
+  unifiedToSearchResultItem,
+  unifiedToMarketplaceSearchItems,
+  marketplaceDisplayName,
+  summarizePriceComparison,
+} from "@/lib/search/price-comparison";

@@ -29,6 +29,19 @@ type ListingProductCardProps = {
   showWishlist?: boolean;
 };
 
+function marketplaceBadgeLabel(storeSlug?: string, store?: string): string | null {
+  const slug = storeSlug?.trim().toLowerCase();
+  if (slug === "aliexpress") return "AliExpress";
+  if (slug === "ebay") return "eBay";
+  if (slug === "amazon") return "Amazon";
+  if (slug === "walmart") return "Walmart";
+  if (slug === "temu") return "Temu";
+  if (slug === "noon") return "Noon";
+  if (slug === "jumia") return "Jumia";
+  if (slug === "best-buy" || slug === "bestbuy") return "Best Buy";
+  return store?.trim() || null;
+}
+
 export default function ListingProductCard({
   product,
   showWishlist = true,
@@ -43,10 +56,11 @@ export default function ListingProductCard({
       : 0);
 
   const salesLabel = product.salesCount ?? product.reviewCount;
+  const marketplace = marketplaceBadgeLabel(product.storeSlug, product.store);
   const shopHref = product.affiliateUrl
     ? buildAffiliateRedirectPath({
         productId: product.id,
-        storeSlug: product.storeSlug || "aliexpress",
+        storeSlug: product.storeSlug || "unknown",
         destinationUrl: product.affiliateUrl,
         source: "search",
       })
@@ -58,7 +72,21 @@ export default function ListingProductCard({
         src={product.imageSrc}
         alt={product.name}
         fallback={undefined}
-        badges={discount > 0 ? <span className="deal-discount">-{discount}%</span> : null}
+        badges={
+          marketplace || discount > 0 ? (
+            <>
+              {marketplace ? (
+                <span
+                  className="deal-marketplace"
+                  data-marketplace={product.storeSlug || undefined}
+                >
+                  {marketplace}
+                </span>
+              ) : null}
+              {discount > 0 ? <span className="deal-discount">-{discount}%</span> : null}
+            </>
+          ) : null
+        }
       />
 
       <div className="product-card-body">

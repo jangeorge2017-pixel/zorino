@@ -237,7 +237,18 @@ export function filtersFromSearchResults(results: SearchResultItem[]) {
     ...new Map(
       results
         .filter((r) => r.storeSlug)
-        .map((r) => [r.storeSlug, { value: r.storeSlug, label: r.store }]),
+        .map((r) => {
+          const slug = r.storeSlug;
+          const label =
+            slug === "aliexpress"
+              ? "AliExpress"
+              : slug === "ebay"
+                ? "eBay"
+                : slug === "amazon"
+                  ? "Amazon"
+                  : r.store || slug;
+          return [slug, { value: slug, label }];
+        }),
     ).values(),
   ];
   return {
