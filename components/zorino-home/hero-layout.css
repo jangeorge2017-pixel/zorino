@@ -8,8 +8,8 @@
   grid-template-rows: 1fr;
   column-gap: 24px;
   align-items: stretch;
-  /* Content-sized height so Quick Nav stays on the first screen */
-  min-height: 0;
+  /* Restore pre–Quick-Nav stage height so orbit % positions sit around the Z */
+  min-height: 420px;
   overflow: visible;
   position: relative;
   isolation: isolate;
@@ -81,6 +81,6 @@
   }
 
   .zh-hero__col--right {
-    min-height: 280px;
+    min-height: 360px;
   }
 }
