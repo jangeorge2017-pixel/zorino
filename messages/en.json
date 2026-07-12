@@ -22,7 +22,7 @@
     "country": "Country",
     "currency": "Currency",
     "regionPreferences": "Language, country, and currency",
-    "hiUser": "Hi, {name}",
+    "hiUser": "Hello, {name}",
     "premium": "Premium",
     "primaryNav": "Primary",
     "theme": "Theme",

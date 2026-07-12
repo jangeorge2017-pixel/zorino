@@ -123,11 +123,13 @@ export default function ZorinoHomeQuickNav() {
   const scrollToTarget = useCallback((targetId: string, itemId: string) => {
     const target = document.getElementById(targetId);
     if (!target) return;
+    const height = navRef.current?.offsetHeight ?? navHeight;
+    const offset = getStickyScrollOffset(height);
+    const top = target.getBoundingClientRect().top + window.scrollY - offset;
     setClickedItemId(itemId);
     setActiveTargetId(targetId);
-    /* scroll-margin-top on section targets clears the sticky nav stack */
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, [navHeight]);
 
   const onItemClick = useCallback(
     (item: (typeof ZORINO_QUICK_NAV_ITEMS)[number]) => {
