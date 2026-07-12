@@ -242,42 +242,41 @@
   }
 
   /*
-   * One composition around the Z — horizontal fine-tune only.
-   * Group stay: translateX(-44px). Extra: left pair −60px, right pair −30px.
+   * Mobile orbit = desktop composition mapped to a centered Z stage.
+   * Same 2×2: left pair | Z | right pair, tops 36% / 60% (desktop vertical rhythm).
+   * No group translate — Z stays in the pocket between both columns.
    */
   .zh-page .hero-artwork__orbit {
-    transform: translateX(-44px);
+    transform: none;
   }
 
-  /* Same card chrome as desktop */
+  /* Do not resize — keep current mobile card box; styling/animation untouched */
   .zh-page .zh-orbit-card {
     width: 78px;
     height: 78px;
     border-radius: 12px;
   }
 
-  /*
-   * Shared vertical rhythm unchanged (16% / 64%).
-   * Horizontal: left column −120px, right column −60px from base %.
-   */
+  /* Left of Z (desktop orbit-upper-left + orbit-top) */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: calc(12% - 120px);
-    top: 16%;
+    left: 28%;
+    top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: calc(12% - 120px);
-    top: 64%;
+    left: 28%;
+    top: 60%;
   }
 
+  /* Right of Z (desktop orbit-upper-right + orbit-lower-right) */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: calc(76% - 60px);
-    top: 16%;
+    left: 72%;
+    top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: calc(76% - 60px);
-    top: 64%;
+    left: 72%;
+    top: 60%;
   }
 
   /* ── Search ── */
