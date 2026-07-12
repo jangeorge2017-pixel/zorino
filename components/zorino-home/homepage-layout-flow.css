@@ -52,8 +52,8 @@
 
 .zh-page .zh-trending-deals__head {
   margin-inline: 0;
-  margin-bottom: 16px;
-  padding: 16px 18px 14px;
+  margin-bottom: 0;
+  padding: 16px 18px 4px;
   top: var(--zh-sticky-stack, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px)));
   z-index: 40;
 }
@@ -61,7 +61,7 @@
 .zh-page .zh-trending-deals__carousel,
 .zh-page .zh-trending-deals .zh-panel__empty {
   padding-inline: 18px;
-  padding-top: 4px;
+  padding-top: 8px;
 }
 
 /* Header profile chip — keep avatar + Premium fully visible */
