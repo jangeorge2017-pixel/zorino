@@ -37,14 +37,17 @@
   object-position: center;
 }
 
-/* Keep floating orbit cards fully visible (no crop from hero clip) */
+/* Approved orbit cards — image fills the square */
+.zh-page .zh-orbit-card__img {
+  object-fit: cover !important;
+  object-position: center;
+  padding: 0 !important;
+}
+
+/* Keep the four cards fully visible around the Z (do not clip the stage) */
 .zh-page .zh-hero__col--right,
 .zh-page .hero-artwork,
 .zh-page .hero-artwork__orbit {
-  overflow: visible;
-}
-
-.zh-page .zh-orbit-card {
   overflow: visible;
 }
 
