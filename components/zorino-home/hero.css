@@ -27,7 +27,7 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: var(--zh-space-stats-search, 22px);
+  margin-top: calc(var(--zh-space-stats-search, 22px) - var(--zh-discovery-group-lift, 0px));
   margin-bottom: 0;
   transform: none;
 }
@@ -190,7 +190,7 @@
   inset: 0;
   z-index: 4;
   pointer-events: none;
-  transform: translateX(120px);
+  transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px)));
 }
 
 @keyframes zh-orbit-float {
@@ -570,7 +570,8 @@
     margin-top: calc(
       var(--zh-space-stats-search, 22px) +
       var(--zh-hero-search-platform-gap, 24px) -
-      var(--zh-hero-search-overlap, 0px)
+      var(--zh-hero-search-overlap, 0px) -
+      var(--zh-discovery-group-lift, 0px)
     );
   }
 

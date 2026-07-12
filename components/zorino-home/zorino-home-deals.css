@@ -41,7 +41,7 @@
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 120, 60, 0.08);
-  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 28px));
   isolation: isolate;
 }
 
@@ -77,7 +77,7 @@
 }
 
 #zh-deals-title {
-  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 28px));
 }
 
 .zh-trending-deals__title-wrap {
