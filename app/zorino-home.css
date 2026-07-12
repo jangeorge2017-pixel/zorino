@@ -89,13 +89,12 @@
     var(--zh-hero-artwork-stretch-z-up)
   );
   /*
-   * Lift Search + Categories + Quick Nav as one group.
-   * Cancel empty space below stats inside the 420px hero stage so Search lands
-   * ~24px under the stats cards without touching the Z platform.
-   * Inter-section discovery gaps (--zh-space-discovery) stay unchanged.
+   * Search group anchor under the hero stage.
+   * platform-gap: 24px pushes Search (+ Categories in flow) down for a clean
+   * gap under the Z platform. Quick Nav compensates separately so it stays put.
    */
   --zh-hero-search-overlap: calc(420px - var(--zh-hero-artwork-height));
-  --zh-hero-search-platform-gap: 0px;
+  --zh-hero-search-platform-gap: 24px;
   --zh-hero-bg-stretch-up: 45px;
   --zh-page-bg-base: #070b16;
   --zh-hero-edge-feather: 36px;

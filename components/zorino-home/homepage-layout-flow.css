@@ -1,8 +1,8 @@
 /**
  * Homepage layout flow lock — document flow only.
  * Order: Hero → Search → Categories → Quick Nav → Trending.
- * Equal --zh-space-discovery between Search, Categories, and Quick Nav (unchanged).
- * Group vertical position is anchored only via .zh-hero-search margin tokens.
+ * Search/Categories sit 24px lower via --zh-hero-search-platform-gap;
+ * Quick Nav margin compensates so its screen position stays fixed.
  */
 
 .zh-page .zh-hero-zone {
@@ -18,7 +18,8 @@
 }
 
 .zh-page .zh-home-discovery-nav {
-  margin-top: var(--zh-space-discovery, 18px);
+  /* Offset the +24px Search/Categories shift so Quick Nav does not move */
+  margin-top: calc(var(--zh-space-discovery, 18px) - 24px);
   padding-bottom: 8px;
   overflow: visible;
   z-index: 5;
@@ -100,7 +101,7 @@
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: 16px;
+    margin-top: calc(16px - 24px);
   }
 
   .zh-page .hhb {
