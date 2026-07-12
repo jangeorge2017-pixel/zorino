@@ -8,56 +8,57 @@
    Tablet — max-width: 1279px
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 1279px) {
-  /* ── Hero: stack earlier so copy + stage never fight for width ── */
-  .zh-page {
-    --zh-hero-artwork-scale: 0.95;
-    --zh-hero-artwork-shift-left: 40px;
-  }
-
+  /* ── Hero: tablet keeps the approved desktop orbit composition ── */
   .zh-page .zh-hero {
-    grid-template-columns: 1fr;
-    min-height: 0;
-    row-gap: 12px;
+    grid-template-columns: minmax(0, 548px) minmax(0, 1fr);
+    min-height: 420px;
   }
 
-  .zh-page .zh-hero__col--left,
-  .zh-page .zh-hero__col--right {
+  .zh-page .zh-hero__col--left {
     grid-column: 1;
-    grid-row: auto;
+    grid-row: 1;
   }
 
   .zh-page .zh-hero__col--right {
-    min-height: 300px;
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 0;
   }
 
-  /* Pull orbit group back into the stage */
+  .zh-page .hero-artwork {
+    transform: translate(
+      calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
+      calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+    );
+  }
+
   .zh-page .hero-artwork__orbit {
-    transform: translateX(0);
+    transform: translateX(120px);
   }
 
   .zh-page .zh-orbit-card {
-    width: 72px;
-    height: 72px;
+    width: 86px;
+    height: 86px;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: 28%;
-    top: 32%;
+    left: calc(72% - 151px);
+    top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 28%;
-    top: 68%;
+    left: calc(72% - 151px);
+    top: 60%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: 78%;
-    top: 32%;
+    left: 88%;
+    top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 78%;
-    top: 68%;
+    left: 88%;
+    top: 60%;
   }
 
   /* ── Nav: allow link row to scroll instead of overflowing ── */
@@ -130,15 +131,6 @@
    Narrow tablet / large phone — max-width: 1024px
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
-  .zh-page .zh-hero__col--right {
-    min-height: 280px;
-  }
-
-  .zh-page .zh-orbit-card {
-    width: 64px;
-    height: 64px;
-  }
-
   .zh-page .zh-search {
     width: min(100%, 92%);
   }
