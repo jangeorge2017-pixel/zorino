@@ -12,7 +12,7 @@
   --zor-nav-h: 72px;
   --zor-section-gap: 28px;
   /* Air below sticky site header so anchored titles clear it fully */
-  --zor-sticky-clearance: calc(var(--zor-nav-h) + 20px);
+  --zor-sticky-clearance: calc(var(--zor-nav-h) + 24px);
 
   /* ─── Color: surfaces ─── */
   --zor-bg-deep: #020611;

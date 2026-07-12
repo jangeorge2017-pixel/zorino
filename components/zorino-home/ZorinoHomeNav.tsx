@@ -68,7 +68,7 @@ export default function ZorinoHomeNav() {
             />
             <div className="zh-nav__profile-copy">
               <strong>
-                {displayName ? t("hiUser", { name: displayName }) : t("signIn")}
+                {t("hiUser", { name: displayName || "User" })}
               </strong>
               <span className="zh-nav__premium">
                 {t("premium")}

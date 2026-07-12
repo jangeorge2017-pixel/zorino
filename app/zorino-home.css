@@ -41,7 +41,7 @@
   /* Target gap: Search (and discovery group) below stats cards */
   --zh-space-stats-search: 24px;
   --zh-discovery-group-lift: 96px;
-  --zh-orbit-card-shift-right: 11px;
+  --zh-orbit-card-shift-right: 16px;
   --zh-hero-search-height: 58px;
   --zh-hero-search-block: calc(
     var(--zh-space-stats-search) + var(--zh-hero-search-height)
@@ -54,7 +54,7 @@
   /* Sticky stack: main nav + quick-nav. JS syncs --zh-quick-nav-h. */
   --zh-quick-nav-h: 52px;
   --zh-sticky-stack: calc(var(--zh-nav-h) + var(--zh-quick-nav-h));
-  --zh-sticky-clearance: calc(var(--zh-sticky-stack) + 28px);
+  --zh-sticky-clearance: calc(var(--zh-sticky-stack) + 40px);
   --zh-hero-artwork-height: calc(
     44px +
     (clamp(42px, 2.92vw, 56px) * 2.1) +
