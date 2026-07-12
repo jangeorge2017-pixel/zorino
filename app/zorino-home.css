@@ -85,8 +85,8 @@
     var(--zh-hero-artwork-lift) -
     var(--zh-hero-artwork-stretch-z-up)
   );
-  --zh-hero-search-overlap: 98px;
-  --zh-hero-search-platform-gap: 14px;
+  --zh-hero-search-overlap: 0;
+  --zh-hero-search-platform-gap: 0;
   --zh-hero-bg-stretch-up: 45px;
   --zh-page-bg-base: #070b16;
   --zh-hero-edge-feather: 36px;

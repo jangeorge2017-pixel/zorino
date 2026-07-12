@@ -47,13 +47,13 @@
   --zh-premium-glow-cyan: rgba(34, 211, 238, 0.1);
 }
 
-/* Discovery + Trending spacing (matches homepage-surface.css) */
+/* Discovery + Trending spacing (matches homepage-layout-flow.css) */
 .zh-page .zh-home-discovery-nav {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 .zh-page .hhb {
-  margin-top: 36px;
+  margin-top: 48px;
 }
 
 .zh-page .zh-featured-brands-wrap,
@@ -221,9 +221,24 @@
 
 /* ─── Glass panels (commerce + product sections) ─── */
 .zh-page .zh-panel,
-.zh-page .zh-trending-deals,
 .zh-page .zh-product-section.zh-panel {
   padding: clamp(20px, 2.5vw, 28px);
+  border-radius: 22px;
+  background: linear-gradient(
+    165deg,
+    rgba(18, 22, 42, 0.72) 0%,
+    rgba(10, 14, 28, 0.55) 100%
+  );
+  border: 1px solid var(--zh-premium-border);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Trending keeps flow padding from homepage-layout-flow / deals CSS */
+.zh-page .zh-trending-deals.zh-deals-panel {
   border-radius: 22px;
   background: linear-gradient(
     165deg,

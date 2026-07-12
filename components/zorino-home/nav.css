@@ -457,6 +457,7 @@
   height: var(--zh-nav-control-h);
   min-height: var(--zh-nav-control-h);
   max-height: var(--zh-nav-control-h);
+  min-width: 132px;
   max-width: 168px;
   padding: 4px 10px 4px 4px;
   border-radius: var(--zh-nav-radius);

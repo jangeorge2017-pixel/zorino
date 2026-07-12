@@ -5,9 +5,8 @@
 .zh-home-discovery-nav {
   position: relative;
   z-index: 5;
-  /* Categories → Quick Nav: +14px breathing room; keep glow unclipped */
-  margin-top: 24px;
-  padding-bottom: 4px;
+  margin-top: 20px;
+  padding-bottom: 8px;
   overflow: visible;
 }
 
@@ -19,9 +18,8 @@
 .zh-categories-wrap {
   position: relative;
   z-index: 2;
-  margin-top: calc(4px + var(--zh-space-search-categories, 22px));
-  /* Room for category hover lift / icon glow */
-  padding-bottom: 6px;
+  margin-top: var(--zh-space-search-categories, 22px);
+  padding-bottom: 8px;
   overflow: visible;
 }
 
@@ -31,9 +29,9 @@
   margin-top: var(--zh-section-step, clamp(64px, 5vw, 80px));
 }
 
-/* Quick Nav fully visible above Trending — clear gap, no overlap */
+/* Quick Nav fully clear above Trending */
 .hhb {
-  margin-top: 36px;
+  margin-top: 48px;
   position: relative;
   z-index: 1;
 }

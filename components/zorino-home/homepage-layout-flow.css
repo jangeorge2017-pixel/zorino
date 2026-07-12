@@ -1,0 +1,124 @@
+/**
+ * Homepage layout flow lock — document flow only.
+ * Order: Hero → Search → Categories → Quick Nav → Trending.
+ * No negative margins / translateY / absolute used for section spacing.
+ */
+
+.zh-page .zh-hero-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.zh-page .zh-categories-wrap {
+  margin-top: var(--zh-space-search-categories, 22px);
+  padding-bottom: 8px;
+  overflow: visible;
+}
+
+.zh-page .zh-home-discovery-nav {
+  margin-top: 20px;
+  padding-bottom: 8px;
+  overflow: visible;
+  z-index: 5;
+}
+
+.zh-page .zh-quick-nav-wrap {
+  margin-top: 0;
+  overflow: visible;
+}
+
+/* Clear gap under Quick Nav so Trending never sits under the dark sticky bar */
+.zh-page .hhb {
+  margin-top: 48px;
+  padding-top: 0;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+.zh-page .hhb__content,
+.zh-page .hhb .zh-commerce {
+  overflow: visible;
+}
+
+/* Trending panel: flow padding instead of negative head margins */
+.zh-page .zh-trending-deals.zh-deals-panel,
+.zh-page .zh-trending-deals {
+  padding: 0 0 20px;
+  overflow: visible;
+}
+
+.zh-page .zh-trending-deals__head {
+  margin-inline: 0;
+  margin-bottom: 16px;
+  padding: 16px 18px 14px;
+  top: var(--zh-sticky-stack, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px)));
+  z-index: 40;
+}
+
+.zh-page .zh-trending-deals__carousel,
+.zh-page .zh-trending-deals .zh-panel__empty {
+  padding-inline: 18px;
+  padding-top: 4px;
+}
+
+/* Header profile chip — keep avatar + Premium fully visible */
+.zh-page .zh-nav__profile {
+  min-width: 132px;
+  max-width: 180px;
+  overflow: visible;
+}
+
+.zh-page .zh-nav__profile-fallback {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.zh-page .zh-nav__profile-copy {
+  overflow: hidden;
+  min-width: 0;
+}
+
+@media (max-width: 1279px) {
+  .zh-page .zh-nav__profile {
+    min-width: 112px;
+    max-width: 140px;
+  }
+
+  .zh-page .hhb {
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .zh-page .zh-categories-wrap {
+    margin-top: 16px;
+  }
+
+  .zh-page .zh-home-discovery-nav {
+    margin-top: 16px;
+  }
+
+  .zh-page .hhb {
+    margin-top: 32px;
+  }
+
+  .zh-page .zh-nav__profile {
+    min-width: 44px;
+    max-width: 44px;
+    padding: 4px;
+  }
+
+  .zh-page .zh-nav__profile-copy {
+    display: none;
+  }
+}
+
+/* Prevent accidental horizontal scroll from glow / pills */
+.zh-page .zh-shell {
+  overflow-x: clip;
+  max-width: 100%;
+}
