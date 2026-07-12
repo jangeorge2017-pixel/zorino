@@ -30,8 +30,8 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin: 0 0 16px;
-  padding: 16px 18px 14px;
+  margin: 0;
+  padding: 16px 18px 4px;
   background: linear-gradient(
     180deg,
     rgba(14, 12, 20, 0.99) 0%,
@@ -205,7 +205,8 @@
 .zh-trending-deals__carousel {
   position: relative;
   z-index: 1;
-  padding: 4px 18px 0;
+  /* Tight, consistent gap under sticky filters — first row stays clear while scrolling */
+  padding: 8px 18px 0;
 }
 
 .zh-trending-deals__track,

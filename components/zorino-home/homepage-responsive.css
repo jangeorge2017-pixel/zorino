@@ -1,0 +1,434 @@
+/**
+ * Homepage responsive layer — tablet & mobile ONLY.
+ * Imported last. Contains @media rules exclusively so desktop (≥1280)
+ * base styles stay pixel-identical to the approved layout.
+ */
+
+/* ═══════════════════════════════════════════════════════════
+   Tablet — max-width: 1279px
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1279px) {
+  /* ── Hero: stack earlier so copy + stage never fight for width ── */
+  .zh-page {
+    --zh-hero-artwork-scale: 0.95;
+    --zh-hero-artwork-shift-left: 40px;
+  }
+
+  .zh-page .zh-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    row-gap: 12px;
+  }
+
+  .zh-page .zh-hero__col--left,
+  .zh-page .zh-hero__col--right {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .zh-page .zh-hero__col--right {
+    min-height: 300px;
+  }
+
+  /* Pull orbit group back into the stage */
+  .zh-page .hero-artwork__orbit {
+    transform: translateX(0);
+  }
+
+  .zh-page .zh-orbit-card {
+    width: 72px;
+    height: 72px;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
+    left: 28%;
+    top: 32%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    left: 28%;
+    top: 68%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
+    left: 78%;
+    top: 32%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    left: 78%;
+    top: 68%;
+  }
+
+  /* ── Nav: allow link row to scroll instead of overflowing ── */
+  .zh-page .zh-nav__links {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    justify-content: flex-start;
+  }
+
+  .zh-page .zh-nav__links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .zh-page .zh-nav__profile-copy {
+    display: none;
+  }
+
+  .zh-page .zh-nav__profile {
+    min-width: 44px;
+    max-width: 44px;
+    padding: 4px;
+  }
+
+  /* ── Categories: smoother horizontal scroll ── */
+  .zh-page .zh-categories {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .zh-page .zh-categories::-webkit-scrollbar {
+    display: none;
+  }
+
+  .zh-page .zh-categories__item {
+    min-width: 80px;
+    min-height: 72px;
+  }
+
+  /* ── Carousel chrome: keep arrows inside the panel ── */
+  .zh-page .zh-trending-deals__nav--prev,
+  .zh-page .zh-featured-brands__nav--prev {
+    left: 4px;
+  }
+
+  .zh-page .zh-trending-deals__nav--next,
+  .zh-page .zh-featured-brands__nav--next {
+    right: 4px;
+  }
+
+  /* ── Deal filter chips: comfortable tap targets ── */
+  .zh-page .zh-trending-deals__filter {
+    min-height: 40px;
+    padding: 9px 14px;
+  }
+
+  /* ── Product card CTAs: stack on tablet 2-col grids ── */
+  .zh-page .zh-product-grid .product-card-actions-dual {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Quick nav: keep 44px touch height when padding shrinks ── */
+  .zh-page .zh-quick-nav__pill {
+    min-height: 44px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Narrow tablet / large phone — max-width: 1024px
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .zh-page .zh-hero__col--right {
+    min-height: 280px;
+  }
+
+  .zh-page .zh-orbit-card {
+    width: 64px;
+    height: 64px;
+  }
+
+  .zh-page .zh-search {
+    width: min(100%, 92%);
+  }
+
+  .zh-page .zh-search__ai {
+    display: none;
+  }
+
+  .zh-page .zh-trending-deals__filters {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .zh-page .zh-trending-deals__filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .zh-page .zh-trending-deals__filter {
+    flex: 0 0 auto;
+    min-height: 44px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Mobile — max-width: 767px
+   Dedicated mobile layout (not a scaled desktop). Tablet/desktop above unchanged.
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* ── Page rhythm ── */
+  .zh-page {
+    --zh-pad: 16px;
+    --zh-section-step: 40px;
+    --zh-space-discovery: 14px;
+    --zh-hero-artwork-shift-left: 0px;
+    --zh-hero-artwork-right: 0px;
+    --zh-hero-artwork-scale: 0.78;
+    --zh-hero-artwork-lift: 0px;
+    --zh-hero-artwork-stretch-z-up: 0px;
+    --zh-hero-artwork-top: 0px;
+  }
+
+  .zh-page .zh-shell {
+    padding-left: var(--zh-pad);
+    padding-right: var(--zh-pad);
+    padding-bottom: 28px;
+    overflow-x: clip;
+  }
+
+  /* ── Hero: readable copy, then a focused Z stage ── */
+  .zh-page .zh-hero {
+    row-gap: 8px;
+  }
+
+  .zh-page .zh-hero__title {
+    font-size: clamp(32px, 9vw, 38px);
+    letter-spacing: -1.4px;
+    margin-bottom: 12px;
+  }
+
+  .zh-page .zh-hero__subtitle {
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 34ch;
+  }
+
+  .zh-page .zh-hero__stats {
+    margin-top: 16px;
+    gap: 8px;
+  }
+
+  .zh-page .zh-stat {
+    width: calc(50% - 4px);
+    min-height: 70px;
+  }
+
+  .zh-page .zh-hero__col--right {
+    min-height: 300px;
+    margin-top: 4px;
+  }
+
+  /*
+   * Center the Z as the mobile visual focus.
+   * Desktop right-edge mask would hide a centered logo — disable on mobile only.
+   */
+  .zh-page .zh-page__artwork-clip {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-position: center 56%;
+    background-size: min(72vw, 300px) auto;
+  }
+
+  .zh-page .hero-artwork {
+    transform: none;
+  }
+
+  /*
+   * One composition around the Z — horizontal fine-tune only.
+   * Group stay: translateX(-44px). Extra: left pair −60px, right pair −30px.
+   */
+  .zh-page .hero-artwork__orbit {
+    transform: translateX(-44px);
+  }
+
+  /* Same card chrome as desktop */
+  .zh-page .zh-orbit-card {
+    width: 78px;
+    height: 78px;
+    border-radius: 12px;
+  }
+
+  /*
+   * Shared vertical rhythm unchanged (16% / 64%).
+   * Horizontal: left column −120px, right column −60px from base %.
+   */
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
+    left: calc(12% - 120px);
+    top: 16%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    left: calc(12% - 120px);
+    top: 64%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
+    left: calc(76% - 60px);
+    top: 16%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    left: calc(76% - 60px);
+    top: 64%;
+  }
+
+  /* ── Search ── */
+  .zh-page .zh-hero-search {
+    margin-top: 16px;
+  }
+
+  .zh-page .zh-search {
+    width: 100%;
+  }
+
+  .zh-page .zh-search__ai {
+    display: none;
+  }
+
+  .zh-page .zh-search__bar {
+    min-height: 52px;
+    width: 100%;
+  }
+
+  .zh-page .zh-search__submit {
+    min-height: 44px;
+    flex: 1 1 auto;
+  }
+
+  /* ── Categories + Quick Nav ── */
+  .zh-page .zh-categories-wrap {
+    margin-top: 16px;
+  }
+
+  .zh-page .zh-categories {
+    margin-inline: calc(-1 * var(--zh-pad));
+    padding-inline: var(--zh-pad);
+    gap: 8px;
+  }
+
+  .zh-page .zh-categories__item {
+    min-width: 84px;
+    min-height: 76px;
+  }
+
+  .zh-page .zh-categories__label {
+    font-size: 11.5px;
+  }
+
+  .zh-page .zh-home-discovery-nav {
+    margin-top: 12px;
+  }
+
+  .zh-page .zh-quick-nav__pill {
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+
+  /* ── Commerce / Trending / Coupons ── */
+  .zh-page .hhb {
+    margin-top: 28px;
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-bottom: 24px;
+  }
+
+  .zh-page .hhb .zh-commerce,
+  .zh-page .zh-commerce {
+    gap: 20px;
+  }
+
+  .zh-page .zh-trending-deals__head {
+    padding: 12px 12px 4px;
+    gap: 10px;
+  }
+
+  .zh-page .zh-trending-deals__carousel,
+  .zh-page .zh-trending-deals .zh-panel__empty {
+    padding-inline: 12px;
+    padding-top: 8px;
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid {
+    grid-auto-columns: min(100%, calc(100vw - 2 * var(--zh-pad) - 24px));
+    gap: 12px;
+  }
+
+  .zh-page .zh-trending-deals__filter {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  .zh-page .zh-trending-deals__sort-select {
+    min-height: 44px;
+  }
+
+  .zh-page .zh-trending-deals__nav,
+  .zh-page .zh-featured-brands__nav {
+    display: none;
+  }
+
+  .zh-page .zh-coupon {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .zh-page .zh-coupon__code-wrap,
+  .zh-page .zh-coupon__meta {
+    grid-column: 1 / -1;
+  }
+
+  .zh-page .zh-coupon__meta {
+    align-items: flex-start;
+    text-align: left;
+    white-space: normal;
+  }
+
+  /* ── Featured brands + product sections ── */
+  .zh-page .zh-featured-brands-wrap,
+  .zh-page .zh-product-sections-wrap,
+  .zh-page .zh-cta-wrap,
+  .zh-page .zh-footer-wrap {
+    margin-top: var(--zh-section-step);
+  }
+
+  .zh-page .zh-brand-card {
+    flex-basis: min(200px, calc(100vw - 48px));
+  }
+
+  .zh-page .zh-section-head__title,
+  .zh-page .zor-deals-page__section-title {
+    white-space: normal;
+  }
+
+  .zh-page .zh-product-grid {
+    gap: 12px;
+  }
+
+  .zh-page .product-card-actions-dual {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* ── Footer / CTA ── */
+  .zh-page .zh-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .zh-page .zh-footer__stats {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
