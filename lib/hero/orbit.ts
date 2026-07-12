@@ -14,13 +14,15 @@ export function getHeroOrbitAnimationDelay(position: string): number {
 }
 
 /**
- * Premium four-card orbit around the Z logo (hero.css data-orbit-position rules).
+ * Premium four-card orbit around the Z logo.
+ * Must stay in sync with hero.css data-orbit-position rules
+ * (pre–Quick-Nav / Trending placement adjustment).
  */
 export const HERO_ORBIT_REFERENCE_POSITIONS: Record<string, { left: string; top: string }> = {
-  "orbit-top": { left: "50%", top: "23%" },
-  "orbit-upper-left": { left: "15%", top: "49%" },
-  "orbit-upper-right": { left: "79%", top: "29%" },
-  "orbit-lower-right": { left: "85%", top: "53%" },
+  "orbit-upper-left": { left: "calc(72% - 151px)", top: "36%" },
+  "orbit-top": { left: "calc(72% - 151px)", top: "60%" },
+  "orbit-upper-right": { left: "88%", top: "36%" },
+  "orbit-lower-right": { left: "88%", top: "60%" },
 };
 
 export function getHeroOrbitSlotPosition(position: string): {
