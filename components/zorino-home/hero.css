@@ -20,14 +20,18 @@
   z-index: 2;
 }
 
-/* ─── Hero search — normal document flow (no negative margin / translateY) ─── */
+/* ─── Hero search — spacing only: sit below stats with balanced gap under Z platform ─── */
 .zh-hero-search {
   position: relative;
   z-index: 120;
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: var(--zh-space-stats-search, 22px);
+  margin-top: calc(
+    var(--zh-space-stats-search, 22px) +
+    var(--zh-hero-search-platform-gap, 16px) -
+    var(--zh-hero-search-overlap, 0px)
+  );
   margin-bottom: 0;
   transform: none;
 }

@@ -1,7 +1,8 @@
 /**
  * Homepage layout flow lock — document flow only.
  * Order: Hero → Search → Categories → Quick Nav → Trending.
- * No negative margins / translateY / absolute used for section spacing.
+ * Equal --zh-space-discovery between Search, Categories, and Quick Nav.
+ * Search vertical offset uses --zh-hero-search-* tokens only (no translateY).
  */
 
 .zh-page .zh-hero-zone {
@@ -11,13 +12,13 @@
 }
 
 .zh-page .zh-categories-wrap {
-  margin-top: var(--zh-space-search-categories, 22px);
-  padding-bottom: 8px;
+  margin-top: var(--zh-space-discovery, var(--zh-space-search-categories, 18px));
+  padding-bottom: 0;
   overflow: visible;
 }
 
 .zh-page .zh-home-discovery-nav {
-  margin-top: 20px;
+  margin-top: var(--zh-space-discovery, 18px);
   padding-bottom: 8px;
   overflow: visible;
   z-index: 5;
