@@ -41,7 +41,7 @@
   /* Target gap: Search (and discovery group) below stats cards */
   --zh-space-stats-search: 24px;
   --zh-discovery-group-lift: 38px;
-  --zh-orbit-card-shift-right: 6px;
+  --zh-orbit-card-shift-right: 11px;
   --zh-hero-search-height: 58px;
   --zh-hero-search-block: calc(
     var(--zh-space-stats-search) + var(--zh-hero-search-height)
