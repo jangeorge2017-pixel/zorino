@@ -37,10 +37,14 @@
   object-position: center;
 }
 
-/* Orbit card images fill the square — polish lock must not force contain */
-.zh-page .zh-orbit-card__img {
-  object-fit: cover !important;
-  object-position: center;
-  padding: 0 !important;
+/* Keep floating orbit cards fully visible (no crop from hero clip) */
+.zh-page .zh-hero__col--right,
+.zh-page .hero-artwork,
+.zh-page .hero-artwork__orbit {
+  overflow: visible;
+}
+
+.zh-page .zh-orbit-card {
+  overflow: visible;
 }
 

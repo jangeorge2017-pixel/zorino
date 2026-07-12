@@ -206,10 +206,8 @@
 .zh-orbit-card {
   position: absolute;
   width: 86px;
-  height: 86px;
-  padding: 0;
+  padding: 6px;
   border-radius: 12px;
-  overflow: hidden;
   background: rgba(15, 23, 42, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.11);
   backdrop-filter: blur(14px);
@@ -230,17 +228,16 @@
 .zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: 88%; top: 60%; }
 
 .zh-orbit-card__media {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  position: relative;
+  height: 43px;
+  border-radius: 10px;
   overflow: hidden;
   background: rgba(30, 41, 59, 0.8);
 }
 
 .zh-orbit-card__img {
-  object-fit: cover !important;
-  object-position: center;
-  padding: 0 !important;
+  object-fit: contain !important;
+  padding: 4px;
 }
 
 .zh-orbit-card__discount {
@@ -259,30 +256,22 @@
 }
 
 .zh-orbit-card__prices {
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  bottom: 6px;
-  z-index: 2;
-  margin-top: 0;
+  margin-top: 6px;
   display: flex;
   align-items: baseline;
   gap: 4px;
-  pointer-events: none;
 }
 
 .zh-orbit-card__price {
   font-size: 11px;
   font-weight: 800;
   color: #f8fafc;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 
 .zh-orbit-card__was {
   font-size: 10px;
-  color: #cbd5e1;
+  color: #64748b;
   text-decoration: line-through;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 
 /* ─── Hero search bar ─── */
