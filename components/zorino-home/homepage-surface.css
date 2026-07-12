@@ -5,7 +5,7 @@
 .zh-home-discovery-nav {
   position: relative;
   z-index: 5;
-  margin-top: var(--zh-space-discovery, 18px);
+  margin-top: calc(var(--zh-space-discovery, 18px) - 24px);
   padding-bottom: 8px;
   overflow: visible;
 }

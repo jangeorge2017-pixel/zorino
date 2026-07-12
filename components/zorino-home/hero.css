@@ -29,7 +29,7 @@
   width: 100%;
   margin-top: calc(
     var(--zh-space-stats-search, 24px) +
-    var(--zh-hero-search-platform-gap, 0px) -
+    var(--zh-hero-search-platform-gap, 24px) -
     var(--zh-hero-search-overlap, 0px)
   );
   margin-bottom: 0;
