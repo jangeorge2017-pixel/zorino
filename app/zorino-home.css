@@ -89,9 +89,8 @@
     var(--zh-hero-artwork-stretch-z-up)
   );
   /*
-   * Search group anchor under the hero stage.
-   * platform-gap: 24px pushes Search (+ Categories in flow) down for a clean
-   * gap under the Z platform. Quick Nav compensates separately so it stays put.
+   * Search sits 24px lower under the Z platform (--zh-hero-search-platform-gap).
+   * Categories and Quick Nav follow in flow with equal --zh-space-discovery gaps.
    */
   --zh-hero-search-overlap: calc(420px - var(--zh-hero-artwork-height));
   --zh-hero-search-platform-gap: 24px;
