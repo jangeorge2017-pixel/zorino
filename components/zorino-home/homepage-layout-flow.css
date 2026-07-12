@@ -1,8 +1,7 @@
 /**
  * Homepage layout flow lock — document flow only.
  * Order: Hero → Search → Categories → Quick Nav → Trending.
- * Search/Categories/Quick Nav share the same 24px platform-gap shift;
- * discovery gaps between the three stay equal via --zh-space-discovery.
+ * Categories is +8px vs discovery rhythm so it centers between Search and Quick Nav.
  */
 
 .zh-page .zh-hero-zone {
@@ -12,13 +11,14 @@
 }
 
 .zh-page .zh-categories-wrap {
-  margin-top: var(--zh-space-discovery, var(--zh-space-search-categories, 18px));
+  margin-top: calc(var(--zh-space-discovery, var(--zh-space-search-categories, 18px)) + 8px);
   padding-bottom: 0;
   overflow: visible;
 }
 
 .zh-page .zh-home-discovery-nav {
-  margin-top: var(--zh-space-discovery, 18px);
+  /* Keep Quick Nav fixed while Categories drops 8px to center between Search and Quick Nav */
+  margin-top: calc(var(--zh-space-discovery, 18px) - 8px);
   padding-bottom: 8px;
   overflow: visible;
   z-index: 5;
@@ -96,11 +96,11 @@
 
 @media (max-width: 767px) {
   .zh-page .zh-categories-wrap {
-    margin-top: 16px;
+    margin-top: calc(16px + 8px);
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: 16px;
+    margin-top: calc(16px - 8px);
   }
 
   .zh-page .hhb {

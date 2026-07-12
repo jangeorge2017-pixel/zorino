@@ -49,7 +49,7 @@
 
 /* Discovery + Trending spacing (matches homepage-layout-flow.css) */
 .zh-page .zh-home-discovery-nav {
-  margin-top: var(--zh-space-discovery, 18px);
+  margin-top: calc(var(--zh-space-discovery, 18px) - 8px);
 }
 
 .zh-page .hhb {

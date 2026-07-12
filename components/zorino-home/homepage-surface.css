@@ -5,7 +5,7 @@
 .zh-home-discovery-nav {
   position: relative;
   z-index: 5;
-  margin-top: var(--zh-space-discovery, 18px);
+  margin-top: calc(var(--zh-space-discovery, 18px) - 8px);
   padding-bottom: 8px;
   overflow: visible;
 }
@@ -18,7 +18,7 @@
 .zh-categories-wrap {
   position: relative;
   z-index: 2;
-  margin-top: var(--zh-space-discovery, var(--zh-space-search-categories, 18px));
+  margin-top: calc(var(--zh-space-discovery, var(--zh-space-search-categories, 18px)) + 8px);
   padding-bottom: 0;
   overflow: visible;
 }

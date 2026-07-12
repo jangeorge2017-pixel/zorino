@@ -5,7 +5,6 @@ import {
   Crown,
   Heart,
   Search,
-  User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -61,13 +60,12 @@ export default function ZorinoHomeNav() {
             className="zh-nav__profile"
             aria-label={user ? t("profile") : t("signIn")}
           >
-            {user?.avatar ? (
-              <img src={user.avatar} alt="" width={28} height={28} />
-            ) : (
-              <span className="zh-nav__profile-fallback" aria-hidden>
-                <User size={16} strokeWidth={2} />
-              </span>
-            )}
+            <img
+              src={user?.avatar || "https://i.pravatar.cc/40"}
+              alt=""
+              width={28}
+              height={28}
+            />
             <div className="zh-nav__profile-copy">
               <strong>
                 {displayName ? t("hiUser", { name: displayName }) : t("signIn")}
