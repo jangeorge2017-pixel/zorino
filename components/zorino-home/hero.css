@@ -20,18 +20,14 @@
   z-index: 2;
 }
 
-/* ─── Hero search — group anchor: Search + Categories + Quick Nav move together ─── */
+/* ─── Hero search — normal document flow (no negative margin / translateY) ─── */
 .zh-hero-search {
   position: relative;
   z-index: 120;
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: calc(
-    var(--zh-space-stats-search, 24px) +
-    var(--zh-hero-search-platform-gap, 24px) -
-    var(--zh-hero-search-overlap, 0px)
-  );
+  margin-top: var(--zh-space-stats-search, 22px);
   margin-bottom: 0;
   transform: none;
 }
@@ -570,6 +566,14 @@
 }
 
 @media (max-width: 767px) {
+  .zh-hero-search {
+    margin-top: calc(
+      var(--zh-space-stats-search, 22px) +
+      var(--zh-hero-search-platform-gap, 24px) -
+      var(--zh-hero-search-overlap, 0px)
+    );
+  }
+
   .zh-hero__title {
     font-size: clamp(34px, 10vw, 40px);
     letter-spacing: -1.6px;
