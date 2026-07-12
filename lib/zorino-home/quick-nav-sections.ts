@@ -86,7 +86,8 @@ export const ZORINO_QUICK_NAV_TARGETS = [
 ] as const;
 
 export const ZORINO_QUICK_NAV_STICKY_TOP = 72;
-export const ZORINO_QUICK_NAV_SCROLL_PADDING = 16;
+/** Extra air below sticky stack so section titles clear the header fully. */
+export const ZORINO_QUICK_NAV_SCROLL_PADDING = 28;
 
 /** Default quick-nav height before first measure (matches CSS --zh-quick-nav-h). */
 export const ZORINO_QUICK_NAV_DEFAULT_HEIGHT = 52;

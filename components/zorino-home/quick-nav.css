@@ -171,12 +171,16 @@ a.zh-quick-nav__pill.is-active::before {
 #zh-section-top-rated,
 #zh-section-editors-picks,
 #zh-section-stores,
-#zh-section-categories {
-  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+#zh-section-categories,
+#zh-section-blog,
+#zh-deals-title,
+#zh-featured-brands-title,
+[id^="zh-section-"][id$="-title"] {
+  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 28px));
 }
 
 .zh-page {
-  scroll-padding-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
+  scroll-padding-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 28px));
 }
 
 @media (max-width: 1024px) {

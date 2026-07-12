@@ -33,7 +33,7 @@
   }
 
   .zh-page .hero-artwork__orbit {
-    transform: translateX(120px);
+    transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px)));
   }
 
   .zh-page .zh-orbit-card {
@@ -325,7 +325,7 @@
   }
 
   .zh-page .hero-artwork__orbit {
-    transform: none !important;
+    transform: translateX(var(--zh-orbit-card-shift-right, 0px)) !important;
   }
 
   .zh-page .zh-orbit-card {
@@ -357,7 +357,7 @@
 
   /* ── Search ── */
   .zh-page .zh-hero-search {
-    margin-top: 16px;
+    margin-top: calc(16px - var(--zh-discovery-group-lift, 0px));
   }
 
   .zh-page .zh-search {
