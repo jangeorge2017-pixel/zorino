@@ -15,7 +15,9 @@
   --zh-pad: clamp(16px, calc((100vw - var(--zh-content)) / 2), 80px);
   --zh-gap: var(--zh-space-stats-search);
   --zh-section-step: clamp(64px, 5vw, 80px);
-  --zh-space-search-categories: var(--zh-space-stats-search);
+  /* Equal vertical rhythm: Search → Categories → Quick Nav */
+  --zh-space-discovery: 18px;
+  --zh-space-search-categories: var(--zh-space-discovery);
   --zh-surface-glass: transparent;
   --zh-surface-border: transparent;
   --zh-surface-highlight: transparent;
@@ -85,8 +87,9 @@
     var(--zh-hero-artwork-lift) -
     var(--zh-hero-artwork-stretch-z-up)
   );
-  --zh-hero-search-overlap: 0;
-  --zh-hero-search-platform-gap: 0;
+  /* Pull search slightly up into hero stage empty space; keep a clear gap under the Z platform */
+  --zh-hero-search-overlap: 72px;
+  --zh-hero-search-platform-gap: 16px;
   --zh-hero-bg-stretch-up: 45px;
   --zh-page-bg-base: #070b16;
   --zh-hero-edge-feather: 36px;
