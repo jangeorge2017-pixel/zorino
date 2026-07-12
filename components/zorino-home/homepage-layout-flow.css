@@ -1,8 +1,8 @@
 /**
  * Homepage layout flow lock — document flow only.
  * Order: Hero → Search → Categories → Quick Nav → Trending.
- * Equal --zh-space-discovery between Search, Categories, and Quick Nav.
- * Search vertical offset uses --zh-hero-search-* tokens only (no translateY).
+ * Equal --zh-space-discovery between Search, Categories, and Quick Nav (unchanged).
+ * Group vertical position is anchored only via .zh-hero-search margin tokens.
  */
 
 .zh-page .zh-hero-zone {

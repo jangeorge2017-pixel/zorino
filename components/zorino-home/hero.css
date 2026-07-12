@@ -20,7 +20,7 @@
   z-index: 2;
 }
 
-/* ─── Hero search — spacing only: sit below stats with balanced gap under Z platform ─── */
+/* ─── Hero search — group anchor: Search + Categories + Quick Nav move together ─── */
 .zh-hero-search {
   position: relative;
   z-index: 120;
@@ -28,8 +28,8 @@
   justify-content: center;
   width: 100%;
   margin-top: calc(
-    var(--zh-space-stats-search, 22px) +
-    var(--zh-hero-search-platform-gap, 16px) -
+    var(--zh-space-stats-search, 24px) +
+    var(--zh-hero-search-platform-gap, 0px) -
     var(--zh-hero-search-overlap, 0px)
   );
   margin-bottom: 0;

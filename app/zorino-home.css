@@ -38,7 +38,8 @@
   --zh-gradient: linear-gradient(135deg, #8b5cf6, #6366f1);
   --zh-title-gradient: linear-gradient(135deg, #ffffff 0%, #8b5cf6 100%);
   --zh-space-desc-stats: 20px;
-  --zh-space-stats-search: 22px;
+  /* Target gap: Search (and discovery group) below stats cards */
+  --zh-space-stats-search: 24px;
   --zh-hero-search-height: 58px;
   --zh-hero-search-block: calc(
     var(--zh-space-stats-search) + var(--zh-hero-search-height)
@@ -87,9 +88,14 @@
     var(--zh-hero-artwork-lift) -
     var(--zh-hero-artwork-stretch-z-up)
   );
-  /* Pull search slightly up into hero stage empty space; keep a clear gap under the Z platform */
-  --zh-hero-search-overlap: 72px;
-  --zh-hero-search-platform-gap: 16px;
+  /*
+   * Lift Search + Categories + Quick Nav as one group.
+   * Cancel empty space below stats inside the 420px hero stage so Search lands
+   * ~24px under the stats cards without touching the Z platform.
+   * Inter-section discovery gaps (--zh-space-discovery) stay unchanged.
+   */
+  --zh-hero-search-overlap: calc(420px - var(--zh-hero-artwork-height));
+  --zh-hero-search-platform-gap: 0px;
   --zh-hero-bg-stretch-up: 45px;
   --zh-page-bg-base: #070b16;
   --zh-hero-edge-feather: 36px;
