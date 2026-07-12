@@ -20,20 +20,16 @@
   z-index: 2;
 }
 
-/* ─── Hero search wrapper — sits just below platform with small gap ─── */
+/* ─── Hero search — normal document flow (no negative margin / translateY) ─── */
 .zh-hero-search {
   position: relative;
   z-index: 120;
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: calc(
-    var(--zh-space-stats-search) +
-    var(--zh-hero-search-platform-gap, 14px) -
-    var(--zh-hero-search-overlap)
-  );
+  margin-top: var(--zh-space-stats-search, 22px);
   margin-bottom: 0;
-  transform: translateY(-19px);
+  transform: none;
 }
 
 /* ─── Hero copy ─── */
@@ -405,10 +401,10 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* When open: clear hero overlap/transform so categories stay fully visible below */
+/* When open: reserve flow space below so categories stay clear */
 .zh-hero-search:has(.zh-search--open) {
   z-index: 120;
-  margin-bottom: calc(19px + var(--zh-space-search-categories, 22px));
+  margin-bottom: var(--zh-space-search-categories, 22px);
   padding-bottom: 4px;
 }
 
@@ -526,7 +522,7 @@
   }
 
   .zh-hero-search:has(.zh-search--open) {
-    margin-bottom: calc(19px + var(--zh-space-search-categories, 22px) + 8px);
+    margin-bottom: calc(var(--zh-space-search-categories, 22px) + 8px);
   }
 
   .zh-search__dropdown li {

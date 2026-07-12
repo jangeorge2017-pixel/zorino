@@ -3,7 +3,7 @@
  */
 
 .zh-trending-deals.zh-deals-panel {
-  padding: 20px 18px 18px;
+  padding: 0 0 18px;
   border-radius: 20px;
   background: linear-gradient(
     145deg,
@@ -16,11 +16,12 @@
     inset 0 1px 0 rgba(255, 160, 80, 0.06),
     0 0 28px rgba(255, 90, 40, 0.05);
   backdrop-filter: blur(12px);
+  overflow: visible;
 }
 
 /*
- * Stick the full head (title + filter tabs) under main nav + quick-nav
- * so neither slides underneath the dark sticky stack above.
+ * Stick the full head (title + filter tabs) under main nav + quick-nav.
+ * Uses panel edge padding — no negative margins.
  */
 .zh-trending-deals__head {
   position: sticky;
@@ -29,9 +30,8 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-inline: -18px;
-  margin-bottom: 20px;
-  padding: 12px 18px 14px;
+  margin: 0 0 16px;
+  padding: 16px 18px 14px;
   background: linear-gradient(
     180deg,
     rgba(14, 12, 20, 0.99) 0%,
@@ -42,7 +42,6 @@
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 120, 60, 0.08);
   scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px) + 16px));
-  /* Keep head above carousel; never let cards paint over filters */
   isolation: isolate;
 }
 
@@ -206,8 +205,7 @@
 .zh-trending-deals__carousel {
   position: relative;
   z-index: 1;
-  /* Clear the sticky head / dark separator so the first row stays fully visible */
-  padding-top: 4px;
+  padding: 4px 18px 0;
 }
 
 .zh-trending-deals__track,

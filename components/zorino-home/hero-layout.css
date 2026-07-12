@@ -8,7 +8,8 @@
   grid-template-rows: 1fr;
   column-gap: 24px;
   align-items: stretch;
-  min-height: 420px;
+  /* Content-sized height so Quick Nav stays on the first screen */
+  min-height: 0;
   overflow: visible;
   position: relative;
   isolation: isolate;
@@ -80,6 +81,6 @@
   }
 
   .zh-hero__col--right {
-    min-height: 360px;
+    min-height: 280px;
   }
 }
