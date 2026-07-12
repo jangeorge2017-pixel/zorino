@@ -167,7 +167,7 @@
 
 /* ═══════════════════════════════════════════════════════════
    Mobile — max-width: 767px
-   Dedicated mobile layout (not a scaled desktop). Tablet/desktop above unchanged.
+   Reuse the desktop hero illustration layer; override only mobile sizing/positions.
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
   /* ── Page rhythm ── */
@@ -175,12 +175,20 @@
     --zh-pad: 16px;
     --zh-section-step: 40px;
     --zh-space-discovery: 14px;
+    --zh-hero-artwork-width: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 360px);
+    --zh-hero-artwork-right: calc((100vw - var(--zh-hero-artwork-width)) / 2);
     --zh-hero-artwork-shift-left: 0px;
-    --zh-hero-artwork-right: 0px;
-    --zh-hero-artwork-scale: 0.78;
+    --zh-hero-artwork-scale: 1;
     --zh-hero-artwork-lift: 0px;
     --zh-hero-artwork-stretch-z-up: 0px;
-    --zh-hero-artwork-top: 0px;
+    --zh-hero-artwork-stretch-down: 1;
+    --zh-hero-artwork-extend-down: 0px;
+    --zh-hero-artwork-top: 260px;
+    --zh-hero-artwork-height: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 360px);
+    --zh-hero-artwork-painted-height: var(--zh-hero-artwork-height);
+    --zh-hero-artwork-painted-width: var(--zh-hero-artwork-width);
+    --zh-hero-artwork-painted-top: calc(var(--zh-nav-h) + var(--zh-hero-artwork-top));
+    --zh-hero-artwork-painted-right: var(--zh-hero-artwork-right);
   }
 
   .zh-page .zh-shell {
@@ -190,11 +198,12 @@
     overflow-x: clip;
   }
 
-  /* ── Hero: copy in flow; Z + orbit overlay like desktop (not stacked below stats) ── */
+  /* ── Hero: copy and the existing desktop artwork column stay in one structure ── */
   .zh-page .zh-hero {
     position: relative;
     isolation: isolate;
-    row-gap: 0;
+    grid-template-columns: 1fr;
+    row-gap: 16px;
     overflow: visible;
   }
 
@@ -212,7 +221,7 @@
     margin-inline: 0;
     font-size: 15px;
     line-height: 1.55;
-    max-width: 34ch;
+    max-width: none;
   }
 
   .zh-page .zh-hero__title {
@@ -222,8 +231,7 @@
   }
 
   .zh-page .zh-hero__copy {
-    /* Keep title clear of the right-side Z + card stage */
-    padding-right: min(42vw, 168px);
+    padding-right: 0;
   }
 
   .zh-page .zh-hero__stats {
@@ -237,35 +245,83 @@
     min-height: 70px;
   }
 
-  /*
-   * Orbit stage overlays the hero illustration (desktop relationship),
-   * not a second row under the stats.
-   */
   .zh-page .zh-hero__col--right {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: auto;
-    width: min(72vw, 320px);
-    height: min(72vw, 320px);
-    margin: 0;
-    min-height: 0;
+    position: relative;
+    width: var(--zh-hero-artwork-width);
+    height: var(--zh-hero-artwork-height);
+    min-height: var(--zh-hero-artwork-height);
+    margin: 0 auto;
     z-index: 2;
     pointer-events: none;
     grid-column: 1;
-    grid-row: 1;
+    grid-row: auto;
   }
 
   .zh-page .zh-page__artwork-clip {
-    -webkit-mask-image: none;
-    mask-image: none;
+    -webkit-mask-image:
+      linear-gradient(
+        180deg,
+        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
+        #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
+        #000
+          calc(
+            var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
+            var(--zh-hero-edge-feather)
+          ),
+        transparent
+          calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
+      ),
+      linear-gradient(
+        90deg,
+        transparent
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) - 1px
+          ),
+        #000
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) +
+            var(--zh-hero-edge-feather)
+          ),
+        #000 calc(100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-edge-feather)),
+        transparent calc(100% - var(--zh-hero-artwork-painted-right) + 1px)
+      );
+    mask-image:
+      linear-gradient(
+        180deg,
+        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
+        #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
+        #000
+          calc(
+            var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
+            var(--zh-hero-edge-feather)
+          ),
+        transparent
+          calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
+      ),
+      linear-gradient(
+        90deg,
+        transparent
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) - 1px
+          ),
+        #000
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) +
+            var(--zh-hero-edge-feather)
+          ),
+        #000 calc(100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-edge-feather)),
+        transparent calc(100% - var(--zh-hero-artwork-painted-right) + 1px)
+      );
   }
 
-  /* Pin Z to the same stage box as the floating cards */
   .zh-page .zh-page__artwork,
   .zh-page .zh-page__artwork::after {
-    background-size: min(72vw, 320px) auto;
-    background-position: right 0 top calc(var(--zh-nav-h) + 8px);
+    background-size:
+      var(--zh-hero-artwork-width)
+      var(--zh-hero-artwork-height);
+    background-position:
+      right var(--zh-hero-artwork-right)
+      top var(--zh-hero-artwork-painted-top);
   }
 
   .zh-page .hero-artwork {
@@ -273,42 +329,37 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    transform: none;
+    transform: none !important;
   }
 
   .zh-page .hero-artwork__orbit {
-    transform: none;
+    transform: none !important;
   }
 
-  /* Size locked — styling/animation untouched */
   .zh-page .zh-orbit-card {
-    width: 78px;
-    height: 78px;
+    width: clamp(58px, 18vw, 76px);
+    height: clamp(58px, 18vw, 76px);
     border-radius: 12px;
     pointer-events: auto;
   }
 
-  /*
-   * Desktop composition inside the stage:
-   * left column | Z | right column, tops 36% / 60%.
-   */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: 30%;
+    left: 24%;
     top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 30%;
+    left: 24%;
     top: 60%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: 78%;
+    left: 76%;
     top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 78%;
+    left: 76%;
     top: 60%;
   }
 
@@ -461,108 +512,6 @@
   .zh-page .zh-footer__stats {
     flex-wrap: wrap;
     gap: 12px;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   Phone sizes — keep Z + cards locked as one stage (mobile only)
-   ═══════════════════════════════════════════════════════════ */
-@media (max-width: 430px) {
-  .zh-page .zh-hero__col--right {
-    width: min(74vw, 310px);
-    height: min(74vw, 310px);
-  }
-
-  .zh-page .zh-page__artwork,
-  .zh-page .zh-page__artwork::after {
-    background-size: min(74vw, 310px) auto;
-  }
-}
-
-@media (max-width: 412px) {
-  .zh-page .zh-hero__col--right {
-    width: min(76vw, 300px);
-    height: min(76vw, 300px);
-  }
-
-  .zh-page .zh-page__artwork,
-  .zh-page .zh-page__artwork::after {
-    background-size: min(76vw, 300px) auto;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 28%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 80%;
-  }
-}
-
-@media (max-width: 390px) {
-  .zh-page .zh-hero__col--right {
-    width: min(78vw, 292px);
-    height: min(78vw, 292px);
-  }
-
-  .zh-page .zh-page__artwork,
-  .zh-page .zh-page__artwork::after {
-    background-size: min(78vw, 292px) auto;
-  }
-}
-
-@media (max-width: 360px) {
-  .zh-page .zh-hero__copy {
-    padding-right: min(40vw, 132px);
-  }
-
-  .zh-page .zh-hero__col--right {
-    width: min(80vw, 280px);
-    height: min(80vw, 280px);
-  }
-
-  .zh-page .zh-page__artwork,
-  .zh-page .zh-page__artwork::after {
-    background-size: min(80vw, 280px) auto;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 26%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 82%;
-  }
-}
-
-@media (max-width: 320px) {
-  .zh-page .zh-hero__copy {
-    padding-right: min(36vw, 112px);
-  }
-
-  .zh-page .zh-hero__col--right {
-    width: min(84vw, 268px);
-    height: min(84vw, 268px);
-  }
-
-  .zh-page .zh-page__artwork,
-  .zh-page .zh-page__artwork::after {
-    background-size: min(84vw, 268px) auto;
-    background-position: right 0 top calc(var(--zh-nav-h) + 4px);
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 24%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 84%;
   }
 }
 
