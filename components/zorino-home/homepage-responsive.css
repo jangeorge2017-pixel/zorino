@@ -190,9 +190,29 @@
     overflow-x: clip;
   }
 
-  /* ── Hero: readable copy, then a focused Z stage ── */
+  /* ── Hero: copy in flow; Z + orbit overlay like desktop (not stacked below stats) ── */
   .zh-page .zh-hero {
-    row-gap: 8px;
+    position: relative;
+    isolation: isolate;
+    row-gap: 0;
+    overflow: visible;
+  }
+
+  .zh-page .zh-hero__col--left {
+    position: relative;
+    z-index: 3;
+    text-align: start;
+  }
+
+  .zh-page .zh-hero__badge {
+    margin-inline: 0;
+  }
+
+  .zh-page .zh-hero__subtitle {
+    margin-inline: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 34ch;
   }
 
   .zh-page .zh-hero__title {
@@ -201,15 +221,15 @@
     margin-bottom: 12px;
   }
 
-  .zh-page .zh-hero__subtitle {
-    font-size: 15px;
-    line-height: 1.55;
-    max-width: 34ch;
+  .zh-page .zh-hero__copy {
+    /* Keep title clear of the right-side Z + card stage */
+    padding-right: min(42vw, 168px);
   }
 
   .zh-page .zh-hero__stats {
     margin-top: 16px;
     gap: 8px;
+    justify-content: flex-start;
   }
 
   .zh-page .zh-stat {
@@ -217,65 +237,78 @@
     min-height: 70px;
   }
 
+  /*
+   * Orbit stage overlays the hero illustration (desktop relationship),
+   * not a second row under the stats.
+   */
   .zh-page .zh-hero__col--right {
-    min-height: 300px;
-    margin-top: 4px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: auto;
+    width: min(72vw, 320px);
+    height: min(72vw, 320px);
+    margin: 0;
+    min-height: 0;
+    z-index: 2;
+    pointer-events: none;
+    grid-column: 1;
+    grid-row: 1;
   }
 
-  /*
-   * Center the Z as the mobile visual focus.
-   * Desktop right-edge mask would hide a centered logo — disable on mobile only.
-   */
   .zh-page .zh-page__artwork-clip {
     -webkit-mask-image: none;
     mask-image: none;
   }
 
+  /* Pin Z to the same stage box as the floating cards */
   .zh-page .zh-page__artwork,
   .zh-page .zh-page__artwork::after {
-    background-position: center 56%;
-    background-size: min(72vw, 300px) auto;
+    background-size: min(72vw, 320px) auto;
+    background-position: right 0 top calc(var(--zh-nav-h) + 8px);
   }
 
   .zh-page .hero-artwork {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     transform: none;
   }
 
-  /*
-   * Mobile orbit = desktop composition mapped to a centered Z stage.
-   * Same 2×2: left pair | Z | right pair, tops 36% / 60% (desktop vertical rhythm).
-   * No group translate — Z stays in the pocket between both columns.
-   */
   .zh-page .hero-artwork__orbit {
     transform: none;
   }
 
-  /* Do not resize — keep current mobile card box; styling/animation untouched */
+  /* Size locked — styling/animation untouched */
   .zh-page .zh-orbit-card {
     width: 78px;
     height: 78px;
     border-radius: 12px;
+    pointer-events: auto;
   }
 
-  /* Left of Z (desktop orbit-upper-left + orbit-top) */
+  /*
+   * Desktop composition inside the stage:
+   * left column | Z | right column, tops 36% / 60%.
+   */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: 28%;
+    left: 30%;
     top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 28%;
+    left: 30%;
     top: 60%;
   }
 
-  /* Right of Z (desktop orbit-upper-right + orbit-lower-right) */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: 72%;
+    left: 78%;
     top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 72%;
+    left: 78%;
     top: 60%;
   }
 
@@ -428,6 +461,108 @@
   .zh-page .zh-footer__stats {
     flex-wrap: wrap;
     gap: 12px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Phone sizes — keep Z + cards locked as one stage (mobile only)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 430px) {
+  .zh-page .zh-hero__col--right {
+    width: min(74vw, 310px);
+    height: min(74vw, 310px);
+  }
+
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-size: min(74vw, 310px) auto;
+  }
+}
+
+@media (max-width: 412px) {
+  .zh-page .zh-hero__col--right {
+    width: min(76vw, 300px);
+    height: min(76vw, 300px);
+  }
+
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-size: min(76vw, 300px) auto;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    left: 28%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    left: 80%;
+  }
+}
+
+@media (max-width: 390px) {
+  .zh-page .zh-hero__col--right {
+    width: min(78vw, 292px);
+    height: min(78vw, 292px);
+  }
+
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-size: min(78vw, 292px) auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .zh-page .zh-hero__copy {
+    padding-right: min(40vw, 132px);
+  }
+
+  .zh-page .zh-hero__col--right {
+    width: min(80vw, 280px);
+    height: min(80vw, 280px);
+  }
+
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-size: min(80vw, 280px) auto;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    left: 26%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    left: 82%;
+  }
+}
+
+@media (max-width: 320px) {
+  .zh-page .zh-hero__copy {
+    padding-right: min(36vw, 112px);
+  }
+
+  .zh-page .zh-hero__col--right {
+    width: min(84vw, 268px);
+    height: min(84vw, 268px);
+  }
+
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-size: min(84vw, 268px) auto;
+    background-position: right 0 top calc(var(--zh-nav-h) + 4px);
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    left: 24%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    left: 84%;
   }
 }
 
