@@ -8,8 +8,6 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  /* Keep hero copy + effects fully below the fixed nav (matches painted-top floor). */
-  padding-top: var(--zh-hero-below-nav-gap, 16px);
 }
 
 /*

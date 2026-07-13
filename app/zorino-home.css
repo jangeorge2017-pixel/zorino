@@ -77,8 +77,6 @@
   --zh-hero-artwork-extend-down: 175px;
   --zh-hero-artwork-stretch-down: 1.23;
   --zh-hero-artwork-stretch-z-up: 45px;
-  /* Breathing room so hero glow/badge never sit under the fixed nav. */
-  --zh-hero-below-nav-gap: 16px;
   --zh-hero-artwork-painted-height: calc(
     var(--zh-hero-artwork-height) *
     var(--zh-hero-artwork-scale) *
@@ -92,16 +90,21 @@
     var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left)
   );
   /*
-   * Hero PNG/glow must start at or below the nav bottom — never underneath.
-   * Without the max(), lift + stretch-z-up pulled painted-top to ~43px under the 72px nav.
+   * Natural painted-top can sit under the fixed nav (~43px) because of lift +
+   * stretch-z-up. Floor it at the nav bottom so glow never starts in the header.
    */
   --zh-hero-artwork-painted-top: max(
-    calc(var(--zh-nav-h) + var(--zh-hero-below-nav-gap)),
+    var(--zh-nav-h),
     calc(
       var(--zh-hero-canvas-top) -
       var(--zh-hero-artwork-lift) -
       var(--zh-hero-artwork-stretch-z-up)
     )
+  );
+  /* Position inside the artwork clip, which itself starts at the nav bottom. */
+  --zh-hero-artwork-local-top: max(
+    0px,
+    calc(var(--zh-hero-artwork-painted-top) - var(--zh-nav-h))
   );
   /*
    * Search sits 24px lower under the Z platform (--zh-hero-search-platform-gap).
@@ -138,29 +141,33 @@ html[dir="rtl"] .zh-page {
   background: #070b16;
 }
 
-/* Edge-only mask wrapper — artwork inside stays pixel-identical */
+/* Edge-only mask wrapper — hero artwork lives here, NEVER under the fixed nav.
+ * Root cause: this layer used inset:0 + overflow visible, so lift/stretch painted
+ * glow into the header band. Anchor below the nav and clip overflow hard. */
 .zh-page__artwork-clip {
   position: absolute;
-  inset: 0;
+  top: var(--zh-nav-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 0;
   pointer-events: none;
   border: none;
   outline: none;
   box-shadow: none;
-  /* Hard floor: never paint hero glow/particles into the fixed nav band. */
-  clip-path: inset(var(--zh-nav-h) 0 0 0);
+  overflow: hidden;
   -webkit-mask-image:
     linear-gradient(
       180deg,
-      transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
-      #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
+      transparent calc(var(--zh-hero-artwork-local-top) - 1px),
+      #000 calc(var(--zh-hero-artwork-local-top) + var(--zh-hero-edge-feather)),
       #000
         calc(
-          var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
+          var(--zh-hero-artwork-local-top) + var(--zh-hero-artwork-painted-height) -
           var(--zh-hero-edge-feather)
         ),
       transparent
-        calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
+        calc(var(--zh-hero-artwork-local-top) + var(--zh-hero-artwork-painted-height) + 1px)
     ),
     linear-gradient(
       90deg,
@@ -180,15 +187,15 @@ html[dir="rtl"] .zh-page {
   mask-image:
     linear-gradient(
       180deg,
-      transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
-      #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
+      transparent calc(var(--zh-hero-artwork-local-top) - 1px),
+      #000 calc(var(--zh-hero-artwork-local-top) + var(--zh-hero-edge-feather)),
       #000
         calc(
-          var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
+          var(--zh-hero-artwork-local-top) + var(--zh-hero-artwork-painted-height) -
           var(--zh-hero-edge-feather)
         ),
       transparent
-        calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
+        calc(var(--zh-hero-artwork-local-top) + var(--zh-hero-artwork-painted-height) + 1px)
     ),
     linear-gradient(
       90deg,
@@ -223,7 +230,7 @@ html[dir="rtl"] .zh-page {
     var(--zh-hero-artwork-painted-height);
   background-position:
     right calc(var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left))
-    top var(--zh-hero-artwork-painted-top);
+    top var(--zh-hero-artwork-local-top);
 }
 
 .zh-page__artwork::after {
@@ -238,7 +245,7 @@ html[dir="rtl"] .zh-page {
     var(--zh-hero-artwork-painted-height);
   background-position:
     right calc(var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left))
-    top var(--zh-hero-artwork-painted-top);
+    top var(--zh-hero-artwork-local-top);
   mix-blend-mode: soft-light;
   opacity: 0.38;
   filter: contrast(1.14) saturate(1.18) brightness(0.98);
@@ -249,14 +256,14 @@ html[dir="rtl"] .zh-page {
   display: none;
 }
 
-/* Top canvas extension — uniform page fill above hero zone */
+/* Top canvas extension — uniform page fill above hero zone (under nav is solid page bg only) */
 .zh-page__background::before {
   content: "";
   position: absolute;
-  top: calc(-1 * var(--zh-hero-bg-stretch-up));
+  top: 0;
   left: 0;
   right: 0;
-  height: calc(var(--zh-hero-canvas-top) + var(--zh-hero-bg-stretch-up));
+  height: var(--zh-hero-canvas-top);
   z-index: 0;
   pointer-events: none;
   border: none;
