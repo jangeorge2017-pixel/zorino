@@ -154,8 +154,10 @@ export function publishStickyChromeStack(
   root.style.setProperty("--zh-sticky-scroll-clearance", scrollValue);
 
   if (navHeight > 0) {
+    // Live primary height for quick-nav pin / clearance math.
     root.style.setProperty("--zor-nav-h", navValue);
-    root.style.setProperty("--zh-nav-h", navValue);
+    // Do NOT overwrite --zh-nav-h: homepage artwork/composition is locked to the
+    // CSS token (72px). Overwriting it shifts the hero background with the bar.
   }
 
   applyAnchorScrollMargins(scrollClearance);
