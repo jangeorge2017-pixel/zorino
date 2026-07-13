@@ -54,8 +54,6 @@
   margin-inline: 0;
   margin-bottom: 0;
   padding: 16px 18px 4px;
-  top: var(--zor-sticky-stack, var(--zh-sticky-stack));
-  z-index: 40;
 }
 
 .zh-page .zh-trending-deals__carousel,
