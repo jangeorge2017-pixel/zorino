@@ -8,6 +8,34 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  /* Keep hero copy + effects fully below the fixed nav (matches painted-top floor). */
+  padding-top: var(--zh-hero-below-nav-gap, 16px);
+}
+
+/*
+ * Orbit/particle layer must not translate above the hero box into the nav band.
+ * Previous lift math yielded ~-29px and painted cards under the sticky header.
+ */
+.zh-page .hero-artwork {
+  transform: translate(
+    calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
+    max(
+      0px,
+      calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+    )
+  );
+}
+
+@media (max-width: 1279px) {
+  .zh-page .hero-artwork {
+    transform: translate(
+      calc(-42px - var(--zh-hero-artwork-shift-left, 0px)),
+      max(
+        0px,
+        calc(44px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+      )
+    );
+  }
 }
 
 .zh-page .zh-categories-wrap {
