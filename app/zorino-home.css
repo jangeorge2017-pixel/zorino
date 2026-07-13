@@ -54,7 +54,8 @@
   /* Sticky stack: main nav + quick-nav. JS syncs --zh-quick-nav-h. */
   --zh-quick-nav-h: 52px;
   --zh-sticky-stack: calc(var(--zh-nav-h) + var(--zh-quick-nav-h));
-  --zh-sticky-clearance: calc(var(--zh-sticky-stack) + 40px);
+  /* Clearance = measured sticky stack only (StickyChromeClearance / QuickNav sync live px). */
+  --zh-sticky-clearance: var(--zh-sticky-stack);
   --zh-hero-artwork-height: calc(
     44px +
     (clamp(42px, 2.92vw, 56px) * 2.1) +

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import PublicShell from "@/components/shell/PublicShell";
+import StickyChromeClearance from "@/components/shell/StickyChromeClearance";
 
 const LOCALES = ["en", "ar"] as const;
 
@@ -25,9 +26,23 @@ type LocaleShellProps = {
 export default function LocaleShell({ children }: LocaleShellProps) {
   const pathname = usePathname();
 
-  if (isHomepage(pathname) || isAdminRoute(pathname)) {
+  if (isAdminRoute(pathname)) {
     return <>{children}</>;
   }
 
-  return <PublicShell>{children}</PublicShell>;
+  if (isHomepage(pathname)) {
+    return (
+      <>
+        <StickyChromeClearance />
+        {children}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <StickyChromeClearance />
+      <PublicShell>{children}</PublicShell>
+    </>
+  );
 }

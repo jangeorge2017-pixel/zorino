@@ -86,16 +86,37 @@ export const ZORINO_QUICK_NAV_TARGETS = [
 ] as const;
 
 export const ZORINO_QUICK_NAV_STICKY_TOP = 72;
-/** Extra air below sticky stack so section titles clear the header fully. */
-export const ZORINO_QUICK_NAV_SCROLL_PADDING = 40;
 
 /** Default quick-nav height before first measure (matches CSS --zh-quick-nav-h). */
 export const ZORINO_QUICK_NAV_DEFAULT_HEIGHT = 52;
 
+/**
+ * Scroll offset from the measured sticky chrome stack.
+ * Prefer live DOM measurement; fall back to nav top + quick-nav height only (no guessed padding).
+ */
 export function getStickyScrollOffset(quickNavHeight: number) {
+  if (typeof document !== "undefined") {
+    const nav =
+      document.querySelector<HTMLElement>(".zh-nav") ||
+      document.querySelector<HTMLElement>(".zor-nav");
+    const quick = document.querySelector<HTMLElement>(".zh-quick-nav.is-sticky");
+    let bottom = 0;
+    if (nav) {
+      const style = getComputedStyle(nav);
+      if (style.position === "fixed" || style.position === "sticky") {
+        const rect = nav.getBoundingClientRect();
+        if (rect.top <= 1) bottom = Math.max(bottom, rect.bottom);
+      }
+    }
+    if (quick) {
+      const rect = quick.getBoundingClientRect();
+      if (rect.top <= 1) bottom = Math.max(bottom, rect.bottom);
+    }
+    if (bottom > 0) return Math.ceil(bottom);
+  }
+
   return (
     ZORINO_QUICK_NAV_STICKY_TOP +
-    Math.max(quickNavHeight, ZORINO_QUICK_NAV_DEFAULT_HEIGHT) +
-    ZORINO_QUICK_NAV_SCROLL_PADDING
+    Math.max(quickNavHeight, ZORINO_QUICK_NAV_DEFAULT_HEIGHT)
   );
 }
