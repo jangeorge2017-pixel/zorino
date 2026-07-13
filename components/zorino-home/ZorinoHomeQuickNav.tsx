@@ -77,14 +77,23 @@ export default function ZorinoHomeQuickNav() {
   }, []);
 
   useEffect(() => {
-    const anchor = document.querySelector(".zh-home-discovery-nav");
-    if (!anchor) return;
     const onScroll = () => {
+      const node = navRef.current;
+      if (!node) return;
       const threshold = primaryNavBottom();
-      const next = anchor.getBoundingClientRect().bottom <= threshold + 4;
       setIsSticky((prev) => {
+        let next: boolean;
+        if (prev) {
+          const placeholder = document.querySelector<HTMLElement>(
+            ".zh-quick-nav__placeholder",
+          );
+          next = placeholder
+            ? placeholder.getBoundingClientRect().top <= threshold + 4
+            : true;
+        } else {
+          next = node.getBoundingClientRect().top <= threshold + 4;
+        }
         if (prev !== next) {
-          // Defer notify until after className updates in the next paint.
           queueMicrotask(() => notifyStickyChromeChanged());
         }
         return next;
