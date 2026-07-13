@@ -50,7 +50,7 @@
   --zh-hero-bg-extend: calc(
     var(--zh-hero-search-block) + var(--zh-space-search-categories) + var(--zh-categories-block)
   );
-  --zh-nav-h: 72px;
+  --zh-nav-h: 82px; /* logo 61.6px + 10px pad top/bottom */
   /* Quick-nav self height — JS syncs live. Stack clearance is global --zor-sticky-*. */
   --zh-quick-nav-h: 52px;
   --zh-sticky-stack: var(--zor-sticky-stack, var(--zor-sticky-clearance, var(--zh-nav-h)));
