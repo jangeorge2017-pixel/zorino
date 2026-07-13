@@ -4,12 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
-  ZORINO_QUICK_NAV_DEFAULT_HEIGHT,
   ZORINO_QUICK_NAV_ITEMS,
-  ZORINO_QUICK_NAV_STICKY_TOP,
   ZORINO_QUICK_NAV_TARGETS,
-  getStickyScrollOffset,
 } from "@/lib/zorino-home/quick-nav-sections";
+import {
+  getStickyClearance,
+  measureStickyChromeStack,
+  notifyStickyChromeChanged,
+} from "@/lib/sticky-chrome";
 import "./quick-nav.css";
 
 const QUICK_NAV_LABEL_KEYS: Record<string, string> = {
@@ -25,30 +27,18 @@ const QUICK_NAV_LABEL_KEYS: Record<string, string> = {
   blog: "quickBlog",
 };
 
-function syncStickyCssVars(quickNavHeight: number) {
-  const root = document.querySelector(".zh-page") as HTMLElement | null;
-  const target = root ?? document.documentElement;
-  const height = Math.max(quickNavHeight, ZORINO_QUICK_NAV_DEFAULT_HEIGHT);
-  const clearance = getStickyScrollOffset(height);
-  const nav =
-    document.querySelector<HTMLElement>(".zh-nav") ||
-    document.querySelector<HTMLElement>(".zor-nav");
-  const navBottom =
-    nav && (getComputedStyle(nav).position === "fixed" || getComputedStyle(nav).position === "sticky")
-      ? Math.ceil(nav.getBoundingClientRect().bottom)
-      : ZORINO_QUICK_NAV_STICKY_TOP;
-  const stack = Math.max(navBottom + height, clearance);
-  target.style.setProperty("--zh-quick-nav-h", `${height}px`);
-  target.style.setProperty("--zh-sticky-stack", `${stack}px`);
-  target.style.setProperty("--zh-sticky-clearance", `${clearance}px`);
-  document.documentElement.style.setProperty("--zh-sticky-clearance", `${clearance}px`);
-  document.documentElement.style.setProperty("--zor-sticky-clearance", `${clearance}px`);
+function primaryNavBottom(): number {
+  const primary = document.querySelector<HTMLElement>(
+    '[data-sticky-chrome="primary"]',
+  );
+  if (!primary) return measureStickyChromeStack().navHeight;
+  return Math.ceil(primary.getBoundingClientRect().bottom);
 }
 
 export default function ZorinoHomeQuickNav() {
   const t = useTranslations("home");
   const navRef = useRef<HTMLElement>(null);
-  const [navHeight, setNavHeight] = useState(ZORINO_QUICK_NAV_DEFAULT_HEIGHT);
+  const [navHeight, setNavHeight] = useState(0);
   const [isSticky, setIsSticky] = useState(false);
   const [activeTargetId, setActiveTargetId] = useState<string | null>(null);
   const [clickedItemId, setClickedItemId] = useState<string | null>(null);
@@ -67,20 +57,22 @@ export default function ZorinoHomeQuickNav() {
     const node = navRef.current;
     if (!node) return;
     const syncHeight = () => {
-      const height = node.offsetHeight;
+      const height = Math.ceil(node.getBoundingClientRect().height);
       setNavHeight(height);
-      syncStickyCssVars(height);
+      // Layout-only token for quick-nav self height — clearance comes from global system.
+      document.documentElement.style.setProperty("--zh-quick-nav-h", `${height}px`);
+      const page = document.querySelector(".zh-page") as HTMLElement | null;
+      page?.style.setProperty("--zh-quick-nav-h", `${height}px`);
+      notifyStickyChromeChanged();
     };
     syncHeight();
     const resizeObserver = new ResizeObserver(syncHeight);
     resizeObserver.observe(node);
     return () => {
       resizeObserver.disconnect();
-      const root = document.querySelector(".zh-page") as HTMLElement | null;
-      root?.style.removeProperty("--zh-quick-nav-h");
-      root?.style.removeProperty("--zh-sticky-stack");
-      root?.style.removeProperty("--zh-sticky-clearance");
-      document.documentElement.style.removeProperty("--zh-sticky-clearance");
+      document.documentElement.style.removeProperty("--zh-quick-nav-h");
+      const page = document.querySelector(".zh-page") as HTMLElement | null;
+      page?.style.removeProperty("--zh-quick-nav-h");
     };
   }, []);
 
@@ -88,8 +80,15 @@ export default function ZorinoHomeQuickNav() {
     const anchor = document.querySelector(".zh-home-discovery-nav");
     if (!anchor) return;
     const onScroll = () => {
-      const bottom = anchor.getBoundingClientRect().bottom;
-      setIsSticky(bottom <= ZORINO_QUICK_NAV_STICKY_TOP + 4);
+      const threshold = primaryNavBottom();
+      const next = anchor.getBoundingClientRect().bottom <= threshold + 4;
+      setIsSticky((prev) => {
+        if (prev !== next) {
+          // Defer notify until after className updates in the next paint.
+          queueMicrotask(() => notifyStickyChromeChanged());
+        }
+        return next;
+      });
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -101,12 +100,17 @@ export default function ZorinoHomeQuickNav() {
   }, []);
 
   useEffect(() => {
+    // Re-measure global stack after pin state changes.
+    notifyStickyChromeChanged();
+  }, [isSticky, navHeight]);
+
+  useEffect(() => {
     const sections = ZORINO_QUICK_NAV_TARGETS.map((id) =>
       document.getElementById(id),
     ).filter((node): node is HTMLElement => node !== null);
     if (sections.length === 0) return;
 
-    const stickyOffset = getStickyScrollOffset(navHeight);
+    const stickyOffset = getStickyClearance();
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -119,25 +123,25 @@ export default function ZorinoHomeQuickNav() {
         }
       },
       {
-        /* Treat the sticky stack as outside the active observation band */
         rootMargin: `-${stickyOffset}px 0px -45% 0px`,
         threshold: [0.08, 0.2, 0.35, 0.5],
       },
     );
     sections.forEach((section) => sectionObserver.observe(section));
     return () => sectionObserver.disconnect();
-  }, [navHeight]);
+  }, [navHeight, isSticky]);
 
   const scrollToTarget = useCallback((targetId: string, itemId: string) => {
     const target = document.getElementById(targetId);
     if (!target) return;
-    const height = navRef.current?.offsetHeight ?? navHeight;
-    const offset = getStickyScrollOffset(height);
+    // Ensure stack includes the pinned quick-nav before measuring.
+    notifyStickyChromeChanged();
+    const offset = getStickyClearance();
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     setClickedItemId(itemId);
     setActiveTargetId(targetId);
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-  }, [navHeight]);
+  }, []);
 
   const onItemClick = useCallback(
     (item: (typeof ZORINO_QUICK_NAV_ITEMS)[number]) => {
@@ -167,12 +171,13 @@ export default function ZorinoHomeQuickNav() {
       {isSticky ? (
         <div
           className="zh-quick-nav__placeholder"
-          style={{ height: navHeight }}
+          style={{ height: navHeight || undefined }}
           aria-hidden="true"
         />
       ) : null}
       <nav
         ref={navRef}
+        data-sticky-chrome="secondary"
         className={`zh-quick-nav${isSticky ? " is-sticky" : ""}`}
         aria-label={t("quickNav")}
       >

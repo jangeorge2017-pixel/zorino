@@ -25,7 +25,7 @@
 
 .zh-quick-nav.is-sticky {
   position: fixed;
-  top: var(--zh-nav-h, 72px);
+  top: var(--zor-nav-h, var(--zh-nav-h));
   left: 0;
   right: 0;
   /*
@@ -183,7 +183,7 @@ a.zh-quick-nav__pill.is-active::before {
 [id^="zh-section-"][id$="-title"],
 .zh-page .zh-section-head__title,
 .zh-page .zor-deals-page__section-title {
-  scroll-margin-top: var(--zh-sticky-clearance, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px)));
+  scroll-margin-top: var(--zor-sticky-clearance, var(--zh-sticky-clearance));
 }
 
 @media (max-width: 1024px) {

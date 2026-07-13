@@ -51,11 +51,10 @@
     var(--zh-hero-search-block) + var(--zh-space-search-categories) + var(--zh-categories-block)
   );
   --zh-nav-h: 72px;
-  /* Sticky stack: main nav + quick-nav. JS syncs --zh-quick-nav-h. */
+  /* Quick-nav self height — JS syncs live. Stack clearance is global --zor-sticky-*. */
   --zh-quick-nav-h: 52px;
-  --zh-sticky-stack: calc(var(--zh-nav-h) + var(--zh-quick-nav-h));
-  /* Clearance = measured sticky stack only (StickyChromeClearance / QuickNav sync live px). */
-  --zh-sticky-clearance: var(--zh-sticky-stack);
+  --zh-sticky-stack: var(--zor-sticky-stack, var(--zor-sticky-clearance, var(--zh-nav-h)));
+  --zh-sticky-clearance: var(--zor-sticky-clearance, var(--zh-sticky-stack));
   --zh-hero-artwork-height: calc(
     44px +
     (clamp(42px, 2.92vw, 56px) * 2.1) +

@@ -23,7 +23,7 @@ export default function ZorinoHomeNav() {
     : null;
 
   return (
-    <header className="zh-nav">
+    <header className="zh-nav" data-sticky-chrome="primary">
       <div className="zh-nav__inner">
         <Link href="/" className="zh-nav__logo">
           <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={61.6} />

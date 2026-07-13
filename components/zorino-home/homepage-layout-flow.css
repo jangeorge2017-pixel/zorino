@@ -54,7 +54,7 @@
   margin-inline: 0;
   margin-bottom: 0;
   padding: 16px 18px 4px;
-  top: var(--zh-sticky-stack, calc(var(--zh-nav-h, 72px) + var(--zh-quick-nav-h, 52px)));
+  top: var(--zor-sticky-stack, var(--zh-sticky-stack));
   z-index: 40;
 }
 
