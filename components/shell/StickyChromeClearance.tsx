@@ -10,7 +10,7 @@ import {
 
 /**
  * Single global owner of sticky scroll clearance.
- * Measures every [data-sticky-chrome] layer and publishes --zor-sticky-clearance.
+ * Publishes live --zor-sticky-clearance and predicted --zor-sticky-scroll-clearance.
  */
 export default function StickyChromeClearance() {
   const pathname = usePathname();

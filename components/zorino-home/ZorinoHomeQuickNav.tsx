@@ -143,13 +143,26 @@ export default function ZorinoHomeQuickNav() {
   const scrollToTarget = useCallback((targetId: string, itemId: string) => {
     const target = document.getElementById(targetId);
     if (!target) return;
-    // Ensure stack includes the pinned quick-nav before measuring.
+    // Predicted stack (primary + secondary) — secondary may not be pinned yet.
     notifyStickyChromeChanged();
     const offset = getStickyClearance();
     const top = target.getBoundingClientRect().top + window.scrollY - offset;
     setClickedItemId(itemId);
     setActiveTargetId(targetId);
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+
+    // After smooth scroll settles and secondary pins, correct any residual cover.
+    window.setTimeout(() => {
+      notifyStickyChromeChanged();
+      const liveOffset = getStickyClearance();
+      const rect = target.getBoundingClientRect();
+      if (rect.top < liveOffset) {
+        window.scrollTo({
+          top: Math.max(0, rect.top + window.scrollY - liveOffset),
+          behavior: "auto",
+        });
+      }
+    }, 500);
   }, []);
 
   const onItemClick = useCallback(

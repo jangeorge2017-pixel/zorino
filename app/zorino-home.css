@@ -55,6 +55,10 @@
   --zh-quick-nav-h: 52px;
   --zh-sticky-stack: var(--zor-sticky-stack, var(--zor-sticky-clearance, var(--zh-nav-h)));
   --zh-sticky-clearance: var(--zor-sticky-clearance, var(--zh-sticky-stack));
+  --zh-sticky-scroll-clearance: var(
+    --zor-sticky-scroll-clearance,
+    calc(var(--zh-nav-h) + var(--zh-quick-nav-h))
+  );
   --zh-hero-artwork-height: calc(
     44px +
     (clamp(42px, 2.92vw, 56px) * 2.1) +
