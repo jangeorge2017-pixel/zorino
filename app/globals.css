@@ -1350,7 +1350,10 @@ img {
 
 .home-section-shell {
   position: relative;
-  scroll-margin-top: var(--zor-sticky-clearance, var(--nav-h));
+  scroll-margin-top: var(
+    --zor-sticky-scroll-clearance,
+    var(--zor-sticky-clearance, var(--nav-h))
+  );
   margin-top: var(--section-gap);
   padding: 22px 20px 20px;
   border-radius: 24px;

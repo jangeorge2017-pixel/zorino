@@ -183,7 +183,10 @@ a.zh-quick-nav__pill.is-active::before {
 [id^="zh-section-"][id$="-title"],
 .zh-page .zh-section-head__title,
 .zh-page .zor-deals-page__section-title {
-  scroll-margin-top: var(--zor-sticky-clearance, var(--zh-sticky-clearance));
+  scroll-margin-top: var(
+    --zor-sticky-scroll-clearance,
+    var(--zor-sticky-clearance, var(--zh-sticky-clearance))
+  );
 }
 
 @media (max-width: 1024px) {

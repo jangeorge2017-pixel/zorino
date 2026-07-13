@@ -15,9 +15,13 @@
    * Global sticky stack clearance. StickyChromeClearance overwrites with the
    * live measured bottom edge of all [data-sticky-chrome] layers. Pre-hydrate
    * fallback is primary nav height only (no guessed padding).
+   *
+   * --zor-sticky-scroll-clearance is the offset for scroll-padding / scroll-margin
+   * / in-page jumps. It predicts secondary chrome that will pin during scroll.
    */
   --zor-sticky-clearance: var(--zor-nav-h);
   --zor-sticky-stack: var(--zor-sticky-clearance);
+  --zor-sticky-scroll-clearance: var(--zor-sticky-clearance);
 
   /* ─── Color: surfaces ─── */
   --zor-bg-deep: #020611;
@@ -423,15 +427,20 @@
   color: var(--zor-text-muted);
 }
 
-/*
- * Viewport scroll container. Clearance is the measured sticky chrome stack
- * (--zor-sticky-clearance), published by StickyChromeClearance.
- */
-html {
-  scroll-padding-top: var(--zor-sticky-clearance);
+/* Homepage: secondary quick-nav will pin on section jumps — pre-hydrate scroll offset. */
+html:has(.zh-page) {
+  --zor-sticky-scroll-clearance: calc(var(--zor-nav-h) + var(--zh-quick-nav-h, 77px));
 }
 
-/* Public page titles / section anchors — clear the measured sticky stack */
+/*
+ * Viewport scroll container. Use predicted scroll clearance so in-page jumps
+ * clear secondary chrome that pins during the scroll.
+ */
+html {
+  scroll-padding-top: var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance));
+}
+
+/* Public page titles / section anchors — clear the sticky scroll stack */
 #deals-page-title,
 #coupons-page-title,
 #compare-page-title,
@@ -460,13 +469,13 @@ html {
 .zor-categories-page__hero,
 .zor-stores-page__hero,
 .zor-blog-page__hero {
-  scroll-margin-top: var(--zor-sticky-clearance);
+  scroll-margin-top: var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance));
 }
 
 /* ─── Page header utility (Phase 2+) ─── */
 .zor-page-header {
   margin-bottom: var(--zor-space-8);
-  scroll-margin-top: var(--zor-sticky-clearance);
+  scroll-margin-top: var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance));
 }
 
 .zor-page-header__title {
@@ -475,7 +484,7 @@ html {
   letter-spacing: -0.02em;
   color: var(--zor-text);
   margin: 0 0 var(--zor-space-2);
-  scroll-margin-top: var(--zor-sticky-clearance);
+  scroll-margin-top: var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance));
 }
 
 .zor-page-header__subtitle {
