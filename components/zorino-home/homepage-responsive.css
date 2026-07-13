@@ -74,16 +74,6 @@
     display: none;
   }
 
-  .zh-page .zh-nav__profile-copy {
-    display: none;
-  }
-
-  .zh-page .zh-nav__profile {
-    min-width: 44px;
-    max-width: 44px;
-    padding: 4px;
-  }
-
   /* ── Categories: smoother horizontal scroll ── */
   .zh-page .zh-categories {
     -webkit-overflow-scrolling: touch;

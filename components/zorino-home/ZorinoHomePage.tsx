@@ -89,6 +89,7 @@ export default async function ZorinoHomePage() {
         <div className="zh-page__artwork" />
       </div>
       <ZorinoHomeNav />
+      <div className="zh-nav-spacer" aria-hidden="true" />
 
       <div className="zh-shell">
         <div className="zh-hero-zone">
