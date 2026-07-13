@@ -23,10 +23,9 @@
   position: sticky;
   top: 0;
   z-index: 200;
-  /* Height comes from content + vertical padding (keeps controls centered). */
+  /* Taller bar only — equal pad keeps nav controls vertically centered. */
   height: auto;
   margin-top: 0;
-  /* ~10px above/below nav controls so active glow stays inside the bar */
   padding: 10px var(--zh-pad);
   border-bottom: none;
   /* Opaque — same canvas as hero top so artwork/glow cannot show through */
@@ -36,8 +35,10 @@
 }
 
 /*
- * Opaque skirt below the bar (does not change height or button layout).
- * Covers any hero glow that sits under the sticky header seam.
+ * Opaque skirt below the bar (does not change button layout).
+ * Covers hero glow under the sticky header seam.
+ * Bottom edge stays at 120px (72px bar + 48px skirt) so a taller bar
+ * does not push opaque coverage further into the hero.
  */
 .zh-nav::after {
   content: "";
@@ -45,7 +46,7 @@
   left: 0;
   right: 0;
   top: 100%;
-  height: 48px;
+  height: max(0px, calc(120px - 100%));
   background: #070b16;
   pointer-events: none;
   z-index: 0;
