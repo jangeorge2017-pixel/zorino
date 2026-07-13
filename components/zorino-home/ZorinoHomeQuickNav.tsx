@@ -29,12 +29,20 @@ function syncStickyCssVars(quickNavHeight: number) {
   const root = document.querySelector(".zh-page") as HTMLElement | null;
   const target = root ?? document.documentElement;
   const height = Math.max(quickNavHeight, ZORINO_QUICK_NAV_DEFAULT_HEIGHT);
-  const stack = ZORINO_QUICK_NAV_STICKY_TOP + height;
   const clearance = getStickyScrollOffset(height);
+  const nav =
+    document.querySelector<HTMLElement>(".zh-nav") ||
+    document.querySelector<HTMLElement>(".zor-nav");
+  const navBottom =
+    nav && (getComputedStyle(nav).position === "fixed" || getComputedStyle(nav).position === "sticky")
+      ? Math.ceil(nav.getBoundingClientRect().bottom)
+      : ZORINO_QUICK_NAV_STICKY_TOP;
+  const stack = Math.max(navBottom + height, clearance);
   target.style.setProperty("--zh-quick-nav-h", `${height}px`);
   target.style.setProperty("--zh-sticky-stack", `${stack}px`);
   target.style.setProperty("--zh-sticky-clearance", `${clearance}px`);
   document.documentElement.style.setProperty("--zh-sticky-clearance", `${clearance}px`);
+  document.documentElement.style.setProperty("--zor-sticky-clearance", `${clearance}px`);
 }
 
 export default function ZorinoHomeQuickNav() {
