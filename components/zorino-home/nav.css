@@ -27,9 +27,26 @@
   margin-top: 0;
   padding: 0 var(--zh-pad);
   border-bottom: none;
+  /* Opaque — same canvas as hero top so artwork/glow cannot show through */
   background: #070b16;
   box-shadow: none;
   overflow: visible;
+}
+
+/*
+ * Opaque skirt below the bar (does not change height or button layout).
+ * Covers any hero glow that sits under the sticky header seam.
+ */
+.zh-nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 48px;
+  background: #070b16;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .zh-nav__inner {
