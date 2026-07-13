@@ -20,13 +20,15 @@
 }
 
 /*
- * Stick the full head (title + filter tabs) under main nav + quick-nav.
- * Uses panel edge padding — no negative margins.
+ * Content section heads must NOT be sticky.
+ * Sticky is reserved for [data-sticky-chrome] navigation layers only.
+ * A sticky trending head (previously top: sticky-stack) stayed pinned under
+ * the nav and covered later section titles (e.g. Coupons at y≈178 under a
+ * head spanning y≈149–296). Quick-nav already handles section navigation.
  */
 .zh-trending-deals__head {
-  position: sticky;
-  top: var(--zor-sticky-stack, var(--zh-sticky-stack));
-  z-index: 40;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 14px;
