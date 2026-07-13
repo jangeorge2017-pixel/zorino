@@ -23,9 +23,11 @@
   position: sticky;
   top: 0;
   z-index: 200;
-  height: 72px;
+  /* Height comes from content + vertical padding (keeps controls centered). */
+  height: auto;
   margin-top: 0;
-  padding: 0 var(--zh-pad);
+  /* ~10px above/below nav controls so active glow stays inside the bar */
+  padding: 10px var(--zh-pad);
   border-bottom: none;
   /* Opaque — same canvas as hero top so artwork/glow cannot show through */
   background: #070b16;
