@@ -77,6 +77,8 @@
   --zh-hero-artwork-extend-down: 175px;
   --zh-hero-artwork-stretch-down: 1.23;
   --zh-hero-artwork-stretch-z-up: 45px;
+  /* Breathing room so hero glow/badge never sit under the fixed nav. */
+  --zh-hero-below-nav-gap: 16px;
   --zh-hero-artwork-painted-height: calc(
     var(--zh-hero-artwork-height) *
     var(--zh-hero-artwork-scale) *
@@ -89,10 +91,17 @@
   --zh-hero-artwork-painted-right: calc(
     var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left)
   );
-  --zh-hero-artwork-painted-top: calc(
-    var(--zh-hero-canvas-top) -
-    var(--zh-hero-artwork-lift) -
-    var(--zh-hero-artwork-stretch-z-up)
+  /*
+   * Hero PNG/glow must start at or below the nav bottom — never underneath.
+   * Without the max(), lift + stretch-z-up pulled painted-top to ~43px under the 72px nav.
+   */
+  --zh-hero-artwork-painted-top: max(
+    calc(var(--zh-nav-h) + var(--zh-hero-below-nav-gap)),
+    calc(
+      var(--zh-hero-canvas-top) -
+      var(--zh-hero-artwork-lift) -
+      var(--zh-hero-artwork-stretch-z-up)
+    )
   );
   /*
    * Search sits 24px lower under the Z platform (--zh-hero-search-platform-gap).
@@ -138,6 +147,8 @@ html[dir="rtl"] .zh-page {
   border: none;
   outline: none;
   box-shadow: none;
+  /* Hard floor: never paint hero glow/particles into the fixed nav band. */
+  clip-path: inset(var(--zh-nav-h) 0 0 0);
   -webkit-mask-image:
     linear-gradient(
       180deg,

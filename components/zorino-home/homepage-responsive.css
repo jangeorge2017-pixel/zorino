@@ -28,7 +28,10 @@
   .zh-page .hero-artwork {
     transform: translate(
       calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
-      calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+      max(
+        0px,
+        calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+      )
     );
   }
 
