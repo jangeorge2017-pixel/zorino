@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import { useState, type ReactNode, type SyntheticEvent } from "react";
 import {
   normalizeProductImageUrl,
   PRODUCT_IMAGE_PLACEHOLDER,
@@ -22,7 +22,8 @@ type AssetImageProps = {
 
 /**
  * Renders product/marketplace images via next/image.
- * Falls back to the local professional placeholder SVG — never blank/broken media.
+ * Remote marketplace CDNs often block the optimizer; load those unoptimized
+ * so the browser fetches them directly. Falls back to the local placeholder SVG.
  */
 export default function AssetImage({
   src,
@@ -37,14 +38,15 @@ export default function AssetImage({
 }: AssetImageProps) {
   const normalized = normalizeProductImageUrl(src) || PRODUCT_IMAGE_PLACEHOLDER;
   const [broken, setBroken] = useState(false);
-  const [loaded, setLoaded] = useState(() => isLocalProductImage(normalized));
+  // Never start remote images at opacity 0 — CDN/onLoad races left black wells.
+  const [loaded, setLoaded] = useState(true);
 
   // Reset failure state when the source identity changes (render-time, no effect).
   const [srcKey, setSrcKey] = useState(src);
   if (src !== srcKey) {
     setSrcKey(src);
     setBroken(false);
-    setLoaded(isLocalProductImage(normalized));
+    setLoaded(true);
   }
 
   if (broken && normalized === PRODUCT_IMAGE_PLACEHOLDER) {
@@ -79,6 +81,7 @@ export default function AssetImage({
   }
 
   const displaySrc = broken ? PRODUCT_IMAGE_PLACEHOLDER : normalized;
+  const isLocal = isLocalProductImage(displaySrc);
 
   const handleError = () => {
     if (displaySrc !== PRODUCT_IMAGE_PLACEHOLDER) {
@@ -88,17 +91,25 @@ export default function AssetImage({
     setBroken(true);
   };
 
+  const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => {
+    const img = event.currentTarget;
+    if (img.naturalWidth > 0) setLoaded(true);
+  };
+
   const shared = {
     src: displaySrc,
     alt: alt || "",
     className: `${className ?? ""}${loaded ? " asset-image-loaded" : " asset-image-loading"}`.trim(),
     priority,
     quality: 92,
+    // Marketplace CDNs (eBay/AliExpress/etc.) frequently block server-side
+    // optimizer fetches; load remotes in the browser instead.
+    unoptimized: !isLocal,
     loading: priority ? ("eager" as const) : ("lazy" as const),
     decoding: "async" as const,
     style: { objectFit: "contain" as const, objectPosition: "center" as const },
     onError: handleError,
-    onLoad: () => setLoaded(true),
+    onLoad: handleLoad,
   };
 
   if (fill) {

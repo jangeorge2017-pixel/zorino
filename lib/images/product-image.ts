@@ -4,6 +4,10 @@ export const PRODUCT_IMAGE_PLACEHOLDER = "/products/placeholder.svg";
 const LEGACY_BROKEN_IMAGE_URLS: Record<string, string> = {
   "https://images.unsplash.com/photo-1695048133142-1c204c703e24?w=1200&auto=format&fit=crop&q=80":
     "https://images.unsplash.com/photo-1718223483120-8131e57f948b?w=1200&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1606813907293-d86efa9b94ea?w=1200&auto=format&fit=crop&q=80":
+    "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=1200&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1592840496694-26d19506d992?w=1200&auto=format&fit=crop&q=80":
+    "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=1200&auto=format&fit=crop&q=80",
 };
 
 /** Remote image host patterns allowed for next/image (import pipeline + CDNs). */
@@ -16,7 +20,8 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   { protocol: "https" as const, hostname: "**.alicdn.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.aliexpress-media.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.aliexpress.com", pathname: "/**" },
-  // eBay
+  // eBay (explicit + wildcard so i.ebayimg.com always matches)
+  { protocol: "https" as const, hostname: "i.ebayimg.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.ebayimg.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.ebaystatic.com", pathname: "/**" },
   // CJdropshipping
@@ -53,7 +58,9 @@ export function normalizeProductImageUrl(url?: string | null): string {
     // next/image in production only allows https remotes from the allowlist.
     if (parsed.protocol !== "https:") return PRODUCT_IMAGE_PLACEHOLDER;
     const host = parsed.hostname.toLowerCase();
-    if (host.includes("sandbox.ebay.com") || host.includes("ebayimg.sandbox")) {
+    // Only rewrite when the host itself is unusable as an <img> CDN —
+    // production Browse still serves photos from i.ebayimg.com.
+    if (host.includes("ebayimg.sandbox") || host === "api.sandbox.ebay.com") {
       return PRODUCT_IMAGE_PLACEHOLDER;
     }
     return trimmed;

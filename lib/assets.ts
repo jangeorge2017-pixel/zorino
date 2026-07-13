@@ -47,11 +47,22 @@ export const FLOATING_CARD_IMAGES = {
 /** @deprecated Use FLOATING_CARD_IMAGES — full cards copied from reference */
 export const FLOATING_PRODUCT_IMAGES = FLOATING_CARD_IMAGES;
 
+/** High-res Unsplash product photos — local deal-*.png crops were near-black and unreadable. */
 export const DEAL_PRODUCT_IMAGES = {
-  iphone: "/products/deal-iphone.png",
-  macbook: "/products/deal-macbook.png",
-  ps5: "/products/deal-ps5.png",
-  nike: "/products/deal-nike.png",
+  iphone:
+    "https://images.unsplash.com/photo-1718223483120-8131e57f948b?w=1200&auto=format&fit=crop&q=80",
+  macbook:
+    "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&auto=format&fit=crop&q=80",
+  ps5: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=1200&auto=format&fit=crop&q=80",
+  nike: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&auto=format&fit=crop&q=80",
+  headphones:
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&auto=format&fit=crop&q=80",
+  controller:
+    "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=1200&auto=format&fit=crop&q=80",
+  laptop:
+    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1200&auto=format&fit=crop&q=80",
+  phone:
+    "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&auto=format&fit=crop&q=80",
 } as const;
 
 export const STORE_LOGOS = {
