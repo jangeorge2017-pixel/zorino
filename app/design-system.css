@@ -103,7 +103,8 @@
   background: var(--zor-bg-deep);
   color: var(--zor-text);
   font-family: var(--zor-font-sans);
-  overflow-x: clip;
+  /* Must stay visible — overflow-x:clip makes sticky nav scroll away with the page */
+  overflow-x: visible;
   width: 100%;
   max-width: 100%;
 }
@@ -115,18 +116,30 @@
   margin: 0 auto;
   padding: var(--zor-space-8) var(--zor-pad) var(--zor-space-9);
   min-width: 0;
+  overflow-x: clip;
 }
 
 /* ─── Site nav ─── */
 .zor-nav {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 200;
   height: var(--zor-nav-h);
   padding: 0 var(--zor-pad);
   border-bottom: 1px solid var(--zor-border-subtle);
   background: rgba(3, 7, 18, 0.78);
   backdrop-filter: blur(18px);
+}
+
+/* Spacer height = measured sticky chrome (--zor-sticky-clearance / --zor-nav-h). */
+.zor-nav-spacer {
+  display: block;
+  height: var(--zor-sticky-clearance, var(--zor-nav-h));
+  width: 100%;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .zor-nav__inner {
