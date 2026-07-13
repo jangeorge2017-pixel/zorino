@@ -50,12 +50,12 @@ html[dir="rtl"] .zh-page .zh-hero__col--left {
   text-align: start;
 }
 
-/* Z artwork anchor stays on the physical right edge */
+/* Z artwork anchor stays on the physical right edge (coords are local to artwork-clip) */
 .zh-page .zh-page__artwork,
 .zh-page .zh-page__artwork::after {
   background-position:
     right calc(var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left))
-    top var(--zh-hero-artwork-painted-top);
+    top var(--zh-hero-artwork-local-top, 0px);
 }
 
 .zh-page .hero-artwork {
