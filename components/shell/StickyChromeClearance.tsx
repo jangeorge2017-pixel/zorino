@@ -28,20 +28,19 @@ export function measureStickyChromeBottom(): number {
 }
 
 function publishStickyClearance(px: number) {
-  const value = `${Math.max(0, px)}px`;
-  const root = document.documentElement;
-  root.style.setProperty("--zor-sticky-clearance", value);
-  root.style.setProperty("--zh-sticky-clearance", value);
-  // Keep nav-height token in sync with the measured chrome when only the main nav is sticky.
+  // Prefer the measured nav box when chrome is fixed (spacer uses this value).
   const nav =
     document.querySelector<HTMLElement>(".zor-nav") ||
     document.querySelector<HTMLElement>(".zh-nav");
-  if (nav) {
-    const navHeight = Math.ceil(nav.getBoundingClientRect().height);
-    if (navHeight > 0) {
-      root.style.setProperty("--zor-nav-h", `${navHeight}px`);
-      root.style.setProperty("--zh-nav-h", `${navHeight}px`);
-    }
+  const navHeight = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
+  const stack = Math.max(px, navHeight);
+  const value = `${Math.max(0, stack)}px`;
+  const root = document.documentElement;
+  root.style.setProperty("--zor-sticky-clearance", value);
+  root.style.setProperty("--zh-sticky-clearance", value);
+  if (navHeight > 0) {
+    root.style.setProperty("--zor-nav-h", `${navHeight}px`);
+    root.style.setProperty("--zh-nav-h", `${navHeight}px`);
   }
 
   /*
@@ -57,7 +56,7 @@ function publishStickyClearance(px: number) {
     const blockTop = block.getBoundingClientRect().top;
     const titleTop = title.getBoundingClientRect().top;
     const withinBlock = Math.max(0, Math.round(titleTop - blockTop));
-    title.style.scrollMarginTop = `${Math.max(0, px) + withinBlock}px`;
+    title.style.scrollMarginTop = `${Math.max(0, stack) + withinBlock}px`;
   });
 
   document
