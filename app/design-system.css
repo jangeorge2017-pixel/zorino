@@ -11,8 +11,13 @@
   --zor-pad: clamp(16px, calc((100vw - var(--zor-content)) / 2), 200px);
   --zor-nav-h: 72px;
   --zor-section-gap: 28px;
-  /* Fallback = measured nav height only. StickyChromeClearance overwrites with live px. */
+  /*
+   * Global sticky stack clearance. StickyChromeClearance overwrites with the
+   * live measured bottom edge of all [data-sticky-chrome] layers. Pre-hydrate
+   * fallback is primary nav height only (no guessed padding).
+   */
   --zor-sticky-clearance: var(--zor-nav-h);
+  --zor-sticky-stack: var(--zor-sticky-clearance);
 
   /* ─── Color: surfaces ─── */
   --zor-bg-deep: #020611;
@@ -419,14 +424,14 @@
 }
 
 /*
- * Viewport is the scroll container. Homepage JS may override with
- * --zh-sticky-clearance (main nav + sticky quick-nav); elsewhere use nav only.
+ * Viewport scroll container. Clearance is the measured sticky chrome stack
+ * (--zor-sticky-clearance), published by StickyChromeClearance.
  */
 html {
-  scroll-padding-top: var(--zh-sticky-clearance, var(--zor-sticky-clearance));
+  scroll-padding-top: var(--zor-sticky-clearance);
 }
 
-/* Public page titles / section anchors — clear sticky site header */
+/* Public page titles / section anchors — clear the measured sticky stack */
 #deals-page-title,
 #coupons-page-title,
 #compare-page-title,
@@ -1296,7 +1301,7 @@ html {
 
 .zor-filter-sidebar {
   position: sticky;
-  top: calc(var(--zor-nav-h) + var(--zor-space-4));
+  top: calc(var(--zor-sticky-clearance) + var(--zor-space-4));
   padding: var(--zor-space-6);
   border-radius: var(--zor-radius-xl);
   border: 1px solid var(--zor-glass-border);

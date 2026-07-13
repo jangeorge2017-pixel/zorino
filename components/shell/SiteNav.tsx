@@ -20,7 +20,7 @@ export default function SiteNav() {
   const { user } = useAuth();
 
   return (
-    <header className="zor-nav">
+    <header className="zor-nav" data-sticky-chrome="primary">
       <div className="zor-nav__inner">
         <Link href="/" className="zor-nav__logo">
           <img src={ZORINO_LOGO_SOURCE} alt="ZORINO" width={118} height={40} />
