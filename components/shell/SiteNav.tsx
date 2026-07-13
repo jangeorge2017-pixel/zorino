@@ -60,11 +60,13 @@ export default function SiteNav() {
                 <User size={18} />
               </span>
             )}
-            {user ? (
-              <div>
-                <strong>{t("hiUser", { name: user.name.split(" ")[0] || user.name })}</strong>
-              </div>
-            ) : null}
+            <div>
+              <strong>
+                {t("hiUser", {
+                  name: user ? user.name.split(" ")[0] || user.name : "User",
+                })}
+              </strong>
+            </div>
           </Link>
         </div>
       </div>

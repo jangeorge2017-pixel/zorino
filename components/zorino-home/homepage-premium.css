@@ -5,7 +5,6 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .zh-page .zh-hero-zone,
-  .zh-page .zh-home-discovery-nav,
   .zh-page .zh-featured-brands-wrap,
   .zh-page .hhb,
   .zh-page .zh-product-sections-wrap > *,
@@ -14,7 +13,6 @@
     animation: zh-premium-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .zh-page .zh-home-discovery-nav { animation-delay: 0.08s; }
   .zh-page .hhb { animation-delay: 0.1s; }
   .zh-page .zh-featured-brands-wrap { animation-delay: 0.14s; }
 .zh-page .zh-product-sections-wrap .zh-product-section.zh-deals-preview:nth-child(1) { animation-delay: 0.18s; }
@@ -34,7 +32,8 @@
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    /* Must be `none` — translateY(0) still creates a containing block and breaks position:fixed sticky nav */
+    transform: none;
   }
 }
 
@@ -50,6 +49,9 @@
 /* Discovery + Trending spacing (matches homepage-layout-flow.css) */
 .zh-page .zh-home-discovery-nav {
   margin-top: calc(var(--zh-space-discovery, 18px) - 8px);
+  /* Prevent animation fill-mode from leaving a transform containing block
+     that breaks position:fixed on the sticky quick-nav */
+  transform: none !important;
 }
 
 .zh-page .hhb {

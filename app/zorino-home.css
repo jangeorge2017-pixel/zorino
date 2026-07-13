@@ -103,7 +103,7 @@
   margin-top: 0;
   padding-top: 0;
   min-height: 100vh;
-  overflow-x: clip;
+  overflow-x: visible;
   color: #ffffff;
   background: #070b16;
   font-family: "Plus Jakarta Sans", var(--font-geist-sans), system-ui, sans-serif;
@@ -268,7 +268,24 @@ html[dir="rtl"] .zh-page {
   background: #070b16;
 }
 
-.zh-page > .zh-nav,
+/* Fixed header — sticky is unreliable with html/body overflow-x:hidden.
+   Spacer preserves in-flow height so content is not covered. */
+.zh-page > .zh-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 200;
+}
+
+.zh-page > .zh-nav-spacer {
+  display: block;
+  height: var(--zh-nav-h, 72px);
+  width: 100%;
+  pointer-events: none;
+}
+
 .zh-page > .zh-shell {
   position: relative;
   z-index: 1;
