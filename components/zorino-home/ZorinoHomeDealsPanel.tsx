@@ -21,7 +21,7 @@ import {
   trendingDealToDeal,
 } from "@/lib/zorino-home/trending-deal-to-deal";
 import type { TrendingDealCard } from "@/lib/types/entities";
-import { getCarouselScrollState } from "@/lib/ui/carousel-scroll";
+import { getCarouselScrollState, attachVerticalWheelPassthrough } from "@/lib/ui/carousel-scroll";
 import "./zorino-home-deals.css";
 
 const FILTER_KEYS: Record<TrendingDealFilter, string> = {
@@ -76,6 +76,13 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   }, [visibleDeals.length, syncButtons]);
 
   useEffect(() => {
+    if (isPending || showSkeleton) return;
+    const node = trackRef.current;
+    if (!node) return;
+    return attachVerticalWheelPassthrough(node);
+  }, [visibleDeals.length, isPending, showSkeleton]);
+
+  useEffect(() => {
     setShowSkeleton(true);
     const timer = window.setTimeout(() => setShowSkeleton(false), 180);
     return () => window.clearTimeout(timer);
@@ -111,6 +118,18 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
       id="zh-section-trending-deals"
       aria-labelledby="zh-deals-title"
     >
+      {/*
+        Inline so the CSS bundler cannot strip `backdrop-filter: none`
+        (it drops it as an “initial” value). Track cards must match Top
+        Coupons paint — no filter compositing layer under sticky chrome.
+      */}
+      <style>{`
+        #zh-section-trending-deals .zh-trending-deals__track .deal-card,
+        #zh-section-trending-deals .zh-trending-deals__track .product-card {
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+        }
+      `}</style>
       <div className="zh-trending-deals__head">
         <header className="zor-deals-page__section-head zh-trending-deals__title-row">
           <div className="zor-deals-page__section-title-wrap">

@@ -35,6 +35,9 @@
   display: flex;
   gap: 14px;
   overflow-x: auto;
+  overflow-y: clip;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: none;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none;
