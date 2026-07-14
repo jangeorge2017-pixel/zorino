@@ -55,7 +55,7 @@ export default function ZorinoHomeQuickNav() {
     if (!onHome) return;
     document.documentElement.style.removeProperty("--zh-quick-nav-h");
     document
-      .querySelector(".zh-page")
+      .querySelector<HTMLElement>(".zh-page")
       ?.style.removeProperty("--zh-quick-nav-h");
   }, [onHome]);
 
