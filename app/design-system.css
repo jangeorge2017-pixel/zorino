@@ -130,8 +130,8 @@
 
 /* ─── Site nav ─── */
 .zor-nav {
-  position: fixed;
-  top: 0;
+  position: fixed !important;
+  top: 0 !important;
   left: 0;
   right: 0;
   z-index: 200;
@@ -140,12 +140,17 @@
   border-bottom: 1px solid var(--zor-border-subtle);
   background: rgba(3, 7, 18, 0.78);
   backdrop-filter: blur(18px);
+  transform: none !important;
 }
 
-/* Spacer height = measured sticky chrome (--zor-sticky-clearance / --zor-nav-h). */
+/*
+ * Public pages: spacer clears the primary sticky header only.
+ * Do not use --zor-sticky-clearance here — that can include homepage quick-nav
+ * height after client navigations and push/cover content incorrectly.
+ */
 .zor-nav-spacer {
   display: block;
-  height: var(--zor-sticky-clearance, var(--zor-nav-h));
+  height: var(--zor-nav-h, 72px);
   width: 100%;
   flex-shrink: 0;
   pointer-events: none;
@@ -427,9 +432,23 @@
   color: var(--zor-text-muted);
 }
 
-/* Homepage: secondary quick-nav will pin on section jumps — pre-hydrate scroll offset. */
+/*
+ * Scroll clearance is CSS-owned (not overwritten by JS px measurements).
+ * Homepage: primary nav + secondary quick-nav (token updated live by QuickNav).
+ * Elsewhere: primary only — --zh-quick-nav-h is cleared off-home.
+ */
+:root {
+  --zh-quick-nav-h: 0px;
+}
+
 html:has(.zh-page) {
-  --zor-sticky-scroll-clearance: calc(var(--zor-nav-h) + var(--zh-quick-nav-h, 77px));
+  /* Quick-nav stays in-flow (never position:fixed) — scroll clears primary only. */
+  --zh-quick-nav-h: 0px;
+  --zor-sticky-scroll-clearance: var(--zor-nav-h);
+}
+
+html:not(:has(.zh-page)) {
+  --zor-sticky-scroll-clearance: var(--zor-nav-h);
 }
 
 /*

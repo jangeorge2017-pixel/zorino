@@ -20,36 +20,23 @@
   --zh-nav-control-glow-blue: rgba(96, 165, 250, 0.24);
   --zh-nav-control-glow-purple: rgba(167, 139, 250, 0.14);
 
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 200;
-  /* Taller bar only — equal pad keeps nav controls vertically centered. */
-  height: auto;
-  margin-top: 0;
-  padding: 10px var(--zh-pad);
-  border-bottom: none;
-  /* Opaque — same canvas as hero top so artwork/glow cannot show through */
-  background: #070b16;
-  box-shadow: none;
-  overflow: visible;
-}
-
-/*
- * Opaque skirt below the bar (does not change button layout).
- * Covers hero glow under the sticky header seam.
- * Bottom edge stays at 120px (72px bar + 48px skirt) so a taller bar
- * does not push opaque coverage further into the hero.
- */
-.zh-nav::after {
-  content: "";
-  position: absolute;
   left: 0;
   right: 0;
-  top: 100%;
-  height: max(0px, calc(120px - 100%));
+  width: 100%;
+  z-index: 200;
+  height: 72px;
+  max-height: 72px;
+  margin-top: 0;
+  padding: 0 var(--zh-pad);
+  border-bottom: none;
   background: #070b16;
-  pointer-events: none;
-  z-index: 0;
+  box-shadow: none;
+  /* Keep glow inside link clips; never promote the bar into a scrolling layer */
+  overflow: hidden;
+  transform: none;
+  will-change: auto;
 }
 
 .zh-nav__inner {
@@ -98,9 +85,12 @@
   justify-content: center;
   width: 100%;
   min-width: 0;
+  height: 100%;
   padding: 0 var(--zh-nav-logo-gap);
   /* Even horizontal rhythm between Deals → Blog */
   gap: 10px;
+  /* Clip link ::before/::after box-shadows so hover/active glow cannot paint below the bar */
+  overflow: hidden;
 }
 
 .zh-nav__link {

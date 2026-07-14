@@ -60,34 +60,24 @@
   height: 100%;
 }
 
+/*
+ * Match Top Coupons card paint model inside this container only:
+ * no entrance transform / backdrop-filter layer that escapes the track
+ * and composites under sticky chrome mid-scroll.
+ */
+.zh-page .zh-trending-deals__track .zor-deals-page__card,
+.zh-page .zh-trending-deals__track .listing-product-card.deal-card,
+.zh-page .zh-trending-deals__track article.deal-card {
+  animation: none;
+  transform: none;
+}
+
 .zh-page .zh-product-sections {
   gap: 0;
 }
 
 .zh-page .zh-deals-preview .listing-products-grid {
   gap: var(--zor-space-5);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .zh-page .zh-deals-preview .zor-deals-page__card {
-    animation: zor-deals-fade-up 0.45s var(--zor-ease) both;
-  }
-
-  .zh-page .zh-trending-deals__track .zh-trending-deals__slide:nth-child(1) .zor-deals-page__card {
-    animation-delay: 0.04s;
-  }
-
-  .zh-page .zh-trending-deals__track .zh-trending-deals__slide:nth-child(2) .zor-deals-page__card {
-    animation-delay: 0.08s;
-  }
-
-  .zh-page .zh-trending-deals__track .zh-trending-deals__slide:nth-child(3) .zor-deals-page__card {
-    animation-delay: 0.12s;
-  }
-
-  .zh-page .zh-trending-deals__track .zh-trending-deals__slide:nth-child(4) .zor-deals-page__card {
-    animation-delay: 0.16s;
-  }
 }
 
 @media (max-width: 767px) {

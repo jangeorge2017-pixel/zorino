@@ -12,7 +12,7 @@ import {
   Ticket,
 } from "lucide-react";
 import type { FeaturedCouponBrand } from "@/lib/zorino-home/featured-coupon-brands";
-import { getCarouselScrollState } from "@/lib/ui/carousel-scroll";
+import { getCarouselScrollState, attachVerticalWheelPassthrough } from "@/lib/ui/carousel-scroll";
 import "./featured-coupon-brands.css";
 
 function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
@@ -107,6 +107,12 @@ export default function ZorinoHomeFeaturedCouponBrands({
     window.addEventListener("resize", syncButtons);
     return () => window.removeEventListener("resize", syncButtons);
   }, [brands.length, syncButtons]);
+
+  useEffect(() => {
+    const node = trackRef.current;
+    if (!node) return;
+    return attachVerticalWheelPassthrough(node);
+  }, [brands.length]);
 
   const scroll = (direction: -1 | 1) => {
     const node = trackRef.current;

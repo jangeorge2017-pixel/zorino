@@ -43,9 +43,10 @@
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 120, 60, 0.08);
-  scroll-margin-top: var(
-    --zor-sticky-scroll-clearance,
-    var(--zor-sticky-clearance, var(--zh-sticky-clearance))
+  /* Title must land fully below the fixed navbar (not flush against it). */
+  scroll-margin-top: calc(
+    var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance, var(--zh-sticky-clearance, 72px))) +
+      12px
   );
   isolation: isolate;
 }
@@ -82,9 +83,9 @@
 }
 
 #zh-deals-title {
-  scroll-margin-top: var(
-    --zor-sticky-scroll-clearance,
-    var(--zor-sticky-clearance, var(--zh-sticky-clearance))
+  scroll-margin-top: calc(
+    var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance, var(--zh-sticky-clearance, 72px))) +
+      12px
   );
 }
 
@@ -211,12 +212,21 @@
 }
 
 .zh-trending-deals__carousel {
+  /*
+   * Positioning context for arrow buttons only.
+   * Do not create a stacking layer (no z-index) — that was unique vs Top Coupons
+   * `.zh-coupons` and let the card track paint under sticky chrome while scrolling.
+   */
   position: relative;
-  z-index: 1;
-  /* Tight, consistent gap under sticky filters — first row stays clear while scrolling */
   padding: 8px 18px 0;
 }
 
+/*
+ * Card container — same scroll/stack model as Top Coupons `.zh-coupons`:
+ * no z-index, no transform, no isolation, no dual-axis overflow scrollport.
+ * `overflow-x: auto` alone computes `overflow-y: auto` and promotes a
+ * vertical scrollport; use `overflow-y: clip` to keep horizontal snap only.
+ */
 .zh-trending-deals__track,
 .zh-td-skeleton-grid {
   display: grid;
@@ -224,14 +234,31 @@
   grid-auto-columns: calc((100% - 48px) / 4);
   gap: 16px;
   overflow-x: auto;
+  overflow-y: clip;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: none;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none;
   padding: 2px 0;
+  position: static;
+  z-index: auto;
+  transform: none;
+  isolation: auto;
+  contain: none;
+  will-change: auto;
 }
 
 .zh-trending-deals__track::-webkit-scrollbar {
   display: none;
+}
+
+/* Cards inside the track — no entrance transform (matches Top Coupons resting stack). */
+.zh-trending-deals__track .zor-deals-page__card,
+.zh-trending-deals__track .listing-product-card,
+.zh-trending-deals__track .deal-card {
+  animation: none;
+  transform: none;
 }
 
 .zh-trending-deals__nav {

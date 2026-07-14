@@ -28,10 +28,7 @@
   .zh-page .hero-artwork {
     transform: translate(
       calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
-      max(
-        0px,
-        calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
-      )
+      calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
     );
   }
 
@@ -246,15 +243,15 @@
     -webkit-mask-image:
       linear-gradient(
         180deg,
-        transparent calc(var(--zh-hero-artwork-local-top, 0px) - 1px),
-        #000 calc(var(--zh-hero-artwork-local-top, 0px) + var(--zh-hero-edge-feather)),
+        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
+        #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
         #000
           calc(
-            var(--zh-hero-artwork-local-top, 0px) + var(--zh-hero-artwork-painted-height) -
+            var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
             var(--zh-hero-edge-feather)
           ),
         transparent
-          calc(var(--zh-hero-artwork-local-top, 0px) + var(--zh-hero-artwork-painted-height) + 1px)
+          calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
       ),
       linear-gradient(
         90deg,
@@ -273,15 +270,15 @@
     mask-image:
       linear-gradient(
         180deg,
-        transparent calc(var(--zh-hero-artwork-local-top, 0px) - 1px),
-        #000 calc(var(--zh-hero-artwork-local-top, 0px) + var(--zh-hero-edge-feather)),
+        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
+        #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
         #000
           calc(
-            var(--zh-hero-artwork-local-top, 0px) + var(--zh-hero-artwork-painted-height) -
+            var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
             var(--zh-hero-edge-feather)
           ),
         transparent
-          calc(var(--zh-hero-artwork-local-top, 0px) + var(--zh-hero-artwork-painted-height) + 1px)
+          calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
       ),
       linear-gradient(
         90deg,
@@ -306,7 +303,7 @@
       var(--zh-hero-artwork-height);
     background-position:
       right var(--zh-hero-artwork-right)
-      top var(--zh-hero-artwork-local-top, 0px);
+      top var(--zh-hero-artwork-painted-top);
   }
 
   .zh-page .hero-artwork {

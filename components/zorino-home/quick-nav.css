@@ -2,48 +2,34 @@
  * Quick Access Navigation — premium sticky section navigator (.zh-page only)
  */
 
+/* Hard stop: never paint/stick quick-nav outside the homepage shell */
+body:not(:has(.zh-page)) .zh-quick-nav-wrap,
+body:not(:has(.zh-page)) .zh-quick-nav {
+  display: none !important;
+}
+
 .zh-quick-nav-wrap {
   position: relative;
   width: 100%;
   padding: 0;
+  height: auto;
+  min-height: 0;
 }
 
 .zh-quick-nav {
+  /*
+   * In-flow only. Never position:fixed / sticky — a fixed quick-nav is the
+   * element that covered Trending product cards during scroll (elementFromPoint:
+   * .zh-quick-nav.is-sticky). Main chrome is .zh-nav alone.
+   */
   position: relative;
-  z-index: 10;
+  z-index: 5;
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: visible;
-  transition:
-    box-shadow 250ms ease,
-    background 250ms ease,
-    border-color 250ms ease,
-    backdrop-filter 250ms ease;
-  will-change: transform;
-}
-
-.zh-quick-nav.is-sticky {
-  position: fixed;
-  top: var(--zor-nav-h, var(--zh-nav-h));
-  left: 0;
-  right: 0;
-  /*
-   * Stacking: main nav (200) > search suggestions (120) > sticky quick-nav (90)
-   * > sticky section heads (40) > page content.
-   */
-  z-index: 90;
-  padding: 0 var(--zh-pad);
-  background: rgba(9, 9, 11, 0.72);
-  border-bottom: 1px solid rgba(78, 168, 255, 0.12);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.35),
-    0 0 24px rgba(78, 168, 255, 0.06);
-  /* Avoid containing-block quirks from will-change while fixed */
-  will-change: auto;
   transform: none;
+  will-change: auto;
 }
 
 .zh-quick-nav__track {
@@ -159,12 +145,7 @@ a.zh-quick-nav__pill.is-active::before {
   opacity: 1;
 }
 
-.zh-quick-nav__placeholder {
-  width: 100%;
-  pointer-events: none;
-}
-
-/* Scroll targets — clear main nav + sticky quick-nav on all viewports */
+/* Scroll targets — clear main nav + sticky quick-nav via CSS scroll clearance */
 #zh-section-featured-brands,
 #zh-section-trending-deals,
 #zh-section-coupons,
@@ -182,10 +163,23 @@ a.zh-quick-nav__pill.is-active::before {
 #zh-featured-brands-title,
 [id^="zh-section-"][id$="-title"],
 .zh-page .zh-section-head__title,
-.zh-page .zor-deals-page__section-title {
+.zh-page .zor-deals-page__section-title,
+.zh-page [id^="zh-section-"],
+.zh-page .zh-trending-deals__head,
+.zh-page .zh-trending-deals__carousel {
   scroll-margin-top: var(
     --zor-sticky-scroll-clearance,
     var(--zor-sticky-clearance, var(--zh-sticky-clearance))
+  );
+}
+
+/* Trending title/head need extra clearance so the title is not flush under .zh-nav */
+.zh-page #zh-section-trending-deals,
+.zh-page .zh-trending-deals__head,
+.zh-page #zh-deals-title {
+  scroll-margin-top: calc(
+    var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance, var(--zh-sticky-clearance, 72px))) +
+      12px
   );
 }
 

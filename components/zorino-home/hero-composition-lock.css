@@ -50,21 +50,18 @@ html[dir="rtl"] .zh-page .zh-hero__col--left {
   text-align: start;
 }
 
-/* Z artwork anchor stays on the physical right edge (coords are local to artwork-clip) */
+/* Z artwork anchor stays on the physical right edge */
 .zh-page .zh-page__artwork,
 .zh-page .zh-page__artwork::after {
   background-position:
     right calc(var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left))
-    top var(--zh-hero-artwork-local-top, 0px);
+    top var(--zh-hero-artwork-painted-top);
 }
 
 .zh-page .hero-artwork {
   transform: translate(
     calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
-    max(
-      0px,
-      calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
-    )
+    calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
   );
 }
 
@@ -91,10 +88,7 @@ html[dir="rtl"] .zh-page .zh-nav__actions {
   .zh-page .hero-artwork {
     transform: translate(
       calc(-42px - var(--zh-hero-artwork-shift-left, 0px)),
-      max(
-        0px,
-        calc(44px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
-      )
+      calc(44px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
     );
   }
 
