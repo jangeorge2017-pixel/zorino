@@ -597,12 +597,272 @@
 }
 
 @media (max-width: 767px) {
+  /*
+   * Mobile header — desktop/tablet unchanged.
+   * Layout: [Logo] [Search] [Theme] [Language] …… [Wishlist] [Bell] [Avatar]
+   * Selectors use .zh-page where needed to beat tablet (≤1279) locks.
+   */
+  .zh-page .zh-nav,
+  .zh-nav {
+    --zh-nav-control-h: 40px;
+    --zh-nav-gap: 6px;
+    --zh-nav-logo-gap: 8px;
+    --zh-nav-pad-x: 0;
+    --zh-nav-logo-h: 36px;
+    height: 56px;
+    max-height: 56px;
+    padding: 0 12px;
+    overflow: visible;
+  }
+
+  .zh-page .zh-nav__inner,
+  .zh-nav__inner {
+    display: grid;
+    grid-template-columns: auto auto auto auto minmax(6px, 1fr) auto auto auto;
+    align-items: center;
+    column-gap: 5px;
+    max-width: 100%;
+  }
+
+  .zh-page .zh-nav__links,
   .zh-nav__links {
     display: none;
   }
 
-  .zh-nav__logo-lockup {
-    height: 53.9px !important;
-    max-height: 53.9px;
+  .zh-page .zh-nav__logo,
+  .zh-nav__logo {
+    grid-column: 1;
+    margin-right: 0;
+    min-width: 0;
+    flex: 0 0 auto;
   }
+
+  .zh-page .zh-nav__logo-lockup,
+  .zh-nav__logo-lockup {
+    height: 36px !important;
+    max-height: 36px;
+    max-width: min(110px, 28vw);
+    width: auto !important;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .zh-page .zh-nav__search-slot,
+  .zh-nav__search-slot {
+    grid-column: 2;
+    margin-left: 0;
+    width: var(--zh-nav-control-h);
+    flex: none;
+  }
+
+  /* Actions join the parent grid so icons can sit beside the logo and on the right */
+  .zh-page .zh-nav__actions,
+  .zh-nav__actions {
+    display: contents;
+    margin-left: 0;
+  }
+
+  .zh-page .zh-nav .theme-toggle,
+  .zh-nav .theme-toggle {
+    grid-column: 3;
+    width: var(--zh-nav-control-h);
+    min-width: var(--zh-nav-control-h);
+    max-width: var(--zh-nav-control-h);
+    padding: 3px;
+    justify-content: center;
+  }
+
+  .zh-page .zh-nav .theme-option-label,
+  .zh-nav .theme-option-label {
+    display: none;
+  }
+
+  .zh-page .zh-nav .theme-option:not(.theme-option-active),
+  .zh-nav .theme-option:not(.theme-option-active) {
+    display: none;
+  }
+
+  .zh-page .zh-nav .theme-option,
+  .zh-nav .theme-option {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* Language (🌐) — compact globe control */
+  .zh-page .zh-nav .zor-intl,
+  .zh-nav .zor-intl {
+    display: flex;
+    grid-column: 4;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .zh-page .zh-nav .zor-intl__trigger,
+  .zh-nav .zor-intl__trigger {
+    width: var(--zh-nav-control-h);
+    min-width: var(--zh-nav-control-h);
+    max-width: var(--zh-nav-control-h);
+    height: var(--zh-nav-control-h);
+    padding: 0;
+    justify-content: center;
+    gap: 0;
+    border-radius: var(--zh-nav-radius);
+  }
+
+  .zh-page .zh-nav .zor-intl__trigger-label,
+  .zh-page .zh-nav .zor-intl__trigger .lucide-chevron-down,
+  .zh-nav .zor-intl__trigger-label,
+  .zh-nav .zor-intl__trigger svg:last-child {
+    display: none;
+  }
+
+  .zh-page .zh-nav__wishlist,
+  .zh-nav__wishlist {
+    grid-column: 6;
+  }
+
+  .zh-page .zh-nav__wishlist-label,
+  .zh-nav__wishlist-label {
+    display: none;
+  }
+
+  .zh-page .zh-nav__actions > .zh-nav__icon-btn--square,
+  .zh-nav__actions > .zh-nav__icon-btn--square {
+    grid-column: 7;
+  }
+
+  .zh-page .zh-nav__profile,
+  .zh-nav__profile {
+    grid-column: 8;
+    min-width: 0 !important;
+    max-width: none !important;
+    width: var(--zh-nav-control-h);
+    height: var(--zh-nav-control-h);
+    padding: 0;
+    justify-content: center;
+    border-radius: var(--zh-nav-radius);
+    overflow: hidden;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  .zh-page .zh-nav__profile-copy,
+  .zh-nav__profile-copy {
+    display: none !important;
+  }
+
+  .zh-page .zh-nav__profile img,
+  .zh-page .zh-nav__profile-fallback,
+  .zh-nav__profile img,
+  .zh-nav__profile-fallback {
+    width: 28px;
+    height: 28px;
+  }
+
+  .zh-page .zh-nav__icon-btn,
+  .zh-page .zh-nav__icon-btn--square,
+  .zh-nav__icon-btn,
+  .zh-nav__icon-btn--square {
+    width: var(--zh-nav-control-h);
+    min-width: var(--zh-nav-control-h);
+    max-width: var(--zh-nav-control-h);
+    height: var(--zh-nav-control-h);
+    min-height: var(--zh-nav-control-h);
+    max-height: var(--zh-nav-control-h);
+  }
+}
+
+/* Mobile account menu — portaled; desktop/tablet untouched */
+.zh-nav-mobile-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  background: rgba(2, 6, 18, 0.62);
+  backdrop-filter: blur(2px);
+}
+
+.zh-nav-mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 230;
+  display: flex;
+  flex-direction: column;
+  width: min(86vw, 320px);
+  height: 100dvh;
+  padding: 16px 14px 24px;
+  background: #0b1220;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -18px 0 48px rgba(0, 0, 0, 0.45);
+  overflow-y: auto;
+}
+
+html[dir="rtl"] .zh-nav-mobile-menu {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 18px 0 48px rgba(0, 0, 0, 0.45);
+}
+
+.zh-nav-mobile-menu__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.zh-nav-mobile-menu__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.zh-nav-mobile-menu__close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.zh-nav-mobile-menu__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.zh-nav-mobile-menu__link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.zh-nav-mobile-menu__link:hover,
+.zh-nav-mobile-menu__link:focus-visible {
+  background: rgba(139, 92, 246, 0.14);
+  outline: none;
+}
+
+.zh-nav-mobile-menu__link.is-active {
+  color: #fff;
+  background: rgba(99, 102, 241, 0.22);
 }

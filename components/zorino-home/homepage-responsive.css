@@ -154,39 +154,46 @@
 @media (max-width: 767px) {
   /* ── Page rhythm ── */
   .zh-page {
+    --zh-nav-h: 56px;
     --zh-pad: 16px;
-    --zh-section-step: 40px;
+    --zh-section-step: 36px;
     --zh-space-discovery: 14px;
-    --zh-hero-artwork-width: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 360px);
-    --zh-hero-artwork-right: calc((100vw - var(--zh-hero-artwork-width)) / 2);
+    --zh-hero-artwork-width: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
+    --zh-hero-artwork-height: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
     --zh-hero-artwork-shift-left: 0px;
     --zh-hero-artwork-scale: 1;
     --zh-hero-artwork-lift: 0px;
     --zh-hero-artwork-stretch-z-up: 0px;
     --zh-hero-artwork-stretch-down: 1;
     --zh-hero-artwork-extend-down: 0px;
-    --zh-hero-artwork-top: 260px;
-    --zh-hero-artwork-height: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 360px);
-    --zh-hero-artwork-painted-height: var(--zh-hero-artwork-height);
-    --zh-hero-artwork-painted-width: var(--zh-hero-artwork-width);
-    --zh-hero-artwork-painted-top: calc(var(--zh-nav-h) + var(--zh-hero-artwork-top));
+    --zh-hero-artwork-top: 0px;
+    /*
+     * Wider paint + right-anchored Z: glow/particles extend left behind the
+     * headline while the Z sits further right as the card-column center.
+     */
+    --zh-hero-artwork-right: -8px;
+    --zh-hero-artwork-painted-width: min(128vw, 500px);
+    --zh-hero-artwork-painted-height: 186px;
+    --zh-hero-artwork-painted-top: calc(var(--zh-nav-h) - 6px);
     --zh-hero-artwork-painted-right: var(--zh-hero-artwork-right);
+    --zh-hero-edge-feather: 22px;
   }
 
   .zh-page .zh-shell {
     padding-left: var(--zh-pad);
     padding-right: var(--zh-pad);
-    padding-bottom: 28px;
+    padding-bottom: 24px;
     overflow-x: clip;
   }
 
-  /* ── Hero: copy and the existing desktop artwork column stay in one structure ── */
+  /* ── Hero ── */
   .zh-page .zh-hero {
     position: relative;
     isolation: isolate;
     grid-template-columns: 1fr;
-    row-gap: 16px;
+    row-gap: 14px;
     overflow: visible;
+    min-height: 0;
   }
 
   .zh-page .zh-hero__col--left {
@@ -201,15 +208,17 @@
 
   .zh-page .zh-hero__subtitle {
     margin-inline: 0;
-    font-size: 15px;
-    line-height: 1.55;
-    max-width: none;
+    font-size: 14.5px;
+    line-height: 1.34;
+    /* Prefer ~3 balanced lines; if 4, keep last short */
+    max-width: min(100%, 228px);
+    text-wrap: balance;
   }
 
   .zh-page .zh-hero__title {
-    font-size: clamp(32px, 9vw, 38px);
-    letter-spacing: -1.4px;
-    margin-bottom: 12px;
+    font-size: clamp(30px, 8.5vw, 36px);
+    letter-spacing: -1.2px;
+    margin-bottom: 10px;
   }
 
   .zh-page .zh-hero__copy {
@@ -217,26 +226,60 @@
   }
 
   .zh-page .zh-hero__stats {
-    margin-top: 16px;
-    gap: 8px;
+    margin-top: 14px;
+    gap: 6px;
     justify-content: flex-start;
   }
 
+  /* ~9% smaller again — padding + type stay balanced */
   .zh-page .zh-stat {
-    width: calc(50% - 4px);
-    min-height: 70px;
+    width: calc(50% - 3px);
+    min-height: 45px;
+    padding: 6px 7px;
+    border-radius: 10px;
   }
 
+  .zh-page .zh-stat__value {
+    margin-bottom: 3px;
+    font-size: 12px;
+  }
+
+  .zh-page .zh-stat__meta {
+    gap: 5px;
+  }
+
+  .zh-page .zh-stat__icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .zh-page .zh-stat__icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .zh-page .zh-stat__label {
+    font-size: 8px;
+  }
+
+  /*
+   * Compact orbit stage locked to the Z on the right — left/right card columns
+   * only (no cards above/below the logo).
+   */
   .zh-page .zh-hero__col--right {
-    position: relative;
-    width: var(--zh-hero-artwork-width);
-    height: var(--zh-hero-artwork-height);
-    min-height: var(--zh-hero-artwork-height);
-    margin: 0 auto;
+    position: absolute;
+    top: calc(var(--zh-hero-artwork-painted-top) - var(--zh-nav-h) + 2px);
+    right: 0px;
+    left: auto;
+    width: min(42vw, 164px);
+    height: calc(var(--zh-hero-artwork-painted-height) + 36px);
+    min-height: 0;
+    margin: 0;
     z-index: 2;
     pointer-events: none;
     grid-column: 1;
-    grid-row: auto;
+    grid-row: 1;
+    overflow: visible;
   }
 
   .zh-page .zh-page__artwork-clip {
@@ -299,10 +342,10 @@
   .zh-page .zh-page__artwork,
   .zh-page .zh-page__artwork::after {
     background-size:
-      var(--zh-hero-artwork-width)
-      var(--zh-hero-artwork-height);
+      var(--zh-hero-artwork-painted-width)
+      var(--zh-hero-artwork-painted-height);
     background-position:
-      right var(--zh-hero-artwork-right)
+      right var(--zh-hero-artwork-painted-right)
       top var(--zh-hero-artwork-painted-top);
   }
 
@@ -315,39 +358,43 @@
   }
 
   .zh-page .hero-artwork__orbit {
-    transform: translateX(var(--zh-orbit-card-shift-right, 0px)) !important;
+    transform: none !important;
   }
 
+  /* ~13% smaller; Z remains the center between left/right columns */
   .zh-page .zh-orbit-card {
-    width: clamp(58px, 18vw, 76px);
-    height: clamp(58px, 18vw, 76px);
-    border-radius: 12px;
+    width: clamp(42px, 12.6vw, 53px);
+    height: clamp(42px, 12.6vw, 53px);
+    border-radius: 10px;
     pointer-events: auto;
   }
 
+  /* Left column of Z — equal inset from center */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: 24%;
-    top: 36%;
+    left: 14%;
+    top: 20%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 24%;
-    top: 60%;
+    left: 14%;
+    top: 80%;
   }
 
+  /* Right column of Z — mirrored spacing */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: 76%;
-    top: 36%;
+    left: 86%;
+    top: 20%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 76%;
-    top: 60%;
+    left: 86%;
+    top: 80%;
   }
 
-  /* ── Search ── */
+  /* ── Search — single horizontal bar (desktop pattern), button inside ── */
   .zh-page .zh-hero-search {
-    margin-top: calc(16px - var(--zh-discovery-group-lift, 0px));
+    /* Sit tightly beneath the stats (lift-aware; move UP) */
+    margin-top: calc(8px - var(--zh-discovery-group-lift, 0px));
   }
 
   .zh-page .zh-search {
@@ -359,55 +406,142 @@
   }
 
   .zh-page .zh-search__bar {
-    min-height: 52px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    min-height: 48px;
     width: 100%;
+    gap: 6px;
+    padding: 5px 5px 5px 12px;
+    border-radius: 14px;
+  }
+
+  .zh-page .zh-search__icon {
+    flex-shrink: 0;
+    order: 0;
+  }
+
+  .zh-page .zh-search__bar input {
+    flex: 1 1 auto;
+    order: 0;
+    min-width: 0;
+    min-height: 0;
+    width: auto;
+    font-size: 14px;
   }
 
   .zh-page .zh-search__submit {
-    min-height: 44px;
-    flex: 1 1 auto;
+    flex: 0 0 auto;
+    order: 0;
+    min-height: 0;
+    align-self: stretch;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 13px;
   }
 
-  /* ── Categories + Quick Nav ── */
+  /* ── Categories + Quick Nav — shift UP with Search ── */
   .zh-page .zh-categories-wrap {
-    margin-top: 16px;
+    margin-top: 8px;
   }
 
+  /*
+   * Stay in-shell (no negative bleed) so snap/padding cannot peek a 5th tile.
+   * Exactly 4 full tiles with equal spacing; more via horizontal scroll only.
+   */
   .zh-page .zh-categories {
-    margin-inline: calc(-1 * var(--zh-pad));
-    padding-inline: var(--zh-pad);
+    margin-inline: 0;
+    padding-inline: 0;
     gap: 8px;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0;
   }
 
   .zh-page .zh-categories__item {
-    min-width: 84px;
-    min-height: 76px;
+    flex: 0 0 calc((100% - 24px) / 4);
+    width: calc((100% - 24px) / 4);
+    min-width: calc((100% - 24px) / 4);
+    max-width: calc((100% - 24px) / 4);
+    min-height: 62px;
+    padding: 6px 3px 7px;
+    gap: 4px;
+    border-radius: 10px;
+    scroll-snap-align: start;
+  }
+
+  .zh-page .zh-categories__icon-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+  }
+
+  .zh-page .zh-categories__icon-box svg {
+    width: 22px;
+    height: 22px;
   }
 
   .zh-page .zh-categories__label {
-    font-size: 11.5px;
+    font-size: 9.5px;
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: 12px;
+    /* Raise Quick Nav onto the first mobile screen below Categories */
+    margin-top: 6px;
+  }
+
+  .zh-page .zh-quick-nav__track {
+    padding: 2px 0;
   }
 
   .zh-page .zh-quick-nav__pill {
-    min-height: 44px;
-    padding: 8px 12px;
+    min-height: 38px;
+    padding: 6px 10px;
+    font-size: 11.5px;
+  }
+
+  /* Orbit cards: same size/position — only shrink badge/price type */
+  .zh-page .zh-orbit-card__discount {
+    top: 2px;
+    left: 2px;
+    padding: 1px 3px;
+    border-radius: 4px;
+    font-size: 6.5px;
+    line-height: 1.1;
+  }
+
+  .zh-page .zh-orbit-card__prices {
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    gap: 2px;
+  }
+
+  .zh-page .zh-orbit-card__price {
+    font-size: 7.5px;
+    line-height: 1.1;
+  }
+
+  .zh-page .zh-orbit-card__was {
+    font-size: 6.5px;
+    line-height: 1.1;
   }
 
   /* ── Commerce / Trending / Coupons ── */
   .zh-page .hhb {
-    margin-top: 28px;
+    margin-top: 24px;
     margin-inline: 0;
     padding-inline: 0;
-    padding-bottom: 24px;
+    padding-bottom: 20px;
   }
 
   .zh-page .hhb .zh-commerce,
   .zh-page .zh-commerce {
-    gap: 20px;
+    gap: 18px;
+  }
+
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-trending-deals {
+    border-radius: 16px;
   }
 
   .zh-page .zh-trending-deals__head {
@@ -418,22 +552,24 @@
   .zh-page .zh-trending-deals__carousel,
   .zh-page .zh-trending-deals .zh-panel__empty {
     padding-inline: 12px;
-    padding-top: 8px;
+    padding-top: 6px;
   }
 
   .zh-page .zh-trending-deals__track,
   .zh-page .zh-td-skeleton-grid {
     grid-auto-columns: min(100%, calc(100vw - 2 * var(--zh-pad) - 24px));
     gap: 12px;
+    padding-bottom: 4px;
   }
 
   .zh-page .zh-trending-deals__filter {
-    min-height: 44px;
-    padding: 10px 14px;
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   .zh-page .zh-trending-deals__sort-select {
-    min-height: 44px;
+    min-height: 40px;
   }
 
   .zh-page .zh-trending-deals__nav,
@@ -441,10 +577,20 @@
     display: none;
   }
 
+  .zh-page .zh-panel {
+    border-radius: 16px;
+  }
+
+  .zh-page .zh-section-head {
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+
   .zh-page .zh-coupon {
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns: 40px minmax(0, 1fr);
     gap: 10px;
-    padding: 14px;
+    padding: 12px;
+    border-radius: 14px;
   }
 
   .zh-page .zh-coupon__code-wrap,
@@ -466,17 +612,30 @@
     margin-top: var(--zh-section-step);
   }
 
+  .zh-page .zh-featured-brands.zh-panel {
+    padding: 0 12px 14px;
+  }
+
   .zh-page .zh-brand-card {
-    flex-basis: min(200px, calc(100vw - 48px));
+    /* One primary card + peek — avoid two truncated cards side-by-side */
+    flex: 0 0 min(300px, calc(100vw - 2 * var(--zh-pad) - 36px));
+    max-width: calc(100vw - 2 * var(--zh-pad) - 36px);
+  }
+
+  .zh-page .zh-brand-card__offer {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
   }
 
   .zh-page .zh-section-head__title,
   .zh-page .zor-deals-page__section-title {
     white-space: normal;
+    font-size: 1.125rem;
   }
 
   .zh-page .zh-product-grid {
-    gap: 12px;
+    gap: 10px;
   }
 
   .zh-page .product-card-actions-dual {
@@ -485,15 +644,21 @@
   }
 
   /* ── Footer / CTA ── */
+  .zh-page .zh-cta-band {
+    padding: 24px 16px;
+    border-radius: 18px;
+  }
+
   .zh-page .zh-footer {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
+    padding-block: 8px 16px;
   }
 
   .zh-page .zh-footer__stats {
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
   }
 }
 

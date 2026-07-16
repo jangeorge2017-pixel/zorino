@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import {
   Bell,
   Crown,
@@ -11,6 +12,7 @@ import { Link } from "@/i18n/navigation";
 import IntlNavSelectors from "@/components/international/IntlNavSelectors";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ZorinoLogo } from "@/components/ZorinoLogo";
+import ZorinoHomeMobileMenu from "@/components/zorino-home/ZorinoHomeMobileMenu";
 import ZorinoHomeNavLinks from "@/components/zorino-home/ZorinoHomeNavLinks";
 import { useAuth } from "@/lib/auth/auth-context";
 import "./nav.css";
@@ -21,6 +23,24 @@ export default function ZorinoHomeNav() {
   const displayName = user
     ? user.name.split(" ")[0] || user.name
     : null;
+  const accountHref = user ? "/profile" : "/auth/login";
+  const accountLabel = user ? t("account") : t("signIn");
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const sync = () => {
+      setIsMobile(mq.matches);
+      if (!mq.matches) setMenuOpen(false);
+    };
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
     <header className="zh-nav" data-sticky-chrome="primary">
@@ -55,29 +75,55 @@ export default function ZorinoHomeNav() {
           >
             <Bell size={17} strokeWidth={2} aria-hidden />
           </Link>
-          <Link
-            href={user ? "/profile" : "/auth/login"}
-            className="zh-nav__profile"
-            aria-label={user ? t("profile") : t("signIn")}
-          >
-            <img
-              src={user?.avatar || "https://i.pravatar.cc/40"}
-              alt=""
-              width={28}
-              height={28}
-            />
-            <div className="zh-nav__profile-copy">
-              <strong>
-                {t("hiUser", { name: displayName || "User" })}
-              </strong>
-              <span className="zh-nav__premium">
-                {t("premium")}
-                <Crown size={11} aria-hidden />
-              </span>
-            </div>
-          </Link>
+
+          {isMobile ? (
+            <button
+              type="button"
+              className="zh-nav__profile zh-nav__profile--menu"
+              aria-label={t("menu")}
+              aria-haspopup="dialog"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((value) => !value)}
+            >
+              <img
+                src={user?.avatar || "https://i.pravatar.cc/40"}
+                alt=""
+                width={28}
+                height={28}
+              />
+            </button>
+          ) : (
+            <Link
+              href={accountHref}
+              className="zh-nav__profile"
+              aria-label={user ? t("profile") : t("signIn")}
+            >
+              <img
+                src={user?.avatar || "https://i.pravatar.cc/40"}
+                alt=""
+                width={28}
+                height={28}
+              />
+              <div className="zh-nav__profile-copy">
+                <strong>
+                  {t("hiUser", { name: displayName || "User" })}
+                </strong>
+                <span className="zh-nav__premium">
+                  {t("premium")}
+                  <Crown size={11} aria-hidden />
+                </span>
+              </div>
+            </Link>
+          )}
         </div>
       </div>
+
+      <ZorinoHomeMobileMenu
+        open={menuOpen}
+        onClose={closeMenu}
+        accountHref={accountHref}
+        accountLabel={accountLabel}
+      />
     </header>
   );
 }
