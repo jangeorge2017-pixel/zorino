@@ -14,10 +14,15 @@ import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { useAuth } from "@/lib/auth/auth-context";
 import { ZORINO_LOGO_SOURCE } from "@/lib/assets";
 
+/**
+ * Public site chrome. Mobile layout matches homepage nav (flex cluster).
+ * Desktop/tablet keep existing design-system flex rhythm.
+ */
 export default function SiteNav() {
   const t = useTranslations("common");
   const tHero = useTranslations("hero");
   const { user } = useAuth();
+  const accountHref = user ? "/profile" : "/auth/login";
 
   return (
     <header className="zor-nav" data-sticky-chrome="primary">
@@ -32,27 +37,40 @@ export default function SiteNav() {
         </nav>
 
         <div className="zor-nav__actions">
-          <Link href="/search" className="zor-nav__icon-btn" aria-label={t("search")}>
-            <Search size={18} />
+          <Link
+            href="/search"
+            className="zor-nav__icon-btn zor-nav__icon-btn--search"
+            aria-label={t("search")}
+          >
+            <Search size={20} strokeWidth={2} />
           </Link>
-          <IntlNavSelectors />
-          <ThemeSwitcher />
-          <Link href="/wishlist" className="zor-nav__icon-btn" aria-label={t("wishlist")}>
-            <Heart size={18} aria-hidden />
+          <span className="zor-nav__control zor-nav__control--theme">
+            <ThemeSwitcher />
+          </span>
+          <span className="zor-nav__control zor-nav__control--intl">
+            <IntlNavSelectors />
+          </span>
+          <Link
+            href="/wishlist"
+            className="zor-nav__icon-btn zor-nav__icon-btn--wishlist"
+            aria-label={t("wishlist")}
+          >
+            <Heart size={20} strokeWidth={2} aria-hidden />
             <span>{t("wishlist")}</span>
           </Link>
           <Link
             href="/notifications"
-            className="zor-nav__icon-btn"
+            className="zor-nav__icon-btn zor-nav__icon-btn--notify"
             aria-label={t("notifications")}
           >
-            <Bell size={18} aria-hidden />
+            <Bell size={20} strokeWidth={2} aria-hidden />
           </Link>
           <Link
-            href={user ? "/profile" : "/auth/login"}
+            href={accountHref}
             className="zor-nav__profile"
             aria-label={user ? t("profile") : t("signIn")}
           >
+            <span className="zor-nav__avatar-ring" aria-hidden />
             {user?.avatar ? (
               <img src={user.avatar} alt="" width={32} height={32} />
             ) : (
