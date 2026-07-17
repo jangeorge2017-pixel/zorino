@@ -662,7 +662,8 @@
     --zh-nav-gap: 6px;
     --zh-nav-logo-gap: 0px;
     --zh-nav-pad-x: 8px;
-    --zh-nav-logo-h: 56px;
+    /* ~16px (~15%) over prior 56px lockup; bar/icons stay 56/34 */
+    --zh-nav-logo-h: 72px;
     --zh-nav-transition: 220ms ease;
     height: 56px;
     max-height: 56px;
@@ -733,11 +734,11 @@
 
   .zh-page .zh-nav__logo-lockup,
   .zh-nav__logo-lockup {
-    /* ~17–20% over prior 48px mobile logo (bar height caps at 56) */
-    height: 56px !important;
-    max-height: 56px;
+    /* +16px vs prior 56px (~15%); may extend past 56px bar (nav overflow:visible) */
+    height: 72px !important;
+    max-height: 72px;
     /* Icons 6×34 + 5×6 = 234; pad 16; logo gap 12; buffer 6 */
-    max-width: min(136px, calc(100vw - 16px - 12px - 6px - 234px));
+    max-width: min(156px, calc(100vw - 16px - 12px - 6px - 234px));
     width: auto !important;
     object-fit: contain;
     object-position: left center;
