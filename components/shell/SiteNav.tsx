@@ -13,6 +13,7 @@ import SiteNavMenu from "@/components/shell/SiteNavMenu";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { useAuth } from "@/lib/auth/auth-context";
 import { ZORINO_LOGO_SOURCE } from "@/lib/assets";
+import "./site-nav.css";
 
 /**
  * Public site chrome. Mobile layout matches homepage nav (flex cluster).
