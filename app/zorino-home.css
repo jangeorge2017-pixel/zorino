@@ -11,8 +11,8 @@
   --zh-card-hover: #1a1f35;
   --zh-border: #2d3748;
   --zh-text-secondary: #8b93a7;
-  --zh-content: 1280px;
-  --zh-pad: clamp(16px, calc((100vw - var(--zh-content)) / 2), 80px);
+  --zh-content: 1340px;
+  --zh-pad: clamp(14px, calc((100vw - var(--zh-content)) / 2), 72px);
   --zh-gap: var(--zh-space-stats-search);
   --zh-section-step: clamp(64px, 5vw, 80px);
   /* Equal vertical rhythm: Search → Categories → Quick Nav */
@@ -66,7 +66,8 @@
   --zh-hero-artwork-width: calc(var(--zh-content) * 0.6);
   --zh-hero-artwork-top: 48px;
   --zh-hero-artwork-right: 130px;
-  --zh-hero-artwork-shift-left: 118px;
+  /* +20px horizontal away from left copy (parallax feel; vertical unchanged) */
+  --zh-hero-artwork-shift-left: 138px;
   --zh-hero-canvas-top: calc(var(--zh-nav-h) + var(--zh-hero-artwork-top));
   --zh-hero-artwork-scale: 1.115;
   --zh-hero-artwork-lift: 32px;

@@ -49,7 +49,7 @@ export default function ZorinoHomeNav() {
     <header className="zh-nav" data-sticky-chrome="primary">
       <div className="zh-nav__inner">
         <Link href="/" className="zh-nav__logo">
-          <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={61.6} />
+          <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={68} />
         </Link>
 
         <ZorinoHomeNavLinks />
@@ -57,10 +57,10 @@ export default function ZorinoHomeNav() {
         <div className="zh-nav__search-slot">
           <Link
             href="/search"
-            className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--pulse"
+            className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--search"
             aria-label={t("search")}
           >
-            <Search size={17} strokeWidth={2} />
+            <Search size={19} strokeWidth={2} />
           </Link>
         </div>
 
@@ -73,17 +73,17 @@ export default function ZorinoHomeNav() {
           </span>
           <Link
             href="/wishlist"
-            className="zh-nav__icon-btn zh-nav__wishlist zh-nav__icon-btn--pulse"
+            className="zh-nav__icon-btn zh-nav__wishlist zh-nav__icon-btn--wishlist"
           >
-            <Heart size={17} strokeWidth={2} aria-hidden />
+            <Heart size={19} strokeWidth={2} aria-hidden />
             <span className="zh-nav__wishlist-label">{t("wishlist")}</span>
           </Link>
           <Link
             href="/notifications"
-            className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--pulse"
+            className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--notify"
             aria-label={t("notifications")}
           >
-            <Bell size={17} strokeWidth={2} aria-hidden />
+            <Bell size={19} strokeWidth={2} aria-hidden />
           </Link>
 
           {isMobile ? (

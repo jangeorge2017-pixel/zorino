@@ -256,8 +256,8 @@ button,
 
   /* Keep a breath under sticky header; tighten side pad with safe areas */
   .zor-public-shell__main {
-    padding-left: max(12px, env(safe-area-inset-left, 0px));
-    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
   }
 
   .zor-page-header,
