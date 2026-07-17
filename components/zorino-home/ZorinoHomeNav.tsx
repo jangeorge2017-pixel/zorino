@@ -17,6 +17,10 @@ import ZorinoHomeNavLinks from "@/components/zorino-home/ZorinoHomeNavLinks";
 import { useAuth } from "@/lib/auth/auth-context";
 import "./nav.css";
 
+/** Portrait phone + short landscape — same mobile chrome (no separate landscape layout). */
+const MOBILE_MQ =
+  "(max-width: 767px), (max-height: 500px) and (orientation: landscape) and (max-width: 1024px)";
+
 export default function ZorinoHomeNav() {
   const t = useTranslations("common");
   const { user } = useAuth();
@@ -29,7 +33,7 @@ export default function ZorinoHomeNav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
+    const mq = window.matchMedia(MOBILE_MQ);
     const sync = () => {
       setIsMobile(mq.matches);
       if (!mq.matches) setMenuOpen(false);
@@ -53,7 +57,7 @@ export default function ZorinoHomeNav() {
         <div className="zh-nav__search-slot">
           <Link
             href="/search"
-            className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--search-glow"
+            className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--pulse"
             aria-label={t("search")}
           >
             <Search size={17} strokeWidth={2} />
@@ -61,19 +65,22 @@ export default function ZorinoHomeNav() {
         </div>
 
         <div className="zh-nav__actions">
-          <span className="zh-nav__desktop-intl">
-            <IntlNavSelectors />
-          </span>
           <span className="zh-nav__desktop-theme">
             <ThemeSwitcher />
           </span>
-          <Link href="/wishlist" className="zh-nav__icon-btn zh-nav__wishlist">
+          <span className="zh-nav__desktop-intl">
+            <IntlNavSelectors />
+          </span>
+          <Link
+            href="/wishlist"
+            className="zh-nav__icon-btn zh-nav__wishlist zh-nav__icon-btn--pulse"
+          >
             <Heart size={17} strokeWidth={2} aria-hidden />
             <span className="zh-nav__wishlist-label">{t("wishlist")}</span>
           </Link>
           <Link
             href="/notifications"
-            className="zh-nav__icon-btn zh-nav__icon-btn--square"
+            className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--pulse"
             aria-label={t("notifications")}
           >
             <Bell size={17} strokeWidth={2} aria-hidden />

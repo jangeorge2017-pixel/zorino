@@ -148,10 +148,11 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Mobile — max-width: 767px
+   Mobile — portrait (≤767) and short landscape (same layout, no separate design)
    Reuse the desktop hero illustration layer; override only mobile sizing/positions.
    ═══════════════════════════════════════════════════════════ */
-@media (max-width: 767px) {
+@media (max-width: 767px),
+  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
   /* ── Page rhythm ── */
   .zh-page {
     --zh-nav-h: 56px;
@@ -159,11 +160,11 @@
     --zh-section-step: 36px;
     --zh-space-discovery: 14px;
     /*
-     * Discovery group lift — ~18px lower than prior 104px lift, with even
-     * 16px gaps: Stats→Search, Search→Categories, Categories→Quick Nav.
+     * Discovery group ~18px lower than prior 96px lift; even 18px gaps
+     * Stats→Search, Search→Categories, Categories→Quick Nav.
      */
-    --zh-discovery-group-lift: 96px;
-    --zh-discovery-gap: 16px;
+    --zh-discovery-group-lift: 78px;
+    --zh-discovery-gap: 18px;
     --zh-hero-artwork-width: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
     --zh-hero-artwork-height: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
     --zh-hero-artwork-shift-left: 0px;
@@ -216,8 +217,8 @@
     margin-inline: 0;
     font-size: 14.5px;
     line-height: 1.34;
-    /* 4 lines: first 3 nearly equal width; short 4th line centered */
-    max-width: min(100%, 172px);
+    /* 4 balanced lines; layout-neutral (does not push hero chrome) */
+    max-width: min(100%, 168px);
     text-align: start;
   }
 
@@ -279,16 +280,16 @@
   }
 
   /*
-   * Compact orbit stage locked to the Z on the right — left/right card columns
-   * only (no cards above/below the logo).
+   * Orbit stage anchored to the Hero — fixed px stage/card sizes so cards
+   * do not jump when rotating portrait ↔ landscape.
    */
   .zh-page .zh-hero__col--right {
     position: absolute;
     top: calc(var(--zh-hero-artwork-painted-top) - var(--zh-nav-h) + 2px);
     right: 0px;
     left: auto;
-    width: min(42vw, 164px);
-    height: calc(var(--zh-hero-artwork-painted-height) + 36px);
+    width: 148px;
+    height: 222px;
     min-height: 0;
     margin: 0;
     z-index: 2;
@@ -377,10 +378,10 @@
     transform: none !important;
   }
 
-  /* ~13% smaller; Z remains the center between left/right columns */
+  /* Fixed card size — orientation-stable, Z remains the column center */
   .zh-page .zh-orbit-card {
-    width: clamp(42px, 12.6vw, 53px);
-    height: clamp(42px, 12.6vw, 53px);
+    width: 48px;
+    height: 48px;
     border-radius: 10px;
     pointer-events: auto;
   }
