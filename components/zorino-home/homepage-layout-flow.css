@@ -97,16 +97,17 @@
 }
 
 @media (max-width: 767px) {
+  /* Even discovery rhythm — match homepage-responsive --zh-discovery-gap */
   .zh-page .zh-categories-wrap {
-    margin-top: calc(16px + 8px);
+    margin-top: var(--zh-discovery-gap, 16px);
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: calc(16px - 8px);
+    margin-top: var(--zh-discovery-gap, 16px);
   }
 
   .zh-page .hhb {
-    margin-top: 32px;
+    margin-top: 22px;
   }
 
   /* Match mobile .zh-nav height (56px) — desktop/tablet spacer unchanged */
