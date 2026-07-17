@@ -49,7 +49,7 @@ export default function ZorinoHomeNav() {
     <header className="zh-nav" data-sticky-chrome="primary">
       <div className="zh-nav__inner">
         <Link href="/" className="zh-nav__logo">
-          <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={68} />
+          <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={74} />
         </Link>
 
         <ZorinoHomeNavLinks />
@@ -60,7 +60,7 @@ export default function ZorinoHomeNav() {
             className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--search"
             aria-label={t("search")}
           >
-            <Search size={19} strokeWidth={2} />
+            <Search size={20} strokeWidth={2} />
           </Link>
         </div>
 
@@ -75,7 +75,7 @@ export default function ZorinoHomeNav() {
             href="/wishlist"
             className="zh-nav__icon-btn zh-nav__wishlist zh-nav__icon-btn--wishlist"
           >
-            <Heart size={19} strokeWidth={2} aria-hidden />
+            <Heart size={20} strokeWidth={2} aria-hidden />
             <span className="zh-nav__wishlist-label">{t("wishlist")}</span>
           </Link>
           <Link
@@ -83,7 +83,7 @@ export default function ZorinoHomeNav() {
             className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--notify"
             aria-label={t("notifications")}
           >
-            <Bell size={19} strokeWidth={2} aria-hidden />
+            <Bell size={20} strokeWidth={2} aria-hidden />
           </Link>
 
           {isMobile ? (

@@ -224,10 +224,11 @@
 }
 
 /* 2×2 — left col 72%, right col 88%; top 36%, bottom 60% */
-.zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: calc(72% - 151px); top: 36%; }
-.zh-orbit-card[data-orbit-position="orbit-top"] { left: calc(72% - 151px); top: 60%; }
-.zh-orbit-card[data-orbit-position="orbit-upper-right"] { left: 88%; top: 36%; }
-.zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: 88%; top: 60%; }
+/* Columns up 20px; intra-column gap tightened 20px (lower cards +40px up) */
+.zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: calc(72% - 151px); top: calc(36% - 20px); }
+.zh-orbit-card[data-orbit-position="orbit-top"] { left: calc(72% - 151px); top: calc(60% - 40px); }
+.zh-orbit-card[data-orbit-position="orbit-upper-right"] { left: 88%; top: calc(36% - 20px); }
+.zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: 88%; top: calc(60% - 40px); }
 
 .zh-orbit-card__media {
   position: absolute;
@@ -250,7 +251,7 @@
   z-index: 2;
   padding: 2px 6px;
   border-radius: 6px;
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 800;
   line-height: 1.2;
   color: #fff;
@@ -272,14 +273,14 @@
 }
 
 .zh-orbit-card__price {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 800;
   color: #f8fafc;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 
 .zh-orbit-card__was {
-  font-size: 10px;
+  font-size: 11px;
   color: #cbd5e1;
   text-decoration: line-through;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);

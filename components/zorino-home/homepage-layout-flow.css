@@ -136,8 +136,8 @@
   }
 }
 
-/* Fixed header — sticky fails under html/body overflow-x:hidden.
-   Spacer preserves in-flow height so content is not covered. */
+/* Fixed header — historically required while html/body used overflow-x:hidden.
+   Root now uses overflow-x:clip; spacer still clears the fixed bar. */
 .zh-page > .zh-nav {
   position: fixed !important;
   top: 0;
