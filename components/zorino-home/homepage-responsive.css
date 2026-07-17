@@ -180,8 +180,8 @@
      * Wider paint + right-anchored Z: glow/particles extend left behind the
      * headline while the Z sits further right as the card-column center.
      */
-    /* ~20px further right (away from left copy); height/vertical unchanged */
-    --zh-hero-artwork-right: -28px;
+    /* 10px toward hero text (left); copy/cards stay put */
+    --zh-hero-artwork-right: -18px;
     --zh-hero-artwork-painted-width: min(128vw, 500px);
     /* Stretch hero background downward (+40px); copy/cards stay put */
     --zh-hero-artwork-painted-height: 264px;
@@ -638,8 +638,8 @@
   }
 
   .zh-page .zh-home-discovery-nav {
-    /* Position polish: 25px up from prior 18px gap; chip gaps unchanged */
-    margin-top: calc(var(--zh-discovery-gap, 18px) - 25px);
+    /* Consistent 15px Categories → Bottom Chips */
+    margin-top: 15px;
     overflow-x: hidden;
   }
 
