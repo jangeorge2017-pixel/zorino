@@ -1,0 +1,165 @@
+/**
+ * SiteNav header polish — mobile only.
+ * Mirrors homepage .zh-nav chrome. Desktop/tablet left to design-system.
+ */
+
+@media (max-width: 767px),
+  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+  .zor-nav {
+    --zor-nav-control-h: 36px;
+    --zor-nav-gap: 5px;
+    height: 56px;
+    max-height: 56px;
+    padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0
+      max(20px, env(safe-area-inset-left, 0px));
+    overflow: visible;
+  }
+
+  .zor-nav__inner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .zor-nav__links,
+  .zor-nav__tagline {
+    display: none !important;
+  }
+
+  .zor-nav__logo {
+    flex: 0 0 auto;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+
+  .zor-nav__logo img {
+    height: 54px;
+    width: auto;
+    max-width: min(108px, calc(100vw - 293px));
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .zor-nav__actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--zor-nav-gap);
+    flex: 0 0 auto;
+    margin: 0;
+    margin-inline-start: auto;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .zor-nav__control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .zor-nav .theme-toggle,
+  .zor-nav .zor-intl__trigger {
+    width: var(--zor-nav-control-h);
+    min-width: var(--zor-nav-control-h);
+    max-width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
+    padding: 0;
+    justify-content: center;
+  }
+
+  .zor-nav .theme-option-label,
+  .zor-nav .zor-intl__trigger-label,
+  .zor-nav .zor-intl__trigger .lucide-chevron-down,
+  .zor-nav .zor-intl__trigger svg:last-child {
+    display: none;
+  }
+
+  .zor-nav .theme-option:not(.theme-option-active) {
+    display: none;
+  }
+
+  .zor-nav .theme-option {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .zor-nav__icon-btn {
+    min-width: var(--zor-nav-control-h);
+    min-height: var(--zor-nav-control-h);
+    width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
+    padding: 0;
+    border-radius: 8px;
+  }
+
+  .zor-nav__icon-btn svg,
+  .zor-nav .theme-toggle svg,
+  .zor-nav .zor-intl__trigger svg:first-child {
+    width: 21px;
+    height: 21px;
+  }
+
+  .zor-nav__icon-btn span:not(.zor-nav__badge) {
+    display: none;
+  }
+
+  /* Search cyan · Theme purple · Globe blue · Wishlist pink · Notify gold */
+  .zor-nav__icon-btn--search {
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.18);
+  }
+
+  .zor-nav__icon-btn--wishlist {
+    box-shadow: 0 0 8px rgba(244, 114, 182, 0.16);
+  }
+
+  .zor-nav__icon-btn--notify {
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.16);
+  }
+
+  .zor-nav .theme-toggle {
+    box-shadow: 0 0 8px rgba(167, 139, 250, 0.16);
+  }
+
+  .zor-nav .zor-intl__trigger {
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.16);
+  }
+
+  .zor-nav__profile {
+    position: relative;
+    padding: 0;
+    width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
+    justify-content: center;
+    border-radius: 50%;
+    overflow: visible;
+    border: none;
+    background: transparent;
+    flex: 0 0 auto;
+  }
+
+  .zor-nav__profile div {
+    display: none;
+  }
+
+  .zor-nav__profile img,
+  .zor-nav__profile-fallback {
+    position: relative;
+    z-index: 1;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(7, 11, 22, 0.92);
+  }
+}

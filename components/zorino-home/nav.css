@@ -285,6 +285,11 @@
   transform: scaleX(1);
 }
 
+/* Desktop/tablet: cluster is transparent so grid columns stay logo|links|search|actions */
+.zh-nav__cluster {
+  display: contents;
+}
+
 /* ─── Search anchor + right-side controls ─── */
 .zh-nav__search-slot {
   display: flex;
@@ -648,22 +653,22 @@
 @media (max-width: 767px),
   (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
   /*
-   * Mobile header — desktop/tablet unchanged.
-   * Layout: [Logo] …… [Search] [Theme] [Language] [Wish] [Bell] [Avatar]
-   * Same chrome in portrait and short landscape (no separate landscape layout).
+   * Mobile header ONLY — desktop/tablet unchanged.
+   * Flex: [Logo] …auto… [Search Theme Lang Wish Bell Avatar]
    */
   .zh-page .zh-nav,
   .zh-nav {
-    --zh-nav-control-h: 38px;
-    --zh-nav-gap: 6px;
+    --zh-nav-control-h: 36px;
+    --zh-nav-gap: 5px;
     --zh-nav-logo-gap: 0px;
-    --zh-nav-pad-x: 0;
-    --zh-nav-logo-h: 48px;
+    --zh-nav-pad-x: 20px;
+    --zh-nav-logo-h: 54px;
     --zh-nav-transition: 220ms ease;
     height: 56px;
     max-height: 56px;
-    padding: 0 max(10px, env(safe-area-inset-right, 0px)) 0
-      max(10px, env(safe-area-inset-left, 0px));
+    /* Comfortable left/right chrome (16–24px), never edge-compressed */
+    padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0
+      max(20px, env(safe-area-inset-left, 0px));
     overflow: visible;
     background: rgba(7, 11, 22, 0.72);
     backdrop-filter: blur(16px) saturate(1.35);
@@ -693,17 +698,13 @@
     pointer-events: none;
   }
 
-  /*
-   * Mobile header flex: [Logo] …… [Search Theme Lang Wish Bell Avatar]
-   * margin-inline-start:auto on the right cluster prevents logo/icon overlap.
-   */
   .zh-page .zh-nav__inner,
   .zh-nav__inner {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 6px;
+    gap: 12px;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -719,17 +720,33 @@
   .zh-nav__logo {
     flex: 0 0 auto;
     margin: 0;
+    margin-inline-end: 0;
+    padding: 0;
     min-width: 0;
   }
 
   .zh-page .zh-nav__logo-lockup,
   .zh-nav__logo-lockup {
-    height: 48px !important;
-    max-height: 48px;
-    max-width: min(128px, 32vw);
+    height: 54px !important;
+    max-height: 54px;
+    /* Shrink logo before icons overflow (pad 40 + gap 12 + 6×36 + 5×5 = 293) */
+    max-width: min(108px, calc(100vw - 293px));
     width: auto !important;
     object-fit: contain;
     object-position: left center;
+  }
+
+  /* Right actions cluster — margin-inline-start:auto, no absolute positioning */
+  .zh-page .zh-nav__cluster,
+  .zh-nav__cluster {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--zh-nav-gap);
+    flex: 0 0 auto;
+    margin: 0;
+    margin-inline-start: auto;
+    min-width: 0;
   }
 
   .zh-page .zh-nav__search-slot,
@@ -737,7 +754,6 @@
     flex: 0 0 auto;
     width: var(--zh-nav-control-h);
     margin: 0;
-    margin-inline-start: auto;
   }
 
   .zh-page .zh-nav__actions,
@@ -745,7 +761,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 6px;
+    gap: var(--zh-nav-gap);
     margin: 0;
     flex: 0 0 auto;
     min-width: 0;
@@ -884,8 +900,8 @@
   .zh-nav__profile-fallback {
     position: relative;
     z-index: 1;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid rgba(7, 11, 22, 0.92);
@@ -911,17 +927,22 @@
       transform var(--zh-nav-transition);
   }
 
+  /* ~10% larger glyphs; control height stays inside 56px bar */
   .zh-page .zh-nav__icon-btn svg,
-  .zh-nav__icon-btn svg {
-    width: 19px;
-    height: 19px;
+  .zh-nav__icon-btn svg,
+  .zh-page .zh-nav .theme-toggle svg,
+  .zh-nav .theme-toggle svg,
+  .zh-page .zh-nav .zor-intl__trigger svg:first-child,
+  .zh-nav .zor-intl__trigger svg:first-child {
+    width: 21px;
+    height: 21px;
   }
 
-  /* Per-icon premium glows — subtle idle pulse + stronger hover */
+  /* Per-icon premium glows — Search cyan, Theme purple, Language blue, Heart pink, Bell gold */
   .zh-page .zh-nav__icon-btn--search,
   .zh-nav__icon-btn--search {
-    box-shadow: 0 0 8px rgba(56, 189, 248, 0.18);
-    animation: zh-nav-glow-blue 4s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.18);
+    animation: zh-nav-glow-cyan 4s ease-in-out infinite;
   }
 
   .zh-page .zh-nav__icon-btn--search:hover,
@@ -929,10 +950,10 @@
   .zh-nav__icon-btn--search:hover,
   .zh-nav__icon-btn--search:focus-visible {
     animation: none;
-    color: #bae6fd;
+    color: #a5f3fc;
     box-shadow:
-      0 0 12px rgba(56, 189, 248, 0.36),
-      0 0 18px rgba(56, 189, 248, 0.16);
+      0 0 12px rgba(34, 211, 238, 0.36),
+      0 0 18px rgba(34, 211, 238, 0.16);
   }
 
   .zh-page .zh-nav .theme-toggle,
@@ -953,8 +974,8 @@
 
   .zh-page .zh-nav .zor-intl__trigger,
   .zh-nav .zor-intl__trigger {
-    box-shadow: 0 0 8px rgba(34, 211, 238, 0.16);
-    animation: zh-nav-glow-cyan 4.4s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.16);
+    animation: zh-nav-glow-blue 4.4s ease-in-out infinite;
   }
 
   .zh-page .zh-nav .zor-intl__trigger:hover,
@@ -962,10 +983,10 @@
   .zh-nav .zor-intl__trigger:hover,
   .zh-nav .zor-intl__trigger:focus-visible {
     animation: none;
-    color: #a5f3fc;
+    color: #bfdbfe;
     box-shadow:
-      0 0 12px rgba(34, 211, 238, 0.34),
-      0 0 18px rgba(34, 211, 238, 0.14);
+      0 0 12px rgba(96, 165, 250, 0.34),
+      0 0 18px rgba(59, 130, 246, 0.14);
   }
 
   .zh-page .zh-nav__icon-btn--wishlist,
@@ -1040,10 +1061,10 @@
 @keyframes zh-nav-glow-blue {
   0%,
   100% {
-    box-shadow: 0 0 7px rgba(56, 189, 248, 0.14);
+    box-shadow: 0 0 7px rgba(96, 165, 250, 0.14);
   }
   50% {
-    box-shadow: 0 0 11px rgba(56, 189, 248, 0.26);
+    box-shadow: 0 0 11px rgba(96, 165, 250, 0.26);
   }
 }
 
