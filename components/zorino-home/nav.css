@@ -609,7 +609,7 @@
     --zh-nav-gap: 5px;
     --zh-nav-logo-gap: 6px;
     --zh-nav-pad-x: 0;
-    --zh-nav-logo-h: 34px;
+    --zh-nav-logo-h: 40px;
     --zh-nav-transition: 220ms ease;
     height: 56px;
     max-height: 56px;
@@ -618,8 +618,28 @@
     background: rgba(7, 11, 22, 0.72);
     backdrop-filter: blur(16px) saturate(1.35);
     -webkit-backdrop-filter: blur(16px) saturate(1.35);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    border-bottom: none;
     box-shadow: 0 8px 28px rgba(2, 6, 18, 0.28);
+  }
+
+  /* Subtle 1px gradient divider under header */
+  .zh-page .zh-nav::after,
+  .zh-nav::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(96, 165, 250, 0.35) 22%,
+      rgba(139, 92, 246, 0.45) 50%,
+      rgba(96, 165, 250, 0.35) 78%,
+      transparent 100%
+    );
+    pointer-events: none;
   }
 
   .zh-page .zh-nav__inner,
@@ -646,9 +666,9 @@
 
   .zh-page .zh-nav__logo-lockup,
   .zh-nav__logo-lockup {
-    height: 34px !important;
-    max-height: 34px;
-    max-width: min(96px, 24vw);
+    height: 40px !important;
+    max-height: 40px;
+    max-width: min(114px, 28vw);
     width: auto !important;
     object-fit: contain;
     object-position: left center;
@@ -787,16 +807,19 @@
 
   .zh-page .zh-nav__avatar-ring {
     position: absolute;
-    inset: -2px;
+    inset: -3px;
     border-radius: 50%;
     background: conic-gradient(
       from 0deg,
-      rgba(111, 212, 255, 0.15),
-      rgba(139, 92, 246, 0.75),
-      rgba(96, 165, 250, 0.7),
-      rgba(111, 212, 255, 0.15)
+      rgba(111, 212, 255, 0.2),
+      rgba(139, 92, 246, 0.9),
+      rgba(96, 165, 250, 0.85),
+      rgba(167, 139, 250, 0.55),
+      rgba(111, 212, 255, 0.2)
     );
-    animation: zh-nav-avatar-breathe 7s ease-in-out infinite;
+    animation:
+      zh-nav-avatar-breathe 7s ease-in-out infinite,
+      zh-nav-avatar-spin 8s linear infinite;
     z-index: 0;
     pointer-events: none;
   }
@@ -865,12 +888,18 @@
 @keyframes zh-nav-avatar-breathe {
   0%,
   100% {
-    opacity: 0.5;
-    transform: scale(1);
+    opacity: 0.55;
+    filter: brightness(0.96);
   }
   50% {
-    opacity: 0.88;
-    transform: scale(1.03);
+    opacity: 0.95;
+    filter: brightness(1.12);
+  }
+}
+
+@keyframes zh-nav-avatar-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
