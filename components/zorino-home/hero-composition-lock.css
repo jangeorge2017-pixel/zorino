@@ -79,6 +79,11 @@ html[dir="rtl"] .zh-page .zh-nav__logo {
   margin-left: var(--zh-nav-logo-gap);
 }
 
+html[dir="rtl"] .zh-page .zh-nav__search-slot {
+  margin-left: 0;
+  margin-right: max(var(--zh-nav-gap), 16px);
+}
+
 html[dir="rtl"] .zh-page .zh-nav__actions {
   margin-left: 0;
   margin-right: var(--zh-nav-gap);

@@ -269,8 +269,7 @@ html[dir="rtl"] .zh-page {
   background: #070b16;
 }
 
-/* Fixed header — sticky is unreliable with html/body overflow-x:hidden.
-   Spacer preserves in-flow height so content is not covered. */
+/* Fixed header + spacer — clears content under the fixed bar. */
 .zh-page > .zh-nav {
   position: fixed;
   top: 0;

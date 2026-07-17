@@ -1474,9 +1474,9 @@ html {
   }
 
   .zor-nav__logo img {
-    height: 52px;
+    height: 44px;
     width: auto;
-    max-width: min(148px, 34vw);
+    max-width: min(120px, 30vw);
   }
 
   .zor-nav__actions {
