@@ -163,8 +163,8 @@
      * Discovery group ~18px lower than prior 96px lift; even 18px gaps
      * Stats→Search, Search→Categories, Categories→Quick Nav.
      */
-    --zh-discovery-group-lift: 78px;
-    --zh-discovery-gap: 18px;
+    --zh-discovery-group-lift: 72px;
+    --zh-discovery-gap: 16px;
     --zh-hero-artwork-width: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
     --zh-hero-artwork-height: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
     --zh-hero-artwork-shift-left: 0px;
@@ -433,17 +433,17 @@
     padding: 5px 5px 5px 12px;
     border-radius: 14px;
     overflow: hidden;
-    border-color: rgba(96, 165, 250, 0.28);
+    border-color: rgba(96, 165, 250, 0.2);
     box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.14),
-      0 0 18px rgba(96, 165, 250, 0.16),
-      0 0 28px rgba(139, 92, 246, 0.12);
+      0 0 0 1px rgba(139, 92, 246, 0.08),
+      0 0 12px rgba(96, 165, 250, 0.1),
+      0 0 18px rgba(139, 92, 246, 0.06);
     transition:
       box-shadow 220ms ease,
       border-color 220ms ease;
   }
 
-  /* Soft neon light sweep — every ~7s */
+  /* Subtle border/light sweep — every ~7s */
   .zh-page .zh-search__bar::after {
     content: "";
     position: absolute;
@@ -451,23 +451,23 @@
     z-index: 0;
     background: linear-gradient(
       105deg,
-      transparent 36%,
-      rgba(167, 139, 250, 0.14) 48%,
-      rgba(111, 212, 255, 0.16) 52%,
-      transparent 64%
+      transparent 38%,
+      rgba(167, 139, 250, 0.1) 49%,
+      rgba(111, 212, 255, 0.12) 52%,
+      transparent 62%
     );
     transform: translateX(-130%);
-    animation: zh-search-sweep 7s ease-in-out infinite;
+    animation: zh-search-sweep 7.5s ease-in-out infinite;
     pointer-events: none;
   }
 
   .zh-page .zh-search__bar:hover,
   .zh-page .zh-search__bar:focus-within {
-    border-color: rgba(139, 92, 246, 0.42);
+    border-color: rgba(139, 92, 246, 0.34);
     box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.22),
-      0 0 22px rgba(96, 165, 250, 0.24),
-      0 0 34px rgba(139, 92, 246, 0.18);
+      0 0 0 1px rgba(139, 92, 246, 0.16),
+      0 0 16px rgba(96, 165, 250, 0.16),
+      0 0 24px rgba(139, 92, 246, 0.12);
   }
 
   .zh-page .zh-search__icon {
