@@ -661,14 +661,14 @@
     --zh-nav-control-h: 34px;
     --zh-nav-gap: 6px;
     --zh-nav-logo-gap: 0px;
-    --zh-nav-pad-x: 18px;
-    --zh-nav-logo-h: 55px;
+    --zh-nav-pad-x: 10px;
+    --zh-nav-logo-h: 56px;
     --zh-nav-transition: 220ms ease;
     height: 56px;
     max-height: 56px;
-    /* Absolute start: consistent 16–20px left chrome */
-    padding: 0 max(18px, env(safe-area-inset-right, 0px)) 0
-      max(18px, env(safe-area-inset-left, 0px));
+    /* Logo at the very start of the header chrome */
+    padding: 0 max(10px, env(safe-area-inset-right, 0px)) 0
+      max(10px, env(safe-area-inset-left, 0px));
     overflow: visible;
     background: rgba(7, 11, 22, 0.72);
     backdrop-filter: blur(16px) saturate(1.35);
@@ -724,7 +724,8 @@
     align-items: center;
     flex: 0 0 auto;
     margin: 0;
-    margin-inline-end: 0;
+    /* Clear gap before the first action icon */
+    margin-inline-end: 12px;
     padding: 0;
     min-width: 0;
     order: 0;
@@ -732,11 +733,11 @@
 
   .zh-page .zh-nav__logo-lockup,
   .zh-nav__logo-lockup {
-    /* ~15% over prior 48px mobile logo */
-    height: 55px !important;
-    max-height: 55px;
-    /* Reserve space for 6×34 + 5×6 icons + 10px buffer; never center-drift */
-    max-width: min(120px, calc(100vw - 36px - 10px - 234px));
+    /* ~17% over prior 48px mobile logo */
+    height: 56px !important;
+    max-height: 56px;
+    /* Icons 6×34 + 5×6 = 234; pad 20; logo gap 12; buffer 8 */
+    max-width: min(128px, calc(100vw - 20px - 12px - 8px - 234px));
     width: auto !important;
     object-fit: contain;
     object-position: left center;
@@ -998,9 +999,15 @@
       0 0 18px rgba(59, 130, 246, 0.14);
   }
 
+  /* Wishlist stays visible (label hidden only); soft pink/red accent */
   .zh-page .zh-nav__icon-btn--wishlist,
   .zh-nav__icon-btn--wishlist {
-    box-shadow: 0 0 8px rgba(244, 114, 182, 0.16);
+    display: inline-flex !important;
+    flex: 0 0 auto;
+    visibility: visible;
+    opacity: 1;
+    color: #f9a8d4;
+    box-shadow: 0 0 10px rgba(244, 114, 182, 0.28);
     animation: zh-nav-glow-pink 4.1s ease-in-out infinite;
   }
 
@@ -1015,9 +1022,15 @@
       0 0 18px rgba(236, 72, 153, 0.14);
   }
 
+  /* Soft gold/yellow accent on notification bell */
   .zh-page .zh-nav__icon-btn--notify,
   .zh-nav__icon-btn--notify {
-    box-shadow: 0 0 8px rgba(251, 191, 36, 0.16);
+    display: inline-flex !important;
+    flex: 0 0 auto;
+    visibility: visible;
+    opacity: 1;
+    color: #fde68a;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.28);
     animation: zh-nav-glow-gold 4.3s ease-in-out infinite;
   }
 
