@@ -256,8 +256,8 @@
   }
 
   .zh-brand-card {
-    flex: 0 0 min(300px, calc(100vw - 48px));
-    max-width: calc(100vw - 48px);
+    flex: 0 0 min(300px, calc(100vw - 2 * var(--zh-pad, 10px) - 28px));
+    max-width: calc(100vw - 2 * var(--zh-pad, 10px) - 28px);
   }
 
   .zh-brand-card__offer {

@@ -156,8 +156,8 @@
   /* ── Page rhythm ── */
   .zh-page {
     --zh-nav-h: 56px;
-    /* Tighter side padding; shell still respects safe-area insets */
-    --zh-pad: 12px;
+    /* Slightly wider content; shell still respects safe-area insets */
+    --zh-pad: 10px;
     --zh-section-step: 36px;
     --zh-space-discovery: 14px;
     /*
@@ -179,7 +179,8 @@
      * Wider paint + right-anchored Z: glow/particles extend left behind the
      * headline while the Z sits further right as the card-column center.
      */
-    --zh-hero-artwork-right: -8px;
+    /* ~20px further right (away from left copy); height/vertical unchanged */
+    --zh-hero-artwork-right: -28px;
     --zh-hero-artwork-painted-width: min(128vw, 500px);
     --zh-hero-artwork-painted-height: 186px;
     --zh-hero-artwork-painted-top: calc(var(--zh-nav-h) - 6px);
@@ -202,8 +203,8 @@
     row-gap: 14px;
     overflow: visible;
     min-height: 0;
-    /* Clear sticky header so "AI Powered" never touches the bar */
-    padding-top: 12px;
+    /* Clear sticky header divider so "AI Powered" never touches it */
+    padding-top: 18px;
   }
 
   .zh-page .zh-hero__col--left {
@@ -214,7 +215,7 @@
 
   .zh-page .zh-hero__badge {
     margin-inline: 0;
-    margin-top: 0;
+    margin-top: 2px;
     margin-bottom: 12px;
   }
 
@@ -439,11 +440,12 @@
     padding: 4px 4px 4px 12px;
     border-radius: 14px;
     overflow: hidden;
-    border-color: rgba(96, 165, 250, 0.18);
+    border-color: rgba(96, 165, 250, 0.22);
     box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.05),
-      0 0 8px rgba(96, 165, 250, 0.06),
-      0 0 14px rgba(139, 92, 246, 0.04);
+      0 0 0 1px rgba(139, 92, 246, 0.06),
+      0 0 10px rgba(96, 165, 250, 0.08),
+      0 0 16px rgba(139, 92, 246, 0.05);
+    animation: zh-search-border-glow 6.5s ease-in-out infinite;
     transition:
       box-shadow 220ms ease,
       border-color 220ms ease;
@@ -458,8 +460,8 @@
     background: linear-gradient(
       105deg,
       transparent 38%,
-      rgba(167, 139, 250, 0.08) 49%,
-      rgba(111, 212, 255, 0.1) 52%,
+      rgba(167, 139, 250, 0.1) 49%,
+      rgba(111, 212, 255, 0.12) 52%,
       transparent 62%
     );
     transform: translateX(-130%);
@@ -469,11 +471,12 @@
 
   .zh-page .zh-search__bar:hover,
   .zh-page .zh-search__bar:focus-within {
-    border-color: rgba(139, 92, 246, 0.3);
+    border-color: rgba(139, 92, 246, 0.34);
     box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.12),
-      0 0 12px rgba(96, 165, 250, 0.12),
-      0 0 18px rgba(139, 92, 246, 0.08);
+      0 0 0 1px rgba(139, 92, 246, 0.14),
+      0 0 14px rgba(96, 165, 250, 0.14),
+      0 0 22px rgba(139, 92, 246, 0.1);
+    animation: none;
   }
 
   .zh-page .zh-search__icon {
@@ -495,7 +498,8 @@
     min-height: 36px;
     width: auto;
     max-width: 100%;
-    padding: 0 6px 0 0;
+    /* Keep placeholder clear of the Search submit control */
+    padding: 0 8px 0 0;
     margin: 0;
     border: 0;
     font-size: 13.5px;
@@ -527,8 +531,12 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .zh-page .zh-search__bar,
     .zh-page .zh-search__bar::after {
       animation: none;
+    }
+
+    .zh-page .zh-search__bar::after {
       display: none;
     }
   }
@@ -593,7 +601,9 @@
   }
 
   .zh-page .zh-categories__label {
-    font-size: 9.5px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
   }
 
   .zh-page .zh-home-discovery-nav {
@@ -632,16 +642,17 @@
     width: auto;
     min-width: 0;
     max-width: none;
-    min-height: 36px;
-    padding: 5px 4px;
-    font-size: 10px;
-    gap: 3px;
+    min-height: 38px;
+    padding: 6px 5px;
+    font-size: 11.5px;
+    font-weight: 600;
+    gap: 4px;
     justify-content: center;
     overflow: hidden;
   }
 
   .zh-page .zh-quick-nav__emoji {
-    font-size: 11px;
+    font-size: 12px;
     flex-shrink: 0;
   }
 
@@ -652,13 +663,14 @@
     white-space: nowrap;
   }
 
-  /* Orbit cards: same image size — slightly larger badge/price for readability */
+  /* Orbit cards: same image size — larger badge/price for readability only */
   .zh-page .zh-orbit-card__discount {
     top: 1px;
     left: 2px;
     padding: 1px 3px;
     border-radius: 3px;
-    font-size: 6.5px;
+    font-size: 7.5px;
+    font-weight: 800;
     line-height: 1.1;
     letter-spacing: 0;
   }
@@ -671,12 +683,13 @@
   }
 
   .zh-page .zh-orbit-card__price {
-    font-size: 7.5px;
+    font-size: 8.5px;
+    font-weight: 800;
     line-height: 1.1;
   }
 
   .zh-page .zh-orbit-card__was {
-    font-size: 6.5px;
+    font-size: 7px;
     line-height: 1.1;
   }
 
@@ -719,7 +732,13 @@
   .zh-page .zh-trending-deals__filter {
     min-height: 40px;
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .zh-page .zh-trending-deals__title {
+    font-size: 1.3rem;
+    font-weight: 800;
   }
 
   .zh-page .zh-trending-deals__sort-select {
@@ -825,5 +844,23 @@
   82%,
   90% {
     transform: translateX(130%);
+  }
+}
+
+@keyframes zh-search-border-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(96, 165, 250, 0.1),
+      0 0 10px rgba(96, 165, 250, 0.07),
+      0 0 16px rgba(139, 92, 246, 0.05);
+    border-color: rgba(96, 165, 250, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(139, 92, 246, 0.16),
+      0 0 14px rgba(96, 165, 250, 0.12),
+      0 0 22px rgba(139, 92, 246, 0.09);
+    border-color: rgba(139, 92, 246, 0.3);
   }
 }

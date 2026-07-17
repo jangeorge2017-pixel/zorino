@@ -7,8 +7,8 @@
 :root {
   /* ─── Layout ─── */
   --zor-viewport: 1920px;
-  --zor-content: 1520px;
-  --zor-pad: clamp(16px, calc((100vw - var(--zor-content)) / 2), 200px);
+  --zor-content: 1560px;
+  --zor-pad: clamp(14px, calc((100vw - var(--zor-content)) / 2), 180px);
   --zor-nav-h: 72px;
   --zor-section-gap: 28px;
   /*
@@ -1474,9 +1474,9 @@ html {
   }
 
   .zor-nav__logo img {
-    height: 46px;
+    height: 52px;
     width: auto;
-    max-width: min(132px, 32vw);
+    max-width: min(148px, 34vw);
   }
 
   .zor-nav__actions {
