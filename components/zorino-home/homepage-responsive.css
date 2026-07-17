@@ -820,14 +820,26 @@
    */
   .zh-page .zh-panel,
   .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-product-section,
+  .zh-page #zh-section-flash-deals,
   .zh-page .zh-trending-deals.zh-deals-panel,
   .zh-page .zh-trending-deals,
   .zh-page .zh-featured-brands.zh-panel,
-  .zh-page .zh-trending-deals__head {
+  .zh-page .zh-trending-deals__head,
+  .zh-page .zh-deals-preview.zh-panel {
     /* blur(0) survives the bundler; `none` is stripped as initial */
     backdrop-filter: blur(0px) !important;
     -webkit-backdrop-filter: blur(0px) !important;
     isolation: auto;
+  }
+
+  /* Defeat desktop equal-height stretch that clips listing-deal-meta */
+  .zh-page .zh-trending-deals__slide,
+  .zh-page .zh-trending-deals__track .zor-deals-page__card,
+  .zh-page .zh-trending-deals__track .listing-product-card {
+    height: auto !important;
+    max-height: none;
+    align-self: start;
   }
 
   .zh-page .zh-trending-deals__track,
