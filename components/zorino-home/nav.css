@@ -654,12 +654,11 @@
    */
   .zh-page .zh-nav,
   .zh-nav {
-    /* 36px controls leave room for a real logo↔actions spacer on 320–390px */
-    --zh-nav-control-h: 36px;
-    --zh-nav-gap: 5px;
-    --zh-nav-logo-gap: 16px;
+    --zh-nav-control-h: 38px;
+    --zh-nav-gap: 6px;
+    --zh-nav-logo-gap: 0px;
     --zh-nav-pad-x: 0;
-    --zh-nav-logo-h: 44px;
+    --zh-nav-logo-h: 48px;
     --zh-nav-transition: 220ms ease;
     height: 56px;
     max-height: 56px;
@@ -675,7 +674,6 @@
       0 0 20px rgba(96, 165, 250, 0.06);
   }
 
-  /* Subtle 1px gradient divider under header */
   .zh-page .zh-nav::after,
   .zh-nav::after {
     content: "";
@@ -695,33 +693,40 @@
     pointer-events: none;
   }
 
+  /*
+   * Mobile header flex: [Logo] …… [Search Theme Lang Wish Bell Avatar]
+   * margin-inline-start:auto on the right cluster prevents logo/icon overlap.
+   */
   .zh-page .zh-nav__inner,
   .zh-nav__inner {
-    display: grid;
-    grid-template-columns: auto minmax(36px, 1fr) auto auto auto auto auto auto;
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    column-gap: 5px;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
     max-width: 100%;
+    min-width: 0;
+    overflow: visible;
   }
 
   .zh-page .zh-nav__links,
   .zh-nav__links {
-    display: none;
+    display: none !important;
   }
 
   .zh-page .zh-nav__logo,
   .zh-nav__logo {
-    grid-column: 1;
-    margin-right: 0;
-    min-width: 0;
     flex: 0 0 auto;
+    margin: 0;
+    min-width: 0;
   }
 
   .zh-page .zh-nav__logo-lockup,
   .zh-nav__logo-lockup {
-    height: 44px !important;
-    max-height: 44px;
-    max-width: min(120px, 30vw);
+    height: 48px !important;
+    max-height: 48px;
+    max-width: min(128px, 32vw);
     width: auto !important;
     object-fit: contain;
     object-position: left center;
@@ -729,32 +734,38 @@
 
   .zh-page .zh-nav__search-slot,
   .zh-nav__search-slot {
-    grid-column: 3;
-    margin-left: 0;
+    flex: 0 0 auto;
     width: var(--zh-nav-control-h);
-    flex: none;
+    margin: 0;
+    margin-inline-start: auto;
   }
 
   .zh-page .zh-nav__actions,
   .zh-nav__actions {
-    display: contents;
-    margin-left: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    flex: 0 0 auto;
+    min-width: 0;
+    overflow: visible;
   }
 
   .zh-page .zh-nav__desktop-theme,
   .zh-nav__desktop-theme {
     display: flex;
-    grid-column: 4;
     align-items: center;
     justify-content: center;
+    flex: 0 0 auto;
   }
 
   .zh-page .zh-nav__desktop-intl,
   .zh-nav__desktop-intl {
     display: flex;
-    grid-column: 5;
     align-items: center;
     justify-content: center;
+    flex: 0 0 auto;
   }
 
   .zh-page .zh-nav .theme-toggle,
@@ -819,24 +830,13 @@
     display: none;
   }
 
-  .zh-page .zh-nav__wishlist,
-  .zh-nav__wishlist {
-    grid-column: 6;
-  }
-
   .zh-page .zh-nav__wishlist-label,
   .zh-nav__wishlist-label {
     display: none;
   }
 
-  .zh-page .zh-nav__actions > .zh-nav__icon-btn--square,
-  .zh-nav__actions > .zh-nav__icon-btn--square {
-    grid-column: 7;
-  }
-
   .zh-page .zh-nav__profile,
   .zh-nav__profile {
-    grid-column: 8;
     position: relative;
     min-width: 0 !important;
     max-width: none !important;
@@ -851,6 +851,7 @@
     cursor: pointer;
     color: inherit;
     transition: transform var(--zh-nav-transition);
+    flex: 0 0 auto;
   }
 
   .zh-page .zh-nav__profile-copy,
@@ -883,8 +884,8 @@
   .zh-nav__profile-fallback {
     position: relative;
     z-index: 1;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid rgba(7, 11, 22, 0.92);
@@ -912,8 +913,8 @@
 
   .zh-page .zh-nav__icon-btn svg,
   .zh-nav__icon-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
   }
 
   /* Per-icon premium glows — subtle idle pulse + stronger hover */

@@ -393,25 +393,25 @@
     pointer-events: auto;
   }
 
-  /* Columns up; stacked gap tightened (orientation-stable %) */
+  /* Columns up ~20px; stacked gap −~20px (orientation-stable %) */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
     left: 14%;
-    top: 6%;
+    top: 4%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
     left: 14%;
-    top: 44%;
+    top: 40%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
     left: 86%;
-    top: 6%;
+    top: 4%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
     left: 86%;
-    top: 44%;
+    top: 40%;
   }
 
   /* ── Search — single horizontal bar (desktop pattern), button inside ── */
@@ -669,7 +669,7 @@
     left: 2px;
     padding: 1px 3px;
     border-radius: 3px;
-    font-size: 8px;
+    font-size: 8.5px;
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: 0;
@@ -683,14 +683,37 @@
   }
 
   .zh-page .zh-orbit-card__price {
-    font-size: 9px;
+    font-size: 9.5px;
     font-weight: 800;
     line-height: 1.1;
   }
 
   .zh-page .zh-orbit-card__was {
-    font-size: 7.5px;
+    font-size: 8px;
     line-height: 1.1;
+  }
+
+  /* Keep copy clear of floating cards (EN + AR) */
+  .zh-page .zh-hero__copy {
+    max-width: calc(100% - 108px);
+    padding-inline-end: 0;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__col--left {
+    z-index: 4;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__badge,
+  html[dir="rtl"] .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle {
+    max-width: calc(100% - 108px);
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__label,
+  html[dir="rtl"] .zh-page .zh-quick-nav__label {
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: 0;
   }
 
   /* ── Commerce / Trending / Coupons ── */

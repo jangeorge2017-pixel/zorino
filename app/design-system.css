@@ -1442,13 +1442,20 @@ html {
     --zor-nav-h: 56px;
   }
 
+  /* Match homepage mobile chrome exactly */
   .zor-nav {
+    --zor-nav-control-h: 38px;
     height: 56px;
+    padding: 0 max(10px, env(safe-area-inset-right, 0px)) 0
+      max(10px, env(safe-area-inset-left, 0px));
+    overflow: visible;
     background: rgba(7, 11, 22, 0.72);
     backdrop-filter: blur(16px) saturate(1.35);
     -webkit-backdrop-filter: blur(16px) saturate(1.35);
     border-bottom: none;
-    box-shadow: 0 8px 28px rgba(2, 6, 18, 0.28);
+    box-shadow:
+      0 8px 28px rgba(2, 6, 18, 0.28),
+      0 0 20px rgba(96, 165, 250, 0.06);
   }
 
   .zor-nav::after {
@@ -1470,47 +1477,143 @@ html {
   }
 
   .zor-nav__inner {
-    gap: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .zor-nav__links,
+  .zor-nav__tagline {
+    display: none !important;
+  }
+
+  .zor-nav__logo {
+    flex: 0 0 auto;
+    gap: 0;
   }
 
   .zor-nav__logo img {
-    height: 44px;
+    height: 48px;
     width: auto;
-    max-width: min(120px, 30vw);
+    max-width: min(128px, 32vw);
   }
 
   .zor-nav__actions {
-    gap: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+    max-width: none;
+  }
+
+  .zor-nav__control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .zor-nav .theme-toggle,
+  .zor-nav .zor-intl__trigger {
+    width: var(--zor-nav-control-h);
+    min-width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
+    padding: 0;
+    justify-content: center;
+  }
+
+  .zor-nav .theme-option-label,
+  .zor-nav .zor-intl__trigger-label,
+  .zor-nav .zor-intl__trigger .lucide-chevron-down,
+  .zor-nav .zor-intl__trigger svg:last-child {
+    display: none;
+  }
+
+  .zor-nav .theme-option:not(.theme-option-active) {
+    display: none;
+  }
+
+  .zor-nav .theme-option {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    justify-content: center;
   }
 
   .zor-nav__icon-btn {
-    min-width: 40px;
-    min-height: 40px;
-    width: 40px;
-    height: 40px;
+    min-width: var(--zor-nav-control-h);
+    min-height: var(--zor-nav-control-h);
+    width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
     padding: 0;
-    transition: box-shadow 220ms ease, background 220ms ease, transform 220ms ease;
+    border-radius: 8px;
+    transition:
+      box-shadow 220ms ease,
+      background 220ms ease,
+      color 220ms ease;
   }
 
-  .zor-nav__icon-btn:hover,
-  .zor-nav__icon-btn:focus-visible {
-    box-shadow:
-      0 0 12px rgba(96, 165, 250, 0.28),
-      0 0 16px rgba(139, 92, 246, 0.14);
+  .zor-nav__icon-btn svg {
+    width: 19px;
+    height: 19px;
   }
 
   .zor-nav__icon-btn span:not(.zor-nav__badge) {
     display: none;
   }
 
+  .zor-nav__icon-btn--search {
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.16);
+  }
+
+  .zor-nav__icon-btn--wishlist {
+    box-shadow: 0 0 8px rgba(244, 114, 182, 0.14);
+  }
+
+  .zor-nav__icon-btn--notify {
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.14);
+  }
+
+  .zor-nav .theme-toggle {
+    box-shadow: 0 0 8px rgba(167, 139, 250, 0.14);
+  }
+
+  .zor-nav .zor-intl__trigger {
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.14);
+  }
+
   .zor-nav__profile {
     position: relative;
     padding: 0;
-    width: 40px;
-    height: 40px;
+    width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
     justify-content: center;
     border-radius: 50%;
     overflow: visible;
+    border: none;
+    background: transparent;
+  }
+
+  .zor-nav__avatar-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      rgba(111, 212, 255, 0.2),
+      rgba(139, 92, 246, 0.9),
+      rgba(96, 165, 250, 0.85),
+      rgba(167, 139, 250, 0.55),
+      rgba(111, 212, 255, 0.2)
+    );
+    animation: zor-nav-avatar-spin 8s linear infinite;
+    z-index: 0;
+    pointer-events: none;
   }
 
   .zor-nav__profile div {
@@ -1519,8 +1622,23 @@ html {
 
   .zor-nav__profile img,
   .zor-nav__profile-fallback {
-    width: 32px;
-    height: 32px;
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
+    border: 1.5px solid rgba(7, 11, 22, 0.92);
+  }
+
+  .zor-public-shell__main {
+    overflow-x: clip;
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@keyframes zor-nav-avatar-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
