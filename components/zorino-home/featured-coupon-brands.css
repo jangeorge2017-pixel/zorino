@@ -256,8 +256,10 @@
   }
 
   .zh-brand-card {
-    flex: 0 0 min(300px, calc(100vw - 2 * var(--zh-pad, 10px) - 28px));
-    max-width: calc(100vw - 2 * var(--zh-pad, 10px) - 28px);
+    /* Track-relative slide — see homepage-layout-flow --zh-carousel-slide */
+    flex: 0 0 var(--zh-carousel-slide, min(300px, 85%));
+    width: var(--zh-carousel-slide, min(300px, 85%));
+    max-width: var(--zh-carousel-slide, min(300px, 85%));
   }
 
   .zh-brand-card__offer {
