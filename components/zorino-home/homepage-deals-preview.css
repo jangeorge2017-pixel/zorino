@@ -55,13 +55,10 @@
   min-width: 0;
 }
 
-/* Desktop/tablet: equal-height slides. Mobile uses intrinsic height
-   (see homepage-layout-flow) so listing-deal-meta is never clipped. */
-@media (min-width: 768px) {
-  .zh-page .zh-trending-deals__track .zor-deals-page__card,
-  .zh-page .zh-trending-deals__track .listing-product-card {
-    height: 100%;
-  }
+/* Equal-height slides in the trending track (all breakpoints). */
+.zh-page .zh-trending-deals__track .zor-deals-page__card,
+.zh-page .zh-trending-deals__track .listing-product-card {
+  height: 100%;
 }
 
 /*

@@ -142,7 +142,7 @@
     height: 38px;
     padding: 0;
     justify-content: center;
-    overflow: visible;
+    overflow: hidden;
     border-radius: 50%;
   }
 
@@ -280,47 +280,119 @@
     bottom: 0;
   }
 
-  /* ── 4) Intrinsic card heights — kill fixed / stretch heights on home ── */
-  .zh-page .zh-trending-deals__slide,
-  .zh-page .listing-product-card,
-  .zh-page .deal-card,
-  .zh-page .product-card,
-  .zh-page .zor-deals-page__card,
-  .zh-page .zor-deals-page__card .listing-product-card,
-  .zh-page .zh-trending-deals__track .zor-deals-page__card,
-  .zh-page .zh-trending-deals__track .listing-product-card {
-    height: auto;
-    min-height: 0;
-    max-height: none;
-    align-self: start;
+  /*
+   * ── 4) EQUAL-HEIGHT CARD SYSTEM ──
+   * Same width/height per row/track. Titles clamp; optional rows reserve space.
+   * Actions pin to the bottom. Never grow a single card for a long title.
+   */
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-product-grid,
+  .zh-page .listing-products-grid,
+  .zh-page .zor-deals-page__grid {
+    align-items: stretch;
   }
 
-  .zh-page .listing-product-card .product-card-media,
-  .zh-page .deal-card .product-card-media,
-  .zh-page .product-card-media {
-    height: auto;
-    min-height: 0;
-    max-height: none;
-    flex: 0 0 auto;
-    flex-basis: auto;
-    aspect-ratio: 4 / 3;
-    /* Keep image crop inside media; badges stay inside this box */
-    overflow: hidden;
+  .zh-page .zh-trending-deals__slide {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    align-self: stretch;
   }
 
   .zh-page .zor-deals-page__card {
     display: flex;
     flex-direction: column;
-    overflow: visible;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .zh-page .listing-product-card,
+  .zh-page .deal-card,
+  .zh-page .product-card,
+  .zh-page .zor-deals-page__card .listing-product-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    align-self: stretch;
+  }
+
+  .zh-page .listing-product-card .product-card-media,
+  .zh-page .deal-card .product-card-media,
+  .zh-page .product-card-media {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    flex: 0 0 auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .zh-page .product-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 6px;
+  }
+
+  .zh-page .deal-name,
+  .zh-page .listing-product-card .deal-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    line-height: 1.3;
+    min-height: calc(1.3em * 2);
+    max-height: calc(1.3em * 2);
+  }
+
+  .zh-page .trending-card-store,
+  .zh-page .deal-rating,
+  .zh-page .listing-stock {
+    min-height: 1.25em;
+    max-height: 1.25em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .zh-page .trending-card-store.is-empty,
+  .zh-page .deal-rating.is-empty,
+  .zh-page .listing-stock.is-empty {
+    visibility: hidden;
+  }
+
+  .zh-page .deal-pricing {
+    min-height: 1.5em;
+  }
+
+  .zh-page .product-card-actions,
+  .zh-page .listing-product-card .product-card-actions {
+    margin-top: auto;
+    flex-shrink: 0;
   }
 
   .zh-page .listing-deal-meta {
     position: relative;
     z-index: 2;
-    flex: 0 0 auto;
-    overflow: visible;
-    /* Keep amber countdown inside the card box / track padding */
+    flex: 0 0 28px;
+    min-height: 28px;
+    max-height: 28px;
+    margin-top: 8px;
     margin-bottom: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .zh-page .zor-deals-page__featured-badge {
@@ -337,6 +409,76 @@
     isolation: auto;
     overflow-x: clip;
     overflow-y: visible;
+  }
+
+  /* ── 5) Zero accidental X-bleed (categories / stats) ── */
+  .zh-page .zh-categories-wrap,
+  .zh-page .zh-categories,
+  .zh-page .zh-categories-nav {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  .zh-page .zh-categories__item:nth-child(n + 5) {
+    display: none !important;
+  }
+
+  .zh-page .zh-hero__stats {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Featured store / brand logos fill their tiles */
+  .zh-page .zh-brand-card__logo-wrap {
+    width: 88px;
+    height: 88px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .zh-page .zh-brand-card__logo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  .zh-page .zh-footer__store-logo {
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .zh-page .zh-footer__store-logo img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* Keep panels inside the viewport box — min-width:0 stops carousel
+     min-content from expanding grid/flex parents past the shell */
+  .zh-page .zh-shell,
+  .zh-page .hhb,
+  .zh-page .hhb__content,
+  .zh-page .zh-commerce,
+  .zh-page .zh-panel,
+  .zh-page .zh-product-section,
+  .zh-page .zh-trending-deals,
+  .zh-page .zh-trending-deals__carousel,
+  .zh-page .zh-featured-brands,
+  .zh-page .zh-featured-brands__carousel,
+  .zh-page .zh-product-sections,
+  .zh-page .zh-product-sections-wrap {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .zh-page .zh-nav__avatar-ring,
+  .zh-page .zh-nav__profile {
+    max-width: 100%;
+    overflow: hidden;
   }
 }
 

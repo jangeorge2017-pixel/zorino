@@ -251,12 +251,13 @@
   }
 
   .zh-page .zh-hero__stats {
-    /* Break out of copy's orbit reserve so stats span full mobile width */
-    width: calc(100% + 108px);
-    max-width: none;
+    /* Full content width only — never break out past the viewport */
+    width: 100%;
+    max-width: 100%;
     margin-top: 18px;
     gap: 8px;
     justify-content: stretch;
+    box-sizing: border-box;
   }
 
   /* Full mobile-width 2×2 stats — ~5px shorter, width unchanged */
@@ -582,54 +583,54 @@
    * A 5th tile must not sit in a padding gutter / peek into view.
    */
   .zh-page .zh-categories-wrap {
-    /* Clear search — negative lift was painting category tops under the bar */
     position: relative;
     z-index: 1;
     margin-top: 10px;
-    margin-inline: calc(-1 * var(--zh-pad));
-    width: calc(100% + (2 * var(--zh-pad)));
-    max-width: 100vw;
-    padding-inline: var(--zh-pad);
+    margin-inline: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 0;
     box-sizing: border-box;
-    /* overflow contract: homepage-layout-flow (clip + Y visible) */
+    overflow-x: clip;
   }
 
   .zh-page .zh-categories-nav {
     width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   .zh-page .zh-categories {
-    display: flex;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     box-sizing: border-box;
     width: 100%;
+    max-width: 100%;
     margin-inline: 0;
     padding-inline: 0;
     gap: 8px;
-    /* Exactly 4 tiles — no nested horizontal scrollport */
+    /* Exactly 4 tiles — extras hidden in layout-flow; no X-scroll */
     scroll-snap-type: none;
     scrollbar-width: none;
+    overflow: hidden;
   }
 
   .zh-page .zh-categories__item {
     box-sizing: border-box;
-    /* 100% = scroller content width; 24px = 3 equal gaps between 4 tiles */
-    flex: 0 0 calc((100% - 24px) / 4);
-    width: calc((100% - 24px) / 4);
-    min-width: calc((100% - 24px) / 4);
-    max-width: calc((100% - 24px) / 4);
-    /* ~12px shorter overall; icon size unchanged */
+    width: 100%;
+    min-width: 0;
+    max-width: none;
     min-height: 0;
-    padding: 2px 2px 4px;
-    gap: 2px;
+    padding: 4px 2px 6px;
+    gap: 4px;
     border: none;
     border-radius: 0;
     background: transparent;
     box-shadow: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    scroll-snap-align: start;
     justify-content: center;
+    align-items: center;
   }
 
   .zh-page .zh-categories__item:hover,
@@ -641,23 +642,29 @@
   }
 
   .zh-page .zh-categories__icon-box {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     border-radius: 14px;
     border: none;
     background: rgba(15, 23, 42, 0.35);
+    flex-shrink: 0;
   }
 
   .zh-page .zh-categories__icon-box svg {
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
   }
 
   .zh-page .zh-categories__label {
-    font-size: 13.5px;
+    width: 100%;
+    font-size: 11.5px;
     font-weight: 700;
     letter-spacing: 0.01em;
-    line-height: 1.1;
+    line-height: 1.15;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .zh-page .zh-home-discovery-nav {
@@ -833,13 +840,15 @@
     isolation: auto;
   }
 
-  /* Defeat desktop equal-height stretch that clips listing-deal-meta */
+  /* Equal-height card system — stretch within track / grid */
   .zh-page .zh-trending-deals__slide,
   .zh-page .zh-trending-deals__track .zor-deals-page__card,
-  .zh-page .zh-trending-deals__track .listing-product-card {
-    height: auto !important;
+  .zh-page .zh-trending-deals__track .listing-product-card,
+  .zh-page .zh-product-grid .listing-product-card,
+  .zh-page .zh-product-grid .zor-deals-page__card {
+    height: 100%;
     max-height: none;
-    align-self: start;
+    align-self: stretch;
   }
 
   .zh-page .zh-trending-deals__track,
@@ -940,8 +949,28 @@
     line-height: 1.3;
   }
 
-  .zh-page .zh-product-grid {
+  .zh-page .zh-product-grid,
+  .zh-page .listing-products-grid,
+  .zh-page .zor-deals-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+    align-items: stretch;
+  }
+
+  .zh-page .listing-products-grid > .zor-deals-page__card,
+  .zh-page .zor-deals-page__grid > .zor-deals-page__card,
+  .zh-page .zh-product-grid > .zor-deals-page__card,
+  .zh-page .listing-products-grid > .listing-product-card,
+  .zh-page .zor-deals-page__grid > .listing-product-card {
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+  }
+
+  .zh-page .zh-brand-card__logo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
   }
 
   .zh-page .product-card-actions-dual {

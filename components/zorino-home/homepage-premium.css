@@ -492,7 +492,8 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  padding: 8px;
+  padding: 0;
+  overflow: hidden;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(15, 23, 42, 0.65);
@@ -508,7 +509,7 @@
 .zh-footer__store-logo img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .zh-footer__store-logo span {
