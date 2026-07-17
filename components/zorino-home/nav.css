@@ -698,7 +698,7 @@
   .zh-page .zh-nav__inner,
   .zh-nav__inner {
     display: grid;
-    grid-template-columns: auto minmax(28px, 1fr) auto auto auto auto auto auto;
+    grid-template-columns: auto minmax(36px, 1fr) auto auto auto auto auto auto;
     align-items: center;
     column-gap: 5px;
     max-width: 100%;
