@@ -435,6 +435,26 @@
 
   .zh-page .zh-search {
     width: 100%;
+    border-radius: 14px;
+    /*
+     * Glow on the unclipped parent. Putting box-shadow on .zh-search__bar while
+     * it uses overflow:hidden clips the shadow into a hard hairline under the bar.
+     */
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.28),
+      0 0 12px rgba(96, 165, 250, 0.1),
+      0 0 18px rgba(139, 92, 246, 0.06);
+    transition: box-shadow 220ms ease;
+    animation: zh-search-border-glow 6.5s ease-in-out infinite;
+  }
+
+  .zh-page .zh-search:hover,
+  .zh-page .zh-search:focus-within {
+    animation: none;
+    box-shadow:
+      0 10px 26px rgba(0, 0, 0, 0.32),
+      0 0 16px rgba(96, 165, 250, 0.14),
+      0 0 22px rgba(139, 92, 246, 0.1);
   }
 
   .zh-page .zh-search__ai {
@@ -451,24 +471,23 @@
     gap: 8px;
     padding: 4px 4px 4px 12px;
     border-radius: 14px;
+    /* Clip sweep pseudo only — no box-shadow here (see .zh-search above) */
     overflow: hidden;
+    border: 1px solid rgba(96, 165, 250, 0.22);
     border-color: rgba(96, 165, 250, 0.22);
-    box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.06),
-      0 0 10px rgba(96, 165, 250, 0.08),
-      0 0 16px rgba(139, 92, 246, 0.05);
-    animation: zh-search-border-glow 6.5s ease-in-out infinite;
-    transition:
-      box-shadow 220ms ease,
-      border-color 220ms ease;
+    background: rgba(15, 23, 42, 0.88);
+    box-shadow: none;
+    animation: none;
+    transition: border-color 220ms ease;
   }
 
-  /* Subtle border/light sweep — every ~7s */
+  /* Subtle border/light sweep — every ~7s; fully inside rounded clip */
   .zh-page .zh-search__bar::after {
     content: "";
     position: absolute;
     inset: 0;
     z-index: 0;
+    border-radius: inherit;
     background: linear-gradient(
       105deg,
       transparent 38%,
@@ -484,10 +503,7 @@
   .zh-page .zh-search__bar:hover,
   .zh-page .zh-search__bar:focus-within {
     border-color: rgba(139, 92, 246, 0.34);
-    box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.14),
-      0 0 14px rgba(96, 165, 250, 0.14),
-      0 0 22px rgba(139, 92, 246, 0.1);
+    box-shadow: none;
     animation: none;
   }
 
@@ -543,6 +559,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .zh-page .zh-search,
     .zh-page .zh-search__bar,
     .zh-page .zh-search__bar::after {
       animation: none;
@@ -673,20 +690,29 @@
 
   .zh-page .zh-quick-nav__pill {
     box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     min-width: 0;
     max-width: none;
+    height: 38px;
     min-height: 38px;
-    padding: 5px 3px;
+    max-height: 38px;
+    padding: 0 3px;
     font-size: 11.5px;
-    font-weight: 700;
+    font-weight: 600;
     gap: 3px;
-    justify-content: center;
     overflow: hidden;
+    line-height: 1;
   }
 
   .zh-page .zh-quick-nav__emoji {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 12px;
+    line-height: 1;
     flex-shrink: 0;
   }
 
@@ -695,9 +721,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-weight: 800;
+    font-weight: 600;
     font-size: 12px;
     letter-spacing: 0.01em;
+    line-height: 1;
   }
 
   /* Orbit cards: same image size — larger badge/price for readability only */
@@ -909,20 +936,19 @@
   }
 }
 
+/* Soft outer glow only — no 1px ring (that doubled the border into a hairline) */
 @keyframes zh-search-border-glow {
   0%,
   100% {
     box-shadow:
-      0 0 0 1px rgba(96, 165, 250, 0.1),
-      0 0 10px rgba(96, 165, 250, 0.07),
-      0 0 16px rgba(139, 92, 246, 0.05);
-    border-color: rgba(96, 165, 250, 0.22);
+      0 8px 22px rgba(0, 0, 0, 0.28),
+      0 0 12px rgba(96, 165, 250, 0.1),
+      0 0 18px rgba(139, 92, 246, 0.06);
   }
   50% {
     box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.16),
-      0 0 14px rgba(96, 165, 250, 0.12),
-      0 0 22px rgba(139, 92, 246, 0.09);
-    border-color: rgba(139, 92, 246, 0.3);
+      0 10px 26px rgba(0, 0, 0, 0.3),
+      0 0 16px rgba(96, 165, 250, 0.14),
+      0 0 22px rgba(139, 92, 246, 0.1);
   }
 }
