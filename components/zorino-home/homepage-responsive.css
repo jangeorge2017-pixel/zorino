@@ -300,10 +300,10 @@
    */
   .zh-page .zh-hero__col--right {
     position: absolute;
-    /* Keep floating cards below sticky header + hero breath padding */
-    top: 10px;
-    /* 30px closer to hero text (leftward); animations unchanged */
-    right: 30px;
+    /* Keep floating cards below sticky header; +15px down from prior 10px */
+    top: 25px;
+    /* Stage +30px toward right edge (was 30px); left column compensated below */
+    right: 0px;
     left: auto;
     width: 148px;
     height: 222px;
@@ -403,14 +403,17 @@
     pointer-events: auto;
   }
 
-  /* Columns up ~20px; stacked gap −~20px (orientation-stable %) */
+  /*
+   * Stage shifted +30px right: left column −35px net → 5px toward hero title;
+   * right column rides the stage (+30px toward screen edge).
+   */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: 14%;
+    left: calc(14% - 35px);
     top: 4%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 14%;
+    left: calc(14% - 35px);
     top: 40%;
   }
 
@@ -426,8 +429,8 @@
 
   /* ── Search — single horizontal bar (desktop pattern), button inside ── */
   .zh-page .zh-hero-search {
-    /* Clear of stats; equal ~18px rhythm Stats→Search→Categories */
-    margin-top: var(--zh-discovery-gap, 18px);
+    /* Position polish: 17px up from prior 18px gap */
+    margin-top: calc(var(--zh-discovery-gap, 18px) - 17px);
   }
 
   .zh-page .zh-search {
@@ -556,7 +559,8 @@
    * A 5th tile must not sit in a padding gutter / peek into view.
    */
   .zh-page .zh-categories-wrap {
-    margin-top: var(--zh-discovery-gap, 18px);
+    /* Position polish: 20px up from prior 18px gap */
+    margin-top: calc(var(--zh-discovery-gap, 18px) - 20px);
     margin-inline: calc(-1 * var(--zh-pad));
     width: calc(100% + (2 * var(--zh-pad)));
     max-width: 100vw;
@@ -634,7 +638,8 @@
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: var(--zh-discovery-gap, 18px);
+    /* Position polish: 25px up from prior 18px gap; chip gaps unchanged */
+    margin-top: calc(var(--zh-discovery-gap, 18px) - 25px);
     overflow-x: hidden;
   }
 
