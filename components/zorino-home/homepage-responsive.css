@@ -183,8 +183,8 @@
     /* ~20px further right (away from left copy); height/vertical unchanged */
     --zh-hero-artwork-right: -28px;
     --zh-hero-artwork-painted-width: min(128vw, 500px);
-    /* Stretch hero background downward ~32px; copy/cards stay put */
-    --zh-hero-artwork-painted-height: 218px;
+    /* Stretch hero background downward ~38px; copy/cards stay put */
+    --zh-hero-artwork-painted-height: 224px;
     --zh-hero-artwork-painted-top: calc(var(--zh-nav-h) - 6px);
     --zh-hero-artwork-painted-right: var(--zh-hero-artwork-right);
     --zh-hero-edge-feather: 22px;
@@ -259,20 +259,20 @@
     justify-content: stretch;
   }
 
-  /* Full mobile-width 2×2 stats — restored (not shrunk) */
+  /* Full mobile-width 2×2 stats — ~5px shorter, width unchanged */
   .zh-page .zh-stat {
     flex: 1 1 calc(50% - 4px);
     width: calc(50% - 4px);
     min-width: calc(50% - 4px);
     max-width: calc(50% - 4px);
-    min-height: 58px;
-    padding: 10px 11px;
+    min-height: 53px;
+    padding: 8px 11px;
     border-radius: 12px;
     box-sizing: border-box;
   }
 
   .zh-page .zh-stat__value {
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     font-size: 15px;
   }
 
@@ -425,7 +425,7 @@
 
   /* ── Search — single horizontal bar (desktop pattern), button inside ── */
   .zh-page .zh-hero-search {
-    /* Lift-aware base + 15px lower; Stats→Search ~18px visual rhythm */
+    /* Directly under stats with consistent ~18px rhythm (lift-aware) */
     margin-top: calc(
       var(--zh-discovery-gap, 18px) - var(--zh-discovery-group-lift, 0px) + 15px
     );
@@ -587,35 +587,35 @@
 
   .zh-page .zh-categories__item {
     box-sizing: border-box;
-    /* 100% = scroller content width; 24px = 3 gaps between 4 tiles */
+    /* 100% = scroller content width; 24px = 3 equal gaps between 4 tiles */
     flex: 0 0 calc((100% - 24px) / 4);
     width: calc((100% - 24px) / 4);
     min-width: calc((100% - 24px) / 4);
     max-width: calc((100% - 24px) / 4);
-    min-height: 62px;
-    /* Slightly tighter padding so larger icon/label fit same card */
-    padding: 4px 2px 5px;
-    gap: 3px;
+    min-height: 58px;
+    /* Slightly shorter card; larger icon/label fill the tile */
+    padding: 3px 2px 4px;
+    gap: 2px;
     border-radius: 10px;
     scroll-snap-align: start;
   }
 
   .zh-page .zh-categories__icon-box {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     border-radius: 12px;
   }
 
   .zh-page .zh-categories__icon-box svg {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
   }
 
   .zh-page .zh-categories__label {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 13.5px;
+    font-weight: 700;
     letter-spacing: 0.01em;
-    line-height: 1.15;
+    line-height: 1.1;
   }
 
   .zh-page .zh-home-discovery-nav {
@@ -673,6 +673,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.01em;
   }
 
   /* Orbit cards: same image size — larger badge/price for readability only */

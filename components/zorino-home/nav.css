@@ -661,14 +661,14 @@
     --zh-nav-control-h: 34px;
     --zh-nav-gap: 6px;
     --zh-nav-logo-gap: 0px;
-    --zh-nav-pad-x: 10px;
+    --zh-nav-pad-x: 8px;
     --zh-nav-logo-h: 56px;
     --zh-nav-transition: 220ms ease;
     height: 56px;
     max-height: 56px;
-    /* Logo at the very start of the header chrome */
-    padding: 0 max(10px, env(safe-area-inset-right, 0px)) 0
-      max(10px, env(safe-area-inset-left, 0px));
+    /* Flush start — match avatar-side inset (8px + safe-area) */
+    padding: 0 max(8px, env(safe-area-inset-right, 0px)) 0
+      max(8px, env(safe-area-inset-left, 0px));
     overflow: visible;
     background: rgba(7, 11, 22, 0.72);
     backdrop-filter: blur(16px) saturate(1.35);
@@ -733,11 +733,11 @@
 
   .zh-page .zh-nav__logo-lockup,
   .zh-nav__logo-lockup {
-    /* ~17% over prior 48px mobile logo */
+    /* ~17–20% over prior 48px mobile logo (bar height caps at 56) */
     height: 56px !important;
     max-height: 56px;
-    /* Icons 6×34 + 5×6 = 234; pad 20; logo gap 12; buffer 8 */
-    max-width: min(128px, calc(100vw - 20px - 12px - 8px - 234px));
+    /* Icons 6×34 + 5×6 = 234; pad 16; logo gap 12; buffer 6 */
+    max-width: min(136px, calc(100vw - 16px - 12px - 6px - 234px));
     width: auto !important;
     object-fit: contain;
     object-position: left center;
@@ -948,7 +948,16 @@
     height: 21px;
   }
 
-  /* Per-icon premium glows — Search cyan, Theme purple, Language blue, Heart pink, Bell gold */
+  /* Wishlist glyph matches notification size */
+  .zh-page .zh-nav__icon-btn--wishlist svg,
+  .zh-nav__icon-btn--wishlist svg,
+  .zh-page .zh-nav__icon-btn--notify svg,
+  .zh-nav__icon-btn--notify svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Per-icon premium glows — Search cyan, Theme purple, Language blue, Heart green, Bell gold */
   .zh-page .zh-nav__icon-btn--search,
   .zh-nav__icon-btn--search {
     box-shadow: 0 0 8px rgba(34, 211, 238, 0.18);
@@ -999,16 +1008,16 @@
       0 0 18px rgba(59, 130, 246, 0.14);
   }
 
-  /* Wishlist stays visible (label hidden only); soft pink/red accent */
+  /* Wishlist visible; premium green accent (dark theme) */
   .zh-page .zh-nav__icon-btn--wishlist,
   .zh-nav__icon-btn--wishlist {
     display: inline-flex !important;
     flex: 0 0 auto;
     visibility: visible;
     opacity: 1;
-    color: #f9a8d4;
-    box-shadow: 0 0 10px rgba(244, 114, 182, 0.28);
-    animation: zh-nav-glow-pink 4.1s ease-in-out infinite;
+    color: #86efac;
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+    animation: zh-nav-glow-green 4.1s ease-in-out infinite;
   }
 
   .zh-page .zh-nav__icon-btn--wishlist:hover,
@@ -1016,10 +1025,10 @@
   .zh-nav__icon-btn--wishlist:hover,
   .zh-nav__icon-btn--wishlist:focus-visible {
     animation: none;
-    color: #fbcfe8;
+    color: #bbf7d0;
     box-shadow:
-      0 0 12px rgba(244, 114, 182, 0.34),
-      0 0 18px rgba(236, 72, 153, 0.14);
+      0 0 12px rgba(52, 211, 153, 0.38),
+      0 0 18px rgba(16, 185, 129, 0.16);
   }
 
   /* Soft gold/yellow accent on notification bell */
@@ -1117,6 +1126,16 @@
   }
   50% {
     box-shadow: 0 0 11px rgba(244, 114, 182, 0.24);
+  }
+}
+
+@keyframes zh-nav-glow-green {
+  0%,
+  100% {
+    box-shadow: 0 0 7px rgba(52, 211, 153, 0.14);
+  }
+  50% {
+    box-shadow: 0 0 11px rgba(52, 211, 153, 0.28);
   }
 }
 
