@@ -126,6 +126,7 @@
     padding: 0;
     justify-content: center;
     overflow: hidden;
+    border-radius: 50%;
   }
 
   .zh-page .zh-nav__profile-copy {

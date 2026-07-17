@@ -24,7 +24,7 @@ export default function ZorinoHomeNav() {
     ? user.name.split(" ")[0] || user.name
     : null;
   const accountHref = user ? "/profile" : "/auth/login";
-  const accountLabel = user ? t("account") : t("signIn");
+  const accountLabel = user ? t("profile") : t("signIn");
 
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,8 +62,13 @@ export default function ZorinoHomeNav() {
         </div>
 
         <div className="zh-nav__actions">
-          <IntlNavSelectors />
-          <ThemeSwitcher />
+          {/* Desktop/tablet only — mobile uses Avatar menu for Language + Theme */}
+          <span className="zh-nav__desktop-intl">
+            <IntlNavSelectors />
+          </span>
+          <span className="zh-nav__desktop-theme">
+            <ThemeSwitcher />
+          </span>
           <Link href="/wishlist" className="zh-nav__icon-btn zh-nav__wishlist">
             <Heart size={17} strokeWidth={2} aria-hidden />
             <span className="zh-nav__wishlist-label">{t("wishlist")}</span>
@@ -88,8 +93,8 @@ export default function ZorinoHomeNav() {
               <img
                 src={user?.avatar || "https://i.pravatar.cc/40"}
                 alt=""
-                width={28}
-                height={28}
+                width={32}
+                height={32}
               />
             </button>
           ) : (
