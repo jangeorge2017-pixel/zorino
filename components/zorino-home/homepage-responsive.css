@@ -161,10 +161,10 @@
     --zh-section-step: 36px;
     --zh-space-discovery: 14px;
     /*
-     * Discovery group ~18px lower than prior 96px lift; even 18px gaps
+     * No negative lift — Search sits clear below stats with even 18px gaps
      * Stats→Search, Search→Categories, Categories→Quick Nav.
      */
-    --zh-discovery-group-lift: 72px;
+    --zh-discovery-group-lift: 0px;
     /* Even ~18px rhythm: Stats→Search, Search→Categories */
     --zh-discovery-gap: 18px;
     --zh-hero-artwork-width: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
@@ -183,8 +183,8 @@
     /* ~20px further right (away from left copy); height/vertical unchanged */
     --zh-hero-artwork-right: -28px;
     --zh-hero-artwork-painted-width: min(128vw, 500px);
-    /* Stretch hero background downward ~38px; copy/cards stay put */
-    --zh-hero-artwork-painted-height: 224px;
+    /* Stretch hero background downward (+40px); copy/cards stay put */
+    --zh-hero-artwork-painted-height: 264px;
     --zh-hero-artwork-painted-top: calc(var(--zh-nav-h) - 6px);
     --zh-hero-artwork-painted-right: var(--zh-hero-artwork-right);
     --zh-hero-edge-feather: 22px;
@@ -302,7 +302,8 @@
     position: absolute;
     /* Keep floating cards below sticky header + hero breath padding */
     top: 10px;
-    right: 0px;
+    /* 30px closer to hero text (leftward); animations unchanged */
+    right: 30px;
     left: auto;
     width: 148px;
     height: 222px;
@@ -425,10 +426,8 @@
 
   /* ── Search — single horizontal bar (desktop pattern), button inside ── */
   .zh-page .zh-hero-search {
-    /* Directly under stats with consistent ~18px rhythm (lift-aware) */
-    margin-top: calc(
-      var(--zh-discovery-gap, 18px) - var(--zh-discovery-group-lift, 0px) + 15px
-    );
+    /* Clear of stats; equal ~18px rhythm Stats→Search→Categories */
+    margin-top: var(--zh-discovery-gap, 18px);
   }
 
   .zh-page .zh-search {
@@ -593,22 +592,38 @@
     min-width: calc((100% - 24px) / 4);
     max-width: calc((100% - 24px) / 4);
     min-height: 58px;
-    /* Slightly shorter card; larger icon/label fill the tile */
-    padding: 3px 2px 4px;
-    gap: 2px;
-    border-radius: 10px;
+    /* No outer frame; content nudged lower for visual center */
+    padding: 10px 2px 6px;
+    gap: 3px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     scroll-snap-align: start;
+    justify-content: center;
+  }
+
+  .zh-page .zh-categories__item:hover,
+  .zh-page .zh-categories__item--highlight,
+  .zh-page .zh-categories__item--highlight:hover {
+    border: none;
+    background: transparent;
+    box-shadow: none;
   }
 
   .zh-page .zh-categories__icon-box {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    border: none;
+    background: rgba(15, 23, 42, 0.35);
   }
 
   .zh-page .zh-categories__icon-box svg {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   }
 
   .zh-page .zh-categories__label {
@@ -619,7 +634,7 @@
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: var(--zh-discovery-gap, 16px);
+    margin-top: var(--zh-discovery-gap, 18px);
     overflow-x: hidden;
   }
 
@@ -636,10 +651,13 @@
 
   /*
    * Exactly three equal-width chips — hide the rest (no scroll / no peek).
+   * Grid keeps equal gaps between Trending Deals / Coupons / Coupon Brands.
    */
   .zh-page .zh-quick-nav__row {
-    display: flex;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 8px;
+    row-gap: 0;
     padding-block: 2px;
     overflow: hidden;
   }
@@ -650,14 +668,13 @@
 
   .zh-page .zh-quick-nav__pill {
     box-sizing: border-box;
-    flex: 1 1 0;
-    width: auto;
+    width: 100%;
     min-width: 0;
     max-width: none;
     min-height: 38px;
     padding: 5px 3px;
-    font-size: 10.5px;
-    font-weight: 600;
+    font-size: 11.5px;
+    font-weight: 700;
     gap: 3px;
     justify-content: center;
     overflow: hidden;
@@ -673,8 +690,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-weight: 700;
-    font-size: 11px;
+    font-weight: 800;
+    font-size: 12px;
     letter-spacing: 0.01em;
   }
 
