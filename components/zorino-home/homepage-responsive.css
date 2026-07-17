@@ -204,7 +204,7 @@
     overflow: visible;
     min-height: 0;
     /* Clear sticky header divider so "AI Powered" never touches it */
-    padding-top: 24px;
+    padding-top: 30px;
   }
 
   .zh-page .zh-hero__col--left {
@@ -393,25 +393,25 @@
     pointer-events: auto;
   }
 
-  /* Columns up ~20px; stacked gap tightened ~20px (fixed % for orientation stability) */
+  /* Columns up; stacked gap tightened (orientation-stable %) */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
     left: 14%;
-    top: 10%;
+    top: 6%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
     left: 14%;
-    top: 52%;
+    top: 44%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
     left: 86%;
-    top: 10%;
+    top: 6%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
     left: 86%;
-    top: 52%;
+    top: 44%;
   }
 
   /* ── Search — single horizontal bar (desktop pattern), button inside ── */
