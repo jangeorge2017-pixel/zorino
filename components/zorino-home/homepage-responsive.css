@@ -156,7 +156,8 @@
   /* ── Page rhythm ── */
   .zh-page {
     --zh-nav-h: 56px;
-    --zh-pad: 16px;
+    /* Tighter side padding; shell still respects safe-area insets */
+    --zh-pad: 12px;
     --zh-section-step: 36px;
     --zh-space-discovery: 14px;
     /*
@@ -187,9 +188,9 @@
   }
 
   .zh-page .zh-shell {
-    padding-left: var(--zh-pad);
-    padding-right: var(--zh-pad);
-    padding-bottom: 24px;
+    padding-left: max(var(--zh-pad), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--zh-pad), env(safe-area-inset-right, 0px));
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
     overflow-x: clip;
   }
 
@@ -201,6 +202,8 @@
     row-gap: 14px;
     overflow: visible;
     min-height: 0;
+    /* Clear sticky header so "AI Powered" never touches the bar */
+    padding-top: 12px;
   }
 
   .zh-page .zh-hero__col--left {
@@ -211,6 +214,8 @@
 
   .zh-page .zh-hero__badge {
     margin-inline: 0;
+    margin-top: 0;
+    margin-bottom: 12px;
   }
 
   .zh-page .zh-hero__subtitle {
@@ -285,7 +290,8 @@
    */
   .zh-page .zh-hero__col--right {
     position: absolute;
-    top: calc(var(--zh-hero-artwork-painted-top) - var(--zh-nav-h) + 2px);
+    /* Keep floating cards below sticky header + hero breath padding */
+    top: 10px;
     right: 0px;
     left: auto;
     width: 148px;
@@ -429,15 +435,15 @@
     align-items: center;
     min-height: 48px;
     width: 100%;
-    gap: 6px;
-    padding: 5px 5px 5px 12px;
+    gap: 8px;
+    padding: 4px 4px 4px 12px;
     border-radius: 14px;
     overflow: hidden;
-    border-color: rgba(96, 165, 250, 0.2);
+    border-color: rgba(96, 165, 250, 0.18);
     box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.08),
-      0 0 12px rgba(96, 165, 250, 0.1),
-      0 0 18px rgba(139, 92, 246, 0.06);
+      0 0 0 1px rgba(139, 92, 246, 0.05),
+      0 0 8px rgba(96, 165, 250, 0.06),
+      0 0 14px rgba(139, 92, 246, 0.04);
     transition:
       box-shadow 220ms ease,
       border-color 220ms ease;
@@ -452,8 +458,8 @@
     background: linear-gradient(
       105deg,
       transparent 38%,
-      rgba(167, 139, 250, 0.1) 49%,
-      rgba(111, 212, 255, 0.12) 52%,
+      rgba(167, 139, 250, 0.08) 49%,
+      rgba(111, 212, 255, 0.1) 52%,
       transparent 62%
     );
     transform: translateX(-130%);
@@ -463,11 +469,11 @@
 
   .zh-page .zh-search__bar:hover,
   .zh-page .zh-search__bar:focus-within {
-    border-color: rgba(139, 92, 246, 0.34);
+    border-color: rgba(139, 92, 246, 0.3);
     box-shadow:
-      0 0 0 1px rgba(139, 92, 246, 0.16),
-      0 0 16px rgba(96, 165, 250, 0.16),
-      0 0 24px rgba(139, 92, 246, 0.12);
+      0 0 0 1px rgba(139, 92, 246, 0.12),
+      0 0 12px rgba(96, 165, 250, 0.12),
+      0 0 18px rgba(139, 92, 246, 0.08);
   }
 
   .zh-page .zh-search__icon {
@@ -475,6 +481,9 @@
     z-index: 1;
     flex-shrink: 0;
     order: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .zh-page .zh-search__bar input {
@@ -483,11 +492,14 @@
     flex: 1 1 auto;
     order: 0;
     min-width: 0;
-    min-height: 0;
+    min-height: 36px;
     width: auto;
     max-width: 100%;
-    padding-right: 4px;
+    padding: 0 6px 0 0;
+    margin: 0;
+    border: 0;
     font-size: 13.5px;
+    line-height: 1.25;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -497,7 +509,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    opacity: 0.92;
+    opacity: 0.88;
   }
 
   .zh-page .zh-search__submit {
@@ -506,11 +518,12 @@
     flex: 0 0 auto;
     flex-shrink: 0;
     order: 0;
-    min-height: 0;
-    align-self: stretch;
+    min-height: 40px;
+    align-self: center;
     padding: 9px 14px;
     border-radius: 10px;
     font-size: 13px;
+    line-height: 1;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -639,14 +652,14 @@
     white-space: nowrap;
   }
 
-  /* Orbit cards: same size/position — only shrink badge/price type */
+  /* Orbit cards: same image size — slightly larger badge/price for readability */
   .zh-page .zh-orbit-card__discount {
     top: 1px;
     left: 2px;
-    padding: 1px 2px;
+    padding: 1px 3px;
     border-radius: 3px;
-    font-size: 5.5px;
-    line-height: 1.05;
+    font-size: 6.5px;
+    line-height: 1.1;
     letter-spacing: 0;
   }
 
@@ -658,13 +671,13 @@
   }
 
   .zh-page .zh-orbit-card__price {
-    font-size: 6.5px;
-    line-height: 1.05;
+    font-size: 7.5px;
+    line-height: 1.1;
   }
 
   .zh-page .zh-orbit-card__was {
-    font-size: 5.5px;
-    line-height: 1.05;
+    font-size: 6.5px;
+    line-height: 1.1;
   }
 
   /* ── Commerce / Trending / Coupons ── */

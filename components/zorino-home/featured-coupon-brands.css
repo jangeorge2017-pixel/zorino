@@ -256,6 +256,11 @@
   }
 
   .zh-brand-card {
-    flex-basis: min(200px, 82vw);
+    flex: 0 0 min(300px, calc(100vw - 48px));
+    max-width: calc(100vw - 48px);
+  }
+
+  .zh-brand-card__offer {
+    white-space: normal;
   }
 }
