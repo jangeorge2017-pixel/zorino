@@ -373,7 +373,29 @@
   }
 
   .zh-page .deal-pricing {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: 6px;
     min-height: 1.5em;
+    max-height: 1.5em;
+    overflow: hidden;
+  }
+
+  .zh-page .deal-pricing .deal-price,
+  .zh-page .deal-pricing .deal-original {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .zh-page .deal-pricing .deal-price {
+    flex: 0 1 auto;
+  }
+
+  .zh-page .deal-pricing .deal-original {
+    flex: 1 1 auto;
   }
 
   .zh-page .product-card-actions,
