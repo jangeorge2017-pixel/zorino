@@ -596,15 +596,17 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px),
+  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
   /*
    * Mobile header — desktop/tablet unchanged.
-   * Layout: [Logo] [Search] [Theme] [Language] …… [Wish] [Bell] [Avatar]
+   * Layout: [Logo] …… [Search] [Theme] [Language] [Wish] [Bell] [Avatar]
+   * Same chrome in portrait and short landscape (no separate landscape layout).
    */
   .zh-page .zh-nav,
   .zh-nav {
     --zh-nav-control-h: 36px;
-    --zh-nav-gap: 6px;
+    --zh-nav-gap: 5px;
     --zh-nav-logo-gap: 6px;
     --zh-nav-pad-x: 0;
     --zh-nav-logo-h: 34px;
@@ -623,7 +625,7 @@
   .zh-page .zh-nav__inner,
   .zh-nav__inner {
     display: grid;
-    grid-template-columns: auto auto auto auto minmax(4px, 1fr) auto auto auto;
+    grid-template-columns: auto minmax(6px, 1fr) auto auto auto auto auto auto;
     align-items: center;
     column-gap: 5px;
     max-width: 100%;
@@ -654,7 +656,7 @@
 
   .zh-page .zh-nav__search-slot,
   .zh-nav__search-slot {
-    grid-column: 2;
+    grid-column: 3;
     margin-left: 0;
     width: var(--zh-nav-control-h);
     flex: none;
@@ -666,18 +668,18 @@
     margin-left: 0;
   }
 
-  .zh-page .zh-nav__desktop-intl,
-  .zh-nav__desktop-intl {
+  .zh-page .zh-nav__desktop-theme,
+  .zh-nav__desktop-theme {
     display: flex;
     grid-column: 4;
     align-items: center;
     justify-content: center;
   }
 
-  .zh-page .zh-nav__desktop-theme,
-  .zh-nav__desktop-theme {
+  .zh-page .zh-nav__desktop-intl,
+  .zh-nav__desktop-intl {
     display: flex;
-    grid-column: 3;
+    grid-column: 5;
     align-items: center;
     justify-content: center;
   }
@@ -823,9 +825,7 @@
     min-height: var(--zh-nav-control-h);
     max-height: var(--zh-nav-control-h);
     color: #e2e8f0;
-    box-shadow:
-      0 0 10px rgba(96, 165, 250, 0.16),
-      0 0 14px rgba(139, 92, 246, 0.1);
+    box-shadow: none;
     transition:
       box-shadow var(--zh-nav-transition),
       color var(--zh-nav-transition),
@@ -834,43 +834,57 @@
       transform var(--zh-nav-transition);
   }
 
-  .zh-page .zh-nav__icon-btn--search-glow,
-  .zh-nav__icon-btn--search-glow {
+  /* Soft pulse / hover glow — Search, Favorite, Notification only */
+  .zh-page .zh-nav__icon-btn--pulse,
+  .zh-nav__icon-btn--pulse {
+    box-shadow:
+      0 0 8px rgba(96, 165, 250, 0.14),
+      0 0 12px rgba(139, 92, 246, 0.08);
+    animation: zh-nav-icon-pulse 3.6s ease-in-out infinite;
+  }
+
+  .zh-page .zh-nav__icon-btn--pulse:hover,
+  .zh-page .zh-nav__icon-btn--pulse:focus-visible,
+  .zh-nav__icon-btn--pulse:hover,
+  .zh-nav__icon-btn--pulse:focus-visible {
+    animation: none;
     box-shadow:
       0 0 12px rgba(96, 165, 250, 0.28),
-      0 0 18px rgba(139, 92, 246, 0.18);
+      0 0 16px rgba(139, 92, 246, 0.16);
   }
 
-  .zh-page .zh-nav__icon-btn:hover,
-  .zh-page .zh-nav__icon-btn:focus-visible,
-  .zh-nav__icon-btn:hover,
-  .zh-nav__icon-btn:focus-visible {
-    box-shadow:
-      0 0 14px rgba(96, 165, 250, 0.32),
-      0 0 20px rgba(139, 92, 246, 0.18);
-  }
-
-  .zh-page .zh-nav__icon-btn--search-glow:hover,
-  .zh-page .zh-nav__icon-btn--search-glow:focus-visible,
-  .zh-nav__icon-btn--search-glow:hover,
-  .zh-nav__icon-btn--search-glow:focus-visible {
-    box-shadow:
-      0 0 16px rgba(96, 165, 250, 0.4),
-      0 0 24px rgba(139, 92, 246, 0.24);
+  @media (prefers-reduced-motion: reduce) {
+    .zh-page .zh-nav__icon-btn--pulse,
+    .zh-nav__icon-btn--pulse,
+    .zh-page .zh-nav__avatar-ring {
+      animation: none;
+    }
   }
 }
 
 @keyframes zh-nav-avatar-breathe {
   0%,
   100% {
-    opacity: 0.55;
+    opacity: 0.5;
     transform: scale(1);
-    filter: blur(0.2px);
   }
   50% {
-    opacity: 0.95;
-    transform: scale(1.04);
-    filter: blur(0.35px);
+    opacity: 0.88;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes zh-nav-icon-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(96, 165, 250, 0.12),
+      0 0 12px rgba(139, 92, 246, 0.06);
+  }
+  50% {
+    box-shadow:
+      0 0 11px rgba(96, 165, 250, 0.22),
+      0 0 15px rgba(139, 92, 246, 0.12);
   }
 }
 
