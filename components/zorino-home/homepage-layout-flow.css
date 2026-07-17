@@ -98,6 +98,21 @@
 
 @media (max-width: 767px),
   (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+  /*
+   * ═══════════════════════════════════════════════════════════════════════
+   * MOBILE LAYOUT CONTRACT (390–430px architecture)
+   * Single owner for overflow / scroll / stacking / carousel sizing.
+   * Page vertical scroll = html only. Horizontal scroll = carousel tracks
+   * (+ optional filter strips) only. No nested vertical scrollports.
+   * ═══════════════════════════════════════════════════════════════════════
+   */
+  .zh-page {
+    /* Slide width relative to the TRACK content box — never 100vw math */
+    --zh-carousel-gap: 12px;
+    --zh-carousel-peek: 28px;
+    --zh-carousel-slide: calc(100% - var(--zh-carousel-peek));
+  }
+
   /* Even discovery rhythm — match homepage-responsive --zh-discovery-gap */
   .zh-page .zh-categories-wrap {
     margin-top: var(--zh-discovery-gap, 18px);
@@ -133,6 +148,174 @@
 
   .zh-page .zh-nav__profile-copy {
     display: none;
+  }
+
+  /* ── 1) Section containers: X-clip without creating Y scrollports ── */
+  .zh-page .zh-shell,
+  .zh-page .zh-hero-zone,
+  .zh-page .hhb,
+  .zh-page .hhb__content,
+  .zh-page .hhb .zh-commerce,
+  .zh-page .zh-commerce,
+  .zh-page .zh-panel,
+  .zh-page .zh-product-section,
+  .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-product-sections,
+  .zh-page .zh-product-sections-wrap,
+  .zh-page .zh-featured-brands-wrap,
+  .zh-page .zh-featured-brands.zh-panel,
+  .zh-page .zh-trending-deals,
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-coupons,
+  .zh-page #zh-section-coupons,
+  .zh-page .zh-categories-wrap,
+  .zh-page .zh-categories-nav,
+  .zh-page .zh-home-discovery-nav,
+  .zh-page .zh-quick-nav-wrap,
+  .zh-page .zh-quick-nav__track,
+  .zh-page .zh-section-head {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  /* Discovery rows are not scrollports on mobile (fixed tile counts) */
+  .zh-page .zh-categories,
+  .zh-page .zh-quick-nav__row {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  /* ── 2) Stacking: no blur / isolation / lift on scroll parents ── */
+  .zh-page .zh-panel,
+  .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-trending-deals,
+  .zh-page .zh-featured-brands.zh-panel,
+  .zh-page .zh-trending-deals__head {
+    /* blur(0) — bundler strips `none` as an initial value */
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    isolation: auto;
+    transform: none;
+  }
+
+  .zh-page .zh-trending-deals__head {
+    z-index: auto;
+  }
+
+  .zh-page .zh-trending-deals__carousel {
+    overflow-x: clip;
+    overflow-y: visible;
+    /* Flush track to panel/content edge — pad lives on the head only */
+    padding-inline: 0;
+  }
+
+  /* Cards never promote a layer that paints under fixed chrome */
+  .zh-page .zh-trending-deals__track .zor-deals-page__card,
+  .zh-page .zh-trending-deals__track .zor-deals-page__card:hover,
+  .zh-page .zh-trending-deals__track .listing-product-card,
+  .zh-page .zh-trending-deals__track .listing-product-card:hover,
+  .zh-page .zh-trending-deals__track .deal-card,
+  .zh-page .zh-trending-deals__track .deal-card:hover,
+  .zh-page .zh-product-sections .listing-product-card,
+  .zh-page .zh-product-sections .listing-product-card:hover,
+  .zh-page .zh-product-sections .deal-card,
+  .zh-page .zh-product-sections .deal-card:hover,
+  .zh-page .zh-brand-card,
+  .zh-page .zh-brand-card:hover {
+    transform: none;
+  }
+
+  .zh-page .listing-product-card,
+  .zh-page .deal-card,
+  .zh-page .product-card {
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+
+  /* ── 3) Intentional horizontal carousels only ── */
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-featured-brands__track,
+  .zh-page .zh-trending-deals__filters {
+    overflow-x: auto;
+    overflow-y: clip;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-featured-brands__track {
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0;
+    padding-inline: 0;
+    gap: var(--zh-carousel-gap);
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid {
+    grid-auto-columns: var(--zh-carousel-slide);
+    padding-block: 4px 10px;
+  }
+
+  .zh-page .zh-trending-deals__slide {
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  .zh-page .zh-featured-brands__track .zh-brand-card {
+    flex: 0 0 var(--zh-carousel-slide);
+    width: var(--zh-carousel-slide);
+    max-width: var(--zh-carousel-slide);
+    min-width: 0;
+    /* Verified chip sits slightly outside — must not be clipped */
+    overflow: visible;
+    scroll-snap-align: start;
+  }
+
+  .zh-page .zh-brand-card__verified {
+    bottom: 0;
+  }
+
+  /* ── 4) Intrinsic card heights — kill fixed 398/400/media caps on home ── */
+  .zh-page .listing-product-card,
+  .zh-page .deal-card,
+  .zh-page .product-card,
+  .zh-page .zor-deals-page__card .listing-product-card {
+    height: auto;
+    min-height: 0;
+  }
+
+  .zh-page .listing-product-card .product-card-media,
+  .zh-page .deal-card .product-card-media,
+  .zh-page .product-card-media {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    flex: 0 0 auto;
+    flex-basis: auto;
+    aspect-ratio: 4 / 3;
+    /* Keep image crop inside media; badges stay inside this box */
+    overflow: hidden;
+  }
+
+  .zh-page .zor-deals-page__card {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .zh-page .listing-deal-meta {
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+  }
+
+  .zh-page .zor-deals-page__featured-badge {
+    z-index: 3;
   }
 }
 

@@ -591,12 +591,11 @@
     max-width: 100vw;
     padding-inline: var(--zh-pad);
     box-sizing: border-box;
-    overflow-x: hidden;
+    /* overflow contract: homepage-layout-flow (clip + Y visible) */
   }
 
   .zh-page .zh-categories-nav {
     width: 100%;
-    overflow: hidden;
   }
 
   .zh-page .zh-categories {
@@ -608,7 +607,6 @@
     padding-inline: 0;
     gap: 8px;
     /* Exactly 4 tiles — no nested horizontal scrollport */
-    overflow-x: hidden;
     scroll-snap-type: none;
     scrollbar-width: none;
   }
@@ -665,17 +663,14 @@
   .zh-page .zh-home-discovery-nav {
     /* Consistent 15px Categories → Bottom Chips */
     margin-top: 15px;
-    overflow-x: hidden;
   }
 
   .zh-page .zh-quick-nav-wrap {
-    overflow: hidden;
     width: 100%;
   }
 
   .zh-page .zh-quick-nav__track {
     padding: 2px 0;
-    overflow: hidden;
     width: 100%;
   }
 
@@ -689,7 +684,6 @@
     column-gap: 8px;
     row-gap: 0;
     padding-block: 2px;
-    overflow: hidden;
   }
 
   .zh-page .zh-quick-nav__pill:nth-child(n + 4) {
@@ -804,90 +798,46 @@
   .zh-page .zh-trending-deals.zh-deals-panel,
   .zh-page .zh-trending-deals {
     border-radius: 16px;
-    /* Kill panel blur compositing that hid amber badges mid-scroll */
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    overflow: visible;
   }
 
   .zh-page .zh-trending-deals__head {
     padding: 12px 12px 4px;
     gap: 10px;
-    /* Avoid stacking/blur layer covering card metadata while scrolling */
-    z-index: auto;
-    isolation: auto;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
 
-  .zh-page .zh-trending-deals__carousel,
   .zh-page .zh-trending-deals .zh-panel__empty {
     padding-inline: 12px;
     padding-top: 6px;
-    overflow: visible;
   }
 
-  .zh-page .zh-trending-deals__filters {
-    /* Vertical page pans must not get trapped by the filter strip */
-    touch-action: pan-x;
+  .zh-page .zh-trending-deals__carousel {
+    padding-top: 6px;
+  }
+
+  /*
+   * Enforce layout-flow contract after component CSS chunks
+   * (zorino-home-deals / premium) which can load later and re-apply blur.
+   */
+  .zh-page .zh-panel,
+  .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-trending-deals,
+  .zh-page .zh-featured-brands.zh-panel,
+  .zh-page .zh-trending-deals__head {
+    /* blur(0) survives the bundler; `none` is stripped as initial */
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    isolation: auto;
   }
 
   .zh-page .zh-trending-deals__track,
-  .zh-page .zh-td-skeleton-grid {
-    grid-auto-columns: min(100%, calc(100vw - 2 * var(--zh-pad) - 24px));
-    gap: 12px;
-    padding-top: 4px;
-    padding-bottom: 10px;
-    /*
-     * Root scroll fix: pan-x keeps horizontal carousel; vertical pans chain
-     * to the page. Soft snap avoids jumpiness. overflow-y:clip keeps a single
-     * axis without creating a nested vertical scrollport.
-     */
-    touch-action: pan-x;
-    scroll-snap-type: x proximity;
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-featured-brands__track {
     overflow-x: auto;
     overflow-y: clip;
-    overscroll-behavior-x: contain;
-    overscroll-behavior-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* No hover-lift transforms — they promote layers under fixed nav / clip badges */
-  .zh-page .zh-trending-deals__track .zor-deals-page__card,
-  .zh-page .zh-trending-deals__track .zor-deals-page__card:hover,
-  .zh-page .zh-trending-deals__track .listing-product-card,
-  .zh-page .zh-trending-deals__track .listing-product-card:hover,
-  .zh-page .zh-trending-deals__track .deal-card,
-  .zh-page .zh-trending-deals__track .deal-card:hover {
-    transform: none !important;
-  }
-
-  /* Amber metadata must stay painted (Featured / discount / Ends in) */
-  .zh-page .zh-trending-deals__track .zor-deals-page__featured-badge,
-  .zh-page .zh-trending-deals__track .deal-discount,
-  .zh-page .zh-trending-deals__track .listing-deal-meta,
-  .zh-page .zh-trending-deals__track .listing-deal-meta svg {
-    opacity: 1;
-    visibility: visible;
-    z-index: 3;
-  }
-
-  .zh-page .zh-trending-deals__track .zor-deals-page__featured-badge {
-    position: absolute;
-    z-index: 4;
-  }
-
-  .zh-page .zh-trending-deals__track .listing-deal-meta {
-    position: relative;
-    z-index: 3;
-  }
-
-  /* Section orange icons — never clipped by shell/panel overflow */
-  .zh-page .zor-deals-page__section-icon,
-  .zh-page #zh-section-trending-deals .zor-deals-page__section-icon {
-    opacity: 1;
-    visibility: visible;
-    overflow: visible;
+    touch-action: pan-x;
+    grid-auto-columns: var(--zh-carousel-slide);
+    gap: var(--zh-carousel-gap, 12px);
   }
 
   .zh-page .zh-trending-deals__filter {
@@ -944,30 +894,24 @@
   .zh-page .zh-cta-wrap,
   .zh-page .zh-footer-wrap {
     margin-top: var(--zh-section-step);
-    overflow: visible;
   }
 
-  .zh-page .zh-product-section,
-  .zh-page .zh-product-section.zh-panel,
-  .zh-page .zh-section-head {
-    overflow: visible;
-  }
-
-  .zh-page .zh-product-sections .deal-discount,
-  .zh-page .zh-product-sections .zor-deals-page__featured-badge,
-  .zh-page .zh-product-sections .listing-deal-meta {
-    opacity: 1;
-    visibility: visible;
-  }
-
+  /*
+   * Flush carousel: head keeps inset, track is full-bleed to panel edge.
+   * Slide width comes from --zh-carousel-slide (layout-flow).
+   */
   .zh-page .zh-featured-brands.zh-panel {
-    padding: 0 12px 14px;
+    padding: 0 0 14px;
   }
 
-  .zh-page .zh-brand-card {
-    /* One primary card + peek — avoid two truncated cards side-by-side */
-    flex: 0 0 min(300px, calc(100vw - 2 * var(--zh-pad) - 36px));
-    max-width: calc(100vw - 2 * var(--zh-pad) - 36px);
+  .zh-page .zh-featured-brands .zh-section-head {
+    padding-inline: 12px;
+  }
+
+  .zh-page .zh-featured-brands__track .zh-brand-card {
+    flex: 0 0 var(--zh-carousel-slide);
+    width: var(--zh-carousel-slide);
+    max-width: var(--zh-carousel-slide);
   }
 
   .zh-page .zh-brand-card__offer {
