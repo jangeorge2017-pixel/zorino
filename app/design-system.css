@@ -469,9 +469,9 @@ html {
 /* Back-to-top — clears sticky chrome, 44px touch target */
 .zor-back-to-top {
   position: fixed;
-  right: max(16px, env(safe-area-inset-right, 0px));
-  bottom: max(20px, env(safe-area-inset-bottom, 0px));
-  z-index: 190;
+  inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(24px, calc(16px + env(safe-area-inset-bottom, 0px)));
+  z-index: 210;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -491,6 +491,7 @@ html {
     transform 220ms ease,
     box-shadow 220ms ease,
     background 220ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .zor-back-to-top:hover,
@@ -1473,13 +1474,13 @@ html {
   }
 
   .zor-nav__logo img {
-    height: 40px;
+    height: 46px;
     width: auto;
-    max-width: min(114px, 28vw);
+    max-width: min(132px, 32vw);
   }
 
   .zor-nav__actions {
-    gap: 6px;
+    gap: 8px;
   }
 
   .zor-nav__icon-btn {

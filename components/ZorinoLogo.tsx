@@ -1,5 +1,5 @@
 import {
-  ZORINO_LOGO_SVG,
+  ZORINO_LOGO_SOURCE,
   ZORINO_LOGO_INTRINSIC,
   ZORINO_LOGO_VARIANTS,
   ZORINO_LOGO_DISPLAY_HEIGHT,
@@ -19,8 +19,9 @@ export function ZorinoLogo({
     (ZORINO_LOGO_INTRINSIC.width / ZORINO_LOGO_INTRINSIC.height) * displayHeight,
   );
 
+  /* Prefer PNG — SVG nests an external <image>, which often paints blank when used as <img src>. */
   const srcSet = [
-    `${ZORINO_LOGO_SVG} 1x`,
+    `${ZORINO_LOGO_VARIANTS["@1x"]} 1x`,
     `${ZORINO_LOGO_VARIANTS["@2x"]} 2x`,
     `${ZORINO_LOGO_VARIANTS["@3x"]} 3x`,
     `${ZORINO_LOGO_VARIANTS["@4x"]} 4x`,
@@ -29,7 +30,7 @@ export function ZorinoLogo({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={ZORINO_LOGO_SVG}
+      src={ZORINO_LOGO_SOURCE}
       srcSet={srcSet}
       width={ZORINO_LOGO_INTRINSIC.width}
       height={ZORINO_LOGO_INTRINSIC.height}

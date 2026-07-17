@@ -607,19 +607,22 @@
   .zh-nav {
     --zh-nav-control-h: 36px;
     --zh-nav-gap: 5px;
-    --zh-nav-logo-gap: 6px;
+    --zh-nav-logo-gap: 10px;
     --zh-nav-pad-x: 0;
-    --zh-nav-logo-h: 40px;
+    --zh-nav-logo-h: 46px;
     --zh-nav-transition: 220ms ease;
     height: 56px;
     max-height: 56px;
-    padding: 0 10px;
+    padding: 0 max(10px, env(safe-area-inset-right, 0px)) 0
+      max(10px, env(safe-area-inset-left, 0px));
     overflow: visible;
     background: rgba(7, 11, 22, 0.72);
     backdrop-filter: blur(16px) saturate(1.35);
     -webkit-backdrop-filter: blur(16px) saturate(1.35);
     border-bottom: none;
-    box-shadow: 0 8px 28px rgba(2, 6, 18, 0.28);
+    box-shadow:
+      0 8px 28px rgba(2, 6, 18, 0.28),
+      0 0 20px rgba(96, 165, 250, 0.06);
   }
 
   /* Subtle 1px gradient divider under header */
@@ -645,7 +648,7 @@
   .zh-page .zh-nav__inner,
   .zh-nav__inner {
     display: grid;
-    grid-template-columns: auto minmax(6px, 1fr) auto auto auto auto auto auto;
+    grid-template-columns: auto minmax(10px, 1fr) auto auto auto auto auto auto;
     align-items: center;
     column-gap: 5px;
     max-width: 100%;
@@ -666,9 +669,9 @@
 
   .zh-page .zh-nav__logo-lockup,
   .zh-nav__logo-lockup {
-    height: 40px !important;
-    max-height: 40px;
-    max-width: min(114px, 28vw);
+    height: 46px !important;
+    max-height: 46px;
+    max-width: min(132px, 32vw);
     width: auto !important;
     object-fit: contain;
     object-position: left center;

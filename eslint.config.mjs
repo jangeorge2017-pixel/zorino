@@ -21,6 +21,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "scripts/**",
+    ".pw-browsers/**",
     ".tmp-*.log",
   ]),
 ]);
