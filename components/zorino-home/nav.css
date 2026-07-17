@@ -654,21 +654,21 @@
   (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
   /*
    * Mobile header ONLY — desktop/tablet unchanged.
-   * Flex: [Logo] …auto… [Search Theme Lang Wish Bell Avatar]
+   * Flex: [Logo @ start] ……auto…… [actions @ end]
    */
   .zh-page .zh-nav,
   .zh-nav {
-    --zh-nav-control-h: 36px;
-    --zh-nav-gap: 5px;
+    --zh-nav-control-h: 34px;
+    --zh-nav-gap: 6px;
     --zh-nav-logo-gap: 0px;
-    --zh-nav-pad-x: 20px;
-    --zh-nav-logo-h: 54px;
+    --zh-nav-pad-x: 18px;
+    --zh-nav-logo-h: 55px;
     --zh-nav-transition: 220ms ease;
     height: 56px;
     max-height: 56px;
-    /* Comfortable left/right chrome (16–24px), never edge-compressed */
-    padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0
-      max(20px, env(safe-area-inset-left, 0px));
+    /* Absolute start: consistent 16–20px left chrome */
+    padding: 0 max(18px, env(safe-area-inset-right, 0px)) 0
+      max(18px, env(safe-area-inset-left, 0px));
     overflow: visible;
     background: rgba(7, 11, 22, 0.72);
     backdrop-filter: blur(16px) saturate(1.35);
@@ -704,9 +704,11 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 12px;
+    gap: 0;
     width: 100%;
-    max-width: 100%;
+    max-width: none;
+    /* Kill desktop content centering so logo stays at the start */
+    margin: 0;
     min-width: 0;
     overflow: visible;
   }
@@ -718,25 +720,30 @@
 
   .zh-page .zh-nav__logo,
   .zh-nav__logo {
+    display: flex;
+    align-items: center;
     flex: 0 0 auto;
     margin: 0;
     margin-inline-end: 0;
     padding: 0;
     min-width: 0;
+    order: 0;
   }
 
   .zh-page .zh-nav__logo-lockup,
   .zh-nav__logo-lockup {
-    height: 54px !important;
-    max-height: 54px;
-    /* Shrink logo before icons overflow (pad 40 + gap 12 + 6×36 + 5×5 = 293) */
-    max-width: min(108px, calc(100vw - 293px));
+    /* ~15% over prior 48px mobile logo */
+    height: 55px !important;
+    max-height: 55px;
+    /* Reserve space for 6×34 + 5×6 icons + 10px buffer; never center-drift */
+    max-width: min(120px, calc(100vw - 36px - 10px - 234px));
     width: auto !important;
     object-fit: contain;
     object-position: left center;
+    flex-shrink: 0;
   }
 
-  /* Right actions cluster — margin-inline-start:auto, no absolute positioning */
+  /* Far-right action group — Flex only (no absolute / transform / negative margin) */
   .zh-page .zh-nav__cluster,
   .zh-nav__cluster {
     display: flex;
@@ -744,9 +751,11 @@
     align-items: center;
     gap: var(--zh-nav-gap);
     flex: 0 0 auto;
+    flex-shrink: 0;
     margin: 0;
     margin-inline-start: auto;
     min-width: 0;
+    order: 1;
   }
 
   .zh-page .zh-nav__search-slot,
@@ -900,8 +909,8 @@
   .zh-nav__profile-fallback {
     position: relative;
     z-index: 1;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     object-fit: cover;
     border: 1.5px solid rgba(7, 11, 22, 0.92);

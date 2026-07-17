@@ -1,17 +1,17 @@
 /**
- * SiteNav header polish — mobile only.
- * Mirrors homepage .zh-nav chrome. Desktop/tablet left to design-system.
+ * SiteNav mobile header layout — desktop/tablet unchanged (design-system).
+ * Flex: [Logo @ start] ……auto…… [actions @ end]
  */
 
 @media (max-width: 767px),
   (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
   .zor-nav {
-    --zor-nav-control-h: 36px;
-    --zor-nav-gap: 5px;
+    --zor-nav-control-h: 34px;
+    --zor-nav-gap: 6px;
     height: 56px;
     max-height: 56px;
-    padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0
-      max(20px, env(safe-area-inset-left, 0px));
+    padding: 0 max(18px, env(safe-area-inset-right, 0px)) 0
+      max(18px, env(safe-area-inset-left, 0px));
     overflow: visible;
   }
 
@@ -20,9 +20,10 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 12px;
+    gap: 0;
     width: 100%;
-    max-width: 100%;
+    max-width: none;
+    margin: 0;
     min-width: 0;
     overflow: visible;
   }
@@ -33,19 +34,23 @@
   }
 
   .zor-nav__logo {
+    display: flex;
+    align-items: center;
     flex: 0 0 auto;
     gap: 0;
     margin: 0;
     padding: 0;
     min-width: 0;
+    order: 0;
   }
 
   .zor-nav__logo img {
-    height: 54px;
+    height: 55px;
     width: auto;
-    max-width: min(108px, calc(100vw - 293px));
+    max-width: min(120px, calc(100vw - 36px - 10px - 234px));
     object-fit: contain;
     object-position: left center;
+    flex-shrink: 0;
   }
 
   .zor-nav__actions {
@@ -54,10 +59,12 @@
     align-items: center;
     gap: var(--zor-nav-gap);
     flex: 0 0 auto;
+    flex-shrink: 0;
     margin: 0;
     margin-inline-start: auto;
     max-width: none;
     min-width: 0;
+    order: 1;
   }
 
   .zor-nav__control {
@@ -107,15 +114,14 @@
   .zor-nav__icon-btn svg,
   .zor-nav .theme-toggle svg,
   .zor-nav .zor-intl__trigger svg:first-child {
-    width: 21px;
-    height: 21px;
+    width: 20px;
+    height: 20px;
   }
 
   .zor-nav__icon-btn span:not(.zor-nav__badge) {
     display: none;
   }
 
-  /* Search cyan · Theme purple · Globe blue · Wishlist pink · Notify gold */
   .zor-nav__icon-btn--search {
     box-shadow: 0 0 8px rgba(34, 211, 238, 0.18);
   }
@@ -157,8 +163,8 @@
   .zor-nav__profile-fallback {
     position: relative;
     z-index: 1;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: 1.5px solid rgba(7, 11, 22, 0.92);
   }
