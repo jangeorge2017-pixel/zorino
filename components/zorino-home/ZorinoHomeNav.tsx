@@ -22,9 +22,8 @@ export default function ZorinoHomeNav() {
   const { user } = useAuth();
   const displayName = user
     ? user.name.split(" ")[0] || user.name
-    : null;
+    : "User";
   const accountHref = user ? "/profile" : "/auth/login";
-  const accountLabel = user ? t("profile") : t("signIn");
 
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,7 +53,7 @@ export default function ZorinoHomeNav() {
         <div className="zh-nav__search-slot">
           <Link
             href="/search"
-            className="zh-nav__icon-btn zh-nav__icon-btn--square"
+            className="zh-nav__icon-btn zh-nav__icon-btn--square zh-nav__icon-btn--search-glow"
             aria-label={t("search")}
           >
             <Search size={17} strokeWidth={2} />
@@ -62,7 +61,6 @@ export default function ZorinoHomeNav() {
         </div>
 
         <div className="zh-nav__actions">
-          {/* Desktop/tablet only — mobile uses Avatar menu for Language + Theme */}
           <span className="zh-nav__desktop-intl">
             <IntlNavSelectors />
           </span>
@@ -90,6 +88,7 @@ export default function ZorinoHomeNav() {
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((value) => !value)}
             >
+              <span className="zh-nav__avatar-ring" aria-hidden />
               <img
                 src={user?.avatar || "https://i.pravatar.cc/40"}
                 alt=""
@@ -111,7 +110,7 @@ export default function ZorinoHomeNav() {
               />
               <div className="zh-nav__profile-copy">
                 <strong>
-                  {t("hiUser", { name: displayName || "User" })}
+                  {t("hiUser", { name: displayName })}
                 </strong>
                 <span className="zh-nav__premium">
                   {t("premium")}
@@ -127,7 +126,7 @@ export default function ZorinoHomeNav() {
         open={menuOpen}
         onClose={closeMenu}
         accountHref={accountHref}
-        accountLabel={accountLabel}
+        displayName={displayName}
       />
     </header>
   );
