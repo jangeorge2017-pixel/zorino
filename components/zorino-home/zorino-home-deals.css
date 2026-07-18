@@ -314,8 +314,16 @@
 }
 
 @media (max-width: 767px) {
+  .zh-trending-deals.zh-deals-panel {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
   .zh-trending-deals__title-row {
     flex-wrap: wrap;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .zh-trending-deals__title-actions {
@@ -328,11 +336,39 @@
   .zh-trending-deals__controls {
     flex-direction: column;
     align-items: stretch;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .zh-trending-deals__filters {
+    max-width: 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: clip;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scrollbar-width: none;
+  }
+
+  .zh-trending-deals__filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .zh-trending-deals__filter {
+    flex: 0 0 auto;
   }
 
   .zh-trending-deals__sort {
     margin-left: 0;
     justify-content: space-between;
+  }
+
+  .zh-trending-deals__carousel {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
   }
 
   .zh-trending-deals__track,
@@ -341,6 +377,16 @@
     /* Prefer track-relative slide token from homepage-layout-flow on .zh-page */
     grid-auto-columns: var(--zh-carousel-slide, min(100%, 300px));
     grid-template-columns: unset;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: clip;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
   }
 
   .zh-trending-deals__nav {
