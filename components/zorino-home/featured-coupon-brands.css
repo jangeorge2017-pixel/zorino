@@ -143,9 +143,12 @@
 }
 
 .zh-brand-card__logo {
-  width: 56px;
-  height: 56px;
+  /* Fill ~85% of the existing 72×72 wrap — do not resize the wrap */
+  width: 85%;
+  height: 85%;
+  max-width: none;
   object-fit: contain;
+  object-position: center;
 }
 
 .zh-brand-card__logo-fallback {
@@ -256,6 +259,22 @@
   }
 
   .zh-brand-card {
-    flex-basis: min(200px, 82vw);
+    flex: 0 0 min(300px, calc(100vw - 48px));
+    max-width: calc(100vw - 48px);
+  }
+
+  .zh-brand-card__offer {
+    white-space: normal;
+  }
+}
+
+/* Desktop: img fills ~90% of the existing 72×72 wrap (do not resize wrap) */
+@media (min-width: 1024px) {
+  .zh-featured-brands .zh-brand-card__logo {
+    width: 90%;
+    height: 90%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center;
   }
 }

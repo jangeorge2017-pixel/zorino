@@ -11,7 +11,7 @@ export const ZORINO_LOGO_SOURCE = "/hero-z-logo.png";
 export const ZORINO_LOGO_SVG = "/hero-z-logo.svg";
 
 export const ZORINO_LOGO_INTRINSIC = {
-  width: 235,
+  width: 230,
   height: 82,
 } as const;
 
@@ -66,13 +66,13 @@ export const DEAL_PRODUCT_IMAGES = {
 } as const;
 
 export const STORE_LOGOS = {
-  amazon: "/stores/amazon.png",
-  bestBuy: "/stores/best-buy.png",
-  walmart: "/stores/walmart.png",
-  footLocker: "/stores/foot-locker.png",
-  noon: "/stores/noon.png",
-  aliExpress: "/stores/aliexpress.png",
-  nike: "/stores/nike.png",
+  amazon: "/stores/amazon.svg",
+  bestBuy: "/stores/best-buy.svg",
+  walmart: "/stores/walmart.svg",
+  footLocker: "/stores/foot-locker.svg",
+  noon: "/stores/noon.svg",
+  aliExpress: "/stores/aliexpress.svg",
+  nike: "/stores/nike.svg",
 } as const;
 
 export const MISSING_ASSETS = [] as const;

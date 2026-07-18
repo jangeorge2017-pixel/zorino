@@ -566,44 +566,12 @@
 }
 
 @media (max-width: 767px) {
-  .zh-hero-search {
-    margin-top: calc(
-      var(--zh-space-stats-search, 22px) +
-      var(--zh-hero-search-platform-gap, 24px) -
-      var(--zh-hero-search-overlap, 0px) -
-      var(--zh-discovery-group-lift, 0px)
-    );
-  }
-
-  .zh-hero__title {
-    font-size: clamp(34px, 10vw, 40px);
-    letter-spacing: -1.6px;
-  }
-
-  .zh-stat {
-    width: calc(50% - 5px);
-  }
-
-  .zh-search__bar {
-    flex-wrap: wrap;
-    padding: 10px;
-  }
-
-  .zh-search__bar input {
-    flex: 1 1 100%;
-    order: 1;
-  }
-
-  .zh-search__icon {
-    order: 0;
-  }
-
+  /*
+   * Mobile Hero metrics are owned by homepage-responsive.css (≤767)
+   * so Desktop composition compression stays in one place.
+   * Keep AI Search visible (overrides ≤720 / ≤1024 hide rules on phones).
+   */
   .zh-search__ai {
-    order: 2;
-  }
-
-  .zh-search__submit {
-    order: 3;
-    flex: 1;
+    display: inline-flex;
   }
 }

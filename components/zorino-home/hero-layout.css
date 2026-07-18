@@ -70,17 +70,23 @@
 }
 
 @media (max-width: 767px) {
+  /*
+   * Desktop columns repositioned (not overlaid):
+   * row1 = copy/stats, row2 = Z/orbit stage.
+   */
   .zh-page .zh-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
   }
 
-  .zh-hero__col--left,
+  .zh-hero__col--left {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
   .zh-hero__col--right {
     grid-column: 1;
-    grid-row: auto;
-  }
-
-  .zh-hero__col--right {
-    min-height: 360px;
+    grid-row: 2;
+    min-height: 340px;
   }
 }

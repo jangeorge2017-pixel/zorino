@@ -107,13 +107,32 @@ html[dir="rtl"] .zh-page .zh-nav__actions {
 }
 
 @media (max-width: 767px) {
+  /* Desktop regions preserved; right column moved below left to prevent overlap */
   .zh-page .zh-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .zh-page .zh-hero__col--left,
+  .zh-page .zh-hero__col--left {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: start;
+  }
+
   .zh-page .zh-hero__col--right {
     grid-column: 1;
-    grid-row: auto;
+    grid-row: 2;
+  }
+
+  .zh-page .zh-hero__copy,
+  .zh-page .zh-hero__badge,
+  .zh-page .zh-hero__title,
+  .zh-page .zh-hero__subtitle,
+  .zh-page .zh-hero__stats,
+  html[dir="rtl"] .zh-page .zh-hero__copy,
+  html[dir="rtl"] .zh-page .zh-hero__badge,
+  html[dir="rtl"] .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle,
+  html[dir="rtl"] .zh-page .zh-hero__stats {
+    text-align: start;
   }
 }

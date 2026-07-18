@@ -302,7 +302,8 @@ html[dir="rtl"] .zh-page {
 
 @media (max-width: 767px) {
   .zh-page {
-    --zh-hero-artwork-right: 0px;
+    /* Compressed Desktop right anchor — final Mobile Hero values in homepage-responsive.css */
+    --zh-hero-artwork-right: 4px;
   }
 }
 

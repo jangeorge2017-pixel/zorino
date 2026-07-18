@@ -108,6 +108,29 @@
   .zh-page .hhb {
     margin-top: 32px;
   }
+
+  /* Match mobile .zh-nav height (56px) — desktop/tablet spacer unchanged */
+  .zh-page > .zh-nav-spacer {
+    height: 56px;
+  }
+
+  /*
+   * Override tablet (≤1279) profile chip rules for mobile only.
+   * Avatar-only so [Search][Theme] …… [Wish][Bell][Avatar] can balance.
+   */
+  .zh-page .zh-nav__profile {
+    min-width: 0;
+    max-width: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .zh-page .zh-nav__profile-copy {
+    display: none;
+  }
 }
 
 /* Fixed header — sticky fails under html/body overflow-x:hidden.
