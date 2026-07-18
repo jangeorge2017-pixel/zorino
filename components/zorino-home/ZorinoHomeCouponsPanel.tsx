@@ -6,11 +6,39 @@ import { useTranslations } from "next-intl";
 import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
 import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
+import "./ZorinoHomeCouponsPanel.css";
+
+/** Top Coupons only — official store marks from existing project assets. */
+const TOP_COUPON_LOGOS: Record<string, string> = {
+  amazon: "/stores/amazon.svg",
+  noon: "/stores/noon.svg",
+  aliexpress: "/stores/aliexpress.svg",
+  nike: "/stores/nike.svg",
+};
+
+function resolveTopCouponLogoSrc(coupon: TopCouponCard): string {
+  const id = coupon.id?.toLowerCase() ?? "";
+  if (TOP_COUPON_LOGOS[id]) return TOP_COUPON_LOGOS[id];
+
+  const fromPath = coupon.storeLogoSrc?.match(/\/stores\/(?:top-coupons\/)?([^/.]+)/i);
+  if (fromPath?.[1] && TOP_COUPON_LOGOS[fromPath[1].toLowerCase()]) {
+    return TOP_COUPON_LOGOS[fromPath[1].toLowerCase()];
+  }
+
+  const fromName = coupon.store?.toLowerCase().replace(/\s+/g, "") ?? "";
+  if (fromName.includes("amazon")) return TOP_COUPON_LOGOS.amazon;
+  if (fromName.includes("noon")) return TOP_COUPON_LOGOS.noon;
+  if (fromName.includes("aliexpress")) return TOP_COUPON_LOGOS.aliexpress;
+  if (fromName.includes("nike")) return TOP_COUPON_LOGOS.nike;
+
+  return coupon.storeLogoSrc;
+}
 
 function CouponRow({ coupon }: { coupon: TopCouponCard }) {
   const t = useTranslations("home");
   const tCoupons = useTranslations("coupons");
   const [copied, setCopied] = useState(false);
+  const logoSrc = resolveTopCouponLogoSrc(coupon);
 
   const copyCode = () => {
     navigator.clipboard.writeText(coupon.code);
@@ -22,15 +50,13 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
     <article className="zh-coupon">
       <div className="zh-coupon__logo">
         <img
-          src={coupon.storeLogoSrc}
-          alt=""
+          src={logoSrc}
+          alt={coupon.store}
           loading="lazy"
           decoding="async"
           onError={(e) => {
-            e.currentTarget.style.display = "none";
-            if (e.currentTarget.parentElement) {
-              e.currentTarget.parentElement.textContent = coupon.storeInitial;
-            }
+            // Keep the square empty — do not swap in AM/NO letter placeholders.
+            e.currentTarget.style.visibility = "hidden";
           }}
         />
       </div>

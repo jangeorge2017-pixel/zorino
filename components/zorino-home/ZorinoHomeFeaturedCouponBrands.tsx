@@ -15,11 +15,34 @@ import type { FeaturedCouponBrand } from "@/lib/zorino-home/featured-coupon-bran
 import { getCarouselScrollState, attachVerticalWheelPassthrough } from "@/lib/ui/carousel-scroll";
 import "./featured-coupon-brands.css";
 
+/** Featured Coupon Brands only — real marks (not shared /stores letter tiles). */
+const FEATURED_BRAND_LOGOS: Record<string, string> = {
+  amazon: "/stores/featured-brands/amazon.svg",
+  aliexpress: "/stores/featured-brands/aliexpress.svg",
+  noon: "/stores/featured-brands/noon.svg",
+  ebay: "/stores/featured-brands/ebay.svg",
+  temu: "/stores/featured-brands/temu.svg",
+  shein: "/stores/featured-brands/shein.svg",
+  nike: "/stores/featured-brands/nike.svg",
+  adidas: "/stores/featured-brands/adidas.svg",
+  walmart: "/stores/featured-brands/walmart.svg",
+  cjdropshipping: "/stores/featured-brands/cjdropshipping.svg",
+};
+
+function resolveFeaturedBrandLogoSrc(brand: FeaturedCouponBrand): string {
+  const id = brand.id?.toLowerCase() ?? "";
+  if (FEATURED_BRAND_LOGOS[id]) return FEATURED_BRAND_LOGOS[id];
+  const slug = brand.slug?.toLowerCase() ?? "";
+  if (FEATURED_BRAND_LOGOS[slug]) return FEATURED_BRAND_LOGOS[slug];
+  return brand.logoSrc;
+}
+
 function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
   const [copied, setCopied] = useState(false);
-  const [logoFailed, setLogoFailed] = useState(!brand.logoSrc);
+  const logoSrc = resolveFeaturedBrandLogoSrc(brand);
+  const [logoFailed, setLogoFailed] = useState(!logoSrc);
 
   const copyCode = () => {
     navigator.clipboard.writeText(brand.code);
@@ -40,10 +63,10 @@ function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
       <div className="zh-brand-card__glow" aria-hidden />
 
       <div className="zh-brand-card__logo-wrap">
-        {!logoFailed && brand.logoSrc ? (
+        {!logoFailed && logoSrc ? (
           <img
-            src={brand.logoSrc}
-            alt=""
+            src={logoSrc}
+            alt={brand.name}
             className="zh-brand-card__logo"
             loading="lazy"
             decoding="async"

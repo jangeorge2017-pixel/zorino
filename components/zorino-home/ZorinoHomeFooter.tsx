@@ -9,6 +9,7 @@ import { useNewsletter } from "@/lib/features/newsletter-system";
 import { ZH_FEATURED_COUPON_BRANDS } from "@/lib/zorino-home/featured-coupon-brands";
 import type { FooterStatItem } from "@/lib/types/entities";
 import type { Locale } from "@/i18n/config";
+import "./ZorinoHomeFooter.css";
 
 const ICONS = {
   stores: Store,
@@ -16,6 +17,18 @@ const ICONS = {
   coupons: Tag,
   users: Users,
 } as const;
+
+/** Featured Stores only — official logos from existing project assets. */
+const FEATURED_STORE_LOGOS: Record<string, string> = {
+  amazon: "/stores/amazon.svg",
+  aliexpress: "/stores/aliexpress.svg",
+  noon: "/stores/noon.svg",
+  ebay: "/stores/ebay.svg",
+  temu: "/stores/temu.svg",
+  shein: "/stores/shein.svg",
+  nike: "/stores/nike.svg",
+  adidas: "/stores/adidas.svg",
+};
 
 type ZorinoHomeFooterProps = {
   footerStats: FooterStatItem[];
@@ -68,20 +81,23 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
           </Link>
         </div>
         <div className="zh-footer__store-logos">
-          {ZH_FEATURED_COUPON_BRANDS.slice(0, 8).map((brand) => (
-            <Link
-              key={brand.id}
-              href={`/stores/${brand.slug}`}
-              className="zh-footer__store-logo"
-              title={brand.name}
-            >
-              {brand.logoSrc ? (
-                <img src={brand.logoSrc} alt={brand.name} loading="lazy" decoding="async" />
-              ) : (
-                <span>{brand.logoInitial}</span>
-              )}
-            </Link>
-          ))}
+          {ZH_FEATURED_COUPON_BRANDS.slice(0, 8).map((brand) => {
+            const logoSrc = FEATURED_STORE_LOGOS[brand.id] ?? brand.logoSrc;
+            return (
+              <Link
+                key={brand.id}
+                href={`/stores/${brand.slug}`}
+                className="zh-footer__store-logo"
+                title={brand.name}
+              >
+                {logoSrc ? (
+                  <img src={logoSrc} alt={brand.name} loading="lazy" decoding="async" />
+                ) : (
+                  <span>{brand.logoInitial}</span>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </div>
 

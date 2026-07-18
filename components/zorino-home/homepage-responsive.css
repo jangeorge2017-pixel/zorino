@@ -148,229 +148,28 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Mobile — max-width: 767px
-   Reuse the desktop hero illustration layer; override only mobile sizing/positions.
+   Mobile page chrome (non-hero) — max-width: 768px
+   Hero composition lives in the ≤767 block below.
    ═══════════════════════════════════════════════════════════ */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   /* ── Page rhythm ── */
   .zh-page {
+    --zh-nav-h: 56px;
     --zh-pad: 16px;
-    --zh-section-step: 40px;
+    --zh-section-step: 36px;
     --zh-space-discovery: 14px;
-    --zh-hero-artwork-width: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 360px);
-    --zh-hero-artwork-right: calc((100vw - var(--zh-hero-artwork-width)) / 2);
-    --zh-hero-artwork-shift-left: 0px;
-    --zh-hero-artwork-scale: 1;
-    --zh-hero-artwork-lift: 0px;
-    --zh-hero-artwork-stretch-z-up: 0px;
-    --zh-hero-artwork-stretch-down: 1;
-    --zh-hero-artwork-extend-down: 0px;
-    --zh-hero-artwork-top: 260px;
-    --zh-hero-artwork-height: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 360px);
-    --zh-hero-artwork-painted-height: var(--zh-hero-artwork-height);
-    --zh-hero-artwork-painted-width: var(--zh-hero-artwork-width);
-    --zh-hero-artwork-painted-top: calc(var(--zh-nav-h) + var(--zh-hero-artwork-top));
-    --zh-hero-artwork-painted-right: var(--zh-hero-artwork-right);
   }
 
   .zh-page .zh-shell {
     padding-left: var(--zh-pad);
     padding-right: var(--zh-pad);
-    padding-bottom: 28px;
+    padding-bottom: 24px;
     overflow-x: clip;
-  }
-
-  /* ── Hero: copy and the existing desktop artwork column stay in one structure ── */
-  .zh-page .zh-hero {
-    position: relative;
-    isolation: isolate;
-    grid-template-columns: 1fr;
-    row-gap: 16px;
-    overflow: visible;
-  }
-
-  .zh-page .zh-hero__col--left {
-    position: relative;
-    z-index: 3;
-    text-align: start;
-  }
-
-  .zh-page .zh-hero__badge {
-    margin-inline: 0;
-  }
-
-  .zh-page .zh-hero__subtitle {
-    margin-inline: 0;
-    font-size: 15px;
-    line-height: 1.55;
-    max-width: none;
-  }
-
-  .zh-page .zh-hero__title {
-    font-size: clamp(32px, 9vw, 38px);
-    letter-spacing: -1.4px;
-    margin-bottom: 12px;
-  }
-
-  .zh-page .zh-hero__copy {
-    padding-right: 0;
-  }
-
-  .zh-page .zh-hero__stats {
-    margin-top: 16px;
-    gap: 8px;
-    justify-content: flex-start;
-  }
-
-  .zh-page .zh-stat {
-    width: calc(50% - 4px);
-    min-height: 70px;
-  }
-
-  .zh-page .zh-hero__col--right {
-    position: relative;
-    width: var(--zh-hero-artwork-width);
-    height: var(--zh-hero-artwork-height);
-    min-height: var(--zh-hero-artwork-height);
-    margin: 0 auto;
-    z-index: 2;
-    pointer-events: none;
-    grid-column: 1;
-    grid-row: auto;
-  }
-
-  .zh-page .zh-page__artwork-clip {
-    -webkit-mask-image:
-      linear-gradient(
-        180deg,
-        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
-        #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
-        #000
-          calc(
-            var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
-            var(--zh-hero-edge-feather)
-          ),
-        transparent
-          calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
-      ),
-      linear-gradient(
-        90deg,
-        transparent
-          calc(
-            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) - 1px
-          ),
-        #000
-          calc(
-            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) +
-            var(--zh-hero-edge-feather)
-          ),
-        #000 calc(100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-edge-feather)),
-        transparent calc(100% - var(--zh-hero-artwork-painted-right) + 1px)
-      );
-    mask-image:
-      linear-gradient(
-        180deg,
-        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
-        #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
-        #000
-          calc(
-            var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
-            var(--zh-hero-edge-feather)
-          ),
-        transparent
-          calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
-      ),
-      linear-gradient(
-        90deg,
-        transparent
-          calc(
-            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) - 1px
-          ),
-        #000
-          calc(
-            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) +
-            var(--zh-hero-edge-feather)
-          ),
-        #000 calc(100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-edge-feather)),
-        transparent calc(100% - var(--zh-hero-artwork-painted-right) + 1px)
-      );
-  }
-
-  .zh-page .zh-page__artwork,
-  .zh-page .zh-page__artwork::after {
-    background-size:
-      var(--zh-hero-artwork-width)
-      var(--zh-hero-artwork-height);
-    background-position:
-      right var(--zh-hero-artwork-right)
-      top var(--zh-hero-artwork-painted-top);
-  }
-
-  .zh-page .hero-artwork {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transform: none !important;
-  }
-
-  .zh-page .hero-artwork__orbit {
-    transform: translateX(var(--zh-orbit-card-shift-right, 0px)) !important;
-  }
-
-  .zh-page .zh-orbit-card {
-    width: clamp(58px, 18vw, 76px);
-    height: clamp(58px, 18vw, 76px);
-    border-radius: 12px;
-    pointer-events: auto;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: 24%;
-    top: 36%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: 24%;
-    top: 60%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: 76%;
-    top: 36%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 76%;
-    top: 60%;
-  }
-
-  /* ── Search ── */
-  .zh-page .zh-hero-search {
-    margin-top: calc(16px - var(--zh-discovery-group-lift, 0px));
-  }
-
-  .zh-page .zh-search {
-    width: 100%;
-  }
-
-  .zh-page .zh-search__ai {
-    display: none;
-  }
-
-  .zh-page .zh-search__bar {
-    min-height: 52px;
-    width: 100%;
-  }
-
-  .zh-page .zh-search__submit {
-    min-height: 44px;
-    flex: 1 1 auto;
   }
 
   /* ── Categories + Quick Nav ── */
   .zh-page .zh-categories-wrap {
-    margin-top: 16px;
+    margin-top: 14px;
   }
 
   .zh-page .zh-categories {
@@ -380,34 +179,50 @@
   }
 
   .zh-page .zh-categories__item {
-    min-width: 84px;
-    min-height: 76px;
+    min-width: 78px;
+    min-height: 74px;
+    padding: 8px 6px 10px;
+  }
+
+  .zh-page .zh-categories__icon-box {
+    width: 42px;
+    height: 42px;
   }
 
   .zh-page .zh-categories__label {
-    font-size: 11.5px;
+    font-size: 11px;
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: 12px;
+    margin-top: 10px;
+  }
+
+  .zh-page .zh-quick-nav__track {
+    padding: 6px 0;
   }
 
   .zh-page .zh-quick-nav__pill {
-    min-height: 44px;
-    padding: 8px 12px;
+    min-height: 40px;
+    padding: 7px 11px;
+    font-size: 12px;
   }
 
   /* ── Commerce / Trending / Coupons ── */
   .zh-page .hhb {
-    margin-top: 28px;
+    margin-top: 24px;
     margin-inline: 0;
     padding-inline: 0;
-    padding-bottom: 24px;
+    padding-bottom: 20px;
   }
 
   .zh-page .hhb .zh-commerce,
   .zh-page .zh-commerce {
-    gap: 20px;
+    gap: 18px;
+  }
+
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-trending-deals {
+    border-radius: 16px;
   }
 
   .zh-page .zh-trending-deals__head {
@@ -418,22 +233,24 @@
   .zh-page .zh-trending-deals__carousel,
   .zh-page .zh-trending-deals .zh-panel__empty {
     padding-inline: 12px;
-    padding-top: 8px;
+    padding-top: 6px;
   }
 
   .zh-page .zh-trending-deals__track,
   .zh-page .zh-td-skeleton-grid {
     grid-auto-columns: min(100%, calc(100vw - 2 * var(--zh-pad) - 24px));
     gap: 12px;
+    padding-bottom: 4px;
   }
 
   .zh-page .zh-trending-deals__filter {
-    min-height: 44px;
-    padding: 10px 14px;
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   .zh-page .zh-trending-deals__sort-select {
-    min-height: 44px;
+    min-height: 40px;
   }
 
   .zh-page .zh-trending-deals__nav,
@@ -441,10 +258,20 @@
     display: none;
   }
 
+  .zh-page .zh-panel {
+    border-radius: 16px;
+  }
+
+  .zh-page .zh-section-head {
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+
   .zh-page .zh-coupon {
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns: 40px minmax(0, 1fr);
     gap: 10px;
-    padding: 14px;
+    padding: 12px;
+    border-radius: 14px;
   }
 
   .zh-page .zh-coupon__code-wrap,
@@ -466,17 +293,30 @@
     margin-top: var(--zh-section-step);
   }
 
+  .zh-page .zh-featured-brands.zh-panel {
+    padding: 0 12px 14px;
+  }
+
   .zh-page .zh-brand-card {
-    flex-basis: min(200px, calc(100vw - 48px));
+    /* One primary card + peek — avoid two truncated cards side-by-side */
+    flex: 0 0 min(300px, calc(100vw - 2 * var(--zh-pad) - 36px));
+    max-width: calc(100vw - 2 * var(--zh-pad) - 36px);
+  }
+
+  .zh-page .zh-brand-card__offer {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
   }
 
   .zh-page .zh-section-head__title,
   .zh-page .zor-deals-page__section-title {
     white-space: normal;
+    font-size: 1.125rem;
   }
 
   .zh-page .zh-product-grid {
-    gap: 12px;
+    gap: 10px;
   }
 
   .zh-page .product-card-actions-dual {
@@ -485,15 +325,336 @@
   }
 
   /* ── Footer / CTA ── */
+  .zh-page .zh-cta-band {
+    padding: 24px 16px;
+    border-radius: 18px;
+  }
+
   .zh-page .zh-footer {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
+    padding-block: 8px 16px;
   }
 
   .zh-page .zh-footer__stats {
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Mobile Hero — max-width: 767px ONLY
+   Recreate Desktop Hero by REPOSITIONING columns (no overlay):
+     1) Copy + stats (Desktop left column)
+     2) Z + orbit stage (Desktop right column) — clear band, no text overlap
+     3) Search under the stage (Desktop placement)
+   Every Desktop element stays visible. Nothing may overlap.
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .zh-page {
+    --zh-space-desc-stats: 20px;
+    --zh-space-stats-search: 24px;
+    --zh-discovery-group-lift: 0px;
+    --zh-hero-search-platform-gap: 16px;
+    --zh-orbit-card-shift-right: 16px;
+    /* Stage-local Z geometry (aligned to the repositioned right column) */
+    --zh-hero-artwork-width: min(78vw, 320px);
+    --zh-hero-artwork-height: min(78vw, 320px);
+    --zh-hero-artwork-right: 12px;
+    --zh-hero-artwork-shift-left: 24px;
+    --zh-hero-artwork-scale: 1.08;
+    --zh-hero-artwork-lift: 8px;
+    --zh-hero-artwork-stretch-z-up: 12px;
+    --zh-hero-artwork-stretch-down: 1.12;
+    --zh-hero-artwork-extend-down: 40px;
+    --zh-hero-artwork-top: 8px;
+    --zh-hero-edge-feather: 28px;
+  }
+
+  /*
+   * Desktop columns repositioned for phone width:
+   * row1 = left column content, row2 = right column stage.
+   * Not a new design — same two regions, stacked so they cannot overlap.
+   */
+  .zh-page .zh-hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    row-gap: 20px;
+    column-gap: 0;
+    align-items: start;
+    min-height: 0;
+    overflow: visible;
+    text-align: start;
+    padding-top: 4px;
+  }
+
+  .zh-page .zh-hero__col--left,
+  html[dir="rtl"] .zh-page .zh-hero__col--left {
+    position: relative;
+    z-index: 2;
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-right: 0;
+    text-align: start;
+  }
+
+  .zh-page .zh-hero__col--right {
+    position: relative;
+    z-index: 1;
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    max-width: 100%;
+    min-height: 340px;
+    height: 340px;
+    margin: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .zh-page .zh-hero__copy {
+    max-width: 100%;
+    padding-right: 0;
+  }
+
+  .zh-page .zh-hero__badge,
+  html[dir="rtl"] .zh-page .zh-hero__badge {
+    margin-inline: 0;
+    margin-bottom: 16px;
+    padding: 6px 13px;
+    font-size: 11.5px;
+  }
+
+  .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__title {
+    margin: 0 0 16px;
+    font-size: clamp(34px, 8.5vw, 42px);
+    line-height: 1.05;
+    letter-spacing: -1.8px;
+    font-weight: 800;
+    text-align: start;
+  }
+
+  .zh-page .zh-hero__subtitle,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle {
+    margin: 0;
+    margin-inline: 0;
+    max-width: 100%;
+    font-size: 15px;
+    line-height: 1.62;
+    text-align: start;
+  }
+
+  .zh-page .zh-hero__stats,
+  html[dir="rtl"] .zh-page .zh-hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: var(--zh-space-desc-stats);
+    margin-bottom: 0;
+    justify-content: flex-start;
+  }
+
+  /* Desktop stat cards — same chrome; width adapted so four remain visible */
+  .zh-page .zh-stat {
+    width: calc(50% - 5px);
+    min-width: 0;
+    min-height: 72px;
+    padding: 11px 13px;
+    border-radius: 12px;
+  }
+
+  .zh-page .zh-stat__value {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .zh-page .zh-stat__label {
+    font-size: 10.5px;
+  }
+
+  .zh-page .zh-stat__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .zh-page .zh-stat__icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /*
+   * Reposition Desktop Z into the clear stage band (row 2).
+   * Page-level artwork is silenced so it cannot paint under copy.
+   * Paint the Z on .hero-artwork (not .zh-hero__col--*) — app/zorino-fixes.css
+   * zeroes background-image on [class*="hero"] except hero-artwork.
+   */
+  .zh-page .zh-page__artwork-clip {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-image: none;
+    opacity: 0;
+  }
+
+  /* Orbit stage fills the dedicated right-column band + hosts the Z PNG */
+  .zh-page .hero-artwork {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: none;
+    z-index: 2;
+    background-image: url("/hero-background.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+  }
+
+  .zh-page .hero-artwork::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("/hero-background.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+    mix-blend-mode: soft-light;
+    opacity: 0.38;
+    filter: contrast(1.14) saturate(1.18) brightness(0.98);
+  }
+
+  .zh-page .hero-artwork__orbit {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    transform: none;
+  }
+
+  /* Desktop constellation (same relative map) inside the clear stage */
+  .zh-page .zh-orbit-card {
+    width: 86px;
+    height: 86px;
+    border-radius: 12px;
+    pointer-events: auto;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
+    left: calc(50% - 110px);
+    top: 34%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    left: calc(50% - 110px);
+    top: 62%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
+    left: calc(50% + 110px);
+    top: 34%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    left: calc(50% + 110px);
+    top: 62%;
+  }
+
+  .zh-page .zh-orbit-card__discount {
+    top: 4px;
+    left: 4px;
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+
+  .zh-page .zh-orbit-card__prices {
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    gap: 4px;
+  }
+
+  .zh-page .zh-orbit-card__price {
+    font-size: 11px;
+  }
+
+  .zh-page .zh-orbit-card__was {
+    font-size: 10px;
+  }
+
+  /* Search under the full hero (copy + stage) — Desktop structure, AI visible */
+  .zh-page .zh-hero-search {
+    position: relative;
+    z-index: 120;
+    margin-top: var(--zh-space-stats-search);
+    margin-bottom: 0;
+    transform: none;
+  }
+
+  .zh-page .zh-search {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .zh-page .zh-search__ai {
+    display: inline-flex;
+  }
+
+  .zh-page .zh-search__bar {
+    min-height: 58px;
+    width: 100%;
+    gap: 8px;
+    padding: 6px 6px 6px 14px;
+    border-radius: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .zh-page .zh-search__icon {
+    order: 0;
+    flex-shrink: 0;
+  }
+
+  .zh-page .zh-search__bar input {
+    flex: 1 1 140px;
+    min-width: 0;
+    min-height: 44px;
+    font-size: 15px;
+    order: 1;
+  }
+
+  .zh-page .zh-search__ai {
+    order: 2;
+    flex: 1 1 calc(50% - 8px);
+    min-height: 44px;
+    padding: 9px 12px;
+    font-size: 12.5px;
+    border-radius: 9px;
+  }
+
+  .zh-page .zh-search__submit {
+    order: 3;
+    flex: 1 1 calc(50% - 8px);
+    min-height: 44px;
+    padding: 11px 18px;
+    font-size: 13.5px;
+    border-radius: 11px;
+  }
+
+  .zh-page .zh-search__dropdown {
+    padding: 16px 14px 14px;
+    border-radius: 0 0 18px 18px;
   }
 }
 

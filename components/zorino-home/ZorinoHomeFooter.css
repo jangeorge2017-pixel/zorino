@@ -1,0 +1,14 @@
+/**
+ * Featured Stores only — enlarge logo img slightly inside the existing 56×56 square.
+ * Card size, gap, padding, and typography stay unchanged.
+ */
+
+@media (min-width: 1024px) {
+  .zh-page .zh-footer__store-logo img {
+    width: calc(56px * 0.9 * 1.22);
+    height: calc(56px * 0.9 * 1.22);
+    max-width: none;
+    object-fit: contain;
+    object-position: center;
+  }
+}

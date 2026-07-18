@@ -1,0 +1,14 @@
+/**
+ * Top Coupons only — enlarge logo img slightly inside the existing logo square.
+ * Does not change card grid, logo box size, spacing, or typography.
+ */
+
+@media (min-width: 1024px) {
+  .zh-page #zh-section-coupons .zh-coupon__logo img {
+    width: 122%;
+    height: 122%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center;
+  }
+}
