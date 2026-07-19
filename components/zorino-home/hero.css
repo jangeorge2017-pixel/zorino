@@ -193,6 +193,13 @@
   transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px)));
 }
 
+/* Desktop only — 17px toward "Find Better Deals Faster" (do not alter mobile) */
+@media (min-width: 1024px) {
+  .hero-artwork__orbit {
+    transform: translateX(calc(103px + var(--zh-orbit-card-shift-right, 0px)));
+  }
+}
+
 @keyframes zh-orbit-float {
   0%,
   100% {
