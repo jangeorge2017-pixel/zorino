@@ -76,16 +76,6 @@ html[dir="rtl"] .zh-page .zh-hero__col--left {
   transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px)));
 }
 
-/*
- * Lock left CARD column 16px toward headline (matches hero.css base).
- * Targets .zh-orbit-card (HeroFloatingCard) — not .hero-artwork__orbit.
- * Right column untouched at left: 88%.
- */
-.zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-.zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-  left: calc(72% - 167px);
-}
-
 /* Nav: RTL text order only — do not flip logo artwork */
 html[dir="rtl"] .zh-page .zh-nav__inner {
   direction: rtl;

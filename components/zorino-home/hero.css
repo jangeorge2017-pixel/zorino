@@ -223,15 +223,9 @@
   will-change: transform;
 }
 
-/*
- * 2×2 — left col / right col. Left column cards are the rendered
- * .zh-orbit-card nodes (HeroFloatingCard), NOT .hero-artwork__orbit.
- * left: calc(72% - 167px) = prior 151px anchor moved 16px toward headline.
- * Right column stays at left: 88%.
- * (Active CSS imported by ZorinoHomeHero → ./hero.css)
- */
-.zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: calc(72% - 167px); top: calc(36% - 20px); }
-.zh-orbit-card[data-orbit-position="orbit-top"] { left: calc(72% - 167px); top: calc(60% - 40px); }
+/* 2×2 — desktop baseline (original). Tablet orbit nudges live only in homepage-responsive.css. */
+.zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: calc(72% - 151px); top: calc(36% - 20px); }
+.zh-orbit-card[data-orbit-position="orbit-top"] { left: calc(72% - 151px); top: calc(60% - 40px); }
 .zh-orbit-card[data-orbit-position="orbit-upper-right"] { left: 88%; top: calc(36% - 20px); }
 .zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: 88%; top: calc(60% - 40px); }
 

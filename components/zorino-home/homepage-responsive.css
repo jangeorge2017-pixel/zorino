@@ -1,14 +1,18 @@
 /**
  * Homepage responsive layer — tablet & mobile ONLY.
  * Imported last. Contains @media rules exclusively so desktop (≥1280)
- * base styles stay pixel-identical to the approved layout.
+ * base styles stay on the original desktop design (hero.css).
+ *
+ * TABLET ORBIT BASELINE (max-width: 1279px): locked below. Do not copy these
+ * positioning nudges into desktop (≥1280) — desktop will be adjusted in a
+ * separate pass from the original desktop composition.
  */
 
 /* ═══════════════════════════════════════════════════════════
-   Tablet — max-width: 1279px
+   Tablet — max-width: 1279px  (LOCKED BASELINE)
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 1279px) {
-  /* ── Hero: tablet keeps the approved desktop orbit composition ── */
+  /* ── Hero: tablet orbit composition (baseline) ── */
   .zh-page .zh-hero {
     grid-template-columns: minmax(0, 548px) minmax(0, 1fr);
     min-height: 420px;
@@ -41,14 +45,18 @@
     height: 86px;
   }
 
-  /* Left column 16px toward headline (matches hero.css); right column unchanged */
+  /*
+   * Tablet baseline — left floating card column only:
+   * 21px toward headline vs desktop 151px anchor (16px prior + 5px).
+   * Right column unchanged at left: 88%.
+   */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: calc(72% - 167px);
+    left: calc(72% - 172px);
     top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: calc(72% - 167px);
+    left: calc(72% - 172px);
     top: 60%;
   }
 
