@@ -59,7 +59,10 @@ export default function ZorinoHomeHero({
             <span>{t("titleLine2")}</span>
           </h1>
 
-          <p className="zh-hero__subtitle">{t("subtitle")}</p>
+          <p className="zh-hero__subtitle">
+            <span className="zh-hero__subtitle-lead">{t("subtitleLead")}</span>{" "}
+            <span className="zh-hero__subtitle-tail">{t("subtitleTail")}</span>
+          </p>
 
           <div className="zh-hero__stats">
             {stats.map((stat) => {

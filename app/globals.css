@@ -38,10 +38,23 @@
   box-sizing: border-box;
 }
 
-html,
+/*
+ * Root scroll container fix:
+ * overflow-x:hidden on html/body forces overflow-y to compute to auto in
+ * Chromium/WebKit, creating a nested scrollport that breaks sticky, jumps
+ * scroll offsets, and fights touch scrolling. Use clip instead — it clips
+ * horizontal bleed without creating a scroll container.
+ */
+html {
+  width: 100%;
+  overflow-x: clip;
+  overflow-y: scroll;
+}
+
 body {
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 body {
@@ -56,16 +69,29 @@ html[dir="rtl"] body {
   font-feature-settings: "kern" 1;
   letter-spacing: 0;
   /* Match English vertical rhythm — avoid oversized Arabic line-height */
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 html[dir="rtl"] h1,
 html[dir="rtl"] h2,
 html[dir="rtl"] h3,
 html[dir="rtl"] .zh-hero__title,
-html[dir="rtl"] .zh-cta-band__title {
+html[dir="rtl"] .zh-cta-band__title,
+html[dir="rtl"] .zh-trending-deals__title,
+html[dir="rtl"] .zh-section-head__title {
   font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+html[dir="rtl"] .zh-categories__label,
+html[dir="rtl"] .zh-quick-nav__label,
+html[dir="rtl"] .zh-orbit-card__discount,
+html[dir="rtl"] .zh-orbit-card__price,
+html[dir="rtl"] .zh-orbit-card__was {
+  font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 1.3;
 }
@@ -116,7 +142,7 @@ img {
 .homepage {
   min-height: 100vh;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
   overflow-y: visible;
   background: var(--homepage-bg-fallback);
 }
@@ -3954,14 +3980,14 @@ img {
   .site-shell,
   .page-content {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   .navbar {
     padding: 0 var(--content-pad);
     height: auto;
     min-height: 64px;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   .navbar-inner {

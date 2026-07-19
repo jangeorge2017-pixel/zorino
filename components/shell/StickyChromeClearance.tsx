@@ -20,18 +20,14 @@ function isHomepage(pathname: string): boolean {
 }
 
 /**
- * Publishes live --zor-sticky-clearance (pinned stack).
- * Scroll offset (--zor-sticky-scroll-clearance) stays CSS-owned.
+ * Publishes live --zor-sticky-clearance and measured --zor-sticky-scroll-clearance
+ * so sticky header never overlaps scrolled content (esp. mobile 56px nav).
  */
 export default function StickyChromeClearance() {
   const pathname = usePathname();
 
   useEffect(() => {
     const sync = () => {
-      // Drop any legacy inline scroll-clearance writes so CSS calc owns the offset.
-      document.documentElement.style.removeProperty("--zor-sticky-scroll-clearance");
-      document.documentElement.style.removeProperty("--zh-sticky-scroll-clearance");
-
       // Off-home: drop homepage quick-nav tokens so scroll offset is primary-only.
       if (!isHomepage(pathname)) {
         document.documentElement.style.removeProperty("--zh-quick-nav-h");

@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 
-const NAV_LINKS = [
+export const HOME_NAV_LINKS = [
   { href: "/deals", key: "deals" as const },
   { href: "/coupons", key: "coupons" as const },
   { href: "/compare", key: "compare" as const },
@@ -25,7 +25,7 @@ export default function ZorinoHomeNavLinks() {
 
   return (
     <nav className="zh-nav__links" aria-label={tCommon("primaryNav")}>
-      {NAV_LINKS.map((link) => {
+      {HOME_NAV_LINKS.map((link) => {
         const active = isLinkActive(pathname, link.href);
 
         return (

@@ -33,7 +33,7 @@
   }
 
   .zh-page .hero-artwork__orbit {
-    transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px)));
+    transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px) - 3px));
   }
 
   .zh-page .zh-orbit-card {
@@ -148,68 +148,662 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Mobile page chrome (non-hero) — max-width: 768px
-   Hero composition lives in the ≤767 block below.
+   Mobile — portrait (≤767) and short landscape (same layout, no separate design)
+   Reuse the desktop hero illustration layer; override only mobile sizing/positions.
    ═══════════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
+@media (max-width: 767px),
+  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
   /* ── Page rhythm ── */
   .zh-page {
     --zh-nav-h: 56px;
-    --zh-pad: 16px;
+    /* Slightly wider content; shell still respects safe-area insets */
+    --zh-pad: 10px;
     --zh-section-step: 36px;
     --zh-space-discovery: 14px;
+    /*
+     * No negative lift — Search sits clear below stats with even 18px gaps
+     * Stats→Search, Search→Categories, Categories→Quick Nav.
+     */
+    --zh-discovery-group-lift: 0px;
+    /* Even ~18px rhythm: Stats→Search, Search→Categories */
+    --zh-discovery-gap: 18px;
+    --zh-hero-artwork-width: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
+    --zh-hero-artwork-height: min(calc(100vw - (var(--zh-pad) + var(--zh-pad))), 340px);
+    --zh-hero-artwork-shift-left: 0px;
+    --zh-hero-artwork-scale: 1;
+    --zh-hero-artwork-lift: 0px;
+    --zh-hero-artwork-stretch-z-up: 0px;
+    --zh-hero-artwork-stretch-down: 1;
+    --zh-hero-artwork-extend-down: 0px;
+    --zh-hero-artwork-top: 0px;
+    /*
+     * Wider paint + right-anchored Z: glow/particles extend left behind the
+     * headline while the Z sits further right as the card-column center.
+     */
+    /* 10px toward hero text (left); copy/cards stay put */
+    --zh-hero-artwork-right: -18px;
+    --zh-hero-artwork-painted-width: min(128vw, 500px);
+    /* Stretch hero background downward (+40px); copy/cards stay put */
+    --zh-hero-artwork-painted-height: 264px;
+    --zh-hero-artwork-painted-top: calc(var(--zh-nav-h) - 6px);
+    --zh-hero-artwork-painted-right: var(--zh-hero-artwork-right);
+    --zh-hero-edge-feather: 22px;
   }
 
   .zh-page .zh-shell {
-    padding-left: var(--zh-pad);
-    padding-right: var(--zh-pad);
-    padding-bottom: 24px;
+    padding-left: max(var(--zh-pad), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--zh-pad), env(safe-area-inset-right, 0px));
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
     overflow-x: clip;
   }
 
-  /* ── Categories + Quick Nav ── */
+  /* ── Hero ── */
+  .zh-page .zh-hero {
+    position: relative;
+    isolation: isolate;
+    grid-template-columns: 1fr;
+    row-gap: 14px;
+    overflow: visible;
+    min-height: 0;
+    /* Clear sticky header divider so "AI Powered" never touches it */
+    padding-top: 30px;
+  }
+
+  .zh-page .zh-hero__col--left {
+    position: relative;
+    z-index: 3;
+    text-align: start;
+  }
+
+  .zh-page .zh-hero__badge {
+    margin-inline: 0;
+    margin-top: 2px;
+    margin-bottom: 12px;
+  }
+
+  .zh-page .zh-hero__subtitle {
+    margin-inline: 0;
+    font-size: 14.5px;
+    line-height: 1.34;
+    /* 4 balanced lines; layout-neutral (does not push hero chrome) */
+    max-width: min(100%, 168px);
+    text-align: start;
+  }
+
+  .zh-page .zh-hero__subtitle-lead {
+    display: block;
+    text-wrap: balance;
+  }
+
+  .zh-page .zh-hero__subtitle-tail {
+    display: block;
+    text-align: center;
+  }
+
+  .zh-page .zh-hero__title {
+    font-size: clamp(30px, 8.5vw, 36px);
+    letter-spacing: -1.2px;
+    margin-bottom: 10px;
+  }
+
+  .zh-page .zh-hero__copy {
+    padding-right: 0;
+  }
+
+  .zh-page .zh-hero__stats {
+    /*
+     * Escape .zh-hero__copy max-width (100% - 108px) — orbit clearance is for
+     * title/subtitle only; stats sit below the orbit stage and need full width.
+     */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: calc(100% + 108px);
+    max-width: none;
+    /* Nudge row up; extra bottom gap = breathing room above search */
+    margin-top: 10px;
+    margin-bottom: 16px;
+    gap: 8px;
+    align-items: stretch;
+    box-sizing: border-box;
+  }
+
+  /* Full mobile-width 2×2 stats — ~15px shorter; width unchanged */
+  .zh-page .zh-stat {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    min-height: 65px;
+    height: 100%;
+    padding: 8px 14px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .zh-page .zh-stat__value {
+    margin-bottom: 4px;
+    font-size: 16px;
+  }
+
+  .zh-page .zh-stat__meta {
+    gap: 7px;
+  }
+
+  .zh-page .zh-stat__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .zh-page .zh-stat__icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .zh-page .zh-stat__label {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  /*
+   * Orbit stage anchored to the Hero — fixed px stage/card sizes so cards
+   * do not jump when rotating portrait ↔ landscape.
+   */
+  .zh-page .zh-hero__col--right {
+    position: absolute;
+    /* Keep floating cards below sticky header; +15px down from prior 10px */
+    top: 25px;
+    /* Stage +30px toward right edge (was 30px); left column compensated below */
+    right: 0px;
+    left: auto;
+    width: 148px;
+    height: 222px;
+    min-height: 0;
+    margin: 0;
+    z-index: 2;
+    pointer-events: none;
+    grid-column: 1;
+    grid-row: 1;
+    overflow: visible;
+  }
+
+  .zh-page .zh-page__artwork-clip {
+    -webkit-mask-image:
+      linear-gradient(
+        180deg,
+        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
+        #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
+        #000
+          calc(
+            var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
+            var(--zh-hero-edge-feather)
+          ),
+        transparent
+          calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
+      ),
+      linear-gradient(
+        90deg,
+        transparent
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) - 1px
+          ),
+        #000
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) +
+            var(--zh-hero-edge-feather)
+          ),
+        #000 calc(100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-edge-feather)),
+        transparent calc(100% - var(--zh-hero-artwork-painted-right) + 1px)
+      );
+    mask-image:
+      linear-gradient(
+        180deg,
+        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
+        #000 calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)),
+        #000
+          calc(
+            var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) -
+            var(--zh-hero-edge-feather)
+          ),
+        transparent
+          calc(var(--zh-hero-artwork-painted-top) + var(--zh-hero-artwork-painted-height) + 1px)
+      ),
+      linear-gradient(
+        90deg,
+        transparent
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) - 1px
+          ),
+        #000
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-artwork-painted-width) +
+            var(--zh-hero-edge-feather)
+          ),
+        #000 calc(100% - var(--zh-hero-artwork-painted-right) - var(--zh-hero-edge-feather)),
+        transparent calc(100% - var(--zh-hero-artwork-painted-right) + 1px)
+      );
+  }
+
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-size:
+      var(--zh-hero-artwork-painted-width)
+      var(--zh-hero-artwork-painted-height);
+    background-position:
+      right var(--zh-hero-artwork-painted-right)
+      top var(--zh-hero-artwork-painted-top);
+  }
+
+  .zh-page .hero-artwork {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: none !important;
+  }
+
+  .zh-page .hero-artwork__orbit {
+    transform: none !important;
+  }
+
+  /* Fixed card size — orientation-stable, Z remains the column center */
+  .zh-page .zh-orbit-card {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    pointer-events: auto;
+  }
+
+  /*
+   * Stage shifted +30px right; left column +10px toward Z (was −35px);
+   * right column unchanged at 86%.
+   */
+  /* Task 6: shift floating cards 3px toward hero copy (left), logo stays */
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
+    left: calc(14% - 28px);
+    top: 4%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    left: calc(14% - 28px);
+    top: 40%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
+    left: calc(86% - 3px);
+    top: 4%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    left: calc(86% - 3px);
+    top: 40%;
+  }
+
+  /* ── Search — single horizontal bar (desktop pattern), button inside ── */
+  .zh-page .zh-hero-search {
+    /* Position polish: 22px up from base 18px gap (−5px vs prior) */
+    margin-top: calc(var(--zh-discovery-gap, 18px) - 22px);
+  }
+
+  .zh-page .zh-hero-search,
+  .zh-page .zh-search {
+    position: relative;
+    z-index: 6;
+  }
+
+  .zh-page .zh-search {
+    width: 100%;
+    border-radius: 14px;
+    /*
+     * Glow on the unclipped parent. Putting box-shadow on .zh-search__bar while
+     * it uses overflow:hidden clips the shadow into a hard hairline under the bar.
+     */
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.28),
+      0 0 12px rgba(96, 165, 250, 0.1),
+      0 0 18px rgba(139, 92, 246, 0.06);
+    transition: box-shadow 220ms ease;
+    animation: zh-search-border-glow 6.5s ease-in-out infinite;
+  }
+
+  .zh-page .zh-search:hover,
+  .zh-page .zh-search:focus-within {
+    animation: none;
+    box-shadow:
+      0 10px 26px rgba(0, 0, 0, 0.32),
+      0 0 16px rgba(96, 165, 250, 0.14),
+      0 0 22px rgba(139, 92, 246, 0.1);
+  }
+
+  .zh-page .zh-search__ai {
+    display: none;
+  }
+
+  .zh-page .zh-search__bar {
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    min-height: 48px;
+    width: 100%;
+    gap: 8px;
+    padding: 4px 4px 4px 12px;
+    border-radius: 14px;
+    /* Clip sweep pseudo only — no box-shadow here (see .zh-search above) */
+    overflow: hidden;
+    border: 1px solid rgba(96, 165, 250, 0.22);
+    border-color: rgba(96, 165, 250, 0.22);
+    background: rgba(15, 23, 42, 0.88);
+    box-shadow: none;
+    animation: none;
+    transition: border-color 220ms ease;
+  }
+
+  /* Subtle border/light sweep — every ~7s; fully inside rounded clip */
+  .zh-page .zh-search__bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      rgba(167, 139, 250, 0.1) 49%,
+      rgba(111, 212, 255, 0.12) 52%,
+      transparent 62%
+    );
+    transform: translateX(-130%);
+    animation: zh-search-sweep 7.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .zh-page .zh-search__bar:hover,
+  .zh-page .zh-search__bar:focus-within {
+    border-color: rgba(139, 92, 246, 0.34);
+    box-shadow: none;
+    animation: none;
+  }
+
+  .zh-page .zh-search__icon {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    order: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .zh-page .zh-search__bar input {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 auto;
+    order: 0;
+    min-width: 0;
+    min-height: 36px;
+    width: auto;
+    max-width: 100%;
+    /* Keep placeholder clear of the Search submit control */
+    padding: 0 8px 0 0;
+    margin: 0;
+    border: 0;
+    font-size: 13.5px;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .zh-page .zh-search__bar input::placeholder {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.88;
+  }
+
+  .zh-page .zh-search__submit {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    order: 0;
+    min-height: 40px;
+    align-self: center;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zh-page .zh-search,
+    .zh-page .zh-search__bar,
+    .zh-page .zh-search__bar::after {
+      animation: none;
+    }
+
+    .zh-page .zh-search__bar::after {
+      display: none;
+    }
+  }
+
+  /* ── Categories + Quick Nav — shift UP with Search ── */
+  /*
+   * Pad on the wrap (not the scroller) so 4 tiles fill the track exactly.
+   * A 5th tile must not sit in a padding gutter / peek into view.
+   */
   .zh-page .zh-categories-wrap {
-    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+    margin-top: 10px;
+    margin-inline: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 0;
+    box-sizing: border-box;
+    overflow-x: clip;
+  }
+
+  .zh-page .zh-categories-nav {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   .zh-page .zh-categories {
-    margin-inline: calc(-1 * var(--zh-pad));
-    padding-inline: var(--zh-pad);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    padding-inline: 0;
     gap: 8px;
+    /* Exactly 4 tiles — extras hidden in layout-flow; no X-scroll */
+    scroll-snap-type: none;
+    scrollbar-width: none;
+    overflow: hidden;
   }
 
   .zh-page .zh-categories__item {
-    min-width: 78px;
-    min-height: 74px;
-    padding: 8px 6px 10px;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 0;
+    padding: 4px 2px 6px;
+    gap: 4px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .zh-page .zh-categories__item:hover,
+  .zh-page .zh-categories__item--highlight,
+  .zh-page .zh-categories__item--highlight:hover {
+    border: none;
+    background: transparent;
+    box-shadow: none;
   }
 
   .zh-page .zh-categories__icon-box {
-    width: 42px;
-    height: 42px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    border: none;
+    background: rgba(15, 23, 42, 0.35);
+    flex-shrink: 0;
+  }
+
+  .zh-page .zh-categories__icon-box svg {
+    width: 26px;
+    height: 26px;
   }
 
   .zh-page .zh-categories__label {
-    font-size: 11px;
+    width: 100%;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: 10px;
+    /* Consistent 15px Categories → Bottom Chips */
+    margin-top: 15px;
+  }
+
+  .zh-page .zh-quick-nav-wrap {
+    width: 100%;
   }
 
   .zh-page .zh-quick-nav__track {
-    padding: 6px 0;
+    padding: 2px 0;
+    width: 100%;
+  }
+
+  /*
+   * Exactly three equal-width chips — hide the rest (no scroll / no peek).
+   * Grid keeps equal gaps between Trending Deals / Coupons / Coupon Brands.
+   */
+  .zh-page .zh-quick-nav__row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 8px;
+    row-gap: 0;
+    padding-block: 2px;
+  }
+
+  .zh-page .zh-quick-nav__pill:nth-child(n + 4) {
+    display: none !important;
   }
 
   .zh-page .zh-quick-nav__pill {
-    min-height: 40px;
-    padding: 7px 11px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    padding: 0 3px;
+    font-size: 11.5px;
+    font-weight: 600;
+    gap: 3px;
+    overflow: hidden;
+    line-height: 1;
+  }
+
+  .zh-page .zh-quick-nav__emoji {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 12px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .zh-page .zh-quick-nav__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  /* Orbit cards: same image size — larger badge/price for readability only */
+  .zh-page .zh-orbit-card__discount {
+    top: 1px;
+    left: 2px;
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-size: 8.5px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+
+  .zh-page .zh-orbit-card__prices {
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    gap: 1px;
+  }
+
+  .zh-page .zh-orbit-card__price {
+    font-size: 9.5px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .zh-page .zh-orbit-card__was {
+    font-size: 8px;
+    line-height: 1.1;
+  }
+
+  /* Keep copy clear of floating cards (EN + AR) */
+  .zh-page .zh-hero__copy {
+    max-width: calc(100% - 108px);
+    padding-inline-end: 0;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__col--left {
+    z-index: 4;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__badge,
+  html[dir="rtl"] .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle {
+    max-width: calc(100% - 108px);
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__label,
+  html[dir="rtl"] .zh-page .zh-quick-nav__label {
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: 0;
   }
 
   /* ── Commerce / Trending / Coupons ── */
   .zh-page .hhb {
-    margin-top: 24px;
+    margin-top: 22px;
     margin-inline: 0;
     padding-inline: 0;
     padding-bottom: 20px;
@@ -226,31 +820,245 @@
   }
 
   .zh-page .zh-trending-deals__head {
-    padding: 12px 12px 4px;
-    gap: 10px;
+    padding: 10px 12px 2px;
+    gap: 8px;
   }
 
-  .zh-page .zh-trending-deals__carousel,
   .zh-page .zh-trending-deals .zh-panel__empty {
     padding-inline: 12px;
     padding-top: 6px;
   }
 
-  .zh-page .zh-trending-deals__track,
-  .zh-page .zh-td-skeleton-grid {
-    grid-auto-columns: min(100%, calc(100vw - 2 * var(--zh-pad) - 24px));
-    gap: 12px;
-    padding-bottom: 4px;
+  /*
+   * Trending Deals — fit one full card in the mobile portrait viewport
+   * under sticky chrome. Fill remaining viewport so the next section
+   * does not peek. Do not change desktop/tablet.
+   */
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-trending-deals {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    /* Fill from under the fixed nav to the fold so the next section cannot peek.
+       Extra height is empty flex space below the card (card stays fully visible). */
+    min-height: calc(100svh - var(--zh-nav-h, 56px) - env(safe-area-inset-bottom, 0px));
+    padding-bottom: 12px;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .zh-page .zh-trending-deals__head {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .zh-page .zh-trending-deals__controls {
+    gap: 8px;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* Filter chips scroll inside the head — never widen the page */
+  .zh-page .zh-trending-deals__filters {
+    display: flex;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: clip;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scrollbar-width: none;
+  }
+
+  .zh-page .zh-trending-deals__filters::-webkit-scrollbar {
+    display: none;
   }
 
   .zh-page .zh-trending-deals__filter {
+    flex: 0 0 auto;
+  }
+
+  .zh-page .zh-trending-deals__carousel {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 0;
+    min-width: 0;
+    max-width: 100%;
+    padding-top: 4px;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  /* Natural card height — section min-height supplies empty space below */
+  .zh-page .zh-trending-deals__track {
+    flex: 0 0 auto;
+  }
+
+  .zh-page .zh-trending-deals__title-row {
+    gap: 8px;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid {
+    padding-block: 2px 6px;
+    /* Proximity = freer finger drag; mandatory jumped a full slide on tiny deltas */
+    scroll-snap-type: x proximity;
+    overflow-x: auto;
+    overflow-y: clip;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scroll-behavior: smooth;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .zh-page .zh-trending-deals__slide {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /*
+   * Media box owns the image. Clear fixed global heights so the photo
+   * cannot spill into the title/price row or force reflow beside text.
+   */
+  .zh-page .zh-trending-deals__track .product-card-media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: 168px;
+    flex: 0 0 auto;
+    overflow: hidden;
+    contain: paint;
+  }
+
+  .zh-page .zh-trending-deals__track .product-card-image-frame {
+    position: absolute;
+    inset: 10px;
+    max-width: calc(100% - 20px);
+    max-height: calc(100% - 20px);
+    overflow: hidden;
+  }
+
+  .zh-page .zh-trending-deals__track .product-card-image,
+  .zh-page .zh-trending-deals__track .deal-product-img,
+  .zh-page .zh-trending-deals__track .trending-card-image {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+    /* Hover scale can visually spill past the media clip on touch devices */
+    transform: none;
+  }
+
+  .zh-page .zh-trending-deals__track .product-card-body {
+    gap: 4px;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .zh-page .zh-trending-deals__track .product-card-actions-dual {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .zh-page .zh-trending-deals__track .home-shop-btn,
+  .zh-page .zh-trending-deals__track .home-compare-btn {
     min-height: 40px;
-    padding: 8px 12px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+  }
+
+  .zh-page .zh-trending-deals__track .listing-deal-meta {
+    margin-top: 6px;
+  }
+
+  /*
+   * Enforce layout-flow contract after component CSS chunks
+   * (zorino-home-deals / premium) which can load later and re-apply blur.
+   */
+  .zh-page .zh-panel,
+  .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-product-section,
+  .zh-page #zh-section-flash-deals,
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-trending-deals,
+  .zh-page .zh-featured-brands.zh-panel,
+  .zh-page .zh-trending-deals__head,
+  .zh-page .zh-deals-preview.zh-panel {
+    /* blur(0) survives the bundler; `none` is stripped as initial */
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    isolation: auto;
+  }
+
+  /* Equal-height card system — stretch within track / grid */
+  .zh-page .zh-trending-deals__slide,
+  .zh-page .zh-trending-deals__track .zor-deals-page__card,
+  .zh-page .zh-trending-deals__track .listing-product-card,
+  .zh-page .zh-product-grid .listing-product-card,
+  .zh-page .zh-product-grid .zor-deals-page__card {
+    height: 100%;
+    max-height: none;
+    align-self: stretch;
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-featured-brands__track {
+    overflow-x: auto;
+    overflow-y: clip;
+    touch-action: pan-x;
+    grid-auto-columns: var(--zh-carousel-slide);
+    gap: var(--zh-carousel-gap, 12px);
+  }
+
+  /* Trending-only scroll lock (after shared track rules) */
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid {
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .zh-page .zh-trending-deals__filter {
+    min-height: 34px;
+    padding: 6px 10px;
     font-size: 12px;
+    font-weight: 600;
+  }
+
+  .zh-page .zh-trending-deals__title {
+    font-size: 1.15rem;
+    font-weight: 800;
   }
 
   .zh-page .zh-trending-deals__sort-select {
-    min-height: 40px;
+    min-height: 34px;
+  }
+
+  .zh-page .zor-deals-page__section-subtitle {
+    font-size: 12.5px;
+    line-height: 1.3;
   }
 
   .zh-page .zh-trending-deals__nav,
@@ -268,10 +1076,33 @@
   }
 
   .zh-page .zh-coupon {
-    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-columns: 64px minmax(0, 1fr);
     gap: 10px;
     padding: 12px;
     border-radius: 14px;
+    align-items: start;
+  }
+
+  .zh-page .zh-coupon__logo {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+    padding: 0;
+    /* Border via inset shadow so the image can fill the full 64×64 tile */
+    border: none;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .zh-page .zh-coupon__logo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover !important;
+    object-position: center;
   }
 
   .zh-page .zh-coupon__code-wrap,
@@ -293,14 +1124,39 @@
     margin-top: var(--zh-section-step);
   }
 
+  /*
+   * Flush carousel: head keeps inset, track is full-bleed to panel edge.
+   * Slide width comes from --zh-carousel-slide (layout-flow).
+   */
   .zh-page .zh-featured-brands.zh-panel {
-    padding: 0 12px 14px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: calc(100svh - var(--zh-nav-h, 56px) - env(safe-area-inset-bottom, 0px));
+    padding: 0 0 14px;
   }
 
-  .zh-page .zh-brand-card {
-    /* One primary card + peek — avoid two truncated cards side-by-side */
-    flex: 0 0 min(300px, calc(100vw - 2 * var(--zh-pad) - 36px));
-    max-width: calc(100vw - 2 * var(--zh-pad) - 36px);
+  .zh-page .zh-featured-brands__carousel {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 0;
+  }
+
+  .zh-page .zh-featured-brands__track {
+    flex: 0 0 auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .zh-page .zh-featured-brands .zh-section-head {
+    padding-inline: 12px;
+  }
+
+  .zh-page .zh-featured-brands__track .zh-brand-card {
+    flex: 0 0 var(--zh-carousel-slide);
+    width: var(--zh-carousel-slide);
+    max-width: var(--zh-carousel-slide);
   }
 
   .zh-page .zh-brand-card__offer {
@@ -312,11 +1168,33 @@
   .zh-page .zh-section-head__title,
   .zh-page .zor-deals-page__section-title {
     white-space: normal;
-    font-size: 1.125rem;
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1.3;
   }
 
-  .zh-page .zh-product-grid {
+  .zh-page .zh-product-grid,
+  .zh-page .listing-products-grid,
+  .zh-page .zor-deals-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+    align-items: stretch;
+  }
+
+  .zh-page .listing-products-grid > .zor-deals-page__card,
+  .zh-page .zor-deals-page__grid > .zor-deals-page__card,
+  .zh-page .zh-product-grid > .zor-deals-page__card,
+  .zh-page .listing-products-grid > .listing-product-card,
+  .zh-page .zor-deals-page__grid > .listing-product-card {
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+  }
+
+  .zh-page .zh-brand-card__logo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
   }
 
   .zh-page .product-card-actions-dual {
@@ -343,318 +1221,31 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   Mobile Hero — max-width: 767px ONLY
-   Recreate Desktop Hero by REPOSITIONING columns (no overlay):
-     1) Copy + stats (Desktop left column)
-     2) Z + orbit stage (Desktop right column) — clear band, no text overlap
-     3) Search under the stage (Desktop placement)
-   Every Desktop element stays visible. Nothing may overlap.
-   ═══════════════════════════════════════════════════════════ */
-@media (max-width: 767px) {
-  .zh-page {
-    --zh-space-desc-stats: 20px;
-    --zh-space-stats-search: 24px;
-    --zh-discovery-group-lift: 0px;
-    --zh-hero-search-platform-gap: 16px;
-    --zh-orbit-card-shift-right: 16px;
-    /* Stage-local Z geometry (aligned to the repositioned right column) */
-    --zh-hero-artwork-width: min(78vw, 320px);
-    --zh-hero-artwork-height: min(78vw, 320px);
-    --zh-hero-artwork-right: 12px;
-    --zh-hero-artwork-shift-left: 24px;
-    --zh-hero-artwork-scale: 1.08;
-    --zh-hero-artwork-lift: 8px;
-    --zh-hero-artwork-stretch-z-up: 12px;
-    --zh-hero-artwork-stretch-down: 1.12;
-    --zh-hero-artwork-extend-down: 40px;
-    --zh-hero-artwork-top: 8px;
-    --zh-hero-edge-feather: 28px;
+@keyframes zh-search-sweep {
+  0%,
+  72%,
+  100% {
+    transform: translateX(-130%);
   }
-
-  /*
-   * Desktop columns repositioned for phone width:
-   * row1 = left column content, row2 = right column stage.
-   * Not a new design — same two regions, stacked so they cannot overlap.
-   */
-  .zh-page .zh-hero {
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    row-gap: 20px;
-    column-gap: 0;
-    align-items: start;
-    min-height: 0;
-    overflow: visible;
-    text-align: start;
-    padding-top: 4px;
-  }
-
-  .zh-page .zh-hero__col--left,
-  html[dir="rtl"] .zh-page .zh-hero__col--left {
-    position: relative;
-    z-index: 2;
-    grid-column: 1;
-    grid-row: 1;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    padding-right: 0;
-    text-align: start;
-  }
-
-  .zh-page .zh-hero__col--right {
-    position: relative;
-    z-index: 1;
-    grid-column: 1;
-    grid-row: 2;
-    width: 100%;
-    max-width: 100%;
-    min-height: 340px;
-    height: 340px;
-    margin: 0;
-    overflow: visible;
-    pointer-events: none;
-  }
-
-  .zh-page .zh-hero__copy {
-    max-width: 100%;
-    padding-right: 0;
-  }
-
-  .zh-page .zh-hero__badge,
-  html[dir="rtl"] .zh-page .zh-hero__badge {
-    margin-inline: 0;
-    margin-bottom: 16px;
-    padding: 6px 13px;
-    font-size: 11.5px;
-  }
-
-  .zh-page .zh-hero__title,
-  html[dir="rtl"] .zh-page .zh-hero__title {
-    margin: 0 0 16px;
-    font-size: clamp(34px, 8.5vw, 42px);
-    line-height: 1.05;
-    letter-spacing: -1.8px;
-    font-weight: 800;
-    text-align: start;
-  }
-
-  .zh-page .zh-hero__subtitle,
-  html[dir="rtl"] .zh-page .zh-hero__subtitle {
-    margin: 0;
-    margin-inline: 0;
-    max-width: 100%;
-    font-size: 15px;
-    line-height: 1.62;
-    text-align: start;
-  }
-
-  .zh-page .zh-hero__stats,
-  html[dir="rtl"] .zh-page .zh-hero__stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: var(--zh-space-desc-stats);
-    margin-bottom: 0;
-    justify-content: flex-start;
-  }
-
-  /* Desktop stat cards — same chrome; width adapted so four remain visible */
-  .zh-page .zh-stat {
-    width: calc(50% - 5px);
-    min-width: 0;
-    min-height: 72px;
-    padding: 11px 13px;
-    border-radius: 12px;
-  }
-
-  .zh-page .zh-stat__value {
-    font-size: 16px;
-    margin-bottom: 6px;
-  }
-
-  .zh-page .zh-stat__label {
-    font-size: 10.5px;
-  }
-
-  .zh-page .zh-stat__icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  .zh-page .zh-stat__icon svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  /*
-   * Reposition Desktop Z into the clear stage band (row 2).
-   * Page-level artwork is silenced so it cannot paint under copy.
-   * Paint the Z on .hero-artwork (not .zh-hero__col--*) — app/zorino-fixes.css
-   * zeroes background-image on [class*="hero"] except hero-artwork.
-   */
-  .zh-page .zh-page__artwork-clip {
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-
-  .zh-page .zh-page__artwork,
-  .zh-page .zh-page__artwork::after {
-    background-image: none;
-    opacity: 0;
-  }
-
-  /* Orbit stage fills the dedicated right-column band + hosts the Z PNG */
-  .zh-page .hero-artwork {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transform: none;
-    z-index: 2;
-    background-image: url("/hero-background.png");
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center center;
-  }
-
-  .zh-page .hero-artwork::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image: url("/hero-background.png");
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center center;
-    mix-blend-mode: soft-light;
-    opacity: 0.38;
-    filter: contrast(1.14) saturate(1.18) brightness(0.98);
-  }
-
-  .zh-page .hero-artwork__orbit {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    transform: none;
-  }
-
-  /* Desktop constellation (same relative map) inside the clear stage */
-  .zh-page .zh-orbit-card {
-    width: 86px;
-    height: 86px;
-    border-radius: 12px;
-    pointer-events: auto;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: calc(50% - 110px);
-    top: 34%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: calc(50% - 110px);
-    top: 62%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: calc(50% + 110px);
-    top: 34%;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: calc(50% + 110px);
-    top: 62%;
-  }
-
-  .zh-page .zh-orbit-card__discount {
-    top: 4px;
-    left: 4px;
-    padding: 2px 6px;
-    font-size: 9px;
-  }
-
-  .zh-page .zh-orbit-card__prices {
-    left: 6px;
-    right: 6px;
-    bottom: 6px;
-    gap: 4px;
-  }
-
-  .zh-page .zh-orbit-card__price {
-    font-size: 11px;
-  }
-
-  .zh-page .zh-orbit-card__was {
-    font-size: 10px;
-  }
-
-  /* Search under the full hero (copy + stage) — Desktop structure, AI visible */
-  .zh-page .zh-hero-search {
-    position: relative;
-    z-index: 120;
-    margin-top: var(--zh-space-stats-search);
-    margin-bottom: 0;
-    transform: none;
-  }
-
-  .zh-page .zh-search {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .zh-page .zh-search__ai {
-    display: inline-flex;
-  }
-
-  .zh-page .zh-search__bar {
-    min-height: 58px;
-    width: 100%;
-    gap: 8px;
-    padding: 6px 6px 6px 14px;
-    border-radius: 18px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .zh-page .zh-search__icon {
-    order: 0;
-    flex-shrink: 0;
-  }
-
-  .zh-page .zh-search__bar input {
-    flex: 1 1 140px;
-    min-width: 0;
-    min-height: 44px;
-    font-size: 15px;
-    order: 1;
-  }
-
-  .zh-page .zh-search__ai {
-    order: 2;
-    flex: 1 1 calc(50% - 8px);
-    min-height: 44px;
-    padding: 9px 12px;
-    font-size: 12.5px;
-    border-radius: 9px;
-  }
-
-  .zh-page .zh-search__submit {
-    order: 3;
-    flex: 1 1 calc(50% - 8px);
-    min-height: 44px;
-    padding: 11px 18px;
-    font-size: 13.5px;
-    border-radius: 11px;
-  }
-
-  .zh-page .zh-search__dropdown {
-    padding: 16px 14px 14px;
-    border-radius: 0 0 18px 18px;
+  82%,
+  90% {
+    transform: translateX(130%);
   }
 }
 
+/* Soft outer glow only — no 1px ring (that doubled the border into a hairline) */
+@keyframes zh-search-border-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 8px 22px rgba(0, 0, 0, 0.28),
+      0 0 12px rgba(96, 165, 250, 0.1),
+      0 0 18px rgba(139, 92, 246, 0.06);
+  }
+  50% {
+    box-shadow:
+      0 10px 26px rgba(0, 0, 0, 0.3),
+      0 0 16px rgba(96, 165, 250, 0.14),
+      0 0 22px rgba(139, 92, 246, 0.1);
+  }
+}

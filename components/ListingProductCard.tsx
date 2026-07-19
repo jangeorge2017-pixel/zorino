@@ -91,25 +91,35 @@ export default function ListingProductCard({
 
       <div className="product-card-body">
         <h3 className="deal-name">{product.name}</h3>
-        {(product.category || product.store) && (
-          <p className="trending-card-store">
-            {[product.category, product.store].filter(Boolean).join(" • ")}
-          </p>
-        )}
+        {/* Always render store/rating slots so equal-height grids stay uniform */}
+        <p
+          className={`trending-card-store${
+            product.category || product.store ? "" : " is-empty"
+          }`}
+        >
+          {[product.category, product.store].filter(Boolean).join(" • ") || "\u00a0"}
+        </p>
 
-        {(product.rating ?? 0) > 0 && (
-          <div className="deal-rating">
-            <Star size={14} className="star-filled" fill="currentColor" />
-            <span className="deal-reviews">
-              {product.rating}
-              {salesLabel
-                ? ` (${salesLabel.toLocaleString("en-US")}${
-                    product.salesCount != null ? ` ${tProduct("sold")}` : ""
-                  })`
-                : ""}
-            </span>
-          </div>
-        )}
+        <div
+          className={`deal-rating${(product.rating ?? 0) > 0 ? "" : " is-empty"}`}
+          aria-hidden={(product.rating ?? 0) > 0 ? undefined : true}
+        >
+          {(product.rating ?? 0) > 0 ? (
+            <>
+              <Star size={14} className="star-filled" fill="currentColor" />
+              <span className="deal-reviews">
+                {product.rating}
+                {salesLabel
+                  ? ` (${salesLabel.toLocaleString("en-US")}${
+                      product.salesCount != null ? ` ${tProduct("sold")}` : ""
+                    })`
+                  : ""}
+              </span>
+            </>
+          ) : (
+            "\u00a0"
+          )}
+        </div>
 
         <div className="deal-pricing">
           <span className="deal-price">${product.price.toLocaleString("en-US")}</span>
@@ -118,9 +128,13 @@ export default function ListingProductCard({
           )}
         </div>
 
-        {product.inStock !== undefined && (
+        {product.inStock !== undefined ? (
           <p className={`listing-stock ${product.inStock ? "in-stock" : "out-of-stock"}`}>
             {product.inStock ? tCommon("inStock") : tCommon("outOfStock")}
+          </p>
+        ) : (
+          <p className="listing-stock is-empty" aria-hidden>
+            {"\u00a0"}
           </p>
         )}
       </div>

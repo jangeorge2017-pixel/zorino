@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import BackToTop from "@/components/shell/BackToTop";
 import PublicShell from "@/components/shell/PublicShell";
 import StickyChromeClearance from "@/components/shell/StickyChromeClearance";
 
@@ -35,6 +36,7 @@ export default function LocaleShell({ children }: LocaleShellProps) {
       <>
         <StickyChromeClearance />
         {children}
+        <BackToTop />
       </>
     );
   }
@@ -43,6 +45,7 @@ export default function LocaleShell({ children }: LocaleShellProps) {
     <>
       <StickyChromeClearance />
       <PublicShell>{children}</PublicShell>
+      <BackToTop />
     </>
   );
 }
