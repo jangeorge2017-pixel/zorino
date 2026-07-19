@@ -77,16 +77,13 @@ html[dir="rtl"] .zh-page .zh-hero__col--left {
 }
 
 /*
- * Desktop only — left CARD column 16px toward headline (card transform).
- * Must stay in sync with hero.css; do not move .hero-artwork__orbit.
- * Right column untouched.
+ * Lock left CARD column 16px toward headline (matches hero.css base).
+ * Targets .zh-orbit-card (HeroFloatingCard) — not .hero-artwork__orbit.
+ * Right column untouched at left: 88%.
  */
-@media (min-width: 1280px) {
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    transform: translate(calc(-50% - 16px), -50%);
-    animation-name: zh-orbit-float-left-col;
-  }
+.zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+.zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+  left: calc(72% - 167px);
 }
 
 /* Nav: RTL text order only — do not flip logo artwork */
