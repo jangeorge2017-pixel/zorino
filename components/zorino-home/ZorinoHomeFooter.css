@@ -11,4 +11,9 @@
     object-fit: contain;
     object-position: center;
   }
+
+  .zh-page .zh-footer__store-logo img[src*="aliexpress"] {
+    width: calc(56px * 0.9 * 1.48);
+    height: calc(56px * 0.9 * 1.48);
+  }
 }

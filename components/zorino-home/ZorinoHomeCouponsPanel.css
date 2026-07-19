@@ -11,4 +11,10 @@
     object-fit: contain;
     object-position: center;
   }
+
+  /* AliExpress wordmark needs extra fill to stay legible in the same box */
+  .zh-page #zh-section-coupons .zh-coupon__logo img[src*="aliexpress"] {
+    width: 148%;
+    height: 148%;
+  }
 }
