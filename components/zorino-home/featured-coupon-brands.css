@@ -281,9 +281,4 @@
     object-fit: contain;
     object-position: center;
   }
-
-  .zh-featured-brands .zh-brand-card__logo[src*="aliexpress"] {
-    width: 108%;
-    height: 108%;
-  }
 }
