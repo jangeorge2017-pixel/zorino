@@ -7,8 +7,8 @@
 :root {
   /* ─── Layout ─── */
   --zor-viewport: 1920px;
-  --zor-content: 1520px;
-  --zor-pad: clamp(16px, calc((100vw - var(--zor-content)) / 2), 200px);
+  --zor-content: 1560px;
+  --zor-pad: clamp(14px, calc((100vw - var(--zor-content)) / 2), 180px);
   --zor-nav-h: 72px;
   --zor-section-gap: 28px;
   /*
@@ -457,6 +457,51 @@ html:not(:has(.zh-page)) {
  */
 html {
   scroll-padding-top: var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance));
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Back-to-top — clears sticky chrome, 44px touch target */
+.zor-back-to-top {
+  position: fixed;
+  inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(24px, calc(16px + env(safe-area-inset-bottom, 0px)));
+  z-index: 210;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 50%;
+  background: rgba(7, 11, 22, 0.82);
+  color: #e2e8f0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    0 0 16px rgba(96, 165, 250, 0.12);
+  cursor: pointer;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    background 220ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.zor-back-to-top:hover,
+.zor-back-to-top:focus-visible {
+  transform: translateY(-2px);
+  background: rgba(15, 23, 42, 0.92);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.4),
+    0 0 18px rgba(139, 92, 246, 0.18);
+  outline: none;
 }
 
 /* Public page titles / section anchors — clear the sticky scroll stack */
@@ -1391,30 +1436,209 @@ html {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px),
+  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+  :root {
+    --zor-nav-h: 56px;
+  }
+
+  /* Match homepage mobile chrome exactly */
+  .zor-nav {
+    --zor-nav-control-h: 38px;
+    height: 56px;
+    padding: 0 max(10px, env(safe-area-inset-right, 0px)) 0
+      max(10px, env(safe-area-inset-left, 0px));
+    overflow: visible;
+    background: rgba(7, 11, 22, 0.72);
+    backdrop-filter: blur(16px) saturate(1.35);
+    -webkit-backdrop-filter: blur(16px) saturate(1.35);
+    border-bottom: none;
+    box-shadow:
+      0 8px 28px rgba(2, 6, 18, 0.28),
+      0 0 20px rgba(96, 165, 250, 0.06);
+  }
+
+  .zor-nav::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(96, 165, 250, 0.35) 22%,
+      rgba(139, 92, 246, 0.45) 50%,
+      rgba(96, 165, 250, 0.35) 78%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
   .zor-nav__inner {
-    gap: var(--zor-space-2);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .zor-nav__links,
+  .zor-nav__tagline {
+    display: none !important;
+  }
+
+  .zor-nav__logo {
+    flex: 0 0 auto;
+    gap: 0;
+  }
+
+  .zor-nav__logo img {
+    height: 48px;
+    width: auto;
+    max-width: min(128px, 32vw);
   }
 
   .zor-nav__actions {
-    gap: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+    max-width: none;
+  }
+
+  .zor-nav__control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .zor-nav .theme-toggle,
+  .zor-nav .zor-intl__trigger {
+    width: var(--zor-nav-control-h);
+    min-width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
+    padding: 0;
+    justify-content: center;
+  }
+
+  .zor-nav .theme-option-label,
+  .zor-nav .zor-intl__trigger-label,
+  .zor-nav .zor-intl__trigger .lucide-chevron-down,
+  .zor-nav .zor-intl__trigger svg:last-child {
+    display: none;
+  }
+
+  .zor-nav .theme-option:not(.theme-option-active) {
+    display: none;
+  }
+
+  .zor-nav .theme-option {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    justify-content: center;
   }
 
   .zor-nav__icon-btn {
-    min-width: 40px;
-    width: 40px;
+    min-width: var(--zor-nav-control-h);
+    min-height: var(--zor-nav-control-h);
+    width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
     padding: 0;
+    border-radius: 8px;
+    transition:
+      box-shadow 220ms ease,
+      background 220ms ease,
+      color 220ms ease;
+  }
+
+  .zor-nav__icon-btn svg {
+    width: 19px;
+    height: 19px;
   }
 
   .zor-nav__icon-btn span:not(.zor-nav__badge) {
     display: none;
   }
 
+  .zor-nav__icon-btn--search {
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.16);
+  }
+
+  .zor-nav__icon-btn--wishlist {
+    box-shadow: 0 0 8px rgba(244, 114, 182, 0.14);
+  }
+
+  .zor-nav__icon-btn--notify {
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.14);
+  }
+
+  .zor-nav .theme-toggle {
+    box-shadow: 0 0 8px rgba(167, 139, 250, 0.14);
+  }
+
+  .zor-nav .zor-intl__trigger {
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.14);
+  }
+
   .zor-nav__profile {
-    padding: 4px;
+    position: relative;
+    padding: 0;
+    width: var(--zor-nav-control-h);
+    height: var(--zor-nav-control-h);
+    justify-content: center;
+    border-radius: 50%;
+    overflow: visible;
+    border: none;
+    background: transparent;
+  }
+
+  .zor-nav__avatar-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      rgba(111, 212, 255, 0.2),
+      rgba(139, 92, 246, 0.9),
+      rgba(96, 165, 250, 0.85),
+      rgba(167, 139, 250, 0.55),
+      rgba(111, 212, 255, 0.2)
+    );
+    animation: zor-nav-avatar-spin 8s linear infinite;
+    z-index: 0;
+    pointer-events: none;
   }
 
   .zor-nav__profile div {
     display: none;
+  }
+
+  .zor-nav__profile img,
+  .zor-nav__profile-fallback {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(7, 11, 22, 0.92);
+  }
+
+  .zor-public-shell__main {
+    overflow-x: clip;
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@keyframes zor-nav-avatar-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

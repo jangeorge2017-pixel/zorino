@@ -124,6 +124,8 @@ export function publishStickyChromeStack(
 ): StickyChromeMeasurement {
   const { clearance, scrollClearance } = measurement;
   const clearanceValue = `${Math.max(0, clearance)}px`;
+  // Prefer predicted scroll clearance (nav + any secondary); fall back to live.
+  const scrollValue = `${Math.max(0, scrollClearance || clearance)}px`;
   const root = document.documentElement;
 
   // Live stack for consumers that read pinned chrome height.
@@ -134,8 +136,9 @@ export function publishStickyChromeStack(
   root.style.setProperty("--zh-sticky-clearance", clearanceValue);
   root.style.setProperty("--zh-sticky-stack", clearanceValue);
 
-  // --zor-sticky-scroll-clearance stays CSS-owned (calc of nav + quick-nav).
-  void scrollClearance;
+  // Keep scroll-padding / in-page jumps aligned with the measured nav height
+  // (critical on mobile where --zor-nav-h CSS fallback is still 72px).
+  root.style.setProperty("--zor-sticky-scroll-clearance", scrollValue);
   return measurement;
 }
 

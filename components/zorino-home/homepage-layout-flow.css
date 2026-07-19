@@ -96,17 +96,411 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px),
+  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+  /*
+   * ═══════════════════════════════════════════════════════════════════════
+   * MOBILE LAYOUT CONTRACT (390–430px architecture)
+   * Single owner for overflow / scroll / stacking / carousel sizing.
+   * Page vertical scroll = html only. Horizontal scroll = carousel tracks
+   * (+ optional filter strips) only. No nested vertical scrollports.
+   * ═══════════════════════════════════════════════════════════════════════
+   */
+  .zh-page {
+    /* Slide width relative to the TRACK content box — never 100vw math */
+    --zh-carousel-gap: 12px;
+    --zh-carousel-peek: 28px;
+    --zh-carousel-slide: calc(100% - var(--zh-carousel-peek));
+  }
+
+  /* Even discovery rhythm — match homepage-responsive --zh-discovery-gap */
   .zh-page .zh-categories-wrap {
-    margin-top: calc(16px + 8px);
+    margin-top: var(--zh-discovery-gap, 18px);
   }
 
   .zh-page .zh-home-discovery-nav {
-    margin-top: calc(16px - 8px);
+    margin-top: var(--zh-discovery-gap, 18px);
   }
 
   .zh-page .hhb {
-    margin-top: 32px;
+    margin-top: 22px;
+  }
+
+  /* Match mobile .zh-nav height (56px) — desktop/tablet spacer unchanged */
+  .zh-page > .zh-nav-spacer {
+    height: 56px;
+  }
+
+  /*
+   * Override tablet (≤1279) profile chip rules for mobile only.
+   * Avatar-only so [Search][Theme] …… [Wish][Bell][Avatar] can balance.
+   */
+  .zh-page .zh-nav__profile {
+    min-width: 0;
+    max-width: none;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  .zh-page .zh-nav__profile-copy {
+    display: none;
+  }
+
+  /* ── 1) Section containers: X-clip without creating Y scrollports ── */
+  .zh-page .zh-shell,
+  .zh-page .zh-hero-zone,
+  .zh-page .hhb,
+  .zh-page .hhb__content,
+  .zh-page .hhb .zh-commerce,
+  .zh-page .zh-commerce,
+  .zh-page .zh-panel,
+  .zh-page .zh-product-section,
+  .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-product-sections,
+  .zh-page .zh-product-sections-wrap,
+  .zh-page .zh-featured-brands-wrap,
+  .zh-page .zh-featured-brands.zh-panel,
+  .zh-page .zh-trending-deals,
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-coupons,
+  .zh-page #zh-section-coupons,
+  .zh-page .zh-categories-wrap,
+  .zh-page .zh-categories-nav,
+  .zh-page .zh-home-discovery-nav,
+  .zh-page .zh-quick-nav-wrap,
+  .zh-page .zh-quick-nav__track,
+  .zh-page .zh-section-head {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  /* Discovery rows are not scrollports on mobile (fixed tile counts) */
+  .zh-page .zh-categories,
+  .zh-page .zh-quick-nav__row {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  /* ── 2) Stacking: no blur / isolation / lift on scroll parents ── */
+  .zh-page .zh-panel,
+  .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-trending-deals.zh-deals-panel,
+  .zh-page .zh-trending-deals,
+  .zh-page .zh-featured-brands.zh-panel,
+  .zh-page .zh-trending-deals__head {
+    /* blur(0) — bundler strips `none` as an initial value */
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    isolation: auto;
+    transform: none;
+  }
+
+  .zh-page .zh-trending-deals__head {
+    z-index: auto;
+  }
+
+  .zh-page .zh-trending-deals__carousel {
+    overflow-x: clip;
+    overflow-y: visible;
+    /* Flush track to panel/content edge — pad lives on the head only */
+    padding-inline: 0;
+  }
+
+  /* Cards never promote a layer that paints under fixed chrome */
+  .zh-page .zh-trending-deals__track .zor-deals-page__card,
+  .zh-page .zh-trending-deals__track .zor-deals-page__card:hover,
+  .zh-page .zh-trending-deals__track .listing-product-card,
+  .zh-page .zh-trending-deals__track .listing-product-card:hover,
+  .zh-page .zh-trending-deals__track .deal-card,
+  .zh-page .zh-trending-deals__track .deal-card:hover,
+  .zh-page .zh-product-sections .listing-product-card,
+  .zh-page .zh-product-sections .listing-product-card:hover,
+  .zh-page .zh-product-sections .deal-card,
+  .zh-page .zh-product-sections .deal-card:hover,
+  .zh-page .zh-brand-card,
+  .zh-page .zh-brand-card:hover {
+    transform: none;
+  }
+
+  .zh-page .listing-product-card,
+  .zh-page .deal-card,
+  .zh-page .product-card {
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+
+  /* ── 3) Intentional horizontal carousels only ── */
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-featured-brands__track,
+  .zh-page .zh-trending-deals__filters {
+    overflow-x: auto;
+    overflow-y: clip;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-featured-brands__track {
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0;
+    padding-inline: 0;
+    gap: var(--zh-carousel-gap);
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid {
+    grid-auto-columns: var(--zh-carousel-slide);
+    padding-block: 4px 10px;
+  }
+
+  .zh-page .zh-trending-deals__slide {
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  .zh-page .zh-featured-brands__track .zh-brand-card {
+    flex: 0 0 var(--zh-carousel-slide);
+    width: var(--zh-carousel-slide);
+    max-width: var(--zh-carousel-slide);
+    min-width: 0;
+    /* Verified chip sits slightly outside — must not be clipped */
+    overflow: visible;
+    scroll-snap-align: start;
+  }
+
+  .zh-page .zh-brand-card__verified {
+    bottom: 0;
+  }
+
+  /*
+   * ── 4) EQUAL-HEIGHT CARD SYSTEM ──
+   * Same width/height per row/track. Titles clamp; optional rows reserve space.
+   * Actions pin to the bottom. Never grow a single card for a long title.
+   */
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-product-grid,
+  .zh-page .listing-products-grid,
+  .zh-page .zor-deals-page__grid {
+    align-items: stretch;
+  }
+
+  .zh-page .zh-trending-deals__slide {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    align-self: stretch;
+  }
+
+  .zh-page .zor-deals-page__card {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .zh-page .listing-product-card,
+  .zh-page .deal-card,
+  .zh-page .product-card,
+  .zh-page .zor-deals-page__card .listing-product-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    align-self: stretch;
+  }
+
+  .zh-page .listing-product-card .product-card-media,
+  .zh-page .deal-card .product-card-media,
+  .zh-page .product-card-media {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    flex: 0 0 auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .zh-page .product-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 6px;
+  }
+
+  .zh-page .deal-name,
+  .zh-page .listing-product-card .deal-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    line-height: 1.3;
+    min-height: calc(1.3em * 2);
+    max-height: calc(1.3em * 2);
+  }
+
+  .zh-page .trending-card-store,
+  .zh-page .deal-rating,
+  .zh-page .listing-stock {
+    min-height: 1.25em;
+    max-height: 1.25em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .zh-page .trending-card-store.is-empty,
+  .zh-page .deal-rating.is-empty,
+  .zh-page .listing-stock.is-empty {
+    visibility: hidden;
+  }
+
+  .zh-page .deal-pricing {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: 6px;
+    min-height: 1.5em;
+    max-height: 1.5em;
+    overflow: hidden;
+  }
+
+  .zh-page .deal-pricing .deal-price,
+  .zh-page .deal-pricing .deal-original {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .zh-page .deal-pricing .deal-price {
+    flex: 0 1 auto;
+  }
+
+  .zh-page .deal-pricing .deal-original {
+    flex: 1 1 auto;
+  }
+
+  .zh-page .product-card-actions,
+  .zh-page .listing-product-card .product-card-actions {
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+
+  .zh-page .listing-deal-meta {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 28px;
+    min-height: 28px;
+    max-height: 28px;
+    margin-top: 8px;
+    margin-bottom: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .zh-page .zor-deals-page__featured-badge {
+    z-index: 3;
+  }
+
+  /* Flash + product panels: same stacking contract as trending */
+  .zh-page #zh-section-flash-deals,
+  .zh-page .zh-product-section,
+  .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-deals-preview.zh-panel {
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    isolation: auto;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  /* ── 5) Zero accidental X-bleed (categories / stats) ── */
+  .zh-page .zh-categories-wrap,
+  .zh-page .zh-categories,
+  .zh-page .zh-categories-nav {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  .zh-page .zh-categories__item:nth-child(n + 5) {
+    display: none !important;
+  }
+
+  .zh-page .zh-hero__stats {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Featured store / brand logos fill their tiles */
+  .zh-page .zh-brand-card__logo-wrap {
+    width: 88px;
+    height: 88px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .zh-page .zh-brand-card__logo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  .zh-page .zh-footer__store-logo {
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .zh-page .zh-footer__store-logo img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* Keep panels inside the viewport box — min-width:0 stops carousel
+     min-content from expanding grid/flex parents past the shell */
+  .zh-page .zh-shell,
+  .zh-page .hhb,
+  .zh-page .hhb__content,
+  .zh-page .zh-commerce,
+  .zh-page .zh-panel,
+  .zh-page .zh-product-section,
+  .zh-page .zh-trending-deals,
+  .zh-page .zh-trending-deals__carousel,
+  .zh-page .zh-featured-brands,
+  .zh-page .zh-featured-brands__carousel,
+  .zh-page .zh-product-sections,
+  .zh-page .zh-product-sections-wrap {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .zh-page .zh-nav__avatar-ring,
+  .zh-page .zh-nav__profile {
+    max-width: 100%;
+    overflow: hidden;
   }
 
   /* Match mobile .zh-nav height (56px) — desktop/tablet spacer unchanged */
@@ -133,8 +527,8 @@
   }
 }
 
-/* Fixed header — sticky fails under html/body overflow-x:hidden.
-   Spacer preserves in-flow height so content is not covered. */
+/* Fixed header — historically required while html/body used overflow-x:hidden.
+   Root now uses overflow-x:clip; spacer still clears the fixed bar. */
 .zh-page > .zh-nav {
   position: fixed !important;
   top: 0;

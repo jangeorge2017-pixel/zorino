@@ -33,17 +33,24 @@
   grid-row: 1;
 }
 
-/* Arabic text reads RTL inside the locked LTR composition */
+/* Arabic text reads RTL inside the locked LTR composition.
+   Stats/search containers stay physically LTR so portrait matches desktop. */
 html[dir="rtl"] .zh-page .zh-hero__copy,
 html[dir="rtl"] .zh-page .zh-hero__badge,
 html[dir="rtl"] .zh-page .zh-hero__title,
 html[dir="rtl"] .zh-page .zh-hero__subtitle,
-html[dir="rtl"] .zh-page .zh-hero__stats,
 html[dir="rtl"] .zh-page .zh-stat,
-html[dir="rtl"] .zh-page .zh-search {
+html[dir="rtl"] .zh-page .zh-search,
+html[dir="rtl"] .zh-page .zh-stat__value,
+html[dir="rtl"] .zh-page .zh-stat__meta {
   direction: rtl;
   unicode-bidi: isolate;
   text-align: start;
+}
+
+html[dir="rtl"] .zh-page .zh-hero__stats {
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 html[dir="rtl"] .zh-page .zh-hero__col--left {
@@ -77,6 +84,11 @@ html[dir="rtl"] .zh-page .zh-nav__inner {
 html[dir="rtl"] .zh-page .zh-nav__logo {
   margin-right: 0;
   margin-left: var(--zh-nav-logo-gap);
+}
+
+html[dir="rtl"] .zh-page .zh-nav__search-slot {
+  margin-left: 0;
+  margin-right: max(var(--zh-nav-gap), 16px);
 }
 
 html[dir="rtl"] .zh-page .zh-nav__actions {
