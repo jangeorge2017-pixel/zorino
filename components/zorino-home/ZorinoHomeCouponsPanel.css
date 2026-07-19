@@ -1,6 +1,6 @@
 /**
  * Top Coupons only — enlarge logo img slightly inside the existing logo square.
- * Does not change card grid, logo box size, spacing, or typography.
+ * Desktop only. Does not change card grid, logo box size, spacing, or typography.
  */
 
 @media (min-width: 1024px) {

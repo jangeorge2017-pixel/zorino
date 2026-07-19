@@ -8,7 +8,7 @@ import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
 import "./ZorinoHomeCouponsPanel.css";
 
-/** Top Coupons only â€” official store marks from existing project assets. */
+/** Top Coupons only - official store marks from existing project assets. */
 const TOP_COUPON_LOGOS: Record<string, string> = {
   amazon: "/stores/amazon.svg",
   noon: "/stores/noon.svg",
@@ -105,7 +105,7 @@ export default function ZorinoHomeCouponsPanel({ coupons }: ZorinoHomeCouponsPan
     <section className="zh-panel" id="zh-section-coupons" aria-labelledby="zh-coupons-title">
       <div className="zh-section-head">
         <h2 id="zh-coupons-title" className="zh-section-head__title">
-          <span aria-hidden>ðŸ”¥</span> {t("topCoupons")}
+          <span aria-hidden>{"\u{1F525}"}</span> {t("topCoupons")}
         </h2>
         <ZorinoHomeViewAllLink href="/coupons" variant="coupons" />
       </div>

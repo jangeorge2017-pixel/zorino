@@ -76,6 +76,13 @@ html[dir="rtl"] .zh-page .zh-hero__col--left {
   transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px)));
 }
 
+/* Desktop only — nudge floating product cards ~16px toward the hero headline */
+@media (min-width: 1024px) {
+  .zh-page .hero-artwork__orbit {
+    transform: translateX(calc(104px + var(--zh-orbit-card-shift-right, 0px)));
+  }
+}
+
 /* Nav: RTL text order only — do not flip logo artwork */
 html[dir="rtl"] .zh-page .zh-nav__inner {
   direction: rtl;
@@ -88,7 +95,7 @@ html[dir="rtl"] .zh-page .zh-nav__logo {
 
 html[dir="rtl"] .zh-page .zh-nav__search-slot {
   margin-left: 0;
-  margin-right: max(var(--zh-nav-gap), 16px);
+  margin-right: var(--zh-nav-gap);
 }
 
 html[dir="rtl"] .zh-page .zh-nav__actions {
