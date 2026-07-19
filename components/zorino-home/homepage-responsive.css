@@ -41,13 +41,14 @@
     height: 86px;
   }
 
+  /* Left column 16px toward headline (matches hero.css); right column unchanged */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: calc(72% - 151px);
+    left: calc(72% - 167px);
     top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: calc(72% - 151px);
+    left: calc(72% - 167px);
     top: 60%;
   }
 
