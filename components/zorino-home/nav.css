@@ -3,12 +3,13 @@
  */
 
 .zh-nav {
-  --zh-nav-gap: 12px;
-  --zh-nav-control-h: 46px;
+  /* Desktop defaults (approved). Mobile overrides live in max-width blocks below. */
+  --zh-nav-gap: 10px;
+  --zh-nav-control-h: 44px;
   --zh-nav-radius: 8px;
   --zh-nav-pad-x: 10px;
-  --zh-nav-logo-gap: 28px;
-  --zh-nav-logo-h: 74px;
+  --zh-nav-logo-gap: 20px;
+  --zh-nav-logo-h: 61.6px;
   --zh-nav-link-pad-x: 0;
   --zh-nav-transition: 250ms ease;
   --zh-nav-electric: #6fd4ff;
@@ -295,7 +296,7 @@
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  margin-left: max(var(--zh-nav-gap), 16px);
+  margin-left: var(--zh-nav-gap);
 }
 
 .zh-nav__actions {
