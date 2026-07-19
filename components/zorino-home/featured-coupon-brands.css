@@ -1,5 +1,5 @@
 /**
- * Featured Coupon Brands â€” premium horizontal carousel below search
+ * Featured Coupon Brands --- premium horizontal carousel below search
  */
 
 .zh-featured-brands.zh-panel {
@@ -145,7 +145,7 @@
 }
 
 .zh-brand-card__logo {
-  /* Fill ~85% of the existing 72×72 wrap — do not resize the wrap */
+  /* Fill ~85% of the existing 72x72 wrap - do not resize the wrap */
   width: 85%;
   height: 85%;
   max-width: none;
@@ -261,7 +261,7 @@
   }
 
   .zh-brand-card {
-    /* Track-relative slide — see homepage-layout-flow --zh-carousel-slide */
+    /* Track-relative slide - see homepage-layout-flow --zh-carousel-slide */
     flex: 0 0 var(--zh-carousel-slide, min(300px, 85%));
     width: var(--zh-carousel-slide, min(300px, 85%));
     max-width: var(--zh-carousel-slide, min(300px, 85%));
@@ -272,7 +272,7 @@
   }
 }
 
-/* Desktop: img fills ~90% of the existing 72×72 wrap (do not resize wrap) */
+/* Desktop: img fills ~90% of the existing 72x72 wrap (do not resize wrap) */
 @media (min-width: 1024px) {
   .zh-featured-brands .zh-brand-card__logo {
     width: 90%;
