@@ -5,8 +5,8 @@
 
 @media (min-width: 1024px) {
   .zh-page #zh-section-coupons .zh-coupon__logo img {
-    width: 122%;
-    height: 122%;
+    width: 128%;
+    height: 128%;
     max-width: none;
     object-fit: contain;
     object-position: center;

@@ -11,7 +11,7 @@ export const ZORINO_LOGO_SOURCE = "/hero-z-logo.png";
 export const ZORINO_LOGO_SVG = "/hero-z-logo.svg";
 
 export const ZORINO_LOGO_INTRINSIC = {
-  width: 230,
+  width: 205,
   height: 82,
 } as const;
 

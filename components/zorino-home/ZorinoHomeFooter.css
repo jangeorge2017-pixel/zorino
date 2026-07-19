@@ -5,8 +5,8 @@
 
 @media (min-width: 1024px) {
   .zh-page .zh-footer__store-logo img {
-    width: calc(56px * 0.9 * 1.22);
-    height: calc(56px * 0.9 * 1.22);
+    width: calc(56px * 0.9 * 1.28);
+    height: calc(56px * 0.9 * 1.28);
     max-width: none;
     object-fit: contain;
     object-position: center;
