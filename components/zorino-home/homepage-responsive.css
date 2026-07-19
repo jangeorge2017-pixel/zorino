@@ -46,9 +46,9 @@
   }
 
   /*
-   * Tablet baseline — left floating card column only:
-   * 21px toward headline vs desktop 151px anchor (16px prior + 5px).
-   * Right column unchanged at left: 88%.
+   * Tablet orbit baseline (do not copy into desktop ≥1280):
+   * - Left column: 21px toward headline vs desktop 151px anchor
+   * - Right column: 88% + 3px toward right edge
    */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
     left: calc(72% - 172px);
@@ -61,12 +61,12 @@
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: 88%;
+    left: calc(88% + 3px);
     top: 36%;
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: 88%;
+    left: calc(88% + 3px);
     top: 60%;
   }
 
