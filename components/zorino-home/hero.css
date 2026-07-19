@@ -203,6 +203,17 @@
   }
 }
 
+/* Left column: same float, anchored 16px toward the headline (card transform, not wrapper). */
+@keyframes zh-orbit-float-left-col {
+  0%,
+  100% {
+    transform: translate(calc(-50% - 16px), -50%) translateY(0);
+  }
+  50% {
+    transform: translate(calc(-50% - 16px), -50%) translateY(-10px);
+  }
+}
+
 .zh-orbit-card {
   position: absolute;
   width: 86px;
@@ -230,11 +241,16 @@
 .zh-orbit-card[data-orbit-position="orbit-upper-right"] { left: 88%; top: calc(36% - 20px); }
 .zh-orbit-card[data-orbit-position="orbit-lower-right"] { left: 88%; top: calc(60% - 40px); }
 
-/* Desktop only — left column only, 16px toward headline; right column unchanged */
-@media (min-width: 1024px) {
-  .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-  .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: calc(72% - 167px);
+/*
+ * Desktop only — shift the left CARD elements (not .hero-artwork__orbit) 16px
+ * toward the headline via the cards' own transform/animation. Right column
+ * keeps zh-orbit-float unchanged.
+ */
+@media (min-width: 1280px) {
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    transform: translate(calc(-50% - 16px), -50%);
+    animation-name: zh-orbit-float-left-col;
   }
 }
 
