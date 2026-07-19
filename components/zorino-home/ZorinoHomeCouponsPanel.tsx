@@ -8,7 +8,7 @@ import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
 import "./ZorinoHomeCouponsPanel.css";
 
-/** Top Coupons only — official store marks from existing project assets. */
+/** Top Coupons only â€” official store marks from existing project assets. */
 const TOP_COUPON_LOGOS: Record<string, string> = {
   amazon: "/stores/amazon.svg",
   noon: "/stores/noon.svg",
@@ -17,7 +17,7 @@ const TOP_COUPON_LOGOS: Record<string, string> = {
 };
 
 function resolveTopCouponLogoSrc(coupon: TopCouponCard): string {
-  const id = coupon.id?.toLowerCase() ?? "";
+  const id = String(coupon.id ?? "").toLowerCase();
   if (TOP_COUPON_LOGOS[id]) return TOP_COUPON_LOGOS[id];
 
   const fromPath = coupon.storeLogoSrc?.match(/\/stores\/(?:top-coupons\/)?([^/.]+)/i);
@@ -55,7 +55,7 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
           loading="lazy"
           decoding="async"
           onError={(e) => {
-            // Keep the square empty — do not swap in AM/NO letter placeholders.
+            // Keep the square empty â€” do not swap in AM/NO letter placeholders.
             e.currentTarget.style.visibility = "hidden";
           }}
         />
@@ -105,7 +105,7 @@ export default function ZorinoHomeCouponsPanel({ coupons }: ZorinoHomeCouponsPan
     <section className="zh-panel" id="zh-section-coupons" aria-labelledby="zh-coupons-title">
       <div className="zh-section-head">
         <h2 id="zh-coupons-title" className="zh-section-head__title">
-          <span aria-hidden>🔥</span> {t("topCoupons")}
+          <span aria-hidden>ðŸ”¥</span> {t("topCoupons")}
         </h2>
         <ZorinoHomeViewAllLink href="/coupons" variant="coupons" />
       </div>
