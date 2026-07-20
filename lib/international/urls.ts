@@ -1,15 +1,9 @@
 import { getSiteUrl } from "@/lib/site-url";
 import { locales, type Locale } from "@/i18n/config";
 import { routing } from "@/i18n/routing";
+import { stripLocaleFromPathname } from "@/lib/international/path";
 
-const LOCALE_PREFIX_PATTERN = new RegExp(`^/(${locales.join("|")})(/|$)`);
-
-/** Strip leading locale segment from a pathname. */
-export function stripLocaleFromPathname(pathname: string): string {
-  const stripped = pathname.replace(LOCALE_PREFIX_PATTERN, "/");
-  if (stripped === "") return "/";
-  return stripped.startsWith("/") ? stripped : `/${stripped}`;
-}
+export { stripLocaleFromPathname } from "@/lib/international/path";
 
 /** Build a localized URL respecting localePrefix: 'as-needed'. */
 export function buildLocalizedUrl(pathname: string, locale: Locale, baseUrl?: string): string {
