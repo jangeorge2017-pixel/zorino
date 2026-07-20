@@ -1,0 +1,39 @@
+/**
+ * Homepage desktop layer — min-width: 1280px ONLY.
+ *
+ * Mirrors the approved/locked tablet orbit composition so desktop stays
+ * visually identical to tablet, adapted to the larger viewport.
+ * Does not touch tablet (max-width: 1279px) or mobile rules.
+ */
+
+@media (min-width: 1280px) {
+  /*
+   * Desktop orbit = tablet baseline (homepage-responsive.css LOCKED BASELINE):
+   * - Orbit group: same translateX as tablet (−3px vs legacy desktop)
+   * - Left column: calc(72% - 172px) at 36% / 60%
+   * - Right column: calc(88% + 3px) at 36% / 60%
+   */
+  .zh-page .hero-artwork__orbit {
+    transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px) - 3px));
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
+    left: calc(72% - 172px);
+    top: 36%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
+    left: calc(72% - 172px);
+    top: 60%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
+    left: calc(88% + 3px);
+    top: 36%;
+  }
+
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    left: calc(88% + 3px);
+    top: 60%;
+  }
+}
