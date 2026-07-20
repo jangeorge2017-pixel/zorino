@@ -35,6 +35,8 @@
     --zh-hero-artwork-shift-left: 138px;
     --zh-hero-artwork-lift: 32px;
     --zh-hero-bg-shift-left: 420px;
+    /* Hero Z mark only — ~13.5% smaller, origin at Z/platform center */
+    --zh-hero-z-scale: 0.865;
     --zh-hero-bg-prev-inset: calc(
       var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left) + 40px
     );
@@ -408,6 +410,9 @@
       right var(--zh-hero-artwork-painted-right)
       top var(--zh-hero-artwork-painted-top);
     background-repeat: no-repeat;
+    /* Shrink Z+platform in place; orbit cards live outside this layer */
+    transform: scale(var(--zh-hero-z-scale, 1));
+    transform-origin: 76.6% 6.8%;
   }
 
   .zh-page .zh-page__artwork::before {
