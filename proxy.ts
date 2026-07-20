@@ -17,7 +17,7 @@ import {
   getDefaultCurrencyForCountry,
   type CountryCode,
 } from "@/lib/international/config";
-import { stripLocaleFromPathname } from "@/lib/international/urls";
+import { stripLocaleFromPathname } from "@/lib/international/path";
 
 const intlMiddleware = createIntlMiddleware(routing);
 

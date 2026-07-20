@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 import createNextIntlPlugin from "next-intl/plugin";
 import { PRODUCT_IMAGE_REMOTE_PATTERNS } from "./lib/images/product-image";
 
@@ -25,6 +26,10 @@ const devOnlyImagePatterns = isProduction
     ];
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    // Pin Turbopack root so dev resolves `next` from this app, not a nested lockfile/root.
+    root: path.resolve(__dirname),
+  },
   images: {
     remotePatterns: [...PRODUCT_IMAGE_REMOTE_PATTERNS, ...devOnlyImagePatterns],
     formats: ["image/avif", "image/webp"],
