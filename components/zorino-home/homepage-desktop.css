@@ -1,39 +1,1126 @@
 /**
- * Homepage desktop layer — min-width: 1280px ONLY.
+ * Desktop homepage — min-width: 1280px.
  *
- * Mirrors the approved/locked tablet orbit composition so desktop stays
- * visually identical to tablet, adapted to the larger viewport.
- * Does not touch tablet (max-width: 1279px) or mobile rules.
+ * First viewport = premium landing page (header + dominant hero).
+ * Below-fold keeps the established 12-col page system.
+ * Tablet (≤1279) / mobile rules stay in homepage-responsive.css.
  */
 
 @media (min-width: 1280px) {
+  /* ── Shared page tokens (foundation only) ── */
+  .zh-page {
+    --zh-pad: clamp(48px, 5.5vw, 120px);
+    --zh-content: min(1680px, calc(100vw - 2 * var(--zh-pad)));
+    --zh-grid-cols: 12;
+    --zh-grid-gutter: clamp(16px, 1.4vw, 28px);
+    --zh-nav-h: 80px;
+    --zh-section-step: clamp(88px, 6vw, 128px);
+    --zh-space-discovery: 36px;
+    --zh-space-search-categories: 36px;
+    --zh-space-stats-search: 40px;
+    --zh-space-desc-stats: 36px;
+    --zh-discovery-group-lift: 0px;
+    --zh-hero-search-height: 68px;
+    /*
+      Desktop hero — full-bleed single artwork on pure black.
+      +12% scale so edges sit past the viewport; soft 180px feather only.
+      Layout / cards / copy / search untouched.
+    */
+    --zh-hero-artwork-width: calc(var(--zh-content) * 0.6);
+    --zh-hero-artwork-scale: 1.115;
+    --zh-hero-artwork-stretch-down: 1.23;
+    --zh-hero-artwork-stretch-z-up: 45px;
+    --zh-hero-artwork-extend-down: 120px;
+    --zh-hero-artwork-right: 130px;
+    --zh-hero-artwork-shift-left: 138px;
+    --zh-hero-artwork-lift: 32px;
+    --zh-hero-bg-shift-left: 420px;
+    --zh-hero-bg-prev-inset: calc(
+      var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left) + 40px
+    );
+    /* ~6% smaller than prior 1.12 full-bleed (≈5–8% / ~60px down), aspect locked */
+    --zh-hero-fullbleed-scale: 1.05;
+    --zh-hero-bg-scale-down: 80px;
+    --zh-hero-artwork-painted-width-base: calc(
+      var(--zh-hero-artwork-width) * var(--zh-hero-artwork-scale)
+    );
+    --zh-hero-artwork-painted-height-base: calc(
+      var(--zh-hero-artwork-height) * var(--zh-hero-artwork-scale) *
+        var(--zh-hero-artwork-stretch-down) + var(--zh-hero-artwork-stretch-z-up) +
+        var(--zh-hero-artwork-extend-down)
+    );
+    --zh-hero-artwork-painted-right: 0px;
+    --zh-hero-artwork-painted-width: calc(
+      (
+          var(--zh-hero-artwork-painted-width-base) + var(--zh-hero-bg-prev-inset) +
+            var(--zh-hero-bg-shift-left)
+        ) * var(--zh-hero-fullbleed-scale) - var(--zh-hero-bg-scale-down)
+    );
+    --zh-hero-artwork-painted-height: calc(
+      var(--zh-hero-artwork-painted-height-base) *
+        var(--zh-hero-artwork-painted-width) /
+        var(--zh-hero-artwork-painted-width-base)
+    );
+    --zh-hero-bg-nudge-up: 160px;
+    /* Background only — translate down 160px total (does not move cards / copy) */
+    --zh-hero-bg-shift-down: 160px;
+    --zh-hero-artwork-painted-top: calc(
+      var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
+        var(--zh-hero-artwork-stretch-z-up) - var(--zh-hero-bg-nudge-up) +
+        var(--zh-hero-bg-shift-down)
+    );
+    --zh-hero-search-boundary: calc(
+      100svh - var(--zh-hero-search-height) - clamp(36px, 5vh, 56px) -
+        clamp(40px, 5vh, 72px) - 10px
+    );
+    --zh-hero-edge-feather: 180px;
+    --zh-page-bg-base: #000000;
+    --zh-space-black: #000000;
+    --zh-orbit-card-shift-right: 16px;
+    /* Floating cards only — 260px closer to the heading (prior 130 + 130) */
+    --zh-orbit-card-nudge-left: 260px;
+    /* Matches .zh-hero-search translateY — used for categories spacing */
+    --zh-hero-search-lift: 70px;
+  }
+
+  /* Pure black — html / body / page / hero parent */
+  html:has(.zh-page),
+  body:has(.zh-page) {
+    background: #000000;
+  }
+
+  .zh-page {
+    background: #000000;
+    --homepage-bg-fallback: #000000;
+  }
+
+  .zh-page .zh-page__background,
+  .zh-page .zh-page__background::before {
+    background: #000000;
+    border: none;
+    outline: none;
+    box-shadow: none;
+  }
+
+  .zh-page > .zh-nav-spacer {
+    height: var(--zh-nav-h);
+  }
+
+  .zh-page .zh-shell {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--zh-grid-gutter);
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 var(--zh-pad) 64px;
+    box-sizing: border-box;
+    overflow-x: clip;
+  }
+
+  .zh-page .zh-hero-zone,
+  .zh-page .zh-home-discovery-nav,
+  .zh-page .hhb,
+  .zh-page .zh-featured-brands-wrap,
+  .zh-page .zh-product-sections-wrap,
+  .zh-page .zh-cta-wrap,
+  .zh-page .zh-footer-wrap {
+    grid-column: 1 / -1;
+  }
+
+  .zh-page .zh-hero-zone,
+  .zh-page .hhb {
+    margin-inline: calc(-1 * var(--zh-pad));
+    padding-inline: var(--zh-pad);
+    width: auto;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     HEADER (base desktop) — refined at 1440px+ below
+     ═══════════════════════════════════════════════════════════ */
+  .zh-page .zh-nav {
+    height: var(--zh-nav-h);
+    max-height: var(--zh-nav-h);
+    padding: 0 var(--zh-pad);
+    background: #000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     FIRST VIEWPORT LANDING — Hero contains search + categories
+     ═══════════════════════════════════════════════════════════ */
+  .zh-page .zh-hero-zone {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 0;
+    /*
+      Height follows content (copy + search + categories), not a stretched
+      empty band that pushes Categories below the Hero composition.
+    */
+    min-height: 0;
+    height: auto;
+    padding-top: clamp(28px, 4vh, 56px);
+    /* Room under the category row so it still reads inside the Hero */
+    padding-bottom: 56px;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .zh-page .zh-hero-zone::before {
+    content: none;
+    display: none;
+  }
+
+  .zh-page .zh-hero-zone::after {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--zh-pad));
+    right: calc(-1 * var(--zh-pad));
+    bottom: 0;
+    height: clamp(48px, 6vh, 80px);
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.2) 55%,
+      rgba(0, 0, 0, 0.45) 100%
+    );
+  }
+
+  .zh-page .zh-hero-zone .zh-hero,
+  .zh-page .zh-hero-zone .zh-hero-zone__tools {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Search + Categories share one Hero tools stack */
+  .zh-page .zh-hero-zone .zh-hero-zone__tools {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 0 0 auto;
+    width: 100%;
+    /*
+      Categories lift (−158px) + gap → ~28px under Search (25–30px target).
+      Extra 18px lift vs prior −140 pulls the row up without overlapping Search.
+    */
+    gap: calc(28px + 158px);
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .zh-page .zh-hero {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(24px, 2.5vw, 48px);
+    align-items: center;
+    /* Do not flex-grow — keeps Search + Categories packed under copy */
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: clamp(380px, 46vh, 540px);
+  }
+
+  .zh-page .zh-hero__col--left {
+    grid-column: 1 / span 5;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    position: relative;
+    z-index: 3;
+  }
+
+  /* Soft veil — readable heading (pure black, no gray plate) */
+  .zh-page .zh-hero__col--left::before {
+    content: "";
+    position: absolute;
+    inset: -4% -12% -6% -6%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 70% 60% at 26% 42%,
+      rgba(0, 0, 0, 0.28) 0%,
+      rgba(0, 0, 0, 0.05) 55%,
+      transparent 78%
+    );
+  }
+
+  .zh-page .zh-hero__col--right {
+    grid-column: 6 / span 7;
+    grid-row: 1;
+    align-self: stretch;
+    min-height: clamp(440px, 54vh, 620px);
+    min-width: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .zh-page .zh-hero__copy {
+    max-width: 36rem;
+    width: 100%;
+  }
+
+  /* Hierarchy: quiet badge → commanding title → supporting line → proof stats */
+  .zh-page .zh-hero__badge {
+    margin: 0 0 28px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #c4b5fd;
+    background: rgba(139, 92, 246, 0.12);
+    border-color: rgba(167, 139, 250, 0.32);
+  }
+
+  .zh-page .zh-hero__title {
+    margin: 0 0 28px;
+    /* ~6% smaller again — more breathing room, same premium treatment */
+    font-size: clamp(49px, 4.3vw, 70px);
+    line-height: 0.96;
+    letter-spacing: -0.045em;
+    font-weight: 800;
+    text-wrap: balance;
+  }
+
+  .zh-page .zh-hero__subtitle {
+    max-width: 28em;
+    margin: 0;
+    font-size: clamp(17px, 1.15vw, 20px);
+    line-height: 1.68;
+    color: #94a3b8;
+    font-weight: 450;
+  }
+
+  .zh-page .zh-hero__subtitle-lead {
+    color: #cbd5e1;
+  }
+
+  .zh-page .zh-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: var(--zh-space-desc-stats);
+    width: calc(100% + 30px);
+    max-width: calc(36rem + 30px);
+  }
+
+  .zh-page .zh-stat {
+    width: auto;
+    min-width: 0;
+    min-height: 82px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(12, 16, 32, 0.62);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .zh-page .zh-stat__value {
+    font-size: 22px;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+
+  .zh-page .zh-stat__label {
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+  }
+
   /*
-   * Desktop orbit = tablet baseline (homepage-responsive.css LOCKED BASELINE):
-   * - Orbit group: same translateX as tablet (−3px vs legacy desktop)
-   * - Left column: calc(72% - 172px) at 36% / 60%
-   * - Right column: calc(88% + 3px) at 36% / 60%
-   */
+    Full-bleed Hero artwork — extends past the viewport; soft feather only.
+    No hard crop box. overflow stays visible on the image layer.
+  */
+  .zh-page .zh-page__artwork-clip {
+    inset: -160px -120px -200px -120px;
+    overflow: visible;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    -webkit-mask-image:
+      radial-gradient(
+        ellipse 92% 88% at 58% 42%,
+        #000 0%,
+        #000 52%,
+        transparent 100%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        #000 var(--zh-hero-edge-feather),
+        #000 calc(100% - var(--zh-hero-edge-feather)),
+        transparent 100%
+      ),
+      linear-gradient(
+        90deg,
+        transparent 0%,
+        #000 var(--zh-hero-edge-feather),
+        #000 calc(100% - var(--zh-hero-edge-feather)),
+        transparent 100%
+      );
+    mask-image:
+      radial-gradient(
+        ellipse 92% 88% at 58% 42%,
+        #000 0%,
+        #000 52%,
+        transparent 100%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        #000 var(--zh-hero-edge-feather),
+        #000 calc(100% - var(--zh-hero-edge-feather)),
+        transparent 100%
+      ),
+      linear-gradient(
+        90deg,
+        transparent 0%,
+        #000 var(--zh-hero-edge-feather),
+        #000 calc(100% - var(--zh-hero-edge-feather)),
+        transparent 100%
+      );
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+
+  .zh-page .zh-page__artwork {
+    inset: 0;
+    overflow: visible;
+    image-rendering: auto;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    filter: none;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background-color: transparent;
+    background-image: url("/hero-background.png");
+    background-size:
+      var(--zh-hero-artwork-painted-width)
+      var(--zh-hero-artwork-painted-height);
+    background-position:
+      right var(--zh-hero-artwork-painted-right)
+      top var(--zh-hero-artwork-painted-top);
+    background-repeat: no-repeat;
+  }
+
+  .zh-page .zh-page__artwork::before {
+    content: none;
+    display: none;
+  }
+
+  /* Soft-light grade on the same single artwork */
+  .zh-page .zh-page__artwork::after {
+    opacity: 0.4;
+    mix-blend-mode: soft-light;
+    filter: contrast(1.15) saturate(1.2) brightness(1.03);
+    background-image: url("/hero-background.png");
+    background-repeat: no-repeat;
+    background-size:
+      var(--zh-hero-artwork-painted-width)
+      var(--zh-hero-artwork-painted-height);
+    background-position:
+      right var(--zh-hero-artwork-painted-right)
+      top var(--zh-hero-artwork-painted-top);
+  }
+
+  .zh-page .zh-page__background::after {
+    height: 0;
+    opacity: 0;
+  }
+
+  /* Floating cards — X only; relative spacing + animations unchanged */
+  .zh-page .hero-artwork {
+    transform: translate(
+      calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
+      calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
+    );
+  }
+
   .zh-page .hero-artwork__orbit {
-    transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px) - 3px));
+    transform: translate(
+      calc(
+        120px + var(--zh-orbit-card-shift-right, 0px) -
+          var(--zh-orbit-card-nudge-left, 0px)
+      ),
+      60px
+    );
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"] {
-    left: calc(72% - 172px);
-    top: 36%;
+    left: calc(72% - 151px - 60px);
+    top: calc(36% - 30px);
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    left: calc(72% - 172px);
-    top: 60%;
+    left: calc(72% - 151px - 60px);
+    top: calc(60% - 30px);
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
-    left: calc(88% + 3px);
-    top: 36%;
+    left: calc(88% + 160px);
+    top: calc(36% - 30px);
   }
 
   .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    left: calc(88% + 3px);
-    top: 60%;
+    left: calc(88% + 160px);
+    top: calc(60% - 30px);
+  }
+
+  /* Search — ~7% narrower, centered; sits in .zh-hero-zone__tools */
+  .zh-page .zh-hero-zone .zh-hero-search {
+    position: relative;
+    z-index: 3;
+    display: block;
+    width: 100%;
+    max-width: calc(var(--zh-content) * 0.8);
+    margin: clamp(36px, 5vh, 56px) auto 0;
+    padding-top: 8px;
+    padding-bottom: 0;
+    transform: translateY(calc(-1 * var(--zh-hero-search-lift, 70px)));
+    /* Collapse transform phantom space so tools gap = true visual spacing */
+    margin-bottom: calc(-1 * var(--zh-hero-search-lift, 70px));
+  }
+
+  .zh-page .zh-search {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .zh-page .zh-search__bar {
+    display: flex;
+    align-items: center;
+    min-height: 61px;
+    padding: 6px 8px 6px 22px;
+    border-radius: 22px;
+    gap: 12px;
+    background: rgba(12, 16, 32, 0.72);
+    border: 1px solid rgba(167, 139, 250, 0.28);
+    box-shadow:
+      0 16px 42px rgba(0, 0, 0, 0.32),
+      0 0 28px rgba(99, 102, 241, 0.14),
+      0 0 48px rgba(139, 92, 246, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition:
+      border-color 0.25s ease,
+      box-shadow 0.28s ease,
+      background-color 0.25s ease;
+  }
+
+  .zh-page .zh-search__bar:hover,
+  .zh-page .zh-search__bar:focus-within {
+    border-color: rgba(167, 139, 250, 0.45);
+    box-shadow:
+      0 18px 48px rgba(0, 0, 0, 0.36),
+      0 0 36px rgba(99, 102, 241, 0.22),
+      0 0 64px rgba(139, 92, 246, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .zh-page .zh-search__bar input {
+    font-size: 16.5px;
+    align-self: center;
+  }
+
+  .zh-page .zh-search__icon {
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .zh-page .zh-search__submit {
+    padding: 11px 32px;
+    font-size: 14.5px;
+    align-self: center;
+  }
+
+  /* Categories — inside Hero, ~28px under Search; full-width even row */
+  .zh-page .zh-hero-zone .zh-categories-wrap {
+    position: relative;
+    bottom: auto;
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+    border-top: none;
+    /* +18px vs prior −140 — row sits higher; tools gap keeps 28px under Search */
+    transform: translateY(-158px);
+    margin-bottom: -158px;
+  }
+
+  .zh-page .zh-hero-zone .zh-categories-wrap::before {
+    content: none;
+    display: none;
+  }
+
+  .zh-page .zh-hero-zone .zh-categories-nav {
+    position: relative;
+    width: 100%;
+    bottom: auto;
+  }
+
+  .zh-page .zh-hero-zone .zh-categories {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: clamp(6px, 0.9vw, 14px);
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+    padding-block: 4px;
+    overflow: visible;
+  }
+
+  /* Never hide category tiles on desktop — no More overflow */
+  .zh-page .zh-hero-zone .zh-categories__item,
+  .zh-page .zh-hero-zone .zh-categories__item:nth-child(n) {
+    display: flex !important;
+  }
+
+  .zh-page .zh-hero-zone .zh-categories__item--more {
+    display: none !important;
+  }
+
+  .zh-page .zh-hero-zone .zh-categories__item {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    flex: 1 1 0;
+    gap: 7px;
+    padding: 5px 2px 7px;
+    border-radius: 14px;
+    box-sizing: border-box;
+  }
+
+  /* ~14% larger than prior 56px tiles; glass + glow preserved */
+  .zh-page .zh-hero-zone .zh-categories__icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    padding: 0;
+    border-radius: 15px;
+    box-sizing: border-box;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ~70% of the 64px square */
+  .zh-page .zh-hero-zone .zh-categories__icon-box svg {
+    width: 44px;
+    height: 44px;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .zh-page .zh-hero-zone .zh-categories__label {
+    font-size: 13.5px;
+    line-height: 1.2;
+    font-weight: 500;
+    text-align: center;
+    margin: 0;
+    white-space: nowrap;
+    color: #e2e8f0;
+  }
+
+  /* Chips / discovery — ~15px higher under Hero */
+  .zh-page .zh-home-discovery-nav {
+    margin-top: 5px;
+    padding-bottom: 12px;
+  }
+
+  .zh-page .zh-quick-nav__track {
+    max-width: none;
+    width: 100%;
+  }
+
+  .zh-page .zh-quick-nav__row {
+    gap: 14px;
+  }
+
+  .zh-page .hhb {
+    margin-top: var(--zh-section-step);
+  }
+
+  .zh-page .hhb .zh-commerce,
+  .zh-page .zh-commerce {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: calc(var(--zh-grid-gutter) * 1.25);
+  }
+
+  .zh-page .hhb .zh-commerce > :first-child,
+  .zh-page .zh-commerce > :first-child {
+    grid-column: 1 / span 8;
+  }
+
+  .zh-page .hhb .zh-commerce > :last-child,
+  .zh-page .zh-commerce > :last-child {
+    grid-column: 9 / span 4;
+  }
+
+  .zh-page .zh-featured-brands-wrap,
+  .zh-page .zh-product-sections-wrap,
+  .zh-page .zh-cta-wrap,
+  .zh-page .zh-footer-wrap {
+    margin-top: var(--zh-section-step);
+  }
+
+  .zh-page .zh-product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: calc(var(--zh-grid-gutter) * 1.1);
+  }
+}
+
+@media (min-width: 1720px) {
+  .zh-page {
+    --zh-pad: clamp(72px, 6vw, 140px);
+  }
+
+  .zh-page .zh-hero__title {
+    font-size: 70px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DESKTOP HEADER ONLY — 1440px+
+   Master reference: approved tablet header (nav.css ≤1279).
+   Tablet / mobile / hero / other sections are not modified.
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 1440px) {
+  .zh-page {
+    /*
+      Desktop 1280 token is 80px; tablet master is 72px.
+      70px ≈ −12.5% vs desktop 80 / keeps room for a larger lockup.
+    */
+    --zh-nav-h: 70px;
+  }
+
+  .zh-page > .zh-nav-spacer {
+    height: var(--zh-nav-h);
+  }
+
+  .zh-page .zh-nav {
+    height: var(--zh-nav-h);
+    max-height: var(--zh-nav-h);
+    width: 100%;
+    /* Flush-left logo; keep a modest trailing inset for actions */
+    padding: 0 clamp(16px, 1.4vw, 28px) 0 clamp(6px, 0.5vw, 12px);
+    /* ~13% under prior 69px; aspect locked, vertically centered */
+    --zh-nav-logo-h: 60px;
+    --zh-nav-logo-gap: 12px;
+    /* Match tablet control rhythm */
+    --zh-nav-gap: 8px;
+    --zh-nav-control-h: 40px;
+    --zh-nav-pad-x: 8px;
+    background: #000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .zh-page .zh-nav__inner {
+    display: grid;
+    /*
+      Tablet structure: logo | links | utils | profile
+      Links 1fr fills the open middle so Blog sits next to actions
+      (no large empty void between nav and the right cluster).
+    */
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    height: 100%;
+    column-gap: 12px;
+    min-width: 0;
+  }
+
+  .zh-page .zh-nav__cluster {
+    display: contents;
+  }
+
+  /* Logo — far left, larger vs tablet, aspect locked */
+  .zh-page .zh-nav__logo {
+    margin: 0;
+    margin-inline-end: 0;
+    padding: 0;
+    justify-self: start;
+    align-self: center;
+  }
+
+  .zh-page .zh-nav__logo-lockup {
+    display: block;
+    height: var(--zh-nav-logo-h) !important;
+    width: auto !important;
+    max-height: var(--zh-nav-logo-h);
+    max-width: none;
+    object-fit: contain;
+    object-position: left center;
+    image-rendering: auto;
+    transform: none !important;
+    filter: none !important;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /*
+    Center nav — tablet structure, premium minimalist chrome.
+    Equal flex + fixed gap; no blue outlines.
+  */
+  .zh-page .zh-nav__links {
+    display: flex;
+    align-items: center;
+    justify-content: stretch;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .zh-page .zh-nav__link {
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    min-width: 0;
+    height: auto;
+    padding: 7px 12px;
+    /* +2px from prior 16px */
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.12px;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: #dce7ff;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    box-shadow: none;
+    text-shadow:
+      0 0 6px rgba(90, 160, 255, 0.25),
+      0 0 14px rgba(120, 90, 255, 0.18);
+    filter: none;
+    transform: translateY(0);
+    transition:
+      color 220ms ease,
+      text-shadow 220ms ease,
+      transform 220ms ease,
+      background 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  /* Kill blue pill chrome completely */
+  .zh-page .zh-nav__link::before {
+    content: none !important;
+    display: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  .zh-page .zh-nav__link::after {
+    inset: 0;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    opacity: 1;
+    transition: background 220ms ease, box-shadow 220ms ease;
+  }
+
+  .zh-page .zh-nav__link-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: inherit;
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    -webkit-text-fill-color: currentColor;
+    filter: none;
+    text-shadow: inherit;
+    transition:
+      color 220ms ease,
+      text-shadow 220ms ease,
+      filter 220ms ease;
+  }
+
+  .zh-page .zh-nav__chevron {
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+    opacity: 0.88;
+    transition: color 220ms ease, opacity 220ms ease;
+  }
+
+  /* Neon underline — idle hidden; fades in on hover / stays on active */
+  .zh-page .zh-nav__link-text::after {
+    bottom: -5px;
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(124, 203, 255, 0) 0%,
+      rgba(124, 203, 255, 0.85) 50%,
+      rgba(124, 203, 255, 0) 100%
+    );
+    box-shadow: 0 0 8px rgba(124, 203, 255, 0.28);
+    transform: scaleX(0.35);
+    opacity: 0;
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease,
+      background 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  /* Hover — cyan lift, stronger soft neon, underline fades in */
+  .zh-page .zh-nav__link:hover,
+  .zh-page .zh-nav__link:focus-visible {
+    color: #7ccbff;
+    background: transparent;
+    filter: none;
+    text-shadow:
+      0 0 8px rgba(90, 160, 255, 0.35),
+      0 0 18px rgba(120, 90, 255, 0.26);
+    transform: translateY(-1px);
+    box-shadow: none;
+  }
+
+  .zh-page .zh-nav__link:hover::before,
+  .zh-page .zh-nav__link:focus-visible::before {
+    content: none !important;
+    display: none;
+  }
+
+  .zh-page .zh-nav__link:hover::after,
+  .zh-page .zh-nav__link:focus-visible::after {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .zh-page .zh-nav__link:hover .zh-nav__link-text,
+  .zh-page .zh-nav__link:focus-visible .zh-nav__link-text {
+    color: inherit;
+    filter: none;
+    text-shadow: inherit;
+  }
+
+  .zh-page .zh-nav__link:hover .zh-nav__chevron,
+  .zh-page .zh-nav__link:focus-visible .zh-nav__chevron {
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+    opacity: 1;
+  }
+
+  .zh-page .zh-nav__link:hover .zh-nav__link-text::after,
+  .zh-page .zh-nav__link:focus-visible .zh-nav__link-text::after {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  /* Active — cyan accent, persistent soft glow, cyan/purple underline */
+  .zh-page .zh-nav__link.is-active {
+    color: #66cfff;
+    font-weight: 600;
+    filter: none;
+    text-shadow:
+      0 0 7px rgba(90, 160, 255, 0.32),
+      0 0 16px rgba(120, 90, 255, 0.22);
+    transform: translateY(0);
+  }
+
+  .zh-page .zh-nav__link.is-active::before {
+    content: none !important;
+    display: none;
+  }
+
+  .zh-page .zh-nav__link.is-active::after {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .zh-page .zh-nav__link.is-active .zh-nav__link-text {
+    color: inherit;
+    filter: none;
+    text-shadow: inherit;
+  }
+
+  .zh-page .zh-nav__link.is-active .zh-nav__chevron {
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+    opacity: 1;
+  }
+
+  .zh-page .zh-nav__link.is-active .zh-nav__link-text::after {
+    transform: scaleX(1);
+    opacity: 1;
+    background: linear-gradient(
+      90deg,
+      rgba(102, 207, 255, 0) 0%,
+      #66cfff 35%,
+      #a78bfa 65%,
+      rgba(167, 139, 250, 0) 100%
+    );
+    box-shadow:
+      0 0 6px rgba(102, 207, 255, 0.3),
+      0 0 10px rgba(167, 139, 250, 0.18);
+  }
+
+  .zh-page .zh-nav__link.is-active:hover,
+  .zh-page .zh-nav__link.is-active:focus-visible {
+    color: #7ccbff;
+    filter: none;
+    text-shadow:
+      0 0 8px rgba(90, 160, 255, 0.36),
+      0 0 18px rgba(120, 90, 255, 0.26);
+    transform: translateY(-1px);
+  }
+
+  .zh-page .zh-nav__link.is-active:hover::before,
+  .zh-page .zh-nav__link.is-active:focus-visible::before {
+    content: none !important;
+    display: none;
+  }
+
+  .zh-page .zh-nav__link.is-active:hover::after,
+  .zh-page .zh-nav__link.is-active:focus-visible::after {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .zh-page .zh-nav__link.is-active:hover .zh-nav__link-text,
+  .zh-page .zh-nav__link.is-active:focus-visible .zh-nav__link-text {
+    color: inherit;
+    filter: none;
+    text-shadow: inherit;
+  }
+
+  /* User actions — pinned far right on one baseline */
+  .zh-page .zh-nav__utils {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--zh-nav-gap);
+    margin: 0;
+    margin-inline-start: 0;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .zh-page .zh-nav__search-slot {
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .zh-page .zh-nav__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--zh-nav-gap);
+    margin: 0;
+  }
+
+  .zh-page .zh-nav__icon-btn,
+  .zh-page .zh-nav__icon-btn:hover,
+  .zh-page .zh-nav__icon-btn:focus-visible,
+  .zh-page .zh-nav__wishlist,
+  .zh-page .zh-nav__wishlist:hover,
+  .zh-page .zh-nav .theme-option,
+  .zh-page .zh-nav .theme-option:hover,
+  .zh-page .zh-nav .zor-intl__trigger,
+  .zh-page .zh-nav .zor-intl__trigger:hover {
+    transform: none;
+  }
+
+  .zh-page .zh-nav__icon-btn svg,
+  .zh-page .zh-nav__wishlist svg,
+  .zh-page .zh-nav__premium svg {
+    shape-rendering: geometricPrecision;
+    flex-shrink: 0;
+  }
+
+  .zh-page .zh-nav__profile,
+  .zh-page .zh-nav__profile:hover,
+  .zh-page .zh-nav__profile:focus-visible {
+    transform: none;
+  }
+
+  .zh-page .zh-nav__profile {
+    justify-self: end;
+    align-self: center;
+    margin: 0;
+    margin-inline-start: 4px;
+    min-width: 0;
+    max-width: none;
+    height: var(--zh-nav-control-h);
+    padding: 0 10px 0 6px;
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .zh-page .zh-nav__profile img,
+  .zh-page .zh-nav__profile:hover img {
+    width: 28px;
+    height: 28px;
+    object-fit: cover;
+    border-radius: 50%;
+    flex-shrink: 0;
+    image-rendering: auto;
+    transform: none;
+  }
+
+  .zh-page .zh-nav__profile-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1px;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .zh-page .zh-nav__profile-copy strong {
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
+  .zh-page .zh-nav__premium {
+    font-size: 10px;
+    line-height: 1.1;
   }
 }

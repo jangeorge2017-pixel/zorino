@@ -1,16 +1,20 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
+  CircuitBoard,
+  Dumbbell,
   Gamepad2,
+  Headphones,
   Home,
   Laptop,
-  MoreHorizontal,
   Shirt,
   Smartphone,
+  Sparkles,
   Tv,
   Watch,
 } from "lucide-react";
 import type { HomepageCategoryItem } from "@/lib/types/entities";
+import { ZH_CATEGORIES } from "@/lib/zorino-home/content";
 import "./categories.css";
 
 const ICONS = {
@@ -21,7 +25,10 @@ const ICONS = {
   home: Home,
   wearables: Watch,
   fashion: Shirt,
-  more: MoreHorizontal,
+  electronics: CircuitBoard,
+  audio: Headphones,
+  beauty: Sparkles,
+  sports: Dumbbell,
 } as const;
 
 const CATEGORY_LABEL_KEYS: Record<string, string> = {
@@ -32,7 +39,10 @@ const CATEGORY_LABEL_KEYS: Record<string, string> = {
   home: "catHome",
   wearables: "catWearables",
   fashion: "catFashion",
-  more: "catMore",
+  electronics: "catElectronics",
+  audio: "catAudio",
+  beauty: "catBeauty",
+  sports: "catSports",
 };
 
 type ZorinoHomeCategoriesProps = {
@@ -43,28 +53,23 @@ export default async function ZorinoHomeCategories({
   categories,
 }: ZorinoHomeCategoriesProps) {
   const t = await getTranslations("home");
-  // Never hide the shortcut row — fall back to the canonical 8 tiles.
+  // Prefer server list; fall back to full canonical row (no More tile).
   const items =
     categories.length > 0
-      ? categories
-      : [
-          { slug: "phones", label: "Phones", active: false, accent: "blue" },
-          { slug: "laptops", label: "Laptops", active: false, accent: "cyan" },
-          { slug: "gaming", label: "Gaming", active: false, accent: "purple" },
-          { slug: "tvs", label: "TVs", active: false, accent: "orange" },
-          { slug: "home", label: "Home", active: true, accent: "green" },
-          { slug: "wearables", label: "Wearables", active: false, accent: "pink" },
-          { slug: "fashion", label: "Fashion", active: false, accent: "indigo" },
-          { slug: "more", label: "More", active: false, accent: "gray" },
-        ];
+      ? categories.filter((category) => category.slug !== "more")
+      : ZH_CATEGORIES.map((category) => ({
+          slug: category.slug,
+          label: category.label,
+          active: Boolean(category.highlighted),
+          accent: category.accent ?? null,
+        }));
 
   return (
     <nav className="zh-categories-nav" id="zh-section-categories" aria-label={t("categoriesNav")}>
       <div className="zh-categories">
         {items.map((category) => {
-          const Icon = ICONS[category.slug as keyof typeof ICONS] ?? MoreHorizontal;
-          const href =
-            category.slug === "more" ? "/categories" : `/categories/${category.slug}`;
+          const Icon = ICONS[category.slug as keyof typeof ICONS] ?? CircuitBoard;
+          const href = `/categories/${category.slug}`;
           const accent = category.accent ? ` zh-categories__item--${category.accent}` : "";
           const highlighted =
             category.active || category.slug === "home"

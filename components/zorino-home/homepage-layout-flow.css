@@ -546,8 +546,9 @@
   pointer-events: none;
 }
 
-/* Prevent accidental horizontal scroll from glow / pills */
+/* Prevent accidental horizontal scroll from glow / pills.
+   Keep the same content+pad box as .zh-shell so nav / sections share one grid. */
 .zh-page .zh-shell {
   overflow-x: clip;
-  max-width: 100%;
+  max-width: min(100%, calc(var(--zh-content) + 2 * var(--zh-pad)));
 }

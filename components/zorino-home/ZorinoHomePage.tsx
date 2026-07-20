@@ -103,16 +103,20 @@ export default async function ZorinoHomePage() {
             }
           />
 
-          <div className="zh-hero-search">
-            <Suspense
-              fallback={<ZorinoHomeSearch popularSearches={getPopularSearchesStatic()} />}
-            >
-              <SearchSection />
-            </Suspense>
-          </div>
+          <div className="zh-hero-zone__tools">
+            <div className="zh-hero-search">
+              <Suspense
+                fallback={
+                  <ZorinoHomeSearch popularSearches={getPopularSearchesStatic()} />
+                }
+              >
+                <SearchSection />
+              </Suspense>
+            </div>
 
-          <div className="zh-categories-wrap">
-            <ZorinoHomeCategories categories={categories} />
+            <div className="zh-categories-wrap">
+              <ZorinoHomeCategories categories={categories} />
+            </div>
           </div>
         </div>
 

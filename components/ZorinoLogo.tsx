@@ -32,6 +32,7 @@ export function ZorinoLogo({
     <img
       src={ZORINO_LOGO_SOURCE}
       srcSet={srcSet}
+      sizes={`${Math.ceil(displayWidth)}px`}
       width={ZORINO_LOGO_INTRINSIC.width}
       height={ZORINO_LOGO_INTRINSIC.height}
       alt="Zorino"
