@@ -128,7 +128,10 @@ export const MOCK_CATEGORIES: Category[] = [
   { id: "cat-home", slug: "home", name: "Home", icon: "🏠", sortOrder: 5, productCount: 9800, isActive: true },
   { id: "cat-wearables", slug: "wearables", name: "Wearables", icon: "⌚", sortOrder: 6, productCount: 4500, isActive: true },
   { id: "cat-fashion", slug: "fashion", name: "Fashion", icon: "👟", sortOrder: 7, productCount: 15200, isActive: true },
-  { id: "cat-more", slug: "more", name: "More", icon: "✨", sortOrder: 8, productCount: 22000, isActive: true },
+  { id: "cat-electronics", slug: "electronics", name: "Electronics", icon: "🔌", sortOrder: 8, productCount: 18400, isActive: true },
+  { id: "cat-audio", slug: "audio", name: "Audio", icon: "🎧", sortOrder: 9, productCount: 7200, isActive: true },
+  { id: "cat-beauty", slug: "beauty", name: "Beauty", icon: "✨", sortOrder: 10, productCount: 9100, isActive: true },
+  { id: "cat-sports", slug: "sports", name: "Sports", icon: "🏃", sortOrder: 11, productCount: 6800, isActive: true },
 ];
 
 export const MOCK_PRODUCTS: Product[] = [

@@ -42,6 +42,7 @@
 
 .zh-nav__inner {
   display: grid;
+  /* logo | links | utils | profile */
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   width: 100%;
@@ -74,9 +75,11 @@
   border: none;
   box-shadow: none;
   border-radius: 0;
+  /* Prefer high-res decode; avoid CSS filters/transforms that soft-blur the lockup */
   image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  transform: none;
 }
 
 /* ─── Primary navigation (logo → search slot) ─── */
@@ -286,9 +289,19 @@
   transform: scaleX(1);
 }
 
-/* Desktop/tablet: cluster is transparent so grid columns stay logo|links|search|actions */
+/* Desktop/tablet: cluster is transparent so grid columns stay logo|links|utils|profile */
 .zh-nav__cluster {
   display: contents;
+}
+
+/* Search + utility controls (theme / locale / wishlist / notify) */
+.zh-nav__utils {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: var(--zh-nav-gap);
+  margin-left: var(--zh-nav-gap);
+  min-width: 0;
 }
 
 /* ─── Search anchor + right-side controls ─── */
@@ -296,14 +309,14 @@
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  margin-left: var(--zh-nav-gap);
+  margin-left: 0;
 }
 
 .zh-nav__actions {
   display: flex;
   align-items: center;
   gap: var(--zh-nav-gap);
-  margin-left: var(--zh-nav-gap);
+  margin-left: 0;
   flex: 0 0 auto;
   min-width: 0;
   overflow: visible;
@@ -759,6 +772,17 @@
     margin-inline-start: auto;
     min-width: 0;
     order: 1;
+  }
+
+  .zh-page .zh-nav__utils,
+  .zh-nav__utils {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--zh-nav-gap);
+    flex: 0 0 auto;
+    margin: 0;
+    min-width: 0;
   }
 
   .zh-page .zh-nav__search-slot,

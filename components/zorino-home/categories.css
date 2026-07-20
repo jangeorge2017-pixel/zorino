@@ -11,7 +11,7 @@
 
 .zh-categories {
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 8px;
   margin-top: 0;
   overflow: visible;

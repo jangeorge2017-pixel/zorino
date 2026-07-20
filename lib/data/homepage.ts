@@ -81,7 +81,10 @@ const CATEGORY_ACCENTS: Record<string, string | null> = {
   home: "green",
   wearables: "pink",
   fashion: "indigo",
-  more: "gray",
+  electronics: "yellow",
+  audio: "cyan",
+  beauty: "pink",
+  sports: "orange",
 };
 
 function formatStatCount(count: number): string {
@@ -180,15 +183,14 @@ export async function getHomepageCategories(): Promise<HomepageCategoryItem[]> {
   const { data, error } = await loadCategoriesCached();
   if (error || data.length === 0) return withFallbackCategories([]);
 
-  return withFallbackCategories([
-    ...data.map((category, index) => ({
+  return withFallbackCategories(
+    data.map((category, index) => ({
       slug: category.slug,
       label: category.name,
       active: index === 2,
       accent: CATEGORY_ACCENTS[category.slug] ?? null,
     })),
-    { slug: "more", label: "More", active: false, accent: "gray" },
-  ]);
+  );
 }
 /** Popular searches — static chips on the critical path; live terms stream in. */
 export function getPopularSearchesStatic(): string[] {

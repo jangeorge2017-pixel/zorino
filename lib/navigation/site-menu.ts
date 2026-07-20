@@ -6,6 +6,11 @@ const NAV_CATEGORIES = [
   { slug: "tvs", name: "TVs" },
   { slug: "home", name: "Home" },
   { slug: "wearables", name: "Wearables" },
+  { slug: "fashion", name: "Fashion" },
+  { slug: "electronics", name: "Electronics" },
+  { slug: "audio", name: "Audio" },
+  { slug: "beauty", name: "Beauty" },
+  { slug: "sports", name: "Sports" },
 ] as const;
 
 const NAV_STORES = [{ slug: "aliexpress", name: "AliExpress" }] as const;

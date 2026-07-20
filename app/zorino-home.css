@@ -11,8 +11,10 @@
   --zh-card-hover: #1a1f35;
   --zh-border: #2d3748;
   --zh-text-secondary: #8b93a7;
-  --zh-content: 1340px;
-  --zh-pad: clamp(14px, calc((100vw - var(--zh-content)) / 2), 72px);
+  /* Desktop content column — design-system width for 1440px+ layouts.
+     Pad min stays 14px so tablet/mobile gutters are unchanged. */
+  --zh-content: 1560px;
+  --zh-pad: clamp(14px, calc((100vw - var(--zh-content)) / 2), 180px);
   --zh-gap: var(--zh-space-stats-search);
   --zh-section-step: clamp(64px, 5vw, 80px);
   /* Equal vertical rhythm: Search → Categories → Quick Nav */

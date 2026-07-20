@@ -24,7 +24,7 @@ export type ZhOrbitCard = {
 export type ZhCategory = {
   slug: string;
   label: string;
-  accent?: "pink" | "blue" | "green" | "purple" | "gray" | "cyan" | "orange" | "indigo";
+  accent?: "pink" | "blue" | "green" | "purple" | "gray" | "cyan" | "orange" | "indigo" | "yellow";
   highlighted?: boolean;
 };
 
@@ -124,7 +124,11 @@ export const ZH_CATEGORIES: ZhCategory[] = [
   { slug: "home", label: "Home", accent: "green", highlighted: true },
   { slug: "wearables", label: "Wearables", accent: "pink" },
   { slug: "fashion", label: "Fashion", accent: "indigo" },
-  { slug: "more", label: "More", accent: "gray" },
+  /* Former “More” overflow — shown inline on desktop */
+  { slug: "electronics", label: "Electronics", accent: "yellow" },
+  { slug: "audio", label: "Audio", accent: "cyan" },
+  { slug: "beauty", label: "Beauty", accent: "pink" },
+  { slug: "sports", label: "Sports", accent: "orange" },
 ];
 
 export const ZH_TRENDING_DEALS: ZhDeal[] = [

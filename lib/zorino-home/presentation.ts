@@ -67,9 +67,16 @@ const HERO_ORBIT_COMPOSITION = [
 export function withFallbackCategories(
   categories: HomepageCategoryItem[]
 ): HomepageCategoryItem[] {
-  // Always render the canonical 8 homepage shortcuts in fixed order.
-  return ZH_CATEGORIES.map((category) => {
-    const match = categories.find((item) => item.slug === category.slug);
+  // Canonical shortcuts in fixed order — never a “More” tile.
+  const bySlug = new Map(
+    categories
+      .filter((item) => item.slug !== "more")
+      .map((item) => [item.slug, item]),
+  );
+
+  const ordered = ZH_CATEGORIES.map((category) => {
+    const match = bySlug.get(category.slug);
+    bySlug.delete(category.slug);
     return {
       slug: category.slug,
       label: match?.label || category.label,
@@ -77,6 +84,18 @@ export function withFallbackCategories(
       accent: category.accent ?? match?.accent ?? null,
     };
   });
+
+  // Any extra live categories that used to sit behind More
+  for (const item of bySlug.values()) {
+    ordered.push({
+      slug: item.slug,
+      label: item.label,
+      active: Boolean(item.active),
+      accent: item.accent ?? null,
+    });
+  }
+
+  return ordered;
 }
 
 export function withFallbackPopularSearches(searches: string[]): string[] {
