@@ -773,6 +773,187 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: calc(var(--zh-grid-gutter) * 1.1);
   }
+
+  /*
+   * ── Standardize homepage content sections (desktop) ──
+   * Template: Trending Deals head + content inset. Cards / typography /
+   * colors / controls behavior unchanged — layout chrome only.
+   */
+
+  /* 1) Discount / marketplace badges never collide with FEATURED */
+  .zh-page .zor-deals-page__card .product-card-badges,
+  .zh-page .listing-product-card .product-card-badges,
+  .zh-page .trending-card-badges {
+    top: 10px;
+    left: 10px;
+    right: auto;
+    z-index: 2;
+    /* Leave room for FEATURED (~88px) + right inset + gap */
+    max-width: calc(100% - 108px);
+  }
+
+  .zh-page .zor-deals-page__featured-badge {
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    max-width: calc(50% - 12px);
+  }
+
+  /* 2) Uniform vertical rhythm + accent separators between product sections */
+  .zh-page {
+    --deals-section-gap: var(--zh-section-step);
+  }
+
+  .zh-page .zh-product-sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--zh-section-step);
+  }
+
+  .zh-page .zh-product-sections .zh-product-section.zh-deals-preview {
+    margin-bottom: 0;
+  }
+
+  .zh-page
+    .zh-product-sections
+    .zh-product-section.zh-deals-preview
+    + .zh-product-section.zh-deals-preview {
+    margin-top: 0;
+  }
+
+  .zh-page .zh-product-section {
+    position: relative;
+  }
+
+  .zh-page .zh-product-sections .zh-product-section + .zh-product-section::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * var(--zh-section-step) / 2);
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--zh-section-accent, #a78bfa) 55%, transparent),
+      color-mix(in srgb, var(--zh-section-accent-soft, #c4b5fd) 35%, transparent),
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  /* Match wrap-level hairlines to the same accent language */
+  .zh-page .zh-featured-brands-wrap::before,
+  .zh-page .zh-product-sections-wrap::before,
+  .zh-page .zh-cta-wrap::before {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--zh-section-accent, #a78bfa) 45%, transparent),
+      rgba(34, 211, 238, 0.18),
+      transparent
+    );
+  }
+
+  /* 3) Product section headers mirror Trending Deals head shell */
+  .zh-page .zh-product-section.zh-panel,
+  .zh-page .zh-product-section.zh-deals-preview.zh-panel {
+    padding: 0 0 20px;
+  }
+
+  .zh-page .zh-product-section__head {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 16px 18px 4px;
+    background: linear-gradient(
+      180deg,
+      rgba(14, 12, 20, 0.99) 0%,
+      rgba(12, 14, 24, 0.98) 55%,
+      rgba(12, 14, 24, 0.96) 100%
+    );
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--zh-section-accent, rgba(255, 120, 60, 0.35)) 22%, transparent);
+    scroll-margin-top: calc(
+      var(
+          --zor-sticky-scroll-clearance,
+          var(--zor-sticky-clearance, var(--zh-sticky-clearance, 72px))
+        ) + 12px
+    );
+    isolation: isolate;
+  }
+
+  .zh-page .zh-product-section__title-row.zor-deals-page__section-head,
+  .zh-page .zh-trending-deals__title-row.zor-deals-page__section-head {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    margin-bottom: 0;
+    padding: 0;
+    background: transparent;
+    border-bottom: none;
+    flex-wrap: nowrap;
+  }
+
+  .zh-page .zh-product-section__title-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .zh-page .zh-product-section .zor-deals-page__section-title-wrap,
+  .zh-page .zh-trending-deals .zor-deals-page__section-title-wrap {
+    align-items: center;
+  }
+
+  .zh-page .zh-product-section .zor-deals-page__section-subtitle,
+  .zh-page .zh-trending-deals .zor-deals-page__section-subtitle {
+    max-width: none;
+  }
+
+  .zh-page .zh-product-section__title-actions .zh-view-all,
+  .zh-page .zh-trending-deals__title-actions .zh-view-all {
+    align-self: center;
+  }
+
+  .zh-page .zh-deals-preview .zor-deals-page__section-head {
+    margin-bottom: 0;
+  }
+
+  /* 4) Grids start under the head and span full content width (18px inset) */
+  .zh-page .zh-product-section .listing-products-grid,
+  .zh-page .zh-product-section .zor-deals-page__section-grid,
+  .zh-page .zh-product-section .zor-deals-page__grid,
+  .zh-page .zh-product-section .zh-panel__empty {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 8px 18px 0;
+    box-sizing: border-box;
+  }
+
+  .zh-page .zh-product-section .listing-products-grid,
+  .zh-page .zh-product-section .zor-deals-page__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: calc(var(--zh-grid-gutter) * 1.1);
+  }
+
+  .zh-page .zh-trending-deals__carousel,
+  .zh-page .zh-trending-deals .zh-panel__empty {
+    padding-inline: 18px;
+    padding-top: 8px;
+  }
 }
 
 @media (min-width: 1720px) {

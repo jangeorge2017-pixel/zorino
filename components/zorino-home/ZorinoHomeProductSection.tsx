@@ -49,22 +49,29 @@ export default async function ZorinoHomeProductSection({
       id={section.targetId}
       aria-labelledby={titleId}
     >
-      <header className="zor-deals-page__section-head">
-        <div className="zor-deals-page__section-title-wrap">
-          <span className="zor-deals-page__section-icon" aria-hidden>
-            <Icon size={18} />
-          </span>
-          <div>
-            <h2 id={titleId} className="zor-deals-page__section-title">
-              {t(SECTION_TITLE_KEYS[section.key] as "quickFlashDeals")}
-            </h2>
-            <p className="zor-deals-page__section-subtitle">
-              {t(SECTION_SUBTITLE_KEYS[section.key] as "sectionFlashSubtitle")}
-            </p>
+      <div className="zh-product-section__head">
+        <header className="zor-deals-page__section-head zh-product-section__title-row">
+          <div className="zor-deals-page__section-title-wrap">
+            <span className="zor-deals-page__section-icon" aria-hidden>
+              <Icon size={18} />
+            </span>
+            <div>
+              <h2 id={titleId} className="zor-deals-page__section-title">
+                {t(SECTION_TITLE_KEYS[section.key] as "quickFlashDeals")}
+              </h2>
+              <p className="zor-deals-page__section-subtitle">
+                {t(SECTION_SUBTITLE_KEYS[section.key] as "sectionFlashSubtitle")}
+              </p>
+            </div>
           </div>
-        </div>
-        <ZorinoHomeViewAllLink href={section.viewAllHref} variant={viewAllVariant} />
-      </header>
+          <div className="zh-product-section__title-actions">
+            <ZorinoHomeViewAllLink
+              href={section.viewAllHref}
+              variant={viewAllVariant}
+            />
+          </div>
+        </header>
+      </div>
 
       {products.length === 0 ? (
         <p className="zh-panel__empty">{t("emptyProducts")}</p>
