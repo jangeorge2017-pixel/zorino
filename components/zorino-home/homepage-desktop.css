@@ -79,8 +79,8 @@
     --zh-page-bg-base: #000000;
     --zh-space-black: #000000;
     --zh-orbit-card-shift-right: 16px;
-    /* Floating cards only — 260px closer to the heading (prior 130 + 130) */
-    --zh-orbit-card-nudge-left: 260px;
+    /* Floating cards only — 270px closer to the heading (prior 260 + 10) */
+    --zh-orbit-card-nudge-left: 270px;
     /* Matches .zh-hero-search translateY — used for categories spacing */
     --zh-hero-search-lift: 70px;
   }
