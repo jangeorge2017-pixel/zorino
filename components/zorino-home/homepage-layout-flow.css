@@ -462,7 +462,10 @@
   .zh-page .zh-brand-card__logo {
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    padding: 8%;
+    box-sizing: border-box;
   }
 
   .zh-page .zh-footer__store-logo {
@@ -475,7 +478,10 @@
   .zh-page .zh-footer__store-logo img {
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    padding: 8%;
+    box-sizing: border-box;
   }
 
   /* Keep panels inside the viewport box — min-width:0 stops carousel
