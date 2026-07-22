@@ -106,7 +106,7 @@ export default function ZorinoHomeCouponsPanel({ coupons }: ZorinoHomeCouponsPan
       <ZorinoHomeSectionHeader
         titleId="zh-coupons-title"
         title={t("topCoupons")}
-        icon={Flame}
+        icon={<Flame size={18} aria-hidden />}
         viewAll={{ href: "/coupons", variant: "coupons" }}
       />
       <div className="zh-coupons">

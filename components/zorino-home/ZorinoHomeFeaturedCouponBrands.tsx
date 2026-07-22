@@ -156,7 +156,7 @@ export default function ZorinoHomeFeaturedCouponBrands({
       <ZorinoHomeSectionHeader
         titleId="zh-featured-brands-title"
         title={t("featuredCouponBrands")}
-        icon={Ticket}
+        icon={<Ticket size={18} aria-hidden />}
         viewAll={{ href: "/coupons", variant: "coupons" }}
       />
 

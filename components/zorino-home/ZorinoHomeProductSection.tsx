@@ -54,7 +54,7 @@ export default async function ZorinoHomeProductSection({
         titleId={titleId}
         title={t(SECTION_TITLE_KEYS[section.key] as "quickFlashDeals")}
         subtitle={t(SECTION_SUBTITLE_KEYS[section.key] as "sectionFlashSubtitle")}
-        icon={Icon}
+        icon={<Icon size={18} aria-hidden />}
         viewAll={{ href: section.viewAllHref, variant: viewAllVariant }}
       />
 
