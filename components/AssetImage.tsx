@@ -18,6 +18,8 @@ type AssetImageProps = {
   className?: string;
   fallback?: ReactNode;
   priority?: boolean;
+  /** Defaults: cover when fill (product frames), contain for fixed logo tiles. */
+  objectFit?: "cover" | "contain";
 };
 
 /**
@@ -35,11 +37,13 @@ export default function AssetImage({
   className,
   fallback,
   priority,
+  objectFit,
 }: AssetImageProps) {
   const normalized = normalizeProductImageUrl(src) || PRODUCT_IMAGE_PLACEHOLDER;
   const [broken, setBroken] = useState(false);
   // Never start remote images at opacity 0 — CDN/onLoad races left black wells.
   const [loaded, setLoaded] = useState(true);
+  const fit = objectFit ?? (fill ? "cover" : "contain");
 
   // Reset failure state when the source identity changes (render-time, no effect).
   const [srcKey, setSrcKey] = useState(src);
@@ -73,7 +77,7 @@ export default function AssetImage({
             alt=""
             width={width ?? 120}
             height={height ?? 120}
-            style={{ objectFit: "contain", width: "100%", height: "100%" }}
+            style={{ objectFit: fit, width: "100%", height: "100%" }}
           />
         )}
       </span>
@@ -101,13 +105,13 @@ export default function AssetImage({
     alt: alt || "",
     className: `${className ?? ""}${loaded ? " asset-image-loaded" : " asset-image-loading"}`.trim(),
     priority,
-    quality: 92,
+    quality: 95,
     // Marketplace CDNs (eBay/AliExpress/etc.) frequently block server-side
     // optimizer fetches; load remotes in the browser instead.
     unoptimized: !isLocal,
     loading: priority ? ("eager" as const) : ("lazy" as const),
     decoding: "async" as const,
-    style: { objectFit: "contain" as const, objectPosition: "center" as const },
+    style: { objectFit: fit, objectPosition: "center" as const },
     onError: handleError,
     onLoad: handleLoad,
   };

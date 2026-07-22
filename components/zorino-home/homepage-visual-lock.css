@@ -31,7 +31,11 @@
 }
 
 .zh-page .product-card-image,
-.zh-page .zh-td-card__media img,
+.zh-page .zh-td-card__media img {
+  object-fit: cover;
+  object-position: center;
+}
+
 .zh-page .zh-brand-card__logo {
   object-fit: contain;
   object-position: center;

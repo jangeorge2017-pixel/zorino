@@ -710,7 +710,7 @@ img {
 
 .hero-orbit-img,
 .hero-orbit-card img.hero-orbit-img {
-  object-fit: contain !important;
+  object-fit: cover !important;
   object-position: center center !important;
   width: 100% !important;
   height: 100% !important;
@@ -2554,7 +2554,7 @@ img {
 .deal-product-img,
 .lowest-price-img,
 .trending-card-image {
-  object-fit: contain !important;
+  object-fit: cover !important;
   object-position: center center !important;
   padding: 0 !important;
   width: 100% !important;
@@ -4537,7 +4537,7 @@ img {
 }
 
 .compare-page-product-img {
-  object-fit: contain !important;
+  object-fit: cover !important;
   padding: 0 !important;
 }
 

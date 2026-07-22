@@ -46,12 +46,43 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   { protocol: "https" as const, hostname: "i.pravatar.cc", pathname: "/**" },
 ];
 
+/** Prefer larger Unsplash / Amazon CDN variants when the URL advertises a small size. */
+function preferHighResProductUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+
+    if (host === "images.unsplash.com") {
+      const w = Number(parsed.searchParams.get("w") || "0");
+      if (!Number.isFinite(w) || w < 1200) {
+        parsed.searchParams.set("w", "1200");
+      }
+      if (!parsed.searchParams.get("q")) {
+        parsed.searchParams.set("q", "85");
+      }
+      if (!parsed.searchParams.get("auto")) {
+        parsed.searchParams.set("auto", "format");
+      }
+      return parsed.toString();
+    }
+
+    // Amazon media: upgrade common small SL tokens to a sharper size.
+    if (host.includes("media-amazon.com") || host.includes("ssl-images-amazon.com")) {
+      return url.replace(/_SL\d+_/g, "_SL1200_").replace(/\._SS\d+_/, "._SS1200_");
+    }
+
+    return url;
+  } catch {
+    return url;
+  }
+}
+
 /** Normalize product image URL — empty/invalid/sandbox values use the local placeholder. */
 export function normalizeProductImageUrl(url?: string | null): string {
   const trimmed = url?.trim();
   if (!trimmed) return PRODUCT_IMAGE_PLACEHOLDER;
   const legacyReplacement = LEGACY_BROKEN_IMAGE_URLS[trimmed];
-  if (legacyReplacement) return legacyReplacement;
+  if (legacyReplacement) return preferHighResProductUrl(legacyReplacement);
   if (trimmed.startsWith("/")) return trimmed;
   try {
     const parsed = new URL(trimmed);
@@ -63,7 +94,7 @@ export function normalizeProductImageUrl(url?: string | null): string {
     if (host.includes("ebayimg.sandbox") || host === "api.sandbox.ebay.com") {
       return PRODUCT_IMAGE_PLACEHOLDER;
     }
-    return trimmed;
+    return preferHighResProductUrl(trimmed);
   } catch {
     // invalid URL
   }
