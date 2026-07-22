@@ -35,16 +35,18 @@ export default function ZorinoHomeTrendingDealCard({
   return (
     <article className="zh-td-card">
       <div className="zh-td-card__media">
-        <TrendingDealBadge badge={deal.displayBadge} />
-        {hasDiscount ? (
-          <span className="zh-td-card__discount">-{Math.round(deal.discount)}%</span>
-        ) : null}
+        <div className="zh-td-card__overlays">
+          <TrendingDealBadge badge={deal.displayBadge} />
+          {hasDiscount ? (
+            <span className="zh-td-card__discount">-{Math.round(deal.discount)}%</span>
+          ) : null}
+        </div>
         <AssetImage
           src={deal.imageSrc || ""}
           alt={deal.name}
           fill
           sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 420px"
-          objectFit="contain"
+          objectFit="cover"
           priority={priority}
           className="zh-td-card__image"
         />

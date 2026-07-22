@@ -1,105 +1,33 @@
 /**
- * Premium amber badges — discount, featured, ends-in only.
+ * Product overlay badges — compact glass pills (no solid amber plates).
+ * Visual source of truth lives with product-card-media-overlays.css;
+ * this file only keeps shared CSS variables + hover micro-states.
  */
 
 :root {
-  --badge-amber: #d99a2b;
-  --badge-amber-hover: #e4a93a;
-  --badge-amber-active: #c98a1e;
-  --badge-amber-text: #1f1608;
-  --badge-amber-radius: 11px;
-  --badge-amber-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
-  --badge-amber-transition: 180ms ease;
-}
-
-/* ─── Discount badges — readability ─── */
-.deal-discount,
-.zor-deals-page .deal-discount,
-.zh-td-card__discount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: #d48a16;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: var(--badge-amber-radius);
-  box-shadow: var(--badge-amber-shadow);
-  transition:
-    background var(--badge-amber-transition),
-    box-shadow var(--badge-amber-transition);
-}
-
-.deal-discount,
-.zor-deals-page .deal-discount {
-  padding: 5px 10px;
-}
-
-.zh-td-card__discount {
-  padding: 5px 10px;
-}
-
-/* ─── Featured pill badge ─── */
-.zor-deals-page__featured-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 26px;
-  padding: 0 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  line-height: 1;
-  text-transform: uppercase;
-  color: #1a1a1a;
-  background: linear-gradient(135deg, #e4a93a, #d99a2b);
-  border: 1px solid rgba(26, 26, 26, 0.08);
-  border-radius: var(--badge-amber-radius);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
-  transition:
-    background var(--badge-amber-transition),
-    box-shadow var(--badge-amber-transition);
+  --badge-overlay-bg: rgba(15, 23, 42, 0.42);
+  --badge-overlay-border: rgba(255, 255, 255, 0.16);
+  --badge-overlay-blur: 8px;
+  --badge-overlay-radius: 999px;
+  --badge-overlay-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  --badge-overlay-transition: 160ms ease;
 }
 
 .deal-card:hover .deal-discount,
 .listing-product-card:hover .deal-discount,
 .zor-deals-page__card:hover .deal-discount,
-.zor-deals-page__card:hover .zor-deals-page .deal-discount,
 .zh-td-card:hover .zh-td-card__discount {
-  background: var(--badge-amber-hover);
-}
-
-.deal-discount:active,
-.zor-deals-page .deal-discount:active,
-.zh-td-card__discount:active {
-  background: var(--badge-amber-active);
+  background: rgba(15, 23, 42, 0.55);
 }
 
 .zor-deals-page__card:hover .zor-deals-page__featured-badge {
-  background: linear-gradient(135deg, #efc04a, #e4a93a);
+  background: rgba(15, 23, 42, 0.55);
 }
 
-.zor-deals-page__featured-badge:active {
-  background: linear-gradient(135deg, #d99a2b, #c98a1e);
+.listing-deal-meta {
+  color: #cbd5e1;
 }
 
-/* ─── Ends in… meta ─── */
-.zor-deals-page .listing-deal-meta {
-  color: var(--badge-amber);
-  font-weight: 600;
-  transition: color var(--badge-amber-transition);
-}
-
-.zor-deals-page .listing-deal-meta svg {
-  color: var(--badge-amber);
-  transition: color var(--badge-amber-transition);
-}
-
-.zor-deals-page__card:hover .listing-deal-meta,
-.zor-deals-page__card:hover .listing-deal-meta svg {
-  color: var(--badge-amber-hover);
+.listing-deal-meta svg {
+  color: #fbbf24;
 }

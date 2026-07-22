@@ -10,6 +10,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "generate:logo": "node scripts/generate-hero-z-logo-svg.mjs",
+    "logos:refresh": "node scripts/refresh-official-store-logos.mjs",
+    "logos:top-coupons": "node scripts/rebuild-top-coupons-logos.mjs",
     "generate:background": "node scripts/generate-homepage-background.mjs",
     "process:hero-z": "node scripts/process-hero-z.mjs",
     "process:hero-z-logo": "node scripts/process-hero-z-logo.mjs",

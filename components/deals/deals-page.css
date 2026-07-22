@@ -445,9 +445,9 @@
 }
 
 .zor-deals-page__featured-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  position: static;
+  top: auto;
+  right: auto;
   z-index: 2;
 }
 

@@ -83,4 +83,34 @@ export const STORE_LOGOS = {
   default: "/stores/default.svg",
 } as const;
 
+const STORE_LOGO_BY_SLUG: Record<string, string> = {
+  amazon: STORE_LOGOS.amazon,
+  "best-buy": STORE_LOGOS.bestBuy,
+  bestbuy: STORE_LOGOS.bestBuy,
+  walmart: STORE_LOGOS.walmart,
+  "foot-locker": STORE_LOGOS.footLocker,
+  footlocker: STORE_LOGOS.footLocker,
+  noon: STORE_LOGOS.noon,
+  aliexpress: STORE_LOGOS.aliExpress,
+  nike: STORE_LOGOS.nike,
+  ebay: STORE_LOGOS.ebay,
+  temu: STORE_LOGOS.temu,
+  shein: STORE_LOGOS.shein,
+  adidas: STORE_LOGOS.adidas,
+  apple: STORE_LOGOS.apple,
+  samsung: STORE_LOGOS.samsung,
+  cjdropshipping: STORE_LOGOS.cjDropshipping,
+  default: STORE_LOGOS.default,
+};
+
+/** Resolve official local SVG for a store slug (vector assets; refresh via npm run logos:refresh). */
+export function resolveStoreLogoSrc(slug?: string | null): string {
+  const key = String(slug ?? "default")
+    .trim()
+    .toLowerCase()
+    .replace(/\.svg$/i, "")
+    .replace(/\.png$/i, "");
+  return STORE_LOGO_BY_SLUG[key] ?? `/stores/${key || "default"}.svg`;
+}
+
 export const MISSING_ASSETS = [] as const;

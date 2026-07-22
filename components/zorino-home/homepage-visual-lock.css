@@ -32,7 +32,7 @@
 
 .zh-page .product-card-image,
 .zh-page .zh-td-card__media img {
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 

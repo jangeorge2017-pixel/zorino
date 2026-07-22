@@ -145,12 +145,14 @@
 }
 
 .zh-brand-card__logo {
-  /* Keep wrap size; mark stays centered with air around it */
-  width: 78%;
-  height: 78%;
+  /* Plate fills wrap; official artwork already padded ~15–18% inside SVG */
+  width: 100%;
+  height: 100%;
   max-width: none;
   object-fit: contain;
   object-position: center;
+  padding: 0;
+  image-rendering: auto;
 }
 
 .zh-brand-card__logo-fallback {

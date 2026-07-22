@@ -2522,15 +2522,13 @@ img {
   border-radius: 16px;
   overflow: hidden;
   flex-shrink: 0;
-  background:
-    radial-gradient(ellipse 80% 70% at 50% 42%, rgba(139, 92, 246, 0.14), transparent 70%),
-    linear-gradient(180deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.55) 100%);
+  background: rgba(30, 41, 59, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .product-card-image-frame {
   position: absolute;
-  inset: 10px;
+  inset: 0;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -2540,23 +2538,41 @@ img {
 .product-card-badges,
 .trending-card-badges {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 6px;
-  align-items: center;
-  max-width: calc(100% - 20px);
+  width: max-content;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.product-card-badges--end {
+  left: auto;
+  right: 14px;
+  align-items: flex-end;
+}
+
+.product-card-badges > *,
+.product-card-badges--start > *,
+.product-card-badges--end > *,
+.trending-card-badges > * {
+  pointer-events: auto;
 }
 
 .product-card-image,
 .deal-product-img,
 .lowest-price-img,
 .trending-card-image {
-  object-fit: contain !important;
+  object-fit: cover !important;
   object-position: center center !important;
-  padding: 8% !important;
+  padding: 0 !important;
   box-sizing: border-box !important;
   width: 100% !important;
   height: 100% !important;
@@ -2991,44 +3007,9 @@ img {
   display: none;
 }
 
-.deal-discount {
-  flex-shrink: 0;
-  background: linear-gradient(135deg, #9333ea, #7c3aed);
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 8px;
-  line-height: 1.2;
-}
-
+.deal-discount,
 .deal-marketplace {
   flex-shrink: 0;
-  background: rgba(15, 23, 42, 0.82);
-  color: #f8fafc;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 8px;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-}
-
-.deal-marketplace[data-marketplace="aliexpress"] {
-  background: rgba(230, 46, 4, 0.92);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.deal-marketplace[data-marketplace="ebay"] {
-  background: rgba(0, 102, 255, 0.92);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.deal-marketplace[data-marketplace="amazon"] {
-  background: rgba(255, 153, 0, 0.95);
-  color: #111827;
-  border-color: rgba(17, 24, 39, 0.12);
 }
 
 .section-icon-fire-fallback {
@@ -3089,8 +3070,28 @@ img {
 .store-logo-img,
 .coupon-store-logo-img,
 .feature-icon-img,
-.trustpilot-logo {
+.trustpilot-logo,
+.zh-coupon__logo img,
+.zh-brand-card__logo,
+.zh-footer__store-logo img,
+.zh-td-card__store-logo img,
+.zh-deal-card__store-logo img,
+.zor-stores-page__card-logo-img,
+.zor-coupons-page__card-logo-img {
   object-fit: contain;
+  object-position: center;
+  image-rendering: auto;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+}
+
+.store-logo-img,
+.coupon-store-logo-img {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  image-rendering: auto;
 }
 
 .coupon-store-logo {

@@ -46,9 +46,9 @@
   height: 100%;
   max-width: none;
   max-height: none;
-  object-fit: contain;
-  object-position: center;
-  padding: 8%;
+  object-fit: cover;
+  object-position: center center;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -68,17 +68,26 @@
 
 .zh-deal-card__discount {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 1;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 700;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-height: 0;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
   line-height: 1.2;
-  color: #fff;
-  background: #10b981;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  color: #fff7ed;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  background: rgba(15, 23, 42, 0.48);
+  border: 1px solid rgba(253, 186, 116, 0.28);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .zh-deal-card__name {
@@ -200,8 +209,9 @@
   height: 100%;
   object-fit: contain;
   object-position: center;
-  padding: 12%;
+  padding: 0;
   box-sizing: border-box;
+  image-rendering: auto;
 }
 
 .zh-deal-card__updated {

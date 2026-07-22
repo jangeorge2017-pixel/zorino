@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
+import { resolveStoreLogoSrc } from "@/lib/assets";
 import "./ZorinoHomeCouponsPanel.css";
 
 /** Top Coupons — official local SVGs (hi-res plates under top-coupons/). */
@@ -31,7 +32,7 @@ function resolveTopCouponLogoSrc(coupon: TopCouponCard): string {
   if (fromName.includes("aliexpress")) return TOP_COUPON_LOGOS.aliexpress;
   if (fromName.includes("nike")) return TOP_COUPON_LOGOS.nike;
 
-  return coupon.storeLogoSrc;
+  return resolveStoreLogoSrc(String(fromPath?.[1] ?? coupon.id ?? "default")) || coupon.storeLogoSrc;
 }
 
 function CouponRow({ coupon }: { coupon: TopCouponCard }) {
@@ -52,8 +53,11 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
         <img
           src={logoSrc}
           alt={coupon.store}
+          width={60}
+          height={60}
           loading="lazy"
           decoding="async"
+          sizes="60px"
           onError={(e) => {
             // Keep the square empty — do not swap in AM/NO letter placeholders.
             e.currentTarget.style.visibility = "hidden";

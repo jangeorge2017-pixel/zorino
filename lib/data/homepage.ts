@@ -103,7 +103,7 @@ function couponToCard(coupon: Awaited<ReturnType<typeof fetchTopCoupons>>["data"
   return {
     id: coupon.id,
     store: store?.name ?? "Store",
-    storeLogoSrc: store?.logoUrl ?? `/stores/${store?.slug ?? "default"}.png`,
+    storeLogoSrc: store?.logoUrl ?? `/stores/${store?.slug ?? "default"}.svg`,
     storeInitial: store?.logoInitial ?? store?.name.slice(0, 2) ?? "?",
     offer: coupon.offer,
     minSpend: coupon.minSpend ?? "No minimum",

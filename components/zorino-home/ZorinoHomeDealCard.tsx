@@ -35,7 +35,7 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
           alt={deal.name}
           fill
           sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 420px"
-          objectFit="contain"
+          objectFit="cover"
           className="zh-deal-card__image"
         />
       </div>

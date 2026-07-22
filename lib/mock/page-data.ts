@@ -101,7 +101,7 @@ export function getMockCouponsForPage(): TopCouponCard[] {
   return MOCK_COUPONS.map((coupon) => ({
     id: coupon.id,
     store: coupon.store?.name ?? "Store",
-    storeLogoSrc: coupon.store?.logoUrl ?? `/stores/${coupon.store?.slug ?? "default"}.png`,
+    storeLogoSrc: coupon.store?.logoUrl ?? `/stores/${coupon.store?.slug ?? "default"}.svg`,
     storeInitial: coupon.store?.logoInitial ?? coupon.store?.name.slice(0, 2) ?? "?",
     offer: coupon.offer,
     minSpend: coupon.minSpend ?? "No minimum",

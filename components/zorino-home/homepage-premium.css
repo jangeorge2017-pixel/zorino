@@ -512,6 +512,9 @@
   height: 100%;
   object-fit: contain;
   object-position: center;
+  padding: 0;
+  box-sizing: border-box;
+  image-rendering: auto;
 }
 
 .zh-footer__store-logo span {
