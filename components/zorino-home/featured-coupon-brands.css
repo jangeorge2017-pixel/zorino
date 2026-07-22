@@ -145,9 +145,9 @@
 }
 
 .zh-brand-card__logo {
-  /* Fill ~85% of the existing 72x72 wrap - do not resize the wrap */
-  width: 85%;
-  height: 85%;
+  /* Keep wrap size; mark stays centered with air around it */
+  width: 78%;
+  height: 78%;
   max-width: none;
   object-fit: contain;
   object-position: center;

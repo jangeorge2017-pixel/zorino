@@ -18,7 +18,7 @@ type AssetImageProps = {
   className?: string;
   fallback?: ReactNode;
   priority?: boolean;
-  /** Defaults: cover when fill (product frames), contain for fixed logo tiles. */
+  /** Defaults: contain (full product visible); pass cover only when intentional crop is needed. */
   objectFit?: "cover" | "contain";
 };
 
@@ -43,7 +43,7 @@ export default function AssetImage({
   const [broken, setBroken] = useState(false);
   // Never start remote images at opacity 0 — CDN/onLoad races left black wells.
   const [loaded, setLoaded] = useState(true);
-  const fit = objectFit ?? (fill ? "cover" : "contain");
+  const fit = objectFit ?? "contain";
 
   // Reset failure state when the source identity changes (render-time, no effect).
   const [srcKey, setSrcKey] = useState(src);

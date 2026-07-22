@@ -2554,9 +2554,10 @@ img {
 .deal-product-img,
 .lowest-price-img,
 .trending-card-image {
-  object-fit: cover !important;
+  object-fit: contain !important;
   object-position: center center !important;
-  padding: 0 !important;
+  padding: 8% !important;
+  box-sizing: border-box !important;
   width: 100% !important;
   height: 100% !important;
   max-width: 100% !important;
@@ -2577,7 +2578,7 @@ img {
 .lowest-price-card:hover .product-card-image,
 .trending-product-card:hover .product-card-image,
 .home-product-card:hover .product-card-image {
-  transform: scale(1.05);
+  transform: none;
 }
 
 .asset-image-fallback {

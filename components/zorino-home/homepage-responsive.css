@@ -970,7 +970,7 @@
     height: 100%;
     max-width: 100%;
     max-height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     /* Hover scale can visually spill past the media clip on touch devices */
     transform: none;
