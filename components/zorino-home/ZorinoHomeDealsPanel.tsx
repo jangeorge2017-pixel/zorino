@@ -135,7 +135,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
         titleId="zh-deals-title"
         title={t("trendingDeals")}
         subtitle={t("trendingDealsSubtitle")}
-        icon={TrendingIcon}
+        icon={<TrendingIcon size={18} aria-hidden />}
         viewAll={{ href: "/deals", variant: "deals" }}
         actions={
           <label className="zh-trending-deals__sort">

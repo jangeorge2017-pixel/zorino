@@ -1,6 +1,5 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import ZorinoHomeViewAllLink, {
   type ZorinoHomeViewAllVariant,
@@ -11,8 +10,8 @@ export type ZorinoHomeSectionHeaderProps = {
   titleId: string;
   title: ReactNode;
   subtitle?: ReactNode;
-  icon?: LucideIcon;
-  iconNode?: ReactNode;
+  /** Pre-rendered icon node (do not pass LucideIcon functions from Server Components). */
+  icon?: ReactNode;
   viewAll?: {
     href: string;
     variant: ZorinoHomeViewAllVariant;
@@ -32,17 +31,12 @@ export default function ZorinoHomeSectionHeader({
   titleId,
   title,
   subtitle,
-  icon: Icon,
-  iconNode,
+  icon,
   viewAll,
   actions,
   children,
   className,
 }: ZorinoHomeSectionHeaderProps) {
-  const iconContent =
-    iconNode ??
-    (Icon ? <Icon size={18} aria-hidden /> : null);
-
   return (
     <div
       className={["zh-section-header", "zh-section-head", className]
@@ -51,12 +45,12 @@ export default function ZorinoHomeSectionHeader({
     >
       <header className="zh-section-header__row zor-deals-page__section-head">
         <div className="zh-section-header__title-wrap zor-deals-page__section-title-wrap">
-          {iconContent ? (
+          {icon ? (
             <span
               className="zh-section-header__icon zor-deals-page__section-icon"
               aria-hidden
             >
-              {iconContent}
+              {icon}
             </span>
           ) : null}
           <div className="zh-section-header__copy">
@@ -71,7 +65,10 @@ export default function ZorinoHomeSectionHeader({
                 {subtitle}
               </p>
             ) : (
-              <p className="zh-section-header__subtitle zh-section-header__subtitle--spacer" aria-hidden>
+              <p
+                className="zh-section-header__subtitle zh-section-header__subtitle--spacer"
+                aria-hidden
+              >
                 &nbsp;
               </p>
             )}
