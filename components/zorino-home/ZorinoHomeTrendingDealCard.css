@@ -43,8 +43,9 @@
 .zh-td-card__media .zh-td-card__image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  padding: 10px;
+  object-fit: cover;
+  object-position: center;
+  padding: 0;
 }
 
 .zh-td-card__media-fallback {

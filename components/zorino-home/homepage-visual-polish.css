@@ -284,9 +284,14 @@
 }
 
 .zh-page .zh-td-card__media img,
-.zh-page .zh-brand-card__logo,
 .zh-page .listing-product-card img,
-.zh-page .zor-deals-page__card img {
+.zh-page .zor-deals-page__card img,
+.zh-page .product-card-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.zh-page .zh-brand-card__logo {
   object-fit: contain;
   object-position: center;
 }

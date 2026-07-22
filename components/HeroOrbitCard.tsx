@@ -31,7 +31,8 @@ export default function HeroOrbitCard({
               alt=""
               fill
               className="hero-orbit-img"
-              sizes="120px"
+              sizes="240px"
+              objectFit="cover"
               priority
             />
           </div>

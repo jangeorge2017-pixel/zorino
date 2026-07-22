@@ -101,7 +101,8 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                   alt={product.name}
                   fill
                   className="product-card-image"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  sizes="(max-width: 1024px) 100vw, 560px"
+                  objectFit="cover"
                   priority
                   fallback={<span className="deal-emoji">{product.emoji ?? "🛍️"}</span>}
                 />
