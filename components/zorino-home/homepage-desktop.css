@@ -654,13 +654,59 @@
     padding-bottom: 12px;
   }
 
+  /* Match Categories row content width; equal pill size + even gaps */
+  .zh-page .zh-quick-nav-wrap,
+  .zh-page .zh-quick-nav,
   .zh-page .zh-quick-nav__track {
     max-width: none;
     width: 100%;
+    margin-inline: 0;
+    box-sizing: border-box;
   }
 
   .zh-page .zh-quick-nav__row {
-    gap: 14px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: clamp(6px, 0.9vw, 14px);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding-block: 4px;
+  }
+
+  .zh-page .zh-quick-nav__pill,
+  .zh-page a.zh-quick-nav__pill {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 8px;
+  }
+
+  .zh-page .zh-quick-nav__label {
+    text-align: center;
+    min-width: 0;
+  }
+
+  /* Keep equal footprint — no active scale on desktop */
+  .zh-page .zh-quick-nav__pill.is-active,
+  .zh-page a.zh-quick-nav__pill.is-active {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .zh-page .zh-quick-nav__pill:hover,
+  .zh-page a.zh-quick-nav__pill:hover {
+    transform: translate3d(0, -2px, 0) scale(1);
   }
 
   .zh-page .hhb {
