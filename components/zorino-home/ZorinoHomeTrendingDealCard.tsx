@@ -44,7 +44,7 @@ export default function ZorinoHomeTrendingDealCard({
           alt={deal.name}
           fill
           sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 420px"
-          objectFit="cover"
+          objectFit="contain"
           priority={priority}
           className="zh-td-card__image"
         />

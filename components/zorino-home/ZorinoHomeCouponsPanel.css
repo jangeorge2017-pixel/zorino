@@ -1,14 +1,235 @@
 /**
- * Top Coupons only — enlarge logo img slightly inside the existing logo square.
- * Desktop only. Does not change card grid, logo box size, spacing, or typography.
+ * Top Coupons — scale-up only (layout / chrome unchanged).
+ * Larger rows, logos, type, and code boxes; list fills panel height.
  */
 
-@media (min-width: 1024px) {
+/* Panel stretches with commerce sibling; body fills remaining height */
+.zh-page #zh-section-coupons.zh-panel {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  height: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.zh-page #zh-section-coupons .zh-coupons {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  height: 100%;
+}
+
+.zh-page #zh-section-coupons .zh-coupon {
+  flex: 1 1 0;
+  /* ~25–30% taller than original 16px pad / 42px logo rhythm */
+  padding: 18px 16px;
+  gap: 10px 16px;
+  grid-template-columns: 60px minmax(0, 1fr) minmax(0, auto);
+  align-items: center;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+/* Logos — substantially larger official SVGs */
+.zh-page #zh-section-coupons .zh-coupon__logo {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  min-height: 60px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__logo img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  /* Comfortable inset — do not touch container edges; keep wrap size unchanged */
+  padding: 14%;
+  box-sizing: border-box;
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__body {
+  min-width: 0;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__store {
+  margin: 0 0 6px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__offer {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__min {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.3;
+}
+
+/* Code panel — larger box, same right-column alignment */
+.zh-page #zh-section-coupons .zh-coupon__code-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 5px;
+  width: max-content;
+  max-width: 152px;
+  min-width: 0;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+  max-width: 152px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__code {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 15px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__copy {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 3px;
+  width: 100%;
+  font-size: 11.5px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.zh-page #zh-section-coupons .zh-coupon__meta > span,
+.zh-page #zh-section-coupons .zh-coupon__verified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  line-height: 1.25;
+}
+
+/* Tablet — same scale, slightly tighter horizontal inset */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .zh-page #zh-section-coupons.zh-panel {
+    height: auto;
+    min-height: 0;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupons {
+    height: auto;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon {
+    flex: 0 0 auto;
+    padding: 18px 14px;
+    gap: 10px 14px;
+    grid-template-columns: 60px minmax(0, 1fr) minmax(0, auto);
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__code-wrap,
+  .zh-page #zh-section-coupons .zh-coupon__code-box {
+    max-width: 144px;
+  }
+}
+
+/* Mobile — stacked code row; keep larger logos / type */
+@media (max-width: 767px) {
+  .zh-page #zh-section-coupons.zh-panel {
+    height: auto;
+    min-height: 0;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupons {
+    gap: 8px;
+    height: auto;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon {
+    flex: 0 0 auto;
+    grid-template-columns: 60px minmax(0, 1fr);
+    padding: 16px 14px;
+    gap: 10px 14px;
+    align-items: start;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__logo {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+    border-radius: 14px;
+  }
+
   .zh-page #zh-section-coupons .zh-coupon__logo img {
-    width: 128%;
-    height: 128%;
+    position: static;
+    inset: auto;
+    width: 100%;
+    height: 100%;
+    padding: 12%;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__code-wrap {
+    grid-column: 1 / -1;
+    width: 100%;
     max-width: none;
-    object-fit: contain;
-    object-position: center;
+    align-items: stretch;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__code-box {
+    max-width: none;
+    width: 100%;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__meta {
+    align-items: flex-start;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__meta > span,
+  .zh-page #zh-section-coupons .zh-coupon__verified {
+    justify-content: flex-start;
   }
 }

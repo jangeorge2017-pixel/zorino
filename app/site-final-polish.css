@@ -118,8 +118,10 @@ svg {
 .deal-card .product-card-image,
 .listing-product-card img,
 .zor-deals-page__card img {
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
+  padding: 8%;
+  box-sizing: border-box;
 }
 
 /* ─── Unified button transitions (visual only) ─── */
@@ -213,7 +215,10 @@ button,
 .zh-td-card__media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  padding: 8%;
+  box-sizing: border-box;
 }
 
 /* Public page shells — prevent horizontal bleed / clipped chrome */

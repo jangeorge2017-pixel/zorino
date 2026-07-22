@@ -8,12 +8,12 @@ import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
 import "./ZorinoHomeCouponsPanel.css";
 
-/** Top Coupons only - official store marks from existing project assets. */
+/** Top Coupons — official local SVGs (hi-res plates under top-coupons/). */
 const TOP_COUPON_LOGOS: Record<string, string> = {
-  amazon: "/stores/amazon.svg",
-  noon: "/stores/noon.svg",
-  aliexpress: "/stores/aliexpress.svg",
-  nike: "/stores/nike.svg",
+  amazon: "/stores/top-coupons/amazon.svg",
+  noon: "/stores/top-coupons/noon.svg",
+  aliexpress: "/stores/top-coupons/aliexpress.svg",
+  nike: "/stores/top-coupons/nike.svg",
 };
 
 function resolveTopCouponLogoSrc(coupon: TopCouponCard): string {
@@ -55,12 +55,12 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
           loading="lazy"
           decoding="async"
           onError={(e) => {
-            // Keep the square empty â€” do not swap in AM/NO letter placeholders.
+            // Keep the square empty — do not swap in AM/NO letter placeholders.
             e.currentTarget.style.visibility = "hidden";
           }}
         />
       </div>
-      <div>
+      <div className="zh-coupon__body">
         <h3 className="zh-coupon__store">{coupon.store}</h3>
         <p className="zh-coupon__offer">{coupon.offer}</p>
         <p className="zh-coupon__min">{coupon.minSpend}</p>
@@ -74,17 +74,17 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
             onClick={copyCode}
             aria-label={`${t("copyCode")} ${coupon.code}`}
           >
-            {copied ? <Check size={16} /> : <Copy size={16} />}
+            {copied ? <Check size={18} /> : <Copy size={18} />}
           </button>
         </div>
         <div className="zh-coupon__meta">
           <span>
-            <Users size={12} aria-hidden />
+            <Users size={14} aria-hidden />
             {t("usedTimes", { count: formatCompactCount(coupon.usedTimes) })}
           </span>
           {coupon.verified ? (
             <span className="zh-coupon__verified">
-              <CheckCircle size={12} aria-hidden /> {t("verified")}
+              <CheckCircle size={14} aria-hidden /> {t("verified")}
             </span>
           ) : null}
         </div>

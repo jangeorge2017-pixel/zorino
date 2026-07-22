@@ -43,9 +43,10 @@
 .zh-td-card__media .zh-td-card__image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
-  padding: 0;
+  padding: 8%;
+  box-sizing: border-box;
 }
 
 .zh-td-card__media-fallback {
@@ -146,6 +147,9 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: center;
+  padding: 12%;
+  box-sizing: border-box;
 }
 
 .zh-td-card__store {
