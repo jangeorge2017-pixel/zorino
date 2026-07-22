@@ -464,7 +464,7 @@
     height: 100% !important;
     object-fit: contain !important;
     object-position: center center !important;
-    padding: 8%;
+    padding: 0;
     box-sizing: border-box;
   }
 
@@ -480,7 +480,7 @@
     height: 100% !important;
     object-fit: contain !important;
     object-position: center center !important;
-    padding: 8%;
+    padding: 0;
     box-sizing: border-box;
   }
 

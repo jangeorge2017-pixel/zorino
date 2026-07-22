@@ -1,6 +1,6 @@
 import type { MarketplaceDefinition } from "@/lib/global-marketplace/types";
 
-const DEFAULT_LOGO = "/stores/default.png";
+const DEFAULT_LOGO = "/stores/default.svg";
 
 /**
  * Global marketplace registry — configuration-only additions.
@@ -10,7 +10,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "amazon-us": {
     id: "amazon-us",
     name: "Amazon US",
-    logo: "/stores/amazon.png",
+    logo: "/stores/amazon.svg",
     supportedCountries: ["US", "GLOBAL"],
     supportedLanguages: ["en", "es"],
     supportedCurrencies: ["USD"],
@@ -24,7 +24,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "amazon-uk": {
     id: "amazon-uk",
     name: "Amazon UK",
-    logo: "/stores/amazon.png",
+    logo: "/stores/amazon.svg",
     supportedCountries: ["GB", "GLOBAL"],
     supportedLanguages: ["en"],
     supportedCurrencies: ["GBP"],
@@ -38,7 +38,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "amazon-de": {
     id: "amazon-de",
     name: "Amazon DE",
-    logo: "/stores/amazon.png",
+    logo: "/stores/amazon.svg",
     supportedCountries: ["DE", "GLOBAL"],
     supportedLanguages: ["de", "en"],
     supportedCurrencies: ["EUR"],
@@ -52,7 +52,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "amazon-fr": {
     id: "amazon-fr",
     name: "Amazon FR",
-    logo: "/stores/amazon.png",
+    logo: "/stores/amazon.svg",
     supportedCountries: ["FR", "GLOBAL"],
     supportedLanguages: ["fr", "en"],
     supportedCurrencies: ["EUR"],
@@ -66,7 +66,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "amazon-eg": {
     id: "amazon-eg",
     name: "Amazon.eg",
-    logo: "/stores/amazon.png",
+    logo: "/stores/amazon.svg",
     supportedCountries: ["EG", "GLOBAL"],
     supportedLanguages: ["ar", "en"],
     supportedCurrencies: ["EGP"],
@@ -80,7 +80,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "amazon-sa": {
     id: "amazon-sa",
     name: "Amazon.sa",
-    logo: "/stores/amazon.png",
+    logo: "/stores/amazon.svg",
     supportedCountries: ["SA", "GLOBAL"],
     supportedLanguages: ["ar", "en"],
     supportedCurrencies: ["SAR"],
@@ -94,7 +94,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "best-buy": {
     id: "best-buy",
     name: "Best Buy",
-    logo: "/stores/best-buy.png",
+    logo: "/stores/best-buy.svg",
     supportedCountries: ["US", "CA", "GLOBAL"],
     supportedLanguages: ["en", "fr"],
     supportedCurrencies: ["USD", "CAD"],
@@ -108,7 +108,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   walmart: {
     id: "walmart",
     name: "Walmart",
-    logo: "/stores/walmart.png",
+    logo: "/stores/walmart.svg",
     supportedCountries: ["US", "GLOBAL"],
     supportedLanguages: ["en", "es"],
     supportedCurrencies: ["USD"],
@@ -148,7 +148,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "noon-eg": {
     id: "noon-eg",
     name: "Noon Egypt",
-    logo: "/stores/noon.png",
+    logo: "/stores/noon.svg",
     supportedCountries: ["EG", "GLOBAL"],
     supportedLanguages: ["ar", "en"],
     supportedCurrencies: ["EGP"],
@@ -162,7 +162,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "noon-sa": {
     id: "noon-sa",
     name: "Noon KSA",
-    logo: "/stores/noon.png",
+    logo: "/stores/noon.svg",
     supportedCountries: ["SA", "GLOBAL"],
     supportedLanguages: ["ar", "en"],
     supportedCurrencies: ["SAR"],
@@ -176,7 +176,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   "noon-ae": {
     id: "noon-ae",
     name: "Noon UAE",
-    logo: "/stores/noon.png",
+    logo: "/stores/noon.svg",
     supportedCountries: ["AE", "GLOBAL"],
     supportedLanguages: ["ar", "en"],
     supportedCurrencies: ["AED"],
@@ -309,7 +309,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   aliexpress: {
     id: "aliexpress",
     name: "AliExpress",
-    logo: "/stores/aliexpress.png",
+    logo: "/stores/aliexpress.svg",
     supportedCountries: ["US", "GB", "DE", "FR", "AE", "SA", "EG", "CA", "GLOBAL"],
     supportedLanguages: ["en", "ar", "fr", "de", "es"],
     supportedCurrencies: ["USD", "EUR", "GBP", "AED", "SAR", "EGP", "CAD"],
@@ -323,7 +323,7 @@ export const MARKETPLACE_REGISTRY: Record<string, MarketplaceDefinition> = {
   ebay: {
     id: "ebay",
     name: "eBay",
-    logo: "/stores/ebay.png",
+    logo: "/stores/ebay.svg",
     supportedCountries: ["US", "GB", "DE", "CA", "GLOBAL"],
     supportedLanguages: ["en", "de", "fr", "es"],
     supportedCurrencies: ["USD", "GBP", "EUR", "CAD"],

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="noon">
-  <rect width="128" height="128" rx="24" fill="#ffffff"/>
-  <svg x="16.00" y="41.72" width="96.00" height="44.56" viewBox="0 0 800.40002 371.5" preserveAspectRatio="xMidYMid meet">
+  <rect width="128" height="128" rx="24" fill="#FEEE00"/>
+  <svg x="11.52" y="39.64" width="104.96" height="48.72" viewBox="0 0 800.40002 371.5" preserveAspectRatio="xMidYMid meet">
 <defs
    id="defs9" />
 <style
@@ -12,13 +12,7 @@
 <g
    id="g9"
    transform="translate(-99.800003,-314.20001)">
-	<rect
-   x="99.800003"
-   y="314.20001"
-   class="st0"
-   width="800.40002"
-   height="371.5"
-   id="rect1" />
+	
 	<g
    id="g8">
 		<path

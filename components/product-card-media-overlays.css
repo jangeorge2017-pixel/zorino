@@ -1,0 +1,170 @@
+/**
+ * Premium ecommerce floating pills — sit on the photo, never reserve image space.
+ * Containers are transparent / fit-content only; each badge is a small chip.
+ */
+
+.product-card-badges,
+.product-card-badges--start,
+.product-card-badges--end,
+.trending-card-badges {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: max-content;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  pointer-events: none;
+}
+
+.product-card-badges,
+.product-card-badges--start,
+.trending-card-badges {
+  top: 14px;
+  left: 14px;
+  right: auto;
+}
+
+.product-card-badges--end {
+  top: 14px;
+  right: 14px;
+  left: auto;
+  align-items: flex-end;
+}
+
+.product-card-badges > *,
+.product-card-badges--start > *,
+.product-card-badges--end > *,
+.trending-card-badges > * {
+  pointer-events: auto;
+}
+
+/* Compact floating pill — shared by store / discount / featured */
+.product-card-badge,
+.deal-marketplace,
+.deal-discount,
+.zor-deals-page__featured-badge,
+.zh-td-card__discount,
+.zh-td-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: 9.5rem;
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  padding: 4px 9px;
+  gap: 0;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #f8fafc;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  background: rgba(15, 23, 42, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.deal-discount,
+.zh-td-card__discount {
+  font-weight: 800;
+  color: #fff7ed;
+  background: rgba(15, 23, 42, 0.48);
+  border-color: rgba(253, 186, 116, 0.28);
+}
+
+.zor-deals-page__featured-badge,
+.product-card-badge--featured {
+  position: static;
+  top: auto;
+  right: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fef3c7;
+  background: rgba(15, 23, 42, 0.48);
+  border-color: rgba(252, 211, 77, 0.28);
+}
+
+/* Soft store tint — still a small pill, never a solid plate */
+.deal-marketplace[data-marketplace="aliexpress"],
+.deal-marketplace[data-marketplace="ebay"],
+.deal-marketplace[data-marketplace="amazon"],
+.deal-marketplace[data-marketplace="walmart"],
+.deal-marketplace[data-marketplace="noon"],
+.deal-marketplace[data-marketplace="temu"],
+.deal-marketplace[data-marketplace="jumia"],
+.deal-marketplace[data-marketplace="best-buy"],
+.deal-marketplace[data-marketplace="bestbuy"],
+.deal-marketplace[data-marketplace="nike"],
+.deal-marketplace[data-marketplace="apple"],
+.deal-marketplace[data-marketplace="foot-locker"],
+.deal-marketplace[data-marketplace="footlocker"] {
+  background: rgba(15, 23, 42, 0.42);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #f8fafc;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.zor-deals-page__card > .zor-deals-page__featured-badge {
+  display: none;
+}
+
+.zh-page .zor-deals-page__card .product-card-badges--start,
+.zh-page .listing-product-card .product-card-badges--start,
+.zh-page .trending-card-badges {
+  top: 14px;
+  left: 14px;
+  right: auto;
+  width: max-content;
+  max-width: none;
+}
+
+.zh-page .zor-deals-page__card .product-card-badges--end,
+.zh-page .listing-product-card .product-card-badges--end {
+  top: 14px;
+  right: 14px;
+  left: auto;
+  width: max-content;
+  max-width: none;
+}
+
+@media (max-width: 767px) {
+  .product-card-badges,
+  .product-card-badges--start,
+  .trending-card-badges {
+    top: 12px;
+    left: 12px;
+  }
+
+  .product-card-badges--end {
+    top: 12px;
+    right: 12px;
+  }
+
+  .product-card-badge,
+  .deal-marketplace,
+  .deal-discount,
+  .zor-deals-page__featured-badge,
+  .zh-td-card__discount,
+  .zh-td-badge {
+    padding: 3px 8px;
+    font-size: 9px;
+    max-width: 7.5rem;
+  }
+}

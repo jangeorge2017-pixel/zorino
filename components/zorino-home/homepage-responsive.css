@@ -957,9 +957,9 @@
 
   .zh-page .zh-trending-deals__track .product-card-image-frame {
     position: absolute;
-    inset: 10px;
-    max-width: calc(100% - 20px);
-    max-height: calc(100% - 20px);
+    inset: 0;
+    max-width: none;
+    max-height: none;
     overflow: hidden;
   }
 
@@ -970,8 +970,9 @@
     height: 100%;
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain;
-    object-position: center;
+    object-fit: cover;
+    object-position: center center;
+    padding: 0;
     /* Hover scale can visually spill past the media clip on touch devices */
     transform: none;
   }
@@ -1112,7 +1113,7 @@
     height: 100%;
     object-fit: contain !important;
     object-position: center;
-    padding: 12%;
+    padding: 0;
     box-sizing: border-box;
   }
 
@@ -1207,7 +1208,7 @@
     height: 100% !important;
     object-fit: contain !important;
     object-position: center center !important;
-    padding: 8%;
+    padding: 0;
     box-sizing: border-box;
   }
 

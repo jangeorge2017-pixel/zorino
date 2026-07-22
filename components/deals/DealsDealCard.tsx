@@ -17,9 +17,6 @@ export default function DealsDealCard({
 }: DealsDealCardProps) {
   return (
     <div className="zor-deals-page__card">
-      {deal.isFeatured && featuredLabel ? (
-        <span className="zor-deals-page__featured-badge">{featuredLabel}</span>
-      ) : null}
       <ListingProductCard
         product={{
           id: deal.product?.id ?? deal.id,
@@ -32,8 +29,10 @@ export default function DealsDealCard({
           rating: deal.product?.rating ?? undefined,
           reviewCount: deal.product?.reviewCount ?? undefined,
           store: deal.store?.name ?? undefined,
+          storeSlug: deal.store?.slug ?? undefined,
         }}
         showWishlist={false}
+        featuredLabel={deal.isFeatured ? featuredLabel : undefined}
       />
       <p className="listing-deal-meta">
         <Clock size={14} aria-hidden />

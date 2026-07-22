@@ -16,7 +16,7 @@ function storeForProvider(providerId: ProductionProviderId): Store {
     id: meta.storeId,
     name: meta.name,
     slug: meta.storeSlug,
-    logoUrl: `/stores/${meta.storeSlug}.png`,
+    logoUrl: `/stores/${meta.storeSlug}.svg`,
     logoInitial: meta.name.slice(0, 2),
     website: `https://www.${meta.storeSlug}.com`,
     integrationType: meta.integrationType,
@@ -98,7 +98,7 @@ export function catalogItemToTrendingDealCard(
     price: item.price,
     originalPrice: item.originalPrice,
     store: store.name,
-    storeLogoSrc: store.logoUrl ?? `/stores/${store.slug}.png`,
+    storeLogoSrc: store.logoUrl ?? `/stores/${store.slug}.svg`,
     storeInitial: store.logoInitial ?? store.name.slice(0, 2),
     updatedMins: options?.updatedMins ?? 5,
     priceHistory:

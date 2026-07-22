@@ -181,7 +181,7 @@ async function productToTrendingCard(
     price,
     originalPrice: original || price,
     store: store?.name ?? "Zorino",
-    storeLogoSrc: store?.logoUrl ?? `/stores/${store?.slug ?? "default"}.png`,
+    storeLogoSrc: store?.logoUrl ?? `/stores/${store?.slug ?? "default"}.svg`,
     storeInitial: store?.logoInitial ?? store?.name.slice(0, 2) ?? "?",
     updatedMins: product.lastSyncedAt
       ? Math.max(1, Math.round((Date.now() - new Date(product.lastSyncedAt).getTime()) / 60_000))

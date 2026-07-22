@@ -1,10 +1,12 @@
 /**
- * Approved homepage hero composition lock.
+ * Approved homepage hero composition lock (English / default).
  * Reference: public/reference/zorino-final-design.png
  *
- * CRITICAL: The hero visual plane must stay physically LTR in every locale.
+ * CRITICAL: The hero visual plane stays physically LTR for the default locale.
+ * Arabic desktop mirrors composition in homepage-hero-rtl-ar.css (loaded after).
  * html[dir=rtl] would otherwise reverse CSS Grid and flip the Z artwork.
- * Only copy/text inside the left column adapts for Arabic reading direction.
+ * Only copy/text inside the left column adapts for Arabic reading direction
+ * on tablet/mobile; desktop AR is handled by the RTL hero stylesheet.
  */
 
 /* Lock the entire hero visual composition to physical LTR */

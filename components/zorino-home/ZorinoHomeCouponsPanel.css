@@ -33,7 +33,7 @@
   box-sizing: border-box;
 }
 
-/* Logos — substantially larger official SVGs */
+/* Logos — official SVGs; container 60×60 unchanged — sharpness only */
 .zh-page #zh-section-coupons .zh-coupon__logo {
   width: 60px;
   height: 60px;
@@ -49,18 +49,25 @@
 }
 
 .zh-page #zh-section-coupons .zh-coupon__logo img {
-  width: 100%;
-  height: 100%;
+  display: block;
+  width: 60px;
+  height: 60px;
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   object-position: center center;
-  /* Comfortable inset — do not touch container edges; keep wrap size unchanged */
-  padding: 14%;
+  padding: 0;
   box-sizing: border-box;
+  /* Keep SVG vector-sharp on Retina — avoid GPU layer blur */
   image-rendering: auto;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  -ms-interpolation-mode: bicubic;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+  transform: none;
 }
 
 .zh-page #zh-section-coupons .zh-coupon__body {
@@ -200,14 +207,25 @@
     min-width: 60px;
     min-height: 60px;
     border-radius: 14px;
+    position: relative;
   }
 
   .zh-page #zh-section-coupons .zh-coupon__logo img {
     position: static;
     inset: auto;
-    width: 100%;
-    height: 100%;
-    padding: 12%;
+    display: block;
+    width: 60px;
+    height: 60px;
+    max-width: 100%;
+    max-height: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    object-fit: contain;
+    object-position: center center;
+    image-rendering: auto;
+    shape-rendering: geometricPrecision;
+    text-rendering: geometricPrecision;
+    transform: none;
   }
 
   .zh-page #zh-section-coupons .zh-coupon__code-wrap {

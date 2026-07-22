@@ -27,6 +27,7 @@ export type ListingProductCardData = {
 type ListingProductCardProps = {
   product: ListingProductCardData;
   showWishlist?: boolean;
+  featuredLabel?: string;
 };
 
 function marketplaceBadgeLabel(storeSlug?: string, store?: string): string | null {
@@ -39,12 +40,16 @@ function marketplaceBadgeLabel(storeSlug?: string, store?: string): string | nul
   if (slug === "noon") return "Noon";
   if (slug === "jumia") return "Jumia";
   if (slug === "best-buy" || slug === "bestbuy") return "Best Buy";
+  if (slug === "nike") return "Nike";
+  if (slug === "apple") return "Apple";
+  if (slug === "foot-locker" || slug === "footlocker") return "Foot Locker";
   return store?.trim() || null;
 }
 
 export default function ListingProductCard({
   product,
   showWishlist = true,
+  featuredLabel,
 }: ListingProductCardProps) {
   const tCommon = useTranslations("common");
   const tProduct = useTranslations("product");
@@ -66,27 +71,37 @@ export default function ListingProductCard({
       })
     : undefined;
 
+  const leftBadges =
+    marketplace || discount > 0 ? (
+      <>
+        {marketplace ? (
+          <span
+            className="deal-marketplace product-card-badge"
+            data-marketplace={product.storeSlug || undefined}
+          >
+            {marketplace}
+          </span>
+        ) : null}
+        {discount > 0 ? (
+          <span className="deal-discount product-card-badge">-{discount}%</span>
+        ) : null}
+      </>
+    ) : null;
+
+  const rightBadges = featuredLabel ? (
+    <span className="zor-deals-page__featured-badge product-card-badge product-card-badge--featured">
+      {featuredLabel}
+    </span>
+  ) : null;
+
   return (
     <article className="deal-card product-card listing-product-card">
       <ProductCardMedia
         src={product.imageSrc}
         alt={product.name}
         fallback={undefined}
-        badges={
-          marketplace || discount > 0 ? (
-            <>
-              {marketplace ? (
-                <span
-                  className="deal-marketplace"
-                  data-marketplace={product.storeSlug || undefined}
-                >
-                  {marketplace}
-                </span>
-              ) : null}
-              {discount > 0 ? <span className="deal-discount">-{discount}%</span> : null}
-            </>
-          ) : null
-        }
+        badges={leftBadges}
+        badgesEnd={rightBadges}
       />
 
       <div className="product-card-body">

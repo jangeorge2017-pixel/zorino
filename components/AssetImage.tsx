@@ -86,6 +86,7 @@ export default function AssetImage({
 
   const displaySrc = broken ? PRODUCT_IMAGE_PLACEHOLDER : normalized;
   const isLocal = isLocalProductImage(displaySrc);
+  const isSvg = /\.svg(?:$|\?)/i.test(displaySrc);
 
   const handleError = () => {
     if (displaySrc !== PRODUCT_IMAGE_PLACEHOLDER) {
@@ -106,9 +107,8 @@ export default function AssetImage({
     className: `${className ?? ""}${loaded ? " asset-image-loaded" : " asset-image-loading"}`.trim(),
     priority,
     quality: 95,
-    // Marketplace CDNs (eBay/AliExpress/etc.) frequently block server-side
-    // optimizer fetches; load remotes in the browser instead.
-    unoptimized: !isLocal,
+    // Marketplace CDNs block optimizer; SVGs must stay vector (never rasterized).
+    unoptimized: !isLocal || isSvg,
     loading: priority ? ("eager" as const) : ("lazy" as const),
     decoding: "async" as const,
     style: { objectFit: fit, objectPosition: "center" as const },
