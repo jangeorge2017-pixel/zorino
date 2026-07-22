@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
+import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import {
   Check,
   CheckCircle,
@@ -153,13 +153,12 @@ export default function ZorinoHomeFeaturedCouponBrands({
       id="zh-section-featured-brands"
       aria-labelledby="zh-featured-brands-title"
     >
-      <div className="zh-section-head">
-        <h2 id="zh-featured-brands-title" className="zh-section-head__title zh-featured-brands__title">
-          <Ticket size={22} aria-hidden className="zh-featured-brands__icon" />
-          {t("featuredCouponBrands")}
-        </h2>
-        <ZorinoHomeViewAllLink href="/coupons" variant="coupons" />
-      </div>
+      <ZorinoHomeSectionHeader
+        titleId="zh-featured-brands-title"
+        title={t("featuredCouponBrands")}
+        icon={Ticket}
+        viewAll={{ href: "/coupons", variant: "coupons" }}
+      />
 
       <div className="zh-featured-brands__carousel">
         <button

@@ -94,10 +94,10 @@ export default function ZorinoHomeQuickNav() {
     // block clears the fixed navbar — padding above the <h2> must not sit under it.
     const target =
       section.querySelector<HTMLElement>(
-        ".zh-trending-deals__head, .zh-section-head",
+        ".zh-section-header, .zh-trending-deals__head, .zh-product-section__head, .zh-section-head",
       ) ??
       section.querySelector<HTMLElement>(
-        "#zh-deals-title, #zh-coupons-title, .zor-deals-page__section-title, .zh-section-head__title, h2",
+        "#zh-deals-title, #zh-coupons-title, .zh-section-header__title, .zor-deals-page__section-title, .zh-section-head__title, h2",
       ) ??
       section;
     const offset = getStickyClearance();

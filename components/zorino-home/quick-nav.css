@@ -164,8 +164,10 @@ a.zh-quick-nav__pill.is-active::before {
 [id^="zh-section-"][id$="-title"],
 .zh-page .zh-section-head__title,
 .zh-page .zor-deals-page__section-title,
+.zh-page .zh-section-header__title,
 .zh-page [id^="zh-section-"],
 .zh-page .zh-trending-deals__head,
+.zh-page .zh-section-header,
 .zh-page .zh-trending-deals__carousel {
   scroll-margin-top: var(
     --zor-sticky-scroll-clearance,
@@ -176,6 +178,7 @@ a.zh-quick-nav__pill.is-active::before {
 /* Trending title/head need extra clearance so the title is not flush under .zh-nav */
 .zh-page #zh-section-trending-deals,
 .zh-page .zh-trending-deals__head,
+.zh-page .zh-section-header,
 .zh-page #zh-deals-title {
   scroll-margin-top: calc(
     var(--zor-sticky-scroll-clearance, var(--zor-sticky-clearance, var(--zh-sticky-clearance, 72px))) +

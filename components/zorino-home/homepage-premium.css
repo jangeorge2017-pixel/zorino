@@ -287,7 +287,8 @@
 }
 
 .zh-page .zh-coupons-panel .zh-section-head__title,
-.zh-page #zh-section-coupons .zh-section-head__title {
+.zh-page #zh-section-coupons .zh-section-head__title,
+.zh-page #zh-section-coupons .zh-section-header__title {
   background: linear-gradient(95deg, #fef3c7, #fbbf24);
   -webkit-background-clip: text;
   background-clip: text;

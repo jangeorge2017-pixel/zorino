@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
+import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import DealsDealCard from "@/components/deals/DealsDealCard";
@@ -130,41 +130,31 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
           -webkit-backdrop-filter: none !important;
         }
       `}</style>
-      <div className="zh-trending-deals__head">
-        <header className="zor-deals-page__section-head zh-trending-deals__title-row">
-          <div className="zor-deals-page__section-title-wrap">
-            <span className="zor-deals-page__section-icon" aria-hidden>
-              <TrendingIcon size={18} />
-            </span>
-            <div>
-              <h2 id="zh-deals-title" className="zor-deals-page__section-title">
-                {t("trendingDeals")}
-              </h2>
-              <p className="zor-deals-page__section-subtitle">
-                {t("trendingDealsSubtitle")}
-              </p>
-            </div>
-          </div>
-          <div className="zh-trending-deals__title-actions">
-            <ZorinoHomeViewAllLink href="/deals" variant="deals" />
-            <label className="zh-trending-deals__sort">
-              <span className="zh-trending-deals__sort-label">{t("sortBy")}</span>
-              <select
-                value={sort}
-                onChange={handleSortChange}
-                aria-label={t("sortBy")}
-                className="zh-trending-deals__sort-select"
-              >
-                {TRENDING_DEAL_SORTS.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {t(SORT_KEYS[item.id] as "sortNewest")}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </header>
-
+      <ZorinoHomeSectionHeader
+        className="zh-trending-deals__head"
+        titleId="zh-deals-title"
+        title={t("trendingDeals")}
+        subtitle={t("trendingDealsSubtitle")}
+        icon={TrendingIcon}
+        viewAll={{ href: "/deals", variant: "deals" }}
+        actions={
+          <label className="zh-trending-deals__sort">
+            <span className="zh-trending-deals__sort-label">{t("sortBy")}</span>
+            <select
+              value={sort}
+              onChange={handleSortChange}
+              aria-label={t("sortBy")}
+              className="zh-trending-deals__sort-select"
+            >
+              {TRENDING_DEAL_SORTS.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {t(SORT_KEYS[item.id] as "sortNewest")}
+                </option>
+              ))}
+            </select>
+          </label>
+        }
+      >
         <div className="zh-trending-deals__controls">
           <div
             className="zh-trending-deals__filters zor-deals-page__quick-filters"
@@ -187,7 +177,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
             ))}
           </div>
         </div>
-      </div>
+      </ZorinoHomeSectionHeader>
 
       {deals.length === 0 ? (
         <p className="zh-panel__empty">{t("emptyTrending")}</p>

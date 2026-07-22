@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Check, CheckCircle, Copy, Users } from "lucide-react";
+import { Check, CheckCircle, Copy, Flame, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
-import ZorinoHomeViewAllLink from "@/components/zorino-home/ZorinoHomeViewAllLink";
+import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
 import "./ZorinoHomeCouponsPanel.css";
@@ -103,12 +103,12 @@ export default function ZorinoHomeCouponsPanel({ coupons }: ZorinoHomeCouponsPan
 
   return (
     <section className="zh-panel" id="zh-section-coupons" aria-labelledby="zh-coupons-title">
-      <div className="zh-section-head">
-        <h2 id="zh-coupons-title" className="zh-section-head__title">
-          <span aria-hidden>{"\u{1F525}"}</span> {t("topCoupons")}
-        </h2>
-        <ZorinoHomeViewAllLink href="/coupons" variant="coupons" />
-      </div>
+      <ZorinoHomeSectionHeader
+        titleId="zh-coupons-title"
+        title={t("topCoupons")}
+        icon={Flame}
+        viewAll={{ href: "/coupons", variant: "coupons" }}
+      />
       <div className="zh-coupons">
         {coupons.length === 0 ? (
           <p className="zh-panel__empty">{t("emptyCoupons")}</p>

@@ -14,7 +14,7 @@
     --zh-grid-cols: 12;
     --zh-grid-gutter: clamp(16px, 1.4vw, 28px);
     --zh-nav-h: 80px;
-    --zh-section-step: clamp(88px, 6vw, 128px);
+    --zh-section-step: clamp(48px, 4.5vw, 64px);
     --zh-space-discovery: 36px;
     --zh-space-search-categories: 36px;
     --zh-space-stats-search: 40px;

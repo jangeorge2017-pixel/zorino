@@ -1,0 +1,317 @@
+/**
+ * Unified homepage section header — all breakpoints.
+ * Soft premium chrome only. Cards / buttons / images / control colors untouched.
+ */
+
+.zh-page {
+  --zh-section-step: clamp(48px, 5vw, 64px);
+  --deals-section-gap: var(--zh-section-step);
+  --zh-section-header-pad-y: 22px;
+  --zh-section-header-pad-x: 16px;
+  --zh-section-header-gap: 12px;
+  --zh-section-header-to-content: 12px;
+  --zh-section-header-radius: 16px;
+}
+
+/* Major section rhythm */
+.zh-page .hhb,
+.zh-page .zh-featured-brands-wrap,
+.zh-page .zh-product-sections-wrap,
+.zh-page .zh-cta-wrap,
+.zh-page .zh-footer-wrap {
+  margin-top: var(--zh-section-step);
+}
+
+.zh-page .zh-product-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zh-section-step);
+}
+
+.zh-page .zh-product-sections .zh-product-section.zh-deals-preview {
+  margin-bottom: 0;
+}
+
+.zh-page
+  .zh-product-sections
+  .zh-product-section.zh-deals-preview
+  + .zh-product-section.zh-deals-preview {
+  margin-top: 0;
+}
+
+.zh-page .zh-product-sections .zh-product-section + .zh-product-section::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--zh-section-step) / 2);
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--zh-section-accent, #a78bfa) 50%, transparent),
+    color-mix(in srgb, var(--zh-section-accent-soft, #c4b5fd) 30%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.zh-page .zh-product-section {
+  position: relative;
+}
+
+/* Panels: header owns horizontal inset; body matches */
+.zh-page .zh-trending-deals.zh-panel,
+.zh-page .zh-trending-deals.zh-deals-panel,
+.zh-page .zh-product-section.zh-panel,
+.zh-page .zh-featured-brands.zh-panel,
+.zh-page #zh-section-coupons.zh-panel {
+  padding: 0 0 18px;
+}
+
+/* ─── Header shell (identical across sections) ─── */
+.zh-page .zh-section-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--zh-section-header-gap);
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--zh-section-header-pad-y) var(--zh-section-header-pad-x)
+    calc(var(--zh-section-header-pad-y) - 6px);
+  min-height: calc(var(--zh-section-header-pad-y) * 2 + 52px);
+  border-radius: var(--zh-section-header-radius) var(--zh-section-header-radius) 0 0;
+  background: linear-gradient(
+    165deg,
+    rgba(24, 28, 48, 0.92) 0%,
+    rgba(14, 18, 34, 0.88) 55%,
+    rgba(12, 16, 30, 0.9) 100%
+  );
+  border: 1px solid rgba(148, 163, 255, 0.12);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zh-section-accent, rgba(148, 163, 255, 0.35)) 22%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 24px rgba(99, 102, 241, 0.06),
+    0 0 40px rgba(139, 92, 246, 0.04);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  isolation: isolate;
+  scroll-margin-top: calc(
+    var(
+        --zor-sticky-scroll-clearance,
+        var(--zor-sticky-clearance, var(--zh-sticky-clearance, 72px))
+      ) + 12px
+  );
+}
+
+.zh-page .zh-section-header.zh-section-head {
+  align-items: stretch;
+  justify-content: flex-start;
+  margin-bottom: 0;
+}
+
+.zh-page .zh-section-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  min-width: 0;
+}
+
+.zh-page .zh-section-header__row.zor-deals-page__section-head {
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.zh-page .zh-section-header__title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.zh-page .zh-section-header__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--zor-radius-md, 10px);
+  background: color-mix(in srgb, var(--zh-section-accent, #a78bfa) 12%, transparent);
+  color: var(--zh-section-accent-soft, #c4b5fd);
+  border: 1px solid color-mix(in srgb, var(--zh-section-accent, #a78bfa) 22%, transparent);
+}
+
+.zh-page .zh-section-header__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  /* Reserve title + subtitle so headers share one height */
+  min-height: 2.7rem;
+}
+
+.zh-page .zh-section-header__title {
+  margin: 0;
+  font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.zh-page .zh-section-header__subtitle {
+  margin: 0;
+  max-width: none;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--zor-text-muted, #94a3b8);
+}
+
+.zh-page .zh-section-header__subtitle--spacer {
+  visibility: hidden;
+  user-select: none;
+}
+
+.zh-page .zh-section-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.zh-page .zh-section-header__actions .zh-view-all {
+  align-self: center;
+}
+
+.zh-page .zh-section-header__controls {
+  min-width: 0;
+}
+
+/* Content directly under header — shared inset */
+.zh-page .zh-section-header + .listing-products-grid,
+.zh-page .zh-section-header + .zor-deals-page__grid,
+.zh-page .zh-section-header + .zh-panel__empty,
+.zh-page .zh-section-header + .zh-trending-deals__carousel,
+.zh-page .zh-section-header + .zh-featured-brands__carousel,
+.zh-page .zh-section-header + .zh-coupons {
+  margin: 0;
+  padding: var(--zh-section-header-to-content) var(--zh-section-header-pad-x) 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+}
+
+.zh-page .zh-trending-deals .zh-trending-deals__carousel,
+.zh-page .zh-trending-deals .zh-panel__empty {
+  padding-inline: var(--zh-section-header-pad-x);
+  padding-top: var(--zh-section-header-to-content);
+}
+
+.zh-page .zh-product-section .listing-products-grid,
+.zh-page .zh-product-section .zor-deals-page__grid,
+.zh-page .zh-product-section .zh-panel__empty {
+  margin: 0;
+  padding: var(--zh-section-header-to-content) var(--zh-section-header-pad-x) 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .zh-page {
+    --zh-section-header-pad-y: 24px;
+    --zh-section-header-pad-x: 18px;
+    --zh-section-header-to-content: 14px;
+  }
+
+  .zh-page .zh-section-header {
+    min-height: calc(var(--zh-section-header-pad-y) * 2 + 54px);
+  }
+}
+
+/* Desktop */
+@media (min-width: 1280px) {
+  .zh-page {
+    --zh-section-step: clamp(48px, 4.5vw, 64px);
+    --zh-section-header-pad-y: 26px;
+    --zh-section-header-pad-x: 18px;
+    --zh-section-header-gap: 14px;
+    --zh-section-header-to-content: 14px;
+    --zh-section-header-radius: 18px;
+  }
+
+  .zh-page .zh-section-header {
+    min-height: calc(var(--zh-section-header-pad-y) * 2 + 56px);
+  }
+
+  .zh-page .zh-product-section .listing-products-grid,
+  .zh-page .zh-product-section .zor-deals-page__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: calc(var(--zh-grid-gutter, 16px) * 1.1);
+  }
+}
+
+/* Beat legacy head chrome that still targets trending/product head classes */
+.zh-page .zh-section-header.zh-trending-deals__head,
+.zh-page .zh-section-header.zh-product-section__head {
+  margin: 0;
+  padding: var(--zh-section-header-pad-y) var(--zh-section-header-pad-x)
+    calc(var(--zh-section-header-pad-y) - 6px);
+  background: linear-gradient(
+    165deg,
+    rgba(24, 28, 48, 0.92) 0%,
+    rgba(14, 18, 34, 0.88) 55%,
+    rgba(12, 16, 30, 0.9) 100%
+  );
+  border: 1px solid rgba(148, 163, 255, 0.12);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--zh-section-accent, rgba(148, 163, 255, 0.35)) 22%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 24px rgba(99, 102, 241, 0.06),
+    0 0 40px rgba(139, 92, 246, 0.04);
+}
+
+/* Mobile: stack actions under title when needed, keep same chrome */
+@media (max-width: 767px) {
+  .zh-page {
+    --zh-section-header-pad-y: 20px;
+    --zh-section-header-pad-x: 14px;
+    --zh-section-header-to-content: 10px;
+    --zh-section-header-radius: 14px;
+  }
+
+  .zh-page .zh-section-header {
+    min-height: 0;
+    gap: 10px;
+  }
+
+  .zh-page .zh-section-header__row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .zh-page .zh-section-header__actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .zh-page .zh-section-header__copy {
+    min-height: 0;
+  }
+
+  .zh-page .zh-section-header__subtitle--spacer {
+    display: none;
+  }
+}
