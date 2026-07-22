@@ -1,7 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="CJ Dropshipping">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="cjdropshipping">
   <rect width="128" height="128" rx="24" fill="#ffffff"/>
+  <svg x="16.00" y="16.00" width="96.00" height="96.00" viewBox="0 0 128 128" preserveAspectRatio="xMidYMid meet">
+<rect width="128" height="128" rx="24" fill="#ffffff"/>
   <g transform="translate(14,26)">
     <path fill="#FF6A00" d="M38.5 6C18.8 6 3.5 21.8 3.5 42S18.8 78 38.5 78c11.4 0 21.4-4.9 28.1-12.7l-11.2-10.8c-4.2 4.9-10.4 8-17 8-12.6 0-22.7-10.3-22.7-23.1S25.9 16.3 38.5 16.3c6.6 0 12.8 3.1 17 8l11.2-10.8C59.9 10.9 49.9 6 38.5 6z"/>
     <path fill="#FF6A00" d="M62.5 8H84v49.2c0 15-9.8 25.2-25.6 25.2-7.1 0-13.5-2.2-18.2-6l8.5-12.7c2.5 2 5.8 3.2 9.4 3.2 6.5 0 10.5-3.8 10.5-11.2V8z"/>
   </g>
+  </svg>
 </svg>

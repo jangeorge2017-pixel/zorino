@@ -172,7 +172,7 @@ export const ZH_TRENDING_DEALS: ZhDeal[] = [
     price: 999,
     originalPrice: 1099,
     store: "Apple",
-    storeLogoSrc: STORE_LOGOS.amazon,
+    storeLogoSrc: STORE_LOGOS.apple,
     storeInitial: "AP",
     updatedMins: 8,
     priceHistory: [1099, 1050, 1020, 999],

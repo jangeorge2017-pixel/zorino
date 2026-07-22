@@ -73,6 +73,14 @@ export const STORE_LOGOS = {
   noon: "/stores/noon.svg",
   aliExpress: "/stores/aliexpress.svg",
   nike: "/stores/nike.svg",
+  ebay: "/stores/ebay.svg",
+  temu: "/stores/temu.svg",
+  shein: "/stores/shein.svg",
+  adidas: "/stores/adidas.svg",
+  apple: "/stores/apple.svg",
+  samsung: "/stores/samsung.svg",
+  cjDropshipping: "/stores/cjdropshipping.svg",
+  default: "/stores/default.svg",
 } as const;
 
 export const MISSING_ASSETS = [] as const;

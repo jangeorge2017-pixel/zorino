@@ -510,7 +510,8 @@
 .zh-footer__store-logo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
 
 .zh-footer__store-logo span {
