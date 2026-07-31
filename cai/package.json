@@ -1,0 +1,13 @@
+{
+  "name": "cai",
+  "version": "0.1.0",
+  "description": "CAI Local Coding Assistant",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test commands/*.test.js context/*.test.js memory/*.test.js project/*.test.js providers/*.test.js services/*.test.js",
+    "selftest": "node --test commands/*.test.js context/*.test.js memory/*.test.js project/*.test.js providers/*.test.js services/*.test.js"
+  },
+  "license": "MIT"
+}
