@@ -42,6 +42,8 @@ export default function IntlNavSelectors() {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  /** Absorb the opening gesture so Android cannot immediately dismiss the panel. */
+  const ignoreOutsideUntilRef = useRef(0);
 
   useEffect(() => {
     setMounted(true);
@@ -57,10 +59,10 @@ export default function IntlNavSelectors() {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
-      setCoords({
-        top: Math.min(rect.bottom + gap, window.innerHeight - 24),
-        left: 12,
-      });
+      // Keep the panel under the nav control. Never clamp `top` near the bottom
+      // of the viewport — that hid language options under Android browser chrome.
+      const top = Math.max(8, Math.min(rect.bottom + gap, window.innerHeight * 0.35));
+      setCoords({ top, left: 12 });
       return;
     }
 
@@ -85,10 +87,16 @@ export default function IntlNavSelectors() {
   useEffect(() => {
     if (!open) return;
 
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (rootRef.current?.contains(target)) return;
-      if (panelRef.current?.contains(target)) return;
+    const isInside = (target: EventTarget | null) => {
+      if (!(target instanceof Node)) return false;
+      if (rootRef.current?.contains(target)) return true;
+      if (panelRef.current?.contains(target)) return true;
+      return false;
+    };
+
+    const handleOutsidePointer = (event: PointerEvent) => {
+      if (performance.now() < ignoreOutsideUntilRef.current) return;
+      if (isInside(event.target)) return;
       setOpen(false);
     };
 
@@ -101,18 +109,32 @@ export default function IntlNavSelectors() {
 
     const handleReposition = () => updatePosition();
 
-    document.addEventListener("mousedown", handleClick);
+    // pointerdown (not mousedown): on real Android, mousedown is synthesized
+    // after touchend and was racing the option `click`, closing the portal first.
+    document.addEventListener("pointerdown", handleOutsidePointer, true);
     document.addEventListener("keydown", handleKey);
     window.addEventListener("resize", handleReposition);
+    window.visualViewport?.addEventListener("resize", handleReposition);
     window.addEventListener("scroll", handleReposition, true);
 
     return () => {
-      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("pointerdown", handleOutsidePointer, true);
       document.removeEventListener("keydown", handleKey);
       window.removeEventListener("resize", handleReposition);
+      window.visualViewport?.removeEventListener("resize", handleReposition);
       window.removeEventListener("scroll", handleReposition, true);
     };
   }, [open, updatePosition]);
+
+  const toggleOpen = () => {
+    setOpen((value) => {
+      const next = !value;
+      if (next) {
+        ignoreOutsideUntilRef.current = performance.now() + 450;
+      }
+      return next;
+    });
+  };
 
   const switchLocale = (newLocale: Locale) => {
     if (newLocale === locale) {
@@ -123,13 +145,10 @@ export default function IntlNavSelectors() {
 
     writeLocaleCookies(newLocale);
 
-    // Persist preference without blocking navigation.
     void updatePreferences({ locale: newLocale }, { skipNavigation: true }).catch(
       () => undefined
     );
 
-    // forcePrefix: true → /en or /en/... so middleware updates locale state,
-    // then as-needed redirects default locale to unprefixed `/`.
     const href = getPathname({
       href: pathname || "/",
       locale: newLocale,
@@ -142,7 +161,6 @@ export default function IntlNavSelectors() {
 
   const handleCountryChange = async (code: CountryCode) => {
     setOpen(false);
-    // Country/currency only — language stays independent (no locale redirect).
     await updatePreferences({ countryCode: code }, { skipNavigation: true });
     router.refresh();
   };
@@ -162,7 +180,12 @@ export default function IntlNavSelectors() {
             <div
               className="zor-intl__backdrop"
               aria-hidden
-              onClick={() => setOpen(false)}
+              onPointerDown={(event) => {
+                // Prevent the backdrop from stealing focus/scroll on Android.
+                event.preventDefault();
+                if (performance.now() < ignoreOutsideUntilRef.current) return;
+                setOpen(false);
+              }}
             />
             <div
               ref={panelRef}
@@ -170,6 +193,7 @@ export default function IntlNavSelectors() {
               role="dialog"
               aria-label={t("regionPreferences")}
               style={{ top: coords.top, left: coords.left }}
+              onPointerDown={(event) => event.stopPropagation()}
             >
               <section className="zor-intl__section">
                 <p className="zor-intl__heading">{t("language")}</p>
@@ -200,7 +224,7 @@ export default function IntlNavSelectors() {
                       role="menuitemradio"
                       aria-checked={country.code === item.code}
                       className={`zor-intl__option${country.code === item.code ? " zor-intl__option--active" : ""}`}
-                      onClick={() => handleCountryChange(item.code)}
+                      onClick={() => void handleCountryChange(item.code)}
                     >
                       <span>{item.flag}</span>
                       {item.name}
@@ -219,7 +243,7 @@ export default function IntlNavSelectors() {
                       role="menuitemradio"
                       aria-checked={currency.code === item.code}
                       className={`zor-intl__option${currency.code === item.code ? " zor-intl__option--active" : ""}`}
-                      onClick={() => handleCurrencyChange(item.code)}
+                      onClick={() => void handleCurrencyChange(item.code)}
                     >
                       <span>{currencies[item.code].symbol}</span>
                       {item.code} — {item.name}
@@ -239,7 +263,7 @@ export default function IntlNavSelectors() {
         ref={triggerRef}
         type="button"
         className="zor-intl__trigger"
-        onClick={() => setOpen((value) => !value)}
+        onClick={toggleOpen}
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label={t("regionPreferences")}

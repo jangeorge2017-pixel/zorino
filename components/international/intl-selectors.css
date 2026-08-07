@@ -16,6 +16,9 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  /* Remove 300ms tap delay / double-tap zoom fights on Android Chrome */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: border-color 0.2s ease, color 0.2s ease;
 }
 
@@ -103,6 +106,8 @@
   font-weight: 500;
   text-align: start;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -119,6 +124,8 @@
 @media (max-width: 767px) {
   .zor-intl__backdrop {
     display: block;
+    /* Ensure the dimmer receives taps on Android (some WebViews skip transparent layers). */
+    touch-action: none;
   }
 
   .zor-intl__panel {
@@ -126,6 +133,8 @@
     right: 12px !important;
     width: auto;
     max-height: min(75vh, 560px);
+    /* Keep the dialog above Android browser chrome / sticky nav */
+    z-index: 10050;
   }
 }
 
