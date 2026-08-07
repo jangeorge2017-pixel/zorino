@@ -1,10 +1,13 @@
 /**
- * Homepage content from public/reference/zorino-final-design.png
+ * Homepage content — commerce fallbacks mirror current production (zorino.org).
  */
 import {
-  DEAL_PRODUCT_IMAGES,
-  STORE_LOGOS,
-} from "@/lib/assets";
+  PROD_FOOTER_STATS,
+  PROD_HERO_STATS,
+  PROD_ORBIT_CARDS,
+  PROD_TOP_COUPONS,
+  PROD_TRENDING_DEALS,
+} from "@/lib/zorino-home/production-homepage-snapshot";
 
 export type ZhHeroStat = {
   icon: "stores" | "products" | "coupons" | "tracking";
@@ -69,43 +72,9 @@ export type ZhFooterStat = {
   label: string;
 };
 
-export const ZH_HERO_STATS: ZhHeroStat[] = [
-  { icon: "stores", value: "50+", label: "Stores", tone: "purple" },
-  { icon: "products", value: "10M+", label: "Products", tone: "blue" },
-  { icon: "coupons", value: "100K+", label: "Coupons", tone: "green" },
-  { icon: "tracking", value: "Real-time", label: "Price Tracking", tone: "violet" },
-];
+export const ZH_HERO_STATS: ZhHeroStat[] = PROD_HERO_STATS;
 
-export const ZH_ORBIT_CARDS: ZhOrbitCard[] = [
-  {
-    slot: "top",
-    imageSrc: "/comparison/cal-headphones-96.png",
-    discount: "-25%",
-    price: "$249",
-    original: "$329",
-  },
-  {
-    slot: "left",
-    imageSrc: "/comparison/cal-laptop-104.png",
-    discount: "-18%",
-    price: "$899",
-    original: "$1,099",
-  },
-  {
-    slot: "upper-right",
-    imageSrc: "/comparison/cal-phone-96.png",
-    discount: "-15%",
-    price: "$999",
-    original: "$1,199",
-  },
-  {
-    slot: "right",
-    imageSrc: "/comparison/cal-controller-96.png",
-    discount: "-20%",
-    price: "$59",
-    original: "$74",
-  },
-];
+export const ZH_ORBIT_CARDS: ZhOrbitCard[] = PROD_ORBIT_CARDS;
 
 export const ZH_POPULAR_SEARCHES = [
   "iPhone 15 Pro Max",
@@ -131,175 +100,9 @@ export const ZH_CATEGORIES: ZhCategory[] = [
   { slug: "sports", label: "Sports", accent: "orange" },
 ];
 
-export const ZH_TRENDING_DEALS: ZhDeal[] = [
-  {
-    id: "airpods",
-    name: "Apple AirPods Pro 2nd Gen",
-    imageSrc: DEAL_PRODUCT_IMAGES.headphones,
-    discount: 12,
-    rating: 4.8,
-    reviews: 2847,
-    price: 219,
-    originalPrice: 249,
-    store: "Amazon",
-    storeLogoSrc: STORE_LOGOS.amazon,
-    storeInitial: "a",
-    updatedMins: 2,
-    priceHistory: [249, 235, 228, 219],
-  },
-  {
-    id: "galaxy",
-    name: "Samsung Galaxy S24 Ultra",
-    imageSrc: DEAL_PRODUCT_IMAGES.iphone,
-    discount: 8,
-    rating: 4.7,
-    reviews: 1523,
-    price: 1099,
-    originalPrice: 1199,
-    store: "Best Buy",
-    storeLogoSrc: STORE_LOGOS.bestBuy,
-    storeInitial: "BB",
-    updatedMins: 5,
-    priceHistory: [1199, 1150, 1120, 1099],
-  },
-  {
-    id: "macbook",
-    name: "MacBook Air M3 13-inch",
-    imageSrc: DEAL_PRODUCT_IMAGES.macbook,
-    discount: 10,
-    rating: 4.9,
-    reviews: 892,
-    price: 999,
-    originalPrice: 1099,
-    store: "Apple",
-    storeLogoSrc: STORE_LOGOS.apple,
-    storeInitial: "AP",
-    updatedMins: 8,
-    priceHistory: [1099, 1050, 1020, 999],
-  },
-  {
-    id: "ps5",
-    name: "PlayStation 5 Console",
-    imageSrc: DEAL_PRODUCT_IMAGES.ps5,
-    discount: 15,
-    rating: 4.6,
-    reviews: 3421,
-    price: 449,
-    originalPrice: 499,
-    store: "Walmart",
-    storeLogoSrc: STORE_LOGOS.walmart,
-    storeInitial: "W",
-    updatedMins: 12,
-    priceHistory: [499, 479, 460, 449],
-  },
-  {
-    id: "sony-xm5",
-    name: "Sony WH-1000XM5 Headphones",
-    imageSrc: DEAL_PRODUCT_IMAGES.headphones,
-    discount: 18,
-    rating: 4.85,
-    reviews: 2104,
-    price: 328,
-    originalPrice: 399,
-    store: "Amazon",
-    storeLogoSrc: STORE_LOGOS.amazon,
-    storeInitial: "a",
-    updatedMins: 4,
-    priceHistory: [399, 365, 340, 328],
-  },
-  {
-    id: "switch-oled",
-    name: "Nintendo Switch OLED Model",
-    imageSrc: DEAL_PRODUCT_IMAGES.controller,
-    discount: 11,
-    rating: 4.7,
-    reviews: 1876,
-    price: 309,
-    originalPrice: 349,
-    store: "Best Buy",
-    storeLogoSrc: STORE_LOGOS.bestBuy,
-    storeInitial: "BB",
-    updatedMins: 15,
-    priceHistory: [349, 335, 320, 309],
-  },
-  {
-    id: "nike-air",
-    name: "Nike Air Max 90 Sneakers",
-    imageSrc: DEAL_PRODUCT_IMAGES.nike,
-    discount: 22,
-    rating: 4.5,
-    reviews: 934,
-    price: 89,
-    originalPrice: 115,
-    store: "Foot Locker",
-    storeLogoSrc: STORE_LOGOS.footLocker,
-    storeInitial: "FL",
-    updatedMins: 6,
-    priceHistory: [115, 105, 95, 89],
-  },
-  {
-    id: "dyson-v15",
-    name: "Dyson V15 Detect Vacuum",
-    imageSrc: DEAL_PRODUCT_IMAGES.laptop,
-    discount: 14,
-    rating: 4.8,
-    reviews: 612,
-    price: 599,
-    originalPrice: 699,
-    store: "Noon",
-    storeLogoSrc: STORE_LOGOS.noon,
-    storeInitial: "N",
-    updatedMins: 3,
-    priceHistory: [699, 650, 620, 599],
-  },
-];
+export const ZH_TRENDING_DEALS: ZhDeal[] = PROD_TRENDING_DEALS;
 
-export const ZH_TOP_COUPONS: ZhCoupon[] = [
-  {
-    id: "amazon",
-    store: "Amazon",
-    storeLogoSrc: STORE_LOGOS.amazon,
-    storeInitial: "a",
-    offer: "10% OFF Sitewide",
-    minSpend: "Min spend $50",
-    code: "SAVE10",
-    usedTimes: 1240,
-    verified: true,
-  },
-  {
-    id: "noon",
-    store: "Noon",
-    storeLogoSrc: STORE_LOGOS.noon,
-    storeInitial: "N",
-    offer: "15% OFF Electronics",
-    minSpend: "Min spend $100",
-    code: "NOON15",
-    usedTimes: 856,
-    verified: true,
-  },
-  {
-    id: "aliexpress",
-    store: "AliExpress",
-    storeLogoSrc: STORE_LOGOS.aliExpress,
-    storeInitial: "AE",
-    offer: "20% OFF First Order",
-    minSpend: "Min spend $30",
-    code: "AE20",
-    usedTimes: 2341,
-    verified: true,
-  },
-  {
-    id: "nike",
-    store: "Nike",
-    storeLogoSrc: STORE_LOGOS.nike,
-    storeInitial: "N",
-    offer: "25% OFF Sportswear",
-    minSpend: "Min spend $75",
-    code: "NIKE25",
-    usedTimes: 567,
-    verified: true,
-  },
-];
+export const ZH_TOP_COUPONS: ZhCoupon[] = PROD_TOP_COUPONS;
 
 export const ZH_FEATURES: ZhFeature[] = [
   {
@@ -328,9 +131,4 @@ export const ZH_FEATURES: ZhFeature[] = [
   },
 ];
 
-export const ZH_FOOTER_STATS: ZhFooterStat[] = [
-  { icon: "stores", value: "50+", label: "Stores" },
-  { icon: "products", value: "10M+", label: "Products" },
-  { icon: "coupons", value: "100K+", label: "Coupons" },
-  { icon: "users", value: "5M+", label: "Happy Users" },
-];
+export const ZH_FOOTER_STATS: ZhFooterStat[] = PROD_FOOTER_STATS;
