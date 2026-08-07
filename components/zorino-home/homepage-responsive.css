@@ -276,15 +276,6 @@
     box-sizing: border-box;
   }
 
-  /*
-   * The escape above overflows toward the physical right in LTR. In RTL the
-   * clamped copy is right-anchored, so the same width hangs off the left edge
-   * instead — pull it back so the row starts at the copy's left edge in both.
-   */
-  html[dir="rtl"] .zh-page .zh-hero__stats {
-    margin-right: -108px;
-  }
-
   /* Full mobile-width 2×2 stats — ~15px shorter; width unchanged */
   .zh-page .zh-stat {
     width: auto;
@@ -804,6 +795,12 @@
 
   html[dir="rtl"] .zh-page .zh-hero__col--left {
     z-index: 4;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__badge,
+  html[dir="rtl"] .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle {
+    max-width: calc(100% - 108px);
   }
 
   html[dir="rtl"] .zh-page .zh-categories__label,
