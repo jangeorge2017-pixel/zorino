@@ -40,6 +40,8 @@ const lanDevOrigins = [
   "10.*.*.*",
   "172.*.*.*",
   "127.0.0.1",
+  // Cloudflare quick tunnels used to expose this cloud/LAN next server to phones
+  "*.trycloudflare.com",
 ];
 const envDevOrigins = (process.env.ALLOWED_DEV_ORIGINS ?? "")
   .split(",")
