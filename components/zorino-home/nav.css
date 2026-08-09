@@ -86,13 +86,13 @@
 .zh-nav__links {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 100%;
   min-width: 0;
   height: 100%;
-  padding: 0 var(--zh-nav-logo-gap);
-  /* Even horizontal rhythm between Deals → Blog */
-  gap: 10px;
+  padding: 0;
+  /* Even pitch between Deals → Blog across the band (logo ↔ Search) */
+  gap: 0;
   /* Clip link ::before/::after box-shadows so hover/active glow cannot paint below the bar */
   overflow: hidden;
 }
@@ -100,10 +100,12 @@
 .zh-nav__link {
   position: relative;
   display: inline-flex;
+  flex: 1 1 0;
   align-items: center;
   justify-content: center;
   height: auto;
   min-height: 0;
+  min-width: 0;
   /* Match .zh-hero__badge ("Powered by AI") pill height — do not grow taller */
   padding: 6px 13px;
   border: none;
@@ -116,7 +118,6 @@
   color: #e8e8ee;
   text-decoration: none;
   white-space: nowrap;
-  flex-shrink: 0;
   box-shadow: none;
   text-shadow: none;
   transform: translateY(0);
@@ -129,14 +130,14 @@
     filter 250ms ease;
 }
 
-/* Outer outline — subtle dark blue only at idle (no bright glow) */
+/* Outer outline — idle frame removed; hover/active restore border + glow */
 .zh-nav__link::before {
   content: "";
   position: absolute;
   inset: -1px;
   border-radius: 999px;
   background: transparent;
-  border: 1px solid rgba(37, 99, 235, 0.34);
+  border: 1px solid transparent;
   box-shadow: none;
   opacity: 1;
   z-index: -2;
@@ -147,18 +148,18 @@
     opacity 250ms ease;
 }
 
-/* Inner glass — muted dark blue at idle; pill geometry unchanged */
+/* Inner glass — idle frame removed; hover/active restore fill + border */
 .zh-nav__link::after {
   content: "";
   display: block;
   position: absolute;
   inset: 0;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(37, 99, 235, 0.28);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   opacity: 1;
   z-index: -1;
   pointer-events: none;

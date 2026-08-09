@@ -103,16 +103,21 @@
 @media (max-width: 1279px) {
   .zh-categories {
     display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    margin-inline: calc(-1 * var(--zh-pad));
-    padding-inline: var(--zh-pad);
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+    scroll-snap-type: none;
   }
 
   .zh-categories__item {
-    flex: 0 0 auto;
-    min-width: 72px;
-    scroll-snap-align: start;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
   }
 }

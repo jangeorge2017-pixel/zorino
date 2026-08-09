@@ -83,10 +83,18 @@
     display: none;
   }
 
-  /* ── Categories: smoother horizontal scroll ── */
+  /* ── Categories: full-width even row (all tiles) ── */
   .zh-page .zh-categories {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
   }
 
   .zh-page .zh-categories::-webkit-scrollbar {
@@ -94,7 +102,9 @@
   }
 
   .zh-page .zh-categories__item {
-    min-width: 80px;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
     min-height: 72px;
   }
 
