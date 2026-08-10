@@ -1,20 +1,30 @@
 /**
- * Arabic (RTL) homepage Hero — desktop only.
- * Does NOT change English LTR. Tablet/mobile unchanged unless noted.
+ * Arabic (RTL) homepage Hero — desktop only (≥1280px).
  *
- * Composition: mirror the approved EN layout —
- * copy + stats on the far right, Z artwork + glow on the left facing the headline.
+ * Exact mirror of the FINAL English Desktop Hero
+ * (homepage-desktop.css): same dimensions, spacing, sizing,
+ * background tokens, feather, and visual structure.
+ *
+ * Only differences vs EN:
+ * - Arabic copy (via messages/ar.json)
+ * - RTL reading direction
+ * - Mirrored column placement (copy right, Z left facing headline)
+ * - Horizontal flip of the shared hero artwork so the Z faces the headline
+ *
+ * Does NOT change English LTR, Tablet, or Mobile layouts.
  */
 
 @media (min-width: 1280px) {
-  /* Physical grid still LTR so we place columns explicitly */
+  /*
+   * Keep the hero visual plane physically LTR so grid placement is explicit.
+   * Composition-lock also forces LTR; we restate for clarity, then place columns.
+   */
   html[dir="rtl"] .zh-page .zh-hero-zone,
   html[dir="rtl"] .zh-page .zh-hero,
-  html[dir="rtl"] .zh-page .zh-hero-search,
   html[dir="rtl"] .zh-page .zh-page__artwork-clip,
   html[dir="rtl"] .zh-page .zh-page__artwork,
   html[dir="rtl"] .zh-page .hero-artwork {
-    direction: ltr;
+    direction: ltr !important;
     unicode-bidi: isolate;
   }
 
@@ -29,7 +39,7 @@
     z-index: 3;
   }
 
-  /* Soft veil follows the headline on the right */
+  /* Soft veil follows the headline on the right (mirror of EN left veil) */
   html[dir="rtl"] .zh-page .zh-hero__col--left::before {
     inset: -4% -6% -6% -12%;
     background: radial-gradient(
@@ -63,12 +73,16 @@
     unicode-bidi: isolate;
   }
 
-  /* ~22% smaller than EN clamp(49px, 4.3vw, 70px) — still commanding */
+  /*
+   * Same title metrics as EN desktop — do not shrink Arabic.
+   * EN: clamp(49px, 4.3vw, 70px) / 70px at ≥1720px
+   */
   html[dir="rtl"] .zh-page .zh-hero__title {
-    font-size: clamp(38px, 3.35vw, 54px);
+    font-size: clamp(49px, 4.3vw, 70px);
     line-height: 0.96;
     letter-spacing: -0.045em;
     font-weight: 800;
+    text-wrap: balance;
   }
 
   html[dir="rtl"] .zh-page .zh-hero__stats {
@@ -90,64 +104,30 @@
   }
 
   /*
-   * Full-bleed Z artwork — mirror to the left so glow/stars face the
-   * right-side headline. Same asset, same scale; only position + flip.
+   * Full-bleed Z artwork — same asset, size, feather, and paint tokens as EN.
+   * Clip stays unmasked (EN). Flip the artwork layer so Z+platform sit on the
+   * left and face the right-side headline. Keep EN right-based paint + mask;
+   * scaleX(-1) around the viewport center mirrors them with the Z.
    */
   html[dir="rtl"] .zh-page .zh-page__artwork-clip {
-    -webkit-mask-image:
-      radial-gradient(
-        ellipse 92% 88% at 42% 42%,
-        #000 0%,
-        #000 52%,
-        transparent 100%
-      ),
-      linear-gradient(
-        180deg,
-        transparent 0%,
-        #000 var(--zh-hero-edge-feather),
-        #000 calc(100% - var(--zh-hero-edge-feather)),
-        transparent 100%
-      ),
-      linear-gradient(
-        90deg,
-        transparent 0%,
-        #000 var(--zh-hero-edge-feather),
-        #000 calc(100% - var(--zh-hero-edge-feather)),
-        transparent 100%
-      );
-    mask-image:
-      radial-gradient(
-        ellipse 92% 88% at 42% 42%,
-        #000 0%,
-        #000 52%,
-        transparent 100%
-      ),
-      linear-gradient(
-        180deg,
-        transparent 0%,
-        #000 var(--zh-hero-edge-feather),
-        #000 calc(100% - var(--zh-hero-edge-feather)),
-        transparent 100%
-      ),
-      linear-gradient(
-        90deg,
-        transparent 0%,
-        #000 var(--zh-hero-edge-feather),
-        #000 calc(100% - var(--zh-hero-edge-feather)),
-        transparent 100%
-      );
+    -webkit-mask-image: none;
+    mask-image: none;
+    -webkit-mask-composite: unset;
+    mask-composite: unset;
+    overflow: visible;
   }
 
   html[dir="rtl"] .zh-page .zh-page__artwork,
   html[dir="rtl"] .zh-page .zh-page__artwork::after {
     background-position:
-      left var(--zh-hero-artwork-painted-right)
+      right var(--zh-hero-artwork-painted-right)
       top var(--zh-hero-artwork-painted-top);
     transform: scaleX(-1) scale(var(--zh-hero-z-scale, 1));
-    transform-origin: 23.4% 6.8%;
+    /* Center X so Z swaps sides; keep EN’s vertical Z-scale origin */
+    transform-origin: 50% 6.8%;
   }
 
-  /* Orbit cards ride with the left-side artwork plane */
+  /* Orbit cards ride with the mirrored left-side artwork plane */
   html[dir="rtl"] .zh-page .hero-artwork {
     transform: scaleX(-1) translate(
       calc(58px + var(--zh-hero-artwork-shift-left, 0px)),
@@ -165,11 +145,18 @@
     );
   }
 
-  /* Search — keep chrome; RTL text alignment */
+  /*
+   * Search — RTL chrome (overrides composition-lock LTR !important).
+   * Same size/spacing as EN; only inline direction flips.
+   */
   html[dir="rtl"] .zh-page .zh-hero-zone .zh-hero-search,
   html[dir="rtl"] .zh-page .zh-search {
-    direction: rtl;
+    direction: rtl !important;
     unicode-bidi: isolate;
+  }
+
+  html[dir="rtl"] .zh-page .zh-search__bar {
+    direction: rtl !important;
   }
 
   html[dir="rtl"] .zh-page .zh-search__bar input {
@@ -179,7 +166,7 @@
 
 @media (min-width: 1720px) {
   html[dir="rtl"] .zh-page .zh-hero__title {
-    font-size: 54px; /* EN is 70px → ~23% smaller */
+    font-size: 70px; /* match EN desktop */
   }
 }
 
