@@ -234,6 +234,12 @@
     z-index: 2;
   }
 
+  /* Let category absolute positioning use .zh-hero-zone, not tools */
+  .zh-page .zh-hero-zone .zh-hero-zone__tools {
+    position: static;
+    z-index: auto;
+  }
+
   /* Search + Categories share one Hero tools stack */
   .zh-page .zh-hero-zone .zh-hero-zone__tools {
     display: flex;
@@ -241,11 +247,8 @@
     align-items: stretch;
     flex: 0 0 auto;
     width: 100%;
-    /*
-      Categories lift (−158px) + gap → ~28px under Search (25–30px target).
-      Extra 18px lift vs prior −140 pulls the row up without overlapping Search.
-    */
-    gap: calc(28px + 158px);
+    /* Categories are absolute (nav↔search band) — no in-flow gap needed */
+    gap: 0;
     margin-top: 0;
     margin-bottom: 0;
   }
@@ -301,17 +304,16 @@
     width: 100%;
   }
 
-  /* Hierarchy: quiet badge → commanding title → supporting line → proof stats */
+  /*
+   * Remove AI-Powered badge on Desktop only.
+   * Keep former badge block height so the headline does not shift.
+   */
   .zh-page .zh-hero__badge {
-    margin: 0 0 28px;
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #c4b5fd;
-    background: rgba(139, 92, 246, 0.12);
-    border-color: rgba(167, 139, 250, 0.32);
+    display: none;
+  }
+
+  .zh-page .zh-hero__copy {
+    padding-top: 64px;
   }
 
   .zh-page .zh-hero__title {
@@ -615,17 +617,31 @@
     align-self: center;
   }
 
-  /* Categories — inside Hero, ~28px under Search; full-width even row */
+  /*
+   * Categories — vertically centered between Navbar bottom and Search top.
+   * Icons / sizes / horizontal layout unchanged; only vertical placement.
+   */
   .zh-page .zh-hero-zone .zh-categories-wrap {
-    position: relative;
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
     bottom: auto;
-    z-index: 2;
+    z-index: 5;
     margin: 0;
     padding: 0;
     border-top: none;
-    /* +18px vs prior −140 — row sits higher; tools gap keeps 28px under Search */
-    transform: translateY(-158px);
-    margin-bottom: -158px;
+    transform: none;
+    /*
+      Band ≈ hero-zone top (= nav bottom) → search top
+      (pad + hero col + search margins − lift). Center the ~110px row.
+    */
+    top: calc(
+      (
+          clamp(28px, 4vh, 56px) + clamp(440px, 54vh, 620px) + clamp(36px, 5vh, 56px) +
+            8px - var(--zh-hero-search-lift, 70px) - 110px
+        ) / 2
+    );
   }
 
   .zh-page .zh-hero-zone .zh-categories-wrap::before {
