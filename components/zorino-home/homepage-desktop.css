@@ -52,9 +52,9 @@
         var(--zh-hero-artwork-extend-down)
     );
     /*
-      Background only — LEFT ~38px toward headline from prior 117px.
+      Background only — LEFT 35px toward headline from prior 155px.
     */
-    --zh-hero-artwork-painted-right: 155px;
+    --zh-hero-artwork-painted-right: 190px;
     /* Background only — 10% smaller; height stays aspect-locked. */
     --zh-hero-bg-size-scale: 0.9;
     --zh-hero-artwork-painted-width: calc(
@@ -72,10 +72,10 @@
     );
     --zh-hero-bg-nudge-up: 160px;
     /*
-      Background only — slight DOWN after 10% scale (prior -1px).
-      May extend behind/below the Search Bar.
+      Background only — DOWN 30px from prior 27px.
+      May extend behind headline / below Search Bar.
     */
-    --zh-hero-bg-shift-down: 27px;
+    --zh-hero-bg-shift-down: 57px;
     --zh-hero-artwork-painted-top: calc(
       var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
         var(--zh-hero-artwork-stretch-z-up) - var(--zh-hero-bg-nudge-up) +
