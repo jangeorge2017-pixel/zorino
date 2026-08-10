@@ -52,10 +52,10 @@
         var(--zh-hero-artwork-extend-down)
     );
     /*
-      Background only — negative right offset slides artwork RIGHT
-      (away from hero copy). Size / scale tokens unchanged.
+      Background only — position nudge toward hero copy (LEFT ~40px visual).
+      Size / scale tokens unchanged.
     */
-    --zh-hero-artwork-painted-right: -45px;
+    --zh-hero-artwork-painted-right: 1px;
     --zh-hero-artwork-painted-width: calc(
       (
           var(--zh-hero-artwork-painted-width-base) + var(--zh-hero-bg-prev-inset) +
@@ -68,8 +68,12 @@
         var(--zh-hero-artwork-painted-width-base)
     );
     --zh-hero-bg-nudge-up: 160px;
-    /* Background only — +45px from prior 205 (does not move cards / copy) */
-    --zh-hero-bg-shift-down: 250px;
+    /*
+      Background only — lift so the visible artwork bottom meets the
+      Search Bar bottom edge (extends upward behind hero copy).
+      Size unchanged.
+    */
+    --zh-hero-bg-shift-down: 85px;
     --zh-hero-artwork-painted-top: calc(
       var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
         var(--zh-hero-artwork-stretch-z-up) - var(--zh-hero-bg-nudge-up) +
@@ -79,7 +83,8 @@
       100svh - var(--zh-hero-search-height) - clamp(36px, 5vh, 56px) -
         clamp(40px, 5vh, 72px) - 10px
     );
-    --zh-hero-edge-feather: 150px;
+    /* Soft perimeter dissolve — fades the PNG rectangle into page black */
+    --zh-hero-edge-feather: 160px;
     --zh-page-bg-base: #01000e;
     --zh-space-black: #01000e;
     --zh-orbit-card-shift-right: 16px;
