@@ -1,9 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import DealsDealCard from "@/components/deals/DealsDealCard";
 import ZorinoHomeTrendingDealsSkeleton from "@/components/zorino-home/ZorinoHomeTrendingDealsSkeleton";
 import { ZH_TRENDING_DEALS_META } from "@/lib/zorino-home/home-section-meta";
@@ -21,7 +29,11 @@ import {
   trendingDealToDeal,
 } from "@/lib/zorino-home/trending-deal-to-deal";
 import type { TrendingDealCard } from "@/lib/types/entities";
-import { getCarouselScrollState, attachVerticalWheelPassthrough } from "@/lib/ui/carousel-scroll";
+import {
+  getCarouselScrollState,
+  attachVerticalWheelPassthrough,
+  scrollCarouselByOneItem,
+} from "@/lib/ui/carousel-scroll";
 import "./zorino-home-deals.css";
 
 const FILTER_KEYS: Record<TrendingDealFilter, string> = {
@@ -45,7 +57,6 @@ type ZorinoHomeDealsPanelProps = {
 
 export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProps) {
   const t = useTranslations("home");
-  const locale = useLocale();
   const trackRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<TrendingDealFilter>("all");
   const [sort, setSort] = useState<TrendingDealSort>("biggest_discount");
@@ -69,6 +80,11 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
     setCanScrollRight(canScrollNext);
   }, []);
 
+  useLayoutEffect(() => {
+    if (isPending || showSkeleton) return;
+    syncButtons();
+  }, [visibleDeals.length, isPending, showSkeleton, syncButtons]);
+
   useEffect(() => {
     syncButtons();
     window.addEventListener("resize", syncButtons);
@@ -79,8 +95,13 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
     if (isPending || showSkeleton) return;
     const node = trackRef.current;
     if (!node) return;
-    return attachVerticalWheelPassthrough(node);
-  }, [visibleDeals.length, isPending, showSkeleton]);
+    const id = window.requestAnimationFrame(() => syncButtons());
+    const detach = attachVerticalWheelPassthrough(node);
+    return () => {
+      window.cancelAnimationFrame(id);
+      detach();
+    };
+  }, [visibleDeals.length, isPending, showSkeleton, syncButtons]);
 
   useEffect(() => {
     setShowSkeleton(true);
@@ -99,14 +120,9 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   const scroll = (direction: -1 | 1) => {
     const node = trackRef.current;
     if (!node) return;
-    const slide = node.querySelector(".zh-trending-deals__slide");
-    const slideWidth = slide instanceof HTMLElement ? slide.offsetWidth : 280;
-    const rtlFactor = locale === "ar" ? -1 : 1;
-    node.scrollBy({
-      left: direction * rtlFactor * (slideWidth + 16),
-      behavior: "smooth",
-    });
-    window.setTimeout(syncButtons, 420);
+    scrollCarouselByOneItem(node, direction, ".zh-trending-deals__slide");
+    window.setTimeout(syncButtons, 320);
+    window.setTimeout(syncButtons, 700);
   };
 
   const isLoading = isPending || showSkeleton;
@@ -195,38 +211,44 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
             <ChevronLeft size={18} />
           </button>
 
-          {isLoading ? (
-            <ZorinoHomeTrendingDealsSkeleton count={Math.min(visibleDeals.length, 4)} />
-          ) : (
-            <div
-              className="zh-trending-deals__track"
-              ref={trackRef}
-              onScroll={syncButtons}
-              aria-live="polite"
-            >
-              {visibleDeals.map((deal) => (
-                <div key={deal.id} className="zh-trending-deals__slide">
-                  <DealsDealCard
-                    deal={trendingDealToDeal(deal, {
-                      featured: deal.displayBadge === "hot" || deal.displayBadge === "limited",
-                    })}
-                    endsInLabel={trendingDealEndsInLabel(deal)}
-                    featuredLabel={t("featured")}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          {/*
+            Viewport owns overflow clipping + the next-arrow overlay so the
+            indicator cannot be painted outside / clipped by parent panels.
+          */}
+          <div className="zh-trending-deals__viewport">
+            {isLoading ? (
+              <ZorinoHomeTrendingDealsSkeleton count={Math.min(visibleDeals.length, 4)} />
+            ) : (
+              <div
+                className="zh-trending-deals__track"
+                ref={trackRef}
+                onScroll={syncButtons}
+                aria-live="polite"
+              >
+                {visibleDeals.map((deal) => (
+                  <div key={deal.id} className="zh-trending-deals__slide">
+                    <DealsDealCard
+                      deal={trendingDealToDeal(deal, {
+                        featured: deal.displayBadge === "hot" || deal.displayBadge === "limited",
+                      })}
+                      endsInLabel={trendingDealEndsInLabel(deal)}
+                      featuredLabel={t("featured")}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
 
-          <button
-            type="button"
-            className="zh-trending-deals__nav zh-trending-deals__nav--next"
-            aria-label={t("nextDeals")}
-            disabled={!canScrollRight}
-            onClick={() => scroll(1)}
-          >
-            <ChevronRight size={18} />
-          </button>
+            <button
+              type="button"
+              className="zh-trending-deals__nav zh-trending-deals__nav--next"
+              aria-label={t("nextDeals")}
+              disabled={!canScrollRight}
+              onClick={() => scroll(1)}
+            >
+              <ChevronRight size={22} strokeWidth={2.75} />
+            </button>
+          </div>
         </div>
       )}
     </section>

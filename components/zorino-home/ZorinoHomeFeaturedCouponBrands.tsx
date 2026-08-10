@@ -1,7 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { useTranslations } from "next-intl";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import {
   Check,
@@ -12,7 +19,11 @@ import {
   Ticket,
 } from "lucide-react";
 import type { FeaturedCouponBrand } from "@/lib/zorino-home/featured-coupon-brands";
-import { getCarouselScrollState, attachVerticalWheelPassthrough } from "@/lib/ui/carousel-scroll";
+import {
+  getCarouselScrollState,
+  attachVerticalWheelPassthrough,
+  scrollCarouselByOneItem,
+} from "@/lib/ui/carousel-scroll";
 import "./featured-coupon-brands.css";
 
 /** Featured Coupon Brands only — real marks (not shared /stores letter tiles). */
@@ -112,7 +123,6 @@ export default function ZorinoHomeFeaturedCouponBrands({
   brands,
 }: ZorinoHomeFeaturedCouponBrandsProps) {
   const t = useTranslations("home");
-  const locale = useLocale();
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -125,6 +135,10 @@ export default function ZorinoHomeFeaturedCouponBrands({
     setCanScrollRight(canScrollNext);
   }, []);
 
+  useLayoutEffect(() => {
+    syncButtons();
+  }, [brands.length, syncButtons]);
+
   useEffect(() => {
     syncButtons();
     window.addEventListener("resize", syncButtons);
@@ -134,17 +148,20 @@ export default function ZorinoHomeFeaturedCouponBrands({
   useEffect(() => {
     const node = trackRef.current;
     if (!node) return;
-    return attachVerticalWheelPassthrough(node);
-  }, [brands.length]);
+    const id = window.requestAnimationFrame(() => syncButtons());
+    const detach = attachVerticalWheelPassthrough(node);
+    return () => {
+      window.cancelAnimationFrame(id);
+      detach();
+    };
+  }, [brands.length, syncButtons]);
 
   const scroll = (direction: -1 | 1) => {
     const node = trackRef.current;
     if (!node) return;
-    const card = node.querySelector(".zh-brand-card");
-    const cardWidth = card instanceof HTMLElement ? card.offsetWidth : 220;
-    const rtlFactor = locale === "ar" ? -1 : 1;
-    node.scrollBy({ left: direction * rtlFactor * (cardWidth + 14), behavior: "smooth" });
-    window.setTimeout(syncButtons, 420);
+    scrollCarouselByOneItem(node, direction, ".zh-brand-card");
+    window.setTimeout(syncButtons, 320);
+    window.setTimeout(syncButtons, 700);
   };
 
   return (
@@ -171,21 +188,23 @@ export default function ZorinoHomeFeaturedCouponBrands({
           <ChevronLeft size={18} />
         </button>
 
-        <div className="zh-featured-brands__track" ref={trackRef} onScroll={syncButtons}>
-          {brands.map((brand) => (
-            <BrandCard key={brand.id} brand={brand} />
-          ))}
-        </div>
+        <div className="zh-featured-brands__viewport">
+          <div className="zh-featured-brands__track" ref={trackRef} onScroll={syncButtons}>
+            {brands.map((brand) => (
+              <BrandCard key={brand.id} brand={brand} />
+            ))}
+          </div>
 
-        <button
-          type="button"
-          className="zh-featured-brands__nav zh-featured-brands__nav--next"
-          aria-label={t("nextBrands")}
-          disabled={!canScrollRight}
-          onClick={() => scroll(1)}
-        >
-          <ChevronRight size={18} />
-        </button>
+          <button
+            type="button"
+            className="zh-featured-brands__nav zh-featured-brands__nav--next"
+            aria-label={t("nextBrands")}
+            disabled={!canScrollRight}
+            onClick={() => scroll(1)}
+          >
+            <ChevronRight size={22} strokeWidth={2.75} />
+          </button>
+        </div>
       </div>
     </section>
   );
