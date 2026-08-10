@@ -2,11 +2,10 @@
  * Approved homepage hero composition lock (English / default).
  * Reference: public/reference/zorino-final-design.png
  *
- * CRITICAL: The hero visual plane stays physically LTR for the default locale.
- * Arabic desktop mirrors composition in homepage-hero-rtl-ar.css (loaded after).
- * html[dir=rtl] would otherwise reverse CSS Grid and flip the Z artwork.
- * Only copy/text inside the left column adapts for Arabic reading direction
- * on tablet/mobile; desktop AR is handled by the RTL hero stylesheet.
+ * CRITICAL: The hero visual plane stays physically LTR for every locale.
+ * Arabic desktop is an exact spatial copy of EN (homepage-hero-rtl-ar.css);
+ * html[dir=rtl] must not reverse CSS Grid or flip the Z artwork.
+ * Only copy/text adapts for Arabic reading direction — never layout chrome.
  */
 
 /* Lock the entire hero visual composition to physical LTR */
@@ -78,24 +77,26 @@ html[dir="rtl"] .zh-page .zh-hero__col--left {
   transform: translateX(calc(120px + var(--zh-orbit-card-shift-right, 0px)));
 }
 
-/* Nav: RTL text order only — do not flip logo artwork */
-html[dir="rtl"] .zh-page .zh-nav__inner {
-  direction: rtl;
-}
+/* Nav: RTL text order only on tablet/mobile — desktop stays EN spatial (logo left) */
+@media (max-width: 1279px) {
+  html[dir="rtl"] .zh-page .zh-nav__inner {
+    direction: rtl;
+  }
 
-html[dir="rtl"] .zh-page .zh-nav__logo {
-  margin-right: 0;
-  margin-left: var(--zh-nav-logo-gap);
-}
+  html[dir="rtl"] .zh-page .zh-nav__logo {
+    margin-right: 0;
+    margin-left: var(--zh-nav-logo-gap);
+  }
 
-html[dir="rtl"] .zh-page .zh-nav__search-slot {
-  margin-left: 0;
-  margin-right: var(--zh-nav-gap);
-}
+  html[dir="rtl"] .zh-page .zh-nav__search-slot {
+    margin-left: 0;
+    margin-right: var(--zh-nav-gap);
+  }
 
-html[dir="rtl"] .zh-page .zh-nav__actions {
-  margin-left: 0;
-  margin-right: var(--zh-nav-gap);
+  html[dir="rtl"] .zh-page .zh-nav__actions {
+    margin-left: 0;
+    margin-right: var(--zh-nav-gap);
+  }
 }
 
 @media (max-width: 1279px) {
