@@ -1105,18 +1105,21 @@
     min-width: 0;
   }
 
-  /* Filter chips scroll inside the head — never widen the page */
+  /*
+   * Filter chips may scroll horizontally, but MUST NOT trap vertical page
+   * scroll (`pan-x` alone blocks Y gestures on the strip).
+   */
   .zh-page .zh-trending-deals__filters {
     display: flex;
     flex-wrap: nowrap;
     max-width: 100%;
     min-width: 0;
     overflow-x: auto;
-    overflow-y: clip;
+    overflow-y: hidden;
     overscroll-behavior-x: contain;
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    touch-action: pan-x pan-y;
     scrollbar-width: none;
   }
 
@@ -1423,9 +1426,9 @@
     gap: 8px;
   }
 
-  /* Compact Top Coupons card — logo|details, then code+copy, then meta footer */
+  /* Top Coupons — brand/logo + code side-by-side (same as panel mobile rules) */
   .zh-page .zh-coupon {
-    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-columns: 44px minmax(0, 1fr) minmax(108px, 34%);
     gap: 8px 10px;
     padding: 10px 12px;
     border-radius: 14px;
@@ -1434,8 +1437,8 @@
 
   .zh-page .zh-coupon__logo {
     position: relative;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
@@ -1456,16 +1459,15 @@
   }
 
   .zh-page .zh-coupon__code-wrap {
-    grid-column: 1 / -1;
+    grid-column: auto;
+    max-width: none;
   }
 
   .zh-page .zh-coupon__meta {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px 10px;
-    text-align: left;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
     white-space: nowrap;
   }
 
