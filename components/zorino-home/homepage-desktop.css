@@ -52,9 +52,9 @@
         var(--zh-hero-artwork-extend-down)
     );
     /*
-      Background only — LEFT 30px more toward headline from prior 87px.
+      Background only — LEFT ~38px toward headline from prior 117px.
     */
-    --zh-hero-artwork-painted-right: 117px;
+    --zh-hero-artwork-painted-right: 155px;
     /* Background only — 10% smaller; height stays aspect-locked. */
     --zh-hero-bg-size-scale: 0.9;
     --zh-hero-artwork-painted-width: calc(
