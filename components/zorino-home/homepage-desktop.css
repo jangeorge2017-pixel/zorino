@@ -510,6 +510,34 @@
     top: calc(60% - 30px);
   }
 
+  /*
+   * Desktop floating cards — keep ONLY orbit-top beside the 4 stats.
+   * Size is matched to a live .zh-stat in HeroArtwork (20px gap via margin).
+   * Stats / hero copy / artwork / categories untouched.
+   */
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    display: none !important;
+  }
+
+  .zh-page .zh-hero__stats {
+    position: relative;
+  }
+
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] {
+    position: absolute !important;
+    left: 100%;
+    top: 0;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0;
+    margin-inline-start: 20px;
+    transform: translateY(0);
+    animation-name: zh-orbit-float-stats-row;
+    pointer-events: auto;
+  }
+
   /* Search — ~7% narrower, centered; sits in .zh-hero-zone__tools */
   .zh-page .zh-hero-zone .zh-hero-search {
     position: relative;
