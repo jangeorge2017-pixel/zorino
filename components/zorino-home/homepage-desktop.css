@@ -377,46 +377,59 @@
     border: none;
     outline: none;
     box-shadow: none;
+    /* Softer edge dissolve into page black — size/position of PNG unchanged */
     -webkit-mask-image:
       radial-gradient(
-        ellipse 92% 88% at 58% 42%,
+        ellipse 96% 92% at 58% 44%,
         #000 0%,
-        #000 52%,
+        #000 32%,
+        rgba(0, 0, 0, 0.65) 58%,
+        rgba(0, 0, 0, 0.25) 78%,
         transparent 100%
       ),
       linear-gradient(
         180deg,
         transparent 0%,
+        rgba(0, 0, 0, 0.35) calc(var(--zh-hero-edge-feather) * 0.45),
         #000 var(--zh-hero-edge-feather),
         #000 calc(100% - var(--zh-hero-edge-feather)),
+        rgba(0, 0, 0, 0.35) calc(100% - var(--zh-hero-edge-feather) * 0.45),
         transparent 100%
       ),
       linear-gradient(
         90deg,
         transparent 0%,
+        rgba(0, 0, 0, 0.35) calc(var(--zh-hero-edge-feather) * 0.45),
         #000 var(--zh-hero-edge-feather),
         #000 calc(100% - var(--zh-hero-edge-feather)),
+        rgba(0, 0, 0, 0.35) calc(100% - var(--zh-hero-edge-feather) * 0.45),
         transparent 100%
       );
     mask-image:
       radial-gradient(
-        ellipse 92% 88% at 58% 42%,
+        ellipse 96% 92% at 58% 44%,
         #000 0%,
-        #000 52%,
+        #000 32%,
+        rgba(0, 0, 0, 0.65) 58%,
+        rgba(0, 0, 0, 0.25) 78%,
         transparent 100%
       ),
       linear-gradient(
         180deg,
         transparent 0%,
+        rgba(0, 0, 0, 0.35) calc(var(--zh-hero-edge-feather) * 0.45),
         #000 var(--zh-hero-edge-feather),
         #000 calc(100% - var(--zh-hero-edge-feather)),
+        rgba(0, 0, 0, 0.35) calc(100% - var(--zh-hero-edge-feather) * 0.45),
         transparent 100%
       ),
       linear-gradient(
         90deg,
         transparent 0%,
+        rgba(0, 0, 0, 0.35) calc(var(--zh-hero-edge-feather) * 0.45),
         #000 var(--zh-hero-edge-feather),
         #000 calc(100% - var(--zh-hero-edge-feather)),
+        rgba(0, 0, 0, 0.35) calc(100% - var(--zh-hero-edge-feather) * 0.45),
         transparent 100%
       );
     -webkit-mask-composite: source-in;
@@ -429,7 +442,11 @@
     image-rendering: auto;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    filter: none;
+    /*
+     * Natural PNG — mild sat/brightness pull only (no soft-light neon wash).
+     * Stars, particles, lighting, and Z geometry stay intact.
+     */
+    filter: saturate(0.86) brightness(0.94) contrast(0.98);
     border: none;
     outline: none;
     box-shadow: none;
@@ -452,19 +469,16 @@
     display: none;
   }
 
-  /* Soft-light grade on the same single artwork */
+  /*
+   * Remove the soft-light neon wash. Base PNG alone keeps stars / lighting /
+   * particles / Z shape at their natural colors (no sat/brightness boost).
+   */
   .zh-page .zh-page__artwork::after {
-    opacity: 0.4;
-    mix-blend-mode: soft-light;
-    filter: contrast(1.15) saturate(1.2) brightness(1.03);
-    background-image: url("/hero-background.png");
-    background-repeat: no-repeat;
-    background-size:
-      var(--zh-hero-artwork-painted-width)
-      var(--zh-hero-artwork-painted-height);
-    background-position:
-      right var(--zh-hero-artwork-painted-right)
-      top var(--zh-hero-artwork-painted-top);
+    content: none;
+    display: none;
+    opacity: 0;
+    filter: none;
+    mix-blend-mode: normal;
   }
 
   .zh-page .zh-page__background::after {
