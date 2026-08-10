@@ -1202,6 +1202,11 @@
     font-size: 12.5px;
   }
 
+  /* Compare Prices only — absolute −1.5px; Shop Now stays 12.5px */
+  .zh-page .zh-trending-deals__track .home-compare-btn {
+    font-size: 11px;
+  }
+
   .zh-page .zh-trending-deals__track .listing-deal-meta {
     margin-top: 6px;
   }

@@ -256,7 +256,7 @@
   padding: 10px 14px;
   border-radius: 10px;
   border: none;
-  font-size: 14px;
+  font-size: 12.5px; /* −1.5px vs prior 14px */
   font-weight: 600;
   color: #fff;
   text-decoration: none;
