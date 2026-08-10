@@ -64,8 +64,8 @@
         var(--zh-hero-artwork-painted-width-base)
     );
     --zh-hero-bg-nudge-up: 160px;
-    /* Background only — translate down 160px total (does not move cards / copy) */
-    --zh-hero-bg-shift-down: 160px;
+    /* Background only — +45px from prior 160 (does not move cards / copy) */
+    --zh-hero-bg-shift-down: 205px;
     --zh-hero-artwork-painted-top: calc(
       var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
         var(--zh-hero-artwork-stretch-z-up) - var(--zh-hero-bg-nudge-up) +
@@ -353,29 +353,19 @@
 
   /*
     Full-bleed Hero artwork — same /hero-background.png as Tablet.
-    Oversized clip + wide radial only (no linear box masks) so edges
-    dissolve outside the viewport. Artwork quality untouched.
+    No mask / border / frame — oversized clip so PNG edges sit past the
+    viewport and blend into page black. Content layer untouched.
   */
   .zh-page .zh-page__artwork-clip {
-    inset: -280px -260px -320px -260px;
+    inset: -320px -300px -360px -300px;
     overflow: visible;
     border: none;
     outline: none;
     box-shadow: none;
-    -webkit-mask-image: radial-gradient(
-      ellipse 160% 145% at 58% 38%,
-      #000 0%,
-      #000 78%,
-      transparent 100%
-    );
-    mask-image: radial-gradient(
-      ellipse 160% 145% at 58% 38%,
-      #000 0%,
-      #000 78%,
-      transparent 100%
-    );
-    -webkit-mask-composite: source-over;
-    mask-composite: add;
+    -webkit-mask-image: none;
+    mask-image: none;
+    -webkit-mask-composite: unset;
+    mask-composite: unset;
   }
 
   .zh-page .zh-page__artwork {
@@ -384,8 +374,8 @@
     image-rendering: auto;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    /* Full original PNG fidelity — no desat / fade / opacity loss */
-    filter: none;
+    /* Subtle glow cleanup only — keep vivid color / contrast / detail */
+    filter: contrast(0.97) saturate(0.96) brightness(0.99);
     opacity: 1;
     border: none;
     outline: none;
@@ -410,15 +400,18 @@
   }
 
   /*
-   * Match Tablet/base grade (app/zorino-home.css) — soft-light on the same
-   * original asset so stars, glow, planet, and Z keep full contrast/color.
+   * Soft-light grade — slightly quieter than Tablet base so glow noise
+   * eases without washing out stars / planet / Z.
    */
   .zh-page .zh-page__artwork::after {
     content: "";
     display: block;
-    opacity: 0.38;
+    opacity: 0.28;
     mix-blend-mode: soft-light;
-    filter: contrast(1.14) saturate(1.18) brightness(0.98);
+    filter: contrast(1.08) saturate(1.1) brightness(0.99);
+    border: none;
+    outline: none;
+    box-shadow: none;
     background-image: url("/hero-background.png");
     background-repeat: no-repeat;
     background-size:
@@ -688,9 +681,9 @@
     color: #e2e8f0;
   }
 
-  /* Chips / discovery — 10px higher (was 5px); search/categories untouched */
+  /* Chips / discovery — +5px higher again (was −5px); search/categories untouched */
   .zh-page .zh-home-discovery-nav {
-    margin-top: -5px;
+    margin-top: -10px;
     padding-bottom: 12px;
   }
 
