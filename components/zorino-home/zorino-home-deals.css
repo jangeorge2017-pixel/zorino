@@ -352,6 +352,11 @@
     scrollbar-width: none;
   }
 
+  .zh-trending-deals__track img,
+  .zh-trending-deals__track a {
+    -webkit-user-drag: none;
+  }
+
   .zh-trending-deals__filters::-webkit-scrollbar {
     display: none;
   }
@@ -375,7 +380,7 @@
   .zh-td-skeleton-grid {
     grid-auto-flow: column;
     /* Prefer track-relative slide token from homepage-layout-flow on .zh-page */
-    grid-auto-columns: var(--zh-carousel-slide, min(100%, 300px));
+    grid-auto-columns: var(--zh-carousel-slide, 100%);
     grid-template-columns: unset;
     max-width: 100%;
     min-width: 0;
@@ -384,12 +389,12 @@
     overscroll-behavior-x: contain;
     overscroll-behavior-y: none;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
-    scroll-snap-type: x proximity;
+    touch-action: manipulation;
+    scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
   }
 
   .zh-trending-deals__nav {
-    display: none;
+    display: flex;
   }
 }

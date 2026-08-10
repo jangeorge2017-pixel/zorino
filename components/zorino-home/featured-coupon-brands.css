@@ -259,14 +259,14 @@
 
 @media (max-width: 767px) {
   .zh-featured-brands__nav {
-    display: none;
+    display: flex;
   }
 
   .zh-brand-card {
     /* Track-relative slide - see homepage-layout-flow --zh-carousel-slide */
-    flex: 0 0 var(--zh-carousel-slide, min(300px, 85%));
-    width: var(--zh-carousel-slide, min(300px, 85%));
-    max-width: var(--zh-carousel-slide, min(300px, 85%));
+    flex: 0 0 var(--zh-carousel-slide, 100%);
+    width: var(--zh-carousel-slide, 100%);
+    max-width: var(--zh-carousel-slide, 100%);
   }
 
   .zh-brand-card__offer {

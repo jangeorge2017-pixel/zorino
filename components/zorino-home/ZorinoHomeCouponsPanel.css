@@ -181,7 +181,13 @@
   }
 }
 
-/* Mobile — stacked code row; keep larger logos / type */
+/*
+ * Mobile — compact coupon card:
+ * Row 1: logo LEFT + brand/offer RIGHT
+ * Row 2: code + copy icon
+ * Row 3: Used / Verified footer
+ * Tablet/Desktop blocks above stay unchanged.
+ */
 @media (max-width: 767px) {
   .zh-page #zh-section-coupons.zh-panel {
     height: auto;
@@ -189,33 +195,37 @@
   }
 
   .zh-page #zh-section-coupons .zh-coupons {
-    gap: 8px;
+    gap: 6px;
     height: auto;
   }
 
   .zh-page #zh-section-coupons .zh-coupon {
     flex: 0 0 auto;
-    grid-template-columns: 60px minmax(0, 1fr);
-    padding: 16px 14px;
-    gap: 10px 14px;
-    align-items: start;
+    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    padding: 10px 12px;
+    gap: 8px 10px;
+    align-items: center;
+    border-radius: 14px;
   }
 
   .zh-page #zh-section-coupons .zh-coupon__logo {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    min-height: 60px;
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 12px;
     position: relative;
+    grid-row: 1;
+    align-self: center;
   }
 
   .zh-page #zh-section-coupons .zh-coupon__logo img {
     position: static;
     inset: auto;
     display: block;
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    height: 48px;
     max-width: 100%;
     max-height: 100%;
     padding: 0;
@@ -228,26 +238,79 @@
     transform: none;
   }
 
+  .zh-page #zh-section-coupons .zh-coupon__body {
+    grid-row: 1;
+    min-width: 0;
+    align-self: center;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__store {
+    margin: 0 0 2px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__offer {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.25;
+  }
+
+  .zh-page #zh-section-coupons .zh-coupon__min {
+    margin: 2px 0 0;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
   .zh-page #zh-section-coupons .zh-coupon__code-wrap {
     grid-column: 1 / -1;
+    grid-row: 2;
     width: 100%;
     max-width: none;
     align-items: stretch;
+    gap: 6px;
   }
 
   .zh-page #zh-section-coupons .zh-coupon__code-box {
     max-width: none;
     width: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 6px 10px;
+    gap: 8px;
   }
 
+  .zh-page #zh-section-coupons .zh-coupon__code {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  /* Beat global mobile `button { min-height: 44px }` so the code row stays compact */
+  .zh-page #zh-section-coupons .zh-coupon__copy {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 0 !important;
+    flex-shrink: 0;
+  }
+
+  /* Footer: Used + Verified on one compact horizontal row */
   .zh-page #zh-section-coupons .zh-coupon__meta {
-    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 10px;
+    width: 100%;
+    font-size: 10.5px;
     text-align: left;
-    white-space: normal;
+    white-space: nowrap;
   }
 
   .zh-page #zh-section-coupons .zh-coupon__meta > span,
   .zh-page #zh-section-coupons .zh-coupon__verified {
     justify-content: flex-start;
+    gap: 3px;
+    line-height: 1.2;
   }
 }

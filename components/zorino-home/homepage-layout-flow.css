@@ -107,10 +107,10 @@
    * ═══════════════════════════════════════════════════════════════════════
    */
   .zh-page {
-    /* Slide width relative to the TRACK content box — never 100vw math */
+    /* One full card per viewport — no neighbor peek; % relative to TRACK box */
     --zh-carousel-gap: 12px;
-    --zh-carousel-peek: 28px;
-    --zh-carousel-slide: calc(100% - var(--zh-carousel-peek));
+    --zh-carousel-peek: 0px;
+    --zh-carousel-slide: 100%;
   }
 
   /* Even discovery rhythm — match homepage-responsive --zh-discovery-gap */
@@ -236,7 +236,19 @@
   /* ── 3) Intentional horizontal carousels only ── */
   .zh-page .zh-trending-deals__track,
   .zh-page .zh-td-skeleton-grid,
-  .zh-page .zh-featured-brands__track,
+  .zh-page .zh-featured-brands__track {
+    overflow-x: auto;
+    overflow-y: clip;
+    /*
+     * pan-x alone locked vertical page scroll when the finger was on a card.
+     * manipulation keeps native horizontal swipe + vertical page scroll.
+     */
+    touch-action: manipulation;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .zh-page .zh-trending-deals__filters {
     overflow-x: auto;
     overflow-y: clip;
@@ -249,7 +261,7 @@
   .zh-page .zh-trending-deals__track,
   .zh-page .zh-td-skeleton-grid,
   .zh-page .zh-featured-brands__track {
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
     scroll-padding-inline: 0;
     padding-inline: 0;
     gap: var(--zh-carousel-gap);
@@ -263,7 +275,11 @@
 
   .zh-page .zh-trending-deals__slide {
     min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
   .zh-page .zh-featured-brands__track .zh-brand-card {
@@ -271,9 +287,11 @@
     width: var(--zh-carousel-slide);
     max-width: var(--zh-carousel-slide);
     min-width: 0;
+    box-sizing: border-box;
     /* Verified chip sits slightly outside — must not be clipped */
     overflow: visible;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 
   .zh-page .zh-brand-card__verified {

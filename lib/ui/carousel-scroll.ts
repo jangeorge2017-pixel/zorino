@@ -20,6 +20,62 @@ export function getCarouselScrollState(node: HTMLElement) {
   };
 }
 
+/** Pixel step for exactly one slide (item width + track gap). */
+export function getCarouselItemStep(node: HTMLElement, itemSelector: string): number {
+  const item = node.querySelector(itemSelector);
+  const styles = getComputedStyle(node);
+  const gapRaw =
+    styles.columnGap && styles.columnGap !== "normal" ? styles.columnGap : styles.gap;
+  const gap = Number.parseFloat(gapRaw || "0") || 0;
+  if (item instanceof HTMLElement) {
+    return item.getBoundingClientRect().width + gap;
+  }
+  return Math.max(1, node.clientWidth + gap);
+}
+
+function getMostVisibleItemIndex(
+  node: HTMLElement,
+  items: HTMLElement[],
+): number {
+  const trackRect = node.getBoundingClientRect();
+  let currentIndex = 0;
+  let best = -1;
+  for (let i = 0; i < items.length; i++) {
+    const r = items[i].getBoundingClientRect();
+    const overlap =
+      Math.max(0, Math.min(r.right, trackRect.right) - Math.max(r.left, trackRect.left));
+    if (overlap > best) {
+      best = overlap;
+      currentIndex = i;
+    }
+  }
+  return currentIndex;
+}
+
+/**
+ * Scroll a horizontal carousel by exactly one item.
+ * Uses on-screen positions so LTR/RTL and negative scrollLeft both work.
+ */
+export function scrollCarouselByOneItem(
+  node: HTMLElement,
+  direction: -1 | 1,
+  itemSelector: string,
+): void {
+  const items = Array.from(node.querySelectorAll<HTMLElement>(itemSelector));
+  if (items.length < 2) return;
+
+  const currentIndex = getMostVisibleItemIndex(node, items);
+  const nextIndex = Math.max(0, Math.min(items.length - 1, currentIndex + direction));
+  if (nextIndex === currentIndex) return;
+
+  const deltaX =
+    items[nextIndex].getBoundingClientRect().left -
+    items[currentIndex].getBoundingClientRect().left;
+  if (Math.abs(deltaX) < 1) return;
+
+  node.scrollBy({ left: deltaX, behavior: "smooth" });
+}
+
 /**
  * Horizontal overflow scrollers (`overflow-x: auto`) capture vertical wheel
  * even when they cannot scroll vertically — page scroll stalls under the

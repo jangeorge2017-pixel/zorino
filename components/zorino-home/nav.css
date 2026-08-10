@@ -1035,14 +1035,14 @@
       0 0 18px rgba(59, 130, 246, 0.14);
   }
 
-  /* Wishlist visible; premium green accent (dark theme) */
+  /* Wishlist visible; pure white glyph (mobile); glow unchanged */
   .zh-page .zh-nav__icon-btn--wishlist,
   .zh-nav__icon-btn--wishlist {
     display: inline-flex !important;
     flex: 0 0 auto;
     visibility: visible;
     opacity: 1;
-    color: #86efac;
+    color: #ffffff;
     box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
     animation: zh-nav-glow-green 4.1s ease-in-out infinite;
   }
@@ -1052,20 +1052,20 @@
   .zh-nav__icon-btn--wishlist:hover,
   .zh-nav__icon-btn--wishlist:focus-visible {
     animation: none;
-    color: #bbf7d0;
+    color: #ffffff;
     box-shadow:
       0 0 12px rgba(52, 211, 153, 0.38),
       0 0 18px rgba(16, 185, 129, 0.16);
   }
 
-  /* Soft gold/yellow accent on notification bell */
+  /* Notification bell: pure white glyph (mobile); glow unchanged */
   .zh-page .zh-nav__icon-btn--notify,
   .zh-nav__icon-btn--notify {
     display: inline-flex !important;
     flex: 0 0 auto;
     visibility: visible;
     opacity: 1;
-    color: #fde68a;
+    color: #ffffff;
     box-shadow: 0 0 10px rgba(251, 191, 36, 0.28);
     animation: zh-nav-glow-gold 4.3s ease-in-out infinite;
   }
@@ -1075,7 +1075,7 @@
   .zh-nav__icon-btn--notify:hover,
   .zh-nav__icon-btn--notify:focus-visible {
     animation: none;
-    color: #fde68a;
+    color: #ffffff;
     box-shadow:
       0 0 12px rgba(251, 191, 36, 0.34),
       0 0 18px rgba(245, 158, 11, 0.14);
