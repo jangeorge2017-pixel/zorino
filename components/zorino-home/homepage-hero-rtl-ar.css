@@ -1,99 +1,74 @@
 /**
- * Arabic (RTL) homepage Hero — desktop only (≥1280px).
+ * Arabic (RTL) homepage Hero — desktop only.
+ * Does NOT change English LTR. Tablet/mobile unchanged unless noted.
  *
- * Exact mirror of the FINAL English Desktop Hero
- * (homepage-desktop.css): same dimensions, spacing, sizing,
- * background tokens, feather, and visual structure.
- *
- * Only differences vs EN:
- * - Arabic copy (via messages/ar.json)
- * - RTL reading direction
- * - Mirrored column placement (copy right, Z left facing headline)
- * - Horizontal flip of the shared hero artwork so the Z faces the headline
- *
- * Does NOT change English LTR, Tablet, or Mobile layouts.
+ * Composition: EXACT spatial copy of the approved EN desktop Hero.
+ * Do NOT mirror, flip, or rearrange columns / artwork / chrome.
+ * Only Arabic copy + RTL on text nodes.
  */
 
 @media (min-width: 1280px) {
-  /*
-   * Keep the hero visual plane physically LTR so grid placement is explicit.
-   * Composition-lock also forces LTR; we restate for clarity, then place columns.
-   */
+  /* Physical composition stays LTR — same plane as English */
   html[dir="rtl"] .zh-page .zh-hero-zone,
   html[dir="rtl"] .zh-page .zh-hero,
+  html[dir="rtl"] .zh-page .zh-hero-zone__tools,
+  html[dir="rtl"] .zh-page .zh-hero-search,
+  html[dir="rtl"] .zh-page .zh-search,
+  html[dir="rtl"] .zh-page .zh-search__bar,
+  html[dir="rtl"] .zh-page .zh-categories-wrap,
+  html[dir="rtl"] .zh-page .zh-categories-nav,
+  html[dir="rtl"] .zh-page .zh-categories,
+  html[dir="rtl"] .zh-page .zh-home-discovery-nav,
+  html[dir="rtl"] .zh-page .zh-quick-nav-wrap,
+  html[dir="rtl"] .zh-page .zh-quick-nav,
+  html[dir="rtl"] .zh-page .zh-quick-nav__track,
+  html[dir="rtl"] .zh-page .zh-quick-nav__row,
   html[dir="rtl"] .zh-page .zh-page__artwork-clip,
   html[dir="rtl"] .zh-page .zh-page__artwork,
-  html[dir="rtl"] .zh-page .hero-artwork {
+  html[dir="rtl"] .zh-page .hero-artwork,
+  html[dir="rtl"] .zh-page .zh-nav,
+  html[dir="rtl"] .zh-page .zh-nav__inner {
     direction: ltr !important;
     unicode-bidi: isolate;
   }
 
-  /* Copy column → far right (mirror of EN 1 / span 5) */
+  /* Same EN grid placement — copy left, artwork right */
   html[dir="rtl"] .zh-page .zh-hero__col--left {
-    grid-column: 8 / span 5;
+    grid-column: 1 / span 5;
     grid-row: 1;
-    justify-content: flex-end;
+    justify-content: flex-start;
     text-align: start;
-    direction: rtl;
-    unicode-bidi: isolate;
     z-index: 3;
   }
 
-  /* Soft veil follows the headline on the right (mirror of EN left veil) */
+  /* Soft veil — identical EN gradient anchor (left side of copy) */
   html[dir="rtl"] .zh-page .zh-hero__col--left::before {
-    inset: -4% -6% -6% -12%;
+    inset: -4% -12% -6% -6%;
     background: radial-gradient(
-      ellipse 70% 60% at 74% 42%,
+      ellipse 70% 60% at 26% 42%,
       rgba(0, 0, 0, 0.28) 0%,
       rgba(0, 0, 0, 0.05) 55%,
       transparent 78%
     );
   }
 
-  /* Orbit / artwork slot → left half (mirror of EN 6 / span 7) */
   html[dir="rtl"] .zh-page .zh-hero__col--right {
-    grid-column: 1 / span 7;
+    grid-column: 6 / span 7;
     grid-row: 1;
   }
 
   html[dir="rtl"] .zh-page .zh-hero__copy {
-    margin-inline-start: auto;
+    margin-inline-start: 0;
     margin-inline-end: 0;
     max-width: 36rem;
     width: 100%;
-    direction: rtl;
-    text-align: start;
   }
 
+  /* RTL applies to text only — positions unchanged */
+  html[dir="rtl"] .zh-page .zh-hero__copy,
   html[dir="rtl"] .zh-page .zh-hero__badge,
   html[dir="rtl"] .zh-page .zh-hero__title,
-  html[dir="rtl"] .zh-page .zh-hero__subtitle {
-    direction: rtl;
-    text-align: start;
-    unicode-bidi: isolate;
-  }
-
-  /*
-   * Same title metrics as EN desktop — do not shrink Arabic.
-   * EN: clamp(49px, 4.3vw, 70px) / 70px at ≥1720px
-   */
-  html[dir="rtl"] .zh-page .zh-hero__title {
-    font-size: clamp(49px, 4.3vw, 70px);
-    line-height: 0.96;
-    letter-spacing: -0.045em;
-    font-weight: 800;
-    text-wrap: balance;
-  }
-
-  html[dir="rtl"] .zh-page .zh-hero__stats {
-    direction: rtl;
-    unicode-bidi: isolate;
-    margin-inline-start: auto;
-    margin-inline-end: 0;
-    width: calc(100% + 30px);
-    max-width: calc(36rem + 30px);
-  }
-
+  html[dir="rtl"] .zh-page .zh-hero__subtitle,
   html[dir="rtl"] .zh-page .zh-stat,
   html[dir="rtl"] .zh-page .zh-stat__value,
   html[dir="rtl"] .zh-page .zh-stat__meta,
@@ -104,100 +79,105 @@
   }
 
   /*
-   * Full-bleed Z artwork — same asset, size, feather, and paint tokens as EN.
-   * Clip stays unmasked (EN). Flip the artwork layer so Z+platform sit on the
-   * left and face the right-side headline. Keep EN right-based paint + mask;
-   * scaleX(-1) around the viewport center mirrors them with the Z.
+   * Headline: IBM Plex Sans Arabic (--font-arabic) with EN desktop metrics.
+   * Weight 700 = heaviest available Plex Arabic face (EN uses 800).
    */
-  html[dir="rtl"] .zh-page .zh-page__artwork-clip {
-    -webkit-mask-image: none;
-    mask-image: none;
-    -webkit-mask-composite: unset;
-    mask-composite: unset;
-    overflow: visible;
+  html[dir="rtl"] .zh-page .zh-hero__title {
+    font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+    font-size: clamp(49px, 4.3vw, 70px);
+    line-height: 0.96;
+    letter-spacing: 0;
+    font-weight: 700;
   }
 
+  /* Stats cards keep EN left→right order; labels read RTL inside */
+  html[dir="rtl"] .zh-page .zh-hero__stats {
+    direction: ltr;
+    unicode-bidi: isolate;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    width: calc(100% + 30px);
+    max-width: calc(36rem + 30px);
+  }
+
+  /*
+   * Artwork — identical EN desktop anchor. No scaleX flip, no left-side mirror.
+   * Values must match homepage-desktop.css exactly.
+   */
   html[dir="rtl"] .zh-page .zh-page__artwork,
   html[dir="rtl"] .zh-page .zh-page__artwork::after {
     background-position:
       right var(--zh-hero-artwork-painted-right)
       top var(--zh-hero-artwork-painted-top);
-    transform: scaleX(-1) scale(var(--zh-hero-z-scale, 1));
-    /* Center X so Z swaps sides; keep EN’s vertical Z-scale origin */
-    transform-origin: 50% 6.8%;
+    transform: scale(var(--zh-hero-z-scale, 1));
+    transform-origin: unset;
   }
 
-  /* Orbit cards ride with the mirrored left-side artwork plane */
   html[dir="rtl"] .zh-page .hero-artwork {
-    transform: scaleX(-1) translate(
-      calc(58px + var(--zh-hero-artwork-shift-left, 0px)),
+    transform: translate(
+      calc(-58px - var(--zh-hero-artwork-shift-left, 0px)),
       calc(48px - var(--zh-hero-artwork-lift) - var(--zh-hero-artwork-stretch-z-up, 0px))
     );
   }
 
   html[dir="rtl"] .zh-page .hero-artwork__orbit {
-    transform: scaleX(-1) translate(
+    transform: translate(
       calc(
-        -120px - var(--zh-orbit-card-shift-right, 0px) +
+        120px + var(--zh-orbit-card-shift-right, 0px) -
           var(--zh-orbit-card-nudge-left, 0px)
       ),
       60px
     );
   }
 
-  /*
-   * Search — RTL chrome (overrides composition-lock LTR !important).
-   * Same size/spacing as EN; only inline direction flips.
-   */
-  html[dir="rtl"] .zh-page .zh-hero-zone .zh-hero-search,
-  html[dir="rtl"] .zh-page .zh-search {
-    direction: rtl !important;
+  /* Search chrome stays LTR; Arabic placeholder/input text only */
+  html[dir="rtl"] .zh-page .zh-search__bar input,
+  html[dir="rtl"] .zh-page .zh-search__suggestion-text,
+  html[dir="rtl"] .zh-page .zh-categories__label,
+  html[dir="rtl"] .zh-page .zh-quick-nav__label {
+    direction: rtl;
     unicode-bidi: isolate;
-  }
-
-  html[dir="rtl"] .zh-page .zh-search__bar {
-    direction: rtl !important;
+    text-align: start;
   }
 
   html[dir="rtl"] .zh-page .zh-search__bar input {
     text-align: start;
+  }
+
+  /* Nav — undo composition-lock RTL margin flips; logo stays far left like EN */
+  html[dir="rtl"] .zh-page .zh-nav__logo {
+    margin: 0;
+    margin-right: 0;
+    margin-left: 0;
+    margin-inline-end: 0;
+    justify-self: start;
+  }
+
+  html[dir="rtl"] .zh-page .zh-nav__logo-lockup {
+    object-position: left center;
+  }
+
+  html[dir="rtl"] .zh-page .zh-nav__search-slot {
+    margin-left: var(--zh-nav-gap, 12px);
+    margin-right: 0;
+  }
+
+  html[dir="rtl"] .zh-page .zh-nav__actions {
+    margin-left: var(--zh-nav-gap, 12px);
+    margin-right: 0;
+  }
+
+  html[dir="rtl"] .zh-page .zh-nav__link,
+  html[dir="rtl"] .zh-page .zor-intl__trigger,
+  html[dir="rtl"] .zh-page .zor-intl__option {
+    direction: rtl;
+    unicode-bidi: isolate;
   }
 }
 
 @media (min-width: 1720px) {
   html[dir="rtl"] .zh-page .zh-hero__title {
     font-size: 70px; /* match EN desktop */
-  }
-}
-
-/* ── Header (Arabic desktop) — logo far right, controls opposite ── */
-@media (min-width: 1440px) {
-  html[dir="rtl"] .zh-page .zh-nav {
-    /* Mirror EN insets: flush logo side (inline-start in RTL = right) */
-    padding: 0 clamp(6px, 0.5vw, 12px) 0 clamp(16px, 1.4vw, 28px);
-  }
-
-  html[dir="rtl"] .zh-page .zh-nav__inner {
-    direction: rtl;
-    unicode-bidi: isolate;
-  }
-
-  html[dir="rtl"] .zh-page .zh-nav__logo {
-    justify-self: start; /* start = right in RTL grid */
-    margin: 0;
-  }
-
-  html[dir="rtl"] .zh-page .zh-nav__logo-lockup {
-    object-position: right center;
-  }
-
-  html[dir="rtl"] .zh-page .zh-nav__links {
-    direction: rtl;
-  }
-
-  html[dir="rtl"] .zh-page .zh-nav__utils,
-  html[dir="rtl"] .zh-page .zh-nav__actions {
-    direction: rtl;
   }
 }
 
