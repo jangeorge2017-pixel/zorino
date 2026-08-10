@@ -79,12 +79,12 @@
   }
 
   /*
-   * Headline: IBM Plex Sans Arabic (--font-arabic) with EN desktop metrics.
+   * Headline: IBM Plex Sans Arabic — ~8% smaller than EN clamp(49px, 4.3vw, 70px).
    * Weight 700 = heaviest available Plex Arabic face (EN uses 800).
    */
   html[dir="rtl"] .zh-page .zh-hero__title {
     font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
-    font-size: clamp(49px, 4.3vw, 70px);
+    font-size: clamp(45px, 3.96vw, 64px);
     line-height: 0.96;
     letter-spacing: 0;
     font-weight: 700;
@@ -177,7 +177,7 @@
 
 @media (min-width: 1720px) {
   html[dir="rtl"] .zh-page .zh-hero__title {
-    font-size: 70px; /* match EN desktop */
+    font-size: 64px; /* ~8% under EN 70px */
   }
 }
 
