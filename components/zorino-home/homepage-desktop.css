@@ -52,10 +52,10 @@
         var(--zh-hero-artwork-extend-down)
     );
     /*
-      Background only — LEFT 40px toward headline from prior 47px.
+      Background only — LEFT 30px more toward headline from prior 87px.
       Size / scale tokens unchanged.
     */
-    --zh-hero-artwork-painted-right: 87px;
+    --zh-hero-artwork-painted-right: 117px;
     --zh-hero-artwork-painted-width: calc(
       (
           var(--zh-hero-artwork-painted-width-base) + var(--zh-hero-bg-prev-inset) +
@@ -69,9 +69,9 @@
     );
     --zh-hero-bg-nudge-up: 160px;
     /*
-      Background only — DOWN 40px from prior -111px. Size unchanged.
+      Background only — DOWN 30px more from prior -71px. Size unchanged.
     */
-    --zh-hero-bg-shift-down: -71px;
+    --zh-hero-bg-shift-down: -41px;
     --zh-hero-artwork-painted-top: calc(
       var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
         var(--zh-hero-artwork-stretch-z-up) - var(--zh-hero-bg-nudge-up) +
