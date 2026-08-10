@@ -8,6 +8,30 @@ type HeroFloatingCardProps = {
   product: FloatingProductCard;
 };
 
+/** Prefer the largest available CDN variant for orbit product art. */
+function preferOrbitImageSrc(src: string): string {
+  if (!src || src.startsWith("/")) return src;
+  try {
+    const url = new URL(src);
+    const host = url.hostname.toLowerCase();
+    if (host === "images.unsplash.com") {
+      url.searchParams.set("w", "1600");
+      url.searchParams.set("q", "95");
+      url.searchParams.set("auto", "format");
+      return url.toString();
+    }
+    if (host.includes("media-amazon.com") || host.includes("ssl-images-amazon.com")) {
+      return src.replace(/_SL\d+_/g, "_SL1600_").replace(/\._SS\d+_/, "._SS1600_");
+    }
+    if (host.includes("alicdn.com") || host.includes("aliexpress")) {
+      return src.replace(/_\d+x\d+\./, "_960x960.");
+    }
+    return src;
+  } catch {
+    return src;
+  }
+}
+
 export default function HeroFloatingCard({ product }: HeroFloatingCardProps) {
   const delay = getHeroOrbitAnimationDelay(product.position);
 
@@ -19,11 +43,11 @@ export default function HeroFloatingCard({ product }: HeroFloatingCardProps) {
     >
       <div className="zh-orbit-card__media">
         <AssetImage
-          src={product.imageSrc}
+          src={preferOrbitImageSrc(product.imageSrc)}
           alt=""
           fill
           className="zh-orbit-card__img"
-          sizes="224px"
+          sizes="(min-width: 1280px) 384px, 224px"
           objectFit="cover"
           priority
         />
