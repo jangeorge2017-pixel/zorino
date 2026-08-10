@@ -69,9 +69,10 @@
     );
     --zh-hero-bg-nudge-up: 160px;
     /*
-      Background only — DOWN 30px more from prior -71px. Size unchanged.
+      Background only — DOWN 40px more from prior -41px. Size unchanged.
+      May extend behind/below the Search Bar.
     */
-    --zh-hero-bg-shift-down: -41px;
+    --zh-hero-bg-shift-down: -1px;
     --zh-hero-artwork-painted-top: calc(
       var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
         var(--zh-hero-artwork-stretch-z-up) - var(--zh-hero-bg-nudge-up) +
