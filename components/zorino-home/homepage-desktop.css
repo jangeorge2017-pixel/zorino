@@ -368,8 +368,9 @@
   }
 
   /*
-    Full-bleed Hero artwork — extends past the viewport; soft feather only.
-    No hard crop box. overflow stays visible on the image layer.
+    Full-bleed Hero artwork — same /hero-background.png as Tablet.
+    Desktop only adapts position/scale tokens above; colors stay original.
+    Soft feather blends into page black — no hard rectangular frame.
   */
   .zh-page .zh-page__artwork-clip {
     inset: -160px -120px -200px -120px;
@@ -377,59 +378,46 @@
     border: none;
     outline: none;
     box-shadow: none;
-    /* Softer edge dissolve into page black — size/position of PNG unchanged */
     -webkit-mask-image:
       radial-gradient(
-        ellipse 96% 92% at 58% 44%,
+        ellipse 92% 88% at 58% 42%,
         #000 0%,
-        #000 32%,
-        rgba(0, 0, 0, 0.65) 58%,
-        rgba(0, 0, 0, 0.25) 78%,
+        #000 52%,
         transparent 100%
       ),
       linear-gradient(
         180deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.35) calc(var(--zh-hero-edge-feather) * 0.45),
         #000 var(--zh-hero-edge-feather),
         #000 calc(100% - var(--zh-hero-edge-feather)),
-        rgba(0, 0, 0, 0.35) calc(100% - var(--zh-hero-edge-feather) * 0.45),
         transparent 100%
       ),
       linear-gradient(
         90deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.35) calc(var(--zh-hero-edge-feather) * 0.45),
         #000 var(--zh-hero-edge-feather),
         #000 calc(100% - var(--zh-hero-edge-feather)),
-        rgba(0, 0, 0, 0.35) calc(100% - var(--zh-hero-edge-feather) * 0.45),
         transparent 100%
       );
     mask-image:
       radial-gradient(
-        ellipse 96% 92% at 58% 44%,
+        ellipse 92% 88% at 58% 42%,
         #000 0%,
-        #000 32%,
-        rgba(0, 0, 0, 0.65) 58%,
-        rgba(0, 0, 0, 0.25) 78%,
+        #000 52%,
         transparent 100%
       ),
       linear-gradient(
         180deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.35) calc(var(--zh-hero-edge-feather) * 0.45),
         #000 var(--zh-hero-edge-feather),
         #000 calc(100% - var(--zh-hero-edge-feather)),
-        rgba(0, 0, 0, 0.35) calc(100% - var(--zh-hero-edge-feather) * 0.45),
         transparent 100%
       ),
       linear-gradient(
         90deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.35) calc(var(--zh-hero-edge-feather) * 0.45),
         #000 var(--zh-hero-edge-feather),
         #000 calc(100% - var(--zh-hero-edge-feather)),
-        rgba(0, 0, 0, 0.35) calc(100% - var(--zh-hero-edge-feather) * 0.45),
         transparent 100%
       );
     -webkit-mask-composite: source-in;
@@ -442,11 +430,9 @@
     image-rendering: auto;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    /*
-     * Natural PNG — mild sat/brightness pull only (no soft-light neon wash).
-     * Stars, particles, lighting, and Z geometry stay intact.
-     */
-    filter: saturate(0.86) brightness(0.94) contrast(0.98);
+    /* Full original PNG fidelity — no desat / fade / opacity loss */
+    filter: none;
+    opacity: 1;
     border: none;
     outline: none;
     box-shadow: none;
@@ -470,15 +456,23 @@
   }
 
   /*
-   * Remove the soft-light neon wash. Base PNG alone keeps stars / lighting /
-   * particles / Z shape at their natural colors (no sat/brightness boost).
+   * Match Tablet/base grade (app/zorino-home.css) — soft-light on the same
+   * original asset so stars, glow, planet, and Z keep full contrast/color.
    */
   .zh-page .zh-page__artwork::after {
-    content: none;
-    display: none;
-    opacity: 0;
-    filter: none;
-    mix-blend-mode: normal;
+    content: "";
+    display: block;
+    opacity: 0.38;
+    mix-blend-mode: soft-light;
+    filter: contrast(1.14) saturate(1.18) brightness(0.98);
+    background-image: url("/hero-background.png");
+    background-repeat: no-repeat;
+    background-size:
+      var(--zh-hero-artwork-painted-width)
+      var(--zh-hero-artwork-painted-height);
+    background-position:
+      right var(--zh-hero-artwork-painted-right)
+      top var(--zh-hero-artwork-painted-top);
   }
 
   .zh-page .zh-page__background::after {
