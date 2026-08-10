@@ -680,6 +680,11 @@
     /* ~14% over prior 72px lockup; bar/icons stay 56/34 */
     --zh-nav-logo-h: 82px;
     --zh-nav-transition: 220ms ease;
+    /* Scroll with the page on mobile — not fixed/sticky */
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
     height: 56px;
     max-height: 56px;
     /* Flush start — match avatar-side inset (8px + safe-area) */

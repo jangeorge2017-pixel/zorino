@@ -345,10 +345,12 @@
     min-width: 0;
     flex-wrap: nowrap;
     overflow-x: auto;
-    overflow-y: clip;
+    overflow-y: hidden;
     overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    /* Allow vertical page scroll; pan-x alone traps Y gestures on this strip */
+    touch-action: pan-x pan-y;
     scrollbar-width: none;
   }
 

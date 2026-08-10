@@ -570,6 +570,33 @@
   pointer-events: none;
 }
 
+/*
+ * Mobile ONLY — navbar (+ categories below it) scroll with the page.
+ * Tablet/Desktop keep the fixed primary chrome above.
+ */
+@media (max-width: 767px),
+  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+  .zh-page > .zh-nav {
+    position: relative !important;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+  }
+
+  .zh-page > .zh-nav-spacer {
+    display: none;
+    height: 0;
+  }
+
+  .zh-page .zh-categories-wrap,
+  .zh-page .zh-categories-nav,
+  .zh-page .zh-categories {
+    position: relative;
+    top: auto;
+  }
+}
+
 /* Prevent accidental horizontal scroll from glow / pills.
    Keep the same content+pad box as .zh-shell so nav / sections share one grid. */
 .zh-page .zh-shell {
