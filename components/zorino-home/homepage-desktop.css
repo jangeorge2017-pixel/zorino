@@ -234,20 +234,13 @@
     z-index: 2;
   }
 
-  /* Let category absolute positioning use .zh-hero-zone, not tools */
-  .zh-page .zh-hero-zone .zh-hero-zone__tools {
-    position: static;
-    z-index: auto;
-  }
-
-  /* Search + Categories share one Hero tools stack */
+  /* Search + Categories share one Hero tools stack — DOM order: Search → Categories */
   .zh-page .zh-hero-zone .zh-hero-zone__tools {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     flex: 0 0 auto;
     width: 100%;
-    /* Categories are absolute (nav↔search band) — no in-flow gap needed */
     gap: 0;
     margin-top: 0;
     margin-bottom: 0;
@@ -618,30 +611,24 @@
   }
 
   /*
-   * Categories — vertically centered between Navbar bottom and Search top.
-   * Icons / sizes / horizontal layout unchanged; only vertical placement.
+   * Categories — in flow under Search, centered in the band before
+   * the Trending / Quick-Links row. Icons / sizes / horizontal layout unchanged.
    */
   .zh-page .zh-hero-zone .zh-categories-wrap {
-    position: absolute;
-    left: 0;
-    right: 0;
-    width: 100%;
+    position: relative;
     bottom: auto;
-    z-index: 5;
+    z-index: 2;
     margin: 0;
     padding: 0;
     border-top: none;
     transform: none;
     /*
-      Band ≈ hero-zone top (= nav bottom) → search top
-      (pad + hero col + search margins − lift). Center the ~110px row.
+      Match the air below the row (hero-zone padding-bottom 56px +
+      discovery margin-top 5px) so the row sits centered between
+      Search bottom and the Quick-Links row.
     */
-    top: calc(
-      (
-          clamp(28px, 4vh, 56px) + clamp(440px, 54vh, 620px) + clamp(36px, 5vh, 56px) +
-            8px - var(--zh-hero-search-lift, 70px) - 110px
-        ) / 2
-    );
+    margin-top: 61px;
+    margin-bottom: 0;
   }
 
   .zh-page .zh-hero-zone .zh-categories-wrap::before {
