@@ -809,6 +809,10 @@ img {
   font-size: 13px;
 }
 
+.deals-coupons-row .deal-compare-btn {
+  font-size: 11.5px; /* −1.5px vs prior 13px */
+}
+
 .deals-coupons-row .section-title {
   font-size: 22px;
 }
@@ -2503,6 +2507,7 @@ img {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: none;
+  font-size: 12.5px; /* −1.5px vs prior 14px baseline; Shop Now untouched */
 }
 
 .home-compare-btn:hover {
@@ -2938,6 +2943,11 @@ img {
     box-shadow 0.22s ease,
     background 0.22s ease,
     border-color 0.22s ease;
+}
+
+/* Compare Prices only — absolute −1.5px; do not affect Shop Now / other CTAs */
+.deal-compare-btn {
+  font-size: 12.5px;
 }
 
 .deal-compare-btn,
@@ -4219,6 +4229,12 @@ img {
     min-height: 44px;
     padding: 10px 10px;
     font-size: 13px;
+  }
+
+  /* Compare Prices only — absolute −1.5px; Shop Now stays 13px */
+  .home-compare-btn,
+  .deal-compare-btn {
+    font-size: 11.5px;
   }
 
   .deal-name {
