@@ -212,20 +212,9 @@
   }
 
   .zh-page .zh-hero-zone::after {
-    content: "";
-    position: absolute;
-    left: calc(-1 * var(--zh-pad));
-    right: calc(-1 * var(--zh-pad));
-    bottom: 0;
-    height: clamp(48px, 6vh, 80px);
-    z-index: 0;
-    pointer-events: none;
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      rgba(0, 0, 0, 0.2) 55%,
-      rgba(0, 0, 0, 0.45) 100%
-    );
+    /* Remove bottom wash band — was reading as a hard hero frame edge */
+    content: none;
+    display: none;
   }
 
   .zh-page .zh-hero-zone .zh-hero,
@@ -364,59 +353,29 @@
 
   /*
     Full-bleed Hero artwork — same /hero-background.png as Tablet.
-    Desktop only adapts position/scale tokens above; colors stay original.
-    Soft feather blends into page black — no hard rectangular frame.
+    Oversized clip + wide radial only (no linear box masks) so edges
+    dissolve outside the viewport. Artwork quality untouched.
   */
   .zh-page .zh-page__artwork-clip {
-    inset: -160px -120px -200px -120px;
+    inset: -280px -260px -320px -260px;
     overflow: visible;
     border: none;
     outline: none;
     box-shadow: none;
-    -webkit-mask-image:
-      radial-gradient(
-        ellipse 92% 88% at 58% 42%,
-        #000 0%,
-        #000 52%,
-        transparent 100%
-      ),
-      linear-gradient(
-        180deg,
-        transparent 0%,
-        #000 var(--zh-hero-edge-feather),
-        #000 calc(100% - var(--zh-hero-edge-feather)),
-        transparent 100%
-      ),
-      linear-gradient(
-        90deg,
-        transparent 0%,
-        #000 var(--zh-hero-edge-feather),
-        #000 calc(100% - var(--zh-hero-edge-feather)),
-        transparent 100%
-      );
-    mask-image:
-      radial-gradient(
-        ellipse 92% 88% at 58% 42%,
-        #000 0%,
-        #000 52%,
-        transparent 100%
-      ),
-      linear-gradient(
-        180deg,
-        transparent 0%,
-        #000 var(--zh-hero-edge-feather),
-        #000 calc(100% - var(--zh-hero-edge-feather)),
-        transparent 100%
-      ),
-      linear-gradient(
-        90deg,
-        transparent 0%,
-        #000 var(--zh-hero-edge-feather),
-        #000 calc(100% - var(--zh-hero-edge-feather)),
-        transparent 100%
-      );
-    -webkit-mask-composite: source-in;
-    mask-composite: intersect;
+    -webkit-mask-image: radial-gradient(
+      ellipse 160% 145% at 58% 38%,
+      #000 0%,
+      #000 78%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 160% 145% at 58% 38%,
+      #000 0%,
+      #000 78%,
+      transparent 100%
+    );
+    -webkit-mask-composite: source-over;
+    mask-composite: add;
   }
 
   .zh-page .zh-page__artwork {
@@ -535,10 +494,20 @@
     right: auto !important;
     bottom: auto !important;
     margin: 0;
-    margin-inline-start: 20px;
+    /* Was 20px; +30px toward the Z / platform on the right */
+    margin-inline-start: 50px;
     transform: translateY(0);
     animation-name: zh-orbit-float-stats-row;
     pointer-events: auto;
+  }
+
+  /* Crisp product art — full source fidelity, card size unchanged */
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] .zh-orbit-card__img {
+    image-rendering: auto;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    filter: none;
+    transform: translateZ(0);
   }
 
   /* Search — ~7% narrower, centered; sits in .zh-hero-zone__tools */
@@ -719,9 +688,9 @@
     color: #e2e8f0;
   }
 
-  /* Chips / discovery — ~15px higher under Hero */
+  /* Chips / discovery — 10px higher (was 5px); search/categories untouched */
   .zh-page .zh-home-discovery-nav {
-    margin-top: 5px;
+    margin-top: -5px;
     padding-bottom: 12px;
   }
 
