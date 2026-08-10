@@ -11,8 +11,8 @@ const HERO_ORBIT_COMPOSITION = [
   "orbit-lower-right",
 ] as const;
 
-/** Tablet band only — Desktop / Mobile keep orbit composition. */
-const TABLET_MQ = "(min-width: 768px) and (max-width: 1279px)";
+/** Tablet + Desktop — single floating card beside stats. Mobile keeps orbit DOM. */
+const STATS_ORBIT_MQ = "(min-width: 768px)";
 
 type HeroArtworkProps = {
   floatingProducts: FloatingProductCard[];
@@ -27,7 +27,7 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
   ).filter((product): product is FloatingProductCard => product != null);
 
   useEffect(() => {
-    const mq = window.matchMedia(TABLET_MQ);
+    const mq = window.matchMedia(STATS_ORBIT_MQ);
     let orbitParent: Element | null = null;
     let nextSibling: ChildNode | null = null;
 
