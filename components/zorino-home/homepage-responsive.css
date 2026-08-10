@@ -137,6 +137,202 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   Tablet ONLY (768–1279) — outer Categories chrome + single orbit card
+   Desktop (≥1280) and Mobile (≤767) untouched.
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1279px) {
+  /*
+   * Tiny vertical rhythm tighten (~2px per discovery gap) so the full
+   * Tablet stack (nav → hero → metrics → search → categories → chips)
+   * fits the viewport. Element sizes / nav height / hero artwork untouched.
+   */
+  .zh-page {
+    --zh-space-desc-stats: 18px; /* was 20px */
+    --zh-space-stats-search: 22px; /* was 24px */
+    --zh-space-discovery: 16px; /* was 18px */
+  }
+
+  /* Even pitch for Deals → Blog — slight inset so the band fits the viewport */
+  .zh-page .zh-nav__links {
+    justify-content: space-evenly;
+    /* ~1–2px less per distributed gap; no height/padding-block change */
+    padding: 0 6px;
+    gap: 0;
+    overflow-x: hidden;
+  }
+
+  .zh-page .zh-nav__link {
+    flex: 0 1 auto;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  /*
+   * Restore former AI-Powered badge block height (~badge + 16px margin)
+   * so title / subtitle / metrics sit where they did before removal.
+   * Badge stays removed — no empty pill.
+   */
+  .zh-page .zh-hero__badge {
+    display: none;
+  }
+
+  .zh-page .zh-hero__copy {
+    padding-top: 44px;
+  }
+
+  /*
+   * Bottom trending chips — contained strip inside homepage width.
+   * Equal-width slots (~7 per viewport); swipe inside the row for the rest.
+   * No natural-width spill past the page edge.
+   */
+  .zh-page .zh-home-discovery-nav {
+    --zh-qnav-gap: 8px;
+    /* Equal slots per viewport page; fewer on narrow tablets for readability */
+    --zh-qnav-visible: 6;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-inline: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  @media (min-width: 900px) {
+    .zh-page .zh-home-discovery-nav {
+      --zh-qnav-visible: 7;
+    }
+  }
+
+  .zh-page .zh-quick-nav-wrap,
+  .zh-page .zh-quick-nav,
+  .zh-page .zh-quick-nav__track {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-inline: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .zh-page .zh-quick-nav__row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--zh-qnav-gap);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scrollbar-width: none;
+    padding-inline: 0;
+  }
+
+  .zh-page .zh-quick-nav__row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .zh-page .zh-quick-nav__pill,
+  .zh-page a.zh-quick-nav__pill {
+    flex: 0 0
+      calc(
+        (100% - (var(--zh-qnav-visible) - 1) * var(--zh-qnav-gap)) /
+          var(--zh-qnav-visible)
+      );
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    box-sizing: border-box;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .zh-page .zh-quick-nav__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Active/hover scale must not spill past the strip edge */
+  .zh-page .zh-quick-nav__pill:hover,
+  .zh-page a.zh-quick-nav__pill:hover,
+  .zh-page .zh-quick-nav__pill.is-active,
+  .zh-page a.zh-quick-nav__pill.is-active {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  /* Remove outer Categories container/tile frame; keep icon-box effects */
+  .zh-page .zh-categories-wrap,
+  .zh-page .zh-categories-nav,
+  .zh-page .zh-categories {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .zh-page .zh-categories-wrap::before,
+  .zh-page .zh-categories-wrap::after {
+    content: none;
+    display: none;
+  }
+
+  .zh-page .zh-categories__item,
+  .zh-page .zh-categories__item:hover,
+  .zh-page .zh-categories__item--highlight,
+  .zh-page .zh-categories__item--highlight:hover {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Keep only the lower-left card near/under hero text; hide the other three */
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    display: none !important;
+  }
+
+  /*
+   * Floating product card only — metric cards untouched.
+   * Absolute (out of flex flow) so stats size/spacing stay exactly as-is.
+   * Outer box sized in JS to match a live .zh-stat; 20px after the row.
+   */
+  .zh-page .zh-hero__stats {
+    position: relative;
+  }
+
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] {
+    position: absolute !important;
+    left: 100%;
+    top: 0;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0;
+    margin-inline-start: 20px;
+    transform: translateY(0);
+    animation-name: zh-orbit-float-stats-row;
+    pointer-events: auto;
+  }
+}
+
+@keyframes zh-orbit-float-stats-row {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
    Narrow tablet / large phone — max-width: 1024px
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
