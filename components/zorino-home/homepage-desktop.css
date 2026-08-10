@@ -51,7 +51,11 @@
         var(--zh-hero-artwork-stretch-down) + var(--zh-hero-artwork-stretch-z-up) +
         var(--zh-hero-artwork-extend-down)
     );
-    --zh-hero-artwork-painted-right: 0px;
+    /*
+      Background only — negative right offset slides artwork RIGHT
+      (away from hero copy). Size / scale tokens unchanged.
+    */
+    --zh-hero-artwork-painted-right: -45px;
     --zh-hero-artwork-painted-width: calc(
       (
           var(--zh-hero-artwork-painted-width-base) + var(--zh-hero-bg-prev-inset) +
@@ -64,8 +68,8 @@
         var(--zh-hero-artwork-painted-width-base)
     );
     --zh-hero-bg-nudge-up: 160px;
-    /* Background only — +45px from prior 160 (does not move cards / copy) */
-    --zh-hero-bg-shift-down: 205px;
+    /* Background only — +45px from prior 205 (does not move cards / copy) */
+    --zh-hero-bg-shift-down: 250px;
     --zh-hero-artwork-painted-top: calc(
       var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
         var(--zh-hero-artwork-stretch-z-up) - var(--zh-hero-bg-nudge-up) +
@@ -75,9 +79,9 @@
       100svh - var(--zh-hero-search-height) - clamp(36px, 5vh, 56px) -
         clamp(40px, 5vh, 72px) - 10px
     );
-    --zh-hero-edge-feather: 180px;
-    --zh-page-bg-base: #000000;
-    --zh-space-black: #000000;
+    --zh-hero-edge-feather: 150px;
+    --zh-page-bg-base: #01000e;
+    --zh-space-black: #01000e;
     --zh-orbit-card-shift-right: 16px;
     /* Floating cards only — 270px closer to the heading (prior 260 + 10) */
     --zh-orbit-card-nudge-left: 270px;
@@ -85,20 +89,20 @@
     --zh-hero-search-lift: 70px;
   }
 
-  /* Pure black — html / body / page / hero parent */
+  /* Pure black — html / body / page / hero parent (matched to PNG edge blue-black) */
   html:has(.zh-page),
   body:has(.zh-page) {
-    background: #000000;
+    background: #01000e;
   }
 
   .zh-page {
-    background: #000000;
-    --homepage-bg-fallback: #000000;
+    background: #01000e;
+    --homepage-bg-fallback: #01000e;
   }
 
   .zh-page .zh-page__background,
   .zh-page .zh-page__background::before {
-    background: #000000;
+    background: #01000e;
     border: none;
     outline: none;
     box-shadow: none;
@@ -144,7 +148,7 @@
     height: var(--zh-nav-h);
     max-height: var(--zh-nav-h);
     padding: 0 var(--zh-pad);
-    background: #000000;
+    background: #01000e;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -353,15 +357,18 @@
 
   /*
     Full-bleed Hero artwork — same /hero-background.png as Tablet.
-    No mask / border / frame — oversized clip so PNG edges sit past the
-    viewport and blend into page black. Content layer untouched.
+    Soft perimeter feather on the artwork layer (same box as the Z-scale
+    transform) so the PNG rectangle dissolves into page black.
   */
   .zh-page .zh-page__artwork-clip {
-    inset: -320px -300px -360px -300px;
+    inset: 0;
+    width: auto;
+    height: auto;
     overflow: visible;
-    border: none;
-    outline: none;
-    box-shadow: none;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent;
     -webkit-mask-image: none;
     mask-image: none;
     -webkit-mask-composite: unset;
@@ -374,12 +381,12 @@
     image-rendering: auto;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    /* Subtle glow cleanup only — keep vivid color / contrast / detail */
-    filter: contrast(0.97) saturate(0.96) brightness(0.99);
+    /* Ultra-subtle glow cleanup — keep vivid color / contrast / detail */
+    filter: brightness(0.985) contrast(0.99) saturate(0.98);
     opacity: 1;
-    border: none;
-    outline: none;
-    box-shadow: none;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
     background-color: transparent;
     background-image: url("/hero-background.png");
     background-size:
@@ -389,6 +396,91 @@
       right var(--zh-hero-artwork-painted-right)
       top var(--zh-hero-artwork-painted-top);
     background-repeat: no-repeat;
+    /* Soft edge dissolve — only the PNG perimeter, interior stays opaque */
+    -webkit-mask-image:
+      linear-gradient(
+        180deg,
+        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
+        #000
+          calc(
+            var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)
+          ),
+        #000
+          calc(
+            var(--zh-hero-artwork-painted-top) +
+              var(--zh-hero-artwork-painted-height) -
+              var(--zh-hero-edge-feather)
+          ),
+        transparent
+          calc(
+            var(--zh-hero-artwork-painted-top) +
+              var(--zh-hero-artwork-painted-height) + 1px
+          )
+      ),
+      linear-gradient(
+        90deg,
+        transparent
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) -
+              var(--zh-hero-artwork-painted-width) - 1px
+          ),
+        #000
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) -
+              var(--zh-hero-artwork-painted-width) +
+              var(--zh-hero-edge-feather)
+          ),
+        #000
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) -
+              var(--zh-hero-edge-feather)
+          ),
+        transparent
+          calc(100% - var(--zh-hero-artwork-painted-right) + 1px)
+      );
+    mask-image:
+      linear-gradient(
+        180deg,
+        transparent calc(var(--zh-hero-artwork-painted-top) - 1px),
+        #000
+          calc(
+            var(--zh-hero-artwork-painted-top) + var(--zh-hero-edge-feather)
+          ),
+        #000
+          calc(
+            var(--zh-hero-artwork-painted-top) +
+              var(--zh-hero-artwork-painted-height) -
+              var(--zh-hero-edge-feather)
+          ),
+        transparent
+          calc(
+            var(--zh-hero-artwork-painted-top) +
+              var(--zh-hero-artwork-painted-height) + 1px
+          )
+      ),
+      linear-gradient(
+        90deg,
+        transparent
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) -
+              var(--zh-hero-artwork-painted-width) - 1px
+          ),
+        #000
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) -
+              var(--zh-hero-artwork-painted-width) +
+              var(--zh-hero-edge-feather)
+          ),
+        #000
+          calc(
+            100% - var(--zh-hero-artwork-painted-right) -
+              var(--zh-hero-edge-feather)
+          ),
+        transparent
+          calc(100% - var(--zh-hero-artwork-painted-right) + 1px)
+      );
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
     /* Shrink Z+platform in place; orbit cards live outside this layer */
     transform: scale(var(--zh-hero-z-scale, 1));
     transform-origin: 76.6% 6.8%;
@@ -400,26 +492,12 @@
   }
 
   /*
-   * Soft-light grade — slightly quieter than Tablet base so glow noise
-   * eases without washing out stars / planet / Z.
+   * Soft-light duplicate removed — it brightened only inside the PNG
+   * bounds and created a visible rectangular frame against the page.
    */
   .zh-page .zh-page__artwork::after {
-    content: "";
-    display: block;
-    opacity: 0.28;
-    mix-blend-mode: soft-light;
-    filter: contrast(1.08) saturate(1.1) brightness(0.99);
-    border: none;
-    outline: none;
-    box-shadow: none;
-    background-image: url("/hero-background.png");
-    background-repeat: no-repeat;
-    background-size:
-      var(--zh-hero-artwork-painted-width)
-      var(--zh-hero-artwork-painted-height);
-    background-position:
-      right var(--zh-hero-artwork-painted-right)
-      top var(--zh-hero-artwork-painted-top);
+    content: none !important;
+    display: none !important;
   }
 
   .zh-page .zh-page__background::after {
