@@ -95,14 +95,15 @@
   html[dir="rtl"] .zh-page .zh-hero__title {
     font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
     font-size: clamp(41.6px, 3.536vw, 57.2px);
-    line-height: 1.78;
+    /* Slightly tighter leading — text + box position unchanged */
+    line-height: 1.65;
     letter-spacing: 0;
     font-weight: 700;
   }
 
   /*
-   * Pin artwork bottom edge to the search bar top (vertical translate only).
-   * EN intentionally extends below search; AR must not.
+   * Pin artwork bottom edge to the search bar top (vertical translate only),
+   * then Desktop AR-only DOWN 40px. EN / Tablet / Mobile untouched.
    * searchTop ≈ nav + zonePadTop + heroH + searchMarginTop + 8px − searchLift
    */
   html[dir="rtl"] .zh-page {
@@ -117,8 +118,10 @@
       var(--zh-nav-h) + clamp(28px, 4vh, 56px) + var(--zh-ar-hero-block-h) +
         clamp(36px, 5vh, 56px) + 8px - var(--zh-hero-search-lift, 70px)
     );
+    --zh-hero-bg-ar-shift-down: 40px;
     --zh-hero-artwork-painted-top: calc(
-      var(--zh-ar-search-top) - var(--zh-hero-artwork-painted-height)
+      var(--zh-ar-search-top) - var(--zh-hero-artwork-painted-height) +
+        var(--zh-hero-bg-ar-shift-down)
     );
   }
 
