@@ -97,7 +97,9 @@
     font-size: clamp(41.6px, 3.536vw, 57.2px);
     /* Slightly tighter leading — text + box position unchanged */
     line-height: 1.65;
-    letter-spacing: 0;
+    /* Tighter word gaps — more cohesive Arabic headline */
+    letter-spacing: -0.015em;
+    word-spacing: -0.12em;
     font-weight: 700;
   }
 
