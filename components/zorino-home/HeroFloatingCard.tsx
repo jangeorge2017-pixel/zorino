@@ -15,16 +15,29 @@ function preferOrbitImageSrc(src: string): string {
     const url = new URL(src);
     const host = url.hostname.toLowerCase();
     if (host === "images.unsplash.com") {
-      url.searchParams.set("w", "1600");
+      url.searchParams.set("w", "2000");
       url.searchParams.set("q", "95");
       url.searchParams.set("auto", "format");
+      // fit=max keeps the full original framing (no CDN crop)
+      url.searchParams.set("fit", "max");
+      url.searchParams.delete("h");
       return url.toString();
     }
     if (host.includes("media-amazon.com") || host.includes("ssl-images-amazon.com")) {
-      return src.replace(/_SL\d+_/g, "_SL1600_").replace(/\._SS\d+_/, "._SS1600_");
+      return src
+        .replace(/_SL\d+_/g, "_SL2000_")
+        .replace(/\._SS\d+_/, "._SS2000_")
+        .replace(/_AC_UL\d+_/, "_AC_SL2000_")
+        .replace(/_AC_UX\d+_/, "_AC_SL2000_");
     }
     if (host.includes("alicdn.com") || host.includes("aliexpress")) {
-      return src.replace(/_\d+x\d+\./, "_960x960.");
+      // Prefer largest square variant; fall back to stripping size suffix for original
+      const enlarged = src.replace(/_\d+x\d+\./, "_1200x1200.");
+      if (enlarged !== src) return enlarged;
+      return src.replace(/_\d+x\d+\./, ".");
+    }
+    if (host.includes("noon") || host.includes("f.nooncdn.com")) {
+      return src.replace(/\/[a-z]?_?\d+x\d+\//i, "/").replace(/_\d+x\d+(\.\w+)/, "$1");
     }
     return src;
   } catch {
@@ -47,7 +60,7 @@ export default function HeroFloatingCard({ product }: HeroFloatingCardProps) {
           alt=""
           fill
           className="zh-orbit-card__img"
-          sizes="(min-width: 1280px) 512px, 224px"
+          sizes="(min-width: 1280px) 640px, (min-width: 768px) 400px, 224px"
           objectFit="contain"
           priority
         />

@@ -564,11 +564,20 @@
     font-size: 9.5px !important;
   }
 
-  /* Full sharp product art inside the square — no crop / no stretch */
+  /*
+   * Orbit product art — use the full media rectangle.
+   * contain = entire product visible, aspect locked, no stretch/crop.
+   * Zero padding so the image area is fully used.
+   */
   .zh-page .zh-orbit-card__img {
     object-fit: contain !important;
     object-position: center !important;
-    padding: 5px !important;
+    padding: 0 !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
     image-rendering: auto;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
