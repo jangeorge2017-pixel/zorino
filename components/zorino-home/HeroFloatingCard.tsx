@@ -61,7 +61,7 @@ export default function HeroFloatingCard({ product }: HeroFloatingCardProps) {
           fill
           className="zh-orbit-card__img"
           sizes="(min-width: 1280px) 640px, (min-width: 768px) 400px, 224px"
-          objectFit="contain"
+          objectFit="cover"
           priority
         />
         {product.discount ? (

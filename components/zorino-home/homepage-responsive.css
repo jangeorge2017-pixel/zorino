@@ -204,27 +204,35 @@
   }
 
   /*
-   * Orbit product art — use the full media rectangle (Tablet).
-   * contain = entire product visible, aspect locked, no stretch/crop.
+   * Orbit product art — fill the full square media frame edge-to-edge (Tablet).
+   * cover = uses the entire frame, aspect locked, centered (no stretch).
    */
+  .zh-page .zh-orbit-card__media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.35);
+    overflow: hidden;
+  }
+
   .zh-page .zh-orbit-card__img {
-    object-fit: contain !important;
-    object-position: center !important;
-    padding: 0 !important;
+    position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
     max-width: none !important;
     max-height: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    object-fit: cover !important;
+    object-position: center !important;
     image-rendering: auto;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     transform: translateZ(0);
-  }
-
-  .zh-page .zh-orbit-card__media {
-    background: rgba(15, 23, 42, 0.35);
-    overflow: hidden;
   }
 
   /* Even pitch for Deals → Blog — slight inset so the band fits the viewport */
@@ -377,7 +385,7 @@
   /*
    * Floating product card only — metric cards untouched.
    * Absolute (out of flex flow) so stats size/spacing stay exactly as-is.
-   * Outer box sized in JS to match a live .zh-stat; 20px after the row.
+   * Outer box sized in JS to a square from live .zh-stat height; 20px after the row.
    */
   .zh-page .zh-hero__stats {
     position: relative;
