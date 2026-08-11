@@ -73,6 +73,7 @@
   /*
    * Desktop columns repositioned (not overlaid):
    * row1 = copy/stats, row2 = Z/orbit stage.
+   * Portrait Hero+Search layout re-asserts a single-row stage below.
    */
   .zh-page .zh-hero {
     grid-template-columns: minmax(0, 1fr);
@@ -88,5 +89,28 @@
     grid-column: 1;
     grid-row: 2;
     min-height: 340px;
+  }
+}
+
+/* Portrait Mobile ONLY — overlay stage for deal card beside metrics */
+@media (max-width: 767px) and (orientation: portrait) {
+  .zh-page .zh-hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    /* Defeat base 420px stage height so Search sits tight under metrics */
+    min-height: 0;
+    align-items: start;
+  }
+
+  .zh-hero__col--left {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .zh-hero__col--right {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
   }
 }
