@@ -150,6 +150,34 @@
     --zh-space-desc-stats: 18px; /* was 20px */
     --zh-space-stats-search: 22px; /* was 24px */
     --zh-space-discovery: 16px; /* was 18px */
+    /* Hero background only — original full-Z source, +40px down */
+    --zh-hero-bg-shift-down: 40px;
+    --zh-hero-artwork-painted-top: calc(
+      var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
+        var(--zh-hero-artwork-stretch-z-up) + var(--zh-hero-bg-shift-down)
+    );
+  }
+
+  /* Original full-Z source asset on Tablet (Mobile keeps /hero-background.png) */
+  .zh-page .zh-page__artwork,
+  .zh-page .zh-page__artwork::after {
+    background-image: url("/hero-background@2x.full-z-source.png");
+  }
+
+  /*
+   * Orbit discount — match finalized Desktop/Tablet product-card discount pills.
+   * Animation / position / card layout unchanged.
+   */
+  .zh-page .zh-orbit-card__discount {
+    color: #fff7ed !important;
+    background: rgba(15, 23, 42, 0.48) !important;
+    border: 1px solid rgba(253, 186, 116, 0.28) !important;
+    border-radius: 999px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+    font-weight: 800 !important;
   }
 
   /* Even pitch for Deals → Blog — slight inset so the band fits the viewport */

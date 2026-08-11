@@ -2,7 +2,8 @@ html,body{margin:0!important;padding:0!important;background:#0B0E17!important;ba
 [class*="hero"]:not([class*="hero-artwork"]){background:transparent!important;background-image:none!important}
 /* Card shells only — never paint buttons/links that merely contain "card" in a class
    (e.g. .zh-brand-card__copy, .zor-coupons-page__card-copy), or Copy Coupon vanishes.
-   Skip badge chips and media frames — those are overlays/photo boxes, not card shells. */
-[class*="card"]:not(button):not(a):not([type="button"]):not([type="submit"]):not([class*="badge"]):not([class*="media"]){background:#15192B!important;box-shadow:0 4px 20px rgba(0,0,0,0.3)!important}
+   Skip badge chips, discount overlays, and media frames — those are not card shells.
+   (zh-orbit-card__discount matched "card" and got a solid black rectangle.) */
+[class*="card"]:not(button):not(a):not([type="button"]):not([type="submit"]):not([class*="badge"]):not([class*="discount"]):not([class*="media"]){background:#15192B!important;box-shadow:0 4px 20px rgba(0,0,0,0.3)!important}
 [class*="compare"] button{background:linear-gradient(135deg,#8B5CF6,#6366F1)!important;color:white!important}
 [class*="code"]{background:#1A1F35!important;border:1px dashed #4A5568!important;color:#8B5CF6!important}
