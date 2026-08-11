@@ -95,36 +95,11 @@
   html[dir="rtl"] .zh-page .zh-hero__title {
     font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
     font-size: clamp(41.6px, 3.536vw, 57.2px);
-    /* Slightly tighter leading — text + box position unchanged */
-    line-height: 1.65;
-    /* Tighter word gaps — more cohesive Arabic headline */
-    letter-spacing: -0.015em;
-    word-spacing: -0.12em;
+    /* Slightly tighter than prior 1.65 / -0.12em — keep a small visible gap */
+    line-height: 1.56;
+    letter-spacing: -0.018em;
+    word-spacing: -0.14em;
     font-weight: 700;
-  }
-
-  /*
-   * Pin artwork bottom edge to the search bar top (vertical translate only),
-   * then Desktop AR-only DOWN 40px. EN / Tablet / Mobile untouched.
-   * searchTop ≈ nav + zonePadTop + heroH + searchMarginTop + 8px − searchLift
-   */
-  html[dir="rtl"] .zh-page {
-    /* Floor from measured AR copy block; also respect hero + right-col min-heights */
-    --zh-ar-hero-content-h: 486px;
-    --zh-ar-hero-block-h: max(
-      var(--zh-ar-hero-content-h),
-      clamp(380px, 46vh, 540px),
-      clamp(440px, 54vh, 620px)
-    );
-    --zh-ar-search-top: calc(
-      var(--zh-nav-h) + clamp(28px, 4vh, 56px) + var(--zh-ar-hero-block-h) +
-        clamp(36px, 5vh, 56px) + 8px - var(--zh-hero-search-lift, 70px)
-    );
-    --zh-hero-bg-ar-shift-down: 40px;
-    --zh-hero-artwork-painted-top: calc(
-      var(--zh-ar-search-top) - var(--zh-hero-artwork-painted-height) +
-        var(--zh-hero-bg-ar-shift-down)
-    );
   }
 
   /* Stats cards keep EN left→right order; labels read RTL inside */
