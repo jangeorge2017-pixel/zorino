@@ -231,7 +231,11 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
                       deal={trendingDealToDeal(deal, {
                         featured: deal.displayBadge === "hot" || deal.displayBadge === "limited",
                       })}
-                      endsInLabel={trendingDealEndsInLabel(deal)}
+                      endsInLabel={trendingDealEndsInLabel(deal, {
+                        today: t("endsInLabelToday"),
+                        oneDay: t("endsInLabelOneDay"),
+                        days: (count) => t("endsInLabelDays", { count }),
+                      })}
                       featuredLabel={t("featured")}
                     />
                   </div>
