@@ -87,6 +87,11 @@
     text-align: center;
   }
 
+  /* Subtitle max-width box is narrower than copy — center the box itself */
+  html[dir="rtl"] .zh-page .zh-hero__subtitle {
+    margin-inline: auto;
+  }
+
   html[dir="rtl"] .zh-page .zh-hero__title {
     font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
     font-size: clamp(41.6px, 3.536vw, 57.2px);
