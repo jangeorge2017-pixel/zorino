@@ -66,7 +66,11 @@ export default async function ZorinoHomeProductSection({
             <DealsDealCard
               key={product.id}
               deal={trendingDealToDeal(product)}
-              endsInLabel={trendingDealEndsInLabel(product)}
+              endsInLabel={trendingDealEndsInLabel(product, {
+                today: t("endsInLabelToday"),
+                oneDay: t("endsInLabelOneDay"),
+                days: (count) => t("endsInLabelDays", { count }),
+              })}
               featuredLabel={t("featured")}
             />
           ))}

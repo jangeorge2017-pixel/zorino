@@ -64,14 +64,41 @@ export function trendingDealToDeal(
   };
 }
 
-export function formatDealEndsInLabel(endsAt: string): string {
+export function dealEndsInDaysRemaining(endsAt: string): number {
   const diff = new Date(endsAt).getTime() - Date.now();
-  const days = Math.max(0, Math.ceil(diff / 86_400_000));
+  return Math.max(0, Math.ceil(diff / 86_400_000));
+}
+
+export function formatDealEndsInLabel(
+  endsAt: string,
+  labels?: {
+    today: string;
+    oneDay: string;
+    days: (count: number) => string;
+  },
+): string {
+  const days = dealEndsInDaysRemaining(endsAt);
+  if (labels) {
+    if (days === 0) return labels.today;
+    if (days === 1) return labels.oneDay;
+    return labels.days(days);
+  }
   if (days === 0) return "Ends today";
   if (days === 1) return "Ends in 1 day";
   return `Ends in ${days} days`;
 }
 
-export function trendingDealEndsInLabel(card: TrendingDealCard): string {
-  return formatDealEndsInLabel(trendingDealToDeal(card).endsAt);
+export function trendingDealEndsInDays(card: TrendingDealCard): number {
+  return dealEndsInDaysRemaining(trendingDealToDeal(card).endsAt);
+}
+
+export function trendingDealEndsInLabel(
+  card: TrendingDealCard,
+  labels?: {
+    today: string;
+    oneDay: string;
+    days: (count: number) => string;
+  },
+): string {
+  return formatDealEndsInLabel(trendingDealToDeal(card).endsAt, labels);
 }

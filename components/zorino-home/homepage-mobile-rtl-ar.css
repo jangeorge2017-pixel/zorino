@@ -1,11 +1,26 @@
 /**
  * Arabic (RTL) homepage — MOBILE ONLY (≤767px).
- * English mobile layout is the spatial reference; AR changes are copy/type
- * polish, full category/nav access, and deal-discount chrome only.
+ * English mobile geometry is the reference. AR changes: copy/type polish,
+ * full category/nav access, deal-badge chrome, localized UI labels only.
  */
 
 @media (max-width: 767px) {
-  /* ── 1) Arabic typography: clean leading, no Latin tracking ── */
+  /* ── 1) Hero: same EN 168px centered track for title + subtitle ── */
+  html[dir="rtl"] .zh-page .zh-hero__badge {
+    width: fit-content;
+    max-width: min(100%, 168px);
+    inset-inline-start: calc(min(100%, 168px) / 2);
+    transform: translateX(50%);
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle {
+    width: min(100%, 168px);
+    max-width: min(100%, 168px);
+    margin-inline: 0;
+    text-align: center;
+  }
+
   html[dir="rtl"] .zh-page .zh-hero__title {
     letter-spacing: 0;
     line-height: 1.42;
@@ -17,6 +32,7 @@
   html[dir="rtl"] .zh-page .zh-hero__subtitle-tail {
     letter-spacing: 0;
     line-height: 1.5;
+    text-align: center;
   }
 
   html[dir="rtl"] .zh-page .zh-stat__value,
@@ -26,7 +42,8 @@
   html[dir="rtl"] .zh-page .deal-name,
   html[dir="rtl"] .zh-page .zh-coupon__title,
   html[dir="rtl"] .zh-page .home-shop-btn,
-  html[dir="rtl"] .zh-page .home-compare-btn {
+  html[dir="rtl"] .zh-page .home-compare-btn,
+  html[dir="rtl"] .zh-page .listing-deal-meta {
     letter-spacing: 0;
     line-height: 1.35;
   }
@@ -39,15 +56,12 @@
     line-height: 1.35;
   }
 
-  /* ── 2) Full categories row — horizontal scroll, ~4 tiles in view ── */
+  /* ── 2) Categories: fill width like EN 4-up; scroll for the rest ── */
   html[dir="rtl"] .zh-page .zh-categories-wrap,
   html[dir="rtl"] .zh-page .zh-categories-nav {
+    position: relative;
     overflow: visible;
     max-width: 100%;
-  }
-
-  html[dir="rtl"] .zh-page .zh-categories-nav {
-    position: relative;
   }
 
   html[dir="rtl"] .zh-page .zh-categories__item:nth-child(n + 5) {
@@ -57,8 +71,11 @@
   html[dir="rtl"] .zh-page .zh-categories {
     display: flex;
     grid-template-columns: none;
+    box-sizing: border-box;
     width: 100%;
     max-width: 100%;
+    margin-inline: 0;
+    padding-inline: 0;
     gap: 8px;
     overflow-x: auto;
     overflow-y: hidden;
@@ -66,32 +83,35 @@
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
-    padding-inline: 0 18px;
-    /* Soft edge cue on the inline-start peek side (more tiles in RTL) */
-    mask-image: linear-gradient(
-      to left,
-      #000 0,
-      #000 calc(100% - 28px),
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to left,
-      #000 0,
-      #000 calc(100% - 28px),
-      transparent 100%
-    );
   }
 
   html[dir="rtl"] .zh-page .zh-categories::-webkit-scrollbar {
     display: none;
   }
 
+  /* Exact EN mobile tile width: (100% − 3 gaps) / 4 */
   html[dir="rtl"] .zh-page .zh-categories__item {
     flex: 0 0 calc((100% - 24px) / 4);
     width: calc((100% - 24px) / 4);
     min-width: calc((100% - 24px) / 4);
     max-width: none;
     scroll-snap-align: start;
+  }
+
+  /* Subtle scroll cue — peek-side chevron */
+  html[dir="rtl"] .zh-page .zh-categories-nav::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 2px;
+    z-index: 2;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 0.85;
+    background: center / contain no-repeat
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 6l-6 6 6 6' stroke='%23a5b4fc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 
   /* Full quick-nav chip set — horizontal scroll */
@@ -101,6 +121,7 @@
 
   html[dir="rtl"] .zh-page .zh-quick-nav__track,
   html[dir="rtl"] .zh-page .zh-quick-nav-wrap {
+    position: relative;
     overflow: visible;
     max-width: 100%;
   }
@@ -111,25 +132,13 @@
     width: 100%;
     max-width: 100%;
     gap: 8px;
+    padding-inline: 0;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
-    padding-inline: 0 18px;
-    mask-image: linear-gradient(
-      to left,
-      #000 0,
-      #000 calc(100% - 24px),
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to left,
-      #000 0,
-      #000 calc(100% - 24px),
-      transparent 100%
-    );
   }
 
   html[dir="rtl"] .zh-page .zh-quick-nav__row::-webkit-scrollbar {
@@ -151,12 +160,59 @@
     white-space: nowrap;
   }
 
-  /* ── 3) Deal cards: no black discount panel; compact empty slots ── */
+  html[dir="rtl"] .zh-page .zh-quick-nav-wrap::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 2px;
+    z-index: 2;
+    width: 14px;
+    height: 14px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 0.85;
+    background: center / contain no-repeat
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 6l-6 6 6 6' stroke='%23a5b4fc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  /* ── 3) Deal cards: no dark badge plates over the photo ── */
   html[dir="rtl"] .zh-page .zh-trending-deals__track .product-card-media,
   html[dir="rtl"] .zh-page .zh-product-grid .product-card-media,
-  html[dir="rtl"] .zh-page .listing-product-card .product-card-media {
-    background: transparent;
-    border-color: transparent;
+  html[dir="rtl"] .zh-page .listing-product-card .product-card-media,
+  html[dir="rtl"] .zh-page .zor-deals-page__card .product-card-media {
+    background: transparent !important;
+    border-color: transparent !important;
+  }
+
+  html[dir="rtl"] .zh-page .product-card-badges,
+  html[dir="rtl"] .zh-page .product-card-badges--start,
+  html[dir="rtl"] .zh-page .product-card-badges--end,
+  html[dir="rtl"] .zh-page .trending-card-badges {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  html[dir="rtl"] .zh-page .deal-marketplace,
+  html[dir="rtl"] .zh-page .product-card-badge,
+  html[dir="rtl"] .zh-page .zor-deals-page__featured-badge,
+  html[dir="rtl"] .zh-page .product-card-badge--featured {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0;
+    border-radius: 0;
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.9),
+      0 0 6px rgba(0, 0, 0, 0.55);
   }
 
   html[dir="rtl"] .zh-page .deal-discount,
@@ -170,16 +226,15 @@
     padding: 0;
     border-radius: 0;
     color: #4ade80;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 800;
     letter-spacing: 0;
-    line-height: 1.2;
+    line-height: 1.15;
     text-shadow:
       0 1px 2px rgba(0, 0, 0, 0.9),
       0 0 8px rgba(0, 0, 0, 0.55);
   }
 
-  /* Collapse reserved empty meta rows so the card stays compact */
   html[dir="rtl"] .zh-page .deal-rating.is-empty,
   html[dir="rtl"] .zh-page .listing-stock.is-empty {
     display: none;
