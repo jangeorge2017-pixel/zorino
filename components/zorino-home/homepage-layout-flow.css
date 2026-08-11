@@ -601,6 +601,22 @@
   }
 }
 
+/* Portrait Mobile ONLY — restore Tablet fixed header + spacer */
+@media (max-width: 767px) and (orientation: portrait) {
+  .zh-page > .zh-nav {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+
+  .zh-page > .zh-nav-spacer {
+    display: block;
+    height: var(--zh-nav-h, 72px);
+  }
+}
+
 /* Prevent accidental horizontal scroll from glow / pills.
    Keep the same content+pad box as .zh-shell so nav / sections share one grid. */
 .zh-page .zh-shell {

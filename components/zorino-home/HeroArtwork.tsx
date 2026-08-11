@@ -11,8 +11,12 @@ const HERO_ORBIT_COMPOSITION = [
   "orbit-lower-right",
 ] as const;
 
-/** Tablet + Desktop — single floating card beside stats. Mobile keeps orbit DOM. */
-const STATS_ORBIT_MQ = "(min-width: 768px)";
+/**
+ * Tablet + Desktop + Portrait Mobile (Tablet UI mode) — single floating card
+ * beside stats. Short Mobile Landscape keeps the orbit DOM in place (no move).
+ */
+const STATS_ORBIT_MQ =
+  "(min-width: 768px), ((max-width: 767px) and (orientation: portrait))";
 
 type HeroArtworkProps = {
   floatingProducts: FloatingProductCard[];

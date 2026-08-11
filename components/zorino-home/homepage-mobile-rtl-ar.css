@@ -382,3 +382,36 @@
     display: none;
   }
 }
+
+/*
+ * Portrait Mobile ONLY — follow EN Tablet UI mode first viewport.
+ * Landscape keeps the ≤767 Arabic mobile hero/stats contract above.
+ */
+@media (max-width: 767px) and (orientation: portrait) {
+  html[dir="rtl"] .zh-page .zh-hero__badge {
+    display: none !important;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle {
+    width: auto !important;
+    max-width: min(100%, 340px) !important;
+    margin-inline: auto !important;
+    text-align: center;
+    transform: none !important;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__stats {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    grid-template-columns: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    left: auto !important;
+    right: auto !important;
+    position: relative !important;
+    justify-content: center;
+    padding-inline-end: calc(58px + 12px);
+  }
+}
