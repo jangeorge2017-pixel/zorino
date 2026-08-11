@@ -350,7 +350,49 @@
   .zh-page a.zh-quick-nav__pill.is-active {
     transform: translate3d(0, 0, 0) scale(1);
   }
+}
 
+/*
+ * Tablet only (768–1279): subtle scroll cue on deals/category quick-nav.
+ * Keeps equal-width pills + overflow-x scroll; Mobile (≤767) has its own cue.
+ */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .zh-page .zh-quick-nav-wrap {
+    position: relative;
+    /* Keep row scroll; allow cue to paint above the strip */
+    overflow: visible;
+  }
+
+  /* LTR — more items toward the right */
+  .zh-page .zh-quick-nav-wrap::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    inset: unset;
+    left: auto;
+    right: 2px;
+    /* Above .zh-quick-nav (z-index: 5) so the cue stays visible */
+    z-index: 6;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 0.95;
+    filter: drop-shadow(0 0 4px rgba(7, 11, 22, 0.9));
+    background: center / contain no-repeat
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 6l6 6-6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  /* RTL — overflow continues toward physical left */
+  html[dir="rtl"] .zh-page .zh-quick-nav-wrap::after {
+    left: 2px;
+    right: auto;
+    background: center / contain no-repeat
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 6l-6 6 6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+}
+
+@media (max-width: 1279px) {
   /* Remove outer Categories container/tile frame; keep icon-box effects */
   .zh-page .zh-categories-wrap,
   .zh-page .zh-categories-nav,
