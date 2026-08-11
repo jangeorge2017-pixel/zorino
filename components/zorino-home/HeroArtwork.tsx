@@ -66,10 +66,13 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
         stats.appendChild(card);
       }
 
-      /* Stats height is the master; keep a square frame so product art
-         can fill the media area with contain (no letterbox shrink). */
+      /* Stats height is the master; square frame + ~15% larger than the
+         matched stat side so product art reads clearly on D+T. */
       const { width, height } = sample.getBoundingClientRect();
-      const side = Math.max(1, Math.round(Math.min(width, height)));
+      const side = Math.max(
+        1,
+        Math.round(Math.min(width, height) * 1.15),
+      );
       card.style.width = `${side}px`;
       card.style.height = `${side}px`;
     };
