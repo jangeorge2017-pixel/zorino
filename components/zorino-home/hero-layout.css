@@ -73,6 +73,8 @@
   /*
    * Desktop columns repositioned (not overlaid):
    * row1 = copy/stats, row2 = Z/orbit stage.
+   * Portrait Tablet UI mode re-asserts a single-row stage in
+   * homepage-responsive.css (orientation:portrait only).
    */
   .zh-page .zh-hero {
     grid-template-columns: minmax(0, 1fr);
@@ -88,5 +90,24 @@
     grid-column: 1;
     grid-row: 2;
     min-height: 340px;
+  }
+}
+
+/* Portrait Mobile ONLY — keep orbit stage overlaid (Tablet composition) */
+@media (max-width: 767px) and (orientation: portrait) {
+  .zh-page .zh-hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .zh-hero__col--left {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .zh-hero__col--right {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
   }
 }

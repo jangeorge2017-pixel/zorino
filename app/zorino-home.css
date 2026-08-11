@@ -309,6 +309,13 @@ html[dir="rtl"] .zh-page {
   }
 }
 
+/* Portrait Mobile ONLY — Tablet-scaled artwork anchor (see homepage-responsive) */
+@media (max-width: 767px) and (orientation: portrait) {
+  .zh-page {
+    --zh-hero-artwork-right: 0px;
+  }
+}
+
 .zh-shell {
   width: 100%;
   max-width: calc(var(--zh-content) + 2 * var(--zh-pad));
