@@ -19,12 +19,21 @@ import "./quick-nav.css";
 const LOCALES = ["en", "ar"] as const;
 const TABLET_QUICK_NAV_MQ = "(min-width: 768px) and (max-width: 1279px)";
 
+type TabletNavPage = "start" | "end";
+
 function isHomepage(pathname: string): boolean {
   if (pathname === "/") return true;
   const segments = pathname.split("/").filter(Boolean);
   return (
     segments.length === 1 &&
     LOCALES.includes(segments[0] as (typeof LOCALES)[number])
+  );
+}
+
+function isRtlRow(row: HTMLElement): boolean {
+  return (
+    document.documentElement.getAttribute("dir") === "rtl" ||
+    getComputedStyle(row).direction === "rtl"
   );
 }
 
@@ -47,7 +56,8 @@ export default function ZorinoHomeQuickNav() {
   const onHome = isHomepage(pathname);
   const [activeTargetId, setActiveTargetId] = useState<string | null>(null);
   const [clickedItemId, setClickedItemId] = useState<string | null>(null);
-  const [canScrollMore, setCanScrollMore] = useState(false);
+  /** Tablet pager: start = first 7 slots, end = remaining 3 */
+  const [tabletPage, setTabletPage] = useState<TabletNavPage>("start");
   const rowRef = useRef<HTMLDivElement>(null);
 
   const targetToItemIds = useMemo(() => {
@@ -96,22 +106,22 @@ export default function ZorinoHomeQuickNav() {
     return () => sectionObserver.disconnect();
   }, [onHome]);
 
-  const updateTabletScrollCue = useCallback(() => {
+  const syncTabletPageFromScroll = useCallback(() => {
     const row = rowRef.current;
     if (!row || !window.matchMedia(TABLET_QUICK_NAV_MQ).matches) {
-      setCanScrollMore(false);
+      setTabletPage("start");
       return;
     }
     const max = row.scrollWidth - row.clientWidth;
     if (max <= 2) {
-      setCanScrollMore(false);
+      setTabletPage("start");
       return;
     }
-    const rtl =
-      document.documentElement.getAttribute("dir") === "rtl" ||
-      getComputedStyle(row).direction === "rtl";
+    const rtl = isRtlRow(row);
+    const mid = max * 0.45;
     // Chromium RTL: start ≈ 0, more content toward negative scrollLeft
-    setCanScrollMore(rtl ? row.scrollLeft > -max + 4 : row.scrollLeft < max - 4);
+    const atEnd = rtl ? row.scrollLeft < -mid : row.scrollLeft > mid;
+    setTabletPage(atEnd ? "end" : "start");
   }, []);
 
   useEffect(() => {
@@ -119,9 +129,9 @@ export default function ZorinoHomeQuickNav() {
     const row = rowRef.current;
     if (!row) return;
 
-    updateTabletScrollCue();
-    const onScroll = () => updateTabletScrollCue();
-    const onResize = () => updateTabletScrollCue();
+    syncTabletPageFromScroll();
+    const onScroll = () => syncTabletPageFromScroll();
+    const onResize = () => syncTabletPageFromScroll();
     row.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     const mq = window.matchMedia(TABLET_QUICK_NAV_MQ);
@@ -134,18 +144,21 @@ export default function ZorinoHomeQuickNav() {
       mq.removeEventListener("change", onResize);
       ro.disconnect();
     };
-  }, [onHome, updateTabletScrollCue]);
+  }, [onHome, syncTabletPageFromScroll]);
 
-  const scrollTabletMore = useCallback(() => {
+  const scrollTabletToPage = useCallback((page: TabletNavPage) => {
     const row = rowRef.current;
     if (!row || !window.matchMedia(TABLET_QUICK_NAV_MQ).matches) return;
-    const rtl =
-      document.documentElement.getAttribute("dir") === "rtl" ||
-      getComputedStyle(row).direction === "rtl";
-    // Reveal the remaining ~3 equal-width slots (of 7 visible)
-    const step = Math.max(row.clientWidth * (3 / 7), 120);
-    row.scrollBy({ left: rtl ? -step : step, behavior: "smooth" });
+    const rtl = isRtlRow(row);
+    const max = Math.max(0, row.scrollWidth - row.clientWidth);
+    const left = page === "start" ? 0 : rtl ? -max : max;
+    row.scrollTo({ left, behavior: "smooth" });
+    setTabletPage(page);
   }, []);
+
+  const onTabletPagerClick = useCallback(() => {
+    scrollTabletToPage(tabletPage === "start" ? "end" : "start");
+  }, [scrollTabletToPage, tabletPage]);
 
   const scrollToTarget = useCallback((targetId: string, itemId: string) => {
     const section = document.getElementById(targetId);
@@ -193,6 +206,8 @@ export default function ZorinoHomeQuickNav() {
 
   if (!onHome) return null;
 
+  const pagerIsBack = tabletPage === "end";
+
   return (
     <div className="zh-quick-nav-wrap">
       <nav className="zh-quick-nav" aria-label={t("quickNav")}>
@@ -228,16 +243,33 @@ export default function ZorinoHomeQuickNav() {
               );
             })}
           </div>
+          {/* Tablet-only: always-visible more ↔ back toggle (CSS-hidden elsewhere) */}
+          <button
+            type="button"
+            className={`zh-quick-nav__more${pagerIsBack ? " is-back" : ""}`}
+            aria-label={pagerIsBack ? t("quickNavBack") : t("quickNavMore")}
+            onClick={onTabletPagerClick}
+          >
+            <svg
+              className="zh-quick-nav__more-icon"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M9 6l6 6-6 6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
         </div>
       </nav>
-      {/* Tablet-only: clickable cue for the remaining equal-width slots */}
-      <button
-        type="button"
-        className={`zh-quick-nav__more${canScrollMore ? "" : " is-hidden"}`}
-        aria-label={t("quickNav")}
-        tabIndex={canScrollMore ? 0 : -1}
-        onClick={scrollTabletMore}
-      />
     </div>
   );
 }
