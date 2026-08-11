@@ -1,0 +1,187 @@
+/**
+ * Arabic (RTL) homepage — MOBILE ONLY (≤767px).
+ * English mobile layout is the spatial reference; AR changes are copy/type
+ * polish, full category/nav access, and deal-discount chrome only.
+ */
+
+@media (max-width: 767px) {
+  /* ── 1) Arabic typography: clean leading, no Latin tracking ── */
+  html[dir="rtl"] .zh-page .zh-hero__title {
+    letter-spacing: 0;
+    line-height: 1.42;
+    font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__subtitle,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle-lead,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle-tail {
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  html[dir="rtl"] .zh-page .zh-stat__value,
+  html[dir="rtl"] .zh-page .zh-stat__label,
+  html[dir="rtl"] .zh-page .zh-panel__title,
+  html[dir="rtl"] .zh-page .zor-deals-page__section-title,
+  html[dir="rtl"] .zh-page .deal-name,
+  html[dir="rtl"] .zh-page .zh-coupon__title,
+  html[dir="rtl"] .zh-page .home-shop-btn,
+  html[dir="rtl"] .zh-page .home-compare-btn {
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__label,
+  html[dir="rtl"] .zh-page .zh-quick-nav__label {
+    font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  /* ── 2) Full categories row — horizontal scroll, ~4 tiles in view ── */
+  html[dir="rtl"] .zh-page .zh-categories-wrap,
+  html[dir="rtl"] .zh-page .zh-categories-nav {
+    overflow: visible;
+    max-width: 100%;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories-nav {
+    position: relative;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__item:nth-child(n + 5) {
+    display: flex !important;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories {
+    display: flex;
+    grid-template-columns: none;
+    width: 100%;
+    max-width: 100%;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding-inline: 0 18px;
+    /* Soft edge cue on the inline-start peek side (more tiles in RTL) */
+    mask-image: linear-gradient(
+      to left,
+      #000 0,
+      #000 calc(100% - 28px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to left,
+      #000 0,
+      #000 calc(100% - 28px),
+      transparent 100%
+    );
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories::-webkit-scrollbar {
+    display: none;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__item {
+    flex: 0 0 calc((100% - 24px) / 4);
+    width: calc((100% - 24px) / 4);
+    min-width: calc((100% - 24px) / 4);
+    max-width: none;
+    scroll-snap-align: start;
+  }
+
+  /* Full quick-nav chip set — horizontal scroll */
+  html[dir="rtl"] .zh-page .zh-quick-nav__pill:nth-child(n + 4) {
+    display: inline-flex !important;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__track,
+  html[dir="rtl"] .zh-page .zh-quick-nav-wrap {
+    overflow: visible;
+    max-width: 100%;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__row {
+    display: flex;
+    grid-template-columns: none;
+    width: 100%;
+    max-width: 100%;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding-inline: 0 18px;
+    mask-image: linear-gradient(
+      to left,
+      #000 0,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to left,
+      #000 0,
+      #000 calc(100% - 24px),
+      transparent 100%
+    );
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__row::-webkit-scrollbar {
+    display: none;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__pill {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: max-content;
+    max-width: none;
+    padding: 0 12px;
+    scroll-snap-align: start;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__label {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  /* ── 3) Deal cards: no black discount panel; compact empty slots ── */
+  html[dir="rtl"] .zh-page .zh-trending-deals__track .product-card-media,
+  html[dir="rtl"] .zh-page .zh-product-grid .product-card-media,
+  html[dir="rtl"] .zh-page .listing-product-card .product-card-media {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  html[dir="rtl"] .zh-page .deal-discount,
+  html[dir="rtl"] .zh-page .zh-td-card__discount,
+  html[dir="rtl"] .zh-page .product-card-badge.deal-discount {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0;
+    border-radius: 0;
+    color: #4ade80;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1.2;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.9),
+      0 0 8px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Collapse reserved empty meta rows so the card stays compact */
+  html[dir="rtl"] .zh-page .deal-rating.is-empty,
+  html[dir="rtl"] .zh-page .listing-stock.is-empty {
+    display: none;
+  }
+}
