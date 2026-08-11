@@ -16,6 +16,11 @@ body:not(:has(.zh-page)) .zh-quick-nav {
   min-height: 0;
 }
 
+/* Tablet-only scroll control — hidden on Desktop + Mobile */
+.zh-quick-nav__more {
+  display: none;
+}
+
 .zh-quick-nav {
   /*
    * In-flow only. Never position:fixed / sticky — a fixed quick-nav is the

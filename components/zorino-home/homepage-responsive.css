@@ -353,42 +353,66 @@
 }
 
 /*
- * Tablet only (768–1279): subtle scroll cue on deals/category quick-nav.
- * Keeps equal-width pills + overflow-x scroll; Mobile (≤767) has its own cue.
+ * Tablet only (768–1279): clickable scroll cue for remaining quick-nav slots.
+ * Keeps equal-width pills + overflow-x scroll; Desktop/Mobile unchanged.
  */
 @media (min-width: 768px) and (max-width: 1279px) {
   .zh-page .zh-quick-nav-wrap {
     position: relative;
-    /* Keep row scroll; allow cue to paint above the strip */
     overflow: visible;
   }
 
-  /* LTR — more items toward the right */
+  /* Retire decorative ::after — real button handles the cue */
   .zh-page .zh-quick-nav-wrap::after {
-    content: "";
+    content: none;
+    display: none;
+  }
+
+  .zh-page .zh-quick-nav__more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
     top: 50%;
     inset: unset;
     left: auto;
-    right: 2px;
-    /* Above .zh-quick-nav (z-index: 5) so the cue stays visible */
+    right: 0;
     z-index: 6;
-    width: 18px;
-    height: 18px;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
     transform: translateY(-50%);
-    pointer-events: none;
+    cursor: pointer;
     opacity: 0.95;
+    color: transparent;
+    background-color: rgba(7, 11, 22, 0.35);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 6l6 6-6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-position: center;
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
     filter: drop-shadow(0 0 4px rgba(7, 11, 22, 0.9));
-    background: center / contain no-repeat
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 6l6 6-6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* RTL — overflow continues toward physical left */
-  html[dir="rtl"] .zh-page .zh-quick-nav-wrap::after {
-    left: 2px;
+  .zh-page .zh-quick-nav__more.is-hidden {
+    display: none;
+  }
+
+  .zh-page .zh-quick-nav__more:hover,
+  .zh-page .zh-quick-nav__more:focus-visible {
+    opacity: 1;
+    background-color: rgba(15, 23, 42, 0.55);
+    outline: none;
+  }
+
+  /* RTL — remaining slots continue toward physical left */
+  html[dir="rtl"] .zh-page .zh-quick-nav__more {
+    left: 0;
     right: auto;
-    background: center / contain no-repeat
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 6l-6 6 6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 6l-6 6 6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 }
 

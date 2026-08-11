@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -11,6 +17,7 @@ import { getStickyClearance } from "@/lib/sticky-chrome";
 import "./quick-nav.css";
 
 const LOCALES = ["en", "ar"] as const;
+const TABLET_QUICK_NAV_MQ = "(min-width: 768px) and (max-width: 1279px)";
 
 function isHomepage(pathname: string): boolean {
   if (pathname === "/") return true;
@@ -40,6 +47,8 @@ export default function ZorinoHomeQuickNav() {
   const onHome = isHomepage(pathname);
   const [activeTargetId, setActiveTargetId] = useState<string | null>(null);
   const [clickedItemId, setClickedItemId] = useState<string | null>(null);
+  const [canScrollMore, setCanScrollMore] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
 
   const targetToItemIds = useMemo(() => {
     const map = new Map<string, string[]>();
@@ -86,6 +95,57 @@ export default function ZorinoHomeQuickNav() {
     sections.forEach((section) => sectionObserver.observe(section));
     return () => sectionObserver.disconnect();
   }, [onHome]);
+
+  const updateTabletScrollCue = useCallback(() => {
+    const row = rowRef.current;
+    if (!row || !window.matchMedia(TABLET_QUICK_NAV_MQ).matches) {
+      setCanScrollMore(false);
+      return;
+    }
+    const max = row.scrollWidth - row.clientWidth;
+    if (max <= 2) {
+      setCanScrollMore(false);
+      return;
+    }
+    const rtl =
+      document.documentElement.getAttribute("dir") === "rtl" ||
+      getComputedStyle(row).direction === "rtl";
+    // Chromium RTL: start ≈ 0, more content toward negative scrollLeft
+    setCanScrollMore(rtl ? row.scrollLeft > -max + 4 : row.scrollLeft < max - 4);
+  }, []);
+
+  useEffect(() => {
+    if (!onHome) return;
+    const row = rowRef.current;
+    if (!row) return;
+
+    updateTabletScrollCue();
+    const onScroll = () => updateTabletScrollCue();
+    const onResize = () => updateTabletScrollCue();
+    row.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    const mq = window.matchMedia(TABLET_QUICK_NAV_MQ);
+    mq.addEventListener("change", onResize);
+    const ro = new ResizeObserver(onResize);
+    ro.observe(row);
+    return () => {
+      row.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      mq.removeEventListener("change", onResize);
+      ro.disconnect();
+    };
+  }, [onHome, updateTabletScrollCue]);
+
+  const scrollTabletMore = useCallback(() => {
+    const row = rowRef.current;
+    if (!row || !window.matchMedia(TABLET_QUICK_NAV_MQ).matches) return;
+    const rtl =
+      document.documentElement.getAttribute("dir") === "rtl" ||
+      getComputedStyle(row).direction === "rtl";
+    // Reveal the remaining ~3 equal-width slots (of 7 visible)
+    const step = Math.max(row.clientWidth * (3 / 7), 120);
+    row.scrollBy({ left: rtl ? -step : step, behavior: "smooth" });
+  }, []);
 
   const scrollToTarget = useCallback((targetId: string, itemId: string) => {
     const section = document.getElementById(targetId);
@@ -137,7 +197,7 @@ export default function ZorinoHomeQuickNav() {
     <div className="zh-quick-nav-wrap">
       <nav className="zh-quick-nav" aria-label={t("quickNav")}>
         <div className="zh-quick-nav__track">
-          <div className="zh-quick-nav__row">
+          <div className="zh-quick-nav__row" ref={rowRef}>
             {ZORINO_QUICK_NAV_ITEMS.map((item) => {
               const isActive = isItemActive(item);
               const className = `zh-quick-nav__pill${isActive ? " is-active" : ""}`;
@@ -170,6 +230,14 @@ export default function ZorinoHomeQuickNav() {
           </div>
         </div>
       </nav>
+      {/* Tablet-only: clickable cue for the remaining equal-width slots */}
+      <button
+        type="button"
+        className={`zh-quick-nav__more${canScrollMore ? "" : " is-hidden"}`}
+        aria-label={t("quickNav")}
+        tabIndex={canScrollMore ? 0 : -1}
+        onClick={scrollTabletMore}
+      />
     </div>
   );
 }
