@@ -150,8 +150,8 @@
     --zh-space-desc-stats: 18px; /* was 20px */
     --zh-space-stats-search: 22px; /* was 24px */
     --zh-space-discovery: 16px; /* was 18px */
-    /* Hero background only — original full-Z source, +40px down */
-    --zh-hero-bg-shift-down: 40px;
+    /* Hero background only — original full-Z source; UP 35px from prior 40px */
+    --zh-hero-bg-shift-down: 5px;
     --zh-hero-artwork-painted-top: calc(
       var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
         var(--zh-hero-artwork-stretch-z-up) + var(--zh-hero-bg-shift-down)
@@ -178,6 +178,39 @@
     -webkit-backdrop-filter: blur(8px);
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
     font-weight: 800 !important;
+  }
+
+  /* Price plank — same translucent pill treatment as the discount badge */
+  .zh-page .zh-orbit-card__prices {
+    width: max-content;
+    max-width: calc(100% - 8px);
+    left: 4px;
+    right: auto;
+    padding: 3px 8px;
+    gap: 4px;
+    border-radius: 999px !important;
+    background: rgba(15, 23, 42, 0.48) !important;
+    border: 1px solid rgba(253, 186, 116, 0.28);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .zh-page .zh-orbit-card__price,
+  .zh-page .zh-orbit-card__was {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Full product art inside the square — no crop / no stretch */
+  .zh-page .zh-orbit-card__img {
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+
+  .zh-page .zh-orbit-card__media {
+    background: rgba(15, 23, 42, 0.35);
   }
 
   /* Even pitch for Deals → Blog — slight inset so the band fits the viewport */
