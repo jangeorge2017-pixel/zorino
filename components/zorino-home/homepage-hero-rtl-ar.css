@@ -80,12 +80,12 @@
 
   /*
    * Headline: IBM Plex Sans Arabic.
-   * Slightly under prior AR size; line-height opened so the two lines never touch.
+   * Slightly smaller; line-height opened so the two lines never touch.
    */
   html[dir="rtl"] .zh-page .zh-hero__title {
     font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
-    font-size: clamp(43px, 3.76vw, 61px);
-    line-height: 1.22;
+    font-size: clamp(41px, 3.55vw, 58px);
+    line-height: 1.34;
     letter-spacing: 0;
     font-weight: 700;
   }
@@ -124,7 +124,8 @@
 
   /*
    * Artwork — identical EN desktop anchor. No scaleX flip, no left-side mirror.
-   * Values must match homepage-desktop.css exactly.
+   * Keep EN transform-origin (76.6% 6.8%); unset defaults to center of the
+   * full-page layer and pushes the scaled glow below the search bar.
    */
   html[dir="rtl"] .zh-page .zh-page__artwork,
   html[dir="rtl"] .zh-page .zh-page__artwork::after {
@@ -132,7 +133,7 @@
       right var(--zh-hero-artwork-painted-right)
       top var(--zh-hero-artwork-painted-top);
     transform: scale(var(--zh-hero-z-scale, 1));
-    transform-origin: unset;
+    transform-origin: 76.6% 6.8%;
   }
 
   html[dir="rtl"] .zh-page .hero-artwork {
@@ -199,7 +200,7 @@
 
 @media (min-width: 1720px) {
   html[dir="rtl"] .zh-page .zh-hero__title {
-    font-size: 61px;
+    font-size: 58px;
   }
 }
 
