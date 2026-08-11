@@ -451,16 +451,20 @@
     overflow-y: visible;
   }
 
-  /* ── 5) Zero accidental X-bleed (categories / stats) ── */
+  /* ── 5) Categories: allow horizontal scroll (3-up chrome in responsive) ── */
   .zh-page .zh-categories-wrap,
-  .zh-page .zh-categories,
   .zh-page .zh-categories-nav {
-    overflow-x: clip;
+    overflow-x: visible;
+    max-width: 100%;
+  }
+
+  .zh-page .zh-categories {
+    overflow-x: auto;
     max-width: 100%;
   }
 
   .zh-page .zh-categories__item:nth-child(n + 5) {
-    display: none !important;
+    display: flex !important;
   }
 
   .zh-page .zh-hero__stats {

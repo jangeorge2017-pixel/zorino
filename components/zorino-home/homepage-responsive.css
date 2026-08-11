@@ -820,11 +820,7 @@
     }
   }
 
-  /* ── Categories + Quick Nav — shift UP with Search ── */
-  /*
-   * Pad on the wrap (not the scroller) so 4 tiles fill the track exactly.
-   * A 5th tile must not sit in a padding gutter / peek into view.
-   */
+  /* ── Categories + Quick Nav — 3 visible + horizontal scroll (match AR mobile) ── */
   .zh-page .zh-categories-wrap {
     position: relative;
     z-index: 1;
@@ -834,34 +830,48 @@
     max-width: 100%;
     padding-inline: 0;
     box-sizing: border-box;
-    overflow-x: clip;
+    overflow: visible;
   }
 
   .zh-page .zh-categories-nav {
+    position: relative;
     width: 100%;
     max-width: 100%;
-    overflow-x: clip;
+    overflow: visible;
+  }
+
+  /* Show full category set — scroll for items beyond the first 3 */
+  .zh-page .zh-categories__item:nth-child(n + 5) {
+    display: flex !important;
   }
 
   .zh-page .zh-categories {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    display: flex;
+    grid-template-columns: none;
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
     margin-inline: 0;
     padding-inline: 0;
     gap: 8px;
-    /* Exactly 4 tiles — extras hidden in layout-flow; no X-scroll */
-    scroll-snap-type: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
   }
 
+  .zh-page .zh-categories::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Exactly 3 tiles in view: (100% − 2 gaps) / 3 */
   .zh-page .zh-categories__item {
     box-sizing: border-box;
-    width: 100%;
-    min-width: 0;
+    flex: 0 0 calc((100% - 16px) / 3);
+    width: calc((100% - 16px) / 3);
+    min-width: calc((100% - 16px) / 3);
     max-width: none;
     min-height: 0;
     padding: 4px 2px 6px;
@@ -874,6 +884,7 @@
     -webkit-backdrop-filter: none;
     justify-content: center;
     align-items: center;
+    scroll-snap-align: start;
   }
 
   .zh-page .zh-categories__item:hover,
@@ -910,44 +921,79 @@
     white-space: nowrap;
   }
 
+  /* Scroll cue — more categories to the right */
+  .zh-page .zh-categories-nav::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    inset: unset;
+    left: auto;
+    right: 0;
+    z-index: 3;
+    width: 22px;
+    height: 22px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(7, 11, 22, 0.85));
+    background: center / contain no-repeat
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 6l6 6-6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
   .zh-page .zh-home-discovery-nav {
     /* Consistent 15px Categories → Bottom Chips */
     margin-top: 15px;
   }
 
   .zh-page .zh-quick-nav-wrap {
+    position: relative;
     width: 100%;
+    max-width: 100%;
+    overflow: visible;
   }
 
   .zh-page .zh-quick-nav__track {
     padding: 2px 0;
     width: 100%;
+    overflow: visible;
   }
 
-  /*
-   * Exactly three equal-width chips — hide the rest (no scroll / no peek).
-   * Grid keeps equal gaps between Trending Deals / Coupons / Coupon Brands.
-   */
-  .zh-page .zh-quick-nav__row {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 8px;
-    row-gap: 0;
-    padding-block: 2px;
-  }
-
+  /* Full chip set — 3 visible like AR; scroll for the rest */
   .zh-page .zh-quick-nav__pill:nth-child(n + 4) {
-    display: none !important;
+    display: inline-flex !important;
   }
 
-  .zh-page .zh-quick-nav__pill {
+  .zh-page .zh-quick-nav__row {
+    display: flex;
+    grid-template-columns: none;
+    width: 100%;
+    max-width: 100%;
+    column-gap: 8px;
+    gap: 8px;
+    padding-inline: 0;
+    padding-block: 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .zh-page .zh-quick-nav__row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .zh-page .zh-quick-nav__pill,
+  .zh-page a.zh-quick-nav__pill {
     box-sizing: border-box;
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    min-width: 0;
-    max-width: none;
+    flex: 0 0 calc((100% - 16px) / 3);
+    width: calc((100% - 16px) / 3);
+    min-width: calc((100% - 16px) / 3);
+    max-width: calc((100% - 16px) / 3);
     height: 38px;
     min-height: 38px;
     max-height: 38px;
@@ -957,6 +1003,7 @@
     gap: 3px;
     overflow: hidden;
     line-height: 1;
+    scroll-snap-align: start;
   }
 
   .zh-page .zh-quick-nav__emoji {
@@ -977,6 +1024,25 @@
     font-size: 12px;
     letter-spacing: 0.01em;
     line-height: 1;
+  }
+
+  /* LTR scroll cue — more chips to the right (AR overrides to left) */
+  .zh-page .zh-quick-nav-wrap::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    inset: unset;
+    left: auto;
+    right: 0;
+    z-index: 3;
+    width: 20px;
+    height: 20px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(7, 11, 22, 0.85));
+    background: center / contain no-repeat
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 6l6 6-6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 
   /* Orbit cards: same image size — larger badge/price for readability only */
