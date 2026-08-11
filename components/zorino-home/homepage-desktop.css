@@ -72,10 +72,10 @@
     );
     --zh-hero-bg-nudge-up: 160px;
     /*
-      Background only — DOWN 30px from prior 27px.
+      Background only — DOWN 40px from prior 57px (exact +40).
       May extend behind headline / below Search Bar.
     */
-    --zh-hero-bg-shift-down: 57px;
+    --zh-hero-bg-shift-down: 97px;
     --zh-hero-artwork-painted-top: calc(
       var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
         var(--zh-hero-artwork-stretch-z-up) - var(--zh-hero-bg-nudge-up) +
@@ -363,9 +363,10 @@
   }
 
   /*
-    Full-bleed Hero artwork — same /hero-background.png as Tablet.
-    Soft perimeter feather on the artwork layer (same box as the Z-scale
-    transform) so the PNG rectangle dissolves into page black.
+    Full-bleed Hero artwork — original full-Z source asset
+    (/hero-background@2x.full-z-source.png). Soft perimeter feather on the
+    artwork layer (same box as the Z-scale transform) so the PNG rectangle
+    dissolves into page black.
   */
   .zh-page .zh-page__artwork-clip {
     inset: 0;
@@ -395,7 +396,7 @@
     outline: none !important;
     box-shadow: none !important;
     background-color: transparent;
-    background-image: url("/hero-background.png");
+    background-image: url("/hero-background@2x.full-z-source.png");
     background-size:
       var(--zh-hero-artwork-painted-width)
       var(--zh-hero-artwork-painted-height);
@@ -510,6 +511,22 @@
   .zh-page .zh-page__background::after {
     height: 0;
     opacity: 0;
+  }
+
+  /*
+   * Orbit discount — match finalized Desktop product-card discount pills.
+   * Position / animation / card layout unchanged; only remove the solid black plate.
+   */
+  .zh-page .zh-orbit-card__discount {
+    color: #fff7ed !important;
+    background: rgba(15, 23, 42, 0.48) !important;
+    border: 1px solid rgba(253, 186, 116, 0.28) !important;
+    border-radius: 999px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+    font-weight: 800 !important;
   }
 
   /* Floating cards — X only; relative spacing + animations unchanged */
