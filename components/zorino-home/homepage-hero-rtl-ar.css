@@ -79,12 +79,17 @@
   }
 
   /*
-   * Headline: IBM Plex Sans Arabic.
-   * Slightly smaller; Arabic glyphs need tall leading so the two lines never touch.
+   * Headline + subtitle: centered as a pair.
+   * IBM Plex Sans Arabic; size +4% over prior AR desktop; tall leading.
    */
+  html[dir="rtl"] .zh-page .zh-hero__title,
+  html[dir="rtl"] .zh-page .zh-hero__subtitle {
+    text-align: center;
+  }
+
   html[dir="rtl"] .zh-page .zh-hero__title {
     font-family: var(--font-arabic), "Segoe UI", Tahoma, sans-serif;
-    font-size: clamp(40px, 3.4vw, 55px);
+    font-size: clamp(41.6px, 3.536vw, 57.2px);
     line-height: 1.78;
     letter-spacing: 0;
     font-weight: 700;
@@ -200,7 +205,7 @@
 
 @media (min-width: 1720px) {
   html[dir="rtl"] .zh-page .zh-hero__title {
-    font-size: 55px;
+    font-size: 57.2px;
   }
 }
 
