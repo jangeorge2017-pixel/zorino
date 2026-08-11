@@ -195,18 +195,23 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  html[dir="rtl"] .zh-page .deal-marketplace,
-  html[dir="rtl"] .zh-page .product-card-badge,
-  html[dir="rtl"] .zh-page .zor-deals-page__featured-badge,
-  html[dir="rtl"] .zh-page .product-card-badge--featured {
+  html[dir="rtl"] .zh-page .listing-product-card .deal-marketplace.product-card-badge,
+  html[dir="rtl"] .zh-page .zor-deals-page__card .deal-marketplace.product-card-badge,
+  html[dir="rtl"] .zh-page .listing-product-card .product-card-badge,
+  html[dir="rtl"] .zh-page .zor-deals-page__card .product-card-badge,
+  html[dir="rtl"] .zh-page .listing-product-card .zor-deals-page__featured-badge,
+  html[dir="rtl"] .zh-page .zor-deals-page__card .zor-deals-page__featured-badge,
+  html[dir="rtl"] .zh-page .listing-product-card .product-card-badge--featured,
+  html[dir="rtl"] .zh-page .zor-deals-page__card .product-card-badge--featured {
     background: transparent !important;
+    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    padding: 0;
-    border-radius: 0;
-    color: #e2e8f0;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    color: #e2e8f0 !important;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0;
@@ -215,18 +220,20 @@
       0 0 6px rgba(0, 0, 0, 0.55);
   }
 
-  html[dir="rtl"] .zh-page .deal-discount,
-  html[dir="rtl"] .zh-page .zh-td-card__discount,
-  html[dir="rtl"] .zh-page .product-card-badge.deal-discount {
+  html[dir="rtl"] .zh-page .listing-product-card .deal-discount.product-card-badge,
+  html[dir="rtl"] .zh-page .zor-deals-page__card .deal-discount.product-card-badge,
+  html[dir="rtl"] .zh-page .listing-product-card .zh-td-card__discount,
+  html[dir="rtl"] .zh-page .zor-deals-page__card .zh-td-card__discount {
     background: transparent !important;
+    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    padding: 0;
-    border-radius: 0;
-    color: #4ade80;
-    font-size: 15px;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    color: #4ade80 !important;
+    font-size: 15px !important;
     font-weight: 800;
     letter-spacing: 0;
     line-height: 1.15;
