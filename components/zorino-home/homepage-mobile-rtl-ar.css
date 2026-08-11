@@ -280,7 +280,11 @@
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 6l-6 6 6 6' stroke='%23c7d2fe' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 
-  /* ── 4) Discount contrast only — no card resize/redesign ── */
+  /*
+   * ── Product price / discount: match EN mobile pill treatment exactly ──
+   * EN reference (product-card-media-overlays.css ≤767): translucent pill,
+   * #fff7ed discount, 9px/800, 3×8 pad, 999 radius. Price/was already match.
+   */
   html[dir="rtl"] .zh-page .zh-trending-deals__track .product-card-media,
   html[dir="rtl"] .zh-page .zh-product-grid .product-card-media,
   html[dir="rtl"] .zh-page .listing-product-card .product-card-media,
@@ -300,58 +304,77 @@
     -webkit-backdrop-filter: none !important;
   }
 
-  html[dir="rtl"] .zh-page .listing-product-card .deal-marketplace.product-card-badge,
-  html[dir="rtl"] .zh-page .zor-deals-page__card .deal-marketplace.product-card-badge,
   html[dir="rtl"] .zh-page .listing-product-card .product-card-badge,
   html[dir="rtl"] .zh-page .zor-deals-page__card .product-card-badge,
+  html[dir="rtl"] .zh-page .listing-product-card .deal-marketplace.product-card-badge,
+  html[dir="rtl"] .zh-page .zor-deals-page__card .deal-marketplace.product-card-badge,
   html[dir="rtl"] .zh-page .listing-product-card .zor-deals-page__featured-badge,
   html[dir="rtl"] .zh-page .zor-deals-page__card .zor-deals-page__featured-badge,
   html[dir="rtl"] .zh-page .listing-product-card .product-card-badge--featured,
   html[dir="rtl"] .zh-page .zor-deals-page__card .product-card-badge--featured {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: max-content !important;
+    max-width: 7.5rem !important;
+    padding: 3px 8px !important;
+    border-radius: 999px !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
     color: #f8fafc !important;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0;
-    text-shadow:
-      0 0 2px rgba(0, 0, 0, 1),
-      0 1px 3px rgba(0, 0, 0, 0.95),
-      0 0 8px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25) !important;
+    -webkit-text-stroke: 0 !important;
+    background: rgba(15, 23, 42, 0.42) !important;
+    background-color: rgba(15, 23, 42, 0.42) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
   }
 
   html[dir="rtl"] .zh-page .listing-product-card .deal-discount.product-card-badge,
   html[dir="rtl"] .zh-page .zor-deals-page__card .deal-discount.product-card-badge,
   html[dir="rtl"] .zh-page .listing-product-card .zh-td-card__discount,
   html[dir="rtl"] .zh-page .zor-deals-page__card .zh-td-card__discount {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    /* High-contrast lime over product photos */
-    color: #bbf74a !important;
+    display: inline-flex !important;
+    padding: 3px 8px !important;
+    border-radius: 999px !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    color: #fff7ed !important;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25) !important;
+    -webkit-text-stroke: 0 !important;
+    background: rgba(15, 23, 42, 0.48) !important;
+    background-color: rgba(15, 23, 42, 0.48) !important;
+    border: 1px solid rgba(253, 186, 116, 0.28) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  /* Price hierarchy — lock to EN mobile values */
+  html[dir="rtl"] .zh-page .deal-price,
+  html[dir="rtl"] .zh-page .zh-td-card__price,
+  html[dir="rtl"] .zh-page .trending-card-price {
+    color: #fff7ed !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    text-decoration: none !important;
+  }
+
+  html[dir="rtl"] .zh-page .deal-original,
+  html[dir="rtl"] .zh-page .zh-td-card__was,
+  html[dir="rtl"] .zh-page .deal-was {
+    color: #94a3b8 !important;
     font-size: 15px !important;
-    font-weight: 800;
-    letter-spacing: 0;
-    line-height: 1.15;
-    -webkit-text-stroke: 0.35px rgba(0, 0, 0, 0.55);
-    text-shadow:
-      -1px 0 0 #000,
-      1px 0 0 #000,
-      0 -1px 0 #000,
-      0 1px 0 #000,
-      0 0 3px rgba(0, 0, 0, 1),
-      0 2px 6px rgba(0, 0, 0, 0.85);
+    font-weight: 400 !important;
+    text-decoration: line-through !important;
   }
 
   html[dir="rtl"] .zh-page .deal-rating.is-empty,
