@@ -415,3 +415,29 @@
     padding-inline-end: calc(56px + 10px);
   }
 }
+
+/*
+ * Mobile Normal ONLY (landscape) — keep EN Mobile Normal layout for AR.
+ * Portrait Mobile block above stays the Portrait contract.
+ */
+@media (max-width: 767px) and (orientation: landscape),
+  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+  html[dir="rtl"] .zh-page .zh-hero__stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    flex-wrap: unset;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    left: auto;
+    right: auto;
+    position: relative;
+    padding-inline-end: 0;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories-nav::after,
+  html[dir="rtl"] .zh-page .zh-quick-nav-wrap::after {
+    content: none !important;
+    display: none !important;
+  }
+}

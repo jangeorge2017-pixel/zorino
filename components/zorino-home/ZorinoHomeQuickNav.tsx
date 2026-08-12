@@ -14,10 +14,13 @@ import {
   ZORINO_QUICK_NAV_TARGETS,
 } from "@/lib/zorino-home/quick-nav-sections";
 import { getStickyClearance } from "@/lib/sticky-chrome";
+import { MOBILE_NORMAL_MQ } from "@/components/zorino-home/MobileNormalRowMore";
 import "./quick-nav.css";
 
 const LOCALES = ["en", "ar"] as const;
 const TABLET_QUICK_NAV_MQ = "(min-width: 768px) and (max-width: 1279px)";
+/** Tablet pager + Mobile Normal in-row more control */
+const QUICK_NAV_PAGER_MQ = `${TABLET_QUICK_NAV_MQ}, ${MOBILE_NORMAL_MQ}`;
 
 type TabletNavPage = "start" | "end";
 
@@ -108,7 +111,7 @@ export default function ZorinoHomeQuickNav() {
 
   const syncTabletPageFromScroll = useCallback(() => {
     const row = rowRef.current;
-    if (!row || !window.matchMedia(TABLET_QUICK_NAV_MQ).matches) {
+    if (!row || !window.matchMedia(QUICK_NAV_PAGER_MQ).matches) {
       setTabletPage("start");
       return;
     }
@@ -134,7 +137,7 @@ export default function ZorinoHomeQuickNav() {
     const onResize = () => syncTabletPageFromScroll();
     row.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
-    const mq = window.matchMedia(TABLET_QUICK_NAV_MQ);
+    const mq = window.matchMedia(QUICK_NAV_PAGER_MQ);
     mq.addEventListener("change", onResize);
     const ro = new ResizeObserver(onResize);
     ro.observe(row);
@@ -148,7 +151,7 @@ export default function ZorinoHomeQuickNav() {
 
   const scrollTabletToPage = useCallback((page: TabletNavPage) => {
     const row = rowRef.current;
-    if (!row || !window.matchMedia(TABLET_QUICK_NAV_MQ).matches) return;
+    if (!row || !window.matchMedia(QUICK_NAV_PAGER_MQ).matches) return;
     const rtl = isRtlRow(row);
     const max = Math.max(0, row.scrollWidth - row.clientWidth);
     const left = page === "start" ? 0 : rtl ? -max : max;

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { HomepageCategoryItem } from "@/lib/types/entities";
 import { ZH_CATEGORIES } from "@/lib/zorino-home/content";
+import MobileNormalRowMore from "@/components/zorino-home/MobileNormalRowMore";
 import "./categories.css";
 
 const ICONS = {
@@ -92,6 +93,12 @@ export default async function ZorinoHomeCategories({
           );
         })}
       </div>
+      <MobileNormalRowMore
+        rowSelector=".zh-categories"
+        className="zh-categories__more"
+        moreLabel={t("quickNavMore")}
+        backLabel={t("quickNavBack")}
+      />
     </nav>
   );
 }
