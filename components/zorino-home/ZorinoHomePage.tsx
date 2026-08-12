@@ -120,6 +120,10 @@ export default async function ZorinoHomePage() {
             <div className="zh-categories-wrap">
               <ZorinoHomeCategories categories={categories} />
             </div>
+
+            <Suspense fallback={null}>
+              <HeroArtworkSection />
+            </Suspense>
           </div>
         </div>
 
