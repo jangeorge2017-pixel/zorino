@@ -9,6 +9,11 @@
   overflow: visible;
 }
 
+/* Mobile Normal only — hidden elsewhere (mirrored from .zh-quick-nav__more) */
+.zh-categories__more {
+  display: none;
+}
+
 .zh-categories {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
