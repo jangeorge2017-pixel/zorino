@@ -16,6 +16,8 @@ const HERO_ORBIT_COMPOSITION = [
  * Desktop + Portrait Mobile keep a single floating deal card beside the stats.
  * Tablet (768–1279) parks BOTH existing orbit-top cards (hero artwork + the
  * post-categories artwork) into the stats row, side by side after the metrics.
+ * The second artwork rotates its product pool (rotateOrbitProducts) so its
+ * parked card shows a different image than the first.
  * Mobile Normal (landscape) relocates the full orbit strip after Search.
  */
 const STATS_ORBIT_MQ =
@@ -25,16 +27,57 @@ const TABLET_ORBIT_MQ = "(min-width: 768px) and (max-width: 1279px)";
 
 type HeroArtworkProps = {
   floatingProducts: FloatingProductCard[];
+  /**
+   * Tablet parks this artwork's orbit-top card beside the metrics. When the
+   * two artworks park side by side, the second instance must show a DIFFERENT
+   * product image than the first — rotate the shared pool so its orbit-top
+   * card is a distinct existing product, never the same image on both cards.
+   */
+  rotateOrbitProducts?: boolean;
 };
 
-export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
+type OrbitSlotCard = {
+  position: (typeof HERO_ORBIT_COMPOSITION)[number];
+  product: FloatingProductCard;
+};
+
+export default function HeroArtwork({
+  floatingProducts,
+  rotateOrbitProducts = false,
+}: HeroArtworkProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const byPosition = new Map(
     floatingProducts.map((product) => [product.position, product]),
   );
-  const orbitCards = HERO_ORBIT_COMPOSITION.map(
+  const slotProducts = HERO_ORBIT_COMPOSITION.map(
     (position) => byPosition.get(position),
   ).filter((product): product is FloatingProductCard => product != null);
+
+  /* Rotate so the new orbit-top is the first real product after the original
+     top slot (skips degraded/empty slots). Only applied when a distinct real
+     product exists — otherwise both artworks fall back to the same pool. */
+  const alternateIndex = rotateOrbitProducts
+    ? slotProducts.findIndex((product, index) => index > 0 && product.imageSrc)
+    : -1;
+  const orbitPool =
+    alternateIndex > 0
+      ? [
+          ...slotProducts.slice(alternateIndex),
+          ...slotProducts.slice(0, alternateIndex),
+        ]
+      : slotProducts;
+
+  const orbitCards = HERO_ORBIT_COMPOSITION.map((position, index) => {
+    const product = orbitPool[index];
+    if (!product) return null;
+    return {
+      position,
+      product:
+        product.position === position ? product : { ...product, position },
+    };
+  }).filter(
+    (entry): entry is OrbitSlotCard => entry != null,
+  );
 
   /* Tablet / Desktop / Portrait: park orbit-top under the stats row.
    * Skip Mobile Normal — that mode keeps all 4 cards in the post-Search strip. */
@@ -215,9 +258,9 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
     <div ref={rootRef} className="hero-artwork" aria-hidden="true">
       {orbitCards.length > 0 ? (
         <div className="hero-artwork__orbit" aria-label="Featured products">
-          {orbitCards.map((product) => (
+          {orbitCards.map(({ position, product }) => (
             <HeroFloatingCard
-              key={product.position}
+              key={position}
               product={product}
             />
           ))}
