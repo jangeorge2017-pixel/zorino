@@ -2589,28 +2589,39 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Tablet ONLY (768–1279) — metrics keep their original layout; the two
-   animated cards sit immediately beside them, side by side.
+   Tablet ONLY (768–1279) — the two animated cards join the metrics row:
+   all 6 cards in ONE row with a single consistent equal gap (10px).
    Desktop (≥1280) and Mobile (≤767) untouched.
    ═══════════════════════════════════════════════════════════ */
 @media (min-width: 768px) and (max-width: 1279px) {
   /*
-   * The four metric cards are NOT redistributed: .zh-hero__stats keeps its
-   * shipped base layout (flex, wrap, 10px gap) and the ≤1279 centering, so
-   * their position/spacing are exactly as before.
-   *
-   * The shared ≤1279 rule above already parks both orbit-top cards absolute
-   * at left:100%, out of the flex flow, 20px after the row. Only the SECOND
-   * parked card is nudged right by its own width plus a fixed 12px gap so the
-   * two sit side by side with equal spacing. The standalone `translate`
-   * property composes with the shared float keyframes (which animate
-   * `transform`) instead of overriding them, and self-adapts to the JS-set
-   * square size. The sibling combinator (`~`) keeps a lone parked card (early
-   * hydration) at the first slot.
+   * The four metric cards keep their shipped size, order and styling
+   * (118px glass tiles, same visual language). The row simply stops wrapping
+   * so the two parked animated cards — in-flow flex items again, overriding
+   * the shared ≤1279 absolute parking — sit immediately after the metrics.
+   * `gap: 10px` (base, untouched) is now THE single equal gap between every
+   * adjacent card. align-items: center keeps each stat at its natural height
+   * (the animated cards are taller), so no stat is resized or restyled.
    */
-  .zh-page .zh-hero__stats
-    > .zh-orbit-card[data-orbit-position="orbit-top"]
-    ~ .zh-orbit-card[data-orbit-position="orbit-top"] {
-    translate: calc(100% + 12px) 0;
+  .zh-page .zh-hero__stats {
+    width: 100%;
+    max-width: none;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    transform: translateY(0);
+    flex: 0 0 auto;
+    align-self: center;
+    animation-name: zh-orbit-float-stats-row;
   }
 }

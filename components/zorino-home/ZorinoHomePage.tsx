@@ -45,10 +45,22 @@ import { ZH_FEATURED_COUPON_BRANDS } from "@/lib/zorino-home/featured-coupon-bra
  * source). Streaming it keeps that fetch off the above-the-fold critical path;
  * the fallback is the artwork's own empty state, so nothing shifts (orbit cards
  * are absolutely positioned).
+ *
+ * The second instance (in the tools area) rotates its product pool so its
+ * parked card shows a different product image than the hero artwork's card.
  */
-async function HeroArtworkSection() {
+async function HeroArtworkSection({
+  rotateOrbitProducts = false,
+}: {
+  rotateOrbitProducts?: boolean;
+}) {
   const floatingProducts = await getHeroFloatingProducts();
-  return <HeroArtwork floatingProducts={floatingProducts} />;
+  return (
+    <HeroArtwork
+      floatingProducts={floatingProducts}
+      rotateOrbitProducts={rotateOrbitProducts}
+    />
+  );
 }
 
 /** Trending deals + top coupons — streamed so they never block first paint. */
@@ -122,7 +134,7 @@ export default async function ZorinoHomePage() {
             </div>
 
             <Suspense fallback={null}>
-              <HeroArtworkSection />
+              <HeroArtworkSection rotateOrbitProducts />
             </Suspense>
           </div>
         </div>
