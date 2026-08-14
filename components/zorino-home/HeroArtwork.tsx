@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import HeroFloatingCard from "@/components/zorino-home/HeroFloatingCard";
 import { MOBILE_NORMAL_MQ } from "@/components/zorino-home/MobileNormalRowMore";
 import type { FloatingProductCard } from "@/lib/types/entities";
@@ -12,16 +12,23 @@ const HERO_ORBIT_COMPOSITION = [
   "orbit-lower-right",
 ] as const;
 
-/** Tablet + Desktop + Portrait Mobile — single floating deal card beside stats.
- *  Mobile Normal (landscape) relocates the full orbit strip after Search. */
+/**
+ * Desktop + Portrait Mobile keep a single floating deal card beside the stats.
+ * Tablet (768–1279) parks BOTH existing orbit-top cards (hero artwork + the
+ * post-categories artwork) into the stats row, side by side after the metrics.
+ * Mobile Normal (landscape) relocates the full orbit strip after Search.
+ */
 const STATS_ORBIT_MQ =
   "(min-width: 768px), ((max-width: 767px) and (orientation: portrait))";
+
+const TABLET_ORBIT_MQ = "(min-width: 768px) and (max-width: 1279px)";
 
 type HeroArtworkProps = {
   floatingProducts: FloatingProductCard[];
 };
 
 export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const byPosition = new Map(
     floatingProducts.map((product) => [product.position, product]),
   );
@@ -32,7 +39,10 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
   /* Tablet / Desktop / Portrait: park orbit-top under the stats row.
    * Skip Mobile Normal — that mode keeps all 4 cards in the post-Search strip. */
   useEffect(() => {
+    const rootEl = rootRef.current;
+    if (!rootEl) return;
     const mq = window.matchMedia(STATS_ORBIT_MQ);
+    const tabletMq = window.matchMedia(TABLET_ORBIT_MQ);
     const mobileNormalMq = window.matchMedia(MOBILE_NORMAL_MQ);
     let orbitParent: Element | null = null;
     let nextSibling: ChildNode | null = null;
@@ -50,8 +60,11 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
     };
 
     const sync = () => {
-      const card = document.querySelector<HTMLElement>(
-        '.zh-page .zh-orbit-card[data-orbit-position="orbit-top"]',
+      /* Only this artwork's own orbit-top card is ever moved — never another
+         instance's subtree (its Suspense boundary may hydrate later than ours,
+         so moving its nodes early would break hydration and duplicate cards). */
+      const card = rootEl.querySelector<HTMLElement>(
+        '.zh-orbit-card[data-orbit-position="orbit-top"]',
       );
       const stats = document.querySelector<HTMLElement>(".zh-page .zh-hero__stats");
       const sample = stats?.querySelector<HTMLElement>(".zh-stat");
@@ -62,9 +75,17 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
         nextSibling = card.nextSibling;
       }
 
-      /* Short landscape (≥768 wide) still matches STATS_ORBIT via min-width —
-         Mobile Normal owns the orbit there, so never park into stats. */
-      if (mobileNormalMq.matches || !mq.matches) {
+      /* The hero artwork is always first in the DOM; the post-categories
+         artwork parks beside the metrics only on Tablet. Short landscape
+         (≥768 wide) still matches STATS_ORBIT via min-width — Mobile Normal
+         owns the orbit there, so never park into stats. */
+      const isPrimary = rootEl === document.querySelector(".zh-page .hero-artwork");
+      const shouldPark =
+        !mobileNormalMq.matches &&
+        mq.matches &&
+        (isPrimary || tabletMq.matches);
+
+      if (!shouldPark) {
         restore(card);
         return;
       }
@@ -87,6 +108,7 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
 
     sync();
     mq.addEventListener("change", sync);
+    tabletMq.addEventListener("change", sync);
     mobileNormalMq.addEventListener("change", sync);
     window.addEventListener("resize", sync);
 
@@ -101,11 +123,12 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
 
     return () => {
       mq.removeEventListener("change", sync);
+      tabletMq.removeEventListener("change", sync);
       mobileNormalMq.removeEventListener("change", sync);
       window.removeEventListener("resize", sync);
       ro?.disconnect();
-      const card = document.querySelector<HTMLElement>(
-        '.zh-page .zh-orbit-card[data-orbit-position="orbit-top"]',
+      const card = rootEl.querySelector<HTMLElement>(
+        '.zh-orbit-card[data-orbit-position="orbit-top"]',
       );
       if (card) restore(card);
     };
@@ -189,7 +212,7 @@ export default function HeroArtwork({ floatingProducts }: HeroArtworkProps) {
   }, [floatingProducts]);
 
   return (
-    <div className="hero-artwork" aria-hidden="true">
+    <div ref={rootRef} className="hero-artwork" aria-hidden="true">
       {orbitCards.length > 0 ? (
         <div className="hero-artwork__orbit" aria-label="Featured products">
           {orbitCards.map((product) => (
