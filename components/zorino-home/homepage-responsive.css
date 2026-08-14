@@ -2589,47 +2589,28 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Tablet ONLY (768–1279) — metrics + two animated cards on ONE row
+   Tablet ONLY (768–1279) — metrics keep their original layout; the two
+   animated cards sit immediately beside them, side by side.
    Desktop (≥1280) and Mobile (≤767) untouched.
    ═══════════════════════════════════════════════════════════ */
 @media (min-width: 768px) and (max-width: 1279px) {
   /*
-   * Metrics row spans the full Tablet width, starting from the same left edge
-   * as the hero/metrics row. The two animated orbit cards (parked under the
-   * stats row by HeroArtwork) become in-flow flex items next to each other
-   * after the four metrics; all six items are distributed with equal spacing
-   * across the row. Stats size/proportions and card art are unchanged.
+   * The four metric cards are NOT redistributed: .zh-hero__stats keeps its
+   * shipped base layout (flex, wrap, 10px gap) and the ≤1279 centering, so
+   * their position/spacing are exactly as before.
+   *
+   * The shared ≤1279 rule above already parks both orbit-top cards absolute
+   * at left:100%, out of the flex flow, 20px after the row. Only the SECOND
+   * parked card is nudged right by its own width plus a fixed 12px gap so the
+   * two sit side by side with equal spacing. The standalone `translate`
+   * property composes with the shared float keyframes (which animate
+   * `transform`) instead of overriding them, and self-adapts to the JS-set
+   * square size. The sibling combinator (`~`) keeps a lone parked card (early
+   * hydration) at the first slot.
    */
-  .zh-page .zh-hero__stats {
-    width: calc(100vw - 2 * var(--zh-pad, 14px));
-    max-width: none;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    box-sizing: border-box;
-  }
-
-  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] {
-    position: relative !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
-    bottom: auto !important;
-    margin: 0 !important;
-    margin-inline-start: 0 !important;
-    transform: translateY(0);
-    flex: 0 0 auto;
-    align-self: center;
-    animation-name: zh-orbit-float-stats-row;
-  }
-
-  /* RTL keeps the EN composition plane (copy left, row spans full Tablet
-     width). The .zh-hero__copy box inherits rtl, which would anchor the
-     full-width row to the copy's right edge and push it off-screen left;
-     a negative end margin shifts it back to the viewport's left edge.
-     (.zh-hero__stats is locked to direction:ltr, so use physical margin-right.) */
-  html[dir="rtl"] .zh-page .zh-hero__stats {
-    margin-right: calc(100% - (100vw - 2 * var(--zh-pad)));
+  .zh-page .zh-hero__stats
+    > .zh-orbit-card[data-orbit-position="orbit-top"]
+    ~ .zh-orbit-card[data-orbit-position="orbit-top"] {
+    translate: calc(100% + 12px) 0;
   }
 }
