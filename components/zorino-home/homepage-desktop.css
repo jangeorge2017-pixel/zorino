@@ -332,14 +332,14 @@
     color: #cbd5e1;
   }
 
-  /* EN desktop — the headline + subtitle move 40px toward the Z logo (left)
-     and center-align: "Find Better" centered above "Deals Faster", with the
+  /* EN desktop — the headline + subtitle move toward the Z logo (left) and
+     center-align: "Find Better" centered above "Deals Faster", with the
      subtitle centered directly below. Both boxes span the copy width so the
      whole block shares one center axis. Arabic keeps the RTL composition
      untouched. */
   html[dir="ltr"] .zh-page .zh-hero__title,
   html[dir="ltr"] .zh-page .zh-hero__subtitle {
-    margin-inline-start: -60px;
+    margin-inline-start: -140px;
     text-align: center;
   }
 
