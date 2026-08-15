@@ -592,7 +592,12 @@
 }
 
 @media (min-width: 768px) and (max-width: 1279px) {
-  .zh-page .zh-hero__stats .zh-stat--violet {
+  /* All four metric cards (10+, 951+, 4 Coupons, Real-time) share the exact
+     same 110px width — the same dimensions as the Real-time card. Widths only;
+     the row stays left-anchored with the same order and 10px gaps, and the
+     cards' content/styling is untouched, so heights stay identical across the
+     four. flex-shrink:0 keeps the nowrap row from squeezing the metrics. */
+  .zh-page .zh-hero__stats .zh-stat {
     flex-shrink: 0;
     width: 110px;
   }
