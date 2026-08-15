@@ -412,7 +412,9 @@
     right: auto !important;
     position: relative !important;
     justify-content: flex-start;
-    padding-inline-end: calc(56px + 10px);
+    /* No deal card parks in the metrics row on portrait anymore — the
+       animated product cards live in the post-Search strip. */
+    padding-inline-end: 0;
   }
 }
 
