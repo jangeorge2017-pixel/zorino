@@ -2303,6 +2303,101 @@
     margin: 0;
     font-size: 14px;
   }
+
+  /* ── Categories row: exactly 4 icons + premium nav arrow on one line ── */
+  .zh-page .zh-categories-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .zh-page .zh-categories-nav::after {
+    display: none !important;
+  }
+
+  .zh-page .zh-categories {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .zh-page .zh-categories__item:nth-child(n + 5) {
+    display: none !important;
+  }
+
+  .zh-page .zh-categories__item {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .zh-page .zh-categories__arrow {
+    display: inline-flex;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(125, 211, 252, 0.5);
+    background: linear-gradient(
+      180deg,
+      rgba(41, 55, 84, 0.92) 0%,
+      rgba(20, 29, 49, 0.78) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(148, 197, 255, 0.24),
+      0 0 0 1px rgba(56, 189, 248, 0.14),
+      0 2px 12px rgba(2, 6, 23, 0.38),
+      0 0 12px rgba(56, 189, 248, 0.28);
+    color: #e0f2fe;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color 200ms ease,
+      border-color 200ms ease,
+      background 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .zh-page .zh-categories__arrow svg {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .zh-page .zh-categories__arrow:hover,
+  .zh-page .zh-categories__arrow:focus-visible {
+    color: #ffffff;
+    border-color: rgba(186, 230, 253, 0.92);
+    background: linear-gradient(
+      180deg,
+      rgba(51, 68, 102, 0.96) 0%,
+      rgba(30, 41, 59, 0.9) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(148, 197, 255, 0.32),
+      0 0 0 1px rgba(56, 189, 248, 0.22),
+      0 4px 16px rgba(2, 6, 23, 0.48),
+      0 0 18px rgba(56, 189, 248, 0.42);
+    outline: none;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__arrow svg {
+    transform: scaleX(-1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zh-page .zh-categories__arrow {
+      transition: none;
+    }
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════

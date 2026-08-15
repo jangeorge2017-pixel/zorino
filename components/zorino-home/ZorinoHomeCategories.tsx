@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
+  ChevronRight,
   CircuitBoard,
   Dumbbell,
   Gamepad2,
@@ -99,6 +100,13 @@ export default async function ZorinoHomeCategories({
         moreLabel={t("quickNavMore")}
         backLabel={t("quickNavBack")}
       />
+      <Link
+        href="/categories"
+        className="zh-categories__arrow"
+        aria-label={t("categoriesNav")}
+      >
+        <ChevronRight size={22} strokeWidth={2.5} aria-hidden />
+      </Link>
     </nav>
   );
 }
