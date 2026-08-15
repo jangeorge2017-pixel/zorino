@@ -332,13 +332,18 @@
     color: #cbd5e1;
   }
 
+  /* 4 metric cards keep their shipped 141px tracks + 3 parked animated cards
+     share the row with one equal 10px gap (matches the Tablet stats layout).
+     Cards are square-sized in HeroArtwork from a live stat (110px desktop);
+     the auto tracks hug the cards so metrics never resize. */
   .zh-page .zh-hero__stats {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(4, 141px) repeat(3, auto);
+    gap: 10px;
     margin-top: var(--zh-space-desc-stats);
-    width: calc(100% + 30px);
-    max-width: calc(36rem + 30px);
+    width: max-content;
+    max-width: none;
+    align-items: center;
   }
 
   .zh-page .zh-stat {
@@ -636,13 +641,14 @@
   }
 
   /*
-   * Desktop floating cards — keep ONLY orbit-top beside the 4 stats.
-   * Size is matched to a live .zh-stat height as a square in HeroArtwork.
-   * Stats / hero copy / artwork / categories untouched.
+   * Desktop floating cards — park the animated cards IN the stats row after
+   * the 4 metrics (Tablet-style), two existing orbit-top cards plus the
+   * primary artwork's lower-right slot as the third. Each card is sized to a
+   * live .zh-stat square in HeroArtwork. Stats / hero copy / artwork /
+   * categories untouched.
    */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
     display: none !important;
   }
 
@@ -650,22 +656,28 @@
     position: relative;
   }
 
-  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] {
-    position: absolute !important;
-    left: 100%;
-    top: 0;
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"],
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    position: static !important;
+    left: auto !important;
     right: auto !important;
+    top: auto !important;
     bottom: auto !important;
     margin: 0;
-    /* Was 20px; +30px toward the Z / platform on the right */
-    margin-inline-start: 50px;
     transform: translateY(0);
     animation-name: zh-orbit-float-stats-row;
     pointer-events: auto;
   }
 
+  /* The third animated card (primary artwork's lower-right slot) is normally
+     hidden on desktop — show it only while parked inside the stats row. */
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    display: block !important;
+  }
+
   /* Crisp product art — full source fidelity, card size unchanged */
-  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] .zh-orbit-card__img {
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] .zh-orbit-card__img,
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-lower-right"] .zh-orbit-card__img {
     image-rendering: auto;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;

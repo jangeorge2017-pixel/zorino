@@ -16,15 +16,19 @@ const HERO_ORBIT_COMPOSITION = [
  * Desktop + Tablet park a single floating deal card beside the stats.
  * Tablet (768–1279) parks BOTH existing orbit-top cards (hero artwork + the
  * post-categories artwork) into the stats row, side by side after the metrics.
+ * Desktop (≥1280) parks the same two orbit-top cards AND the primary artwork's
+ * lower-right card — three animated cards total in the stats row, every card
+ * the same size (matched to a live .zh-stat square).
  * The second artwork rotates its product pool (rotateOrbitProducts) so its
- * parked card shows a different image than the first.
+ * parked card shows a different image than the first; the extra lower-right
+ * card is a third distinct existing product.
  * Mobile (portrait + Mobile Normal) relocates the full 4-card orbit strip
  * after Search; portrait hides the second artwork so exactly 4 distinct
  * product cards show in the strip.
  */
 const STATS_ORBIT_MQ = "(min-width: 768px)";
 
-const TABLET_ORBIT_MQ = "(min-width: 768px) and (max-width: 1279px)";
+const DESKTOP_ORBIT_MQ = "(min-width: 1280px)";
 
 /* Portrait + Mobile Normal — matches the shared ≤767 mobile CSS block. */
 const MOBILE_ORBIT_MQ =
@@ -84,65 +88,35 @@ export default function HeroArtwork({
     (entry): entry is OrbitSlotCard => entry != null,
   );
 
-  /* Desktop / Tablet: park orbit-top under the stats row.
-   * Portrait + Mobile Normal keep all cards in the post-Search strip. */
+  /* Desktop + Tablet: park this artwork's orbit-top card under the stats row,
+   * side by side after the metrics. Desktop also parks the primary artwork's
+   * lower-right card as a third animated card. Portrait + Mobile Normal keep
+   * all cards in the post-Search strip. */
   useEffect(() => {
     const rootEl = rootRef.current;
     if (!rootEl) return;
     const mq = window.matchMedia(STATS_ORBIT_MQ);
-    const tabletMq = window.matchMedia(TABLET_ORBIT_MQ);
+    const desktopMq = window.matchMedia(DESKTOP_ORBIT_MQ);
     const mobileNormalMq = window.matchMedia(MOBILE_NORMAL_MQ);
-    let orbitParent: Element | null = null;
-    let nextSibling: ChildNode | null = null;
+    const parkOrigin = new Map<
+      HTMLElement,
+      { parent: Element | null; next: ChildNode | null }
+    >();
 
     const restore = (card: HTMLElement) => {
       card.style.width = "";
       card.style.height = "";
-      if (orbitParent && card.parentElement !== orbitParent) {
-        if (nextSibling && nextSibling.parentNode === orbitParent) {
-          orbitParent.insertBefore(card, nextSibling);
+      const origin = parkOrigin.get(card);
+      if (origin?.parent && card.parentElement !== origin.parent) {
+        if (origin.next && origin.next.parentNode === origin.parent) {
+          origin.parent.insertBefore(card, origin.next);
         } else {
-          orbitParent.appendChild(card);
+          origin.parent.appendChild(card);
         }
       }
     };
 
-    const sync = () => {
-      /* Only this artwork's own orbit-top card is ever moved — never another
-         instance's subtree (its Suspense boundary may hydrate later than ours,
-         so moving its nodes early would break hydration and duplicate cards). */
-      const card = rootEl.querySelector<HTMLElement>(
-        '.zh-orbit-card[data-orbit-position="orbit-top"]',
-      );
-      const stats = document.querySelector<HTMLElement>(".zh-page .zh-hero__stats");
-      const sample = stats?.querySelector<HTMLElement>(".zh-stat");
-      if (!card || !stats || !sample) return;
-
-      if (!orbitParent) {
-        orbitParent = card.parentElement;
-        nextSibling = card.nextSibling;
-      }
-
-      /* The hero artwork is always first in the DOM; the post-categories
-         artwork parks beside the metrics only on Tablet. Short landscape
-         (≥768 wide) still matches STATS_ORBIT via min-width — Mobile Normal
-         owns the orbit there, so never park into stats. */
-      const isPrimary = rootEl === document.querySelector(".zh-page .hero-artwork");
-      const shouldPark =
-        !mobileNormalMq.matches &&
-        mq.matches &&
-        (isPrimary || tabletMq.matches);
-
-      if (!shouldPark) {
-        restore(card);
-        return;
-      }
-
-      /* Host under stats for positioning only — never mutate .zh-stat nodes */
-      if (card.parentElement !== stats) {
-        stats.appendChild(card);
-      }
-
+    const sizeToStat = (card: HTMLElement, sample: HTMLElement) => {
       /* Stats height is the master; square frame + ~15% larger than the
          matched stat side so product art reads clearly on D+T. */
       const { width, height } = sample.getBoundingClientRect();
@@ -154,9 +128,65 @@ export default function HeroArtwork({
       card.style.height = `${side}px`;
     };
 
+    const parkCard = (
+      card: HTMLElement,
+      stats: HTMLElement,
+      sample: HTMLElement,
+    ) => {
+      if (!parkOrigin.has(card)) {
+        parkOrigin.set(card, {
+          parent: card.parentElement,
+          next: card.nextSibling,
+        });
+      }
+      /* Host under stats for positioning only — never mutate .zh-stat nodes */
+      if (card.parentElement !== stats) {
+        stats.appendChild(card);
+      }
+      sizeToStat(card, sample);
+    };
+
+    const sync = () => {
+      /* Only this artwork's own cards are ever moved — never another
+         instance's subtree (its Suspense boundary may hydrate later than ours,
+         so moving its nodes early would break hydration and duplicate cards). */
+      const stats = document.querySelector<HTMLElement>(".zh-page .zh-hero__stats");
+      const sample = stats?.querySelector<HTMLElement>(".zh-stat");
+      if (!stats || !sample) return;
+
+      const card = rootEl.querySelector<HTMLElement>(
+        '.zh-orbit-card[data-orbit-position="orbit-top"]',
+      );
+      const extra = rootEl.querySelector<HTMLElement>(
+        '.zh-orbit-card[data-orbit-position="orbit-lower-right"]',
+      );
+
+      /* The hero artwork is always first in the DOM; the post-categories
+         artwork parks beside the metrics on Tablet and Desktop. Short
+         landscape (≥768 wide) still matches STATS_ORBIT via min-width —
+         Mobile Normal owns the orbit there, so never park into stats. */
+      const isPrimary = rootEl === document.querySelector(".zh-page .hero-artwork");
+      const parkTop = !mobileNormalMq.matches && mq.matches;
+      const parkExtra = parkTop && isPrimary && desktopMq.matches;
+
+      if (!parkTop) {
+        if (card) restore(card);
+        if (extra) restore(extra);
+        return;
+      }
+
+      if (card) parkCard(card, stats, sample);
+
+      if (parkExtra) {
+        if (extra) parkCard(extra, stats, sample);
+      } else if (extra) {
+        restore(extra);
+      }
+    };
+
     sync();
     mq.addEventListener("change", sync);
-    tabletMq.addEventListener("change", sync);
+    desktopMq.addEventListener("change", sync);
     mobileNormalMq.addEventListener("change", sync);
     window.addEventListener("resize", sync);
 
@@ -171,14 +201,13 @@ export default function HeroArtwork({
 
     return () => {
       mq.removeEventListener("change", sync);
-      tabletMq.removeEventListener("change", sync);
+      desktopMq.removeEventListener("change", sync);
       mobileNormalMq.removeEventListener("change", sync);
       window.removeEventListener("resize", sync);
       ro?.disconnect();
-      const card = rootEl.querySelector<HTMLElement>(
-        '.zh-orbit-card[data-orbit-position="orbit-top"]',
-      );
-      if (card) restore(card);
+      for (const card of rootEl.querySelectorAll<HTMLElement>(".zh-orbit-card")) {
+        if (parkOrigin.has(card)) restore(card);
+      }
     };
   }, [floatingProducts]);
 
