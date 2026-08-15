@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
-  ChevronRight,
   CircuitBoard,
   Dumbbell,
   Gamepad2,
@@ -17,6 +16,7 @@ import {
 import type { HomepageCategoryItem } from "@/lib/types/entities";
 import { ZH_CATEGORIES } from "@/lib/zorino-home/content";
 import MobileNormalRowMore from "@/components/zorino-home/MobileNormalRowMore";
+import CategoriesPortraitPager from "@/components/zorino-home/CategoriesPortraitPager";
 import "./categories.css";
 
 const ICONS = {
@@ -100,13 +100,7 @@ export default async function ZorinoHomeCategories({
         moreLabel={t("quickNavMore")}
         backLabel={t("quickNavBack")}
       />
-      <Link
-        href="/categories"
-        className="zh-categories__arrow"
-        aria-label={t("categoriesNav")}
-      >
-        <ChevronRight size={22} strokeWidth={2.5} aria-hidden />
-      </Link>
+      <CategoriesPortraitPager />
     </nav>
   );
 }

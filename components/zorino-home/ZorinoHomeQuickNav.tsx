@@ -24,6 +24,8 @@ const TABLET_QUICK_NAV_MQ = "(min-width: 768px) and (max-width: 1279px)";
 const QUICK_NAV_PAGER_MQ = `${TABLET_QUICK_NAV_MQ}, ${MOBILE_NORMAL_MQ}`;
 /** Portrait-only quick-nav: 3 equal-width buttons, labels auto-shrink to fit */
 const MOBILE_PORTRAIT_MQ = "(max-width: 767px) and (orientation: portrait)";
+/** Portrait paging — exactly the pills the portrait CSS keeps visible */
+const PORTRAIT_PAGE_SIZE = 3;
 
 type TabletNavPage = "start" | "end";
 
@@ -66,6 +68,8 @@ export default function ZorinoHomeQuickNav() {
   const [clickedItemId, setClickedItemId] = useState<string | null>(null);
   /** Tablet pager: start = first 7 slots, end = remaining 3 */
   const [tabletPage, setTabletPage] = useState<TabletNavPage>("start");
+  /** Portrait pager: page index over the pill set (page size = PORTRAIT_PAGE_SIZE) */
+  const [portraitPage, setPortraitPage] = useState(0);
   const rowRef = useRef<HTMLDivElement>(null);
 
   const targetToItemIds = useMemo(() => {
@@ -159,55 +163,107 @@ export default function ZorinoHomeQuickNav() {
    * font-size just enough to keep every label on one line, fully visible —
    * never clipped and never colliding with the premium arrow control.
    */
+  const fitLabels = useCallback(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const portrait = window.matchMedia(MOBILE_PORTRAIT_MQ).matches;
+    const pills = row.querySelectorAll<HTMLElement>(".zh-quick-nav__pill");
+    for (const pill of pills) {
+      const label = pill.querySelector<HTMLElement>(".zh-quick-nav__label");
+      if (!label) continue;
+      if (!portrait || getComputedStyle(pill).display === "none") {
+        if (label.style.fontSize) label.style.fontSize = "";
+        continue;
+      }
+      label.style.fontSize = "";
+      const cs = getComputedStyle(pill);
+      const base = parseFloat(getComputedStyle(label).fontSize) || 12;
+      const natural = label.scrollWidth;
+      const siblings = Array.from(pill.children)
+        .filter((el) => el !== label)
+        .reduce(
+          (sum, el) => sum + (el as HTMLElement).getBoundingClientRect().width,
+          0,
+        );
+      const gap = parseFloat(cs.gap) || 0;
+      const pad =
+        (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      const available = Math.max(0, pill.clientWidth - siblings - gap - pad);
+      const fs = Math.min(base, (base * available) / natural);
+      label.style.fontSize = fs < base - 0.1 ? `${fs.toFixed(2)}px` : "";
+    }
+  }, []);
+
   useEffect(() => {
     const row = rowRef.current;
     if (!row) return;
     const mq = window.matchMedia(MOBILE_PORTRAIT_MQ);
-
-    const fit = () => {
-      const portrait = mq.matches;
-      const pills = row.querySelectorAll<HTMLElement>(".zh-quick-nav__pill");
-      for (const pill of pills) {
-        const label = pill.querySelector<HTMLElement>(".zh-quick-nav__label");
-        if (!label) continue;
-        if (!portrait || getComputedStyle(pill).display === "none") {
-          if (label.style.fontSize) label.style.fontSize = "";
-          continue;
-        }
-        label.style.fontSize = "";
-        const cs = getComputedStyle(pill);
-        const base = parseFloat(getComputedStyle(label).fontSize) || 12;
-        const natural = label.scrollWidth;
-        const siblings = Array.from(pill.children)
-          .filter((el) => el !== label)
-          .reduce(
-            (sum, el) => sum + (el as HTMLElement).getBoundingClientRect().width,
-            0,
-          );
-        const gap = parseFloat(cs.gap) || 0;
-        const pad =
-          (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
-        const available = Math.max(0, pill.clientWidth - siblings - gap - pad);
-        const fs = Math.min(base, (base * available) / natural);
-        label.style.fontSize = fs < base - 0.1 ? `${fs.toFixed(2)}px` : "";
-      }
-    };
-
-    fit();
-    const onResize = () => fit();
-    const mqChange = () => fit();
+    const onResize = () => fitLabels();
+    const mqChange = () => fitLabels();
     const ro = new ResizeObserver(onResize);
     ro.observe(row);
     mq.addEventListener("change", mqChange);
     window.addEventListener("resize", onResize);
+    fitLabels();
     if (typeof document !== "undefined" && document.fonts?.ready) {
-      document.fonts.ready.then(fit).catch(() => {});
+      document.fonts.ready.then(fitLabels).catch(() => {});
     }
     return () => {
       ro.disconnect();
       mq.removeEventListener("change", mqChange);
       window.removeEventListener("resize", onResize);
     };
+  }, [fitLabels]);
+
+  /**
+   * Portrait pager: only the current page's pills stay visible (same count,
+   * sizing and spacing as the portrait CSS) — tapping the arrow swaps in the
+   * next page so the remaining pills are revealed. Layout never changes.
+   */
+  const applyPortraitPaging = useCallback(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const portrait = window.matchMedia(MOBILE_PORTRAIT_MQ).matches;
+    const pills = row.querySelectorAll<HTMLElement>(".zh-quick-nav__pill");
+    if (!portrait) {
+      pills.forEach((pill) => pill.style.removeProperty("display"));
+      return;
+    }
+    const pages = Math.max(1, Math.ceil(pills.length / PORTRAIT_PAGE_SIZE));
+    const page = Math.min(portraitPage, pages - 1);
+    pills.forEach((pill, i) => {
+      const show =
+        i >= page * PORTRAIT_PAGE_SIZE &&
+        i < page * PORTRAIT_PAGE_SIZE + PORTRAIT_PAGE_SIZE;
+      pill.style.setProperty("display", show ? "inline-flex" : "none", "important");
+    });
+  }, [portraitPage]);
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_PORTRAIT_MQ);
+    const apply = () => {
+      applyPortraitPaging();
+      fitLabels();
+    };
+    apply();
+    const onChange = () => {
+      if (!mq.matches) setPortraitPage(0);
+      apply();
+    };
+    mq.addEventListener("change", onChange);
+    window.addEventListener("resize", onChange);
+    return () => {
+      mq.removeEventListener("change", onChange);
+      window.removeEventListener("resize", onChange);
+    };
+  }, [applyPortraitPaging, fitLabels]);
+
+  const onPortraitPagerClick = useCallback(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const pills = row.querySelectorAll<HTMLElement>(".zh-quick-nav__pill");
+    const pages = Math.max(1, Math.ceil(pills.length / PORTRAIT_PAGE_SIZE));
+    setPortraitPage((p) => (p + 1) % pages);
   }, []);
 
   const scrollTabletToPage = useCallback((page: TabletNavPage) => {
@@ -223,6 +279,15 @@ export default function ZorinoHomeQuickNav() {
   const onTabletPagerClick = useCallback(() => {
     scrollTabletToPage(tabletPage === "start" ? "end" : "start");
   }, [scrollTabletToPage, tabletPage]);
+
+  /** Portrait → page forward; tablet/mobile-normal → existing pager scroll. */
+  const onPagerClick = useCallback(() => {
+    if (window.matchMedia(MOBILE_PORTRAIT_MQ).matches) {
+      onPortraitPagerClick();
+      return;
+    }
+    onTabletPagerClick();
+  }, [onPortraitPagerClick, onTabletPagerClick]);
 
   const scrollToTarget = useCallback((targetId: string, itemId: string) => {
     const section = document.getElementById(targetId);
@@ -323,7 +388,7 @@ export default function ZorinoHomeQuickNav() {
             type="button"
             className={`zh-quick-nav__more${pagerIsBack ? " is-back" : ""}`}
             aria-label={pagerIsBack ? t("quickNavBack") : t("quickNavMore")}
-            onClick={onTabletPagerClick}
+            onClick={onPagerClick}
           >
             <svg
               className="zh-quick-nav__more-icon"
