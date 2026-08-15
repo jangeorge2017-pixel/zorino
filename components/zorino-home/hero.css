@@ -575,3 +575,35 @@
     display: inline-flex;
   }
 }
+
+/* ─── Tracking stat card: same size as the adjacent stat cards ───
+   "Price Tracking" is the only stat label that wraps, which inflates its
+   box (square on tablet) and overflows on desktop. Keep it on one line so
+   the Real-time / Price Tracking card matches the other three exactly.
+   Scoped strictly to the tracking (violet) card; nothing else is touched. */
+@media (min-width: 1280px) {
+  .zh-page .zh-hero__stats .zh-stat--violet {
+    min-height: 96px;
+  }
+
+  .zh-page .zh-stat--violet .zh-stat__label {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .zh-page .zh-hero__stats .zh-stat--violet {
+    flex-shrink: 0;
+    width: 110px;
+  }
+
+  .zh-page .zh-stat--violet .zh-stat__label {
+    font-size: 6.5px;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .zh-page .zh-stat--violet .zh-stat__label {
+    font-size: 6px;
+  }
+}
