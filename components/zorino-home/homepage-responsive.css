@@ -2109,33 +2109,56 @@
     transform: none !important;
   }
 
-  /* Animated deal card — show orbit layer; only orbit-top is used */
+  /* Animated deal cards — 4-card strip between Search and Categories.
+     Hidden until HeroArtwork JS relocates the primary orbit under Search and
+     tags it .zh-hero-orbit-in-strip, which reveals the strip in-flow. */
   .zh-page .hero-artwork__orbit {
-    display: block !important;
-    transform: none !important;
+    display: none !important;
   }
 
-  .zh-page .zh-orbit-card {
-    width: 56px;
-    height: 56px;
+  .zh-page .hero-artwork__orbit.zh-hero-orbit-in-strip {
+    display: flex !important;
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 12px 0 0;
+    padding: 0;
+    gap: 8px;
+    align-items: stretch;
+    justify-content: space-between;
+    transform: none !important;
+    pointer-events: auto;
+    z-index: 5;
+  }
+
+  /* The second (post-categories) artwork is replaced by the strip on portrait */
+  .zh-page .zh-hero-zone__tools .hero-artwork {
+    display: none !important;
+  }
+
+  /* Exactly 4 distinct product cards — equal squares with equal spacing */
+  .zh-page .zh-orbit-card,
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+    display: block !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+    aspect-ratio: 1 / 1;
     border-radius: 12px;
     pointer-events: auto;
-  }
-
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"] {
-    display: block !important;
-  }
-
-  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] {
-    position: absolute !important;
-    left: auto !important;
-    right: 0 !important;
-    top: 50% !important;
-    margin: 0;
-    margin-inline-start: 0;
-    transform: translateY(-50%);
+    transform: none;
     animation-name: zh-orbit-float-stats-row;
-    pointer-events: auto;
   }
 
   /* Deal-card chrome — same glass language as Tablet, Portrait-sized */

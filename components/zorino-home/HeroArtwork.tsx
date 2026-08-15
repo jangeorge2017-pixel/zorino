@@ -13,17 +13,22 @@ const HERO_ORBIT_COMPOSITION = [
 ] as const;
 
 /**
- * Desktop + Portrait Mobile keep a single floating deal card beside the stats.
+ * Desktop + Tablet park a single floating deal card beside the stats.
  * Tablet (768–1279) parks BOTH existing orbit-top cards (hero artwork + the
  * post-categories artwork) into the stats row, side by side after the metrics.
  * The second artwork rotates its product pool (rotateOrbitProducts) so its
  * parked card shows a different image than the first.
- * Mobile Normal (landscape) relocates the full orbit strip after Search.
+ * Mobile (portrait + Mobile Normal) relocates the full 4-card orbit strip
+ * after Search; portrait hides the second artwork so exactly 4 distinct
+ * product cards show in the strip.
  */
-const STATS_ORBIT_MQ =
-  "(min-width: 768px), ((max-width: 767px) and (orientation: portrait))";
+const STATS_ORBIT_MQ = "(min-width: 768px)";
 
 const TABLET_ORBIT_MQ = "(min-width: 768px) and (max-width: 1279px)";
+
+/* Portrait + Mobile Normal — matches the shared ≤767 mobile CSS block. */
+const MOBILE_ORBIT_MQ =
+  "(max-width: 767px), (max-height: 500px) and (orientation: landscape) and (max-width: 1024px)";
 
 type HeroArtworkProps = {
   floatingProducts: FloatingProductCard[];
@@ -79,8 +84,8 @@ export default function HeroArtwork({
     (entry): entry is OrbitSlotCard => entry != null,
   );
 
-  /* Tablet / Desktop / Portrait: park orbit-top under the stats row.
-   * Skip Mobile Normal — that mode keeps all 4 cards in the post-Search strip. */
+  /* Desktop / Tablet: park orbit-top under the stats row.
+   * Portrait + Mobile Normal keep all cards in the post-Search strip. */
   useEffect(() => {
     const rootEl = rootRef.current;
     if (!rootEl) return;
@@ -177,9 +182,10 @@ export default function HeroArtwork({
     };
   }, [floatingProducts]);
 
-  /* Mobile Normal only: move the full 4-card orbit strip under Search */
+  /* Mobile (portrait + Mobile Normal): move the full 4-card orbit strip
+   * under Search — between the Search bar and the Categories row. */
   useEffect(() => {
-    const mq = window.matchMedia(MOBILE_NORMAL_MQ);
+    const mq = window.matchMedia(MOBILE_ORBIT_MQ);
     let orbitParent: Element | null = null;
     let nextSibling: ChildNode | null = null;
 
@@ -192,6 +198,7 @@ export default function HeroArtwork({
 
     const restore = (orbit: HTMLElement) => {
       clearCardSizes(orbit);
+      orbit.classList.remove("zh-hero-orbit-in-strip");
       if (orbitParent && orbit.parentElement !== orbitParent) {
         if (nextSibling && nextSibling.parentNode === orbitParent) {
           orbitParent.insertBefore(orbit, nextSibling);
@@ -221,6 +228,7 @@ export default function HeroArtwork({
       if (orbit.previousElementSibling !== search) {
         search.insertAdjacentElement("afterend", orbit);
       }
+      orbit.classList.add("zh-hero-orbit-in-strip");
 
       const cards = orbit.querySelectorAll<HTMLElement>(".zh-orbit-card");
       if (cards.length === 0) return;
