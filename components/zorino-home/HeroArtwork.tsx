@@ -102,6 +102,7 @@ export default function HeroArtwork({
       HTMLElement,
       { parent: Element | null; next: ChildNode | null }
     >();
+    let extraParked: HTMLElement | null = null;
 
     const restore = (card: HTMLElement) => {
       card.style.width = "";
@@ -157,9 +158,6 @@ export default function HeroArtwork({
       const card = rootEl.querySelector<HTMLElement>(
         '.zh-orbit-card[data-orbit-position="orbit-top"]',
       );
-      const extra = rootEl.querySelector<HTMLElement>(
-        '.zh-orbit-card[data-orbit-position="orbit-lower-right"]',
-      );
 
       /* The hero artwork is always first in the DOM; the post-categories
          artwork parks beside the metrics on Tablet and Desktop. Short
@@ -171,16 +169,64 @@ export default function HeroArtwork({
 
       if (!parkTop) {
         if (card) restore(card);
-        if (extra) restore(extra);
+        if (extraParked) {
+          restore(extraParked);
+          extraParked = null;
+        }
         return;
       }
 
       if (card) parkCard(card, stats, sample);
 
       if (parkExtra) {
-        if (extra) parkCard(extra, stats, sample);
-      } else if (extra) {
-        restore(extra);
+        /* Pick the extra animated card whose product image differs from the
+           cards already parked in the row — the hero and post-categories
+           artworks fetch their product pools independently, so the rotated
+           pools can collide on the same product. */
+        const candidates = [
+          "orbit-lower-right",
+          "orbit-upper-right",
+          "orbit-upper-left",
+        ] as const;
+        let chosen: HTMLElement | null = null;
+        for (const pos of candidates) {
+          const el = rootEl.querySelector<HTMLElement>(
+            `.zh-orbit-card[data-orbit-position="${pos}"]`,
+          );
+          if (!el) continue;
+          const img = el.querySelector<HTMLImageElement>("img");
+          if (img && img.getAttribute("src")) {
+            let conflict = false;
+            for (const other of stats.querySelectorAll<HTMLElement>(".zh-orbit-card")) {
+              if (other === el) continue;
+              const otherImg = other.querySelector<HTMLImageElement>("img");
+              if (
+                otherImg &&
+                otherImg.getAttribute("src") === img.getAttribute("src")
+              ) {
+                conflict = true;
+                break;
+              }
+            }
+            if (conflict) continue;
+          }
+          chosen = el;
+          break;
+        }
+        if (chosen) {
+          if (extraParked && extraParked !== chosen) {
+            restore(extraParked);
+            extraParked = null;
+          }
+          parkCard(chosen, stats, sample);
+          extraParked = chosen;
+        } else if (extraParked) {
+          restore(extraParked);
+          extraParked = null;
+        }
+      } else if (extraParked) {
+        restore(extraParked);
+        extraParked = null;
       }
     };
 

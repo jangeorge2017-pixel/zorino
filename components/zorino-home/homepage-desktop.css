@@ -349,7 +349,10 @@
   .zh-page .zh-stat {
     width: auto;
     min-width: 0;
-    min-height: 82px;
+    /* Shipped metric tiles are 96px tall (grid stretch made them all match
+       the violet tile); pin that here so the row keeps its exact size and the
+       parked animated cards are sized from a 96px stat square (110px). */
+    min-height: 96px;
     padding: 12px 14px;
     border-radius: 14px;
     background: rgba(12, 16, 32, 0.62);
