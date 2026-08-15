@@ -105,6 +105,11 @@
   text-align: center;
 }
 
+/* Premium navigation arrow — portrait-only (revealed in homepage-responsive.css) */
+.zh-categories__arrow {
+  display: none;
+}
+
 @media (max-width: 1279px) {
   .zh-categories {
     display: flex;

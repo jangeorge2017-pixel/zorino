@@ -184,6 +184,38 @@
   }
 
   /*
+   * Portrait RTL: mirror the EN portrait Categories row — exactly 4 icons +
+   * the premium nav arrow (left side in RTL), scroll cue removed.
+   */
+  html[dir="rtl"] .zh-page .zh-categories-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories-nav::after {
+    display: none !important;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__item:nth-child(n + 5) {
+    display: none !important;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__item {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  /*
    * Quick-nav (= mobile section navbar): EN 3-up chip geometry, full set via
    * horizontal scroll so nothing stays clipped/hidden.
    */
