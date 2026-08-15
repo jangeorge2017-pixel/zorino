@@ -2048,7 +2048,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     width: 100%;
     max-width: 100%;
-    margin-top: var(--zh-space-desc-stats);
+    margin-top: calc(var(--zh-space-desc-stats) + 15px);
     margin-bottom: 16px;
     gap: 8px;
     align-items: stretch;
