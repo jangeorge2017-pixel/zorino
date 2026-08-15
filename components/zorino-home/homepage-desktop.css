@@ -659,8 +659,9 @@
     position: relative;
   }
 
-  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"],
-  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
+  /* Any animated card parked into the stats row is a normal in-flow grid
+     item (Tablet-style row), whatever orbit slot it came from. */
+  .zh-page .zh-hero__stats > .zh-orbit-card {
     position: static !important;
     left: auto !important;
     right: auto !important;
@@ -672,15 +673,16 @@
     pointer-events: auto;
   }
 
-  /* The third animated card (primary artwork's lower-right slot) is normally
-     hidden on desktop — show it only while parked inside the stats row. */
+  /* Non-top slots are normally hidden on desktop — show them only while
+     parked inside the stats row (the third animated card can be any slot). */
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-upper-left"],
+  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-upper-right"],
   .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
     display: block !important;
   }
 
   /* Crisp product art — full source fidelity, card size unchanged */
-  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-top"] .zh-orbit-card__img,
-  .zh-page .zh-hero__stats > .zh-orbit-card[data-orbit-position="orbit-lower-right"] .zh-orbit-card__img {
+  .zh-page .zh-hero__stats > .zh-orbit-card .zh-orbit-card__img {
     image-rendering: auto;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
