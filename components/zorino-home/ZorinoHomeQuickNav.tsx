@@ -231,12 +231,9 @@ export default function ZorinoHomeQuickNav() {
                       {item.emoji}
                     </span>
                     {isTicket && (
-                      <Ticket
-                        className="zh-quick-nav__icon-mobile"
-                        size={11}
-                        strokeWidth={2}
-                        aria-hidden
-                      />
+                      <span className="zh-quick-nav__icon-mobile" aria-hidden="true">
+                        <Ticket size={11} strokeWidth={2} />
+                      </span>
                     )}
                     <span className="zh-quick-nav__label">{label}</span>
                   </Link>
@@ -254,12 +251,9 @@ export default function ZorinoHomeQuickNav() {
                     {item.emoji}
                   </span>
                   {isTicket && (
-                    <Ticket
-                      className="zh-quick-nav__icon-mobile"
-                      size={11}
-                      strokeWidth={2}
-                      aria-hidden
-                    />
+                    <span className="zh-quick-nav__icon-mobile" aria-hidden="true">
+                      <Ticket size={11} strokeWidth={2} />
+                    </span>
                   )}
                   <span className="zh-quick-nav__label">{label}</span>
                 </button>

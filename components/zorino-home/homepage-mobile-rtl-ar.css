@@ -353,6 +353,11 @@
     display: none !important;
   }
 
+  /* Portrait RTL: hide the 🎟️ emoji on coupon pills (SVG ticket shows instead) */
+  html[dir="rtl"] .zh-page .zh-quick-nav__pill--ticket .zh-quick-nav__emoji {
+    display: none;
+  }
+
   /*
    * ── Product price / discount: match EN mobile pill treatment exactly ──
    * EN reference (product-card-media-overlays.css ≤767): translucent pill,
