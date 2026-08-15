@@ -348,6 +348,14 @@
     text-align: center;
   }
 
+  /* EN desktop — force the subtitle to exactly 2 lines: line 1 is the lead
+     ("Compare prices across thousands of stores and discover"), line 2 is the
+     tail ("the best deals in seconds."). Both stay centered in the same 28em
+     box, which shares the headline/stats center axis. */
+  html[dir="ltr"] .zh-page .zh-hero__subtitle .zh-hero__subtitle-tail {
+    display: block;
+  }
+
   /* 4 metric cards keep their shipped 141px tracks + 3 parked animated cards
      share the row with one equal 10px gap (matches the Tablet stats layout).
      Cards are square-sized in HeroArtwork from a live stat (110px desktop);
