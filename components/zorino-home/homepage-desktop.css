@@ -350,14 +350,14 @@
     margin-inline: auto;
     max-width: 480px;
     font-size: 16px;
-    line-height: 1.62;
+    line-height: 1.55;
     font-weight: 400;
-    color: #94a3b8;
+    color: #a8b4c4;
     text-align: center;
   }
 
   html[dir="ltr"] .zh-page .zh-hero__subtitle-lead {
-    color: #94a3b8;
+    color: #a8b4c4;
   }
 
   /* 4 metric cards keep their shipped 141px tracks + 3 parked animated cards
