@@ -332,12 +332,19 @@
     color: #cbd5e1;
   }
 
-  /* EN desktop — the headline and its subtitle move 20px toward the logo
-     (left), matching the Tablet's left-edge alignment. Arabic keeps the RTL
-     composition untouched. */
+  /* EN desktop — the headline + subtitle move 40px toward the Z logo (left)
+     and center-align: "Find Better" centered above "Deals Faster", with the
+     subtitle centered directly below. Both boxes span the copy width so the
+     whole block shares one center axis. Arabic keeps the RTL composition
+     untouched. */
   html[dir="ltr"] .zh-page .zh-hero__title,
   html[dir="ltr"] .zh-page .zh-hero__subtitle {
-    margin-inline-start: -20px;
+    margin-inline-start: -60px;
+    text-align: center;
+  }
+
+  html[dir="ltr"] .zh-page .zh-hero__subtitle {
+    max-width: none;
   }
 
   /* 4 metric cards keep their shipped 141px tracks + 3 parked animated cards
