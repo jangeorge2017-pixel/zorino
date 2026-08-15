@@ -103,7 +103,10 @@
   }
 
   /* Stats cards keep EN left→right order; labels read RTL inside. Row grows
-     with the 4 metrics + 3 parked animated cards (same as EN desktop). */
+     with the 4 metrics + 3 parked animated cards (same as EN desktop).
+     RTL block flow anchors overflowing boxes to the right edge, so pull the
+     row right by the overflow (4×141px metrics + 3×110px cards + 6×10px
+     gaps − 100% copy width) to match the EN left anchor. */
   html[dir="rtl"] .zh-page .zh-hero__stats {
     direction: ltr;
     unicode-bidi: isolate;
@@ -111,6 +114,7 @@
     margin-inline-end: 0;
     width: max-content;
     max-width: none;
+    margin-right: calc(100% - (141px * 4 + 110px * 3 + 10px * 6));
   }
 
   /*
