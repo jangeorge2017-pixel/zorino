@@ -334,17 +334,18 @@
 
   /* EN desktop — the headline + subtitle move toward the Z logo (left) and
      center-align: "Find Better" centered above "Deals Faster", with the
-     subtitle centered directly below. Both boxes span the copy width so the
-     whole block shares one center axis. Arabic keeps the RTL composition
-     untouched. */
-  html[dir="ltr"] .zh-page .zh-hero__title,
-  html[dir="ltr"] .zh-page .zh-hero__subtitle {
-    margin-inline-start: -140px;
+     subtitle centered directly below on the same axis. The subtitle keeps its
+     original 2-line box (max-width 28em) centered under the headline, so the
+     two elements use separate inline offsets to share one center axis.
+     Arabic keeps the RTL composition untouched. */
+  html[dir="ltr"] .zh-page .zh-hero__title {
+    margin-inline-start: -220px;
     text-align: center;
   }
 
   html[dir="ltr"] .zh-page .zh-hero__subtitle {
-    max-width: none;
+    margin-inline-start: -60px;
+    text-align: center;
   }
 
   /* 4 metric cards keep their shipped 141px tracks + 3 parked animated cards
