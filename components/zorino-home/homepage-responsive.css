@@ -2398,6 +2398,56 @@
       transition: none;
     }
   }
+
+  /* ── Quick Nav row: 3 full pills + premium arrow on one line ── */
+  .zh-page .zh-quick-nav__track {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .zh-page .zh-quick-nav__row {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .zh-page .zh-quick-nav__pill:nth-child(n + 4) {
+    display: none !important;
+  }
+
+  .zh-page .zh-quick-nav__pill,
+  .zh-page a.zh-quick-nav__pill {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .zh-page .zh-quick-nav__label {
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .zh-page .zh-quick-nav-wrap::after {
+    display: none !important;
+  }
+
+  .zh-page .zh-quick-nav__more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    flex-shrink: 0;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__more .zh-quick-nav__more-icon {
+    transform: scaleX(-1);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════

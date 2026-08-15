@@ -313,6 +313,47 @@
   }
 
   /*
+   * Portrait RTL: mirror the EN portrait Quick Nav row — 3 full pills +
+   * the premium arrow (left side in RTL), scroll cue removed.
+   */
+  html[dir="rtl"] .zh-page .zh-quick-nav__track {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__row {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__pill:nth-child(n + 4) {
+    display: none !important;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__pill,
+  html[dir="rtl"] .zh-page a.zh-quick-nav__pill {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__label {
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav-wrap::after {
+    display: none !important;
+  }
+
+  /*
    * ── Product price / discount: match EN mobile pill treatment exactly ──
    * EN reference (product-card-media-overlays.css ≤767): translucent pill,
    * #fff7ed discount, 9px/800, 3×8 pad, 999 radius. Price/was already match.
