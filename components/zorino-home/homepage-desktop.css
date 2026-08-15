@@ -332,6 +332,14 @@
     color: #cbd5e1;
   }
 
+  /* EN desktop — the headline and its subtitle move 20px toward the logo
+     (left), matching the Tablet's left-edge alignment. Arabic keeps the RTL
+     composition untouched. */
+  html[dir="ltr"] .zh-page .zh-hero__title,
+  html[dir="ltr"] .zh-page .zh-hero__subtitle {
+    margin-inline-start: -20px;
+  }
+
   /* 4 metric cards keep their shipped 141px tracks + 3 parked animated cards
      share the row with one equal 10px gap (matches the Tablet stats layout).
      Cards are square-sized in HeroArtwork from a live stat (110px desktop);
@@ -651,7 +659,8 @@
    * categories untouched.
    */
   .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"] {
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
+  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
     display: none !important;
   }
 
