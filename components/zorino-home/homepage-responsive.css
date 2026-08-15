@@ -2390,7 +2390,7 @@
   }
 
   html[dir="rtl"] .zh-page .zh-categories__arrow svg {
-    transform: scaleX(-1);
+    transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
