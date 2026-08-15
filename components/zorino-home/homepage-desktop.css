@@ -332,28 +332,34 @@
     color: #cbd5e1;
   }
 
-  /* EN desktop — headline + subtitle keep their internal layout exactly
-     (font, size, line breaks, 2-line subtitle box, spacing, styling) and the
-     whole group moves as one unit until its shared center axis aligns with
-     the exact horizontal center of the 4 stats cards (4×141px + 3×10px gaps).
-     The background is not a constraint. Arabic keeps the RTL composition
-     untouched. */
+  /* EN desktop — headline + subtitle reuse the exact Tablet formatting:
+     base hero title (clamp(42px, 2.92vw, 56px), line-height 1.05,
+     letter-spacing -2.2px, 16px bottom margin) and base subtitle (16px,
+     line-height 1.62, 480px box, lead+tail wrapping naturally to the same
+     two lines as Tablet). The pair is centered as one unit on the copy
+     center axis. Arabic keeps the RTL composition untouched. */
   html[dir="ltr"] .zh-page .zh-hero__title {
-    margin-inline-start: 18px;
+    margin: 0 0 16px;
+    font-size: clamp(42px, 2.92vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -2.2px;
+    font-weight: 800;
+    text-wrap: normal;
     text-align: center;
   }
 
   html[dir="ltr"] .zh-page .zh-hero__subtitle {
-    margin-inline-start: 59px;
+    margin-inline: auto;
+    max-width: 480px;
+    font-size: 16px;
+    line-height: 1.62;
+    font-weight: 400;
+    color: #94a3b8;
     text-align: center;
   }
 
-  /* EN desktop — force the subtitle to exactly 2 lines: line 1 is the lead
-     ("Compare prices across thousands of stores and discover"), line 2 is the
-     tail ("the best deals in seconds."). Both stay centered in the same 28em
-     box, which shares the headline/stats center axis. */
-  html[dir="ltr"] .zh-page .zh-hero__subtitle .zh-hero__subtitle-tail {
-    display: block;
+  html[dir="ltr"] .zh-page .zh-hero__subtitle-lead {
+    color: #94a3b8;
   }
 
   /* 4 metric cards keep their shipped 141px tracks + 3 parked animated cards
