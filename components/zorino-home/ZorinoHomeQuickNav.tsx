@@ -22,6 +22,8 @@ const LOCALES = ["en", "ar"] as const;
 const TABLET_QUICK_NAV_MQ = "(min-width: 768px) and (max-width: 1279px)";
 /** Tablet pager + Mobile Normal in-row more control */
 const QUICK_NAV_PAGER_MQ = `${TABLET_QUICK_NAV_MQ}, ${MOBILE_NORMAL_MQ}`;
+/** Portrait-only quick-nav: 3 equal-width buttons, labels auto-shrink to fit */
+const MOBILE_PORTRAIT_MQ = "(max-width: 767px) and (orientation: portrait)";
 
 type TabletNavPage = "start" | "end";
 
@@ -151,6 +153,62 @@ export default function ZorinoHomeQuickNav() {
       ro.disconnect();
     };
   }, [onHome, syncTabletPageFromScroll]);
+
+  /**
+   * Portrait quick-nav: 3 equal-width buttons. Auto-shrink each label's
+   * font-size just enough to keep every label on one line, fully visible —
+   * never clipped and never colliding with the premium arrow control.
+   */
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const mq = window.matchMedia(MOBILE_PORTRAIT_MQ);
+
+    const fit = () => {
+      const portrait = mq.matches;
+      const pills = row.querySelectorAll<HTMLElement>(".zh-quick-nav__pill");
+      for (const pill of pills) {
+        const label = pill.querySelector<HTMLElement>(".zh-quick-nav__label");
+        if (!label) continue;
+        if (!portrait || getComputedStyle(pill).display === "none") {
+          if (label.style.fontSize) label.style.fontSize = "";
+          continue;
+        }
+        label.style.fontSize = "";
+        const cs = getComputedStyle(pill);
+        const base = parseFloat(getComputedStyle(label).fontSize) || 12;
+        const natural = label.scrollWidth;
+        const siblings = Array.from(pill.children)
+          .filter((el) => el !== label)
+          .reduce(
+            (sum, el) => sum + (el as HTMLElement).getBoundingClientRect().width,
+            0,
+          );
+        const gap = parseFloat(cs.gap) || 0;
+        const pad =
+          (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+        const available = Math.max(0, pill.clientWidth - siblings - gap - pad);
+        const fs = Math.min(base, (base * available) / natural);
+        label.style.fontSize = fs < base - 0.1 ? `${fs.toFixed(2)}px` : "";
+      }
+    };
+
+    fit();
+    const onResize = () => fit();
+    const mqChange = () => fit();
+    const ro = new ResizeObserver(onResize);
+    ro.observe(row);
+    mq.addEventListener("change", mqChange);
+    window.addEventListener("resize", onResize);
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      document.fonts.ready.then(fit).catch(() => {});
+    }
+    return () => {
+      ro.disconnect();
+      mq.removeEventListener("change", mqChange);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
   const scrollTabletToPage = useCallback((page: TabletNavPage) => {
     const row = rowRef.current;

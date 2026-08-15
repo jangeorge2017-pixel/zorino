@@ -2420,9 +2420,10 @@
     display: none !important;
   }
 
+  /* 3 equal-width buttons fill the row (labels auto-shrink to fit via JS) */
   .zh-page .zh-quick-nav__pill,
   .zh-page a.zh-quick-nav__pill {
-    flex: 0 0 auto;
+    flex: 1 1 0;
     width: auto;
     min-width: 0;
     max-width: none;

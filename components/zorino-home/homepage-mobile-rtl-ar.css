@@ -494,6 +494,16 @@
        animated product cards live in the post-Search strip. */
     padding-inline-end: 0;
   }
+
+  /* Portrait RTL: mirror EN portrait quick-nav — 3 equal-width buttons,
+     label auto-shrinks to fit, premium arrow stays a separate control. */
+  html[dir="rtl"] .zh-page .zh-quick-nav__pill,
+  html[dir="rtl"] .zh-page a.zh-quick-nav__pill {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
 }
 
 /*
