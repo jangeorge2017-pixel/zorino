@@ -333,16 +333,18 @@
   }
 
   /* EN desktop — headline + subtitle keep their internal layout exactly
-     (sizes, line breaks, 2-line subtitle box, spacing, styling); the whole
-     group is centered as one unit in the column, then moved 50px toward the
-     Z logo. Both elements share one center axis; only offsets change.
+     (font, size, line breaks, 2-line subtitle box, spacing, styling) and the
+     whole group is centered on one shared center axis. The group is pushed as
+     far toward the Z logo as the page allows (its leftmost text lands near
+     the logo/tablet left alignment); the background veil is no restriction.
      Arabic keeps the RTL composition untouched. */
   html[dir="ltr"] .zh-page .zh-hero__title {
-    margin-inline-start: -100px;
+    margin-inline-start: -240px;
     text-align: center;
   }
 
   html[dir="ltr"] .zh-page .zh-hero__subtitle {
+    margin-inline-start: -70px;
     text-align: center;
   }
 
