@@ -332,19 +332,17 @@
     color: #cbd5e1;
   }
 
-  /* EN desktop — the headline + subtitle move toward the Z logo (left) and
-     center-align: "Find Better" centered above "Deals Faster", with the
-     subtitle centered directly below on the same axis. The subtitle keeps its
-     original 2-line box (max-width 28em) centered under the headline, so the
-     two elements use separate inline offsets to share one center axis.
+  /* EN desktop — headline + subtitle keep their internal layout exactly
+     (sizes, line breaks, 2-line subtitle box, spacing, styling); the whole
+     group is centered as one unit in the column, then moved 50px toward the
+     Z logo. Both elements share one center axis; only offsets change.
      Arabic keeps the RTL composition untouched. */
   html[dir="ltr"] .zh-page .zh-hero__title {
-    margin-inline-start: -220px;
+    margin-inline-start: -100px;
     text-align: center;
   }
 
   html[dir="ltr"] .zh-page .zh-hero__subtitle {
-    margin-inline-start: -60px;
     text-align: center;
   }
 
