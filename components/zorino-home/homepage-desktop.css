@@ -316,7 +316,6 @@
     line-height: 0.96;
     letter-spacing: -0.045em;
     font-weight: 800;
-    text-wrap: balance;
   }
 
   .zh-page .zh-hero__subtitle {
@@ -344,7 +343,6 @@
     line-height: 1.05;
     letter-spacing: -2.2px;
     font-weight: 800;
-    text-wrap: normal;
     text-align: center;
   }
 
