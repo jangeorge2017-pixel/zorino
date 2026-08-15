@@ -334,17 +334,17 @@
 
   /* EN desktop — headline + subtitle keep their internal layout exactly
      (font, size, line breaks, 2-line subtitle box, spacing, styling) and the
-     whole group is centered on one shared center axis. The group is pushed as
-     far toward the Z logo as the page allows (its leftmost text lands near
-     the logo/tablet left alignment); the background veil is no restriction.
-     Arabic keeps the RTL composition untouched. */
+     whole group moves as one unit until its shared center axis aligns with
+     the exact horizontal center of the 4 stats cards (4×141px + 3×10px gaps).
+     The background is not a constraint. Arabic keeps the RTL composition
+     untouched. */
   html[dir="ltr"] .zh-page .zh-hero__title {
-    margin-inline-start: -240px;
+    margin-inline-start: 18px;
     text-align: center;
   }
 
   html[dir="ltr"] .zh-page .zh-hero__subtitle {
-    margin-inline-start: -70px;
+    margin-inline-start: 59px;
     text-align: center;
   }
 
