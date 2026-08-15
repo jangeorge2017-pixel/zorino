@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { Ticket } from "lucide-react";
 import {
   ZORINO_QUICK_NAV_ITEMS,
   ZORINO_QUICK_NAV_TARGETS,
@@ -52,6 +53,8 @@ const QUICK_NAV_LABEL_KEYS: Record<string, string> = {
   stores: "quickStores",
   blog: "quickBlog",
 };
+
+const TICKET_ITEM_IDS = new Set(["coupons", "featured-brands"]);
 
 export default function ZorinoHomeQuickNav() {
   const t = useTranslations("home");
@@ -218,7 +221,8 @@ export default function ZorinoHomeQuickNav() {
           <div className="zh-quick-nav__row" ref={rowRef}>
             {ZORINO_QUICK_NAV_ITEMS.map((item) => {
               const isActive = isItemActive(item);
-              const className = `zh-quick-nav__pill${isActive ? " is-active" : ""}`;
+              const isTicket = TICKET_ITEM_IDS.has(item.id);
+              const className = `zh-quick-nav__pill${isActive ? " is-active" : ""}${isTicket ? " zh-quick-nav__pill--ticket" : ""}`;
               const label = labelFor(item);
               if (item.href) {
                 return (
@@ -226,6 +230,14 @@ export default function ZorinoHomeQuickNav() {
                     <span className="zh-quick-nav__emoji" aria-hidden="true">
                       {item.emoji}
                     </span>
+                    {isTicket && (
+                      <Ticket
+                        className="zh-quick-nav__icon-mobile"
+                        size={11}
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                    )}
                     <span className="zh-quick-nav__label">{label}</span>
                   </Link>
                 );
@@ -241,6 +253,14 @@ export default function ZorinoHomeQuickNav() {
                   <span className="zh-quick-nav__emoji" aria-hidden="true">
                     {item.emoji}
                   </span>
+                  {isTicket && (
+                    <Ticket
+                      className="zh-quick-nav__icon-mobile"
+                      size={11}
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                  )}
                   <span className="zh-quick-nav__label">{label}</span>
                 </button>
               );
