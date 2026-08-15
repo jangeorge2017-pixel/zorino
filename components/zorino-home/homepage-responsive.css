@@ -2048,7 +2048,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     width: 100%;
     max-width: 100%;
-    margin-top: calc(var(--zh-space-desc-stats) + 15px);
+    margin-top: calc(var(--zh-space-desc-stats) + 60px);
     margin-bottom: 16px;
     gap: 8px;
     align-items: stretch;
@@ -2123,7 +2123,7 @@
     width: 100%;
     max-width: 100%;
     height: auto;
-    margin: 12px 0 0;
+    margin: 8px 0 0;
     padding: 0;
     gap: 8px;
     align-items: stretch;
