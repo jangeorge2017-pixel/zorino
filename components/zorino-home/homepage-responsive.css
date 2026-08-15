@@ -2448,6 +2448,27 @@
   html[dir="rtl"] .zh-page .zh-quick-nav__more .zh-quick-nav__more-icon {
     transform: scaleX(-1);
   }
+
+  /* ── Coupon pills: clean ticket icon replaces the 🎟️ emoji (portrait) ── */
+  .zh-page .zh-quick-nav__pill--ticket .zh-quick-nav__emoji {
+    display: none;
+  }
+
+  .zh-page .zh-quick-nav__pill--ticket .zh-quick-nav__icon-mobile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 12px;
+  }
+
+  .zh-page .zh-quick-nav__pill--ticket .zh-quick-nav__icon-mobile svg {
+    display: block;
+    flex-shrink: 0;
+    width: 11px;
+    height: 11px;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
