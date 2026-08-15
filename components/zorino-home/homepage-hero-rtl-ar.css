@@ -102,14 +102,15 @@
     font-weight: 700;
   }
 
-  /* Stats cards keep EN left→right order; labels read RTL inside */
+  /* Stats cards keep EN left→right order; labels read RTL inside. Row grows
+     with the 4 metrics + 3 parked animated cards (same as EN desktop). */
   html[dir="rtl"] .zh-page .zh-hero__stats {
     direction: ltr;
     unicode-bidi: isolate;
     margin-inline-start: 0;
     margin-inline-end: 0;
-    width: calc(100% + 30px);
-    max-width: calc(36rem + 30px);
+    width: max-content;
+    max-width: none;
   }
 
   /*
