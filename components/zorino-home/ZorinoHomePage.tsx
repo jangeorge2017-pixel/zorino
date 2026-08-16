@@ -28,6 +28,7 @@ import ZorinoHomeCouponsPanel from "@/components/zorino-home/ZorinoHomeCouponsPa
 import ZorinoHomeProductSections from "@/components/zorino-home/ZorinoHomeProductSections";
 import ZorinoHomeCtaBand from "@/components/zorino-home/ZorinoHomeCtaBand";
 import ZorinoHomeFooter from "@/components/zorino-home/ZorinoHomeFooter";
+import "@/components/zorino-home/homepage-landscape-phones.css";
 import {
   getHeroFloatingProducts,
   getHomepageCategories,
