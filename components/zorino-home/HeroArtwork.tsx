@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import HeroFloatingCard from "@/components/zorino-home/HeroFloatingCard";
 import type { FloatingProductCard } from "@/lib/types/entities";
 
@@ -91,7 +91,7 @@ export default function HeroArtwork({
    * side by side after the metrics. Desktop also parks the primary artwork's
    * lower-right card as a third animated card. Portrait keeps all cards in the
    * post-Search strip. */
-  useEffect(() => {
+  useLayoutEffect(() => {
     const rootEl = rootRef.current;
     if (!rootEl) return;
     const mq = window.matchMedia(STATS_ORBIT_MQ);
@@ -100,11 +100,21 @@ export default function HeroArtwork({
       HTMLElement,
       { parent: Element | null; next: ChildNode | null }
     >();
+    /* Tracks every card this instance has parked. Once a card is appended to
+       the stats row it leaves this artwork's subtree, so rootEl.querySelector
+       can no longer see it — without this set, later sync() calls (resize,
+       orientation/media-query change, route change) could never restore it and
+       it would stay pinned to the stats row, overlapping the hero. */
+    const parked = new Set<HTMLElement>();
     let extraParked: HTMLElement | null = null;
 
-    const restore = (card: HTMLElement) => {
+    const clearSize = (card: HTMLElement) => {
       card.style.width = "";
       card.style.height = "";
+    };
+
+    const restore = (card: HTMLElement) => {
+      clearSize(card);
       const origin = parkOrigin.get(card);
       if (origin?.parent && card.parentElement !== origin.parent) {
         if (origin.next && origin.next.parentNode === origin.parent) {
@@ -113,6 +123,7 @@ export default function HeroArtwork({
           origin.parent.appendChild(card);
         }
       }
+      parked.delete(card);
     };
 
     const sizeToStat = (card: HTMLElement, sample: HTMLElement) => {
@@ -143,6 +154,18 @@ export default function HeroArtwork({
         stats.appendChild(card);
       }
       sizeToStat(card, sample);
+      parked.add(card);
+    };
+
+    /* A parked card lives under stats (outside this artwork's subtree), so
+       prefer the tracked card and fall back to the subtree for the first park. */
+    const findOrbitTop = () => {
+      for (const card of parked) {
+        if (card.dataset.orbitPosition === "orbit-top") return card;
+      }
+      return rootEl.querySelector<HTMLElement>(
+        '.zh-orbit-card[data-orbit-position="orbit-top"]',
+      );
     };
 
     const sync = () => {
@@ -153,9 +176,7 @@ export default function HeroArtwork({
       const sample = stats?.querySelector<HTMLElement>(".zh-stat");
       if (!stats || !sample) return;
 
-      const card = rootEl.querySelector<HTMLElement>(
-        '.zh-orbit-card[data-orbit-position="orbit-top"]',
-      );
+      const card = findOrbitTop();
 
       /* The hero artwork is always first in the DOM; the post-categories
          artwork parks beside the metrics on Tablet and Desktop. Landscape
@@ -228,37 +249,69 @@ export default function HeroArtwork({
       }
     };
 
-    sync();
-    mq.addEventListener("change", sync);
-    desktopMq.addEventListener("change", sync);
-    window.addEventListener("resize", sync);
-
-    const stats = document.querySelector(".zh-page .zh-hero__stats");
-    const ro = stats ? new ResizeObserver(sync) : null;
-    if (stats && ro) {
+    let ro: ResizeObserver | null = null;
+    const attach = () => {
+      const stats = document.querySelector(".zh-page .zh-hero__stats");
+      if (!stats || ro) return;
+      ro = new ResizeObserver(sync);
       ro.observe(stats);
       for (const el of stats.querySelectorAll(".zh-stat")) {
         ro.observe(el);
       }
-    }
+    };
+
+    sync();
+    attach();
+    mq.addEventListener("change", sync);
+    desktopMq.addEventListener("change", sync);
+    window.addEventListener("resize", sync);
+
+    /* The artwork streams through its own Suspense boundary, so the stats row
+       (and its .zh-stat cards) may not be in the DOM when this effect mounts.
+       Pump sync until they exist (cold loads can take a while), then stop —
+       observers handle everything else. */
+    let intervalId: ReturnType<typeof setTimeout> | null = null;
+    let tries = 0;
+    const pump = () => {
+      const stats = document.querySelector(".zh-page .zh-hero__stats");
+      const sample = stats?.querySelector<HTMLElement>(".zh-stat");
+      if (!stats || !sample) {
+        tries += 1;
+        if (tries <= 80) {
+          intervalId = setTimeout(pump, 250);
+        }
+        return;
+      }
+      sync();
+      attach();
+    };
+    intervalId = setTimeout(pump, 250);
 
     return () => {
+      if (intervalId) clearTimeout(intervalId);
       mq.removeEventListener("change", sync);
       desktopMq.removeEventListener("change", sync);
       window.removeEventListener("resize", sync);
       ro?.disconnect();
-      for (const card of rootEl.querySelectorAll<HTMLElement>(".zh-orbit-card")) {
-        if (parkOrigin.has(card)) restore(card);
+      for (const card of [...parked]) {
+        restore(card);
       }
     };
   }, [floatingProducts]);
 
   /* Mobile portrait: move the full 4-card orbit strip under Search — between
-   * the Search bar and the Categories row. */
-  useEffect(() => {
+   * the Search bar and the Categories row. Only the primary (hero) artwork
+   * drives the strip; the second artwork is display:none in portrait. */
+  useLayoutEffect(() => {
+    const rootEl = rootRef.current;
+    if (!rootEl) return;
     const mq = window.matchMedia(MOBILE_ORBIT_MQ);
     let orbitParent: Element | null = null;
     let nextSibling: ChildNode | null = null;
+    /* The orbit is moved out of this artwork's subtree when the strip forms,
+       so rootEl.querySelector can no longer see it — track it explicitly so
+       it can always be restored when the strip must unmount. */
+    let movedOrbit: HTMLElement | null = null;
 
     const clearCardSizes = (orbit: HTMLElement) => {
       for (const card of orbit.querySelectorAll<HTMLElement>(".zh-orbit-card")) {
@@ -280,10 +333,10 @@ export default function HeroArtwork({
     };
 
     const sync = () => {
-      const orbit = document.querySelector<HTMLElement>(
-        ".zh-page .hero-artwork__orbit",
-      );
+      if (rootEl !== document.querySelector(".zh-page .hero-artwork")) return;
       const search = document.querySelector<HTMLElement>(".zh-page .zh-hero-search");
+      const orbit =
+        movedOrbit || rootEl.querySelector<HTMLElement>(".hero-artwork__orbit");
       if (!orbit || !search) return;
 
       if (!orbitParent) {
@@ -293,12 +346,14 @@ export default function HeroArtwork({
 
       if (!mq.matches) {
         restore(orbit);
+        movedOrbit = null;
         return;
       }
 
       if (orbit.previousElementSibling !== search) {
         search.insertAdjacentElement("afterend", orbit);
       }
+      movedOrbit = orbit;
       orbit.classList.add("zh-hero-orbit-in-strip");
 
       const cards = orbit.querySelectorAll<HTMLElement>(".zh-orbit-card");
@@ -318,18 +373,45 @@ export default function HeroArtwork({
     sync();
     mq.addEventListener("change", sync);
     window.addEventListener("resize", sync);
-    const search = document.querySelector(".zh-page .zh-hero-search");
-    const ro = search ? new ResizeObserver(sync) : null;
-    if (search && ro) ro.observe(search);
+    let ro: ResizeObserver | null = null;
+    const attach = () => {
+      if (ro) return;
+      const searchEl = document.querySelector(".zh-page .zh-hero-search");
+      if (!searchEl) return;
+      ro = new ResizeObserver(sync);
+      ro.observe(searchEl);
+    };
+    attach();
+
+    /* The search bar may not be in the DOM yet while the artwork streams —
+       pump until it is (cold loads can take a while), then stop. */
+    let intervalId: ReturnType<typeof setTimeout> | null = null;
+    let tries = 0;
+    const pump = () => {
+      const searchEl = document.querySelector(".zh-page .zh-hero-search");
+      if (!searchEl) {
+        tries += 1;
+        if (tries <= 80) {
+          intervalId = setTimeout(pump, 250);
+        }
+        return;
+      }
+      attach();
+      sync();
+    };
+    intervalId = setTimeout(pump, 250);
 
     return () => {
+      if (intervalId) clearTimeout(intervalId);
       mq.removeEventListener("change", sync);
       window.removeEventListener("resize", sync);
       ro?.disconnect();
-      const orbit = document.querySelector<HTMLElement>(
-        ".zh-page .hero-artwork__orbit",
-      );
-      if (orbit) restore(orbit);
+      if (movedOrbit) {
+        restore(movedOrbit);
+      } else {
+        const orbit = rootEl.querySelector<HTMLElement>(".hero-artwork__orbit");
+        if (orbit) restore(orbit);
+      }
     };
   }, [floatingProducts]);
 
