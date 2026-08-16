@@ -183,6 +183,13 @@
     font-size: 8px;
   }
 
+  /* ── Animated floating product cards — removed on landscape phones ──
+     The two orbit cards parked beside the metrics (STATS_ORBIT_MQ) are
+     hidden so only the four tablet stat cards remain. Tablet keeps them. */
+  .zh-page .zh-hero__stats > .zh-orbit-card {
+    display: none;
+  }
+
   /* ── Search — tablet bar, compact ── */
   .zh-page .zh-search__bar {
     min-height: 34px;
