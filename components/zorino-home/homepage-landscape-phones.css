@@ -185,7 +185,12 @@
 
   /* ── Animated floating product cards — removed on landscape phones ──
      The two orbit cards parked beside the metrics (STATS_ORBIT_MQ) are
-     hidden so only the four tablet stat cards remain. Tablet keeps them. */
+     hidden so only the four tablet stat cards remain. Tablet keeps them.
+     Also hide any orbit cards still in the artwork orbits (pre-park flash)
+     — no orbit card is ever visible in landscape. */
+  .zh-page .hero-artwork .zh-orbit-card {
+    display: none !important;
+  }
   .zh-page .zh-hero__stats > .zh-orbit-card {
     display: none;
   }
