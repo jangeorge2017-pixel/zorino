@@ -96,11 +96,10 @@
   }
 }
 
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+@media (max-width: 767px) and (orientation: portrait) {
   /*
    * ═══════════════════════════════════════════════════════════════════════
-   * MOBILE LAYOUT CONTRACT (390–430px architecture)
+   * MOBILE PORTRAIT LAYOUT CONTRACT (390–430px architecture)
    * Single owner for overflow / scroll / stacking / carousel sizing.
    * Page vertical scroll = html only. Horizontal scroll = carousel tracks
    * (+ optional filter strips) only. No nested vertical scrollports.
@@ -575,11 +574,10 @@
 }
 
 /*
- * Mobile ONLY — navbar (+ categories below it) scroll with the page.
- * Tablet/Desktop keep the fixed primary chrome above.
+ * Mobile PORTRAIT ONLY — navbar (+ categories below it) scroll with the page.
+ * Tablet/Desktop (and landscape phones = Tablet) keep the fixed primary chrome.
  */
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-page > .zh-nav {
     position: relative !important;
     top: auto;

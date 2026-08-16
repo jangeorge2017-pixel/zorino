@@ -44,7 +44,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;

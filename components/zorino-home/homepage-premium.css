@@ -612,7 +612,7 @@
   padding: clamp(20px, 3vw, 28px) clamp(20px, 4vw, 40px);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-cta-band__inner {
     flex-direction: column;
     align-items: flex-start;

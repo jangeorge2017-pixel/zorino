@@ -121,8 +121,7 @@ html[dir="rtl"] .zh-page .zh-hero__col--left {
   }
 }
 
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+@media (max-width: 767px) and (orientation: portrait) {
   /* Desktop regions preserved; right column moved below left to prevent overlap */
   .zh-page .zh-hero {
     grid-template-columns: minmax(0, 1fr);

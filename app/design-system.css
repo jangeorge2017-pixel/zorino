@@ -395,7 +395,7 @@
   text-align: center;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-site-footer__inner--grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -682,7 +682,7 @@ html {
   gap: var(--zor-space-6);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-filter-bar {
     padding: var(--zor-space-4);
   }
@@ -961,7 +961,7 @@ html {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-official-hero {
     padding: var(--zor-space-6);
   }
@@ -1436,8 +1436,7 @@ html {
   }
 }
 
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+@media (max-width: 767px) and (orientation: portrait) {
   :root {
     --zor-nav-h: 56px;
   }

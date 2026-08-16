@@ -15,13 +15,14 @@ import {
   ZORINO_QUICK_NAV_TARGETS,
 } from "@/lib/zorino-home/quick-nav-sections";
 import { getStickyClearance } from "@/lib/sticky-chrome";
-import { MOBILE_NORMAL_MQ } from "@/components/zorino-home/MobileNormalRowMore";
 import "./quick-nav.css";
 
 const LOCALES = ["en", "ar"] as const;
-const TABLET_QUICK_NAV_MQ = "(min-width: 768px) and (max-width: 1279px)";
-/** Tablet pager + Mobile Normal in-row more control */
-const QUICK_NAV_PAGER_MQ = `${TABLET_QUICK_NAV_MQ}, ${MOBILE_NORMAL_MQ}`;
+/** Tablet (768–1279) + landscape phones render the exact Tablet quick-nav */
+const TABLET_QUICK_NAV_MQ =
+  "(min-width: 768px) and (max-width: 1279px), (max-width: 767px) and (orientation: landscape)";
+/** Tablet pager — landscape phones (Tablet UI) included */
+const QUICK_NAV_PAGER_MQ = TABLET_QUICK_NAV_MQ;
 /** Portrait-only quick-nav: 3 equal-width buttons, labels auto-shrink to fit */
 const MOBILE_PORTRAIT_MQ = "(max-width: 767px) and (orientation: portrait)";
 /** Portrait paging — exactly the pills the portrait CSS keeps visible */
@@ -280,7 +281,7 @@ export default function ZorinoHomeQuickNav() {
     scrollTabletToPage(tabletPage === "start" ? "end" : "start");
   }, [scrollTabletToPage, tabletPage]);
 
-  /** Portrait → page forward; tablet/mobile-normal → existing pager scroll. */
+  /** Portrait → page forward; tablet/landscape → existing pager scroll. */
   const onPagerClick = useCallback(() => {
     if (window.matchMedia(MOBILE_PORTRAIT_MQ).matches) {
       onPortraitPagerClick();

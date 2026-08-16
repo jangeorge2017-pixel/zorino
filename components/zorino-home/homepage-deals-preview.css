@@ -81,7 +81,7 @@
   gap: var(--zor-space-5);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-page .zh-deals-preview .zor-deals-page__section-head {
     flex-direction: column;
     align-items: flex-start;

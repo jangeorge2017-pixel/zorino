@@ -69,12 +69,11 @@
   }
 }
 
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+@media (max-width: 767px) and (orientation: portrait) {
   /*
    * Desktop columns repositioned (not overlaid):
    * row1 = copy/stats, row2 = Z/orbit stage.
-   * Portrait Hero+Search / Mobile Normal re-assert a single-row stage below.
+   * Portrait Hero+Search re-asserts a single-row stage below.
    */
   .zh-page .zh-hero {
     grid-template-columns: minmax(0, 1fr);

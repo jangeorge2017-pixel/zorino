@@ -313,7 +313,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-trending-deals.zh-deals-panel {
     max-width: 100%;
     min-width: 0;

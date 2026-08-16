@@ -271,7 +271,7 @@
   gap: var(--zor-space-4);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px), (max-width: 767px) and (orientation: landscape) {
   .zor-deals-page__filter-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -463,7 +463,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-deals-page__hero-inner {
     flex-direction: column;
     align-items: stretch;

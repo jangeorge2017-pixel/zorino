@@ -489,7 +489,7 @@
   background: rgba(139, 92, 246, 0.16);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 720px) and (orientation: portrait) {
   .zh-search {
     width: min(100%, 100%);
   }
@@ -565,9 +565,9 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   /*
-   * Mobile Hero metrics are owned by homepage-responsive.css (≤767)
+   * Mobile Hero metrics are owned by homepage-responsive.css (≤767 portrait)
    * so Desktop composition compression stays in one place.
    * Keep AI Search visible (overrides ≤720 / ≤1024 hide rules on phones).
    */
@@ -591,7 +591,8 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1279px) {
+@media (min-width: 768px) and (max-width: 1279px),
+  (max-width: 767px) and (orientation: landscape) {
   /* All four metric cards (10+, 951+, 4 Coupons, Real-time) share the exact
      same 110px width — the same dimensions as the Real-time card. Widths only;
      the row stays left-anchored with the same order and 10px gaps, and the

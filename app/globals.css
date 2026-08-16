@@ -3531,7 +3531,7 @@ img {
   box-shadow: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .wishlist-item-card {
     grid-template-columns: 1fr;
   }
@@ -3931,8 +3931,9 @@ img {
   }
 }
 
-/* ─── Tablet (768px – 1279px) ─── */
-@media (max-width: 1279px) and (min-width: 768px) {
+/* ─── Tablet (768px – 1279px) + landscape phones (Tablet UI) ─── */
+@media (max-width: 1279px) and (min-width: 768px),
+  (max-width: 767px) and (orientation: landscape) {
   :root {
     --container: 100%;
     --content-pad: 32px;
@@ -3977,8 +3978,8 @@ img {
   }
 }
 
-/* ─── Mobile (≤767px) ─── */
-@media (max-width: 767px) {
+/* ─── Mobile portrait only (≤767px portrait) ─── */
+@media (max-width: 767px) and (orientation: portrait) {
   :root {
     --container: 100%;
     --content-pad: 16px;

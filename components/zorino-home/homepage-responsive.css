@@ -140,7 +140,8 @@
    Tablet ONLY (768–1279) — outer Categories chrome + single orbit card
    Desktop (≥1280) and Mobile (≤767) untouched.
    ═══════════════════════════════════════════════════════════ */
-@media (min-width: 768px) and (max-width: 1279px) {
+@media (min-width: 768px) and (max-width: 1279px),
+  (max-width: 767px) and (orientation: landscape) {
   /*
    * Tiny vertical rhythm tighten (~2px per discovery gap) so the full
    * Tablet stack (nav → hero → metrics → search → categories → chips)
@@ -356,7 +357,8 @@
  * Tablet only (768–1279): always-visible in-row more ↔ back pager.
  * Pills keep equal-width slots in the scroll row; Desktop/Mobile unchanged.
  */
-@media (min-width: 768px) and (max-width: 1279px) {
+@media (min-width: 768px) and (max-width: 1279px),
+  (max-width: 767px) and (orientation: landscape) {
   .zh-page .zh-quick-nav-wrap {
     position: relative;
     overflow: visible;
@@ -531,11 +533,10 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Mobile — portrait (≤767) and short landscape (same layout, no separate design)
-   Reuse the desktop hero illustration layer; override only mobile sizing/positions.
+   Mobile — portrait ONLY (≤767). Landscape phones render the
+   Tablet UI as-is (no separate mobile-landscape design).
    ═══════════════════════════════════════════════════════════ */
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+@media (max-width: 767px) and (orientation: portrait) {
   /* ── Page rhythm ── */
   .zh-page {
     --zh-nav-h: 56px;
@@ -2472,318 +2473,14 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   Mobile Normal ONLY — landscape (+ short landscape ≤1024)
-   Metrics → Search → 4 deal cards → Categories → Quick Nav.
-   Desktop / Tablet / Portrait Mobile unchanged.
-   ═══════════════════════════════════════════════════════════ */
-@media (max-width: 767px) and (orientation: landscape),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
-  /* Full-width single stage so metrics/search span the shell (not 548px tablet col) */
-  .zh-page .zh-hero {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto;
-    min-height: 0;
-    column-gap: 0;
-  }
-
-  .zh-page .zh-hero__col--left {
-    grid-column: 1;
-    grid-row: 1;
-    width: 100%;
-    max-width: none;
-  }
-
-  .zh-page .zh-hero__col--right {
-    grid-column: 1;
-    grid-row: 1;
-    width: auto;
-    min-height: 0;
-  }
-
-  .zh-page .zh-hero__copy {
-    max-width: none;
-    width: 100%;
-  }
-
-  /* Metrics — 4 even cards under the Z/logo hero (tablet-style row) */
-  .zh-page .zh-hero__stats {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    width: 100%;
-    max-width: none;
-    margin-top: 10px;
-    margin-bottom: 0;
-    gap: 6px;
-    align-items: stretch;
-    box-sizing: border-box;
-  }
-
-  /* Never keep a parked deal card inside the metrics row on Mobile Normal */
-  .zh-page .zh-hero__stats > .zh-orbit-card {
-    display: none !important;
-  }
-
-  .zh-page .zh-stat {
-    width: auto;
-    min-width: 0;
-    max-width: none;
-    min-height: 54px;
-    height: 100%;
-    padding: 6px 8px;
-    border-radius: 10px;
-  }
-
-  .zh-page .zh-stat__value {
-    margin-bottom: 3px;
-    font-size: 13px;
-  }
-
-  .zh-page .zh-stat__meta {
-    gap: 5px;
-  }
-
-  .zh-page .zh-stat__icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .zh-page .zh-stat__icon svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .zh-page .zh-stat__label {
-    font-size: 9.5px;
-    line-height: 1.15;
-    white-space: normal;
-  }
-
-  /* Search — directly below the metric row */
-  .zh-page .zh-hero-search {
-    margin-top: 12px;
-  }
-
-  /*
-   * 4 animated deal cards — relocated after Search by HeroArtwork JS.
-   * Override shared-mobile + ≤1279 hide rules; keep square proportions.
-   */
-  .zh-page .zh-hero-zone__tools > .hero-artwork__orbit,
-  .zh-page .hero-artwork__orbit {
-    display: flex !important;
-    position: relative;
-    inset: auto;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    margin: 12px 0 0;
-    padding: 0;
-    gap: 8px;
-    align-items: stretch;
-    justify-content: space-between;
-    transform: none !important;
-    pointer-events: auto;
-    z-index: 5;
-  }
-
-  .zh-page .zh-orbit-card,
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-top"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-left"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-upper-right"],
-  .zh-page .zh-orbit-card[data-orbit-position="orbit-lower-right"] {
-    display: block !important;
-    position: relative !important;
-    left: auto !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    flex: 1 1 0;
-    min-width: 0;
-    max-width: none;
-    margin: 0;
-    aspect-ratio: 1 / 1;
-    border-radius: 10px;
-    pointer-events: auto;
-    transform: none;
-    animation-name: zh-orbit-float-stats-row;
-  }
-
-  .zh-page .zh-orbit-card:nth-child(2) {
-    animation-delay: 0.35s;
-  }
-
-  .zh-page .zh-orbit-card:nth-child(3) {
-    animation-delay: 0.7s;
-  }
-
-  .zh-page .zh-orbit-card:nth-child(4) {
-    animation-delay: 1.05s;
-  }
-
-  /* Categories — directly under deal cards; polished in-row more control */
-   .zh-page .zh-categories-wrap {
-     margin-top: 12px;
-   }
-
-  .zh-page .zh-categories-nav {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-    max-width: 100%;
-    overflow: visible;
-  }
-
-  .zh-page .zh-categories {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .zh-page .zh-categories-nav::after {
-    content: none !important;
-    display: none !important;
-  }
-
-  .zh-page .zh-categories__more {
-    display: inline-flex;
-    flex: 0 0 36px;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 2;
-    width: 36px;
-    min-width: 36px;
-    max-width: 36px;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    margin: 0;
-    padding: 0;
-    border: 1px solid rgba(125, 211, 252, 0.55);
-    border-radius: 999px;
-    cursor: pointer;
-    color: #e0f2fe;
-    background: rgba(15, 23, 42, 0.72);
-    box-shadow:
-      0 0 0 1px rgba(56, 189, 248, 0.12),
-      0 0 10px rgba(56, 189, 248, 0.22);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .zh-page .zh-categories__more-icon {
-    display: block;
-    flex-shrink: 0;
-    transform: none;
-  }
-
-  .zh-page .zh-categories__more.is-back .zh-categories__more-icon {
-    transform: scaleX(-1);
-  }
-
-  html[dir="rtl"] .zh-page .zh-categories__more .zh-categories__more-icon {
-    transform: scaleX(-1);
-  }
-
-  html[dir="rtl"] .zh-page .zh-categories__more.is-back .zh-categories__more-icon {
-    transform: none;
-  }
-
-  .zh-page .zh-categories__more:hover,
-  .zh-page .zh-categories__more:focus-visible {
-    color: #ffffff;
-    border-color: rgba(186, 230, 253, 0.85);
-    background: rgba(30, 41, 59, 0.9);
-    outline: none;
-  }
-
-  /* Quick Nav — same polished in-row more control; hide decorative cue */
-  .zh-page .zh-home-discovery-nav {
-    margin-top: 12px;
-  }
-
-  .zh-page .zh-quick-nav-wrap {
-    position: relative;
-    overflow: visible;
-  }
-
-  .zh-page .zh-quick-nav-wrap::after {
-    content: none !important;
-    display: none !important;
-  }
-
-  .zh-page .zh-quick-nav__track {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-    overflow: visible;
-  }
-
-  .zh-page .zh-quick-nav__row {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .zh-page .zh-quick-nav__more {
-    display: inline-flex;
-    flex: 0 0 36px;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 2;
-    width: 36px;
-    min-width: 36px;
-    max-width: 36px;
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    margin: 0;
-    padding: 0;
-    border: 1px solid rgba(125, 211, 252, 0.55);
-    border-radius: 999px;
-    cursor: pointer;
-    color: #e0f2fe;
-    background: rgba(15, 23, 42, 0.72);
-    box-shadow:
-      0 0 0 1px rgba(56, 189, 248, 0.12),
-      0 0 10px rgba(56, 189, 248, 0.22);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .zh-page .zh-quick-nav__more-icon {
-    display: block;
-    flex-shrink: 0;
-    transform: none;
-  }
-
-  .zh-page .zh-quick-nav__more.is-back .zh-quick-nav__more-icon {
-    transform: scaleX(-1);
-  }
-
-  html[dir="rtl"] .zh-page .zh-quick-nav__more .zh-quick-nav__more-icon {
-    transform: scaleX(-1);
-  }
-
-  html[dir="rtl"] .zh-page .zh-quick-nav__more.is-back .zh-quick-nav__more-icon {
-    transform: none;
-  }
-
-  .zh-page .zh-quick-nav__more:hover,
-  .zh-page .zh-quick-nav__more:focus-visible {
-    color: #ffffff;
-    border-color: rgba(186, 230, 253, 0.85);
-    background: rgba(30, 41, 59, 0.9);
-    outline: none;
-  }
-}
 
 /* ═══════════════════════════════════════════════════════════
    Tablet ONLY (768–1279) — the two animated cards join the metrics row:
    all 6 cards in ONE row with a single consistent equal gap (10px).
    Desktop (≥1280) and Mobile (≤767) untouched.
    ═══════════════════════════════════════════════════════════ */
-@media (min-width: 768px) and (max-width: 1279px) {
+@media (min-width: 768px) and (max-width: 1279px),
+  (max-width: 767px) and (orientation: landscape) {
   /*
    * The four metric cards keep their shipped size, order and styling
    * (118px glass tiles, same visual language). The row simply stops wrapping

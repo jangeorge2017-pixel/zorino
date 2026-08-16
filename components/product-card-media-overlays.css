@@ -144,7 +144,7 @@
   max-width: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .product-card-badges,
   .product-card-badges--start,
   .trending-card-badges {

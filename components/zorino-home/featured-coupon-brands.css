@@ -257,7 +257,7 @@
   color: #0f172a;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-featured-brands__nav {
     display: flex;
   }

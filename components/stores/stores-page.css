@@ -197,7 +197,7 @@
   gap: var(--zor-space-4);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px), (max-width: 767px) and (orientation: landscape) {
   .zor-stores-page__filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
@@ -288,7 +288,7 @@
   gap: var(--zor-space-5);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px), (max-width: 767px) and (orientation: landscape) {
   .zor-stores-page__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -417,7 +417,7 @@
   .zor-stores-page__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-stores-page__hero-inner { flex-direction: column; align-items: stretch; }
   .zor-stores-page__section-head { flex-direction: column; }
   .zor-stores-page__card-actions { flex-direction: column; }
