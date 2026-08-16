@@ -1,0 +1,303 @@
+/**
+ * Landscape phones (≤960px wide, ≤460px tall, orientation: landscape) —
+ * Tablet UI compressed vertically to fit the full above-the-fold stack
+ * inside the landscape viewport height:
+ *
+ *   nav → hero (title/subtitle) → stats + animated cards → search →
+ *   categories → quick-nav (with pager)
+ *
+ * Reference: Tablet (768–1279) layout. Two-column hero, single six-card
+ * stats row (four metric cards + the two parked animated cards), full-width
+ * categories row, equal-slot quick-nav pager — the same positions, order,
+ * alignment and proportions as the tablet design. Only heights / sizes are
+ * scaled down so nothing sits below the fold and nothing is clipped.
+ *
+ * Portrait mobile / tablet / desktop / Arabic untouched. Imported last so
+ * these rules win over the shared tablet media queries (which landscape
+ * phones also match). Height-based (≤460px) so every landscape phone —
+ * including wide ones like iPhone 14 Pro Max (932×430) — is covered while
+ * tablets in landscape (≥600px tall) stay on the true tablet layout.
+ */
+@media (max-width: 960px) and (max-height: 460px) and (orientation: landscape) {
+  /* ── Rhythm — compress every discovery gap ── */
+  .zh-page {
+    --zh-nav-h: 44px;
+    --zh-space-desc-stats: 6px;
+    --zh-space-stats-search: 8px;
+    --zh-space-search-categories: 8px;
+    --zh-space-discovery: 8px;
+    --zh-discovery-group-lift: 0px;
+
+    /* Hero artwork — scaled to the compressed hero band (right anchor) */
+    --zh-hero-bg-shift-down: 0px;
+    --zh-hero-artwork-top: 2px;
+    --zh-hero-artwork-right: 20px;
+    --zh-hero-artwork-shift-left: 0px;
+    --zh-hero-artwork-lift: 0px;
+    --zh-hero-artwork-stretch-z-up: 0px;
+    --zh-hero-artwork-stretch-down: 1;
+    --zh-hero-artwork-scale: 1;
+    --zh-hero-artwork-extend-down: 0px;
+    --zh-hero-canvas-top: calc(var(--zh-nav-h) + var(--zh-hero-artwork-top));
+    --zh-hero-artwork-width: min(48vw, 440px);
+    --zh-hero-artwork-height: min(40vh, 165px);
+    --zh-hero-artwork-painted-width: var(--zh-hero-artwork-width);
+    --zh-hero-artwork-painted-height: var(--zh-hero-artwork-height);
+    --zh-hero-artwork-painted-right: calc(
+      var(--zh-hero-artwork-right) - var(--zh-hero-artwork-shift-left)
+    );
+    --zh-hero-artwork-painted-top: calc(
+      var(--zh-hero-canvas-top) - var(--zh-hero-artwork-lift) -
+        var(--zh-hero-artwork-stretch-z-up) + var(--zh-hero-bg-shift-down)
+    );
+    --zh-hero-edge-feather: 18px;
+  }
+
+  /* ── Nav — tablet structure, compact bar ── */
+  .zh-nav {
+    --zh-nav-control-h: 30px;
+    --zh-nav-gap: 6px;
+    --zh-nav-logo-gap: 10px;
+    --zh-nav-logo-h: 30px;
+    height: 44px;
+    max-height: 44px;
+  }
+
+  .zh-nav__link {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .zh-nav__chevron {
+    width: 12px;
+    height: 12px;
+  }
+
+  .zh-nav__profile {
+    min-width: 0;
+    max-width: 128px;
+  }
+
+  .zh-nav__profile-fallback {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Icon-only chrome — the theme selector and region/language trigger
+     collapse to a single control (same treatment as portrait mobile) so
+     the six-link tablet nav row stays fully readable at landscape widths. */
+  .zh-page .zh-nav .theme-toggle {
+    width: var(--zh-nav-control-h);
+    min-width: var(--zh-nav-control-h);
+    max-width: var(--zh-nav-control-h);
+    height: var(--zh-nav-control-h);
+    padding: 2px;
+    justify-content: center;
+  }
+
+  .zh-page .zh-nav .theme-option-label,
+  .zh-nav .theme-option-label {
+    display: none;
+  }
+
+  .zh-page .zh-nav .theme-option:not(.theme-option-active),
+  .zh-nav .theme-option:not(.theme-option-active) {
+    display: none;
+  }
+
+  .zh-page .zh-nav .theme-option,
+  .zh-nav .theme-option {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .zh-page .zh-nav .zor-intl__trigger {
+    width: var(--zh-nav-control-h);
+    min-width: var(--zh-nav-control-h);
+    max-width: var(--zh-nav-control-h);
+    height: var(--zh-nav-control-h);
+    padding: 0;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .zh-page .zh-nav .zor-intl__trigger-label,
+  .zh-page .zh-nav .zor-intl__trigger .lucide-chevron-down,
+  .zh-nav .zor-intl__trigger-label,
+  .zh-nav .zor-intl__trigger svg:last-child {
+    display: none;
+  }
+
+  /* ── Hero — tablet two-column composition, content-height ── */
+  .zh-page .zh-hero {
+    min-height: 0;
+  }
+
+  .zh-page .zh-hero__copy {
+    padding-top: 6px;
+  }
+
+  .zh-page .zh-hero__title {
+    font-size: clamp(18px, 2.5vw, 24px);
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin-bottom: 5px;
+  }
+
+  .zh-page .zh-hero__subtitle {
+    font-size: 11px;
+    line-height: 1.35;
+    max-width: 480px;
+  }
+
+  .zh-page .zh-hero__stats .zh-stat {
+    flex-shrink: 0;
+    width: 104px;
+    min-height: 42px;
+    padding: 4px 10px;
+    border-radius: 10px;
+  }
+
+  .zh-page .zh-stat__value {
+    margin: 0 0 2px;
+    font-size: 12px;
+  }
+
+  .zh-page .zh-stat__meta {
+    gap: 5px;
+  }
+
+  .zh-page .zh-stat__icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .zh-page .zh-stat__icon svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .zh-page .zh-stat__label {
+    font-size: 8px;
+  }
+
+  /* ── Search — tablet bar, compact ── */
+  .zh-page .zh-search__bar {
+    min-height: 34px;
+    padding: 4px 5px 4px 12px;
+    border-radius: 12px;
+    gap: 6px;
+  }
+
+  .zh-page .zh-search__bar input {
+    font-size: 13px;
+  }
+
+  .zh-page .zh-search__submit {
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 9px;
+  }
+
+  /* ── Categories — full tablet row, compact tiles ── */
+  .zh-page .zh-categories {
+    gap: 6px;
+  }
+
+  .zh-page .zh-categories__item {
+    min-height: 50px;
+    padding: 4px 4px 6px;
+    gap: 3px;
+  }
+
+  .zh-page .zh-categories__icon-box {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .zh-page .zh-categories__icon-box svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .zh-page .zh-categories__label {
+    font-size: 9px;
+  }
+
+  /* ── Quick nav — tablet equal-slot pager row, compact pills ── */
+  .zh-page .zh-quick-nav__track {
+    padding: 2px 0;
+  }
+
+  .zh-page .zh-quick-nav__row {
+    padding-block: 2px;
+  }
+
+  .zh-page .zh-quick-nav__pill,
+  .zh-page a.zh-quick-nav__pill {
+    min-height: 24px;
+    padding: 3px 10px;
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .zh-page .zh-quick-nav__emoji {
+    font-size: 12px;
+  }
+
+  .zh-page .zh-quick-nav__more {
+    flex: 0 0 26px;
+    width: 26px;
+    min-width: 26px;
+    max-width: 26px;
+    height: 26px;
+    min-height: 26px;
+    max-height: 26px;
+  }
+}
+
+/* ── Narrowest landscape phones (≤800px wide) — avatar-only profile and a
+   slimmer logo/link row so the six-link tablet nav stays fully readable
+   (the widest phones keep the tablet profile chip). ── */
+@media (max-width: 800px) and (max-height: 460px) and (orientation: landscape) {
+  .zh-nav {
+    --zh-nav-logo-h: 24px;
+  }
+
+  .zh-nav__link {
+    font-size: 10.5px;
+    padding: 3px 6px;
+  }
+
+  .zh-nav__chevron {
+    width: 10px;
+    height: 10px;
+  }
+
+  .zh-page .zh-nav__profile {
+    min-width: 0;
+    max-width: none;
+    width: var(--zh-nav-control-h);
+    height: var(--zh-nav-control-h);
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    border: none;
+    background: transparent;
+    flex: 0 0 auto;
+  }
+
+  .zh-page .zh-nav__profile-copy {
+    display: none !important;
+  }
+
+  .zh-page .zh-nav__profile img,
+  .zh-page .zh-nav__profile-fallback {
+    width: 24px;
+    height: 24px;
+  }
+}
