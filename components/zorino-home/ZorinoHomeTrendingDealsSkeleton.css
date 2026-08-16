@@ -81,7 +81,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-td-skeleton-grid {
     grid-auto-flow: column;
     grid-auto-columns: min(100%, 300px);

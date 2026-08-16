@@ -208,7 +208,7 @@ a.zh-quick-nav__pill.is-active::before {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-quick-nav__track {
     padding: 8px 0;
   }
@@ -344,7 +344,8 @@ html[dir="rtl"] .zh-page .zh-quick-nav__pill {
   outline: none;
 }
 
-@media (min-width: 768px) and (max-width: 1279px) {
+@media (min-width: 768px) and (max-width: 1279px),
+  (max-width: 767px) and (orientation: landscape) {
   .zh-page .zh-quick-nav__pill,
   .zh-page a.zh-quick-nav__pill {
     padding-inline: 10px;

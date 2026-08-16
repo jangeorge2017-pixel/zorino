@@ -200,7 +200,7 @@
   gap: var(--zor-space-4);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px), (max-width: 767px) and (orientation: landscape) {
   .zor-compare-page__filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
@@ -306,7 +306,7 @@
   gap: var(--zor-space-5);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px), (max-width: 767px) and (orientation: landscape) {
   .zor-compare-page__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -550,7 +550,7 @@
   .zor-compare-page .compare-price-summary { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-compare-page__hero-inner { flex-direction: column; align-items: stretch; }
   .zor-compare-page__section-head { flex-direction: column; }
   .zor-compare-page__card-head { flex-direction: column; align-items: flex-start; }

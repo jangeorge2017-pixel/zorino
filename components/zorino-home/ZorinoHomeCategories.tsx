@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import type { HomepageCategoryItem } from "@/lib/types/entities";
 import { ZH_CATEGORIES } from "@/lib/zorino-home/content";
-import MobileNormalRowMore from "@/components/zorino-home/MobileNormalRowMore";
 import CategoriesPortraitPager from "@/components/zorino-home/CategoriesPortraitPager";
 import "./categories.css";
 
@@ -94,12 +93,6 @@ export default async function ZorinoHomeCategories({
           );
         })}
       </div>
-      <MobileNormalRowMore
-        rowSelector=".zh-categories"
-        className="zh-categories__more"
-        moreLabel={t("quickNavMore")}
-        backLabel={t("quickNavBack")}
-      />
       <CategoriesPortraitPager />
     </nav>
   );

@@ -17,9 +17,8 @@ import ZorinoHomeNavLinks from "@/components/zorino-home/ZorinoHomeNavLinks";
 import { useAuth } from "@/lib/auth/auth-context";
 import "./nav.css";
 
-/** Portrait phone + short landscape — same mobile chrome (no separate landscape layout). */
-const MOBILE_MQ =
-  "(max-width: 767px), (max-height: 500px) and (orientation: landscape) and (max-width: 1024px)";
+/** Mobile portrait ONLY — landscape phones render the Tablet chrome. */
+const MOBILE_MQ = "(max-width: 767px) and (orientation: portrait)";
 
 export default function ZorinoHomeNav() {
   const t = useTranslations("common");

@@ -116,7 +116,7 @@
   color: #fff;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-intl__backdrop {
     display: block;
   }
@@ -129,7 +129,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px), (max-width: 767px) and (orientation: landscape) {
   .zor-intl__backdrop {
     background: transparent;
     pointer-events: none;

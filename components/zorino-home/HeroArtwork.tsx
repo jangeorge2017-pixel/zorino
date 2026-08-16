@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import HeroFloatingCard from "@/components/zorino-home/HeroFloatingCard";
-import { MOBILE_NORMAL_MQ } from "@/components/zorino-home/MobileNormalRowMore";
 import type { FloatingProductCard } from "@/lib/types/entities";
 
 const HERO_ORBIT_COMPOSITION = [
@@ -22,17 +21,17 @@ const HERO_ORBIT_COMPOSITION = [
  * The second artwork rotates its product pool (rotateOrbitProducts) so its
  * parked card shows a different image than the first; the extra lower-right
  * card is a third distinct existing product.
- * Mobile (portrait + Mobile Normal) relocates the full 4-card orbit strip
- * after Search; portrait hides the second artwork so exactly 4 distinct
- * product cards show in the strip.
+ * Mobile portrait relocates the full 4-card orbit strip after Search;
+ * portrait hides the second artwork so exactly 4 distinct product cards show
+ * in the strip. Landscape phones render the Tablet UI as-is.
  */
-const STATS_ORBIT_MQ = "(min-width: 768px)";
+const STATS_ORBIT_MQ =
+  "(min-width: 768px), (max-width: 767px) and (orientation: landscape)";
 
 const DESKTOP_ORBIT_MQ = "(min-width: 1280px)";
 
-/* Portrait + Mobile Normal — matches the shared ≤767 mobile CSS block. */
-const MOBILE_ORBIT_MQ =
-  "(max-width: 767px), (max-height: 500px) and (orientation: landscape) and (max-width: 1024px)";
+/* Mobile portrait only — landscape phones render the Tablet UI as-is. */
+const MOBILE_ORBIT_MQ = "(max-width: 767px) and (orientation: portrait)";
 
 type HeroArtworkProps = {
   floatingProducts: FloatingProductCard[];
@@ -90,14 +89,13 @@ export default function HeroArtwork({
 
   /* Desktop + Tablet: park this artwork's orbit-top card under the stats row,
    * side by side after the metrics. Desktop also parks the primary artwork's
-   * lower-right card as a third animated card. Portrait + Mobile Normal keep
-   * all cards in the post-Search strip. */
+   * lower-right card as a third animated card. Portrait keeps all cards in the
+   * post-Search strip. */
   useEffect(() => {
     const rootEl = rootRef.current;
     if (!rootEl) return;
     const mq = window.matchMedia(STATS_ORBIT_MQ);
     const desktopMq = window.matchMedia(DESKTOP_ORBIT_MQ);
-    const mobileNormalMq = window.matchMedia(MOBILE_NORMAL_MQ);
     const parkOrigin = new Map<
       HTMLElement,
       { parent: Element | null; next: ChildNode | null }
@@ -160,11 +158,11 @@ export default function HeroArtwork({
       );
 
       /* The hero artwork is always first in the DOM; the post-categories
-         artwork parks beside the metrics on Tablet and Desktop. Short
-         landscape (≥768 wide) still matches STATS_ORBIT via min-width —
-         Mobile Normal owns the orbit there, so never park into stats. */
+         artwork parks beside the metrics on Tablet and Desktop. Landscape
+         phones match STATS_ORBIT via their explicit clause and get the exact
+         Tablet parking behavior. */
       const isPrimary = rootEl === document.querySelector(".zh-page .hero-artwork");
-      const parkTop = !mobileNormalMq.matches && mq.matches;
+      const parkTop = mq.matches;
       const parkExtra = parkTop && isPrimary && desktopMq.matches;
 
       if (!parkTop) {
@@ -233,7 +231,6 @@ export default function HeroArtwork({
     sync();
     mq.addEventListener("change", sync);
     desktopMq.addEventListener("change", sync);
-    mobileNormalMq.addEventListener("change", sync);
     window.addEventListener("resize", sync);
 
     const stats = document.querySelector(".zh-page .zh-hero__stats");
@@ -248,7 +245,6 @@ export default function HeroArtwork({
     return () => {
       mq.removeEventListener("change", sync);
       desktopMq.removeEventListener("change", sync);
-      mobileNormalMq.removeEventListener("change", sync);
       window.removeEventListener("resize", sync);
       ro?.disconnect();
       for (const card of rootEl.querySelectorAll<HTMLElement>(".zh-orbit-card")) {
@@ -257,8 +253,8 @@ export default function HeroArtwork({
     };
   }, [floatingProducts]);
 
-  /* Mobile (portrait + Mobile Normal): move the full 4-card orbit strip
-   * under Search — between the Search bar and the Categories row. */
+  /* Mobile portrait: move the full 4-card orbit strip under Search — between
+   * the Search bar and the Categories row. */
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_ORBIT_MQ);
     let orbitParent: Element | null = null;

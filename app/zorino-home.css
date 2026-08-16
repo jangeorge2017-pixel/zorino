@@ -302,7 +302,7 @@ html[dir="rtl"] .zh-page {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-page {
     /* Compressed Desktop right anchor — final Mobile Hero values in homepage-responsive.css */
     --zh-hero-artwork-right: 4px;
@@ -578,7 +578,7 @@ html[dir="rtl"] .zh-page {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-footer {
     flex-direction: column;
     align-items: flex-start;

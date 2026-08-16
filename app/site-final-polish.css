@@ -239,9 +239,8 @@ button,
   max-height: min(100dvh, 100%);
 }
 
-/* Touch targets ≥ 40px on compact viewports */
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+/* Touch targets ≥ 40px on compact (portrait-mobile) viewports */
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-btn,
   .home-shop-btn,
   .home-compare-btn,

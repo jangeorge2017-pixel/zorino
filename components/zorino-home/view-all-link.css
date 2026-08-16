@@ -76,7 +76,7 @@ html[dir="rtl"] .zh-page .zh-view-all__icon {
   box-shadow: 0 0 12px var(--zh-section-glow, rgba(255, 255, 255, 0.08));
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-page .zh-view-all {
     align-self: flex-start;
   }

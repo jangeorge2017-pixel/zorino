@@ -1,10 +1,12 @@
 /**
- * Arabic (RTL) homepage — MOBILE ONLY (≤767px).
- * English mobile geometry is the exact reference. Physical LTR composition:
- * copy/title on the left, Z/orbit on the right. Do not touch EN / tablet / desktop.
+ * Arabic (RTL) homepage — MOBILE PORTRAIT ONLY (≤767px portrait).
+ * Landscape phones render the Tablet UI as-is (no separate
+ * mobile-landscape design). English mobile geometry is the exact reference.
+ * Physical LTR composition: copy/title on the left, Z/orbit on the right.
+ * Do not touch EN / tablet / desktop.
  */
 
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   /*
    * ── 1) Hero headline: same physical-left 168px track as EN ──
    * RTL block flow would pin the 168px box to inline-start (right / Z side).
@@ -503,31 +505,5 @@
     width: auto;
     min-width: 0;
     max-width: none;
-  }
-}
-
-/*
- * Mobile Normal ONLY (landscape) — keep EN Mobile Normal layout for AR.
- * Portrait Mobile block above stays the Portrait contract.
- */
-@media (max-width: 767px) and (orientation: landscape),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
-  html[dir="rtl"] .zh-page .zh-hero__stats {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    flex-wrap: unset;
-    width: 100%;
-    max-width: none;
-    margin-inline: 0;
-    left: auto;
-    right: auto;
-    position: relative;
-    padding-inline-end: 0;
-  }
-
-  html[dir="rtl"] .zh-page .zh-categories-nav::after,
-  html[dir="rtl"] .zh-page .zh-quick-nav-wrap::after {
-    content: none !important;
-    display: none !important;
   }
 }

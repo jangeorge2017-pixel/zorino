@@ -665,10 +665,10 @@
   }
 }
 
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+@media (max-width: 767px) and (orientation: portrait) {
   /*
-   * Mobile header ONLY — desktop/tablet unchanged.
+   * Mobile PORTRAIT header ONLY — tablet/desktop (and landscape phones =
+   * Tablet) unchanged.
    * Flex: [Logo @ start] ……auto…… [actions @ end]
    */
   .zh-page .zh-nav,

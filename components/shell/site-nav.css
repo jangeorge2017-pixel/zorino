@@ -1,10 +1,10 @@
 /**
- * SiteNav mobile header layout — desktop/tablet unchanged (design-system).
+ * SiteNav mobile PORTRAIT header layout — desktop/tablet unchanged (design-system).
+ * Landscape phones render the Tablet UI as-is.
  * Flex: [Logo @ start] ……auto…… [actions @ end]
  */
 
-@media (max-width: 767px),
-  (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zor-nav {
     --zor-nav-control-h: 34px;
     --zor-nav-gap: 6px;

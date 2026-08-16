@@ -95,7 +95,7 @@
    too tight for two side-by-side buttons. Stacking them full-width
    removes the wrapping and gives comfortable tap targets.
    ───────────────────────────────────────────────────────────── */
-@media (max-width: 767px) {
+@media (max-width: 767px) and (orientation: portrait) {
   .zh-page .product-card-actions-dual {
     grid-template-columns: 1fr;
   }
