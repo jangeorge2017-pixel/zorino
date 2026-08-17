@@ -7,6 +7,7 @@ import {
 } from "@/services/lowest-prices";
 import { triggerPhase1Imports } from "@/services/sync";
 import { runAliExpressScheduledSync } from "@/services/aliexpress";
+import { runAmazonScheduledSync } from "@/services/amazon/scheduler";
 import { runEbayScheduledSync } from "@/services/ebay";
 import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
 import { runNotificationAlerts } from "@/services/notifications/alerts";
@@ -62,6 +63,11 @@ export async function GET(request: Request) {
       ? { skipped: true }
       : { jobsRun: ebay.results.length, results: ebay.results, error: ebay.error };
 
+    const amazon = await runAmazonScheduledSync();
+    results.amazon = amazon.skipped
+      ? { skipped: true }
+      : { jobsRun: amazon.results.length, results: amazon.results, error: amazon.error };
+
     const imported = await triggerPhase1Imports();
     results.importPhase1 = imported.error
       ? { error: imported.error, results: imported.data }
@@ -74,6 +80,7 @@ export async function GET(request: Request) {
   } else {
     results.aliexpress = { skipped: true };
     results.ebay = { skipped: true };
+    results.amazon = { skipped: true };
     results.importPhase1 = { skipped: true };
   }
 

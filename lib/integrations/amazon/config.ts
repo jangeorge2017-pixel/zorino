@@ -23,10 +23,9 @@ export type AmazonCredentialStatus = {
 };
 
 export function getAmazonAssociateTag(): string {
-  return (
-    getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.ASSOCIATE_TAG) ??
-    AMAZON_DEFAULT_ASSOCIATE_TAG
-  );
+  const tag = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.ASSOCIATE_TAG);
+  if (tag && tag.toLowerCase() !== "placeholder") return tag;
+  return AMAZON_DEFAULT_ASSOCIATE_TAG;
 }
 
 export function getAmazonCredentialStatus(): AmazonCredentialStatus {
@@ -77,7 +76,9 @@ export function getAmazonCredentials(): {
 }
 
 export function isAmazonConfigured(): boolean {
-  return getAmazonCredentialStatus().configured;
+  // Active when we have an associate tag for affiliate link tracking.
+  // PA-API access keys are optional — search returns empty without them.
+  return Boolean(getAmazonAssociateTag());
 }
 
 /** Resolve PA-API host from marketplace domain. */

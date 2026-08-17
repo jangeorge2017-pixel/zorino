@@ -2,6 +2,7 @@ import { runDueSyncJobs, getDueSyncJobs } from "@/lib/sync/scheduler";
 import { runSyncJob } from "@/lib/sync/engine";
 import { deactivatePlaceholderProducts } from "@/lib/sync/import/cleanup";
 import { isAliExpressConfigured } from "@/lib/integrations/aliexpress";
+import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import { isEbayConfigured } from "@/lib/integrations/ebay";
 import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
 import type { ServiceResult } from "@/lib/types/entities";
@@ -72,14 +73,14 @@ export async function triggerProviderSync(input: {
   return triggerStoreSync(input);
 }
 
-/** Trigger import for all Phase 1 providers (AliExpress, eBay, CJdropshipping). */
+/** Trigger import for all Phase 1 providers (AliExpress, eBay, CJdropshipping, Amazon). */
 export async function triggerPhase1Imports(): Promise<ServiceResult<SyncRunResult[]>> {
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
     return { data: [], error: "Supabase not configured" };
   }
 
-  const phase1 = ["aliexpress", "ebay", "cjdropshipping"];
+  const phase1 = ["aliexpress", "ebay", "cjdropshipping", "amazon"];
   const { data: stores, error } = await supabase
     .from("stores")
     .select("id, slug, integration_type")
@@ -95,6 +96,9 @@ export async function triggerPhase1Imports(): Promise<ServiceResult<SyncRunResul
       continue;
     }
     if (store.integration_type === "ebay" && !isEbayConfigured()) {
+      continue;
+    }
+    if (store.integration_type === "amazon" && !isAmazonConfigured()) {
       continue;
     }
     const { data: result, error: syncError } = await triggerStoreSync({
