@@ -32,11 +32,16 @@ const plexArabic = IBM_Plex_Sans_Arabic({
   adjustFontFallback: true,
 });
 
-export const metadata: Metadata = buildSeoMetadata({
-  title: "Find Better Deals Faster",
-  description:
-    "Compare prices across thousands of stores and discover the best deals in seconds.",
-});
+export const metadata: Metadata = {
+  ...buildSeoMetadata({
+    title: "Find Better Deals Faster",
+    description:
+      "Compare prices across thousands of stores and discover the best deals in seconds.",
+  }),
+  other: {
+    "verify-admitad": "32ef59cc79",
+  },
+};
 
 export default async function RootLayout({
   children,
