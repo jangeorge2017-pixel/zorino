@@ -9,7 +9,7 @@ export const PROVIDER_REGISTRY: Record<DataProviderId, DataProviderMeta> = {
     supportedRegions: ["US", "UK", "DE", "AE", "SA", "EG", "CA"],
     supportedCurrencies: ["USD", "GBP", "EUR", "AED", "SAR", "EGP", "CAD"],
     capabilities: ["products", "stores", "prices", "coupons", "categories"],
-    envKeys: ["AMAZON_PAAPI_ACCESS_KEY", "AMAZON_PAAPI_SECRET_KEY", "AMAZON_ASSOCIATE_TAG"],
+    envKeys: ["AMAZON_CREATORS_CLIENT_ID", "AMAZON_CREATORS_CLIENT_SECRET", "AMAZON_ASSOCIATE_TAG"],
     rateLimitPerMinute: 30,
     defaultCacheTtlMs: 5 * 60 * 1000,
   },

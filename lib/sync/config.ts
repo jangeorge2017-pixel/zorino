@@ -15,7 +15,7 @@ export const DEFAULT_SYNC_SCHEDULES = [
 
 /** Provider credential env keys for import engine. */
 export const PROVIDER_CREDENTIAL_KEYS = {
-  amazon: ["AMAZON_PAAPI_ACCESS_KEY", "AMAZON_PAAPI_SECRET_KEY", "AMAZON_ASSOCIATE_TAG"],
+  amazon: ["AMAZON_CREATORS_CLIENT_ID", "AMAZON_CREATORS_CLIENT_SECRET", "AMAZON_ASSOCIATE_TAG"],
   aliexpress: ["ALIEXPRESS_APP_KEY", "ALIEXPRESS_APP_SECRET"],
   cjdropshipping: ["CJDROPSHIPPING_API_KEY"],
   ebay: ["EBAY_APP_ID", "EBAY_CERT_ID"],

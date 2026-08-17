@@ -76,7 +76,7 @@ const PROVIDER_CREDENTIAL_KEYS: Partial<Record<ImportProviderId, string[]>> = {
   aliexpress: ["ALIEXPRESS_APP_KEY", "ALIEXPRESS_APP_SECRET"],
   ebay: ["EBAY_APP_ID", "EBAY_CERT_ID"],
   cjdropshipping: ["CJDROPSHIPPING_API_KEY"],
-  amazon: ["AMAZON_PAAPI_ACCESS_KEY", "AMAZON_PAAPI_SECRET_KEY"],
+  amazon: ["AMAZON_CREATORS_CLIENT_ID", "AMAZON_CREATORS_CLIENT_SECRET"],
   temu: ["TEMU_API_KEY"],
   walmart: ["WALMART_API_KEY"],
 };

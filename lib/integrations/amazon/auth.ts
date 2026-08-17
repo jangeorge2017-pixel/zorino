@@ -1,89 +1,74 @@
-import { createHmac, createHash } from "node:crypto";
+/**
+ * Amazon Creators API OAuth 2.0 client-credentials authentication.
+ *
+ * Token endpoint for NA (version 3.1): https://api.amazon.com/auth/o2/token
+ * EU (3.2): https://api.amazon.co.uk/auth/o2/token
+ * FE (3.3): https://api.amazon.co.jp/auth/o2/token
+ *
+ * @see https://affiliate-program.amazon.com/creatorsapi/docs/en-us/get-started/using-curl
+ */
 
-function hmac(key: Buffer | string, data: string): Buffer {
-  return createHmac("sha256", key).update(data, "utf8").digest();
+const TOKEN_URL_NA = "https://api.amazon.com/auth/o2/token";
+const TOKEN_URL_EU = "https://api.amazon.co.uk/auth/o2/token";
+const TOKEN_URL_FE = "https://api.amazon.co.jp/auth/o2/token";
+
+function tokenEndpointForVersion(version: string): string {
+  if (version.startsWith("3.2")) return TOKEN_URL_EU;
+  if (version.startsWith("3.3")) return TOKEN_URL_FE;
+  return TOKEN_URL_NA;
 }
 
-function sha256Hex(data: string): string {
-  return createHash("sha256").update(data, "utf8").digest("hex");
-}
-
-function getSignatureKey(
-  secretKey: string,
-  dateStamp: string,
-  region: string,
-  service: string
-): Buffer {
-  const kDate = hmac(`AWS4${secretKey}`, dateStamp);
-  const kRegion = hmac(kDate, region);
-  const kService = hmac(kRegion, service);
-  return hmac(kService, "aws4_request");
-}
-
-export type SignedPaApiRequest = {
-  url: string;
-  headers: Record<string, string>;
-  body: string;
+export type AmazonOAuthToken = {
+  accessToken: string;
+  expiresAt: number;
 };
 
-/** Sign a PA-API 5.0 POST request with AWS Signature Version 4. */
-export function signPaApiRequest(input: {
-  host: string;
-  region: string;
-  accessKey: string;
-  secretKey: string;
-  target: string;
-  body: string;
-}): SignedPaApiRequest {
-  const service = "ProductAdvertisingAPI";
-  const path = "/paapi5/searchitems";
-  const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, "");
-  const dateStamp = amzDate.slice(0, 8);
+let cachedToken: AmazonOAuthToken | null = null;
 
-  const canonicalHeaders =
-    `content-encoding:amz-1.0\n` +
-    `content-type:application/json; charset=utf-8\n` +
-    `host:${input.host}\n` +
-    `x-amz-date:${amzDate}\n` +
-    `x-amz-target:${input.target}\n`;
+/**
+ * Obtain (or return cached) OAuth 2.0 access token for Creators API.
+ * Tokens are valid for 3600 seconds; we refresh 60 seconds early.
+ */
+export async function getCreatorsAccessToken(input: {
+  clientId: string;
+  clientSecret: string;
+  version: string;
+}): Promise<string> {
+  const now = Date.now();
+  if (cachedToken && cachedToken.expiresAt > now + 60_000) {
+    return cachedToken.accessToken;
+  }
 
-  const signedHeaders = "content-encoding;content-type;host;x-amz-date;x-amz-target";
-  const payloadHash = sha256Hex(input.body);
+  const url = tokenEndpointForVersion(input.version);
+  const body = JSON.stringify({
+    grant_type: "client_credentials",
+    client_id: input.clientId,
+    client_secret: input.clientSecret,
+    scope: "creatorsapi::default",
+  });
 
-  const canonicalRequest = [
-    "POST",
-    path,
-    "",
-    canonicalHeaders,
-    signedHeaders,
-    payloadHash,
-  ].join("\n");
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+    cache: "no-store",
+  });
 
-  const credentialScope = `${dateStamp}/${input.region}/${service}/aws4_request`;
-  const stringToSign = [
-    "AWS4-HMAC-SHA256",
-    amzDate,
-    credentialScope,
-    sha256Hex(canonicalRequest),
-  ].join("\n");
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`Amazon OAuth token ${res.status}: ${text.slice(0, 300)}`);
+  }
 
-  const signingKey = getSignatureKey(input.secretKey, dateStamp, input.region, service);
-  const signature = createHmac("sha256", signingKey).update(stringToSign, "utf8").digest("hex");
-
-  const authorization =
-    `AWS4-HMAC-SHA256 Credential=${input.accessKey}/${credentialScope}, ` +
-    `SignedHeaders=${signedHeaders}, Signature=${signature}`;
-
-  return {
-    url: `https://${input.host}${path}`,
-    body: input.body,
-    headers: {
-      Host: input.host,
-      "Content-Type": "application/json; charset=utf-8",
-      "Content-Encoding": "amz-1.0",
-      "X-Amz-Date": amzDate,
-      "X-Amz-Target": input.target,
-      Authorization: authorization,
-    },
+  const parsed = JSON.parse(text) as {
+    access_token: string;
+    expires_in: number;
+    token_type: string;
   };
+
+  cachedToken = {
+    accessToken: parsed.access_token,
+    expiresAt: now + parsed.expires_in * 1000,
+  };
+
+  return cachedToken.accessToken;
 }

@@ -1,7 +1,6 @@
 import { createAmazonClientFromEnv } from "@/lib/integrations/amazon";
 import {
-  getAmazonPaApiConfig,
-  mapAmazonItemToNormalized,
+  getAmazonCreatorsConfig,
 } from "@/lib/sync/providers/amazon/paapi-types";
 import { mapAmazonProduct } from "@/lib/sync/providers/amazon/mapper";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
@@ -13,13 +12,13 @@ import {
 } from "@/lib/sync/providers/types";
 
 const CREDENTIAL_KEYS = [
-  "AMAZON_PAAPI_ACCESS_KEY",
-  "AMAZON_PAAPI_SECRET_KEY",
+  "AMAZON_CREATORS_CLIENT_ID",
+  "AMAZON_CREATORS_CLIENT_SECRET",
 ] as const;
 
 /**
- * Amazon Product Advertising API 5.0 — live search + catalog sync.
- * @see https://webservices.amazon.com/paapi5/documentation/
+ * Amazon Creators API — live search + catalog sync.
+ * @see https://affiliate-program.amazon.com/creatorsapi/docs/en-us/
  */
 export class AmazonProvider extends BaseConnector {
   id = "amazon" as const;
@@ -28,7 +27,7 @@ export class AmazonProvider extends BaseConnector {
     id: "amazon",
     name: "Amazon",
     phase: "live",
-    apiDocs: "https://webservices.amazon.com/paapi5/documentation/",
+    apiDocs: "https://affiliate-program.amazon.com/creatorsapi/docs/en-us/",
   };
 
   isConfigured(): boolean {
@@ -95,4 +94,4 @@ export function getAmazonProviderId(): ImportProviderId {
 }
 
 // Re-export for backward compatibility
-export { getAmazonPaApiConfig, mapAmazonItemToNormalized };
+export { getAmazonCreatorsConfig };

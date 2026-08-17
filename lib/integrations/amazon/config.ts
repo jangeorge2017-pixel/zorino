@@ -4,19 +4,19 @@ import { getIntegrationCredential } from "@/lib/integration/credentials";
 export const AMAZON_DEFAULT_ASSOCIATE_TAG = "zorino-20";
 
 export const AMAZON_CREDENTIAL_KEYS = {
-  ACCESS_KEY: "AMAZON_PAAPI_ACCESS_KEY",
-  SECRET_KEY: "AMAZON_PAAPI_SECRET_KEY",
+  CLIENT_ID: "AMAZON_CREATORS_CLIENT_ID",
+  CLIENT_SECRET: "AMAZON_CREATORS_CLIENT_SECRET",
   ASSOCIATE_TAG: "AMAZON_ASSOCIATE_TAG",
-  MARKETPLACE: "AMAZON_PAAPI_MARKETPLACE",
-  REGION: "AMAZON_PAAPI_REGION",
+  MARKETPLACE: "AMAZON_CREATORS_MARKETPLACE",
+  VERSION: "AMAZON_CREATORS_VERSION",
 } as const;
 
 export const AMAZON_PROVIDER_ID = "amazon" as const;
 
 export type AmazonCredentialStatus = {
   configured: boolean;
-  hasAccessKey: boolean;
-  hasSecretKey: boolean;
+  hasClientId: boolean;
+  hasClientSecret: boolean;
   hasAssociateTag: boolean;
   associateTag: string;
   source: "env" | "database" | "default" | "none";
@@ -29,10 +29,10 @@ export function getAmazonAssociateTag(): string {
 }
 
 export function getAmazonCredentialStatus(): AmazonCredentialStatus {
-  const accessKey = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.ACCESS_KEY);
-  const secretKey = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.SECRET_KEY);
+  const clientId = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.CLIENT_ID);
+  const clientSecret = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.CLIENT_SECRET);
   const envTag = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.ASSOCIATE_TAG);
-  const configured = Boolean(accessKey && secretKey);
+  const configured = Boolean(clientId && clientSecret);
   const associateTag = envTag ?? (configured ? AMAZON_DEFAULT_ASSOCIATE_TAG : "");
 
   let source: AmazonCredentialStatus["source"] = "none";
@@ -46,8 +46,8 @@ export function getAmazonCredentialStatus(): AmazonCredentialStatus {
 
   return {
     configured,
-    hasAccessKey: Boolean(accessKey),
-    hasSecretKey: Boolean(secretKey),
+    hasClientId: Boolean(clientId),
+    hasClientSecret: Boolean(clientSecret),
     hasAssociateTag: Boolean(associateTag),
     associateTag,
     source,
@@ -55,42 +55,27 @@ export function getAmazonCredentialStatus(): AmazonCredentialStatus {
 }
 
 export function getAmazonCredentials(): {
-  accessKey: string;
-  secretKey: string;
+  clientId: string;
+  clientSecret: string;
   associateTag: string;
   marketplace: string;
-  region: string;
+  version: string;
 } | null {
-  const accessKey = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.ACCESS_KEY);
-  const secretKey = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.SECRET_KEY);
-  if (!accessKey || !secretKey) return null;
+  const clientId = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.CLIENT_ID);
+  const clientSecret = getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.CLIENT_SECRET);
+  if (!clientId || !clientSecret) return null;
 
   return {
-    accessKey,
-    secretKey,
+    clientId,
+    clientSecret,
     associateTag: getAmazonAssociateTag(),
     marketplace:
       getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.MARKETPLACE) ?? "www.amazon.com",
-    region: getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.REGION) ?? "us-east-1",
+    version: getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.VERSION) ?? "3.1",
   };
 }
 
 export function isAmazonConfigured(): boolean {
-  // Active when we have an associate tag for affiliate link tracking.
-  // PA-API access keys are optional — search returns empty without them.
-  return Boolean(getAmazonAssociateTag());
-}
-
-/** Resolve PA-API host from marketplace domain. */
-export function amazonPaApiHost(marketplace: string): string {
-  const domain = marketplace.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  if (domain.includes("amazon.co.uk")) return "webservices.amazon.co.uk";
-  if (domain.includes("amazon.de")) return "webservices.amazon.de";
-  if (domain.includes("amazon.fr")) return "webservices.amazon.fr";
-  if (domain.includes("amazon.co.jp")) return "webservices.amazon.co.jp";
-  if (domain.includes("amazon.ca")) return "webservices.amazon.ca";
-  if (domain.includes("amazon.ae")) return "webservices.amazon.ae";
-  if (domain.includes("amazon.sa")) return "webservices.amazon.sa";
-  if (domain.includes("amazon.eg")) return "webservices.amazon.eg";
-  return "webservices.amazon.com";
+  const creds = getAmazonCredentials();
+  return Boolean(creds);
 }
