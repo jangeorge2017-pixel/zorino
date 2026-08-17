@@ -36,7 +36,7 @@ export const marketplaceConfigs: Record<string, MarketplaceConfig> = {
     nameAr: 'أمازون',
     logo: '🛒',
     website: 'https://amazon.com',
-    apiEndpoint: 'https://webservices.amazon.com/paapi5',
+    apiEndpoint: 'https://creatorsapi.amazon/catalog/v1',
     affiliateProgram: 'Amazon Associates',
     commissionRate: 4,
     supportedRegions: ['US', 'UK', 'DE', 'FR', 'ES', 'IT', 'JP', 'CA', 'AU', 'IN', 'AE', 'SA', 'EG'],

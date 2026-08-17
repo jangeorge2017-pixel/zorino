@@ -1,27 +1,24 @@
 import { buildAffiliateUrl } from "@/lib/affiliate/generate";
-import { signPaApiRequest } from "@/lib/integrations/amazon/auth";
+import { getCreatorsAccessToken } from "@/lib/integrations/amazon/auth";
 import {
-  amazonPaApiHost,
   getAmazonCredentials,
 } from "@/lib/integrations/amazon/config";
 import type { AmazonValidationResult } from "@/lib/integrations/amazon/types";
 import type {
-  AmazonPaApiItem,
+  AmazonCreatorsItem,
   AmazonSearchItemsResponse,
 } from "@/lib/sync/providers/amazon/paapi-types";
 
-const PA_API_TARGET = "com.amazon.paapi5.v1.ProductAdvertisingAPIv1.SearchItems";
+const CREATORS_API_ENDPOINT = "https://creatorsapi.amazon/catalog/v1/searchItems";
 
 const SEARCH_RESOURCES = [
-  "Images.Primary.Large",
-  "ItemInfo.Title",
-  "ItemInfo.ByLineInfo",
-  "ItemInfo.Classifications",
-  "Offers.Listings.Price",
-  "Offers.Listings.SavingBasis",
-  "Offers.Listings.Availability",
-  "CustomerReviews.StarRating",
-  "CustomerReviews.Count",
+  "images.primary.large",
+  "itemInfo.title",
+  "itemInfo.byLineInfo",
+  "itemInfo.classifications",
+  "offersV2.listings.price",
+  "offersV2.listings.availability",
+  "offersV2.listings.condition",
 ];
 
 export type AmazonRawProduct = {
@@ -59,56 +56,57 @@ function buildAmazonAffiliateUrl(productUrl: string, associateTag: string): stri
   });
 }
 
-export function mapAmazonPaApiItem(
-  item: AmazonPaApiItem,
+export function mapAmazonCreatorsItem(
+  item: AmazonCreatorsItem,
   associateTag: string,
   currency: string
 ): AmazonRawProduct | null {
-  const title = item.ItemInfo?.Title?.DisplayValue?.trim();
-  if (!item.ASIN || !title) return null;
+  const title = item.itemInfo?.title?.displayValue?.trim();
+  if (!item.asin || !title) return null;
 
-  const listing = item.Offers?.Listings?.[0];
+  const listing = item.offersV2?.listings?.[0];
+  const priceMoney = listing?.price?.money;
   const price = parsePriceAmount(
-    listing?.Price?.Amount,
-    (listing?.Price as { DisplayAmount?: string } | undefined)?.DisplayAmount
+    priceMoney?.amount,
+    priceMoney?.displayAmount
   );
   if (!price || price <= 0) return null;
 
+  const savingBasisMoney = listing?.price?.savingBasis?.money;
   const original = parsePriceAmount(
-    listing?.SavingBasis?.Amount,
-    (listing?.SavingBasis as { DisplayAmount?: string } | undefined)?.DisplayAmount
+    savingBasisMoney?.amount,
+    savingBasisMoney?.displayAmount
   );
   const originalPrice = original > price ? original : price;
 
-  const imageUrl = item.Images?.Primary?.Large?.URL ?? "";
+  const imageUrl = item.images?.primary?.large?.url
+    ?? item.images?.primary?.medium?.url
+    ?? "";
   if (!imageUrl.startsWith("http")) return null;
 
   const detailUrl =
-    item.DetailPageURL ?? `https://www.amazon.com/dp/${item.ASIN}?tag=${associateTag}`;
+    item.detailPageURL ?? `https://www.amazon.com/dp/${item.asin}?tag=${associateTag}`;
   const affiliateUrl = buildAmazonAffiliateUrl(detailUrl, associateTag);
 
   if (!affiliateUrl.includes(associateTag)) return null;
 
-  const availability = listing?.Availability?.Message?.toLowerCase() ?? "";
-  const inStock = !availability.includes("unavailable");
-
-  const starRating = item.CustomerReviews?.StarRating?.Value ?? 0;
-  const reviewCount = item.CustomerReviews?.Count ?? 0;
+  const availType = listing?.availability?.type?.toLowerCase() ?? "";
+  const inStock = !availType.includes("out_of_stock");
 
   const category =
-    item.ItemInfo?.Classifications?.ProductGroup?.DisplayValue?.trim() || "General";
+    item.itemInfo?.classifications?.productGroup?.displayValue?.trim() || "General";
 
   return {
-    asin: item.ASIN,
+    asin: item.asin,
     title,
-    brand: item.ItemInfo?.ByLineInfo?.Brand?.DisplayValue,
+    brand: item.itemInfo?.byLineInfo?.brand?.displayValue,
     imageUrl,
     price,
     originalPrice,
-    currency: listing?.Price?.Currency ?? currency,
+    currency: priceMoney?.currency ?? currency,
     inStock,
-    rating: typeof starRating === "number" ? Math.min(5, starRating) : 0,
-    reviewCount: typeof reviewCount === "number" ? reviewCount : 0,
+    rating: 0,
+    reviewCount: 0,
     productUrl: detailUrl,
     affiliateUrl,
     category,
@@ -129,8 +127,8 @@ export class AmazonPaApiClient {
       return {
         ok: true,
         message: items.length
-          ? "Amazon PA-API credentials are valid."
-          : "Amazon PA-API connected — no items returned for test query.",
+          ? "Amazon Creators API credentials are valid."
+          : "Amazon Creators API connected — no items returned for test query.",
         testedAt,
       };
     } catch (err) {
@@ -143,7 +141,7 @@ export class AmazonPaApiClient {
   }
 
   /**
-   * Search Amazon catalog via PA-API 5.0 SearchItems.
+   * Search Amazon catalog via Creators API SearchItems.
    * Up to 10 pages × 10 items = 100 results per query.
    */
   async searchByKeyword(
@@ -158,65 +156,61 @@ export class AmazonPaApiClient {
 
     const itemCount = Math.min(Math.max(options?.itemCount ?? 10, 1), 10);
     const maxPages = Math.min(Math.max(options?.maxPages ?? 10, 1), 10);
-    const host = amazonPaApiHost(creds.marketplace);
+
+    const token = await getCreatorsAccessToken({
+      clientId: creds.clientId,
+      clientSecret: creds.clientSecret,
+      version: creds.version,
+    });
+
     const all: AmazonRawProduct[] = [];
     const seen = new Set<string>();
 
     for (let page = 1; page <= maxPages; page++) {
       const body = JSON.stringify({
-        Keywords: trimmed,
-        SearchIndex: options?.searchIndex ?? "All",
-        ItemCount: itemCount,
-        ItemPage: page,
-        PartnerTag: creds.associateTag,
-        PartnerType: "Associates",
-        Marketplace: creds.marketplace,
-        Resources: SEARCH_RESOURCES,
+        keywords: trimmed,
+        searchIndex: options?.searchIndex ?? "All",
+        itemCount,
+        itemPage: page,
+        partnerTag: creds.associateTag,
+        marketplace: creds.marketplace,
+        resources: SEARCH_RESOURCES,
       });
 
-      const signed = signPaApiRequest({
-        host,
-        region: creds.region,
-        accessKey: creds.accessKey,
-        secretKey: creds.secretKey,
-        target: PA_API_TARGET,
-        body,
-      });
-
-      const response = await fetch(signed.url, {
+      const response = await fetch(CREATORS_API_ENDPOINT, {
         method: "POST",
-        headers: signed.headers,
-        body: signed.body,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "x-marketplace": creds.marketplace,
+        },
+        body,
         cache: "no-store",
       });
 
       const text = await response.text();
       if (!response.ok) {
-        throw new Error(`Amazon PA-API ${response.status}: ${text.slice(0, 300)}`);
+        throw new Error(`Amazon Creators API ${response.status}: ${text.slice(0, 300)}`);
       }
 
-      let parsed: AmazonSearchItemsResponse & {
-        Errors?: { Code?: string; Message?: string }[];
-      };
+      let parsed: AmazonSearchItemsResponse;
       try {
-        parsed = JSON.parse(text) as AmazonSearchItemsResponse & {
-          Errors?: { Code?: string; Message?: string }[];
-        };
+        parsed = JSON.parse(text) as AmazonSearchItemsResponse;
       } catch {
-        throw new Error("Amazon PA-API returned invalid JSON");
+        throw new Error("Amazon Creators API returned invalid JSON");
       }
 
-      if (parsed.Errors?.length) {
+      if (parsed.errors?.length) {
         throw new Error(
-          parsed.Errors.map((e) => e.Message ?? e.Code).filter(Boolean).join("; ")
+          parsed.errors.map((e) => e.message ?? e.code).filter(Boolean).join("; ")
         );
       }
 
-      const items = parsed.SearchResult?.Items ?? [];
+      const items = parsed.searchResult?.items ?? [];
       if (items.length === 0) break;
 
       for (const raw of items) {
-        const mapped = mapAmazonPaApiItem(raw, creds.associateTag, "USD");
+        const mapped = mapAmazonCreatorsItem(raw, creds.associateTag, "USD");
         if (!mapped || seen.has(mapped.asin)) continue;
         seen.add(mapped.asin);
         all.push(mapped);

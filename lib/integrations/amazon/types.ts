@@ -1,15 +1,16 @@
 export type {
-  AmazonPaApiItem,
+  AmazonCreatorsItem,
   AmazonSearchItemsRequest,
   AmazonSearchItemsResponse,
+  AmazonCreatorsConfig,
 } from "@/lib/sync/providers/amazon/paapi-types";
 
 export type AmazonCredentials = {
-  accessKey: string;
-  secretKey: string;
+  clientId: string;
+  clientSecret: string;
   associateTag: string;
   marketplace: string;
-  region: string;
+  version: string;
 };
 
 export type AmazonValidationResult = {

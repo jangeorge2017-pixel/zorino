@@ -23,14 +23,14 @@ export const INTEGRATION_SETTING_FIELDS: Omit<
   { key: "EBAY_OAUTH_TOKEN", label: "eBay OAuth Token (optional)", provider: "ebay", isSecret: true },
   { key: "EBAY_REFERENCE_ID", label: "eBay Reference ID (optional)", provider: "ebay", isSecret: false },
   {
-    key: "AMAZON_PAAPI_ACCESS_KEY",
-    label: "Amazon PA-API Access Key",
+    key: "AMAZON_CREATORS_CLIENT_ID",
+    label: "Amazon Creators API Client ID",
     provider: "amazon",
     isSecret: false,
   },
   {
-    key: "AMAZON_PAAPI_SECRET_KEY",
-    label: "Amazon PA-API Secret Key",
+    key: "AMAZON_CREATORS_CLIENT_SECRET",
+    label: "Amazon Creators API Client Secret",
     provider: "amazon",
     isSecret: true,
   },
