@@ -306,6 +306,10 @@ export const MOCK_SEARCH_ITEMS: SearchResultItem[] = [
   productToSearchItem(MOCK_PRODUCTS[5], "amazon", 899, 1029),
   productToSearchItem(MOCK_PRODUCTS[6], "best-buy", 1299, 1599),
   productToSearchItem(MOCK_PRODUCTS[7], "cjdropshipping", 18.5, 29.99),
+  productToSearchItem(MOCK_PRODUCTS[0], "noon", 799, 999),
+  productToSearchItem(MOCK_PRODUCTS[1], "noon", 3899, 4499),
+  productToSearchItem(MOCK_PRODUCTS[3], "noon", 1699, 1999),
+  productToSearchItem(MOCK_PRODUCTS[5], "noon", 3299, 3899),
 ];
 
 export const MOCK_DEALS: Deal[] = [
