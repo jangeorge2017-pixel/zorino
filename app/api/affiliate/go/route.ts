@@ -67,7 +67,8 @@ export async function GET(request: Request) {
   const alreadyTracked =
     /([?&](tag|campid|aff_trace_key|aff_short_key|wmlspartner|customid)=)/i.test(
       destinationUrl,
-    ) || /s\.click\.aliexpress\.com/i.test(destinationUrl);
+    ) || /s\.click\.aliexpress\.com/i.test(destinationUrl)
+    || /s\.noon\.com/i.test(destinationUrl);
 
   const affiliateUrl = alreadyTracked
     ? destinationUrl
