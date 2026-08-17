@@ -18,6 +18,8 @@ export type BuildAffiliateUrlInput = {
   storeSlug?: string | null;
   partnerTag?: string | null;
   trackingId?: string;
+  // Add Noon specific tracking
+  noonPartnerId?: string;
 };
 
 /** Build a marketplace-specific affiliate URL with partner tracking parameters. */
@@ -54,6 +56,11 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
     }
   }
 
+  // Handle Noon specific affiliate links (use provided URLs directly)
+  if (input.destinationUrl.includes("s.noon.com")) {
+    return input.destinationUrl;
+  }
+
   // Never invent partner tags — untracked destinations stay untracked.
   const tag = input.partnerTag?.trim() || getPartnerTagFromEnv(marketplace);
   if (!tag) return input.destinationUrl;
@@ -78,6 +85,9 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
       case "temu":
         url.searchParams.set("ref", tag);
         url.searchParams.set("_p_rfs", trackingId.slice(0, 12));
+        break;
+      case "noon":
+        // Noon uses short-link affiliate tracking (s.noon.com) — no URL params needed.
         break;
     }
 

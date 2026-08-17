@@ -5,6 +5,7 @@ export const AFFILIATE_MARKETPLACES = [
   "ebay",
   "walmart",
   "temu",
+  "noon",
 ] as const;
 
 export type AffiliateMarketplace = (typeof AFFILIATE_MARKETPLACES)[number];
@@ -16,6 +17,7 @@ export const AFFILIATE_ENV_KEYS: Record<AffiliateMarketplace, string[]> = {
   ebay: ["EBAY_CAMPAIGN_ID", "EBAY_APP_ID", "EBAY_CERT_ID", "EBAY_REFERENCE_ID"],
   walmart: ["WALMART_AFFILIATE_ID"],
   temu: ["TEMU_AFFILIATE_ID"],
+  noon: ["NOON_UAE_AFFILIATE_ID", "NOON_KSA_AFFILIATE_ID"],
 };
 
 export const DEFAULT_COMMISSION_RATES: Record<AffiliateMarketplace, number> = {
@@ -24,6 +26,7 @@ export const DEFAULT_COMMISSION_RATES: Record<AffiliateMarketplace, number> = {
   ebay: 4,
   walmart: 3,
   temu: 7,
+  noon: 5,
 };
 
 /** Map store integration_type / slug to affiliate marketplace id. */
@@ -50,6 +53,7 @@ export function extractMarketplaceFromUrl(url: string): AffiliateMarketplace | n
     if (host.includes("ebay")) return "ebay";
     if (host.includes("walmart")) return "walmart";
     if (host.includes("temu")) return "temu";
+    if (host.includes("noon.com")) return "noon";
     return null;
   } catch {
     return null;
