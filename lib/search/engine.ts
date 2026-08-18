@@ -149,6 +149,7 @@ async function fetchProvidersInParallel(
  * Production search UI entry point.
  * Aggregates all enabled live marketplaces with device-first ranking,
  * cross-marketplace dedupe, fair mixing, and marketplace-correct affiliate URLs.
+ * Supplements live results with database-imported products for broader coverage.
  */
 export async function searchProducts(
   query: string,
@@ -158,20 +159,40 @@ export async function searchProducts(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const cacheKey = `prod-v13-equal:${trimmed.toLowerCase()}:${capped}`;
+  const cacheKey = `prod-v16-alibaba:${trimmed.toLowerCase()}:${capped}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
   }
 
-  // Fan out to every enabled marketplace connector automatically.
-  const { allRaw } = await fetchProvidersInParallel(trimmed, {
-    minFetch: 60,
-    targetFetch: 120,
-    maxPages: 4,
-  });
+  const [{ allRaw }, fromDb] = await Promise.all([
+    fetchProvidersInParallel(trimmed, {
+      minFetch: 60,
+      targetFetch: 120,
+      maxPages: 4,
+    }),
+    (await import("@/lib/integration/database-catalog"))
+      .getSearchResultsFromDatabase(trimmed, capped)
+      .catch(() => [] as SearchResultItem[]),
+  ]);
 
-  const mixed = assembleProductionSearchResults(allRaw, trimmed, capped);
+  const live = assembleProductionSearchResults(allRaw, trimmed, capped);
+
+  const seen = new Set(live.map((item) => item.id));
+  const merged = [...live];
+  for (const dbItem of fromDb) {
+    if (seen.has(dbItem.id)) continue;
+    const isDup = live.some(
+      (l) =>
+        l.name.toLowerCase().slice(0, 30) === dbItem.name.toLowerCase().slice(0, 30),
+    );
+    if (!isDup) {
+      merged.push(dbItem);
+      seen.add(dbItem.id);
+    }
+  }
+
+  const mixed = merged.slice(0, capped);
   fairSearchCache.set(cacheKey, {
     items: mixed,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,

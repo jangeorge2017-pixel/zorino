@@ -8,6 +8,7 @@ export const PRODUCTION_PROVIDER_IDS = [
   "temu",
   "noon",
   "jumia",
+  "admitad",
 ] as const;
 
 export type ProductionProviderId = (typeof PRODUCTION_PROVIDER_IDS)[number];

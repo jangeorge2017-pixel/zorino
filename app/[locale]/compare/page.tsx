@@ -1,9 +1,7 @@
 import ComparePageClient from "@/components/ComparePageClient";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
-import {
-  browseAliExpressLive,
-  searchItemToCompareResult,
-} from "@/services/aliexpress/search";
+import { searchProducts } from "@/lib/search/engine";
+import { searchItemToCompareResult } from "@/services/aliexpress/search";
 
 export async function generateMetadata({
   params,
@@ -19,8 +17,18 @@ export async function generateMetadata({
   });
 }
 
+const COMPARE_QUERIES = ["laptop", "monitor", "earbuds", "smartwatch"] as const;
+
 export default async function ComparePage() {
-  const items = await browseAliExpressLive(6);
-  const products = items.map(searchItemToCompareResult);
+  const batches = await Promise.all(
+    COMPARE_QUERIES.map((q) => searchProducts(q, 4).catch(() => [])),
+  );
+  const seen = new Set<string>();
+  const items = batches.flat().filter((item) => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+  const products = items.slice(0, 6).map(searchItemToCompareResult);
   return <ComparePageClient products={products} />;
 }

@@ -10,7 +10,7 @@ import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
 import { HOMEPAGE_POPULAR_SEARCH_FETCH } from "@/lib/integration/homepage-fetch-profile";
 
 const ALIEXPRESS_STORE: Store = {
-  id: "aliexpress",
+  id: "store-aliexpress",
   name: "AliExpress",
   slug: "aliexpress",
   website: "https://www.aliexpress.com",
@@ -20,6 +20,82 @@ const ALIEXPRESS_STORE: Store = {
   supportedCurrencies: ["USD", "EUR", "GBP", "AED", "SAR", "EGP"],
   isActive: true,
   logoInitial: "AE",
+};
+
+const PROVIDER_STORE_MAP: Record<string, Store> = {
+  aliexpress: ALIEXPRESS_STORE,
+  ebay: {
+    id: "store-ebay",
+    name: "eBay",
+    slug: "ebay",
+    website: "https://www.ebay.com",
+    integrationType: "ebay",
+    commissionRate: 4,
+    supportedRegions: ["US", "UK", "DE"],
+    supportedCurrencies: ["USD", "GBP", "EUR"],
+    isActive: true,
+    logoInitial: "EB",
+  },
+  amazon: {
+    id: "store-amazon",
+    name: "Amazon",
+    slug: "amazon",
+    website: "https://www.amazon.com",
+    integrationType: "amazon",
+    commissionRate: 4,
+    supportedRegions: ["US", "UK", "DE"],
+    supportedCurrencies: ["USD", "GBP", "EUR"],
+    isActive: true,
+    logoInitial: "AM",
+  },
+  walmart: {
+    id: "store-walmart",
+    name: "Walmart",
+    slug: "walmart",
+    website: "https://www.walmart.com",
+    integrationType: "walmart",
+    commissionRate: 3,
+    supportedRegions: ["US"],
+    supportedCurrencies: ["USD"],
+    isActive: true,
+    logoInitial: "WM",
+  },
+  "best-buy": {
+    id: "store-best-buy",
+    name: "Best Buy",
+    slug: "best-buy",
+    website: "https://www.bestbuy.com",
+    integrationType: "partner",
+    commissionRate: 3.5,
+    supportedRegions: ["US", "CA"],
+    supportedCurrencies: ["USD", "CAD"],
+    isActive: true,
+    logoInitial: "BB",
+  },
+  noon: {
+    id: "store-noon",
+    name: "Noon",
+    slug: "noon",
+    website: "https://www.noon.com",
+    integrationType: "noon",
+    commissionRate: 5,
+    supportedRegions: ["AE", "SA", "EG"],
+    supportedCurrencies: ["AED", "SAR"],
+    isActive: true,
+    logoInitial: "NO",
+  },
+  temu: {
+    id: "store-temu",
+    name: "Temu",
+    slug: "temu",
+    website: "https://www.temu.com",
+    integrationType: "temu",
+    commissionRate: 5,
+    supportedRegions: ["US"],
+    supportedCurrencies: ["USD"],
+    isActive: true,
+    logoInitial: "TM",
+  },
 };
 
 /** Filters for search/products pages — AliExpress only (no mock stores). */
@@ -116,7 +192,7 @@ export async function browseAliExpressLive(limit = 24): Promise<SearchResultItem
 }
 
 export function searchItemToProduct(item: SearchResultItem): Product {
-  const externalId = item.id.replace(/^aliexpress-/, "");
+  const externalId = item.id.replace(/^[a-z]+-/, "");
   return {
     id: item.id,
     name: item.name,
@@ -140,10 +216,13 @@ export function searchItemToProduct(item: SearchResultItem): Product {
 export function searchItemToCompareResult(item: SearchResultItem): CompareProductResult {
   const product = searchItemToProduct(item);
   const discountPercent = item.discount;
+  const slug = item.storeSlug || "aliexpress";
+  const provider = slug === "ebay" ? "ebay" : slug === "amazon" ? "amazon" : "aliexpress";
+  const storeMeta = PROVIDER_STORE_MAP[slug] ?? { id: `store-${slug}`, name: item.store || slug, slug, integrationType: "partner" as const };
   const offer = {
     id: `price-${item.id}`,
     productId: item.id,
-    storeId: ALIEXPRESS_STORE.id,
+    storeId: storeMeta.id,
     price: item.price,
     originalPrice: item.originalPrice,
     currency: "USD",
@@ -151,8 +230,8 @@ export function searchItemToCompareResult(item: SearchResultItem): CompareProduc
     inStock: item.inStock,
     isCurrent: true,
     recordedAt: new Date().toISOString(),
-    store: ALIEXPRESS_STORE,
-    provider: "aliexpress" as const,
+    store: storeMeta,
+    provider,
     discountPercent,
     isLowest: true,
     isHighestDiscount: true,

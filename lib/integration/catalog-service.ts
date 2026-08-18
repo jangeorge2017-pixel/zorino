@@ -19,14 +19,119 @@ import {
 /** How long a merged live-catalog snapshot stays fresh (seconds). */
 const CATALOG_REVALIDATE_SECONDS = 5 * 60;
 
+/** Normalise a product title for deduplication across live search and database. */
+function normalizeTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter((w) => w.length > 2)
+    .slice(0, 5)
+    .join(" ")
+    .trim();
+}
+
+function isDuplicate(a: NormalizedCatalogItem, b: NormalizedCatalogItem): boolean {
+  const na = normalizeTitle(a.title);
+  const nb = normalizeTitle(b.title);
+  if (!na || !nb) return false;
+  return na === nb || na.startsWith(nb) || nb.startsWith(na);
+}
+
 const loadMergedCatalogItems = unstable_cache(
   async (): Promise<NormalizedCatalogItem[]> => {
     try {
       const { fetchCatalogFromSearchEngine } = await import(
         "@/lib/integration/search-catalog"
       );
-      const fromSearch = await fetchCatalogFromSearchEngine();
-      if (fromSearch.length > 0) return fromSearch;
+      const { getCatalogItemsFromDatabase } = await import(
+        "@/lib/integration/database-catalog"
+      );
+      const { getIngestedCatalogItems } = await import(
+        "@/lib/integration/affiliate-ingestion"
+      );
+
+      const [fromSearch, fromDb, fromIngestion, admitadFeeds] = await Promise.all([
+        fetchCatalogFromSearchEngine().catch(() => [] as NormalizedCatalogItem[]),
+        getCatalogItemsFromDatabase().catch(() => [] as NormalizedCatalogItem[]),
+        getIngestedCatalogItems().catch(() => [] as NormalizedCatalogItem[]),
+        // Pre-warm Admitad feed cache so the search connector activates
+        import("@/lib/integrations/admitad/feed-fetcher")
+          .then((m) => m.fetchAdmitadFeedProducts())
+          .catch(() => [] as { offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]),
+      ]);
+
+      // Convert Admitad feed products to NormalizedCatalogItem
+      const fromAdmitad: NormalizedCatalogItem[] = [];
+      for (const feed of admitadFeeds) {
+        for (const offer of feed.offers.slice(0, 500)) {
+          const discount =
+            offer.oldprice && offer.oldprice > offer.price
+              ? Math.round(((offer.oldprice - offer.price) / offer.oldprice) * 100)
+              : 0;
+          fromAdmitad.push({
+            id: `alibaba-${offer.id}`,
+            slug: `alibaba-${offer.id}`,
+            title: offer.name,
+            imageUrl: offer.image || "",
+            emoji: "🛍️",
+            categorySlug: "general",
+            rating: 0,
+            reviewCount: 0,
+            countryCode: "US",
+            currency: offer.currencyId,
+            price: offer.price,
+            originalPrice: offer.oldprice ?? offer.price,
+            discount,
+            discountType: discount > 0 ? "percentage" : "percentage",
+            providerIds: ["admitad"],
+            offers: [
+              {
+                providerId: "admitad",
+                storeSlug: "alibaba",
+                storeName: feed.feedName,
+                externalId: offer.id,
+                price: offer.price,
+                originalPrice: offer.oldprice ?? offer.price,
+                currency: offer.currencyId,
+                countryCode: "US",
+                affiliateUrl: offer.url,
+                productUrl: offer.url,
+                inStock: true,
+              },
+            ],
+            fetchedAt: new Date().toISOString(),
+          });
+        }
+      }
+
+      const merged = [...fromSearch];
+
+      for (const dbItem of fromDb) {
+        if (!merged.some((live) => isDuplicate(live, dbItem))) {
+          merged.push(dbItem);
+        }
+      }
+
+      for (const ingested of fromIngestion) {
+        if (!merged.some((live) => isDuplicate(live, ingested))) {
+          merged.push(ingested);
+        }
+      }
+
+      for (const admitadItem of fromAdmitad) {
+        if (!merged.some((live) => isDuplicate(live, admitadItem))) {
+          merged.push(admitadItem);
+        }
+      }
+
+      if (merged.length > 0) {
+        return balanceFlatMarketplaceList(
+          merged,
+          (item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
+          merged.length,
+        );
+      }
 
       const { items } = await fetchMergedCatalog();
       return items;
@@ -35,7 +140,7 @@ const loadMergedCatalogItems = unstable_cache(
       return [];
     }
   },
-  ["homepage:merged-catalog-v4-equal-balance"],
+  ["homepage:merged-catalog-v9-alibaba"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
 );
 
@@ -45,7 +150,19 @@ const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> =>
   const { isAnyProductionProviderConfigured } = await import(
     "@/lib/integration/comparison-engine"
   );
-  if (!isAnyProductionProviderConfigured()) return [];
+  if (!isAnyProductionProviderConfigured()) {
+    // No live providers configured — try database first (cron may have imported
+    // products), then fall back to local mock catalog.
+    const { getCatalogItemsFromDatabase } = await import(
+      "@/lib/integration/database-catalog"
+    );
+    const fromDb = await getCatalogItemsFromDatabase().catch(() => []);
+    if (fromDb.length > 0) return fromDb;
+
+    const { MOCK_SEARCH_ITEMS } = await import("@/lib/mock/sample-data");
+    const { searchResultToCatalogItem } = await import("@/lib/integration/search-catalog");
+    return MOCK_SEARCH_ITEMS.map(searchResultToCatalogItem);
+  }
 
   return loadMergedCatalogItems();
 });

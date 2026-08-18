@@ -1,5 +1,6 @@
 import { aliExpressSearchConnector } from "@/lib/search/connectors/aliexpress";
 import { amazonSearchConnector } from "@/lib/search/connectors/amazon";
+import { admitadSearchConnector } from "@/lib/search/connectors/admitad";
 import { ebaySearchConnector } from "@/lib/search/connectors/ebay";
 import {
   bestBuySearchConnector,
@@ -16,6 +17,7 @@ const ALL_CONNECTORS: SearchConnector[] = [
   aliExpressSearchConnector,
   ebaySearchConnector,
   amazonSearchConnector,
+  admitadSearchConnector,
   walmartSearchConnector,
   bestBuySearchConnector,
   temuSearchConnector,
