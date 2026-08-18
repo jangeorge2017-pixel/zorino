@@ -20,7 +20,7 @@ export const MOCK_STORES: Store[] = [
     slug: "amazon",
     logoUrl: STORE_LOGOS.amazon,
     logoInitial: "AM",
-    website: "https://amazon.com",
+    website: "https://www.amazon.com?&linkCode=ll2&tag=zorino-20&linkId=e79f2a91b51559a4cf23a51e45348b0c&language=en_US&ref_=as_li_ss_tl",
     integrationType: "amazon",
     commissionRate: 4,
     supportedRegions: ["US", "UK", "DE"],
