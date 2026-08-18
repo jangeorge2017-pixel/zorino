@@ -515,3 +515,53 @@
   gap: var(--zor-space-3);
 }
 
+/* ── Amazon seed links (temporary) ── */
+
+.amazon-seed-links {
+  margin: 0 0 var(--zor-space-8);
+  padding: clamp(20px, 4vw, 32px);
+  background: var(--stores-surface);
+  border: 1px solid var(--stores-border);
+  border-radius: var(--zor-radius-lg);
+}
+
+.amazon-seed-links__title {
+  font-size: var(--zor-text-xl);
+  font-weight: var(--zor-weight-bold);
+  color: #ecfdf5;
+  margin: 0 0 var(--zor-space-2);
+}
+
+.amazon-seed-links__subtitle {
+  font-size: var(--zor-text-sm);
+  color: var(--zor-text-soft);
+  margin: 0 0 var(--zor-space-6);
+}
+
+.amazon-seed-links__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--zor-space-3);
+}
+
+.amazon-seed-links__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #1a1a2e;
+  font-size: var(--zor-text-sm);
+  font-weight: 600;
+  border-radius: var(--zor-radius-md);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.amazon-seed-links__btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+}
+
