@@ -1,10 +1,7 @@
 import ProductsPageClient from "@/components/ProductsPageClient";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
-import {
-  ALIEXPRESS_SEARCH_FILTERS,
-  browseAliExpressLive,
-  filtersFromSearchResults,
-} from "@/services/aliexpress/search";
+import { searchProducts } from "@/lib/search/engine";
+import { filtersFromSearchResults } from "@/services/aliexpress/search";
 
 export async function generateMetadata({
   params,
@@ -20,10 +17,25 @@ export async function generateMetadata({
   });
 }
 
+const PRODUCTS_QUERIES = [
+  "iphone", "samsung", "laptop", "monitor",
+  "earbuds", "keyboard", "smartwatch", "camera",
+] as const;
+
 export default async function ProductsPage() {
-  const products = await browseAliExpressLive(24);
+  const batches = await Promise.all(
+    PRODUCTS_QUERIES.map((q) => searchProducts(q, 8).catch(() => [])),
+  );
+  const seen = new Set<string>();
+  const products = batches.flat().filter((item) => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
   const filters =
-    products.length > 0 ? filtersFromSearchResults(products) : ALIEXPRESS_SEARCH_FILTERS;
+    products.length > 0
+      ? filtersFromSearchResults(products)
+      : { categories: [], stores: [] };
 
   return (
     <ProductsPageClient

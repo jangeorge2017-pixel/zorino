@@ -58,6 +58,12 @@ const STORE_META: Record<
     integrationType: "partner",
     name: "Jumia",
   },
+  admitad: {
+    storeId: "store-admitad",
+    storeSlug: "alibaba",
+    integrationType: "partner",
+    name: "Alibaba",
+  },
 };
 
 export function getProviderStoreMeta(providerId: ProductionProviderId) {

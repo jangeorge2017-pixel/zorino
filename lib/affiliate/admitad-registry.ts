@@ -154,6 +154,27 @@ const WW_PROGRAMS: AdmitadStoreLink[] = [
     geo: ["WW"],
     type: "deep_link",
   },
+  {
+    storeName: "Aovica Official Store",
+    storeSlug: "aovica",
+    affiliateUrl: "https://rcpsj.com/g/76ypdp9d6w32ef59cc79caca192191/",
+    geo: ["WW"],
+    type: "deep_link",
+  },
+  {
+    storeName: "AbeBooks",
+    storeSlug: "abebooks",
+    affiliateUrl: "https://xnmk.com/g/5kyfn8gmxx32ef59cc79b4f698cda0/",
+    geo: ["WW"],
+    type: "deep_link",
+  },
+  {
+    storeName: "DocHub",
+    storeSlug: "dochub",
+    affiliateUrl: "https://lsuix.com/g/fsbaa03yh232ef59cc796dd72211ce/",
+    geo: ["WW"],
+    type: "deep_link",
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -336,6 +357,34 @@ const REGIONAL_PROGRAMS: AdmitadStoreLink[] = [
     storeSlug: "miravia",
     affiliateUrl: "https://sgkaa.com/g/7xeenx9ms232ef59cc79903dd028f6/",
     geo: ["ES", "PT"],
+    type: "deep_link",
+  },
+  {
+    storeName: "Funko",
+    storeSlug: "funko",
+    affiliateUrl: "https://cafxq.com/g/wvtojxg5uq32ef59cc790050e48644/",
+    geo: ["EU"],
+    type: "deep_link",
+  },
+  {
+    storeName: "Sam's Club",
+    storeSlug: "sams-club",
+    affiliateUrl: "https://yyczo.com/g/n33fzr5mqf32ef59cc7977f51738d3/",
+    geo: ["US"],
+    type: "deep_link",
+  },
+  {
+    storeName: "Douglas",
+    storeSlug: "douglas",
+    affiliateUrl: "https://ad.admitad.com/g/0eyyomxxzi32ef59cc792b84344479/",
+    geo: ["PL"],
+    type: "deep_link",
+  },
+  {
+    storeName: "Way.com",
+    storeSlug: "way-com",
+    affiliateUrl: "https://yyczo.com/g/vln7ctwgqj32ef59cc7912f7a14e01/",
+    geo: ["US", "CA"],
     type: "deep_link",
   },
 ];

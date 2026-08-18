@@ -10,6 +10,7 @@ export const SEARCH_PROVIDER_IDS = [
   "temu",
   "noon",
   "jumia",
+  "admitad",
 ] as const;
 
 export type SearchProviderId = (typeof SEARCH_PROVIDER_IDS)[number];
