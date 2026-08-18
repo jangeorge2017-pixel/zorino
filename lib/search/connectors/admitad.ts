@@ -9,21 +9,17 @@ export const admitadSearchConnector: SearchConnector = {
   name: "Alibaba",
 
   async isAvailable() {
-    try {
-      const { isAdmitadFeedReady } = await import(
-        "@/lib/integrations/admitad/feed-fetcher"
-      );
-      return isAdmitadFeedReady();
-    } catch {
-      return false;
-    }
+    return true;
   },
 
   async search(query: string, _options?: ConnectorSearchOptions) {
     try {
-      const { fetchAdmitadFeedProducts } = await import(
+      const { isAdmitadFeedReady, fetchAdmitadFeedProducts } = await import(
         "@/lib/integrations/admitad/feed-fetcher"
       );
+
+      if (!isAdmitadFeedReady()) return [];
+
       const feeds = await fetchAdmitadFeedProducts();
       const queryLower = query.toLowerCase();
       const queryWords = queryLower
