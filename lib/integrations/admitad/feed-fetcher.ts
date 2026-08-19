@@ -23,28 +23,62 @@ export function isAdmitadFeedReady(): boolean {
   return false;
 }
 
+function extractTag(xml: string, tag: string): string | null {
+  // Try g: namespace first (Google Merchant format), then plain tag
+  const gTag = `g:${tag}`;
+  const gRegex = new RegExp(`<${gTag}>([^<]*)</${gTag}>`);
+  const gMatch = xml.match(gRegex);
+  if (gMatch) return gMatch[1].trim();
+  const regex = new RegExp(`<${tag}>([^<]*)</${tag}>`);
+  const match = xml.match(regex);
+  return match ? match[1].trim() : null;
+}
+
+function parsePriceValue(raw: string): number | null {
+  if (!raw) return null;
+  const num = parseFloat(raw.replace(/[^\d.]/g, ""));
+  return isNaN(num) || num <= 0 ? null : num;
+}
+
 function parseOfferElement(xml: string): AdmitadFeedOffer | null {
-  const idMatch = xml.match(/<offer\s+id="(\d+)">/);
-  if (!idMatch) return null;
-  const id = idMatch[1];
+  let id: string | null = null;
+  let name: string | null = null;
+  let priceStr: string | null = null;
+  let oldpriceStr: string | null = null;
+  let currencyId: string | null = null;
+  let url: string | null = null;
+  let image: string | null = null;
+  let vendor: string | null = null;
+  let description: string | null = null;
+  let modified_time: string | null = null;
 
-  const name = extractTag(xml, "name");
-  const priceStr = extractTag(xml, "price");
-  const oldpriceStr = extractTag(xml, "oldprice");
-  const url = extractTag(xml, "url");
-  const currencyId = extractTag(xml, "currencyId");
-  const description = extractTag(xml, "description");
-  const vendor = extractTag(xml, "vendor");
-  const image = extractTag(xml, "image");
-  const modified_time = extractTag(xml, "modified_time");
+  const offerMatch = xml.match(/<offer\s+id="(\d+)">/);
+  if (offerMatch) {
+    id = offerMatch[1];
+    name = extractTag(xml, "name");
+    priceStr = extractTag(xml, "price");
+    oldpriceStr = extractTag(xml, "oldprice");
+    currencyId = extractTag(xml, "currencyId");
+    url = extractTag(xml, "url");
+    image = extractTag(xml, "image");
+    vendor = extractTag(xml, "vendor");
+    description = extractTag(xml, "description");
+    modified_time = extractTag(xml, "modified_time");
+  } else {
+    id = extractTag(xml, "id");
+    name = extractTag(xml, "title");
+    priceStr = extractTag(xml, "price");
+    url = extractTag(xml, "link");
+    image = extractTag(xml, "image_link");
+    description = extractTag(xml, "description");
+    const priceMatch = priceStr?.match(/([A-Z]{3})$/);
+    currencyId = priceMatch ? priceMatch[1] : "USD";
+  }
 
-  if (!name || !priceStr || !url) return null;
-
-  const price = parseFloat(priceStr);
-  if (isNaN(price) || price <= 0) return null;
-
-  const oldprice =
-    oldpriceStr && oldpriceStr !== "None" ? parseFloat(oldpriceStr) : null;
+  if (!id || !name || !priceStr) return null;
+  const price = parsePriceValue(priceStr);
+  if (!price) return null;
+  const oldprice = oldpriceStr && oldpriceStr !== "None" ? parsePriceValue(oldpriceStr) : null;
 
   return {
     id,
@@ -54,16 +88,10 @@ function parseOfferElement(xml: string): AdmitadFeedOffer | null {
     currencyId: currencyId || "USD",
     description: description ? decodeXmlEntities(description) : "",
     vendor: vendor && vendor !== "None" ? decodeXmlEntities(vendor) : "",
-    url: decodeXmlEntities(url),
+    url: url ? decodeXmlEntities(url) : "",
     image: image ? decodeXmlEntities(image) : "",
     modified_time: modified_time || "",
   };
-}
-
-function extractTag(xml: string, tag: string): string | null {
-  const regex = new RegExp(`<${tag}>([^<]*)</${tag}>`);
-  const match = xml.match(regex);
-  return match ? match[1].trim() : null;
 }
 
 function decodeXmlEntities(text: string): string {
@@ -99,7 +127,7 @@ async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
 
-    const offerRegex = /<offer\s+id="\d+">[\s\S]*?<\/offer>/g;
+    const offerRegex = /<(?:offer\s+id="\d+"|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
     let match;
     while ((match = offerRegex.exec(buffer)) !== null) {
       const offer = parseOfferElement(match[0]);
@@ -108,7 +136,7 @@ async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
       }
     }
 
-    const lastIncomplete = buffer.lastIndexOf("<offer");
+    const lastIncomplete = Math.max(buffer.lastIndexOf("<offer"), buffer.lastIndexOf("<entry"));
     if (lastIncomplete > 0) {
       buffer = buffer.slice(lastIncomplete);
     } else {
@@ -117,7 +145,7 @@ async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
     }
   }
 
-  if (buffer.includes("<offer")) {
+  if (buffer.includes("<offer") || buffer.includes("<entry>")) {
     const offer = parseOfferElement(buffer);
     if (offer && !offers.has(offer.id)) {
       offers.set(offer.id, offer);
