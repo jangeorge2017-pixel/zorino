@@ -106,6 +106,19 @@ export const MOCK_STORES: Store[] = [
     isActive: true,
   },
   {
+    id: "store-jumia",
+    name: "Jumia",
+    slug: "jumia",
+    logoUrl: STORE_LOGOS.default,
+    logoInitial: "JM",
+    website: "https://www.jumia.com",
+    integrationType: "partner",
+    commissionRate: 4,
+    supportedRegions: ["EG", "NG", "MA"],
+    supportedCurrencies: ["EGP", "NGN", "MAD"],
+    isActive: true,
+  },
+  {
     id: "store-cj",
     name: "CJdropshipping",
     slug: "cjdropshipping",
@@ -310,6 +323,9 @@ export const MOCK_SEARCH_ITEMS: SearchResultItem[] = [
   productToSearchItem(MOCK_PRODUCTS[1], "noon", 3899, 4499),
   productToSearchItem(MOCK_PRODUCTS[3], "noon", 1699, 1999),
   productToSearchItem(MOCK_PRODUCTS[5], "noon", 3299, 3899),
+  productToSearchItem(MOCK_PRODUCTS[3], "jumia", 429, 499),
+  productToSearchItem(MOCK_PRODUCTS[5], "jumia", 849, 999),
+  productToSearchItem(MOCK_PRODUCTS[7], "jumia", 16.99, 29.99),
 ];
 
 export const MOCK_DEALS: Deal[] = [

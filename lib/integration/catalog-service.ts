@@ -51,7 +51,7 @@ const loadMergedCatalogItems = unstable_cache(
         "@/lib/integration/affiliate-ingestion"
       );
 
-      const [fromSearch, fromDb, fromIngestion, admitadFeeds] = await Promise.all([
+      const [fromSearch, fromDb, fromIngestion, admitadFeeds, fromMock] = await Promise.all([
         fetchCatalogFromSearchEngine().catch(() => [] as NormalizedCatalogItem[]),
         getCatalogItemsFromDatabase().catch(() => [] as NormalizedCatalogItem[]),
         getIngestedCatalogItems().catch(() => [] as NormalizedCatalogItem[]),
@@ -64,6 +64,17 @@ const loadMergedCatalogItems = unstable_cache(
         ])
           .then((feeds) => feeds ?? [])
           .catch(() => [] as { offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]),
+        // Existing mock catalog — fills gaps for providers without live feeds
+        // (Best Buy, Noon, Jumia, etc. when credentials aren't configured).
+        (async () => {
+          const { MOCK_SEARCH_ITEMS } = await import("@/lib/mock/sample-data");
+          const { searchResultToCatalogItem } = await import("@/lib/integration/search-catalog");
+          return MOCK_SEARCH_ITEMS.map((item) => {
+            const catalogItem = searchResultToCatalogItem(item);
+            const mockProvider = catalogItem.providerIds[0] ?? "unknown";
+            return { ...catalogItem, id: `${mockProvider}-${catalogItem.id}` };
+          });
+        })(),
       ]);
 
       const { admitadFeedsToCatalogItems } = await import("@/lib/integrations/admitad");
@@ -89,6 +100,19 @@ const loadMergedCatalogItems = unstable_cache(
         }
       }
 
+      // Add mock items for providers that don't have live data yet — ensures
+      // products from providers without credentials (Best Buy, Noon, Jumia, etc.)
+      // still appear on the homepage alongside live AliExpress/eBay results.
+      const liveProviders = new Set(
+        merged.map((item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown"),
+      );
+      for (const mockItem of fromMock) {
+        const mockProvider = mockItem.providerIds[0] ?? "unknown";
+        if (!liveProviders.has(mockProvider)) {
+          merged.push(mockItem);
+        }
+      }
+
       if (merged.length > 0) {
         return balanceFlatMarketplaceList(
           merged,
@@ -104,7 +128,7 @@ const loadMergedCatalogItems = unstable_cache(
       return [];
     }
   },
-  ["homepage:merged-catalog-v11-feed-timeout-fix"],
+  ["homepage:merged-catalog-v12-restore-all-providers"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
 );
 
