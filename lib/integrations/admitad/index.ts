@@ -3,7 +3,10 @@ import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 
 export { ADMITAD_FEEDS, ADMITAD_PROVIDER_ID, FEED_CACHE_TTL_MS } from "./config";
 export { fetchAdmitadFeedProducts, isAdmitadFeedReady } from "./feed-fetcher";
+export { obtainAccessToken, getAccessToken, invalidateToken } from "./auth";
+export { runAdmitadIngestion } from "./ingestion";
 export type { AdmitadFeedOffer, AdmitadFeedConfig } from "./types";
+export type { IngestionResult } from "./ingestion";
 
 export type AdmitadFeedResult = {
   offers: AdmitadFeedOffer[];

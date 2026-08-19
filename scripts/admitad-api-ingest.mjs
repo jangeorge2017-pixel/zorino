@@ -1,0 +1,460 @@
+#!/usr/bin/env node
+/**
+ * Standalone Admitad API product ingestion script.
+ *
+ * Usage:
+ *   node scripts/admitad-api-ingest.mjs              # full run
+ *   node scripts/admitad-api-ingest.mjs --dry-run     # test without DB writes
+ *   node scripts/admitad-api-ingest.mjs --test         # authenticate + discover only
+ *
+ * Requires ADMITAD_CLIENT_ID and ADMITAD_CLIENT_SECRET in .env.local.
+ * Self-contained — no TypeScript imports needed.
+ */
+
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { createClient } from "@supabase/supabase-js";
+
+// ---------------------------------------------------------------------------
+// Load .env.local (use process.cwd() for reliable path resolution)
+// ---------------------------------------------------------------------------
+const envPath = resolve(process.cwd(), ".env.local");
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, "utf8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq < 1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    const val = trimmed.slice(eq + 1).trim();
+    if (!process.env[key]) process.env[key] = val;
+  }
+}
+
+const API_BASE = "https://api.admitad.com";
+const TOKEN_URL = `${API_BASE}/token/`;
+
+// ---------------------------------------------------------------------------
+// OAuth
+// ---------------------------------------------------------------------------
+let cachedToken = null;
+
+async function obtainAccessToken() {
+  const clientId = process.env.ADMITAD_CLIENT_ID;
+  const clientSecret = process.env.ADMITAD_CLIENT_SECRET;
+  if (!clientId || !clientSecret) throw new Error("Missing ADMITAD_CLIENT_ID/SECRET");
+
+  const scope = "advcampaigns advcampaigns_for_website websites deeplink_generator";
+  const body = new URLSearchParams({
+    grant_type: "client_credentials",
+    client_id: clientId,
+    client_secret: clientSecret,
+    scope,
+  });
+
+  const resp = await fetch(TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString(),
+    signal: AbortSignal.timeout(15_000),
+  });
+
+  if (!resp.ok) throw new Error(`Token HTTP ${resp.status}: ${await resp.text()}`);
+  const data = await resp.json();
+  cachedToken = { accessToken: data.access_token, expiresAt: Date.now() + (data.expires_in - 60) * 1000 };
+  console.log(`   Token obtained: ${data.access_token.slice(0, 10)}..., scope: ${data.scope}`);
+  return data.access_token;
+}
+
+async function getToken() {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) return cachedToken.accessToken;
+  return obtainAccessToken();
+}
+
+// ---------------------------------------------------------------------------
+// API helpers
+// ---------------------------------------------------------------------------
+let requestTimestamps = [];
+const RATE_LIMIT = 90;
+const RATE_WINDOW = 60_000;
+
+async function throttle() {
+  const now = Date.now();
+  while (requestTimestamps.length > 0 && requestTimestamps[0] < now - RATE_WINDOW) requestTimestamps.shift();
+  if (requestTimestamps.length >= RATE_LIMIT) {
+    const wait = requestTimestamps[0] + RATE_WINDOW - now + 100;
+    if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  }
+  requestTimestamps.push(Date.now());
+}
+
+async function apiGet(path, params) {
+  for (let attempt = 0; attempt <= 3; attempt++) {
+    if (attempt > 0) {
+      await new Promise(r => setTimeout(r, Math.min(2000 * 2 ** (attempt - 1), 10_000)));
+    }
+    await throttle();
+    const token = await getToken();
+    const url = new URL(path, API_BASE);
+    if (params) Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+
+    const resp = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    if (resp.status === 401) { cachedToken = null; continue; }
+    if (resp.status === 429) {
+      const retry = parseInt(resp.headers.get("Retry-After") ?? "5", 10);
+      await new Promise(r => setTimeout(r, retry * 1000));
+      continue;
+    }
+    if (!resp.ok) throw new Error(`API ${resp.status} on ${path}: ${await resp.text()}`);
+    return resp.json();
+  }
+  throw new Error(`API failed after retries: ${path}`);
+}
+
+async function listAllPages(path, params) {
+  const all = [];
+  let offset = 0;
+  const limit = 100;
+  for (;;) {
+    const data = await apiGet(path, { ...params, offset: String(offset), limit: String(limit) });
+    all.push(...data.results);
+    if (all.length >= data._meta.count || data.results.length === 0) break;
+    offset += limit;
+  }
+  return all;
+}
+
+// ---------------------------------------------------------------------------
+// Feed XML parser
+// ---------------------------------------------------------------------------
+function extractTag(xml, tag) {
+  // Try g: namespace first (Google Merchant format), then plain tag
+  const gTag = `g:${tag}`;
+  let m = xml.match(new RegExp(`<${gTag}>([^<]*)</${gTag}>`));
+  if (m) return m[1].trim();
+  m = xml.match(new RegExp(`<${tag}>([^<]*)</${tag}>`));
+  return m ? m[1].trim() : null;
+}
+
+function decodeXml(text) {
+  return text.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'");
+}
+
+function parsePrice(raw) {
+  if (!raw) return null;
+  // "5.82 USD" → 5.82
+  const num = parseFloat(raw.replace(/[^\d.]/g, ""));
+  return isNaN(num) || num <= 0 ? null : num;
+}
+
+function parseOffer(xml) {
+  // Support both formats: Admitad <offer id="..."> and Google Merchant <entry>
+  let id, name, priceStr, oldpriceStr, currencyId, url, image, vendor, description;
+
+  const idM = xml.match(/<offer\s+id="(\d+)">/);
+  if (idM) {
+    // Admitad legacy format
+    id = idM[1];
+    name = extractTag(xml, "name");
+    priceStr = extractTag(xml, "price");
+    oldpriceStr = extractTag(xml, "oldprice");
+    currencyId = extractTag(xml, "currencyId") || "USD";
+    url = decodeXml(extractTag(xml, "url") || "");
+    image = decodeXml(extractTag(xml, "image") || "");
+    vendor = extractTag(xml, "vendor") || "";
+    description = (extractTag(xml, "description") || "").replace(/<[^>]+>/g, "");
+  } else {
+    // Google Merchant / Atom format: <entry> with <g:id>, <g:price>, etc.
+    id = extractTag(xml, "id");
+    name = extractTag(xml, "title");
+    priceStr = extractTag(xml, "price");
+    currencyId = "USD";
+    const priceMatch = priceStr?.match(/([A-Z]{3})$/);
+    if (priceMatch) currencyId = priceMatch[1];
+    url = decodeXml(extractTag(xml, "link") || "");
+    image = decodeXml(extractTag(xml, "image_link") || "");
+    description = (extractTag(xml, "description") || "").replace(/<[^>]+>/g, "");
+    vendor = "";
+    oldpriceStr = null;
+  }
+
+  if (!id || !name || !priceStr) return null;
+  const price = parsePrice(priceStr);
+  if (!price) return null;
+  const oldprice = oldpriceStr && oldpriceStr !== "None" ? parsePrice(oldpriceStr) : null;
+
+  return {
+    id, name: decodeXml(name), price,
+    oldprice: oldprice && !isNaN(oldprice) ? oldprice : null,
+    currencyId,
+    description: description || "",
+    vendor: vendor || "",
+    url: url || "",
+    image: image || "",
+    modified_time: extractTag(xml, "modified_time") || "",
+  };
+}
+
+async function fetchFeed(feedUrl) {
+  const resp = await fetch(feedUrl, {
+    headers: { "User-Agent": "ZorinoBot/2.0-admitad-api" },
+    signal: AbortSignal.timeout(180_000),
+  });
+  if (!resp.ok) throw new Error(`Feed HTTP ${resp.status}`);
+  if (!resp.body) throw new Error("Feed body null");
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  const offers = new Map();
+  let buffer = "";
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    // Match both <offer id="...">...</offer> and <entry>...</entry>
+    const re = /<(?:offer\s+id="\d+"|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
+    let m;
+    while ((m = re.exec(buffer)) !== null) {
+      const o = parseOffer(m[0]);
+      if (o && !offers.has(o.id)) offers.set(o.id, o);
+    }
+    const last = Math.max(buffer.lastIndexOf("<offer"), buffer.lastIndexOf("<entry"));
+    buffer = last > 0 ? buffer.slice(last) : "";
+  }
+  if (buffer.includes("<offer") || buffer.includes("<entry>")) {
+    const o = parseOffer(buffer);
+    if (o && !offers.has(o.id)) offers.set(o.id, o);
+  }
+  return Array.from(offers.values());
+}
+
+// ---------------------------------------------------------------------------
+// Supabase helpers
+// ---------------------------------------------------------------------------
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
+async function ensureStore(db) {
+  const { data: existing } = await db.from("stores").select("id").eq("slug", "admitad").single();
+  if (existing) return existing.id;
+  const { data: created } = await db.from("stores").insert({
+    name: "Admitad (Alibaba)", name_ar: "أدميتاد (علي بابا)", slug: "admitad",
+    website: "https://admitad.com", integration_type: "partner",
+    logo_url: "/stores/alibaba.svg", logo_initial: "Ad",
+    supported_regions: ["US"], supported_currencies: ["USD"], is_active: true,
+  }).select("id").single();
+  return created?.id;
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+const args = process.argv.slice(2);
+const dryRun = args.includes("--dry-run");
+const testMode = args.includes("--test");
+
+async function main() {
+  console.log("=== Admitad API Ingestion ===");
+  console.log(`Mode: ${testMode ? "TEST" : dryRun ? "DRY RUN" : "FULL"}`);
+  console.log(`Time: ${new Date().toISOString()}\n`);
+
+  if (!process.env.ADMITAD_CLIENT_ID || !process.env.ADMITAD_CLIENT_SECRET) {
+    console.error("ERROR: ADMITAD_CLIENT_ID and ADMITAD_CLIENT_SECRET must be set in .env.local");
+    process.exit(1);
+  }
+
+  // 1. Authenticate
+  console.log("1. Authenticating...");
+  const token = await obtainAccessToken();
+  console.log(`   Token: ${token.slice(0, 10)}...`);
+
+  // 2. Discover websites
+  console.log("\n2. Discovering websites...");
+  const websites = await listAllPages("/websites/");
+  console.log(`   Found ${websites.length} websites:`);
+  for (const w of websites) {
+    console.log(`   - ID: ${w.id}, Name: ${w.name}, URL: ${w.url}, Status: ${w.status}`);
+  }
+
+  // 3. Discover programs with feeds
+  console.log("\n3. Discovering programs with product feeds...");
+  const allFeedEntries = [];
+  for (const website of websites) {
+    const campaigns = await listAllPages(`/advcampaigns/website/${website.id}/`, { has_tool: "products" });
+    console.log(`   Website ${website.id}: ${campaigns.length} programs with feeds`);
+    for (const c of campaigns) {
+      if (!c.feeds_info?.length) continue;
+      for (const feed of c.feeds_info) {
+        allFeedEntries.push({ campaign: c, feed, websiteId: website.id });
+      }
+    }
+  }
+  console.log(`   Total feeds discovered: ${allFeedEntries.length}`);
+
+  if (testMode) {
+    console.log("\n=== Test Complete ===");
+    return;
+  }
+
+  // 4. Fetch products — sort Alibaba first, then try all
+  allFeedEntries.sort((a, b) => {
+    const aIsAlibaba = a.campaign.name?.toLowerCase().includes("alibaba") ? 0 : 1;
+    const bIsAlibaba = b.campaign.name?.toLowerCase().includes("alibaba") ? 0 : 1;
+    return aIsAlibaba - bIsAlibaba;
+  });
+  const maxFeeds = dryRun ? 10 : 50;
+  const maxPerFeed = dryRun ? 200 : 5000;
+  const feedsToFetch = allFeedEntries.slice(0, maxFeeds);
+  console.log(`\n4. Fetching products from ${feedsToFetch.length} feeds...`);
+
+  const seenIds = new Set();
+  const allProducts = [];
+  let feedsOk = 0;
+
+  for (let i = 0; i < feedsToFetch.length; i++) {
+    const { campaign, feed } = feedsToFetch[i];
+    const feedUrl = feed.xml_link?.replace("http://", "https://");
+    if (!feedUrl) continue;
+
+    process.stdout.write(`   [${i + 1}/${feedsToFetch.length}] "${feed.name}" (${campaign.name})... `);
+    try {
+      const offers = await fetchFeed(feedUrl);
+      let count = 0;
+      for (const o of offers.slice(0, maxPerFeed)) {
+        if (seenIds.has(o.id)) continue;
+        seenIds.add(o.id);
+        const storeSlug = campaign.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+        const discount = o.oldprice && o.oldprice > o.price
+          ? Math.round(((o.oldprice - o.price) / o.oldprice) * 100) : 0;
+        allProducts.push({
+          id: `admitad-${campaign.id}-${o.id}`,
+          slug: `admitad-${campaign.id}-${o.id}`,
+          title: o.name, imageUrl: o.image || "", emoji: "🛍️",
+          categorySlug: "general", rating: 0, reviewCount: 0,
+          countryCode: "US", currency: o.currencyId,
+          price: o.price, originalPrice: o.oldprice ?? o.price,
+          discount, discountType: "percentage",
+          providerIds: ["admitad"],
+          offers: [{
+            providerId: "admitad", storeSlug, storeName: campaign.name,
+            externalId: o.id, price: o.price, originalPrice: o.oldprice ?? o.price,
+            currency: o.currencyId, countryCode: "US",
+            affiliateUrl: o.url, productUrl: o.url, inStock: true,
+          }],
+          fetchedAt: new Date().toISOString(),
+        });
+        count++;
+      }
+      feedsOk++;
+      console.log(`${count} products`);
+    } catch (err) {
+      console.log(`FAILED: ${err.message}`);
+    }
+  }
+
+  console.log(`\n   Total unique products: ${allProducts.length}`);
+
+  // 5. Save to database
+  if (dryRun) {
+    console.log("\n=== DRY RUN — skipping DB save ===");
+    console.log(`Would save ${allProducts.length} products`);
+    return;
+  }
+
+  const db = getSupabase();
+  if (!db) {
+    console.log("\n   Supabase not configured, skipping DB save");
+    return;
+  }
+
+  console.log("\n5. Saving to database...");
+  const storeId = await ensureStore(db);
+  if (!storeId) { console.error("   Failed to create/resolve admitad store"); return; }
+
+  let saved = 0;
+  const BATCH = 200;
+  for (let i = 0; i < allProducts.length; i += BATCH) {
+    const batch = allProducts.slice(i, i + BATCH);
+
+    const productRows = batch.map(p => ({
+      name: p.title, slug: p.slug, description: "", image_url: p.imageUrl,
+      emoji: p.emoji, category_slug: p.categorySlug, brand: null,
+      rating: null, review_count: 0, currency: p.currency,
+      country_code: p.countryCode, in_stock: true, is_active: true,
+    }));
+
+    const { data: upserted } = await db.from("products").upsert(productRows, {
+      onConflict: "slug", ignoreDuplicates: false,
+    }).select("id, slug");
+
+    if (!upserted?.length) continue;
+
+    const slugToId = new Map(upserted.map(p => [p.slug, p.id]));
+
+    const priceRows = batch.flatMap(p => {
+      const pid = slugToId.get(p.slug);
+      const o = p.offers?.[0];
+      if (!pid || !o) return [];
+      return [{
+        product_id: pid, store_id: storeId, price: o.price,
+        original_price: o.originalPrice, currency: o.currency,
+        country_code: o.countryCode, external_url: o.affiliateUrl || o.productUrl,
+        external_product_id: o.externalId, in_stock: o.inStock, is_current: true,
+      }];
+    });
+
+    if (priceRows.length) {
+      await db.from("prices").upsert(priceRows, {
+        onConflict: "product_id,store_id,country_code,currency", ignoreDuplicates: false,
+      });
+    }
+
+    const lowestRows = batch.flatMap(p => {
+      const pid = slugToId.get(p.slug);
+      const o = p.offers?.[0];
+      if (!pid || !o) return [];
+      return [{
+        product_id: pid, country_code: p.countryCode, currency: p.currency,
+        product_name: p.title, product_slug: p.slug, image_url: p.imageUrl,
+        emoji: p.emoji, lowest_price: o.price, original_price: o.originalPrice,
+        discount_percent: p.discount, savings_amount: Math.max(0, o.originalPrice - o.price),
+        store_id: storeId, store_name: o.storeName, provider: "admitad",
+        affiliate_url: o.affiliateUrl, external_url: o.productUrl,
+        is_new_low: false, price_recorded_at: new Date().toISOString(),
+        computed_at: new Date().toISOString(),
+      }];
+    });
+
+    if (lowestRows.length) {
+      await db.from("lowest_prices_today").upsert(lowestRows, {
+        onConflict: "product_id,country_code,currency", ignoreDuplicates: false,
+      });
+    }
+
+    saved += batch.length;
+    process.stdout.write(`   Saved ${saved}/${allProducts.length}\r`);
+  }
+
+  console.log(`\n\n=== Results ===`);
+  console.log(`Authenticated:     true`);
+  console.log(`Websites found:    ${websites.length}`);
+  console.log(`Programs discovered: ${allFeedEntries.length}`);
+  console.log(`Feeds with data:   ${feedsOk}`);
+  console.log(`Total products:    ${allProducts.length}`);
+  console.log(`Products saved:    ${saved}`);
+  console.log("\n=== Done ===");
+}
+
+main().catch(err => {
+  console.error("Fatal:", err);
+  process.exit(1);
+});
