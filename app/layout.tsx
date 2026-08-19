@@ -40,6 +40,7 @@ export const metadata: Metadata = {
   }),
   other: {
     "verify-admitad": "32ef59cc79",
+    "a249a311d0372f6": "1ebe951374baa156aca87fc789aa0de5",
   },
 };
 
