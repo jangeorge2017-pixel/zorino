@@ -664,6 +664,16 @@
     box-sizing: border-box;
   }
 
+  /*
+   * The escape above overflows toward the physical right in LTR. In RTL the
+   * clamped copy is right-anchored, so the same width hangs off the left edge
+   * instead — pull it back so the row starts at the copy's left edge in both.
+   * English geometry is unchanged; tablet/desktop are outside this media block.
+   */
+  html[dir="rtl"] .zh-page .zh-hero__stats {
+    margin-right: -108px;
+  }
+
   /* Full mobile-width 2×2 stats — ~15px shorter; width unchanged */
   .zh-page .zh-stat {
     width: auto;
@@ -1254,11 +1264,12 @@
     z-index: 4;
   }
 
-  html[dir="rtl"] .zh-page .zh-hero__badge,
-  html[dir="rtl"] .zh-page .zh-hero__title,
-  html[dir="rtl"] .zh-page .zh-hero__subtitle {
-    max-width: calc(100% - 108px);
-  }
+  /*
+   * Do NOT re-apply orbit clearance on badge/title/subtitle. `.zh-hero__copy`
+   * already uses max-width: calc(100% - 108px); a nested calc(100% - 108px)
+   * collapses Arabic copy (~154px at 390px) while English stays full-width.
+   * Arabic mobile must inherit the same single clearance as English.
+   */
 
   /* Badge/title share the RTL description track center axis */
   html[dir="rtl"] .zh-page .zh-hero__badge {
