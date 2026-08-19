@@ -104,7 +104,7 @@ const loadMergedCatalogItems = unstable_cache(
       return [];
     }
   },
-  ["homepage:merged-catalog-v10-restore-providers"],
+  ["homepage:merged-catalog-v11-feed-timeout-fix"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
 );
 
