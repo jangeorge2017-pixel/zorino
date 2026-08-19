@@ -3,6 +3,7 @@ import * as path from "path";
 import * as os from "os";
 import type { AdmitadFeedOffer } from "./types";
 import { ADMITAD_FEEDS, FEED_CACHE_TTL_MS } from "./config";
+import { SEED_FEED_OFFERS } from "./seed";
 
 type CachedFeed = {
   offers: AdmitadFeedOffer[];
@@ -187,6 +188,22 @@ export async function fetchAdmitadFeedProducts(): Promise<
         `[admitad] feed "${feed.name}" fetch failed:`,
         error instanceof Error ? error.message : error
       );
+      // Fallback: use seed offers so the homepage always shows Alibaba products
+      // even when the live feed URL is unreachable (e.g. Vercel serverless).
+      if (SEED_FEED_OFFERS.length > 0) {
+        console.log(
+          `[admitad] using ${SEED_FEED_OFFERS.length} seed offers as fallback for "${feed.name}"`
+        );
+        feedCache.set(feed.slug, {
+          offers: SEED_FEED_OFFERS,
+          fetchedAt: Date.now(),
+        });
+        results.push({
+          offers: SEED_FEED_OFFERS,
+          feedName: feed.name,
+          feedSlug: feed.slug,
+        });
+      }
     }
   }
 
