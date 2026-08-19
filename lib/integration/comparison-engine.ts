@@ -71,6 +71,18 @@ export async function fetchProviderCatalog(
     return { items: [], error: "not_configured" };
   }
 
+  if (providerId === "admitad") {
+    try {
+      const { fetchAdmitadFeedProducts, admitadFeedsToCatalogItems } =
+        await import("@/lib/integrations/admitad");
+      const feeds = await fetchAdmitadFeedProducts();
+      return { items: admitadFeedsToCatalogItems(feeds) };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Feed fetch failed";
+      return { items: [], error: message };
+    }
+  }
+
   const connector = getSyncConnector(providerId);
   if (!connector) {
     return { items: [], error: "connector_pending" };

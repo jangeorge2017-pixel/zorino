@@ -78,7 +78,7 @@ function decodeXmlEntities(text: string): string {
 async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
   const response = await fetch(feedUrl, {
     headers: { "User-Agent": "ZorinoBot/1.0" },
-    signal: AbortSignal.timeout(120_000),
+    signal: AbortSignal.timeout(15_000),
   });
   if (!response.ok) {
     throw new Error(`Admitad feed HTTP ${response.status}`);
