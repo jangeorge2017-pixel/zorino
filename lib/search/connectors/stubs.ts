@@ -1,3 +1,4 @@
+import { isIntegrationConfigured } from "@/lib/integration/credentials";
 import { createSyncBridgeConnector } from "@/lib/search/connectors/sync-bridge";
 import type { SearchConnector } from "@/lib/search/connectors/types";
 import type { SearchProviderId } from "@/lib/search/types";
@@ -6,14 +7,13 @@ import type { SearchProviderId } from "@/lib/search/types";
 function createEnvGatedStub(
   id: SearchProviderId,
   name: string,
-  _envKeys: string[]
+  envKeys: string[]
 ): SearchConnector {
   return {
     id,
     name,
     async isAvailable() {
-      // Stay inactive until a real search implementation exists.
-      return false;
+      return isIntegrationConfigured(envKeys);
     },
     async search() {
       return [];

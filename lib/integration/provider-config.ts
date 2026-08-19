@@ -28,6 +28,8 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
       return isIntegrationConfigured(["NOON_API_KEY"]);
     case "jumia":
       return isIntegrationConfigured(["JUMIA_API_KEY", "JUMIA_AFFILIATE_ID"]);
+    case "admitad":
+      return true;
     default:
       return false;
   }
