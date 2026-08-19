@@ -66,8 +66,13 @@ const STORE_META: Record<
   },
 };
 
-export function getProviderStoreMeta(providerId: ProductionProviderId) {
-  return STORE_META[providerId];
+export function getProviderStoreMeta(providerId: string) {
+  return STORE_META[providerId as ProductionProviderId] ?? {
+    storeId: `store-${providerId}`,
+    storeSlug: providerId,
+    integrationType: "partner",
+    name: providerId.charAt(0).toUpperCase() + providerId.slice(1),
+  };
 }
 
 export function buildProviderSyncContext(
