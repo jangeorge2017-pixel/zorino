@@ -3,6 +3,8 @@ import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 
 /** Allow CDN/edge caching between live catalog revalidations. */
 export const revalidate = 300;
+/** Vercel function timeout — Admitad feed fetch can take up to 25s. */
+export const maxDuration = 60;
 
 export async function generateMetadata({
   params,

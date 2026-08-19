@@ -59,7 +59,7 @@ const loadMergedCatalogItems = unstable_cache(
         Promise.race([
           import("@/lib/integrations/admitad/feed-fetcher").then((m) => m.fetchAdmitadFeedProducts()),
           new Promise<{ offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]>((resolve) =>
-            setTimeout(() => resolve([]), 10_000),
+            setTimeout(() => resolve([]), 30_000),
           ),
         ])
           .then((feeds) => feeds ?? [])
