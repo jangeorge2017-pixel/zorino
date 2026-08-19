@@ -56,54 +56,18 @@ const loadMergedCatalogItems = unstable_cache(
         getCatalogItemsFromDatabase().catch(() => [] as NormalizedCatalogItem[]),
         getIngestedCatalogItems().catch(() => [] as NormalizedCatalogItem[]),
         // Pre-warm Admitad feed cache so the search connector activates
-        import("@/lib/integrations/admitad/feed-fetcher")
-          .then((m) => m.fetchAdmitadFeedProducts())
+        Promise.race([
+          import("@/lib/integrations/admitad/feed-fetcher").then((m) => m.fetchAdmitadFeedProducts()),
+          new Promise<{ offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]>((resolve) =>
+            setTimeout(() => resolve([]), 10_000),
+          ),
+        ])
+          .then((feeds) => feeds ?? [])
           .catch(() => [] as { offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]),
       ]);
 
-      // Convert Admitad feed products to NormalizedCatalogItem
-      const fromAdmitad: NormalizedCatalogItem[] = [];
-      for (const feed of admitadFeeds) {
-        for (const offer of feed.offers.slice(0, 500)) {
-          const discount =
-            offer.oldprice && offer.oldprice > offer.price
-              ? Math.round(((offer.oldprice - offer.price) / offer.oldprice) * 100)
-              : 0;
-          fromAdmitad.push({
-            id: `alibaba-${offer.id}`,
-            slug: `alibaba-${offer.id}`,
-            title: offer.name,
-            imageUrl: offer.image || "",
-            emoji: "🛍️",
-            categorySlug: "general",
-            rating: 0,
-            reviewCount: 0,
-            countryCode: "US",
-            currency: offer.currencyId,
-            price: offer.price,
-            originalPrice: offer.oldprice ?? offer.price,
-            discount,
-            discountType: discount > 0 ? "percentage" : "percentage",
-            providerIds: ["admitad"],
-            offers: [
-              {
-                providerId: "admitad",
-                storeSlug: "alibaba",
-                storeName: feed.feedName,
-                externalId: offer.id,
-                price: offer.price,
-                originalPrice: offer.oldprice ?? offer.price,
-                currency: offer.currencyId,
-                countryCode: "US",
-                affiliateUrl: offer.url,
-                productUrl: offer.url,
-                inStock: true,
-              },
-            ],
-            fetchedAt: new Date().toISOString(),
-          });
-        }
-      }
+      const { admitadFeedsToCatalogItems } = await import("@/lib/integrations/admitad");
+      const fromAdmitad: NormalizedCatalogItem[] = admitadFeedsToCatalogItems(admitadFeeds);
 
       const merged = [...fromSearch];
 
@@ -140,7 +104,7 @@ const loadMergedCatalogItems = unstable_cache(
       return [];
     }
   },
-  ["homepage:merged-catalog-v9-alibaba"],
+  ["homepage:merged-catalog-v10-restore-providers"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
 );
 
