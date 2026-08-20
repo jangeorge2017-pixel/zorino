@@ -3,7 +3,7 @@ export const PRODUCT_IMAGE_PLACEHOLDER = "/products/placeholder.svg";
 
 const LEGACY_BROKEN_IMAGE_URLS: Record<string, string> = {
   "https://images.unsplash.com/photo-1695048133142-1c204c703e24?w=1200&auto=format&fit=crop&q=80":
-    "https://images.unsplash.com/photo-1718223483120-8131e57f948b?w=1200&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1695048065739-20e51ad89fdd?w=1200&auto=format&fit=crop&q=80",
   "https://images.unsplash.com/photo-1606813907293-d86efa9b94ea?w=1200&auto=format&fit=crop&q=80":
     "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=1200&auto=format&fit=crop&q=80",
   "https://images.unsplash.com/photo-1592840496694-26d19506d992?w=1200&auto=format&fit=crop&q=80":

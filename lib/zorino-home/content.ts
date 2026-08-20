@@ -135,7 +135,7 @@ export const ZH_TRENDING_DEALS: ZhDeal[] = [
   {
     id: "airpods",
     name: "Apple AirPods Pro 2nd Gen",
-    imageSrc: DEAL_PRODUCT_IMAGES.headphones,
+    imageSrc: DEAL_PRODUCT_IMAGES.airpods,
     discount: 12,
     rating: 4.8,
     reviews: 2847,
@@ -150,7 +150,7 @@ export const ZH_TRENDING_DEALS: ZhDeal[] = [
   {
     id: "galaxy",
     name: "Samsung Galaxy S24 Ultra",
-    imageSrc: DEAL_PRODUCT_IMAGES.iphone,
+    imageSrc: DEAL_PRODUCT_IMAGES.galaxy,
     discount: 8,
     rating: 4.7,
     reviews: 1523,
@@ -195,7 +195,7 @@ export const ZH_TRENDING_DEALS: ZhDeal[] = [
   {
     id: "sony-xm5",
     name: "Sony WH-1000XM5 Headphones",
-    imageSrc: DEAL_PRODUCT_IMAGES.headphones,
+    imageSrc: DEAL_PRODUCT_IMAGES.sonyHeadphones,
     discount: 18,
     rating: 4.85,
     reviews: 2104,
@@ -240,7 +240,7 @@ export const ZH_TRENDING_DEALS: ZhDeal[] = [
   {
     id: "dyson-v15",
     name: "Dyson V15 Detect Vacuum",
-    imageSrc: DEAL_PRODUCT_IMAGES.laptop,
+    imageSrc: DEAL_PRODUCT_IMAGES.vacuum,
     discount: 14,
     rating: 4.8,
     reviews: 612,
