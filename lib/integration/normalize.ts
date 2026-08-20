@@ -82,9 +82,16 @@ export function catalogItemToTrendingDealCard(
   options?: { idPrefix?: string; updatedMins?: number },
 ): TrendingDealCard {
   const bestOffer = item.offers[0];
-  const store = bestOffer
-    ? storeForProvider(bestOffer.providerId)
-    : storeForProvider(item.providerIds[0] ?? "aliexpress");
+  const providerId = bestOffer?.providerId ?? item.providerIds[0] ?? ("aliexpress" as ProductionProviderId);
+  const baseStore = storeForProvider(providerId);
+
+  // Use the actual merchant name from the offer when available (Admitad has
+  // multiple merchants under one provider). Fall back to the provider store.
+  const merchantName =
+    bestOffer?.storeName && bestOffer.storeName !== baseStore.name
+      ? bestOffer.storeName
+      : baseStore.name;
+  const storeInitial = merchantName.slice(0, 2).toUpperCase();
 
   return {
     id: options?.idPrefix ? `${options.idPrefix}-${item.id}` : item.id,
@@ -97,9 +104,9 @@ export function catalogItemToTrendingDealCard(
     reviews: item.reviewCount,
     price: item.price,
     originalPrice: item.originalPrice,
-    store: store.name,
-    storeLogoSrc: store.logoUrl ?? `/stores/${store.slug}.svg`,
-    storeInitial: store.logoInitial ?? store.name.slice(0, 2),
+    store: merchantName,
+    storeLogoSrc: baseStore.logoUrl ?? `/stores/${baseStore.slug}.svg`,
+    storeInitial,
     updatedMins: options?.updatedMins ?? 5,
     priceHistory:
       item.originalPrice > item.price
@@ -111,8 +118,21 @@ export function catalogItemToTrendingDealCard(
 
 export function catalogItemToDeal(item: NormalizedCatalogItem, index = 0): Deal {
   const bestOffer = item.offers[0];
-  const providerId = bestOffer?.providerId ?? item.providerIds[0] ?? "aliexpress";
-  const store = storeForProvider(providerId);
+  const providerId = (bestOffer?.providerId ?? item.providerIds[0] ?? "aliexpress") as ProductionProviderId;
+  const baseStore = storeForProvider(providerId);
+
+  // Use the actual merchant name from the offer when available
+  const merchantName =
+    bestOffer?.storeName && bestOffer.storeName !== baseStore.name
+      ? bestOffer.storeName
+      : baseStore.name;
+
+  const store: Store = {
+    ...baseStore,
+    name: merchantName,
+    logoInitial: merchantName.slice(0, 2),
+  };
+
   const now = Date.now();
   const endsAt = new Date(now + 7 * 86_400_000).toISOString();
   const startsAt = new Date(now - 30 * 60_000).toISOString();
