@@ -9,6 +9,9 @@ import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
+import {
+  balanceFlatMarketplaceList,
+} from "@/lib/search/marketplace-balance";
 import type {
   RawProviderListing,
   SearchEngineResult,
@@ -159,7 +162,7 @@ export async function searchProducts(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const cacheKey = `prod-v16-alibaba:${trimmed.toLowerCase()}:${capped}`;
+  const cacheKey = `prod-v17-marketplace-balance:${trimmed.toLowerCase()}:${capped}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -172,7 +175,7 @@ export async function searchProducts(
       maxPages: 4,
     }),
     (await import("@/lib/integration/database-catalog"))
-      .getSearchResultsFromDatabase(trimmed, capped)
+      .getSearchResultsFromDatabase(trimmed, capped * 3)
       .catch(() => [] as SearchResultItem[]),
   ]);
 
@@ -192,19 +195,28 @@ export async function searchProducts(
     }
   }
 
-  // Interleave live + DB results so non-AliExpress/eBay merchants appear
-  // throughout the result set instead of being pushed to the tail.
+  // Balance DB results across marketplaces so providers without live connectors
+  // (Nike, CJdropshipping, Best Buy, Walmart, etc.) get fair representation
+  // instead of being drowned out by the dominant Admitad bulk.
+  const balancedDb = balanceFlatMarketplaceList(
+    dedupedDb,
+    (item) => item.storeSlug || item.store,
+    dedupedDb.length,
+    (a, b) => b.discount - a.discount || a.price - b.price,
+  );
+
+  // Interleave live + balanced DB results: insert one DB card after every
+  // live card so underrepresented merchants are spread evenly across the page.
   const mixed: typeof live = [];
   let di = 0;
   for (let i = 0; i < live.length && mixed.length < capped; i++) {
     mixed.push(live[i]);
-    // Insert one DB result after every 2 live results when available
-    if (di < dedupedDb.length && mixed.length < capped) {
-      mixed.push(dedupedDb[di++]);
+    if (di < balancedDb.length && mixed.length < capped) {
+      mixed.push(balancedDb[di++]);
     }
   }
-  while (di < dedupedDb.length && mixed.length < capped) {
-    mixed.push(dedupedDb[di++]);
+  while (di < balancedDb.length && mixed.length < capped) {
+    mixed.push(balancedDb[di++]);
   }
   fairSearchCache.set(cacheKey, {
     items: mixed,
