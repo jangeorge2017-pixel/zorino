@@ -47,10 +47,10 @@ export const FLOATING_CARD_IMAGES = {
 /** @deprecated Use FLOATING_CARD_IMAGES — full cards copied from reference */
 export const FLOATING_PRODUCT_IMAGES = FLOATING_CARD_IMAGES;
 
-/** High-res Unsplash product photos — local deal-*.png crops were near-black and unreadable. */
+/** High-res Unsplash product photos — one distinct image per product category. */
 export const DEAL_PRODUCT_IMAGES = {
   iphone:
-    "https://images.unsplash.com/photo-1718223483120-8131e57f948b?w=1200&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1695048065739-20e51ad89fdd?w=1200&auto=format&fit=crop&q=80",
   macbook:
     "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&auto=format&fit=crop&q=80",
   ps5: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=1200&auto=format&fit=crop&q=80",
@@ -63,6 +63,17 @@ export const DEAL_PRODUCT_IMAGES = {
     "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1200&auto=format&fit=crop&q=80",
   phone:
     "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&auto=format&fit=crop&q=80",
+  galaxy:
+    "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=1200&auto=format&fit=crop&q=80",
+  tv: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=1200&auto=format&fit=crop&q=80",
+  ledStrip:
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&auto=format&fit=crop&q=80",
+  airpods:
+    "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=1200&auto=format&fit=crop&q=80",
+  sonyHeadphones:
+    "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=1200&auto=format&fit=crop&q=80",
+  vacuum:
+    "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=1200&auto=format&fit=crop&q=80",
 } as const;
 
 export const STORE_LOGOS = {

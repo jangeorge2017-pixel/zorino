@@ -9,11 +9,17 @@ type MockEntry = ExternalProduct & { storeSlug: string; isFeatured?: boolean; so
 
 const IMG = {
   iphone:
-    "https://images.unsplash.com/photo-1718223483120-8131e57f948b?w=1200&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1695048065739-20e51ad89fdd?w=1200&auto=format&fit=crop&q=80",
+  galaxy:
+    "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=1200&auto=format&fit=crop&q=80",
   macbook:
     "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&auto=format&fit=crop&q=80",
   ps5: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=1200&auto=format&fit=crop&q=80",
   nike: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&auto=format&fit=crop&q=80",
+  airpods:
+    "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=1200&auto=format&fit=crop&q=80",
+  ledStrip:
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&auto=format&fit=crop&q=80",
 };
 
 const MOCK_CATALOG: MockEntry[] = [
