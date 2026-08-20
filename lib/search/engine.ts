@@ -179,7 +179,7 @@ export async function searchProducts(
   const live = assembleProductionSearchResults(allRaw, trimmed, capped);
 
   const seen = new Set(live.map((item) => item.id));
-  const merged = [...live];
+  const dedupedDb: typeof fromDb = [];
   for (const dbItem of fromDb) {
     if (seen.has(dbItem.id)) continue;
     const isDup = live.some(
@@ -187,12 +187,25 @@ export async function searchProducts(
         l.name.toLowerCase().slice(0, 30) === dbItem.name.toLowerCase().slice(0, 30),
     );
     if (!isDup) {
-      merged.push(dbItem);
+      dedupedDb.push(dbItem);
       seen.add(dbItem.id);
     }
   }
 
-  const mixed = merged.slice(0, capped);
+  // Interleave live + DB results so non-AliExpress/eBay merchants appear
+  // throughout the result set instead of being pushed to the tail.
+  const mixed: typeof live = [];
+  let di = 0;
+  for (let i = 0; i < live.length && mixed.length < capped; i++) {
+    mixed.push(live[i]);
+    // Insert one DB result after every 2 live results when available
+    if (di < dedupedDb.length && mixed.length < capped) {
+      mixed.push(dedupedDb[di++]);
+    }
+  }
+  while (di < dedupedDb.length && mixed.length < capped) {
+    mixed.push(dedupedDb[di++]);
+  }
   fairSearchCache.set(cacheKey, {
     items: mixed,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,

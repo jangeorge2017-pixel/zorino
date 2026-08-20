@@ -1,8 +1,13 @@
 import type { SearchConnector, ConnectorSearchOptions } from "./types";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { ADMITAD_PROVIDER_ID } from "@/lib/integrations/admitad/config";
+import { SEED_FEED_OFFERS } from "@/lib/integrations/admitad/seed";
 
 const MAX_PRODUCTS_PER_SEARCH = 200;
+
+const SEED_IMAGE_BY_ID = new Map(
+  SEED_FEED_OFFERS.filter((o) => o.image).map((o) => [o.id, o.image]),
+);
 
 export const admitadSearchConnector: SearchConnector = {
   id: ADMITAD_PROVIDER_ID as SearchProviderId,
@@ -14,11 +19,9 @@ export const admitadSearchConnector: SearchConnector = {
 
   async search(query: string, _options?: ConnectorSearchOptions) {
     try {
-      const { isAdmitadFeedReady, fetchAdmitadFeedProducts } = await import(
+      const { fetchAdmitadFeedProducts } = await import(
         "@/lib/integrations/admitad/feed-fetcher"
       );
-
-      if (!isAdmitadFeedReady()) return [];
 
       const feeds = await fetchAdmitadFeedProducts();
       const queryLower = query.toLowerCase();
@@ -40,7 +43,7 @@ export const admitadSearchConnector: SearchConnector = {
             providerId: ADMITAD_PROVIDER_ID as SearchProviderId,
             externalId: `alibaba-${offer.id}`,
             title: offer.name,
-            imageUrl: offer.image || "",
+            imageUrl: offer.image || SEED_IMAGE_BY_ID.get(offer.id) || "",
             price: offer.price,
             originalPrice: offer.oldprice ?? offer.price,
             discount:
