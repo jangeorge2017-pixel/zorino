@@ -128,7 +128,7 @@ const loadMergedCatalogItems = unstable_cache(
       return [];
     }
   },
-  ["homepage:merged-catalog-v12-restore-all-providers"],
+  ["homepage:merged-catalog-v13-image-fix"],
   { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
 );
 
