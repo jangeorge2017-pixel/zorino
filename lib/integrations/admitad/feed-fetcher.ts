@@ -52,7 +52,7 @@ function parseOfferElement(xml: string): AdmitadFeedOffer | null {
   let description: string | null = null;
   let modified_time: string | null = null;
 
-  const offerMatch = xml.match(/<offer\s+id="(\d+)">/);
+  const offerMatch = xml.match(/<offer\s+id="(\d+)"/);
   if (offerMatch) {
     id = offerMatch[1];
     name = extractTag(xml, "name");
@@ -127,7 +127,7 @@ async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
 
-    const offerRegex = /<(?:offer\s+id="\d+"|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
+    const offerRegex = /<(?:offer\s+id="\d+"[^>]*|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
     let match;
     while ((match = offerRegex.exec(buffer)) !== null) {
       const offer = parseOfferElement(match[0]);
@@ -146,9 +146,13 @@ async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
   }
 
   if (buffer.includes("<offer") || buffer.includes("<entry>")) {
-    const offer = parseOfferElement(buffer);
-    if (offer && !offers.has(offer.id)) {
-      offers.set(offer.id, offer);
+    const flushRegex = /<(?:offer\s+id="\d+"[^>]*|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
+    let flushMatch;
+    while ((flushMatch = flushRegex.exec(buffer)) !== null) {
+      const offer = parseOfferElement(flushMatch[0]);
+      if (offer && !offers.has(offer.id)) {
+        offers.set(offer.id, offer);
+      }
     }
   }
 
@@ -158,7 +162,7 @@ async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
 async function fetchFeedFromDisk(filePath: string): Promise<AdmitadFeedOffer[]> {
   const content = fs.readFileSync(filePath, "utf-8");
   const offers = new Map<string, AdmitadFeedOffer>();
-  const offerRegex = /<offer\s+id="\d+">[\s\S]*?<\/offer>/g;
+  const offerRegex = /<offer\s+id="\d+"[^>]*>[\s\S]*?<\/offer>/g;
   let match;
   while ((match = offerRegex.exec(content)) !== null) {
     const offer = parseOfferElement(match[0]);

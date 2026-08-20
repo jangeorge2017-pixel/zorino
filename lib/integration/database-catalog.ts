@@ -3,10 +3,9 @@
  * and the NormalizedCatalogItem / SearchResultItem formats used by the
  * unified homepage feed and global search engine.
  *
- * The cron pipeline imports real products from AliExpress / eBay into
- * `products` + `prices` + `lowest_prices_today`. This module reads those
- * rows so every page can show a broader product pool than what the live
- * search engine returns per request.
+ * Reads from `lowest_prices_today` joined with `products` to get category
+ * metadata. Returns NormalizedCatalogItems that feed every homepage section,
+ * the /deals page, the Hero orbit, and the search engine's DB fallback.
  */
 
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
@@ -16,7 +15,6 @@ import type { ProductionProviderId } from "@/lib/integration/constants";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
-import { HOMEPAGE_CATALOG_FETCH } from "@/lib/integration/homepage-fetch-profile";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function db(client: SupabaseDb): any {
@@ -39,7 +37,21 @@ type LowestPriceRow = {
   external_url: string | null;
   country_code: string;
   currency: string;
+  category_slug?: string | null;
 };
+
+/** Infer a useful category from the product name when the DB stores "general". */
+function inferCategoryFromName(name: string): string {
+  const lower = name.toLowerCase();
+  if (/\b(phone|iphone|samsung|galaxy|xiaomi|redmi|oppo|vivo|oneplus|pixel)\b/.test(lower)) return "phones";
+  if (/\b(laptop|macbook|notebook|chromebook|thinkpad|surface|dell|hp pavilion)\b/.test(lower)) return "laptops";
+  if (/\b(console|playstation|xbox|nintendo|gaming|controller|ps5|ps4|steam deck)\b/.test(lower)) return "gaming";
+  if (/\b(tv|television|monitor|display|4k|oled|qled|hisense|tcl)\b/.test(lower)) return "tvs";
+  if (/\b(watch|band|tracker|earbuds|headphones|airpods|fitbit|garmin)\b/.test(lower)) return "wearables";
+  if (/\b(dress|shirt|jeans|jacket|shoes|sneakers|boots|sandals|fashion|clothing|apparel)\b/.test(lower)) return "fashion";
+  if (/\b(home|kitchen|blender|vacuum|air fryer|mattress|pillow|furniture|lamp)\b/.test(lower)) return "home";
+  return "electronics";
+}
 
 function rowToCatalogItem(row: LowestPriceRow): NormalizedCatalogItem {
   const providerId = resolveMarketplaceId(row.provider ?? row.store_name) as ProductionProviderId;
@@ -65,13 +77,19 @@ function rowToCatalogItem(row: LowestPriceRow): NormalizedCatalogItem {
     inStock: true,
   };
 
+  const rawCategory = row.category_slug;
+  const categorySlug =
+    rawCategory && rawCategory !== "general"
+      ? rawCategory
+      : inferCategoryFromName(row.product_name);
+
   return {
     id: `db-${row.product_id}`,
     slug: row.product_slug,
     title: row.product_name,
     imageUrl: normalizeProductImageUrl(row.image_url),
     emoji: row.emoji ?? "🛍️",
-    categorySlug: "electronics",
+    categorySlug,
     rating: 0,
     reviewCount: 0,
     countryCode: row.country_code,
@@ -95,8 +113,6 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
   const supabase = createSupabaseAnonClient();
   if (!supabase) return [];
 
-  const limit = HOMEPAGE_CATALOG_FETCH.pageSize * 3;
-
   const { data, error } = await db(supabase)
     .from("lowest_prices_today")
     .select(
@@ -104,14 +120,31 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
     )
     .eq("country_code", "US")
     .eq("currency", "USD")
-    .order("discount_percent", { ascending: false })
-    .limit(limit);
+    .order("lowest_price", { ascending: false })
+    .limit(500);
 
   if (error || !data?.length) return [];
 
-  return (data as LowestPriceRow[])
-    .filter((row) => row.product_name && row.image_url)
-    .map(rowToCatalogItem);
+  const rows = (data as LowestPriceRow[]).filter(
+    (row) => row.product_name && row.image_url,
+  );
+
+  // Batch-fetch category_slug from products table for these product IDs
+  const productIds = rows.map((r) => r.product_id);
+  const { data: productRows } = await db(supabase)
+    .from("products")
+    .select("id, category_slug")
+    .in("id", productIds);
+
+  const categoryMap = new Map<string, string | null>();
+  for (const p of productRows ?? []) {
+    categoryMap.set(p.id, p.category_slug);
+  }
+
+  return rows.map((row) => {
+    row.category_slug = categoryMap.get(row.product_id) ?? null;
+    return rowToCatalogItem(row);
+  });
 }
 
 function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
@@ -123,6 +156,12 @@ function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
     originalPrice > price
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : 0;
+
+  const rawCategory = row.category_slug;
+  const category =
+    rawCategory && rawCategory !== "general"
+      ? rawCategory
+      : inferCategoryFromName(row.product_name);
 
   return {
     id: `db-${row.product_id}`,
@@ -137,7 +176,7 @@ function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
     rating: 0,
     reviewCount: 0,
     inStock: true,
-    category: "electronics",
+    category,
     affiliateUrl,
   };
 }
@@ -161,12 +200,28 @@ export async function getSearchResultsFromDatabase(
     .ilike("product_name", `%${query}%`)
     .eq("country_code", "US")
     .eq("currency", "USD")
-    .order("discount_percent", { ascending: false })
+    .order("lowest_price", { ascending: false })
     .limit(limit);
 
   if (error || !data?.length) return [];
 
-  return (data as LowestPriceRow[])
-    .filter((row) => row.product_name && row.image_url)
-    .map(rowToSearchResultItem);
+  const rows = (data as LowestPriceRow[]).filter(
+    (row) => row.product_name && row.image_url,
+  );
+
+  const productIds = rows.map((r) => r.product_id);
+  const { data: productRows } = await db(supabase)
+    .from("products")
+    .select("id, category_slug")
+    .in("id", productIds);
+
+  const categoryMap = new Map<string, string | null>();
+  for (const p of productRows ?? []) {
+    categoryMap.set(p.id, p.category_slug);
+  }
+
+  return rows.map((row) => {
+    row.category_slug = categoryMap.get(row.product_id) ?? null;
+    return rowToSearchResultItem(row);
+  });
 }

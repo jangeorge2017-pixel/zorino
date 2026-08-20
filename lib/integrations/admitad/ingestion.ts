@@ -58,7 +58,7 @@ function parseOfferElement(xml: string): AdmitadFeedOffer | null {
   let description: string | null = null;
   let modified_time: string | null = null;
 
-  const offerMatch = xml.match(/<offer\s+id="(\d+)">/);
+  const offerMatch = xml.match(/<offer\s+id="(\d+)"/);
   if (offerMatch) {
     // Admitad legacy <offer> format
     id = offerMatch[1];
@@ -138,8 +138,9 @@ async function fetchFeedStreaming(feedUrl: string): Promise<AdmitadFeedOffer[]> 
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
 
-    // Match both <offer id="...">...</offer> and <entry>...</entry>
-    const offerRegex = /<(?:offer\s+id="\d+"|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
+    // Match <offer id="N"...>...</offer> (with optional extra attrs like available="true")
+    // and <entry>...</entry> (Google Merchant)
+    const offerRegex = /<(?:offer\s+id="\d+"[^>]*|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
     let match;
     while ((match = offerRegex.exec(buffer)) !== null) {
       const offer = parseOfferElement(match[0]);
@@ -152,11 +153,15 @@ async function fetchFeedStreaming(feedUrl: string): Promise<AdmitadFeedOffer[]> 
     buffer = lastIncomplete > 0 ? buffer.slice(lastIncomplete) : "";
   }
 
-  // Flush remaining
+  // Flush remaining — match any complete offers/entries in leftover buffer
   if (buffer.includes("<offer") || buffer.includes("<entry>")) {
-    const offer = parseOfferElement(buffer);
-    if (offer && !offers.has(offer.id)) {
-      offers.set(offer.id, offer);
+    const flushRegex = /<(?:offer\s+id="\d+"[^>]*|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
+    let flushMatch;
+    while ((flushMatch = flushRegex.exec(buffer)) !== null) {
+      const offer = parseOfferElement(flushMatch[0]);
+      if (offer && !offers.has(offer.id)) {
+        offers.set(offer.id, offer);
+      }
     }
   }
 
@@ -401,7 +406,7 @@ export type IngestionResult = {
 export async function runAdmitadIngestion(
   options: { maxFeeds?: number; maxProductsPerFeed?: number; dryRun?: boolean } = {},
 ): Promise<IngestionResult> {
-  const { maxFeeds = 50, maxProductsPerFeed = 5000, dryRun = false } = options;
+  const { maxFeeds = Infinity, maxProductsPerFeed = 5000, dryRun = false } = options;
   const result: IngestionResult = {
     authenticated: false,
     websitesFound: 0,

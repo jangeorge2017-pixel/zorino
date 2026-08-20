@@ -1,5 +1,4 @@
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
-import { IMPORTED_PRODUCT_SYNC_STATUS } from "@/lib/catalog/imported-products";
 import type { CatalogStats, ServiceResult } from "@/lib/types/entities";
 
 async function countTable(
@@ -26,8 +25,6 @@ async function countImportedProducts(
     .from("products")
     .select("*", { count: "exact", head: true })
     .eq("is_active", true)
-    .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
-    .not("last_synced_at", "is", null)
     .not("image_url", "like", "/products/%");
 
   if (error) return 0;
