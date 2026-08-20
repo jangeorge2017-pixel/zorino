@@ -40,7 +40,7 @@ export const admitadSearchConnector: SearchConnector = {
             providerId: ADMITAD_PROVIDER_ID as SearchProviderId,
             externalId: `alibaba-${offer.id}`,
             title: offer.name,
-            imageUrl: "",
+            imageUrl: offer.image || "",
             price: offer.price,
             originalPrice: offer.oldprice ?? offer.price,
             discount:
