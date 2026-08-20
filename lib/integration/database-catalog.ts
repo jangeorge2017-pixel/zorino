@@ -192,18 +192,32 @@ export async function getSearchResultsFromDatabase(
   const supabase = createSupabaseAnonClient();
   if (!supabase) return [];
 
+  // Word-level OR matching: "nike shoes" → ILIKE '%nike%' OR ILIKE '%shoes%'
+  // This finds "Nike Air Max 90" AND "Running Shoes" which the old substring
+  // match and AND-match both missed. Word overlap scoring happens post-query.
+  const words = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 1);
+
+  if (words.length === 0) return [];
+
+  const orFilter = words
+    .map((w) => `product_name.ilike.%${w}%`)
+    .join(",");
+
   const { data, error } = await db(supabase)
     .from("lowest_prices_today")
     .select(
       "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
     )
-    .ilike("product_name", `%${query}%`)
+    .or(orFilter)
     .eq("country_code", "US")
     .eq("currency", "USD")
     .not("image_url", "is", null)
     .neq("image_url", "")
     .order("discount_percent", { ascending: false })
-    .limit(limit);
+    .limit(limit * 2);
 
   if (error || !data?.length) return [];
 
@@ -222,8 +236,23 @@ export async function getSearchResultsFromDatabase(
     categoryMap.set(p.id, p.category_slug);
   }
 
-  return rows.map((row) => {
+  const results = rows.map((row) => {
     row.category_slug = categoryMap.get(row.product_id) ?? null;
     return rowToSearchResultItem(row);
   });
+
+  // Rank by word overlap: products matching more query words rank higher.
+  // "Nike Air Max 90" matches 1/2 words for "nike shoes" → score 1
+  // "Nike Running Shoes" matches 2/2 words → score 2 (ranked first).
+  const queryWords = words;
+  results.sort((a, b) => {
+    const aLower = a.name.toLowerCase();
+    const bLower = b.name.toLowerCase();
+    const aMatches = queryWords.filter((w) => aLower.includes(w)).length;
+    const bMatches = queryWords.filter((w) => bLower.includes(w)).length;
+    if (aMatches !== bMatches) return bMatches - aMatches;
+    return b.discount - a.discount || a.price - b.price;
+  });
+
+  return results.slice(0, limit);
 }
