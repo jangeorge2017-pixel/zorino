@@ -24,8 +24,7 @@ async function countImportedProducts(
   const { count, error } = await supabase
     .from("products")
     .select("*", { count: "exact", head: true })
-    .eq("is_active", true)
-    .not("image_url", "like", "/products/%");
+    .eq("is_active", true);
 
   if (error) return 0;
   return count ?? 0;
