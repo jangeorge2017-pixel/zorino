@@ -1,5 +1,10 @@
 import type { AdmitadFeedOffer } from "./types";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
+import { SEED_FEED_OFFERS } from "./seed";
+
+const SEED_IMAGE_BY_ID = new Map(
+  SEED_FEED_OFFERS.filter((o) => o.image).map((o) => [o.id, o.image]),
+);
 
 export { ADMITAD_FEEDS, ADMITAD_PROVIDER_ID, FEED_CACHE_TTL_MS } from "./config";
 export { fetchAdmitadFeedProducts, isAdmitadFeedReady } from "./feed-fetcher";
@@ -28,7 +33,7 @@ export function admitadFeedsToCatalogItems(
         id: `alibaba-${offer.id}`,
         slug: `alibaba-${offer.id}`,
         title: offer.name,
-        imageUrl: offer.image || "",
+        imageUrl: offer.image || SEED_IMAGE_BY_ID.get(offer.id) || "",
         emoji: "🛍️",
         categorySlug: "general",
         rating: 0,
