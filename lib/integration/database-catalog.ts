@@ -200,7 +200,9 @@ export async function getSearchResultsFromDatabase(
     .ilike("product_name", `%${query}%`)
     .eq("country_code", "US")
     .eq("currency", "USD")
-    .order("lowest_price", { ascending: false })
+    .not("image_url", "is", null)
+    .neq("image_url", "")
+    .order("discount_percent", { ascending: false })
     .limit(limit);
 
   if (error || !data?.length) return [];
