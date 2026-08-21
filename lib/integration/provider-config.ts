@@ -17,9 +17,17 @@ import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshippin
  * Some providers also accept credentials from DB integration_settings
  * via hydrateIntegrationCredentials().
  *
- * Active in production:  aliexpress, ebay, admitad
- * Sync-layer only (no creds on Vercel): cjdropshipping
- * Unavailable (no creds): amazon, walmart, temu, bestbuy, noon, jumia
+ * ACTIVE in production (confirmed returning real products):
+ *   aliexpress — live API credentials
+ *   ebay       — live Browse API + ePN tracking
+ *   admitad    — live Admitad XML feed (~120K Alibaba marketplace products)
+ *   cjdropshipping — live REST API
+ *
+ * UNAVAILABLE (no credentials on Vercel):
+ *   amazon, walmart, temu, bestbuy, noon, jumia
+ *
+ * Note: Admitad products display as "Alibaba" in the UI (brand name),
+ * but the provider id is "admitad" (affiliate network).
  */
 export function isProductionProviderConfigured(providerId: ProductionProviderId): boolean {
   switch (providerId) {
@@ -34,9 +42,9 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
       return Boolean(feedUrl);
     }
 
-    // --- SYNC-LAYER ONLY (no search connector, no homepage integration) ---
+    // --- ACTIVE in production (CJDROPSHIPPING_API_KEY configured on Vercel) ---
     case "cjdropshipping":
-      return createCJdropshippingProvider().isConfigured(); // Requires CJDROPSHIPPING_API_KEY
+      return createCJdropshippingProvider().isConfigured();
 
     // --- UNAVAILABLE in production (no credentials configured) ---
     // These return false until valid API keys are added to Vercel.
