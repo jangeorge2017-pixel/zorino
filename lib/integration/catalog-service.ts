@@ -8,6 +8,7 @@ import {
   catalogItemToTrendingDealCard,
 } from "@/lib/integration/normalize";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
+import { getConfiguredProductionProviders } from "@/lib/integration/provider-config";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
@@ -85,11 +86,24 @@ const loadMergedCatalogItems = unstable_cache(
         }
       }
 
-      if (merged.length > 0) {
+      // Single source of truth: only products whose provider is currently
+      // ACTIVE (credentials configured, connector verified) may enter the
+      // unified catalog.  This closes the DB bypass where inactive/stub
+      // providers (e.g. Temu, Amazon) could leak products through
+      // getCatalogItemsFromDatabase() without passing isAvailable().
+      const activeProviders = new Set(getConfiguredProductionProviders());
+      const activeFiltered = merged.filter((item) => {
+        const providerId = resolveMarketplaceId(
+          item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
+        );
+        return activeProviders.has(providerId as never);
+      });
+
+      if (activeFiltered.length > 0) {
         return balanceFlatMarketplaceList(
-          merged,
+          activeFiltered,
           (item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
-          merged.length,
+          activeFiltered.length,
         );
       }
 

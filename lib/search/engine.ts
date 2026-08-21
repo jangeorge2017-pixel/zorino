@@ -1,4 +1,5 @@
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
+import { getConfiguredProductionProviders } from "@/lib/integration/provider-config";
 import { getActiveSearchConnectors } from "@/lib/search/connectors/registry";
 import {
   buildSearchCacheKey,
@@ -179,11 +180,20 @@ export async function searchProducts(
       .catch(() => [] as SearchResultItem[]),
   ]);
 
+  // Filter DB results: only products whose provider is ACTIVE may enter
+  // the unified catalog.  Closes the DB bypass where inactive/stub
+  // providers could leak products through getSearchResultsFromDatabase()
+  // without passing isAvailable().
+  const activeProviders = new Set(getConfiguredProductionProviders());
+  const activeDb = fromDb.filter((item) =>
+    activeProviders.has(item.storeSlug as never),
+  );
+
   const live = assembleProductionSearchResults(allRaw, trimmed, capped);
 
   const seen = new Set(live.map((item) => item.id));
-  const dedupedDb: typeof fromDb = [];
-  for (const dbItem of fromDb) {
+  const dedupedDb: typeof activeDb = [];
+  for (const dbItem of activeDb) {
     if (seen.has(dbItem.id)) continue;
     const isDup = live.some(
       (l) =>
