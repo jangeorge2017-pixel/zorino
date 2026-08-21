@@ -2,31 +2,30 @@ import type { SearchConnector, ConnectorSearchOptions } from "./types";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { ADMITAD_PROVIDER_ID } from "@/lib/integrations/admitad/config";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
-import { SEED_FEED_OFFERS } from "@/lib/integrations/admitad/seed";
+import { normalizeAdmitadRaw } from "@/lib/search/normalization";
+import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 
-const MAX_PRODUCTS_PER_SEARCH = 200;
-
-const SEED_IMAGE_BY_ID = new Map(
-  SEED_FEED_OFFERS.filter((o) => o.image).map((o) => [o.id, o.image]),
-);
+const MAX_RESULTS_FROM_FEED = 200;
 
 /**
  * Admitad search connector.
  *
+ * First-class connector that searches the cached Admitad XML feed and
+ * normalizes results through the standard pipeline — same pattern as
+ * AliExpress/eBay.
+ *
  * Availability depends on ADMITAD_FEED_URL being set in the environment.
- * Without it, ADMITAD_FEEDS is empty and search returns no results.
  */
 export const admitadSearchConnector: SearchConnector = {
   id: ADMITAD_PROVIDER_ID as SearchProviderId,
   name: "Alibaba",
 
   async isAvailable() {
-    // Feed must be configured via ADMITAD_FEED_URL env var
     const { ADMITAD_FEEDS } = await import("@/lib/integrations/admitad/config");
     return ADMITAD_FEEDS.length > 0;
   },
 
-  async search(query: string, _options?: ConnectorSearchOptions) {
+  async search(query: string, options?: ConnectorSearchOptions): Promise<RawProviderListing[]> {
     try {
       const { fetchAdmitadFeedProducts } = await import(
         "@/lib/integrations/admitad/feed-fetcher"
@@ -34,11 +33,14 @@ export const admitadSearchConnector: SearchConnector = {
 
       const feeds = await fetchAdmitadFeedProducts();
       const queryLower = query.toLowerCase();
-      const queryWords = queryLower
-        .split(/\s+/)
-        .filter((w) => w.length > 2);
+      const queryWords = queryLower.split(/\s+/).filter((w) => w.length > 2);
 
-      const results: RawProviderListing[] = [];
+      const pageSize = options?.pageSize ?? SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
+      const maxPages = options?.maxPages ?? SEARCH_ENGINE_DEFAULTS.MAX_PAGES_PER_PROVIDER;
+      const targetCount = Math.min(pageSize * maxPages, MAX_RESULTS_FROM_FEED);
+
+      const listings: RawProviderListing[] = [];
+      const seenIds = new Set<string>();
 
       for (const feed of feeds) {
         for (const offer of feed.offers) {
@@ -48,35 +50,30 @@ export const admitadSearchConnector: SearchConnector = {
             queryWords.some((w) => nameLower.includes(w));
           if (!matches) continue;
 
-          results.push({
-            providerId: ADMITAD_PROVIDER_ID as SearchProviderId,
-            externalId: `alibaba-${offer.id}`,
-            title: offer.name,
-            imageUrl: normalizeProductImageUrl(offer.image || SEED_IMAGE_BY_ID.get(offer.id) || ""),
-            price: offer.price,
-            originalPrice: offer.oldprice ?? offer.price,
-            discount:
-              offer.oldprice && offer.oldprice > offer.price
-                ? Math.round(
-                    ((offer.oldprice - offer.price) / offer.oldprice) * 100
-                  )
-                : 0,
-            currency: offer.currencyId,
-            storeName: feed.feedName,
-            category: "General",
-            rating: 0,
-            reviewCount: 0,
-            inStock: true,
-            productUrl: offer.url,
-            affiliateUrl: offer.url,
-          });
+          if (seenIds.has(offer.id)) continue;
+          seenIds.add(offer.id);
 
-          if (results.length >= MAX_PRODUCTS_PER_SEARCH) break;
+          const normalized = normalizeAdmitadRaw(
+            {
+              id: offer.id,
+              name: offer.name,
+              price: offer.price,
+              oldprice: offer.oldprice,
+              currencyId: offer.currencyId,
+              url: offer.url,
+              image: normalizeProductImageUrl(offer.image || ""),
+              vendor: offer.vendor,
+            },
+            feed.feedName,
+          );
+          if (normalized) listings.push(normalized);
+
+          if (listings.length >= targetCount) break;
         }
-        if (results.length >= MAX_PRODUCTS_PER_SEARCH) break;
+        if (listings.length >= targetCount) break;
       }
 
-      return results;
+      return listings;
     } catch (error) {
       console.error(
         "[admitad] search failed:",
