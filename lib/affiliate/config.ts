@@ -6,6 +6,7 @@ export const AFFILIATE_MARKETPLACES = [
   "walmart",
   "temu",
   "noon",
+  "admitad",
 ] as const;
 
 export type AffiliateMarketplace = (typeof AFFILIATE_MARKETPLACES)[number];
@@ -18,6 +19,7 @@ export const AFFILIATE_ENV_KEYS: Record<AffiliateMarketplace, string[]> = {
   walmart: ["WALMART_AFFILIATE_ID"],
   temu: ["TEMU_AFFILIATE_ID"],
   noon: ["NOON_UAE_AFFILIATE_ID", "NOON_KSA_AFFILIATE_ID"],
+  admitad: ["ADMITAD_FEED_URL"],
 };
 
 export const DEFAULT_COMMISSION_RATES: Record<AffiliateMarketplace, number> = {
@@ -27,6 +29,7 @@ export const DEFAULT_COMMISSION_RATES: Record<AffiliateMarketplace, number> = {
   walmart: 3,
   temu: 7,
   noon: 5,
+  admitad: 5,
 };
 
 /** Map store integration_type / slug to affiliate marketplace id. */

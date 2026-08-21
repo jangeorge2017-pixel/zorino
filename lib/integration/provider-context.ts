@@ -28,6 +28,12 @@ const STORE_META: Record<
     integrationType: "amazon",
     name: "Amazon",
   },
+  cjdropshipping: {
+    storeId: "store-cjdropshipping",
+    storeSlug: "cjdropshipping",
+    integrationType: "partner",
+    name: "CJdropshipping",
+  },
   walmart: {
     storeId: "store-walmart",
     storeSlug: "walmart",

@@ -35,7 +35,7 @@ function isDuplicate(a: NormalizedCatalogItem, b: NormalizedCatalogItem): boolea
   const na = normalizeTitle(a.title);
   const nb = normalizeTitle(b.title);
   if (!na || !nb) return false;
-  return na === nb || na.startsWith(nb) || nb.startsWith(na);
+  return na === nb;
 }
 
 const loadMergedCatalogItems = unstable_cache(

@@ -4,7 +4,13 @@
  * Uses client-credentials grant via POST body params (Admitad requires
  * client_id + client_secret in the request body, not Basic auth header).
  * Token is cached in memory and auto-refreshed before expiry.
+ *
+ * Credentials are read from environment variables (Vercel Production
+ * is the authoritative source) with DB integration_settings fallback
+ * via getIntegrationCredential().
  */
+
+import { getIntegrationCredential } from "@/lib/integration/credentials";
 
 const TOKEN_URL = "https://api.admitad.com/token/";
 
@@ -26,8 +32,8 @@ type TokenResponse = {
 let cachedToken: { accessToken: string; expiresAt: number } | null = null;
 
 function getCredentials(): { clientId: string; clientSecret: string } | null {
-  const clientId = process.env.ADMITAD_CLIENT_ID;
-  const clientSecret = process.env.ADMITAD_CLIENT_SECRET;
+  const clientId = getIntegrationCredential("ADMITAD_CLIENT_ID");
+  const clientSecret = getIntegrationCredential("ADMITAD_CLIENT_SECRET");
   if (!clientId || !clientSecret) return null;
   return { clientId, clientSecret };
 }

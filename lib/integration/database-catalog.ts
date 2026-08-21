@@ -120,6 +120,7 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
     )
     .eq("country_code", "US")
     .eq("currency", "USD")
+    .order("discount_percent", { ascending: false })
     .order("lowest_price", { ascending: false })
     .limit(500);
 

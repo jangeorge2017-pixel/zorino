@@ -3,6 +3,7 @@ export const PRODUCTION_PROVIDER_IDS = [
   "aliexpress",
   "ebay",
   "amazon",
+  "cjdropshipping",
   "walmart",
   "bestbuy",
   "temu",

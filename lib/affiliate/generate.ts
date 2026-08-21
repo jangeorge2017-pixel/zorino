@@ -89,6 +89,9 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
       case "noon":
         // Noon uses short-link affiliate tracking (s.noon.com) — no URL params needed.
         break;
+      case "admitad":
+        // Admitad products come with affiliate URLs from the feed — no extra params needed.
+        break;
     }
 
     url.searchParams.set("zorino_ref", trackingId);
