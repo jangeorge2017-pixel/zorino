@@ -294,13 +294,12 @@ export async function getSearchResults(query: string): Promise<SearchResultItem[
   return searchProducts(trimmed, SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT);
 }
 
-/** Filter options for search page — AliExpress only. */
+/** Filter options for search page — derived from live search results across all active providers. */
 export async function getSearchFilters(results: SearchResultItem[] = []) {
-  const { filtersFromSearchResults, ALIEXPRESS_SEARCH_FILTERS } = await import(
-    "@/services/aliexpress/search"
-  );
+  const { filtersFromSearchResults } = await import("@/services/aliexpress/search");
   if (results.length > 0) return filtersFromSearchResults(results);
-  return ALIEXPRESS_SEARCH_FILTERS;
+  // Empty fallback — no hardcoded provider list. Filters are always derived from live results.
+  return { categories: [] as { value: string; label: string }[], stores: [] as { value: string; label: string }[] };
 }
 
 // Back-compat alias used by CouponSectionContainer
