@@ -1,23 +1,17 @@
 import { unstable_cache } from "next/cache";
 import { getCategories } from "@/services/categories";
 import { getTopCoupons as fetchTopCoupons, getAllCoupons } from "@/services/coupons";
-import { getCatalogStats } from "@/services/stats";
 import { getStores } from "@/services/stores";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import {
   getIntegratedDeals,
   getIntegratedSectionProducts,
   getIntegratedTrendingDeals,
+  getMergedCatalogItems,
 } from "@/lib/integration/catalog-service";
 import { HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
 import { ZH_POPULAR_SEARCHES } from "@/lib/zorino-home/content";
-import {
-  withFallbackCategories,
-  withFallbackCoupons,
-  withFallbackFooterStats,
-  withFallbackHeroStats,
-  withFallbackPopularSearches,
-} from "@/lib/zorino-home/presentation";
+import { withFallbackCategories } from "@/lib/zorino-home/presentation";
 import type {
   FloatingProductCard,
   FooterStatItem,
@@ -33,12 +27,6 @@ import type {
  * are shared across requests/instances and revalidated in the background, so the
  * homepage render is no longer gated on database round-trips or a live API call.
  */
-const loadCatalogStatsCached = unstable_cache(
-  () => getCatalogStats(),
-  ["homepage:catalog-stats"],
-  { revalidate: 600, tags: ["homepage-stats"] },
-);
-
 const loadCategoriesCached = unstable_cache(
   () => getCategories(),
   ["homepage:categories"],
@@ -133,12 +121,8 @@ export async function getTrendingDeals(limit = 4): Promise<TrendingDealCard[]> {
 
 /** Top coupons for homepage. */
 export async function getTopCouponsForHomepage(limit = 4): Promise<TopCouponCard[]> {
-  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
-    return withFallbackCoupons([]).slice(0, limit);
-  }
-
   const { data, error } = await loadTopCouponsCached(limit);
-  if (error) return withFallbackCoupons([]).slice(0, limit);
+  if (error || !data) return [];
   return data.map(couponToCard);
 }
 /** All active coupons (coupons listing page). */
@@ -208,43 +192,52 @@ export async function getPopularSearchesLive(): Promise<string[]> {
 export async function getPopularSearches(): Promise<string[]> {
   return getPopularSearchesLive();
 }
-/** Live catalog stats for hero + footer. */
+/**
+ * Live catalog stats for hero + footer.
+ * Derived from the merged live provider catalog — not raw DB row counts.
+ * Stores = distinct active providers that returned real products.
+ * Products = total real products from live providers.
+ * Coupons = real Supabase coupon rows.
+ */
 export async function getHomepageStats(): Promise<{
   hero: HeroStatItem[];
   footer: FooterStatItem[];
 }> {
-  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
-    return {
-      hero: withFallbackHeroStats([]),
-      footer: withFallbackFooterStats([]),
-    };
+  let storeCount = 0;
+  let productCount = 0;
+
+  try {
+    const items = await getMergedCatalogItems();
+    const providers = new Set(
+      items.map((item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown"),
+    );
+    storeCount = providers.size;
+    productCount = items.length;
+  } catch {
+    // Catalog fetch failed — counts stay at 0. No fake fallback.
   }
 
-  const { data, error } = await loadCatalogStatsCached();
-  if (error || !data) {
-    return {
-      hero: withFallbackHeroStats([]),
-      footer: withFallbackFooterStats([]),
-    };
+  let couponCount = 0;
+  try {
+    const { data: couponResult } = await loadTopCouponsCached(100);
+    couponCount = couponResult?.length ?? 0;
+  } catch {
+    // Coupon fetch failed — count stays at 0.
   }
 
   return {
-    hero: withFallbackHeroStats([
-      { key: "stores", value: formatStatCount(data.stores), label: "Stores", tone: "purple" },
-      { key: "products", value: formatStatCount(data.products), label: "Products", tone: "blue" },
-      { key: "coupons", value: formatStatCount(data.coupons), label: "Coupons", tone: "green" },
+    hero: [
+      { key: "stores", value: formatStatCount(storeCount), label: "Stores", tone: "purple" },
+      { key: "products", value: formatStatCount(productCount), label: "Products", tone: "blue" },
+      { key: "coupons", value: formatStatCount(couponCount), label: "Coupons", tone: "green" },
       { key: "tracking", value: "Real-time", label: "Price Tracking", tone: "violet" },
-    ]),
-    footer: withFallbackFooterStats([
-      { key: "stores", value: formatStatCount(data.stores), label: "Stores" },
-      { key: "products", value: formatStatCount(data.products), label: "Products" },
-      { key: "coupons", value: formatStatCount(data.coupons), label: "Coupons" },
-      {
-        key: "users",
-        value: data.users > 0 ? formatStatCount(data.users) : "0",
-        label: "Happy Users",
-      },
-    ]),
+    ],
+    footer: [
+      { key: "stores", value: formatStatCount(storeCount), label: "Stores" },
+      { key: "products", value: formatStatCount(productCount), label: "Products" },
+      { key: "coupons", value: formatStatCount(couponCount), label: "Coupons" },
+      { key: "users", value: "0", label: "Happy Users" },
+    ],
   };
 }
 /** Active stores for /stores page. */

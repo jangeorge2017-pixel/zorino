@@ -11,10 +11,6 @@ import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
-import {
-  withFallbackDeals,
-  withFallbackSectionProducts,
-} from "@/lib/zorino-home/presentation";
 
 /** How long a merged live-catalog snapshot stays fresh (seconds). */
 const CATALOG_REVALIDATE_SECONDS = 5 * 60;
@@ -51,7 +47,7 @@ const loadMergedCatalogItems = unstable_cache(
         "@/lib/integration/affiliate-ingestion"
       );
 
-      const [fromSearch, fromDb, fromIngestion, admitadFeeds, fromMock] = await Promise.all([
+      const [fromSearch, fromDb, fromIngestion, admitadFeeds] = await Promise.all([
         fetchCatalogFromSearchEngine().catch(() => [] as NormalizedCatalogItem[]),
         getCatalogItemsFromDatabase().catch(() => [] as NormalizedCatalogItem[]),
         getIngestedCatalogItems().catch(() => [] as NormalizedCatalogItem[]),
@@ -64,17 +60,6 @@ const loadMergedCatalogItems = unstable_cache(
         ])
           .then((feeds) => feeds ?? [])
           .catch(() => [] as { offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]),
-        // Existing mock catalog — fills gaps for providers without live feeds
-        // (Best Buy, Noon, Jumia, etc. when credentials aren't configured).
-        (async () => {
-          const { MOCK_SEARCH_ITEMS } = await import("@/lib/mock/sample-data");
-          const { searchResultToCatalogItem } = await import("@/lib/integration/search-catalog");
-          return MOCK_SEARCH_ITEMS.map((item) => {
-            const catalogItem = searchResultToCatalogItem(item);
-            const mockProvider = catalogItem.providerIds[0] ?? "unknown";
-            return { ...catalogItem, id: `${mockProvider}-${catalogItem.id}` };
-          });
-        })(),
       ]);
 
       const { admitadFeedsToCatalogItems } = await import("@/lib/integrations/admitad");
@@ -97,19 +82,6 @@ const loadMergedCatalogItems = unstable_cache(
       for (const admitadItem of fromAdmitad) {
         if (!merged.some((live) => isDuplicate(live, admitadItem))) {
           merged.push(admitadItem);
-        }
-      }
-
-      // Add mock items for providers that don't have live data yet — ensures
-      // products from providers without credentials (Best Buy, Noon, Jumia, etc.)
-      // still appear on the homepage alongside live AliExpress/eBay results.
-      const liveProviders = new Set(
-        merged.map((item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown"),
-      );
-      for (const mockItem of fromMock) {
-        const mockProvider = mockItem.providerIds[0] ?? "unknown";
-        if (!liveProviders.has(mockProvider)) {
-          merged.push(mockItem);
         }
       }
 
@@ -139,17 +111,10 @@ const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> =>
     "@/lib/integration/comparison-engine"
   );
   if (!isAnyProductionProviderConfigured()) {
-    // No live providers configured — try database first (cron may have imported
-    // products), then fall back to local mock catalog.
     const { getCatalogItemsFromDatabase } = await import(
       "@/lib/integration/database-catalog"
     );
-    const fromDb = await getCatalogItemsFromDatabase().catch(() => []);
-    if (fromDb.length > 0) return fromDb;
-
-    const { MOCK_SEARCH_ITEMS } = await import("@/lib/mock/sample-data");
-    const { searchResultToCatalogItem } = await import("@/lib/integration/search-catalog");
-    return MOCK_SEARCH_ITEMS.map(searchResultToCatalogItem);
+    return getCatalogItemsFromDatabase().catch(() => []);
   }
 
   return loadMergedCatalogItems();
@@ -207,9 +172,7 @@ function balanceCards(
 /** Live trending deals — multi-marketplace balanced. */
 export async function getIntegratedTrendingDeals(limit = 8): Promise<TrendingDealCard[]> {
   const items = await getCatalogItems();
-  if (items.length === 0) {
-    return withFallbackDeals([]).slice(0, limit);
-  }
+  if (items.length === 0) return [];
 
   const byDiscount = [...items].sort((a, b) => b.discount - a.discount);
   const balanced = balanceCatalogItems(byDiscount, limit, (a, b) => b.discount - a.discount);
@@ -236,13 +199,7 @@ export async function getIntegratedDeals(limit = 48): Promise<Deal[]> {
 export async function getIntegratedSectionProducts(): Promise<HomepageSectionProducts> {
   const items = await getCatalogItems();
   if (items.length === 0) {
-    return withFallbackSectionProducts({
-      flash: [],
-      priceDrops: [],
-      newArrivals: [],
-      topRated: [],
-      editorsPicks: [],
-    });
+    return { flash: [], priceDrops: [], newArrivals: [], topRated: [], editorsPicks: [] };
   }
   const cards = uniqueCards(itemsToCards(items));
   const byDiscount = [...cards].sort((a, b) => b.discount - a.discount);
@@ -288,3 +245,6 @@ export {
   isAnyProductionProviderConfigured,
   getConfiguredProductionProvidersList as getConfiguredProductionProviders,
 } from "@/lib/integration/comparison-engine";
+
+/** Expose the merged catalog for downstream consumers (e.g. homepage stats). */
+export { getCatalogItems as getMergedCatalogItems };
