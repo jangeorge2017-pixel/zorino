@@ -31,8 +31,8 @@ export default function ContactPageClient() {
 
   const contactInfo = [
     { icon: Mail, label: "Email", value: getContactEmail("support"), link: `mailto:${getContactEmail("support")}` },
-    { icon: Phone, label: "Phone", value: "+971 4 123 4567", link: "tel:+97141234567" },
-    { icon: MapPin, label: "Office", value: "123 Tech Street, Dubai, UAE", link: null },
+    { icon: Phone, label: "Phone", value: "01201366598", link: "tel:+01201366598" },
+    { icon: MapPin, label: "Address", value: "78 El Montazah Street, Nozha, Cairo, Egypt", link: null },
   ];
 
   const supportOptions = [

@@ -180,7 +180,7 @@ export const TERMS_CONTENT: LegalPageContent = {
       ],
     },
   ],
-  footerNote: "These Terms are governed by the laws of the United Arab Emirates. Disputes shall be subject to the exclusive jurisdiction of the courts of Dubai, UAE.",
+  footerNote: "The platform is operated by an individual publisher in Egypt. Legal matters are handled under Egyptian law.",
   contactEmail: getContactEmail("legal"),
   contactHeading: "Legal Inquiries",
 };
@@ -321,7 +321,7 @@ export const DMCA_CONTENT: LegalPageContent = {
   ],
   contactEmail: getContactEmail("legal"),
   contactHeading: "DMCA Agent",
-  footerNote: "Designated DMCA Agent: ZORINO Legal Team, 123 Tech Street, Dubai, UAE",
+  footerNote: "Designated DMCA Agent: George Abdelnour Wahba, 78 El Montazah Street, Nozha, Cairo, Egypt",
 };
 
 export const ACCESSIBILITY_CONTENT: LegalPageContent = {
@@ -381,8 +381,30 @@ export const IMPRINT_CONTENT: LegalPageContent = {
       icon: User,
       title: "Publisher / Operator",
       paragraphs: [
-        "Website operator and publisher: Ahmed Hassan.",
-        "ZORINO is personally owned and operated by an individual publisher. It is not an incorporated company, partnership, or legal entity.",
+        "Website operator and publisher: George Abdelnour Wahba.",
+        "ZORINO is an individually operated product discovery and comparison platform. It is not an incorporated company, partnership, or legal entity. The platform serves as a discovery and comparison tool for products and deals from third-party merchants.",
+      ],
+    },
+    {
+      icon: MapPin,
+      title: "Location",
+      paragraphs: [
+        "Residence: Cairo, Egypt",
+        "Address: 78 El Montazah Street, Nozha, Cairo, Egypt",
+      ],
+    },
+    {
+      icon: Mail,
+      title: "Contact",
+      paragraphs: [
+        "Email: 01201366598",
+      ],
+    },
+    {
+      icon: Gavel,
+      title: "Legal Status",
+      paragraphs: [
+        "Operating status: Private individual / individually operated. No commercial registration, tax card, or VAT number.",
       ],
     },
     {
@@ -391,28 +413,6 @@ export const IMPRINT_CONTENT: LegalPageContent = {
       paragraphs: [
         "Website: https://zorino.org",
         "ZORINO is a deal discovery and price comparison platform. We aggregate offers from third-party retailers and affiliate networks. All transactions are completed on the merchant's own website. ZORINO does not sell, ship, or fulfil any products directly.",
-      ],
-    },
-    {
-      icon: MapPin,
-      title: "Postal Address",
-      paragraphs: [
-        "123 Tech Street, Dubai, United Arab Emirates",
-      ],
-    },
-    {
-      icon: Mail,
-      title: "Contact",
-      paragraphs: [
-        "Email: support@zorino.org",
-        "Phone: +971 4 123 4567",
-      ],
-    },
-    {
-      icon: Gavel,
-      title: "Legal Jurisdiction",
-      paragraphs: [
-        "These pages are governed by the laws of the United Arab Emirates. Disputes shall be subject to the exclusive jurisdiction of the courts of Dubai, UAE.",
       ],
     },
     {
@@ -426,12 +426,12 @@ export const IMPRINT_CONTENT: LegalPageContent = {
       icon: Lock,
       title: "Data Protection",
       paragraphs: [
-        "We process personal data in accordance with our Privacy Policy. For data subject requests, please contact us at support@zorino.org.",
+        "We process personal data in accordance with our Privacy Policy. For data subject requests, please contact us using the contact information provided above.",
       ],
     },
   ],
   footerNote:
-    "Note: The operator is an individual publisher. VAT registration number and commercial register number are not applicable. If you require additional legal information for commercial cooperation, please contact us at support@zorino.org.",
+    "Note: The operator is an individual publisher located in Egypt. No commercial registration, tax card, or VAT number is applicable.",
   contactEmail: getContactEmail("legal"),
   contactHeading: "Legal Inquiries",
 };
