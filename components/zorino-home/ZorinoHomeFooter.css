@@ -15,3 +15,23 @@
     image-rendering: auto;
   }
 }
+
+/**
+ * Legal links row — minimal addition to homepage footer for compliance (Daisycon).
+ */
+.zh-footer__legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--zor-border, #333);
+  font-size: 0.8rem;
+}
+.zh-footer__legal-links a {
+  color: var(--zor-text-muted, #aaa);
+  text-decoration: none;
+}
+.zh-footer__legal-links a:hover {
+  color: var(--zor-purple-light, #c084fc);
+  text-decoration: underline;
+}
