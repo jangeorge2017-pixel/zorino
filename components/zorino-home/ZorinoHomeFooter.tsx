@@ -166,6 +166,7 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
       <nav className="zh-footer__legal-links" aria-label={tFooter("legal")}>
         {[
           { key: "imprint", href: "/imprint" },
+          { key: "about", href: "/about" },
           { key: "privacy", href: "/privacy" },
           { key: "terms", href: "/terms" },
           { key: "cookies", href: "/cookies" },
@@ -173,7 +174,7 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
           { key: "contact", href: "/contact" },
         ].map(({ key, href }) => (
           <Link key={key} href={href}>
-            {tFooter(key as "imprint" | "privacy" | "terms" | "cookies" | "affiliate" | "contact")}
+            {tFooter(key as "imprint" | "about" | "privacy" | "terms" | "cookies" | "affiliate" | "contact")}
           </Link>
         ))}
       </nav>
