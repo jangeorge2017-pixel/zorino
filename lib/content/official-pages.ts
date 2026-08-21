@@ -13,6 +13,8 @@ import {
   HandCoins,
   Link2,
   Lock,
+  Mail,
+  MapPin,
   Scale,
   Settings,
   Shield,
@@ -106,6 +108,13 @@ export const PRIVACY_CONTENT: LegalPageContent = {
       title: "Cookies & Tracking",
       paragraphs: [
         "We use cookies and similar technologies for essential functionality, analytics, and affiliate attribution. See our Cookie Policy for details.",
+        "Affiliate networks such as Daisycon Media and other partners may set third-party cookies when you interact with outbound links from our site. These cookies are used to attribute your purchase back to ZORINO so we can earn a commission. We have no control over these third-party cookies and recommend reviewing the respective affiliate network's privacy and cookie policies.",
+      ],
+      bullets: [
+        "Essential — required for login, security, and core functionality",
+        "Analytics — help us understand traffic patterns and improve features",
+        "Preference — remember language, currency, and display settings",
+        "Affiliate — attribute purchases to partner retailers and affiliate networks (including Daisycon Media) when you click outbound links",
       ],
     },
   ],
@@ -195,7 +204,7 @@ export const COOKIES_CONTENT: LegalPageContent = {
         "Essential — required for login, security, and core functionality",
         "Analytics — help us understand traffic patterns and improve features",
         "Preference — remember language, currency, and display settings",
-        "Affiliate — attribute purchases to partner retailers when you click outbound links",
+        "Affiliate — attribute purchases to partner retailers and affiliate networks (including Daisycon Media) when you click outbound links",
       ],
     },
     {
@@ -240,6 +249,7 @@ export const AFFILIATE_CONTENT: LegalPageContent = {
       title: "Affiliate Links",
       paragraphs: [
         "Outbound links to Amazon, eBay, AliExpress, Walmart, Noon, and other partners may contain tracking parameters that identify ZORINO as the referral source. These links help us maintain a free platform for shoppers.",
+        "We participate in affiliate networks including Daisycon Media and other partner programs. When you click an outbound link from ZORINO and complete a purchase on a retailer's website, the affiliate network may set a cookie to track the referral. This cookie is set by the third-party network, not by ZORINO.",
       ],
     },
     {
@@ -361,4 +371,67 @@ export const ACCESSIBILITY_CONTENT: LegalPageContent = {
   ],
   contactEmail: getContactEmail("support"),
   contactHeading: "Accessibility Support",
+};
+
+export const IMPRINT_CONTENT: LegalPageContent = {
+  intro:
+    "ZORINO is a product discovery and price comparison platform operated by an individual publisher. This imprint provides mandatory legal information about the website operator in accordance with applicable law.",
+  sections: [
+    {
+      icon: User,
+      title: "Publisher / Operator",
+      paragraphs: [
+        "Website operator and publisher: Ahmed Hassan.",
+        "ZORINO is personally owned and operated by an individual publisher. It is not an incorporated company, partnership, or legal entity.",
+      ],
+    },
+    {
+      icon: Globe,
+      title: "Website",
+      paragraphs: [
+        "Website: https://zorino.org",
+        "ZORINO is a deal discovery and price comparison platform. We aggregate offers from third-party retailers and affiliate networks. All transactions are completed on the merchant's own website. ZORINO does not sell, ship, or fulfil any products directly.",
+      ],
+    },
+    {
+      icon: MapPin,
+      title: "Postal Address",
+      paragraphs: [
+        "123 Tech Street, Dubai, United Arab Emirates",
+      ],
+    },
+    {
+      icon: Mail,
+      title: "Contact",
+      paragraphs: [
+        "Email: support@zorino.org",
+        "Phone: +971 4 123 4567",
+      ],
+    },
+    {
+      icon: Gavel,
+      title: "Legal Jurisdiction",
+      paragraphs: [
+        "These pages are governed by the laws of the United Arab Emirates. Disputes shall be subject to the exclusive jurisdiction of the courts of Dubai, UAE.",
+      ],
+    },
+    {
+      icon: Eye,
+      title: "Affiliate Disclosure",
+      paragraphs: [
+        "ZORINO participates in affiliate marketing programs including the Daisycon Media affiliate network and other partner programs. When you click on affiliate links marked on our site and make a purchase, we may earn a commission at no additional cost to you. A full list of affiliate partnerships and how tracking works is available on our Affiliate Disclosure page.",
+      ],
+    },
+    {
+      icon: Lock,
+      title: "Data Protection",
+      paragraphs: [
+        "We process personal data in accordance with our Privacy Policy. For data subject requests, please contact us at support@zorino.org.",
+      ],
+    },
+  ],
+  footerNote:
+    "Note: The operator is an individual publisher. VAT registration number and commercial register number are not applicable. If you require additional legal information for commercial cooperation, please contact us at support@zorino.org.",
+  contactEmail: getContactEmail("legal"),
+  contactHeading: "Legal Inquiries",
 };

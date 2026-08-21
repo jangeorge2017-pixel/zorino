@@ -20,6 +20,7 @@ export default function SiteFooter() {
     {
       title: t("legal"),
       links: [
+        { href: "/imprint", label: t("imprint") },
         { href: "/privacy", label: t("privacy") },
         { href: "/terms", label: t("terms") },
         { href: "/cookies", label: t("cookies") },
