@@ -26,10 +26,7 @@ export default function AboutPageClient() {
   ];
 
   const team = [
-    { name: "Ahmed Hassan", role: "CEO & Founder", image: "👨‍💼", bio: "Making shopping smarter and more affordable for everyone." },
-    { name: "Sarah Johnson", role: "CTO", image: "👩‍💻", bio: "15+ years in e-commerce, AI, and large-scale platform engineering." },
-    { name: "Mohammed Ali", role: "Head of Product", image: "👨‍🎨", bio: "Focused on seamless, premium user experiences." },
-    { name: "Fatima Al-Rashid", role: "Head of Marketing", image: "👩‍🎤", bio: "Connecting communities with deals that matter." },
+      { name: "George Abdelnour Wahba", role: "Operator", image: "👨‍💼", bio: "Individually operating the ZORINO platform from Cairo, Egypt." },
   ];
 
   const features = [
