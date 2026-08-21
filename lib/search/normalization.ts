@@ -234,6 +234,104 @@ export function externalProductToRawListing(
   };
 }
 
+type CJRawProduct = {
+  pid?: string;
+  productNameEn?: string;
+  productName?: string;
+  productImage?: string;
+  productImageSet?: string[];
+  sellPrice?: number;
+  suggestSellPrice?: number;
+  categoryName?: string;
+};
+
+/** CJdropshipping API → raw provider listing. */
+export function normalizeCJRaw(raw: CJRawProduct): RawProviderListing | null {
+  const externalId = raw.pid ?? "";
+  const title = (raw.productNameEn ?? raw.productName ?? "").trim();
+  if (!externalId || !title) return null;
+
+  const price = Number(raw.sellPrice ?? raw.suggestSellPrice ?? 0);
+  if (!price || price <= 0) return null;
+
+  const originalPrice =
+    raw.suggestSellPrice && raw.suggestSellPrice > price ? raw.suggestSellPrice : price;
+  const discount =
+    originalPrice > price
+      ? Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100))
+      : 0;
+
+  const imageUrl = raw.productImage ?? "";
+  if (!imageUrl.startsWith("http")) return null;
+
+  const productUrl = `https://cjdropshipping.com/product/${externalId}.html`;
+
+  return {
+    providerId: "cjdropshipping",
+    externalId,
+    title,
+    imageUrl,
+    price,
+    originalPrice,
+    discount,
+    currency: "USD",
+    storeName: "CJdropshipping",
+    category: raw.categoryName?.trim() || "General",
+    rating: 0,
+    reviewCount: 0,
+    inStock: true,
+    productUrl,
+    affiliateUrl: productUrl,
+  };
+}
+
+type AdmitadOffer = {
+  id: string;
+  name: string;
+  price: number;
+  oldprice: number | null;
+  currencyId: string;
+  url: string;
+  image: string;
+  vendor: string;
+};
+
+/** Admitad feed offer → raw provider listing. */
+export function normalizeAdmitadRaw(
+  offer: AdmitadOffer,
+  feedName: string,
+): RawProviderListing | null {
+  if (!offer.id || !offer.name || offer.price <= 0) return null;
+
+  const originalPrice = offer.oldprice && offer.oldprice > offer.price ? offer.oldprice : offer.price;
+  const discount =
+    originalPrice > offer.price
+      ? Math.max(0, Math.round(((originalPrice - offer.price) / originalPrice) * 100))
+      : 0;
+
+  const imageUrl = offer.image || "";
+  const affiliateUrl = offer.url || "";
+  if (!affiliateUrl) return null;
+
+  return {
+    providerId: "admitad",
+    externalId: `admitad-${offer.id}`,
+    title: offer.name.trim(),
+    imageUrl,
+    price: offer.price,
+    originalPrice,
+    discount,
+    currency: offer.currencyId || "USD",
+    storeName: feedName || "Alibaba",
+    category: "General",
+    rating: 0,
+    reviewCount: 0,
+    inStock: true,
+    productUrl: affiliateUrl,
+    affiliateUrl,
+  };
+}
+
 export function toNormalizedListing(
   raw: RawProviderListing,
   analysis: { score: number; tier: ProductMatchTier; isDevice: boolean }
