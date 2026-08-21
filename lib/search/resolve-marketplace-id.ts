@@ -7,6 +7,18 @@ import { SEARCH_PROVIDER_IDS } from "@/lib/search/types";
 
 const KNOWN_IDS = SEARCH_PROVIDER_IDS as readonly string[];
 
+/**
+ * Marketplace display names / brand names → canonical provider id.
+ * Admitad feed products display as "Alibaba" in the UI (brand name),
+ * but their provider id is "admitad" (affiliate network).
+ * Add new aliases here when a provider's display name differs from its id.
+ */
+const PROVIDER_ALIASES: Record<string, string> = {
+  alibaba: "admitad",
+  "alibaba-ww": "admitad",
+  "alibaba (via admitad)": "admitad",
+};
+
 function compact(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
@@ -22,6 +34,10 @@ export function resolveMarketplaceId(raw: string | null | undefined): string {
 
   const slug = input.replace(/\s+/g, "-");
   const packed = compact(input);
+
+  // Check aliases first (e.g. "alibaba" → "admitad")
+  const alias = PROVIDER_ALIASES[packed] ?? PROVIDER_ALIASES[slug];
+  if (alias) return alias;
 
   for (const id of KNOWN_IDS) {
     if (slug === id || packed === compact(id)) return id;

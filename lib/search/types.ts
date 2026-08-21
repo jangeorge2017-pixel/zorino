@@ -16,8 +16,18 @@ export const SEARCH_PROVIDER_IDS = [
 
 export type SearchProviderId = (typeof SEARCH_PROVIDER_IDS)[number];
 
-/** Providers with live connector implementations and real API clients. */
-export const LIVE_SEARCH_PROVIDER_IDS = ["aliexpress", "ebay", "amazon", "cjdropshipping"] as const;
+/**
+ * Providers confirmed active in production (credentials configured on Vercel,
+ * connector returns verified real product data, tested in live deployment).
+ *
+ * This is the type-level source of truth for "which providers are live".
+ * Runtime availability is checked by getActiveSearchConnectors() via each
+ * connector's isAvailable() — that is the runtime source of truth.
+ *
+ * Admitad is active: ADMITAD_FEED_URL env var is set, feed returns ~120K
+ * real Alibaba marketplace products. Display name "Alibaba" in UI.
+ */
+export const LIVE_SEARCH_PROVIDER_IDS = ["aliexpress", "ebay", "amazon", "cjdropshipping", "admitad"] as const;
 
 export type LiveSearchProviderId = (typeof LIVE_SEARCH_PROVIDER_IDS)[number];
 
