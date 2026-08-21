@@ -37,6 +37,7 @@ type ZorinoHomeFooterProps = {
 export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps) {
   const t = useTranslations("home");
   const tHero = useTranslations("hero");
+  const tFooter = useTranslations("footer");
   const locale = useLocale() as Locale;
   const [logoFailed, setLogoFailed] = useState(false);
   const [email, setEmail] = useState("");
@@ -161,6 +162,21 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
           )}
         </div>
       </div>
+
+      <nav className="zh-footer__legal-links" aria-label={tFooter("legal")}>
+        {[
+          { key: "imprint", href: "/imprint" },
+          { key: "privacy", href: "/privacy" },
+          { key: "terms", href: "/terms" },
+          { key: "cookies", href: "/cookies" },
+          { key: "affiliate", href: "/affiliate-disclosure" },
+          { key: "contact", href: "/contact" },
+        ].map(({ key, href }) => (
+          <Link key={key} href={href}>
+            {tFooter(key as "imprint" | "privacy" | "terms" | "cookies" | "affiliate" | "contact")}
+          </Link>
+        ))}
+      </nav>
     </footer>
   );
 }
