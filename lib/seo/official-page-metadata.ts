@@ -51,11 +51,17 @@ const OFFICIAL_PAGE_SEO = {
       "ZORINO DMCA copyright policy — how to report copyright infringement and our process for handling takedown notices.",
     keywords: ["dmca", "copyright policy", "takedown notice", "intellectual property"],
   },
-  accessibility: {
+   accessibility: {
     title: "Accessibility Statement",
     description:
       "ZORINO accessibility commitment — our efforts to make deal discovery accessible to all users, including WCAG guidelines.",
     keywords: ["accessibility", "WCAG", "inclusive design", "assistive technology"],
+  },
+  imprint: {
+    title: "Imprint",
+    description:
+      "ZORINO Imprint — publisher and operator information for this individually owned product discovery and price comparison platform.",
+    keywords: ["imprint", "publisher", "operator", "legal", "contact"],
   },
 } as const;
 
@@ -71,6 +77,7 @@ const OFFICIAL_PATHS: Record<OfficialPageSlug, string> = {
   affiliate: "/affiliate-disclosure",
   dmca: "/dmca",
   accessibility: "/accessibility",
+  imprint: "/imprint",
 };
 
 export function getOfficialPageSeo(slug: OfficialPageSlug) {
