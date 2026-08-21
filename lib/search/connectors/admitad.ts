@@ -1,6 +1,7 @@
 import type { SearchConnector, ConnectorSearchOptions } from "./types";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { ADMITAD_PROVIDER_ID } from "@/lib/integrations/admitad/config";
+import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { SEED_FEED_OFFERS } from "@/lib/integrations/admitad/seed";
 
 const MAX_PRODUCTS_PER_SEARCH = 200;
@@ -9,12 +10,20 @@ const SEED_IMAGE_BY_ID = new Map(
   SEED_FEED_OFFERS.filter((o) => o.image).map((o) => [o.id, o.image]),
 );
 
+/**
+ * Admitad search connector.
+ *
+ * Availability depends on ADMITAD_FEED_URL being set in the environment.
+ * Without it, ADMITAD_FEEDS is empty and search returns no results.
+ */
 export const admitadSearchConnector: SearchConnector = {
   id: ADMITAD_PROVIDER_ID as SearchProviderId,
   name: "Alibaba",
 
   async isAvailable() {
-    return true;
+    // Feed must be configured via ADMITAD_FEED_URL env var
+    const { ADMITAD_FEEDS } = await import("@/lib/integrations/admitad/config");
+    return ADMITAD_FEEDS.length > 0;
   },
 
   async search(query: string, _options?: ConnectorSearchOptions) {
@@ -43,7 +52,7 @@ export const admitadSearchConnector: SearchConnector = {
             providerId: ADMITAD_PROVIDER_ID as SearchProviderId,
             externalId: `alibaba-${offer.id}`,
             title: offer.name,
-            imageUrl: offer.image || SEED_IMAGE_BY_ID.get(offer.id) || "",
+            imageUrl: normalizeProductImageUrl(offer.image || SEED_IMAGE_BY_ID.get(offer.id) || ""),
             price: offer.price,
             originalPrice: offer.oldprice ?? offer.price,
             discount:

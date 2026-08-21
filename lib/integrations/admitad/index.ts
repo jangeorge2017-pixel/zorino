@@ -1,5 +1,6 @@
 import type { AdmitadFeedOffer } from "./types";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
+import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { SEED_FEED_OFFERS } from "./seed";
 
 const SEED_IMAGE_BY_ID = new Map(
@@ -33,7 +34,7 @@ export function admitadFeedsToCatalogItems(
         id: `alibaba-${offer.id}`,
         slug: `alibaba-${offer.id}`,
         title: offer.name,
-        imageUrl: offer.image || SEED_IMAGE_BY_ID.get(offer.id) || "",
+        imageUrl: normalizeProductImageUrl(offer.image || SEED_IMAGE_BY_ID.get(offer.id) || ""),
         emoji: "🛍️",
         categorySlug: "general",
         rating: 0,

@@ -5,6 +5,7 @@ export const SEARCH_PROVIDER_IDS = [
   "aliexpress",
   "ebay",
   "amazon",
+  "cjdropshipping",
   "walmart",
   "bestbuy",
   "temu",
@@ -15,8 +16,8 @@ export const SEARCH_PROVIDER_IDS = [
 
 export type SearchProviderId = (typeof SEARCH_PROVIDER_IDS)[number];
 
-/** Providers with live connector implementations. */
-export const LIVE_SEARCH_PROVIDER_IDS = ["aliexpress", "ebay", "amazon"] as const;
+/** Providers with live connector implementations and real API clients. */
+export const LIVE_SEARCH_PROVIDER_IDS = ["aliexpress", "ebay", "amazon", "cjdropshipping"] as const;
 
 export type LiveSearchProviderId = (typeof LIVE_SEARCH_PROVIDER_IDS)[number];
 

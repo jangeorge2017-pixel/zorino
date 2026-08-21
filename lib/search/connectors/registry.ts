@@ -1,6 +1,7 @@
 import { aliExpressSearchConnector } from "@/lib/search/connectors/aliexpress";
 import { amazonSearchConnector } from "@/lib/search/connectors/amazon";
 import { admitadSearchConnector } from "@/lib/search/connectors/admitad";
+import { cjdropshippingSearchConnector } from "@/lib/search/connectors/cjdropshipping";
 import { ebaySearchConnector } from "@/lib/search/connectors/ebay";
 import {
   bestBuySearchConnector,
@@ -17,6 +18,7 @@ const ALL_CONNECTORS: SearchConnector[] = [
   aliExpressSearchConnector,
   ebaySearchConnector,
   amazonSearchConnector,
+  cjdropshippingSearchConnector,
   admitadSearchConnector,
   walmartSearchConnector,
   bestBuySearchConnector,
@@ -37,7 +39,7 @@ export function getAllSearchConnectors(): SearchConnector[] {
   return ALL_CONNECTORS;
 }
 
-/** All 8 marketplace connectors (availability checked separately). */
+/** All registered marketplace connectors (availability checked separately). */
 export function getRegisteredSearchConnectors(): SearchConnector[] {
   return SEARCH_PROVIDER_IDS.map((id) => CONNECTOR_MAP.get(id)).filter(
     (c): c is SearchConnector => c !== undefined
