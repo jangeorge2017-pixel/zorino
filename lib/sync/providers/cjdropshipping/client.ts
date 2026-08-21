@@ -77,6 +77,25 @@ export class CJdropshippingClient {
     return { "CJ-Access-Token": token };
   }
 
+  /** Fetch with retry for CJ's 1 QPS rate limit. Waits and retries on 429. */
+  private async fetchWithRetry<T>(url: string, init?: RequestInit, retries = 3): Promise<T> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await fetchJson<T>(url, init);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        const is429 = msg.includes("429") || msg.toLowerCase().includes("too many requests");
+        if (is429 && attempt < retries) {
+          const delayMs = 1100 * (attempt + 1);
+          await new Promise((r) => setTimeout(r, delayMs));
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw new Error("CJfetchWithRetry: exhausted retries");
+  }
+
   async searchProducts(config: ImportJobConfig): Promise<CJProduct[]> {
     const keywords = config.keywords ?? ["phone"];
     const maxPages = config.maxPages ?? 2;
@@ -91,7 +110,7 @@ export class CJdropshippingClient {
           productNameEn: keyword,
         });
 
-        const batch = await fetchJson<ListResponse>(
+        const batch = await this.fetchWithRetry<ListResponse>(
           `${API_BASE}/product/list?${params}`,
           { headers: await this.authHeaders() },
         );
