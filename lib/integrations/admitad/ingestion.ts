@@ -22,7 +22,6 @@ import {
 } from "./api";
 import { getAccessToken } from "./auth";
 import {
-  getAllAdmitadFeeds,
   initializeMultiMerchantDiscovery,
   ADMITAD_FEEDS,
 } from "./config";
@@ -522,8 +521,12 @@ async function runAdmitadIngestionLocked(
   }
   console.log(`[admitad-ingest] Found ${websites.length} websites`);
 
-  // 3. Discover programs with feeds for each website
-  console.log("[admitad-ingest] Step 3: Discovering programs with product feeds...");
+  // 3. Build feed candidates from the shared discovery registry (initialized
+  // above) — the SAME source used by the live catalog and search connector.
+  // NOTE: do NOT use the /advcampaigns/website/{id}?has_tool=products filter
+  // here; that catalog query is extremely slow and burns the whole function
+  // window in retries. The registry lookup is cached and instant.
+  console.log("[admitad-ingest] Step 3: Collecting product feeds from discovery registry...");
   type FeedCandidate = {
     campaignId: number;
     campaignName: string;
@@ -540,57 +543,76 @@ async function runAdmitadIngestionLocked(
     allFeeds.push(candidate);
   };
 
-  for (const website of websites) {
-    try {
-      const campaigns = await listCampaignsForWebsite(website.id, "products");
-      result.programsDiscovered += campaigns.length;
-
-      for (const campaign of campaigns) {
-        if (!campaign.feeds_info?.length) continue;
-        for (const feed of campaign.feeds_info) {
-          const feedUrl = feed.xml_link?.replace("http://", "https://");
-          if (!feedUrl) continue;
-          addCandidate({
-            campaignId: campaign.id,
-            campaignName: campaign.name,
-            gotolink: campaign.gotolink || "",
-            feedName: feed.name || campaign.name,
-            feedUrl,
-          });
-        }
-      }
-    } catch (err) {
-      result.errors.push(
-        `Programs for website ${website.id} failed: ${err instanceof Error ? err.message : String(err)}`,
-      );
-    }
-  }
-
-  // Merge the initialized discovery registry (the SAME source the live catalog
-  // and search connector use) so ingestion never depends on a single code path.
   try {
-    const registryFeeds = await getAllAdmitadFeeds();
-    let mergedFromRegistry = 0;
-    for (const rf of registryFeeds) {
-      const before = allFeeds.length;
-      addCandidate({
-        campaignId: rf.merchantId ?? rf.websiteId ?? 0,
-        campaignName: rf.name,
-        gotolink: "",
-        feedName: rf.name,
-        feedUrl: rf.feedUrl,
-      });
-      if (allFeeds.length > before) mergedFromRegistry++;
+    const { getAdmitadPrograms } = await import("./merchant-discovery");
+    const programs = await getAdmitadPrograms();
+
+    // Breadth-first: one feed per merchant first, then extra multi-GEO feeds,
+    // so a bounded maxFeeds budget covers as many distinct merchants as possible.
+    for (const p of programs) {
+      const urls = (p.feedUrls.length > 0 ? p.feedUrls : p.feedUrl ? [p.feedUrl] : [])
+        .map((u) => u?.replace("http://", "https://"))
+        .filter((u): u is string => Boolean(u));
+      if (urls[0]) {
+        addCandidate({
+          campaignId: p.campaignId,
+          campaignName: p.merchantName,
+          gotolink: p.gotolink ?? "",
+          feedName: p.merchantName,
+          feedUrl: urls[0],
+        });
+      }
     }
-    if (mergedFromRegistry > 0) {
-      console.log(
-        `[admitad-ingest] merged ${mergedFromRegistry} feeds from discovery registry`,
-      );
+    for (const p of programs) {
+      const urls = (p.feedUrls.length > 0 ? p.feedUrls : p.feedUrl ? [p.feedUrl] : [])
+        .map((u) => u?.replace("http://", "https://"))
+        .filter((u): u is string => Boolean(u));
+      for (const url of urls.slice(1)) {
+        addCandidate({
+          campaignId: p.campaignId,
+          campaignName: p.merchantName,
+          gotolink: p.gotolink ?? "",
+          feedName: p.merchantName,
+          feedUrl: url,
+        });
+      }
     }
+    console.log(
+      `[admitad-ingest] registry supplied ${allFeeds.length} feeds from ${programs.length} active merchant programs`,
+    );
   } catch (err) {
     result.errors.push(
-      `Discovery registry merge failed: ${err instanceof Error ? err.message : String(err)}`,
+      `Registry lookup failed: ${err instanceof Error ? err.message : String(err)}`,
     );
+  }
+
+  if (allFeeds.length === 0) {
+    // Fallback: direct UNFILTERED campaign listing (proven fast, ~2 requests).
+    for (const website of websites) {
+      try {
+        const campaigns = await listCampaignsForWebsite(website.id);
+        result.programsDiscovered += campaigns.length;
+
+        for (const campaign of campaigns) {
+          if (!campaign.feeds_info?.length) continue;
+          for (const feed of campaign.feeds_info) {
+            const feedUrl = feed.xml_link?.replace("http://", "https://");
+            if (!feedUrl) continue;
+            addCandidate({
+              campaignId: campaign.id,
+              campaignName: campaign.name,
+              gotolink: campaign.gotolink || "",
+              feedName: feed.name || campaign.name,
+              feedUrl,
+            });
+          }
+        }
+      } catch (err) {
+        result.errors.push(
+          `Programs for website ${website.id} failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
   }
 
   // Exclude the legacy static env feed(s): ADMITAD_FEED_URL serves a stale
