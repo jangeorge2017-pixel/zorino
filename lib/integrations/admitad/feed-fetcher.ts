@@ -70,7 +70,11 @@ function parseOfferElement(xml: string): AdmitadFeedOffer | null {
     oldpriceStr = extractTag(xml, "oldprice");
     currencyId = extractTag(xml, "currencyId");
     url = extractTag(xml, "url");
-    image = extractTag(xml, "image");
+    // Feeds vary between <g:image>, <image>, <g:image_link> and <picture_link>.
+    image =
+      extractTag(xml, "image") ||
+      extractTag(xml, "image_link") ||
+      extractTag(xml, "picture_link");
     vendor = extractTag(xml, "vendor");
     description = extractTag(xml, "description");
     modified_time = extractTag(xml, "modified_time");
