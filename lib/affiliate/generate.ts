@@ -102,7 +102,9 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
 }
 
 export function getPartnerTagFromEnv(marketplace: AffiliateMarketplace): string | null {
-  for (const key of AFFILIATE_ENV_KEYS[marketplace]) {
+  const keys = AFFILIATE_ENV_KEYS[marketplace];
+  if (!keys) return null;
+  for (const key of keys) {
     const val = process.env[key]?.trim();
     if (val) return val;
   }

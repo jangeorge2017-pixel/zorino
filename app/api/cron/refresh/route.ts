@@ -24,6 +24,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const force =
     url.searchParams.get("force") === "true" || request.headers.get("x-vercel-cron") === "1";
+  const admitadRequested =
+    url.searchParams.get("admitad") === "true" || force || url.searchParams.get("full") === "true";
   const hourUtc = new Date().getUTCHours();
   const results: Record<string, unknown> = {};
 
@@ -67,6 +69,35 @@ export async function GET(request: Request) {
     results.amazon = amazon.skipped
       ? { skipped: true }
       : { jobsRun: amazon.results.length, results: amazon.results, error: amazon.error };
+
+    // Multi-merchant Admitad ingestion: discover ALL active programs for the
+    // publisher's ad spaces, fetch every available product feed, and upsert
+    // the products (with real merchant identity + tracked affiliate URLs)
+    // into products/prices/lowest_prices_today.
+    if (admitadRequested || hourUtc % 12 === 0) {
+      try {
+        const { runAdmitadIngestion } = await import("@/lib/integrations/admitad");
+        const admitad = await runAdmitadIngestion({
+          maxFeeds: Number(process.env.ADMITAD_MAX_FEEDS ?? 20),
+          maxProductsPerFeed: Number(process.env.ADMITAD_MAX_PRODUCTS_PER_FEED ?? 2000),
+        });
+        results.admitadIngestion = {
+          authenticated: admitad.authenticated,
+          websitesFound: admitad.websitesFound,
+          programsDiscovered: admitad.programsDiscovered,
+          feedsWithProducts: admitad.feedsWithProducts,
+          totalProducts: admitad.totalProducts,
+          productsSaved: admitad.productsSaved,
+          errors: admitad.errors.slice(0, 10),
+        };
+      } catch (err) {
+        results.admitadIngestion = {
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
+    } else {
+      results.admitadIngestion = { skipped: true };
+    }
 
     const imported = await triggerPhase1Imports();
     results.importPhase1 = imported.error

@@ -176,7 +176,13 @@ function feedOfferToCatalogItem(
   offer: AdmitadFeedOffer,
   campaign: AdmitadCampaign,
   feedInfo: AdmitadFeedInfo,
-): NormalizedCatalogItem {
+): NormalizedCatalogItem | null {
+  // Real links only: prefer the feed offer URL; fall back to the program's
+  // standard affiliate (gotolink) URL reported by the API. Skip offers that
+  // have neither — never fabricate a destination.
+  const destinationUrl = offer.url || campaign.gotolink || "";
+  if (!destinationUrl) return null;
+
   const storeSlug = campaign.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -197,8 +203,8 @@ function feedOfferToCatalogItem(
     originalPrice: offer.oldprice ?? offer.price,
     currency: offer.currencyId,
     countryCode: "US",
-    affiliateUrl: offer.url,
-    productUrl: offer.url,
+    affiliateUrl: destinationUrl,
+    productUrl: destinationUrl,
     inStock: true,
   };
 
@@ -507,9 +513,12 @@ export async function runAdmitadIngestion(
       let feedCount = 0;
       for (const offer of offers.slice(0, maxProductsPerFeed)) {
         if (seenOfferIds.has(offer.id)) continue;
-        seenOfferIds.add(offer.id);
 
-        allItems.push(feedOfferToCatalogItem(offer, campaign, feed));
+        const item = feedOfferToCatalogItem(offer, campaign, feed);
+        if (!item) continue;
+
+        seenOfferIds.add(offer.id);
+        allItems.push(item);
         feedCount++;
       }
 
