@@ -71,7 +71,9 @@ async function searchIngestedRows(
 
       listings.push({
         providerId: "admitad",
-        externalId: row.product_slug,
+        // product_slug is "admitad-<campaign>-<offer>"; downstream
+        // toNormalizedListing prepends "admitad-" once, so strip it here.
+        externalId: row.product_slug.replace(/^admitad-/, ""),
         title: row.product_name,
         imageUrl: normalizeProductImageUrl(row.image_url || ""),
         price: row.lowest_price,
@@ -154,7 +156,10 @@ export const admitadSearchConnector: SearchConnector = {
 
           const normalized = normalizeAdmitadRaw(
             {
-              id: `${feedResult.feedSlug}-${offer.id}`,
+              // Plain offer id — normalizeAdmitadRaw + toNormalizedListing add
+              // the provider prefix themselves; feeding them an
+              // already-prefixed id stacks it (admitad-admitad-…).
+              id: offer.id,
               name: offer.name,
               price: offer.price,
               oldprice: offer.oldprice,
@@ -165,7 +170,11 @@ export const admitadSearchConnector: SearchConnector = {
             },
             feedResult.feedName,
           );
-          if (normalized) listings.push(normalized);
+          if (!normalized) continue;
+          // Campaign-qualified, prefix-free external id → final slug becomes
+          // admitad-<campaignId>-<offerId>, matching homepage/product routes.
+          normalized.externalId = `${feedResult.feedSlug.replace(/^admitad-/, "")}-${offer.id}`;
+          listings.push(normalized);
         }
       }
 
