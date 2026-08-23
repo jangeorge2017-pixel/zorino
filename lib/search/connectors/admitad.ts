@@ -8,6 +8,98 @@ import { fetchAdmitadFeedProducts } from "@/lib/integrations/admitad/feed-fetche
 
 const MAX_RESULTS_FROM_FEED = 200;
 
+type IngestedRow = {
+  product_slug: string;
+  product_name: string;
+  image_url: string | null;
+  lowest_price: number;
+  original_price: number | null;
+  discount_percent: number | null;
+  store_name: string;
+  affiliate_url: string | null;
+  external_url: string | null;
+  currency: string;
+};
+
+/**
+ * Supplement live-feed results with freshly INGESTED rows from
+ * lowest_prices_today (same real provider data, persisted by the ingestion
+ * pipeline). Keeps search results stable on cold instances where feed
+ * downloads are still in flight.
+ */
+async function searchIngestedRows(
+  query: string,
+  targetCount: number,
+  seenIds: Set<string>,
+): Promise<RawProviderListing[]> {
+  try {
+    const { createSupabaseAnonClient } = await import("@/lib/supabase/server");
+    const supabase = createSupabaseAnonClient();
+    if (!supabase) return [];
+
+    const words = query.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
+    if (words.length === 0) return [];
+
+    const orFilter = words.map((w) => `product_name.ilike.%${w}%`).join(",");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from("lowest_prices_today")
+      .select(
+        "product_slug, product_name, image_url, lowest_price, original_price, discount_percent, store_name, affiliate_url, external_url, currency",
+      )
+      .eq("provider", "admitad")
+      .or(orFilter)
+      .not("image_url", "is", null)
+      .neq("image_url", "")
+      .limit(Math.max(targetCount * 2, 60));
+
+    if (error || !data?.length) return [];
+
+    const listings: RawProviderListing[] = [];
+    for (const row of data as IngestedRow[]) {
+      if (listings.length >= targetCount) break;
+      if (!row.product_slug || !row.product_name || !(row.lowest_price > 0)) continue;
+      if (!row.affiliate_url && !row.external_url) continue;
+      if (seenIds.has(`db:${row.product_slug}`)) continue;
+      seenIds.add(`db:${row.product_slug}`);
+
+      const originalPrice =
+        row.original_price && row.original_price > row.lowest_price
+          ? row.original_price
+          : row.lowest_price;
+      const url = row.affiliate_url || row.external_url || "";
+
+      listings.push({
+        providerId: "admitad",
+        externalId: row.product_slug,
+        title: row.product_name,
+        imageUrl: normalizeProductImageUrl(row.image_url || ""),
+        price: row.lowest_price,
+        originalPrice,
+        discount:
+          row.discount_percent !== null && row.discount_percent >= 0
+            ? Math.round(row.discount_percent)
+            : Math.max(0, Math.round(((originalPrice - row.lowest_price) / originalPrice) * 100)),
+        currency: row.currency || "USD",
+        storeName: row.store_name || "Alibaba",
+        category: "General",
+        rating: 0,
+        reviewCount: 0,
+        inStock: true,
+        productUrl: url,
+        affiliateUrl: url,
+      });
+    }
+    return listings;
+  } catch (err) {
+    console.error(
+      "[admitad] ingested-row supplement failed:",
+      err instanceof Error ? err.message : err,
+    );
+    return [];
+  }
+}
+
 /**
  * Admitad search connector.
  *
@@ -76,6 +168,19 @@ export const admitadSearchConnector: SearchConnector = {
           if (normalized) listings.push(normalized);
         }
       }
+
+      // Cold-instance safety net: top up from ingested DB rows so search
+      // reliably returns real Admitad merchant products even when live feed
+      // downloads are still warming up.
+      let dbTopUp: RawProviderListing[] = [];
+      if (listings.length < targetCount) {
+        dbTopUp = await searchIngestedRows(query, targetCount - listings.length, seenIds);
+        listings.push(...dbTopUp);
+      }
+
+      console.log(
+        `[admitad] search "${query}": ${feedResults.length} feeds, ${listings.length} listings (${dbTopUp} from ingested rows)`,
+      );
 
       return listings;
     } catch (error) {
