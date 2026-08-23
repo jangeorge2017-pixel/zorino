@@ -131,8 +131,87 @@ const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> =>
     return getCatalogItemsFromDatabase().catch(() => []);
   }
 
+  void scheduleAdmitadIngestionIfStale();
+
   return loadMergedCatalogItems();
 });
+
+// ---------------------------------------------------------------------------
+// Production ingestion auto-trigger
+// ---------------------------------------------------------------------------
+
+const ADMITAD_AUTO_INGEST_MIN_INTERVAL_MS = 30 * 60 * 1000;
+const ADMITAD_AUTO_INGEST_STALE_MS = 12 * 60 * 60 * 1000;
+let admitadAutoIngestLastAttemptMs = 0;
+let admitadAutoIngestRunning = false;
+
+/**
+ * Keeps the admitad DB catalog fresh: when the newest ingested row is stale
+ * (>12h), kick off a bounded multi-merchant ingestion AFTER the current
+ * response finishes (Next.js after()). Runs at most once per 30 min per
+ * instance, never blocks the page, and never weakens cron auth.
+ */
+async function scheduleAdmitadIngestionIfStale(): Promise<void> {
+  if (admitadAutoIngestRunning) return;
+  if (Date.now() - admitadAutoIngestLastAttemptMs < ADMITAD_AUTO_INGEST_MIN_INTERVAL_MS) {
+    return;
+  }
+  if (process.env.NEXT_PHASE === "phase-production-build") return;
+  admitadAutoIngestLastAttemptMs = Date.now();
+
+  if (!process.env.ADMITAD_CLIENT_ID || !process.env.ADMITAD_CLIENT_SECRET) return;
+
+  try {
+    const { createSupabaseServiceClient } = await import("@/lib/supabase/server");
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from("lowest_prices_today")
+      .select("computed_at")
+      .eq("provider", "admitad")
+      .order("computed_at", { ascending: false })
+      .limit(1);
+    if (!error && data?.[0]?.computed_at) {
+      const ageMs = Date.now() - Date.parse(String(data[0].computed_at));
+      if (Number.isFinite(ageMs) && ageMs < ADMITAD_AUTO_INGEST_STALE_MS) {
+        return; // fresh enough — no ingestion needed
+      }
+    }
+  } catch {
+    // Staleness probe failed — attempt ingestion anyway.
+  }
+
+  console.log("[catalog] admitad catalog stale — starting bounded auto-ingestion");
+  admitadAutoIngestRunning = true;
+  const run = import("@/lib/integrations/admitad")
+    .then((m) =>
+      m.runAdmitadIngestion({
+        maxFeeds: 3,
+        maxProductsPerFeed: 300,
+        deadlineMs: 45_000,
+      }),
+    )
+    .then((res) => {
+      console.log("[catalog] admitad auto-ingest finished:", JSON.stringify(res));
+    })
+    .catch((err) => {
+      console.error(
+        "[catalog] admitad auto-ingest failed:",
+        err instanceof Error ? err.message : String(err),
+      );
+    })
+    .finally(() => {
+      admitadAutoIngestRunning = false;
+    });
+
+  try {
+    const { after } = await import("next/server");
+    after(() => run);
+  } catch {
+    void run;
+  }
+}
 
 function uniqueCards(cards: TrendingDealCard[]): TrendingDealCard[] {
   const seen = new Set<string>();

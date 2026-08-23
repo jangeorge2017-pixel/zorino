@@ -3,16 +3,15 @@ import type { AdmitadFeedConfig } from "./types";
 /**
  * Registered Admitad product feeds.
  *
- * Multi-merchant support:
- * 1. Primary feed from ADMITAD_FEED_URL (Alibaba by default)
- * 2. Programmatically discovered feeds from active merchant programs
- * 3. All feeds validated for accessibility before use
+ * Multi-merchant support: ALL live feeds come programmatically from active
+ * merchant programs discovered via the Admitad Publisher API
+ * (ADMITAD_DISCOVER_MERCHANTS, default true).
  *
- * The system first tries the environment variable, then discovers active programs
- * via the Admitad Publisher API, then validates each feed.
- *
- * Set ADMITAD_FEED_URL in Vercel Production Environment Variables for the primary feed.
- * Enable multi-merchant discovery via ADMITAD_DISCOVER_MERCHANTS (default: true).
+ * The static ADMITAD_FEED_URL feed was RETIRED from the live pipeline: it
+ * serves a stale hand-seeded product list, not real program data. Real
+ * Alibaba products arrive through the discovered "Alibaba"/"Alibaba WW"
+ * campaigns. ADMITAD_FEEDS below is kept only as a legacy constant for the
+ * exclusion checks and backwards-compatible exports.
  */
 const feedUrl = process.env.ADMITAD_FEED_URL?.trim() || "";
 const enableMultiMerchantDiscovery = process.env.ADMITAD_DISCOVER_MERCHANTS !== "false";
@@ -64,38 +63,22 @@ export async function initializeMultiMerchantDiscovery(): Promise<void> {
   }
 }
 
-/** Get all registered feeds including primary and discovered ones. */
+/** Get all registered feeds — discovered merchant programs only. */
 export async function getAllAdmitadFeeds(): Promise<AdmitadFeedConfig[]> {
   // Initialize discovery on first call
   if (!discoveryInitialized) {
     await initializeMultiMerchantDiscovery();
   }
-  
-  const feeds: AdmitadFeedConfig[] = [];
-  
-  // Add primary feed if configured
-  if (feedUrl) {
-    feeds.push({
-      name: "Alibaba",
-      slug: "alibaba-admitad",
-      feedUrl,
-    });
-  }
-  
-  // Add discovered feeds
-  feeds.push(...discoveryFeeds);
-  
-  // Deduplicate by slug AND by feed URL (primary feed takes precedence)
+
+  // Deduplicate by slug AND by feed URL.
   const seenSlugs = new Set<string>();
   const seenUrls = new Set<string>();
-  const uniqueFeeds = feeds.filter((feed) => {
+  return discoveryFeeds.filter((feed) => {
     if (seenSlugs.has(feed.slug) || seenUrls.has(feed.feedUrl)) return false;
     seenSlugs.add(feed.slug);
     seenUrls.add(feed.feedUrl);
     return true;
   });
-  
-  return uniqueFeeds;
 }
 
 export const ADMITAD_FEEDS = feedUrl

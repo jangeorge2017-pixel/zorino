@@ -1,8 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as os from "os";
 import type { AdmitadFeedOffer } from "./types";
-import { getAllAdmitadFeeds, ADMITAD_FEEDS, FEED_CACHE_TTL_MS } from "./config";
+import { getAllAdmitadFeeds, FEED_CACHE_TTL_MS } from "./config";
 
 type CachedFeed = {
   offers: AdmitadFeedOffer[];
@@ -13,14 +10,28 @@ const feedCache = new Map<string, CachedFeed>();
 
 /** Check if any feed has been loaded into memory (non-blocking). */
 export function isAdmitadFeedReady(): boolean {
-  for (const feed of ADMITAD_FEEDS) {
-    const cached = feedCache.get(feed.slug);
-    if (cached && Date.now() - cached.fetchedAt < FEED_CACHE_TTL_MS) {
+  for (const cached of feedCache.values()) {
+    if (Date.now() - cached.fetchedAt < FEED_CACHE_TTL_MS) {
       return true;
     }
   }
   return false;
 }
+
+/** Default bounds for the live catalog/search path (overridable via env). */
+const DEFAULT_MAX_FEEDS = Number(process.env.ADMITAD_CATALOG_MAX_FEEDS ?? 4);
+const DEFAULT_MAX_PRODUCTS_PER_FEED = Number(
+  process.env.ADMITAD_CATALOG_MAX_PRODUCTS_PER_FEED ?? 400,
+);
+const DEFAULT_TIMEOUT_PER_FEED_MS = 20_000;
+const DEFAULT_DEADLINE_MS = 25_000;
+
+export type FeedFetchOptions = {
+  maxFeeds?: number;
+  maxProductsPerFeed?: number;
+  timeoutPerFeedMs?: number;
+  deadlineMs?: number;
+};
 
 function extractTag(xml: string, tag: string): string | null {
   // Try g: namespace first (Google Merchant format), then plain tag
@@ -103,15 +114,24 @@ function decodeXmlEntities(text: string): string {
     .replace(/&apos;/g, "'");
 }
 
-async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
+/**
+ * Streaming XML fetch with EARLY EXIT: stops reading (and downloading) as soon
+ * as maxOffers offers have been parsed, and returns partial data when the
+ * request times out mid-stream. Partial data is still real provider data.
+ */
+async function fetchFeedFromUrl(
+  feedUrl: string,
+  opts: { timeoutMs?: number; maxOffers?: number } = {},
+): Promise<AdmitadFeedOffer[]> {
+  const { timeoutMs = 30_000, maxOffers = Infinity } = opts;
+
   const response = await fetch(feedUrl, {
     headers: { "User-Agent": "ZorinoBot/1.0" },
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (!response.ok) {
     throw new Error(`Admitad feed HTTP ${response.status}`);
   }
-
   if (!response.body) {
     throw new Error("Admitad feed: response body is null");
   }
@@ -121,11 +141,7 @@ async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
   const offers = new Map<string, AdmitadFeedOffer>();
   let buffer = "";
 
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-
+  const consumeBuffer = () => {
     const offerRegex = /<(?:offer\s+id="\d+"[^>]*|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
     let match;
     while ((match = offerRegex.exec(buffer)) !== null) {
@@ -134,69 +150,73 @@ async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
         offers.set(offer.id, offer);
       }
     }
+    const lastIncomplete = Math.max(
+      buffer.lastIndexOf("<offer"),
+      buffer.lastIndexOf("<entry"),
+    );
+    buffer = lastIncomplete > 0 ? buffer.slice(lastIncomplete) : "";
+  };
 
-    const lastIncomplete = Math.max(buffer.lastIndexOf("<offer"), buffer.lastIndexOf("<entry"));
-    if (lastIncomplete > 0) {
-      buffer = buffer.slice(lastIncomplete);
-    } else {
-      const lastTag = buffer.lastIndexOf("<");
-      buffer = lastTag > 0 ? buffer.slice(lastTag) : "";
+  try {
+    for (;;) {
+      if (offers.size >= maxOffers) break;
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      consumeBuffer();
+    }
+  } catch (err) {
+    console.warn(
+      `[admitad] feed stream interrupted after ${offers.size} offers:`,
+      err instanceof Error ? err.message : err,
+    );
+  } finally {
+    try {
+      await reader.cancel();
+    } catch {
+      // reader already closed
     }
   }
 
-  if (buffer.includes("<offer") || buffer.includes("<entry>")) {
-    const flushRegex = /<(?:offer\s+id="\d+"[^>]*|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
-    let flushMatch;
-    while ((flushMatch = flushRegex.exec(buffer)) !== null) {
-      const offer = parseOfferElement(flushMatch[0]);
-      if (offer && !offers.has(offer.id)) {
-        offers.set(offer.id, offer);
-      }
-    }
-  }
-
-  return Array.from(offers.values());
+  return Array.from(offers.values()).slice(0, maxOffers);
 }
 
-async function fetchFeedFromDisk(filePath: string): Promise<AdmitadFeedOffer[]> {
-  const content = fs.readFileSync(filePath, "utf-8");
-  const offers = new Map<string, AdmitadFeedOffer>();
-  const offerRegex = /<offer\s+id="\d+"[^>]*>[\s\S]*?<\/offer>/g;
-  let match;
-  while ((match = offerRegex.exec(content)) !== null) {
-    const offer = parseOfferElement(match[0]);
-    if (offer && !offers.has(offer.id)) {
-      offers.set(offer.id, offer);
-    }
-  }
-  return Array.from(offers.values());
-}
-
+/**
+ * Bounded multi-feed fetch shared by the live catalog pre-warm and the search
+ * connector. Uses ONLY discovered merchant-program feeds (real program data).
+ * Each feed is capped at maxProductsPerFeed and the whole run respects a wall
+ * clock deadline so pages stay responsive even on a cold cache.
+ */
 export async function fetchAdmitadFeedProducts(
-  options: { maxProductsPerFeed?: number } = {},
+  options: FeedFetchOptions = {},
 ): Promise<
   { offers: AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]
 > {
+  const maxFeeds = options.maxFeeds ?? DEFAULT_MAX_FEEDS;
+  const maxProductsPerFeed =
+    options.maxProductsPerFeed ?? DEFAULT_MAX_PRODUCTS_PER_FEED;
+  const timeoutPerFeedMs = options.timeoutPerFeedMs ?? DEFAULT_TIMEOUT_PER_FEED_MS;
+  const deadlineMs = options.deadlineMs ?? DEFAULT_DEADLINE_MS;
+  const startedAt = Date.now();
+
   const results: {
     offers: AdmitadFeedOffer[];
     feedName: string;
     feedSlug: string;
   }[] = [];
 
-  // Multi-merchant: primary ADMITAD_FEED_URL + every discovered program feed.
-  // Falls back to the static list when discovery is unavailable (no API creds).
-  let feeds = ADMITAD_FEEDS;
-  try {
-    const allFeeds = await getAllAdmitadFeeds();
-    if (allFeeds.length > 0) feeds = allFeeds;
-  } catch (error) {
-    console.error(
-      "[admitad] feed discovery unavailable, using static feed list:",
-      error instanceof Error ? error.message : error,
-    );
-  }
+  // Real-data only: discovered merchant programs exclusively. When discovery
+  // is unavailable this returns [] and the DB catalog still supplies items.
+  const feeds = await getAllAdmitadFeeds();
 
-  for (const feed of feeds) {
+  for (const feed of feeds.slice(0, maxFeeds)) {
+    if (results.length > 0 && Date.now() - startedAt > deadlineMs) {
+      console.log(
+        `[admitad] catalog feed budget reached (${Date.now() - startedAt}ms) — skipping remaining feeds`,
+      );
+      break;
+    }
+
     const cached = feedCache.get(feed.slug);
     if (cached && Date.now() - cached.fetchedAt < FEED_CACHE_TTL_MS) {
       results.push({
@@ -208,38 +228,21 @@ export async function fetchAdmitadFeedProducts(
     }
 
     try {
-      let offers: AdmitadFeedOffer[];
-
-      const diskPath = path.join(
-        os.tmpdir(),
-        `admitad-feed-${feed.slug}.xml`
+      console.log(
+        `[admitad] fetching feed "${feed.name}" from URL (budget ${maxProductsPerFeed})...`,
       );
-      if (fs.existsSync(diskPath)) {
-        console.log(
-          `[admitad] loading feed "${feed.name}" from disk cache: ${diskPath}`
-        );
-        offers = await fetchFeedFromDisk(diskPath);
-      } else {
-        console.log(`[admitad] fetching feed "${feed.name}" from URL...`);
-        offers = await fetchFeedFromUrl(feed.feedUrl);
-        console.log(
-          `[admitad] feed "${feed.name}": ${offers.length} unique products`
-        );
-      }
-
-      feedCache.set(feed.slug, { offers, fetchedAt: Date.now() });
-      results.push({
-        offers:
-          options.maxProductsPerFeed && offers.length > options.maxProductsPerFeed
-            ? offers.slice(0, options.maxProductsPerFeed)
-            : offers,
-        feedName: feed.name,
-        feedSlug: feed.slug,
+      const capped = await fetchFeedFromUrl(feed.feedUrl, {
+        timeoutMs: timeoutPerFeedMs,
+        maxOffers: maxProductsPerFeed,
       });
+      console.log(`[admitad] feed "${feed.name}": ${capped.length} products`);
+
+      feedCache.set(feed.slug, { offers: capped, fetchedAt: Date.now() });
+      results.push({ offers: capped, feedName: feed.name, feedSlug: feed.slug });
     } catch (error) {
       console.error(
         `[admitad] feed "${feed.name}" fetch failed:`,
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       );
       // Real-data only: never fall back to mock products. A failed feed is
       // skipped; remaining feeds and the database catalog still supply items.

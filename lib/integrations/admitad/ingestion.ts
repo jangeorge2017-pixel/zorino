@@ -19,10 +19,13 @@ import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/cat
 import {
   listWebsites,
   listCampaignsForWebsite,
-  type AdmitadCampaign,
-  type AdmitadFeedInfo,
 } from "./api";
 import { getAccessToken } from "./auth";
+import {
+  getAllAdmitadFeeds,
+  initializeMultiMerchantDiscovery,
+  ADMITAD_FEEDS,
+} from "./config";
 
 // ---------------------------------------------------------------------------
 // Feed XML streaming parser (reuses logic from feed-fetcher.ts)
@@ -119,10 +122,14 @@ function decodeXmlEntities(text: string): string {
     .replace(/&apos;/g, "'");
 }
 
-async function fetchFeedStreaming(feedUrl: string): Promise<AdmitadFeedOffer[]> {
+async function fetchFeedStreaming(
+  feedUrl: string,
+  opts: { timeoutMs?: number; maxOffers?: number } = {},
+): Promise<AdmitadFeedOffer[]> {
+  const { timeoutMs = 180_000, maxOffers = Infinity } = opts;
   const resp = await fetch(feedUrl, {
     headers: { "User-Agent": "ZorinoBot/2.0-admitad-api" },
-    signal: AbortSignal.timeout(180_000), // 3 min for large feeds
+    signal: AbortSignal.timeout(timeoutMs),
   });
 
   if (!resp.ok) throw new Error(`Feed HTTP ${resp.status}`);
@@ -133,13 +140,9 @@ async function fetchFeedStreaming(feedUrl: string): Promise<AdmitadFeedOffer[]> 
   const offers = new Map<string, AdmitadFeedOffer>();
   let buffer = "";
 
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-
-    // Match <offer id="N"...>...</offer> (with optional extra attrs like available="true")
-    // and <entry>...</entry> (Google Merchant)
+  const consumeBuffer = () => {
+    // Match <offer id="N"...>...</offer> (with optional extra attrs like
+    // available="true") and <entry>...</entry> (Google Merchant)
     const offerRegex = /<(?:offer\s+id="\d+"[^>]*|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
     let match;
     while ((match = offerRegex.exec(buffer)) !== null) {
@@ -148,24 +151,36 @@ async function fetchFeedStreaming(feedUrl: string): Promise<AdmitadFeedOffer[]> 
         offers.set(offer.id, offer);
       }
     }
-
-    const lastIncomplete = Math.max(buffer.lastIndexOf("<offer"), buffer.lastIndexOf("<entry"));
+    const lastIncomplete = Math.max(
+      buffer.lastIndexOf("<offer"),
+      buffer.lastIndexOf("<entry"),
+    );
     buffer = lastIncomplete > 0 ? buffer.slice(lastIncomplete) : "";
-  }
+  };
 
-  // Flush remaining — match any complete offers/entries in leftover buffer
-  if (buffer.includes("<offer") || buffer.includes("<entry>")) {
-    const flushRegex = /<(?:offer\s+id="\d+"[^>]*|entry)>[\s\S]*?<\/(?:offer|entry)>/g;
-    let flushMatch;
-    while ((flushMatch = flushRegex.exec(buffer)) !== null) {
-      const offer = parseOfferElement(flushMatch[0]);
-      if (offer && !offers.has(offer.id)) {
-        offers.set(offer.id, offer);
-      }
+  try {
+    for (;;) {
+      // Early exit: stop downloading once the per-feed budget is parsed.
+      if (offers.size >= maxOffers) break;
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      consumeBuffer();
+    }
+  } catch (err) {
+    console.warn(
+      `[admitad-ingest] feed stream interrupted after ${offers.size} offers:`,
+      err instanceof Error ? err.message : err,
+    );
+  } finally {
+    try {
+      await reader.cancel();
+    } catch {
+      // reader already closed
     }
   }
 
-  return Array.from(offers.values());
+  return Array.from(offers.values()).slice(0, maxOffers);
 }
 
 // ---------------------------------------------------------------------------
@@ -174,16 +189,17 @@ async function fetchFeedStreaming(feedUrl: string): Promise<AdmitadFeedOffer[]> 
 
 function feedOfferToCatalogItem(
   offer: AdmitadFeedOffer,
-  campaign: AdmitadCampaign,
-  feedInfo: AdmitadFeedInfo,
+  campaignId: number,
+  campaignName: string,
+  gotolink: string,
 ): NormalizedCatalogItem | null {
   // Real links only: prefer the feed offer URL; fall back to the program's
   // standard affiliate (gotolink) URL reported by the API. Skip offers that
   // have neither — never fabricate a destination.
-  const destinationUrl = offer.url || campaign.gotolink || "";
+  const destinationUrl = offer.url || gotolink || "";
   if (!destinationUrl) return null;
 
-  const storeSlug = campaign.name
+  const storeSlug = campaignName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
@@ -197,7 +213,7 @@ function feedOfferToCatalogItem(
   const offer_: ProviderOffer = {
     providerId: "admitad",
     storeSlug,
-    storeName: campaign.name,
+    storeName: campaignName,
     externalId: offer.id,
     price: offer.price,
     originalPrice: offer.oldprice ?? offer.price,
@@ -209,8 +225,8 @@ function feedOfferToCatalogItem(
   };
 
   return {
-    id: `admitad-${campaign.id}-${offer.id}`,
-    slug: `admitad-${campaign.id}-${offer.id}`,
+    id: `admitad-${campaignId}-${offer.id}`,
+    slug: `admitad-${campaignId}-${offer.id}`,
     title: offer.name,
     imageUrl: offer.image || "",
     emoji: "🛍️",
@@ -409,10 +425,51 @@ export type IngestionResult = {
   errors: string[];
 };
 
+/** Module-level lock: prevents overlapping ingestion runs in one instance. */
+let ingestionRunInProgress = false;
+
 export async function runAdmitadIngestion(
-  options: { maxFeeds?: number; maxProductsPerFeed?: number; dryRun?: boolean } = {},
+  options: {
+    maxFeeds?: number;
+    maxProductsPerFeed?: number;
+    dryRun?: boolean;
+    deadlineMs?: number;
+  } = {},
 ): Promise<IngestionResult> {
-  const { maxFeeds = Infinity, maxProductsPerFeed = 5000, dryRun = false } = options;
+  if (ingestionRunInProgress) {
+    return {
+      authenticated: false,
+      websitesFound: 0,
+      programsDiscovered: 0,
+      feedsWithProducts: 0,
+      totalProducts: 0,
+      productsSaved: 0,
+      errors: ["another ingestion run already in progress"],
+    };
+  }
+  ingestionRunInProgress = true;
+  try {
+    return await runAdmitadIngestionLocked(options);
+  } finally {
+    ingestionRunInProgress = false;
+  }
+}
+
+async function runAdmitadIngestionLocked(
+  options: {
+    maxFeeds?: number;
+    maxProductsPerFeed?: number;
+    dryRun?: boolean;
+    deadlineMs?: number;
+  } = {},
+): Promise<IngestionResult> {
+  const {
+    maxFeeds = Infinity,
+    maxProductsPerFeed = 5000,
+    dryRun = false,
+    deadlineMs = 240_000,
+  } = options;
+  const ingestStartedAt = Date.now();
   const result: IngestionResult = {
     authenticated: false,
     websitesFound: 0,
@@ -436,6 +493,16 @@ export async function runAdmitadIngestion(
   }
   console.log("[admitad-ingest] Authentication successful");
 
+  // Initialize the shared multi-merchant discovery registry so ingestion uses
+  // the SAME discovered-program set as the live catalog and search connector.
+  try {
+    await initializeMultiMerchantDiscovery();
+  } catch (err) {
+    result.errors.push(
+      `Discovery init failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
   // 2. Discover websites
   console.log("[admitad-ingest] Step 2: Discovering websites...");
   let websites;
@@ -457,11 +524,21 @@ export async function runAdmitadIngestion(
 
   // 3. Discover programs with feeds for each website
   console.log("[admitad-ingest] Step 3: Discovering programs with product feeds...");
-  const allFeeds: {
-    campaign: AdmitadCampaign;
-    feed: AdmitadFeedInfo;
-    websiteId: number;
-  }[] = [];
+  type FeedCandidate = {
+    campaignId: number;
+    campaignName: string;
+    gotolink: string;
+    feedName: string;
+    feedUrl: string;
+  };
+  const allFeeds: FeedCandidate[] = [];
+  const seenFeedUrls = new Set<string>();
+
+  const addCandidate = (candidate: FeedCandidate) => {
+    if (!candidate.feedUrl || seenFeedUrls.has(candidate.feedUrl)) return;
+    seenFeedUrls.add(candidate.feedUrl);
+    allFeeds.push(candidate);
+  };
 
   for (const website of websites) {
     try {
@@ -471,7 +548,15 @@ export async function runAdmitadIngestion(
       for (const campaign of campaigns) {
         if (!campaign.feeds_info?.length) continue;
         for (const feed of campaign.feeds_info) {
-          allFeeds.push({ campaign, feed, websiteId: website.id });
+          const feedUrl = feed.xml_link?.replace("http://", "https://");
+          if (!feedUrl) continue;
+          addCandidate({
+            campaignId: campaign.id,
+            campaignName: campaign.name,
+            gotolink: campaign.gotolink || "",
+            feedName: feed.name || campaign.name,
+            feedUrl,
+          });
         }
       }
     } catch (err) {
@@ -481,40 +566,92 @@ export async function runAdmitadIngestion(
     }
   }
 
+  // Merge the initialized discovery registry (the SAME source the live catalog
+  // and search connector use) so ingestion never depends on a single code path.
+  try {
+    const registryFeeds = await getAllAdmitadFeeds();
+    let mergedFromRegistry = 0;
+    for (const rf of registryFeeds) {
+      const before = allFeeds.length;
+      addCandidate({
+        campaignId: rf.merchantId ?? rf.websiteId ?? 0,
+        campaignName: rf.name,
+        gotolink: "",
+        feedName: rf.name,
+        feedUrl: rf.feedUrl,
+      });
+      if (allFeeds.length > before) mergedFromRegistry++;
+    }
+    if (mergedFromRegistry > 0) {
+      console.log(
+        `[admitad-ingest] merged ${mergedFromRegistry} feeds from discovery registry`,
+      );
+    }
+  } catch (err) {
+    result.errors.push(
+      `Discovery registry merge failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  // Exclude the legacy static env feed(s): ADMITAD_FEED_URL serves a stale
+  // hand-seeded product list, not real program data. Real products come
+  // exclusively from Publisher-API-discovered campaigns.
+  const legacyEnvUrls = new Set(ADMITAD_FEEDS.map((f) => f.feedUrl));
+  const beforeExclusion = allFeeds.length;
+  const candidateFeeds = allFeeds.filter((f) => !legacyEnvUrls.has(f.feedUrl));
+  if (candidateFeeds.length < beforeExclusion) {
+    console.log(
+      `[admitad-ingest] excluded ${beforeExclusion - candidateFeeds.length} legacy static env feed(s) (stale seed list)`,
+    );
+  }
+
   console.log(
-    `[admitad-ingest] Found ${allFeeds.length} feeds across ${result.programsDiscovered} programs`,
+    `[admitad-ingest] Found ${candidateFeeds.length} feeds across ${result.programsDiscovered} programs`,
   );
 
-  if (allFeeds.length === 0) {
+  if (candidateFeeds.length === 0) {
     result.errors.push("No product feeds discovered from any connected program");
     return result;
   }
 
-  // 4. Fetch products from each feed
+  // 4. Fetch products from each feed (bounded: per-feed cap + global deadline)
   console.log("[admitad-ingest] Step 4: Fetching products from feeds...");
   const allItems: NormalizedCatalogItem[] = [];
   const seenOfferIds = new Set<string>();
 
-  const feedsToFetch = allFeeds.slice(0, maxFeeds);
+  const feedsToFetch = candidateFeeds.slice(0, maxFeeds);
 
   for (let fi = 0; fi < feedsToFetch.length; fi++) {
-    const { campaign, feed, websiteId } = feedsToFetch[fi];
-    const feedUrl = feed.xml_link?.replace("http://", "https://");
-    if (!feedUrl) continue;
+    const candidate = feedsToFetch[fi];
+
+    if (fi > 0 && Date.now() - ingestStartedAt > deadlineMs) {
+      result.errors.push(
+        `Deadline ${deadlineMs}ms reached — stopping after ${fi}/${feedsToFetch.length} feeds`,
+      );
+      break;
+    }
 
     console.log(
-      `[admitad-ingest] Feed ${fi + 1}/${feedsToFetch.length}: "${feed.name}" from "${campaign.name}"...`,
+      `[admitad-ingest] Feed ${fi + 1}/${feedsToFetch.length}: "${candidate.feedName}" from "${candidate.campaignName}"...`,
     );
 
     try {
-      const offers = await fetchFeedStreaming(feedUrl);
-      result.feedsWithProducts++;
+      // Early-exit streaming: stops downloading once the per-feed budget is parsed.
+      const offers = await fetchFeedStreaming(candidate.feedUrl, {
+        maxOffers: Math.min(maxProductsPerFeed + 50, maxProductsPerFeed * 2),
+      });
+      if (offers.length > 0) result.feedsWithProducts++;
 
       let feedCount = 0;
       for (const offer of offers.slice(0, maxProductsPerFeed)) {
         if (seenOfferIds.has(offer.id)) continue;
 
-        const item = feedOfferToCatalogItem(offer, campaign, feed);
+        const item = feedOfferToCatalogItem(
+          offer,
+          candidate.campaignId,
+          candidate.campaignName,
+          candidate.gotolink,
+        );
         if (!item) continue;
 
         seenOfferIds.add(offer.id);
@@ -524,11 +661,11 @@ export async function runAdmitadIngestion(
 
       result.totalProducts += feedCount;
       console.log(
-        `[admitad-ingest] Feed "${feed.name}": ${feedCount} unique products`,
+        `[admitad-ingest] Feed "${candidate.feedName}": ${feedCount} unique products (${Date.now() - ingestStartedAt}ms elapsed)`,
       );
     } catch (err) {
       result.errors.push(
-        `Feed "${feed.name}" fetch failed: ${err instanceof Error ? err.message : String(err)}`,
+        `Feed "${candidate.feedName}" fetch failed: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
   }
