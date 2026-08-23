@@ -37,9 +37,12 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
     case "ebay":
       return isEbayConfigured();
     case "admitad": {
-      // Feed-based; only available when ADMITAD_FEED_URL env var is set
+      // Feed-based primary feed, plus Publisher-API multi-merchant discovery
+      // (feeds + deeplinks) when OAuth client credentials are configured.
       const feedUrl = process.env.ADMITAD_FEED_URL?.trim();
-      return Boolean(feedUrl);
+      const apiCredentials =
+        process.env.ADMITAD_CLIENT_ID?.trim() && process.env.ADMITAD_CLIENT_SECRET?.trim();
+      return Boolean(feedUrl) || Boolean(apiCredentials);
     }
 
     // --- ACTIVE in production (CJDROPSHIPPING_API_KEY configured on Vercel) ---

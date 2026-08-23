@@ -9,6 +9,7 @@ import {
   type AffiliateMarketplace,
 } from "@/lib/affiliate/config";
 import { isAllowedAffiliateDestination } from "@/lib/affiliate/redirect-policy";
+import { ADMITAD_TRACKING_HOSTS } from "@/lib/affiliate/redirect-policy";
 import { affiliateRateLimiter, enforceRateLimit } from "@/lib/security/api-rate-limit";
 import { clampString } from "@/lib/security/input";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -64,20 +65,47 @@ export async function GET(request: Request) {
     "unknown";
 
   // Prefer an already-tracked destination to avoid double-wrapping affiliate URLs.
+  let trackedHost = false;
+  try {
+    const destHost = new URL(destinationUrl).hostname.toLowerCase();
+    trackedHost =
+      ADMITAD_TRACKING_HOSTS.has(destHost) ||
+      [...ADMITAD_TRACKING_HOSTS].some((h) => destHost.endsWith(`.${h}`)) ||
+      destHost.endsWith(".admitad.com");
+  } catch {
+    trackedHost = false;
+  }
+
   const alreadyTracked =
+    trackedHost ||
     /([?&](tag|campid|aff_trace_key|aff_short_key|wmlspartner|customid)=)/i.test(
       destinationUrl,
     ) || /s\.click\.aliexpress\.com/i.test(destinationUrl)
     || /s\.noon\.com/i.test(destinationUrl);
 
-  const affiliateUrl = alreadyTracked
-    ? destinationUrl
-    : await generateProductAffiliateUrl({
-        destinationUrl,
-        storeSlug,
-        marketplace: marketplace as AffiliateMarketplace,
-        promotionLink: destinationUrl,
-      });
+  let affiliateUrl: string;
+  if (alreadyTracked) {
+    affiliateUrl = destinationUrl;
+  } else if (marketplace === "admitad" || marketplace === "alibaba") {
+    // Admitad programs: generate a REAL deeplink through the Admitad API when
+    // the destination belongs to a discovered deeplink-capable program.
+    // Falls back to the allowlisted merchant destination itself — never a
+    // fabricated tracking URL.
+    const { generateAdmitadDeeplinkForDestination } = await import(
+      "@/lib/integrations/admitad/merchant-discovery"
+    );
+    affiliateUrl =
+      (await generateAdmitadDeeplinkForDestination(destinationUrl)) ?? destinationUrl;
+  } else {
+    // Do NOT pass the raw destination as promotionLink/affiliateUrl — the
+    // AliExpress/eBay generators short-circuit on that field and would return
+    // it untracked. Let them build real tracked URLs.
+    affiliateUrl = await generateProductAffiliateUrl({
+      destinationUrl,
+      storeSlug,
+      marketplace: marketplace as AffiliateMarketplace,
+    });
+  }
 
   await recordAffiliateClick({
     productId,

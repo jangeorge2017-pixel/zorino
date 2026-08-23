@@ -88,6 +88,13 @@ export async function generateProductAffiliateUrl(input: {
     (input.storeSlug?.toLowerCase() as AffiliateMarketplace | undefined) ??
     null;
 
+  // Marketplaces without an affiliate integration (e.g. cjdropshipping) have
+  // no partner-tag config — pass the destination through untouched instead of
+  // crashing on a missing AFFILIATE_ENV_KEYS entry.
+  if (marketplace && !(AFFILIATE_MARKETPLACES as readonly string[]).includes(marketplace)) {
+    return input.destinationUrl;
+  }
+
   let partnerTag: string | null = null;
   if (marketplace) {
     const setting = await getAffiliateSetting(marketplace);
@@ -126,23 +133,35 @@ export async function generateProductAffiliateUrl(input: {
   });
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Only real UUIDs are valid FK values — UI passes slugs like "aliexpress-123". */
+function toUuidOrNull(value: string | null | undefined): string | null {
+  return value && UUID_PATTERN.test(value) ? value : null;
+}
+
 export async function recordAffiliateClick(input: AffiliateClickInput): Promise<void> {
   const supabase = createSupabaseServiceClient() ?? createSupabaseAnonClient();
   if (!supabase) return;
 
-  await db(supabase).from("affiliate_clicks").insert({
-    product_id: input.productId ?? null,
-    store_id: input.storeId ?? null,
-    marketplace: input.marketplace,
-    destination_url: input.destinationUrl,
-    affiliate_url: input.affiliateUrl,
-    session_id: input.sessionId ?? null,
-    user_id: input.userId ?? null,
-    country_code: input.countryCode ?? null,
-    source: input.source ?? null,
-    referrer: input.referrer ?? null,
-    user_agent: input.userAgent ?? null,
-  });
+  const { error: clickError } = await db(supabase)
+    .from("affiliate_clicks")
+    .insert({
+      product_id: toUuidOrNull(input.productId),
+      store_id: toUuidOrNull(input.storeId),
+      marketplace: input.marketplace,
+      destination_url: input.destinationUrl,
+      affiliate_url: input.affiliateUrl,
+      session_id: input.sessionId ?? null,
+      user_id: toUuidOrNull(input.userId),
+      country_code: input.countryCode ?? null,
+      source: input.source ?? null,
+      referrer: input.referrer ?? null,
+      user_agent: input.userAgent ?? null,
+    });
+  if (clickError) {
+    console.error("[affiliate] click insert failed:", clickError.message);
+  }
 
   const today = new Date().toISOString().slice(0, 10);
   const { data: existing } = await db(supabase)

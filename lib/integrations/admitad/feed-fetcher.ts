@@ -2,8 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import type { AdmitadFeedOffer } from "./types";
-import { ADMITAD_FEEDS, FEED_CACHE_TTL_MS } from "./config";
-import { SEED_FEED_OFFERS } from "./seed";
+import { getAllAdmitadFeeds, ADMITAD_FEEDS, FEED_CACHE_TTL_MS } from "./config";
 
 type CachedFeed = {
   offers: AdmitadFeedOffer[];
@@ -107,7 +106,7 @@ function decodeXmlEntities(text: string): string {
 async function fetchFeedFromUrl(feedUrl: string): Promise<AdmitadFeedOffer[]> {
   const response = await fetch(feedUrl, {
     headers: { "User-Agent": "ZorinoBot/1.0" },
-    signal: AbortSignal.timeout(25_000),
+    signal: AbortSignal.timeout(30_000),
   });
   if (!response.ok) {
     throw new Error(`Admitad feed HTTP ${response.status}`);
@@ -173,7 +172,9 @@ async function fetchFeedFromDisk(filePath: string): Promise<AdmitadFeedOffer[]> 
   return Array.from(offers.values());
 }
 
-export async function fetchAdmitadFeedProducts(): Promise<
+export async function fetchAdmitadFeedProducts(
+  options: { maxProductsPerFeed?: number } = {},
+): Promise<
   { offers: AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]
 > {
   const results: {
@@ -182,7 +183,20 @@ export async function fetchAdmitadFeedProducts(): Promise<
     feedSlug: string;
   }[] = [];
 
-  for (const feed of ADMITAD_FEEDS) {
+  // Multi-merchant: primary ADMITAD_FEED_URL + every discovered program feed.
+  // Falls back to the static list when discovery is unavailable (no API creds).
+  let feeds = ADMITAD_FEEDS;
+  try {
+    const allFeeds = await getAllAdmitadFeeds();
+    if (allFeeds.length > 0) feeds = allFeeds;
+  } catch (error) {
+    console.error(
+      "[admitad] feed discovery unavailable, using static feed list:",
+      error instanceof Error ? error.message : error,
+    );
+  }
+
+  for (const feed of feeds) {
     const cached = feedCache.get(feed.slug);
     if (cached && Date.now() - cached.fetchedAt < FEED_CACHE_TTL_MS) {
       results.push({
@@ -214,28 +228,21 @@ export async function fetchAdmitadFeedProducts(): Promise<
       }
 
       feedCache.set(feed.slug, { offers, fetchedAt: Date.now() });
-      results.push({ offers, feedName: feed.name, feedSlug: feed.slug });
+      results.push({
+        offers:
+          options.maxProductsPerFeed && offers.length > options.maxProductsPerFeed
+            ? offers.slice(0, options.maxProductsPerFeed)
+            : offers,
+        feedName: feed.name,
+        feedSlug: feed.slug,
+      });
     } catch (error) {
       console.error(
         `[admitad] feed "${feed.name}" fetch failed:`,
         error instanceof Error ? error.message : error
       );
-      // Fallback: use seed offers so the homepage always shows Alibaba products
-      // even when the live feed URL is unreachable (e.g. Vercel serverless).
-      if (SEED_FEED_OFFERS.length > 0) {
-        console.log(
-          `[admitad] using ${SEED_FEED_OFFERS.length} seed offers as fallback for "${feed.name}"`
-        );
-        feedCache.set(feed.slug, {
-          offers: SEED_FEED_OFFERS,
-          fetchedAt: Date.now(),
-        });
-        results.push({
-          offers: SEED_FEED_OFFERS,
-          feedName: feed.name,
-          feedSlug: feed.slug,
-        });
-      }
+      // Real-data only: never fall back to mock products. A failed feed is
+      // skipped; remaining feeds and the database catalog still supply items.
     }
   }
 
