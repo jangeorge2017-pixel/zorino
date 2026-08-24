@@ -266,8 +266,35 @@ async function getDatabaseProductDetail(productId: string): Promise<ProductDetai
   }
 }
 
-/** PDP for CJdropshipping products (`cjdropshipping-<pid>` ids). */
-async function getCjProductDetail(externalId: string): Promise<ProductDetail | null> {
+const cjDetailCache = new Map<
+  string,
+  { at: number; detail: Promise<ProductDetail | null> }
+>();
+const CJ_DETAIL_TTL_MS = 60_000;
+const CJ_QPS_DELAY_MS = 1_300;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getCjProductDetail(externalId: string): Promise<ProductDetail | null> {
+  const cached = cjDetailCache.get(externalId);
+  if (cached && Date.now() - cached.at < CJ_DETAIL_TTL_MS) {
+    return cached.detail;
+  }
+
+  const detail = resolveCjProductDetail(externalId).finally(() => {
+    const entry = cjDetailCache.get(externalId);
+    if (entry?.detail === detail) {
+      cjDetailCache.set(externalId, { at: Date.now(), detail });
+    }
+  });
+  cjDetailCache.set(externalId, { at: Date.now(), detail });
+  return detail;
+}
+
+async function resolveCjProductDetail(externalId: string): Promise<ProductDetail | null> {
+  let detail: ProductDetail | null = null;
   try {
     const apiKey = process.env.CJDROPSHIPPING_API_KEY?.trim();
     if (!apiKey) return null;
@@ -278,20 +305,42 @@ async function getCjProductDetail(externalId: string): Promise<ProductDetail | n
     const { normalizeCJRaw } = await import("@/lib/search/normalization");
 
     const client = new CJdropshippingClient(apiKey);
-    const products = await client.getProductsByIds([externalId]);
-    const raw = products[0];
-    if (!raw) return null;
 
-    const listing = normalizeCJRaw(raw);
-    if (!listing) return null;
-    return searchItemToProductDetail(rawListingToSearchItem(listing));
+    for (let attempt = 0; attempt < 3 && !detail; attempt += 1) {
+      if (attempt > 0) await sleep(CJ_QPS_DELAY_MS);
+      try {
+        const products = await client.getProductsByIds([externalId]);
+        const raw = products[0];
+        if (!raw) {
+          if (attempt === 2) {
+            console.error(
+              "[cjdropshipping-detail]",
+              `CJ query returned no product for ${externalId} after retries`,
+            );
+          }
+          continue;
+        }
+        const listing = normalizeCJRaw(raw);
+        if (listing) {
+          detail = searchItemToProductDetail(rawListingToSearchItem(listing));
+        }
+      } catch (error) {
+        if (attempt === 2) {
+          console.error(
+            "[cjdropshipping-detail]",
+            error instanceof Error ? error.message : "CJdropshipping product detail failed",
+          );
+        }
+      }
+    }
   } catch (error) {
     console.error(
       "[cjdropshipping-detail]",
       error instanceof Error ? error.message : "CJdropshipping product detail failed",
     );
-    return null;
   }
+
+  return detail;
 }
 
 /**
