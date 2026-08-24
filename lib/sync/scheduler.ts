@@ -118,6 +118,8 @@ export interface RunDueSyncJobsOutcome {
   deferred: number;
   /** Stale 'running' rows swept to 'failed' by the watchdog. */
   sweptStaleRuns: number;
+  /** Jobs capped mid-run because they exceeded their time slice. */
+  timedOut?: number;
 }
 
 /** Run due sync jobs (oldest-due first) within an optional deadline. */
@@ -130,29 +132,60 @@ export async function runDueSyncJobs(
   const supabase = createSupabaseServiceClient();
   const deadlineAt = options?.deadlineAt;
 
+  // A single job must never consume the whole remaining window: a "full"
+  // import can legitimately run for many minutes, which is exactly how the
+  // original cron wedge happened. Cap each job and let the watchdog sweep
+  // any sync_runs row left 'running' by a capped job.
+  const SYNC_MIN_JOB_ROOM_MS = 8_000;
+  const SYNC_JOB_HARD_CAP_MS = 20_000;
+
   let attempted = 0;
   let deferred = 0;
+  let timedOut = 0;
 
   for (const job of jobs) {
-    if (deadlineAt !== undefined && Date.now() >= deadlineAt) {
+    const roomLeft =
+      deadlineAt !== undefined ? deadlineAt - Date.now() : Number.POSITIVE_INFINITY;
+    if (roomLeft < SYNC_MIN_JOB_ROOM_MS) {
       deferred = jobs.length - attempted;
-      console.warn(
-        `[sync-scheduler] deadline reached — deferring ${deferred} due job(s) to next invocation`,
-      );
+      if (deferred > 0) {
+        console.warn(
+          `[sync-scheduler] deadline reached — deferring ${deferred} due job(s) to next invocation`,
+        );
+      }
       break;
     }
 
-    const result = await runSyncJob({
-      storeId: job.storeId,
-      storeSlug: job.storeSlug,
-      integrationType: job.integrationType,
-      countryCode: job.countryCode,
-      currency: job.currency,
-      jobType: job.jobType,
-      syncJobId: job.id,
-      jobConfig: job.jobConfig,
-    });
-    results.push(result);
+    const jobTimeoutMs = Math.min(SYNC_JOB_HARD_CAP_MS, Math.max(3_000, roomLeft - 2_000));
+    let timedOutJob = false;
+    const result = await Promise.race([
+      runSyncJob({
+        storeId: job.storeId,
+        storeSlug: job.storeSlug,
+        integrationType: job.integrationType,
+        countryCode: job.countryCode,
+        currency: job.currency,
+        jobType: job.jobType,
+        syncJobId: job.id,
+        jobConfig: job.jobConfig,
+      }),
+      new Promise<null>((resolve) =>
+        setTimeout(() => {
+          timedOutJob = true;
+          resolve(null);
+        }, jobTimeoutMs),
+      ),
+    ]);
+    if (timedOutJob) {
+      timedOut++;
+      console.warn(
+        `[sync-scheduler] job ${job.storeSlug}/${job.jobType} exceeded ${Math.round(
+          jobTimeoutMs / 1000,
+        )}s — capping; run row will be swept by watchdog`,
+      );
+    } else if (result) {
+      results.push(result);
+    }
     attempted++;
 
     if (supabase && job.id) {
@@ -166,7 +199,7 @@ export async function runDueSyncJobs(
     }
   }
 
-  return { results, deferred, sweptStaleRuns };
+  return { results, deferred, sweptStaleRuns, timedOut };
 }
 
 /** Fallback jobs when Supabase is not configured — runs mock sync in dry-run. */
