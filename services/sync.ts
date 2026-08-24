@@ -8,14 +8,27 @@ import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
 import type { ServiceResult } from "@/lib/types/entities";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
-export async function executeScheduledSync(): Promise<ServiceResult<SyncRunResult[]>> {
+export async function executeScheduledSync(options?: {
+  deadlineAt?: number;
+}): Promise<
+  ServiceResult<SyncRunResult[]> & { deferred?: number; sweptStaleRuns?: number }
+> {
   try {
-    const results = await runDueSyncJobs();
-    return { data: results, error: null };
+    const outcome = await runDueSyncJobs(
+      options?.deadlineAt !== undefined ? { deadlineAt: options.deadlineAt } : undefined,
+    );
+    return {
+      data: outcome.results,
+      error: null,
+      deferred: outcome.deferred,
+      sweptStaleRuns: outcome.sweptStaleRuns,
+    };
   } catch (err) {
     return {
       data: [],
       error: err instanceof Error ? err.message : "Sync scheduler failed",
+      deferred: undefined,
+      sweptStaleRuns: 0,
     };
   }
 }

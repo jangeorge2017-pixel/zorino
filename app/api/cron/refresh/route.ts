@@ -12,9 +12,37 @@ import { runEbayScheduledSync } from "@/services/ebay";
 import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
 import { runNotificationAlerts } from "@/services/notifications/alerts";
 import { invalidateLowestPricesFromRoute, invalidateTrendingFromRoute } from "@/lib/revalidate";
+import { createCronBudget, CRON_BUDGET_MS, MIN_STEP_BUDGET_MS } from "@/lib/cron/budget";
+import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
 
-/** Bundled maintenance cron — keeps Vercel Hobby plan within the 2-cron limit. */
-export const maxDuration = 300;
+/**
+ * Bundled maintenance cron — keeps Vercel Hobby plan within the 2-cron limit.
+ *
+ * Reliability contract (F1 remediation):
+ *  - maxDuration is 60 (Hobby serverless cap). The previous maxDuration=300
+ *    exceeded the cap and the platform killed the function mid-run daily,
+ *    which is why nothing after the first slow step executed for weeks.
+ *  - Every step runs inside a wall-clock budget (CRON_BUDGET_MS) and is
+ *    skipped with an explicit `reason: "budget-exhausted"` marker instead of
+ *    overrunning.
+ *  - Light maintenance runs first; the historically wedging provider sync
+ *    loop runs LAST, deadline-bounded, with stale 'running' rows swept to
+ *    'failed' by a watchdog before it starts.
+ *  - Admitad ingestion (the intended core ingestion job) always gets a real
+ *    deadline derived from the remaining budget.
+ *  - The whole invocation is wrapped in a durable cron_job_runs heartbeat so
+ *    production executions are verifiable (see supabase/migrations/018).
+ */
+export const maxDuration = 60;
+
+// Right-sized for the 60s window. Each feed takes ~10-15s at this bound.
+// Raise ADMITAD_MAX_FEEDS / ADMITAD_MAX_PRODUCTS_PER_FEED env vars when the
+// deployment plan allows longer execution windows.
+const ADMITAD_CRON_MAX_FEEDS = Number(process.env.ADMITAD_MAX_FEEDS ?? 3);
+const ADMITAD_CRON_MAX_PRODUCTS_PER_FEED = Number(
+  process.env.ADMITAD_MAX_PRODUCTS_PER_FEED ?? 300,
+);
+const ADMITAD_CRON_DEADLINE_CAP_MS = 45_000;
 
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
@@ -24,62 +52,74 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const force =
     url.searchParams.get("force") === "true" || request.headers.get("x-vercel-cron") === "1";
-  const admitadRequested =
-    url.searchParams.get("admitad") === "true" || force || url.searchParams.get("full") === "true";
   const hourUtc = new Date().getUTCHours();
   const results: Record<string, unknown> = {};
 
-  const sync = await executeScheduledSync();
-  results.sync = sync.error
-    ? { error: sync.error, results: sync.data }
-    : { jobsRun: sync.data.length, results: sync.data };
+  const budget = createCronBudget();
+  const heartbeat = await startCronRun("/api/cron/refresh");
+  let thrown: unknown = null;
 
-  if (force || (await isTrendingRefreshDue())) {
-    const trending = await executeTrendingRefresh();
-    results.trending = trending.error
-      ? { error: trending.error }
-      : { itemsRanked: trending.ranked ?? 0 };
-    if (!trending.error) invalidateTrendingFromRoute();
-  } else {
-    results.trending = { skipped: true };
-  }
+  try {
+    // ── 1. Trending rankings (fast, due-gated) ────────────────────────────
+    if (force || (await isTrendingRefreshDue())) {
+      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+        results.trending = { skipped: true, reason: "budget-exhausted" };
+      } else {
+        try {
+          const trending = await executeTrendingRefresh();
+          results.trending = trending.error
+            ? { error: trending.error }
+            : { itemsRanked: trending.ranked ?? 0 };
+          if (!trending.error) invalidateTrendingFromRoute();
+        } catch (err) {
+          results.trending = {
+            error: err instanceof Error ? err.message : String(err),
+          };
+        }
+      }
+    } else {
+      results.trending = { skipped: true };
+    }
 
-  const lowest = await executeLowestPriceRefresh({
-    force,
-    triggeredBy: "cron",
-  });
-  results.lowestPrices =
-    "error" in lowest && lowest.error
-      ? { error: lowest.error }
-      : { skipped: lowest.skipped, itemsComputed: lowest.itemsComputed };
-  if (!lowest.skipped && !("error" in lowest && lowest.error)) invalidateLowestPricesFromRoute();
-
-  if (force || hourUtc % 6 === 0) {
-    const aliexpress = await runAliExpressScheduledSync();
-    results.aliexpress = aliexpress.skipped
-      ? { skipped: true }
-      : { jobsRun: aliexpress.results.length, results: aliexpress.results, error: aliexpress.error };
-
-    const ebay = await runEbayScheduledSync();
-    results.ebay = ebay.skipped
-      ? { skipped: true }
-      : { jobsRun: ebay.results.length, results: ebay.results, error: ebay.error };
-
-    const amazon = await runAmazonScheduledSync();
-    results.amazon = amazon.skipped
-      ? { skipped: true }
-      : { jobsRun: amazon.results.length, results: amazon.results, error: amazon.error };
-
-    // Multi-merchant Admitad ingestion: discover ALL active programs for the
-    // publisher's ad spaces, fetch every available product feed, and upsert
-    // the products (with real merchant identity + tracked affiliate URLs)
-    // into products/prices/lowest_prices_today.
-    if (admitadRequested || hourUtc % 12 === 0) {
+    // ── 2. Lowest-prices cache refresh (due-gated internally) ─────────────
+    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+      results.lowestPrices = { skipped: true, reason: "budget-exhausted" };
+    } else {
       try {
+        const lowest = await executeLowestPriceRefresh({
+          force,
+          triggeredBy: "cron",
+        });
+        results.lowestPrices =
+          "error" in lowest && lowest.error
+            ? { error: lowest.error }
+            : { skipped: lowest.skipped, itemsComputed: lowest.itemsComputed };
+        if (!lowest.skipped && !("error" in lowest && lowest.error)) {
+          invalidateLowestPricesFromRoute();
+        }
+      } catch (err) {
+        results.lowestPrices = {
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
+    }
+
+    // ── 3. Admitad multi-merchant ingestion (core ingestion job) ──────────
+    // Bounded by its own internal per-feed deadlines AND the shared budget so
+    // it can never wedge the invocation.
+    if (!budget.hasRoomFor(10_000)) {
+      results.admitadIngestion = { skipped: true, reason: "budget-exhausted" };
+    } else {
+      try {
+        const deadlineMs = Math.max(
+          10_000,
+          Math.min(budget.remainingMs() - 5_000, ADMITAD_CRON_DEADLINE_CAP_MS),
+        );
         const { runAdmitadIngestion } = await import("@/lib/integrations/admitad");
         const admitad = await runAdmitadIngestion({
-          maxFeeds: Number(process.env.ADMITAD_MAX_FEEDS ?? 20),
-          maxProductsPerFeed: Number(process.env.ADMITAD_MAX_PRODUCTS_PER_FEED ?? 2000),
+          maxFeeds: ADMITAD_CRON_MAX_FEEDS,
+          maxProductsPerFeed: ADMITAD_CRON_MAX_PRODUCTS_PER_FEED,
+          deadlineMs,
         });
         results.admitadIngestion = {
           authenticated: admitad.authenticated,
@@ -89,39 +129,163 @@ export async function GET(request: Request) {
           totalProducts: admitad.totalProducts,
           productsSaved: admitad.productsSaved,
           errors: admitad.errors.slice(0, 10),
+          deadlineMs,
         };
       } catch (err) {
         results.admitadIngestion = {
           error: err instanceof Error ? err.message : String(err),
         };
       }
-    } else {
-      results.admitadIngestion = { skipped: true };
     }
 
-    const imported = await triggerPhase1Imports();
-    results.importPhase1 = imported.error
-      ? { error: imported.error, results: imported.data }
-      : { providersRun: imported.data.length, results: imported.data };
+    // ── 4. Heavy provider schedulers / imports / aggregates ───────────────
+    // Each guarded individually: one slow provider must not starve the rest.
+    if (force || hourUtc % 6 === 0) {
+      const budgetSkipped = () => ({ skipped: true, reason: "budget-exhausted" });
 
-    const catalog = await refreshUniversalCatalogAggregates({ limit: 500 });
-    results.universalCatalog = catalog.error
-      ? { error: catalog.error }
-      : { refreshed: catalog.refreshed };
-  } else {
-    results.aliexpress = { skipped: true };
-    results.ebay = { skipped: true };
-    results.amazon = { skipped: true };
-    results.importPhase1 = { skipped: true };
+      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+        results.aliexpress = budgetSkipped();
+      } else {
+        try {
+          const aliexpress = await runAliExpressScheduledSync();
+          results.aliexpress = aliexpress.skipped
+            ? { skipped: true }
+            : { jobsRun: aliexpress.results.length, results: aliexpress.results, error: aliexpress.error };
+        } catch (err) {
+          results.aliexpress = { error: err instanceof Error ? err.message : String(err) };
+        }
+      }
+
+      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+        results.ebay = budgetSkipped();
+      } else {
+        try {
+          const ebay = await runEbayScheduledSync();
+          results.ebay = ebay.skipped
+            ? { skipped: true }
+            : { jobsRun: ebay.results.length, results: ebay.results, error: ebay.error };
+        } catch (err) {
+          results.ebay = { error: err instanceof Error ? err.message : String(err) };
+        }
+      }
+
+      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+        results.amazon = budgetSkipped();
+      } else {
+        try {
+          const amazon = await runAmazonScheduledSync();
+          results.amazon = amazon.skipped
+            ? { skipped: true }
+            : { jobsRun: amazon.results.length, results: amazon.results, error: amazon.error };
+        } catch (err) {
+          results.amazon = { error: err instanceof Error ? err.message : String(err) };
+        }
+      }
+
+      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+        results.importPhase1 = budgetSkipped();
+      } else {
+        try {
+          const imported = await triggerPhase1Imports();
+          results.importPhase1 = imported.error
+            ? { error: imported.error, results: imported.data }
+            : { providersRun: imported.data.length, results: imported.data };
+        } catch (err) {
+          results.importPhase1 = { error: err instanceof Error ? err.message : String(err) };
+        }
+      }
+
+      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+        results.universalCatalog = budgetSkipped();
+      } else {
+        try {
+          const catalog = await refreshUniversalCatalogAggregates({ limit: 500 });
+          results.universalCatalog = catalog.error
+            ? { error: catalog.error }
+            : { refreshed: catalog.refreshed };
+        } catch (err) {
+          results.universalCatalog = { error: err instanceof Error ? err.message : String(err) };
+        }
+      }
+    } else {
+      results.aliexpress = { skipped: true };
+      results.ebay = { skipped: true };
+      results.amazon = { skipped: true };
+      results.importPhase1 = { skipped: true };
+      results.universalCatalog = { skipped: true };
+    }
+
+    // ── 5. Due store-sync jobs LAST, deadline-bounded ─────────────────────
+    // This was the historical wedge: unbounded sequential provider imports
+    // ran FIRST and got the function killed before anything else could run.
+    // The watchdog inside also sweeps runs orphaned by earlier kills.
+    try {
+      const sync = await executeScheduledSync({ deadlineAt: budget.deadlineAt });
+      results.sync = sync.error
+        ? { error: sync.error, results: sync.data }
+        : {
+            jobsRun: sync.data.length,
+            deferred: sync.deferred ?? 0,
+            sweptStaleRuns: sync.sweptStaleRuns ?? 0,
+            results: sync.data,
+          };
+    } catch (err) {
+      results.sync = {
+        error: err instanceof Error ? err.message : String(err),
+      };
+    }
+
+    // ── 6. Notification alerts ─────────────────────────────────────────────
+    if (force || hourUtc === 8) {
+      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+        results.notifications = { skipped: true, reason: "budget-exhausted" };
+      } else {
+        try {
+          results.notifications = await runNotificationAlerts();
+        } catch (err) {
+          results.notifications = {
+            error: err instanceof Error ? err.message : String(err),
+          };
+        }
+      }
+    } else {
+      results.notifications = { skipped: true };
+    }
+  } catch (err) {
+    thrown = err;
   }
 
-  if (force || hourUtc === 8) {
-    results.notifications = await runNotificationAlerts();
-  } else {
-    results.notifications = { skipped: true };
+  const durationMs = Date.now() - heartbeat.startedAt;
+  const status = thrown ? "failed" : "succeeded";
+  await finishCronRun(heartbeat, status, {
+    scheduled: request.headers.get("x-vercel-cron") === "1",
+    hourUtc,
+    budgetMs: CRON_BUDGET_MS,
+    budgetRemainingMs: budget.remainingMs(),
+    durationMs,
+    error: thrown instanceof Error ? thrown.message : undefined,
+    results,
+  });
+
+  if (thrown) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: thrown instanceof Error ? thrown.message : String(thrown),
+        cronRunId: heartbeat.id,
+        results,
+      },
+      { status: 500 },
+    );
   }
 
-  return NextResponse.json({ success: true, results });
+  return NextResponse.json({
+    success: true,
+    cronRunId: heartbeat.id,
+    durationMs,
+    budgetRemainingMs: budget.remainingMs(),
+    results,
+  });
 }
 
 export async function POST(request: Request) {
