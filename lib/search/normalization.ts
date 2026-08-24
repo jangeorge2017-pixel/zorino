@@ -238,10 +238,10 @@ type CJRawProduct = {
   pid?: string;
   productNameEn?: string;
   productName?: string;
-  productImage?: string;
+  productImage?: string | string[];
   productImageSet?: string[];
-  sellPrice?: number;
-  suggestSellPrice?: number;
+  sellPrice?: number | string;
+  suggestSellPrice?: number | string;
   categoryName?: string;
 };
 
@@ -269,15 +269,23 @@ export function normalizeCJRaw(raw: CJRawProduct): RawProviderListing | null {
   const price = Number(raw.sellPrice ?? raw.suggestSellPrice ?? 0);
   if (!price || price <= 0) return null;
 
-  const originalPrice =
-    raw.suggestSellPrice && raw.suggestSellPrice > price ? raw.suggestSellPrice : price;
+  const imageCandidates: unknown[] = [
+    ...(Array.isArray(raw.productImage) ? raw.productImage : [raw.productImage]),
+    ...(raw.productImageSet ?? []),
+  ];
+  const imageUrl =
+    imageCandidates.find(
+      (candidate): candidate is string =>
+        typeof candidate === "string" && candidate.startsWith("http"),
+    ) ?? "";
+  if (!imageUrl) return null;
+
+  const suggestPrice = Number(raw.suggestSellPrice ?? 0);
+  const originalPrice = suggestPrice > price ? suggestPrice : price;
   const discount =
     originalPrice > price
       ? Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100))
       : 0;
-
-  const imageUrl = raw.productImage ?? "";
-  if (!imageUrl.startsWith("http")) return null;
 
   const productUrl = buildCjProductUrl(externalId, title);
 
