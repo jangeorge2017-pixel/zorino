@@ -5,6 +5,7 @@ import { Star, Heart } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
+import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 
 export type ListingProductCardData = {
   id: string;
@@ -53,6 +54,7 @@ export default function ListingProductCard({
 }: ListingProductCardProps) {
   const tCommon = useTranslations("common");
   const tProduct = useTranslations("product");
+  const { formatPrice } = useIntlPreferences();
 
   const discount =
     product.discount ??
@@ -137,9 +139,9 @@ export default function ListingProductCard({
         </div>
 
         <div className="deal-pricing">
-          <span className="deal-price">${product.price.toLocaleString("en-US")}</span>
+          <span className="deal-price">{formatPrice(product.price)}</span>
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="deal-original">${product.originalPrice.toLocaleString("en-US")}</span>
+            <span className="deal-original">{formatPrice(product.originalPrice)}</span>
           )}
         </div>
 

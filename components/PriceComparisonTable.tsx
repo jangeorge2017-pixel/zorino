@@ -7,6 +7,7 @@ import { ExternalLink, Tag, TrendingDown, Trophy, ChevronRight } from "lucide-re
 import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
+import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { CompareOffer } from "@/services/compare";
 
 type PriceComparisonTableProps = {
@@ -22,6 +23,7 @@ export default function PriceComparisonTable({
 }: PriceComparisonTableProps) {
   const t = useTranslations("product");
   const tCommon = useTranslations("common");
+  const { formatPrice } = useIntlPreferences();
 
   if (offers.length === 0) return null;
 
@@ -85,10 +87,10 @@ export default function PriceComparisonTable({
                   </div>
                 </td>
                 <td>
-                  <span className="price-comparison-price">${offer.price.toLocaleString("en-US")}</span>
+                  <span className="price-comparison-price">{formatPrice(offer.price)}</span>
                   {(offer.originalPrice ?? 0) > offer.price && (
                     <span className="price-comparison-original">
-                      ${(offer.originalPrice ?? offer.price).toLocaleString("en-US")}
+                      {formatPrice(offer.originalPrice ?? offer.price)}
                     </span>
                   )}
                 </td>
@@ -143,12 +145,13 @@ export function ComparePriceSummary({
   savingsPercent,
 }: ComparePriceSummaryProps) {
   const t = useTranslations("product");
+  const { formatPrice } = useIntlPreferences();
 
   return (
     <div className="compare-price-summary">
       <div className="compare-price-stat">
         <span className="compare-price-stat-label">{t("lowestPrice")}</span>
-        <span className="compare-price-stat-value">${lowestPrice.toLocaleString("en-US")}</span>
+        <span className="compare-price-stat-value">{formatPrice(lowestPrice)}</span>
         <span className="compare-price-stat-meta">
           {t("atStore", { store: cheapestStoreName })}
         </span>
@@ -164,7 +167,7 @@ export function ComparePriceSummary({
       {savingsVsHighest > 0 && (
         <div className="compare-price-stat">
           <span className="compare-price-stat-label">{t("youSaveUpTo")}</span>
-          <span className="compare-price-stat-value">${savingsVsHighest.toLocaleString("en-US")}</span>
+          <span className="compare-price-stat-value">{formatPrice(savingsVsHighest)}</span>
           <span className="compare-price-stat-meta">
             {savingsPercent
               ? t("vsHighestPercent", { percent: savingsPercent })

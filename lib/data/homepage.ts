@@ -1,4 +1,5 @@
 import { unstable_cache } from "next/cache";
+import { cookies } from "next/headers";
 import { getCategories } from "@/services/categories";
 import { getTopCoupons as fetchTopCoupons, getAllCoupons } from "@/services/coupons";
 import { getStores } from "@/services/stores";
@@ -12,6 +13,9 @@ import {
 import { HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
 import { ZH_POPULAR_SEARCHES } from "@/lib/zorino-home/content";
 import { withFallbackCategories } from "@/lib/zorino-home/presentation";
+import { INTL_COOKIE_CURRENCY } from "@/lib/international/cookies";
+import { isSupportedCurrency } from "@/lib/international/config";
+import { formatCurrency as formatCurrencyValue } from "@/lib/international/format";
 import type {
   FloatingProductCard,
   FooterStatItem,
@@ -82,8 +86,21 @@ function formatStatCount(count: number): string {
   return String(count);
 }
 
-function formatCurrency(amount: number): string {
-  return `$${amount.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+/** Hero orbit cards are server-formatted — honor the visitor's currency cookie. */
+async function getDisplayCurrencyCode(): Promise<string> {
+  try {
+    const cookieStore = await cookies();
+    const cookieCurrency = cookieStore.get(INTL_COOKIE_CURRENCY)?.value;
+    if (cookieCurrency && isSupportedCurrency(cookieCurrency)) return cookieCurrency;
+  } catch {
+    // Cookies unavailable (e.g. during static generation) — fall back to USD.
+  }
+  return "USD";
+}
+
+async function formatCurrency(amount: number, currencyCode?: string): Promise<string> {
+  const code = currencyCode ?? (await getDisplayCurrencyCode());
+  return formatCurrencyValue(amount, code);
 }
 
 function couponToCard(coupon: Awaited<ReturnType<typeof fetchTopCoupons>>["data"][number]): TopCouponCard {
@@ -136,26 +153,29 @@ export async function getCouponsForPage() {
 export async function getHeroFloatingProducts(): Promise<FloatingProductCard[]> {
   const deals = await getTrendingDeals(4);
   const positions = HERO_ORBIT_POSITIONS;
+  const currencyCode = await getDisplayCurrencyCode();
 
-  return positions.map((position, index) => {
-    const deal = deals[index];
-    if (!deal) {
+  return Promise.all(
+    positions.map(async (position, index) => {
+      const deal = deals[index];
+      if (!deal) {
+        return {
+          imageSrc: normalizeProductImageUrl(null),
+          discount: "",
+          price: "",
+          original: "",
+          position,
+        };
+      }
       return {
-        imageSrc: normalizeProductImageUrl(null),
-        discount: "",
-        price: "",
-        original: "",
+        imageSrc: deal.imageSrc,
+        discount: deal.discount > 0 ? `-${Math.round(deal.discount)}%` : "",
+        price: await formatCurrency(deal.price, currencyCode),
+        original: await formatCurrency(deal.originalPrice, currencyCode),
         position,
       };
-    }
-    return {
-      imageSrc: deal.imageSrc,
-      discount: deal.discount > 0 ? `-${Math.round(deal.discount)}%` : "",
-      price: formatCurrency(deal.price),
-      original: formatCurrency(deal.originalPrice),
-      position,
-    };
-  });
+    }),
+  );
 }
 
 /** Category grid from Supabase. */

@@ -1,0 +1,128 @@
+/*
+ * Light theme layer — scoped under `html.light` (next-themes attribute="class").
+ * Imported LAST so it wins over the dark !important pins in zorino-fixes.css
+ * and the hardcoded dark surfaces in design-system / site-final-polish.
+ */
+
+/* ── Tokens ──────────────────────────────────────────────────────────── */
+html.light {
+  --homepage-bg-fallback: #f4f6fb;
+  --glass: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(15, 23, 42, 0.1);
+  --shadow-glow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --zor-bg-deep: #f4f6fb;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────── */
+html.light,
+html.light body {
+  background: #f4f6fb !important;
+  background-image: none !important;
+  color: #0f172a !important;
+}
+
+/* zorino-fixes.css pins these dark with !important — out-pin them. */
+html.light [class*="card"]:not(button):not(a):not([type="button"]):not([type="submit"]):not([class*="badge"]):not([class*="discount"]):not([class*="price"]):not([class*="was"]):not([class*="media"]) {
+  background: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08) !important;
+}
+html.light [class*="code"] {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #7c3aed !important;
+}
+
+/* ── Common Tailwind utility flips used across pages ─────────────────── */
+html.light .text-white,
+html.light .text-gray-100 {
+  color: #0f172a !important;
+}
+html.light .text-gray-200 {
+  color: #1e293b !important;
+}
+html.light .text-gray-300 {
+  color: #334155 !important;
+}
+html.light .text-gray-400,
+html.light .text-gray-500 {
+  color: #64748b !important;
+}
+html.light .border-gray-800,
+html.light .border-gray-800\/50 {
+  border-color: #e2e8f0 !important;
+}
+html.light .bg-gray-900\/40,
+html.light .bg-gray-900\/60 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ── Shared chrome: nav / header / footer / panels ───────────────────── */
+html.light header,
+html.light .zor-nav,
+html.light .zh-nav,
+html.light footer,
+html.light .site-footer {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #0f172a !important;
+}
+html.light .design-system-panel,
+html.light [class*="panel"] {
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* ── Shared cards & tables ───────────────────────────────────────────── */
+html.light .deal-card,
+html.light .product-card,
+html.light .zh-deal-card,
+html.light .zh-td-card,
+html.light .home-product-card,
+html.light .listing-product-card,
+html.light .price-comparison-wrap,
+html.light .compare-price-summary {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+html.light .deal-name,
+html.light .zh-deal-card__name,
+html.light .zh-td-card__title,
+html.light .price-comparison-price,
+html.light .compare-price-stat-value {
+  color: #0f172a !important;
+}
+html.light .trending-card-store,
+html.light .deal-store,
+html.light .zh-deal-card__store,
+html.light .zh-td-card__store,
+html.light .price-comparison-store span {
+  color: #475569 !important;
+}
+html.light .deal-price,
+html.light .zh-deal-card__price,
+html.light .zh-td-card__price,
+html.light .home-product-savings {
+  color: #166534 !important;
+}
+html.light .deal-original,
+html.light .zh-deal-card__was,
+html.light .zh-td-card__was,
+html.light .price-comparison-original {
+  color: #94a3b8 !important;
+}
+html.light .zh-deal-card__reviews,
+html.light .zh-td-card__reviews,
+html.light .listing-stock,
+html.light .updated-label {
+  color: #64748b !important;
+}
+
+/* Theme toggle affordance stays legible in both modes */
+html.light .theme-toggle {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+html.light .theme-option {
+  color: #64748b;
+}
+html.light .theme-option-active {
+  color: #0f172a;
+}
