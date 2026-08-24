@@ -219,20 +219,25 @@ export async function GET(request: Request) {
     // This was the historical wedge: unbounded sequential provider imports
     // ran FIRST and got the function killed before anything else could run.
     // The watchdog inside also sweeps runs orphaned by earlier kills.
-    try {
-      const sync = await executeScheduledSync({ deadlineAt: budget.deadlineAt });
-      results.sync = sync.error
-        ? { error: sync.error, results: sync.data }
-        : {
-            jobsRun: sync.data.length,
-            deferred: sync.deferred ?? 0,
-            sweptStaleRuns: sync.sweptStaleRuns ?? 0,
-            results: sync.data,
-          };
-    } catch (err) {
-      results.sync = {
-        error: err instanceof Error ? err.message : String(err),
-      };
+    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+      results.sync = { skipped: true, reason: "budget-exhausted" };
+    } else {
+      try {
+        const sync = await executeScheduledSync({ deadlineAt: budget.deadlineAt });
+        results.sync = sync.error
+          ? { error: sync.error, results: sync.data }
+          : {
+              jobsRun: sync.data.length,
+              deferred: sync.deferred ?? 0,
+              sweptStaleRuns: sync.sweptStaleRuns ?? 0,
+              timedOut: sync.timedOut ?? 0,
+              results: sync.data,
+            };
+      } catch (err) {
+        results.sync = {
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
     }
 
     // ── 6. Notification alerts ─────────────────────────────────────────────

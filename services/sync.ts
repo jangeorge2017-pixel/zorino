@@ -11,7 +11,11 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 export async function executeScheduledSync(options?: {
   deadlineAt?: number;
 }): Promise<
-  ServiceResult<SyncRunResult[]> & { deferred?: number; sweptStaleRuns?: number }
+  ServiceResult<SyncRunResult[]> & {
+    deferred?: number;
+    sweptStaleRuns?: number;
+    timedOut?: number;
+  }
 > {
   try {
     const outcome = await runDueSyncJobs(
@@ -22,6 +26,7 @@ export async function executeScheduledSync(options?: {
       error: null,
       deferred: outcome.deferred,
       sweptStaleRuns: outcome.sweptStaleRuns,
+      timedOut: outcome.timedOut,
     };
   } catch (err) {
     return {
@@ -29,6 +34,7 @@ export async function executeScheduledSync(options?: {
       error: err instanceof Error ? err.message : "Sync scheduler failed",
       deferred: undefined,
       sweptStaleRuns: 0,
+      timedOut: 0,
     };
   }
 }
