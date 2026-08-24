@@ -38,7 +38,10 @@ export async function getDueSyncJobs(): Promise<DueSyncJob[]> {
     .from("sync_jobs")
     .select("id, job_type, country_code, currency, interval_minutes, config, stores (id, slug, integration_type)")
     .eq("is_enabled", true)
-    .or(`next_run_at.is.null,next_run_at.lte.${now}`);
+    .or(`next_run_at.is.null,next_run_at.lte.${now}`)
+    // Oldest-due first: deterministic fairness so one provider's backlog
+    // cannot permanently starve the others across invocations.
+    .order("next_run_at", { ascending: true, nullsFirst: true });
 
   if (error || !data?.length) return getDefaultMockJobs();
 
@@ -64,13 +67,81 @@ export async function getDueSyncJobs(): Promise<DueSyncJob[]> {
     });
 }
 
-/** Run all due sync jobs and reschedule them. */
-export async function runDueSyncJobs(): Promise<SyncRunResult[]> {
+/**
+ * Watchdog: mark runs stuck in 'running' as failed.
+ *
+ * A previous cron invocation can be killed by the platform mid-job (serverless
+ * timeout), leaving sync_runs rows in 'running' forever and hiding the wedge.
+ * Runs older than `staleMinutes` are unfinishable — their invocation is gone.
+ */
+export async function failStaleRunningRuns(staleMinutes = 15): Promise<number> {
+  const supabase = createSupabaseServiceClient();
+  if (!supabase) return 0;
+
+  const cutoff = new Date(Date.now() - staleMinutes * 60_000).toISOString();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("sync_runs")
+    .update({
+      status: "failed",
+      finished_at: new Date().toISOString(),
+      error_message: `watchdog: run exceeded ${staleMinutes}m — invoking function died before completion`,
+    })
+    .eq("status", "running")
+    .lt("started_at", cutoff)
+    .select("id");
+
+  if (error) {
+    console.warn("[sync-watchdog] could not sweep stale runs:", error.message);
+    return 0;
+  }
+  const swept = data?.length ?? 0;
+  if (swept > 0) {
+    console.log(`[sync-watchdog] marked ${swept} stale running run(s) as failed`);
+  }
+  return swept;
+}
+
+export interface RunDueSyncJobsOptions {
+  /**
+   * Absolute epoch-ms deadline. When reached, remaining due jobs are skipped
+   * (deferred to the next invocation) instead of overrun — the previous
+   * unbounded loop got the whole cron killed by the platform, which is why
+   * nothing after the first slow job ran for weeks.
+   */
+  deadlineAt?: number;
+}
+
+export interface RunDueSyncJobsOutcome {
+  results: SyncRunResult[];
+  /** Due jobs not attempted because the deadline was reached. */
+  deferred: number;
+  /** Stale 'running' rows swept to 'failed' by the watchdog. */
+  sweptStaleRuns: number;
+}
+
+/** Run due sync jobs (oldest-due first) within an optional deadline. */
+export async function runDueSyncJobs(
+  options?: RunDueSyncJobsOptions,
+): Promise<RunDueSyncJobsOutcome> {
+  const sweptStaleRuns = await failStaleRunningRuns();
   const jobs = await getDueSyncJobs();
   const results: SyncRunResult[] = [];
   const supabase = createSupabaseServiceClient();
+  const deadlineAt = options?.deadlineAt;
+
+  let attempted = 0;
+  let deferred = 0;
 
   for (const job of jobs) {
+    if (deadlineAt !== undefined && Date.now() >= deadlineAt) {
+      deferred = jobs.length - attempted;
+      console.warn(
+        `[sync-scheduler] deadline reached — deferring ${deferred} due job(s) to next invocation`,
+      );
+      break;
+    }
+
     const result = await runSyncJob({
       storeId: job.storeId,
       storeSlug: job.storeSlug,
@@ -82,6 +153,7 @@ export async function runDueSyncJobs(): Promise<SyncRunResult[]> {
       jobConfig: job.jobConfig,
     });
     results.push(result);
+    attempted++;
 
     if (supabase && job.id) {
       const intervalMs = (job.intervalMinutes ?? SYNC_DEFAULT_INTERVAL_MINUTES) * 60_000;
@@ -94,7 +166,7 @@ export async function runDueSyncJobs(): Promise<SyncRunResult[]> {
     }
   }
 
-  return results;
+  return { results, deferred, sweptStaleRuns };
 }
 
 /** Fallback jobs when Supabase is not configured — runs mock sync in dry-run. */
