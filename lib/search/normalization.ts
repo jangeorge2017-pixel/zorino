@@ -245,6 +245,21 @@ type CJRawProduct = {
   categoryName?: string;
 };
 
+/**
+ * CJdropshipping public product URLs use the canonical
+ * `/product/<title-slug>-p-<pid>.html` format. The bare `/product/<pid>.html`
+ * form returns HTTP 404 on cjdropshipping.com.
+ */
+function buildCjProductUrl(pid: string, title: string): string {
+  const slug =
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "product";
+  return `https://cjdropshipping.com/product/${slug}-p-${pid}.html`;
+}
+
 /** CJdropshipping API → raw provider listing. */
 export function normalizeCJRaw(raw: CJRawProduct): RawProviderListing | null {
   const externalId = raw.pid ?? "";
@@ -264,7 +279,7 @@ export function normalizeCJRaw(raw: CJRawProduct): RawProviderListing | null {
   const imageUrl = raw.productImage ?? "";
   if (!imageUrl.startsWith("http")) return null;
 
-  const productUrl = `https://cjdropshipping.com/product/${externalId}.html`;
+  const productUrl = buildCjProductUrl(externalId, title);
 
   return {
     providerId: "cjdropshipping",

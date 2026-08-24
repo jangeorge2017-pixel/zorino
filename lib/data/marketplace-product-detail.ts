@@ -245,12 +245,68 @@ async function getEbayProductDetail(externalId: string): Promise<ProductDetail |
 }
 
 /**
+ * PDP for Admitad/DB-sourced catalog items (`db-<product_id>` ids).
+ * Reads the lowest_prices_today row so homepage cards can open a real
+ * product page with a working affiliate compare table.
+ */
+async function getDatabaseProductDetail(productId: string): Promise<ProductDetail | null> {
+  try {
+    const { getDatabaseSearchItemByProductId } = await import(
+      "@/lib/integration/database-catalog"
+    );
+    const item = await getDatabaseSearchItemByProductId(productId);
+    if (!item) return null;
+    return searchItemToProductDetail(item);
+  } catch (error) {
+    console.error(
+      "[db-detail]",
+      error instanceof Error ? error.message : "DB product detail failed",
+    );
+    return null;
+  }
+}
+
+/** PDP for CJdropshipping products (`cjdropshipping-<pid>` ids). */
+async function getCjProductDetail(externalId: string): Promise<ProductDetail | null> {
+  try {
+    const apiKey = process.env.CJDROPSHIPPING_API_KEY?.trim();
+    if (!apiKey) return null;
+
+    const { CJdropshippingClient } = await import(
+      "@/lib/sync/providers/cjdropshipping/client"
+    );
+    const { normalizeCJRaw } = await import("@/lib/search/normalization");
+
+    const client = new CJdropshippingClient(apiKey);
+    const products = await client.getProductsByIds([externalId]);
+    const raw = products[0];
+    if (!raw) return null;
+
+    const listing = normalizeCJRaw(raw);
+    if (!listing) return null;
+    return searchItemToProductDetail(rawListingToSearchItem(listing));
+  } catch (error) {
+    console.error(
+      "[cjdropshipping-detail]",
+      error instanceof Error ? error.message : "CJdropshipping product detail failed",
+    );
+    return null;
+  }
+}
+
+/**
  * Resolve PDP for any supported marketplace except Amazon.
  * Amazon is intentionally unsupported here (no connector changes).
  */
 export async function resolveMarketplaceProductDetail(
   id: string,
 ): Promise<ProductDetail | null> {
+  // DB-sourced Admitad catalog items: `db-<lowest_prices_today.product_id>`
+  const trimmedId = id.trim().split("#")[0]!.split("?")[0]!.trim();
+  if (/^db-/i.test(trimmedId)) {
+    return getDatabaseProductDetail(trimmedId.slice(3));
+  }
+
   const { providerId, externalId } = parseMarketplaceProductId(id);
 
   if (providerId === "amazon") {
@@ -259,6 +315,10 @@ export async function resolveMarketplaceProductDetail(
 
   if (providerId === "ebay") {
     return getEbayProductDetail(externalId);
+  }
+
+  if (providerId === "cjdropshipping") {
+    return getCjProductDetail(externalId);
   }
 
   if (providerId === "aliexpress" || providerId === "unknown") {
