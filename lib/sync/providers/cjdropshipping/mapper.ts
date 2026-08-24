@@ -29,7 +29,9 @@ export function mapCJProduct(
   const price = Number(raw.sellPrice ?? raw.suggestSellPrice ?? 0);
   if (!price || price <= 0) return null;
 
-  const productUrl = `https://cjdropshipping.com/product/${raw.pid}.html`;
+  const productUrl = `https://cjdropshipping.com/product/${
+    slugifyTitle(title) || "product"
+  }-p-${raw.pid}.html`;
   const gallery = [
     raw.productImage,
     ...(raw.productImageSet ?? []),

@@ -257,3 +257,38 @@ export async function getSearchResultsFromDatabase(
 
   return results.slice(0, limit);
 }
+
+/**
+ * Fetch a single lowest_prices_today row by its product_id (the id embedded in
+ * `db-<product_id>` catalog ids) and map it to a SearchResultItem.
+ * Used by the marketplace PDP resolver for Admitad/DB-sourced products.
+ */
+export async function getDatabaseSearchItemByProductId(
+  productId: string,
+): Promise<SearchResultItem | null> {
+  const trimmed = productId.trim();
+  if (!trimmed) return null;
+
+  const supabase = createSupabaseAnonClient();
+  if (!supabase) return null;
+
+  const { data, error } = await db(supabase)
+    .from("lowest_prices_today")
+    .select(
+      "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
+    )
+    .eq("product_id", trimmed)
+    .limit(1);
+
+  const row = (data as LowestPriceRow[] | null)?.[0];
+  if (error || !row || !row.product_name || !row.image_url) return null;
+
+  const { data: productRows } = await db(supabase)
+    .from("products")
+    .select("id, category_slug")
+    .eq("id", row.product_id)
+    .limit(1);
+
+  row.category_slug = productRows?.[0]?.category_slug ?? null;
+  return rowToSearchResultItem(row);
+}
