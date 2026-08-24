@@ -32,6 +32,15 @@ export const ADMITAD_TRACKING_HOSTS = new Set([
   "axavl.com",
   "zejcl.com",
   "plrvq.com",
+  // Registry programs whose tracking hosts were missing from this allowlist
+  // (go-route rejected their destinations with 403):
+  "yknhe.com", // Cheapvuelos
+  "naiawork.com", // MyHeritage DNA
+  "rcpsj.com", // Aovica
+  "xnmk.com", // AbeBooks (distinct from legacy xnmik.com above)
+  "wbbsv.com", // Touch (UA)
+  "sgkaa.com", // Miravia (ES/PT)
+  "cafxq.com", // Funko (EU)
 ]);
 
 /**
