@@ -5,18 +5,10 @@ import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
 import { ChevronRight, Clock, Star } from "lucide-react";
 import TrendingDealBadge from "@/components/zorino-home/TrendingDealBadge";
+import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { TrendingDealCard } from "@/lib/types/entities";
 import type { TrendingDealDisplayBadge } from "@/lib/zorino-home/trending-deals-section";
 import "./ZorinoHomeTrendingDealCard.css";
-
-function formatUsd(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
 
 type ZorinoHomeTrendingDealCardProps = {
   deal: TrendingDealCard & { displayBadge: TrendingDealDisplayBadge };
@@ -29,6 +21,7 @@ export default function ZorinoHomeTrendingDealCard({
 }: ZorinoHomeTrendingDealCardProps) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
+  const { formatPrice } = useIntlPreferences();
   const compareHref = deal.productId ? `/product/${deal.productId}` : "/deals";
   const hasDiscount = deal.discount > 0 && deal.originalPrice > deal.price;
 
@@ -56,9 +49,9 @@ export default function ZorinoHomeTrendingDealCard({
         <h3 className="zh-td-card__title">{deal.name}</h3>
 
         <div className="zh-td-card__prices">
-          <span className="zh-td-card__price">{formatUsd(deal.price)}</span>
+          <span className="zh-td-card__price">{formatPrice(deal.price)}</span>
           {hasDiscount ? (
-            <span className="zh-td-card__was">{formatUsd(deal.originalPrice)}</span>
+            <span className="zh-td-card__was">{formatPrice(deal.originalPrice)}</span>
           ) : null}
         </div>
 

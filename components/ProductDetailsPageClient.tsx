@@ -20,6 +20,7 @@ import {
 import type { ProductDetail } from "@/lib/data/product-detail";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { trackProductInteraction } from "@/lib/trending/track-client";
+import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 
 type ProductDetailsPageClientProps = {
   detail: ProductDetail;
@@ -28,6 +29,7 @@ type ProductDetailsPageClientProps = {
 export default function ProductDetailsPageClient({ detail }: ProductDetailsPageClientProps) {
   const t = useTranslations("product");
   const tCommon = useTranslations("common");
+  const { formatPrice } = useIntlPreferences();
   const { product, categoryName, comparison, images, specifications, variants, priceHistory } =
     detail;
   const { offers, lowestPrice, highestDiscount, providerCount, cheapestStoreName, savingsVsHighest, savingsPercent } =
@@ -159,10 +161,10 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
             </div>
 
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-4xl font-bold text-white">${price.toLocaleString("en-US")}</span>
+              <span className="text-4xl font-bold text-white">{formatPrice(price)}</span>
               {originalPrice > price && (
                 <span className="text-2xl text-gray-500 line-through">
-                  ${originalPrice.toLocaleString("en-US")}
+                  {formatPrice(originalPrice)}
                 </span>
               )}
               {discount > 0 && (
@@ -275,9 +277,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                     </div>
                     <div className="text-right">
                       {variant.price != null && (
-                        <p className="text-white font-semibold">
-                          ${Number(variant.price).toLocaleString("en-US")}
-                        </p>
+                        <p className="text-white font-semibold">{formatPrice(Number(variant.price))}</p>
                       )}
                       <p className={`text-xs ${variant.inStock ? "text-green-400" : "text-red-400"}`}>
                         {variant.inStock ? tCommon("inStock") : tCommon("outOfStock")}
@@ -311,7 +311,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                           {new Date(point.recordedAt).toLocaleDateString()}
                         </td>
                         <td className="py-2 text-right text-white">
-                          ${point.price.toLocaleString("en-US")} {point.currency}
+                          {formatPrice(point.price)}
                         </td>
                         <td className="py-2 text-right">
                           {point.changeDirection === "down" && (

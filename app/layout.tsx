@@ -9,6 +9,7 @@ import "./zorino-fixes.css";
 import "./design-system.css";
 import "./site-final-polish.css";
 import "./badge-amber.css";
+import "./light-theme.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

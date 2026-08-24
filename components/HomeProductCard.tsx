@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Truck } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
@@ -10,6 +11,7 @@ import PriceAlertButton from "@/components/PriceAlertButton";
 import ShareButton from "@/components/ShareButton";
 import ProductDynamicBadge from "@/components/ProductDynamicBadge";
 import PriceSparkline from "@/components/PriceSparkline";
+import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import {
   resolveDynamicBadge,
   type DynamicBadgeType,
@@ -92,6 +94,8 @@ export default function HomeProductCard({
   hideQuickActions = false,
   referenceDealCard = false,
 }: HomeProductCardProps) {
+  const tCommon = useTranslations("common");
+  const { formatPrice } = useIntlPreferences();
   const initial = storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
   const showOriginal = originalPrice !== undefined && originalPrice > price;
   const savingsAmount = showOriginal ? originalPrice! - price : 0;
@@ -152,16 +156,14 @@ export default function HomeProductCard({
 
         <div className="home-product-pricing-block">
           <div className="deal-pricing">
-            <span className="deal-price">${price.toLocaleString("en-US")}</span>
+            <span className="deal-price">{formatPrice(price)}</span>
             {showOriginal ? (
-              <span className="deal-original">
-                ${originalPrice!.toLocaleString("en-US")}
-              </span>
+              <span className="deal-original">{formatPrice(originalPrice!)}</span>
             ) : null}
           </div>
           {!referenceDealCard && savingsAmount > 0 ? (
             <p className="home-product-savings">
-              Save ${savingsAmount.toLocaleString("en-US")}
+              {tCommon("save")} {formatPrice(savingsAmount)}
             </p>
           ) : null}
         </div>
