@@ -12,7 +12,12 @@ import { runEbayScheduledSync } from "@/services/ebay";
 import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
 import { runNotificationAlerts } from "@/services/notifications/alerts";
 import { invalidateLowestPricesFromRoute, invalidateTrendingFromRoute } from "@/lib/revalidate";
-import { createCronBudget, CRON_BUDGET_MS, MIN_STEP_BUDGET_MS } from "@/lib/cron/budget";
+import {
+  createCronBudget,
+  withBudgetCap,
+  CRON_BUDGET_MS,
+  MIN_STEP_BUDGET_MS,
+} from "@/lib/cron/budget";
 import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
 
 /**
@@ -140,17 +145,32 @@ export async function GET(request: Request) {
 
     // ── 4. Heavy provider schedulers / imports / aggregates ───────────────
     // Each guarded individually: one slow provider must not starve the rest.
+    // These schedulers loop provider APIs internally without deadline support,
+    // so each also runs under a hard wall-clock cap (withBudgetCap) — without
+    // it the AliExpress scheduler alone overran the 60s serverless limit.
     if (force || hourUtc % 6 === 0) {
       const budgetSkipped = () => ({ skipped: true, reason: "budget-exhausted" });
+      const capped = <T>(
+        key: string,
+        maxMs: number,
+        task: Promise<T>,
+      ): Promise<{ value?: T; timedOut: boolean }> =>
+        withBudgetCap(budget, maxMs, key, task);
 
       if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
         results.aliexpress = budgetSkipped();
       } else {
         try {
-          const aliexpress = await runAliExpressScheduledSync();
-          results.aliexpress = aliexpress.skipped
-            ? { skipped: true }
-            : { jobsRun: aliexpress.results.length, results: aliexpress.results, error: aliexpress.error };
+          const { value: aliexpress, timedOut } = await capped(
+            "aliexpress-scheduled-sync",
+            20_000,
+            runAliExpressScheduledSync(),
+          );
+          results.aliexpress = timedOut
+            ? { timedOut: true }
+            : aliexpress!.skipped
+              ? { skipped: true }
+              : { jobsRun: aliexpress!.results.length, results: aliexpress!.results, error: aliexpress!.error };
         } catch (err) {
           results.aliexpress = { error: err instanceof Error ? err.message : String(err) };
         }
@@ -160,10 +180,16 @@ export async function GET(request: Request) {
         results.ebay = budgetSkipped();
       } else {
         try {
-          const ebay = await runEbayScheduledSync();
-          results.ebay = ebay.skipped
-            ? { skipped: true }
-            : { jobsRun: ebay.results.length, results: ebay.results, error: ebay.error };
+          const { value: ebay, timedOut } = await capped(
+            "ebay-scheduled-sync",
+            20_000,
+            runEbayScheduledSync(),
+          );
+          results.ebay = timedOut
+            ? { timedOut: true }
+            : ebay!.skipped
+              ? { skipped: true }
+              : { jobsRun: ebay!.results.length, results: ebay!.results, error: ebay!.error };
         } catch (err) {
           results.ebay = { error: err instanceof Error ? err.message : String(err) };
         }
@@ -173,10 +199,16 @@ export async function GET(request: Request) {
         results.amazon = budgetSkipped();
       } else {
         try {
-          const amazon = await runAmazonScheduledSync();
-          results.amazon = amazon.skipped
-            ? { skipped: true }
-            : { jobsRun: amazon.results.length, results: amazon.results, error: amazon.error };
+          const { value: amazon, timedOut } = await capped(
+            "amazon-scheduled-sync",
+            20_000,
+            runAmazonScheduledSync(),
+          );
+          results.amazon = timedOut
+            ? { timedOut: true }
+            : amazon!.skipped
+              ? { skipped: true }
+              : { jobsRun: amazon!.results.length, results: amazon!.results, error: amazon!.error };
         } catch (err) {
           results.amazon = { error: err instanceof Error ? err.message : String(err) };
         }
@@ -186,10 +218,16 @@ export async function GET(request: Request) {
         results.importPhase1 = budgetSkipped();
       } else {
         try {
-          const imported = await triggerPhase1Imports();
-          results.importPhase1 = imported.error
-            ? { error: imported.error, results: imported.data }
-            : { providersRun: imported.data.length, results: imported.data };
+          const { value: imported, timedOut } = await capped(
+            "phase1-imports",
+            25_000,
+            triggerPhase1Imports(),
+          );
+          results.importPhase1 = timedOut
+            ? { timedOut: true }
+            : imported!.error
+              ? { error: imported!.error, results: imported!.data }
+              : { providersRun: imported!.data.length, results: imported!.data };
         } catch (err) {
           results.importPhase1 = { error: err instanceof Error ? err.message : String(err) };
         }
@@ -199,10 +237,16 @@ export async function GET(request: Request) {
         results.universalCatalog = budgetSkipped();
       } else {
         try {
-          const catalog = await refreshUniversalCatalogAggregates({ limit: 500 });
-          results.universalCatalog = catalog.error
-            ? { error: catalog.error }
-            : { refreshed: catalog.refreshed };
+          const { value: catalog, timedOut } = await capped(
+            "universal-catalog",
+            15_000,
+            refreshUniversalCatalogAggregates({ limit: 500 }),
+          );
+          results.universalCatalog = timedOut
+            ? { timedOut: true }
+            : catalog!.error
+              ? { error: catalog!.error }
+              : { refreshed: catalog!.refreshed };
         } catch (err) {
           results.universalCatalog = { error: err instanceof Error ? err.message : String(err) };
         }
@@ -246,7 +290,17 @@ export async function GET(request: Request) {
         results.notifications = { skipped: true, reason: "budget-exhausted" };
       } else {
         try {
-          results.notifications = await runNotificationAlerts();
+          const { value: alerts, timedOut } = await withBudgetCap(
+            budget,
+            20_000,
+            "notification-alerts",
+            runNotificationAlerts(),
+          );
+          if (timedOut) {
+            results.notifications = { timedOut: true };
+          } else {
+            results.notifications = alerts;
+          }
         } catch (err) {
           results.notifications = {
             error: err instanceof Error ? err.message : String(err),

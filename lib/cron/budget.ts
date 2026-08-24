@@ -41,3 +41,36 @@ export function createCronBudget(totalMs: number = CRON_BUDGET_MS): CronBudget {
     },
   };
 }
+
+export type BudgetCappedResult<T> = { value?: T; timedOut: boolean };
+
+/**
+ * Run a task under a hard wall-clock cap derived from the shared budget.
+ *
+ * Steps that internally loop over provider APIs (scheduled sync jobs, phase-1
+ * imports, aggregate refreshes) do not accept deadlines themselves — without
+ * this cap a single slow step overruns the serverless execution limit and the
+ * platform kills the whole invocation (the original cron wedge). A timed-out
+ * task may keep running until the sandbox freezes; idempotent upserts plus the
+ * sync_runs watchdog make that safe to abandon mid-flight.
+ */
+export async function withBudgetCap<T>(
+  budget: CronBudget,
+  maxMs: number,
+  label: string,
+  task: Promise<T>,
+): Promise<BudgetCappedResult<T>> {
+  const capMs = Math.min(maxMs, Math.max(2_000, budget.remainingMs() - 2_000));
+  let timedOut = false;
+  const value = await Promise.race([
+    task,
+    new Promise<undefined>((resolve) =>
+      setTimeout(() => {
+        timedOut = true;
+        console.warn(`[cron-budget] "${label}" exceeded ${Math.round(capMs / 1000)}s — capping`);
+        resolve(undefined);
+      }, capMs),
+    ),
+  ]);
+  return timedOut ? { timedOut } : { value, timedOut };
+}
