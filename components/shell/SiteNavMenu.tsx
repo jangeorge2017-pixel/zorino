@@ -123,18 +123,17 @@ function MegaMenuTrigger({ section }: { section: SiteNavMenuSection }) {
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <button
-        type="button"
+      <Link
+        href={section.href}
         id={triggerId}
         className="zor-nav__link zor-mega-menu__trigger"
         aria-expanded={open}
         aria-haspopup="menu"
         aria-controls={panelId}
-        onClick={() => setOpen((value) => !value)}
       >
         {section.label}
         <ChevronDown size={14} className="zor-mega-menu__chevron" aria-hidden />
-      </button>
+      </Link>
       <MegaMenuPanel
         section={section}
         isOpen={open}
