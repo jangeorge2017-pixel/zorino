@@ -31,7 +31,7 @@ export default function DealsDealCard({
           store: deal.store?.name ?? undefined,
           storeSlug: deal.store?.slug ?? undefined,
         }}
-        showWishlist={false}
+        showWishlist
         featuredLabel={deal.isFeatured ? featuredLabel : undefined}
       />
       <p className="listing-deal-meta">
