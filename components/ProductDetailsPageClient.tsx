@@ -244,6 +244,10 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
             {offers.length === 1 && (
               <p className="text-gray-400 text-sm mt-3">{t("singleOfferNote")}</p>
             )}
+
+            <p className="text-xs text-gray-500 mt-3 leading-relaxed">
+              {tCommon("affiliateDisclosure")}
+            </p>
           </div>
         </div>
 

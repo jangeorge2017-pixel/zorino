@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { useTranslations } from "next-intl";
 import { ExternalLink, Tag, TrendingDown, Trophy, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";

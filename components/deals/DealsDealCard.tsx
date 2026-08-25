@@ -34,10 +34,12 @@ export default function DealsDealCard({
         showWishlist
         featuredLabel={deal.isFeatured ? featuredLabel : undefined}
       />
-      <p className="listing-deal-meta">
-        <Clock size={14} aria-hidden />
-        {endsInLabel}
-      </p>
+      {endsInLabel ? (
+        <p className="listing-deal-meta">
+          <Clock size={14} aria-hidden />
+          {endsInLabel}
+        </p>
+      ) : null}
     </div>
   );
 }
