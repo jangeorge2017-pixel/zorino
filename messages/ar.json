@@ -166,7 +166,8 @@
     "action": "إجراء",
     "home": "الرئيسية",
     "pleaseLogIn": "يرجى تسجيل الدخول",
-    "signInToManage": "سجّل الدخول لإدارة إعدادات حسابك."
+    "signInToManage": "سجّل الدخول لإدارة إعدادات حسابك.",
+    "affiliateDisclosure": "يحقق ZORINO عمولات عن المشتريات المؤهلة."
   },
   "nav": {
     "deals": "العروض",
