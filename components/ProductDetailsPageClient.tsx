@@ -221,9 +221,13 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                 }
               >
                 <Heart className="w-5 h-5" fill={wishlisted ? "currentColor" : "none"} />
+                <span className="sr-only">
+                  {wishlisted ? tCommon("removeFromWishlist") : tCommon("addToWishlist")}
+                </span>
               </Button>
               <Button variant="outline" aria-label={t("shareProduct")} onClick={handleShare}>
                 <Share2 className="w-5 h-5" />
+                <span className="sr-only">{t("shareProduct")}</span>
               </Button>
             </div>
 

@@ -42,6 +42,9 @@ export default function WishlistButton({ productId, item, className }: WishlistB
       onClick={toggle}
     >
       <Heart size={16} fill={active ? "currentColor" : "none"} />
+      <span className="sr-only">
+        {active ? tCommon("removeFromWishlist") : tCommon("addToWishlist")}
+      </span>
     </button>
   );
 }
