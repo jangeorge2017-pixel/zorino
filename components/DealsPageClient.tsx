@@ -19,6 +19,7 @@ type DealsPageClientProps = {
 type QuickFilter = "all" | "featured" | "big_savings" | "ending_soon";
 
 function daysLeft(iso: string): number {
+  if (!iso) return Infinity;
   const diff = new Date(iso).getTime() - Date.now();
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
@@ -39,6 +40,7 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
   ];
 
   const daysUntil = (iso: string): string => {
+    if (!iso) return "";
     const days = daysLeft(iso);
     if (days === 0) return t("endsToday");
     if (days === 1) return t("endsInOneDay");
@@ -63,7 +65,7 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
   const stats = useMemo(() => {
     const maxDiscount = deals.reduce((max, deal) => Math.max(max, deal.discount), 0);
     const featuredCount = deals.filter((deal) => deal.isFeatured).length;
-    const endingSoonCount = deals.filter((deal) => daysLeft(deal.endsAt) <= 3).length;
+    const endingSoonCount = deals.filter((deal) => deal.endsAt && daysLeft(deal.endsAt) <= 3).length;
     return {
       liveCount: deals.length,
       maxDiscount: Math.round(maxDiscount),
@@ -80,13 +82,17 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
       .filter((deal) => {
         if (quickFilter === "featured") return deal.isFeatured;
         if (quickFilter === "big_savings") return deal.discount >= 15;
-        if (quickFilter === "ending_soon") return daysLeft(deal.endsAt) <= 5;
+        if (quickFilter === "ending_soon") return deal.endsAt && daysLeft(deal.endsAt) <= 5;
         return true;
       })
       .sort((a, b) => {
         if (sortBy === "price_low") return a.price - b.price;
         if (sortBy === "price_high") return b.price - a.price;
         if (sortBy === "ending_soon") {
+          // Deals with no expiry data go to the end
+          if (!a.endsAt && !b.endsAt) return 0;
+          if (!a.endsAt) return 1;
+          if (!b.endsAt) return -1;
           return new Date(a.endsAt).getTime() - new Date(b.endsAt).getTime();
         }
         return b.discount - a.discount;
@@ -96,7 +102,10 @@ export default function DealsPageClient({ deals }: DealsPageClientProps) {
   const showCuratedSections =
     quickFilter === "all" && !selectedStore && sortBy === "discount";
 
-  const endsInLabel = (deal: Deal) => `${t("dealEndsIn")} ${daysUntil(deal.endsAt)}`;
+  const endsInLabel = (deal: Deal) => {
+    if (!deal.endsAt) return "";
+    return `${t("dealEndsIn")} ${daysUntil(deal.endsAt)}`;
+  };
 
   return (
     <PageLayout>

@@ -11,10 +11,12 @@ export function trendingDealToDeal(
 ): Deal {
   const id = String(card.id);
   const productId = card.productId ?? id;
-  const endsInDays =
-    options.endsInDays ??
-    (card.updatedMins <= 60 ? 2 : card.updatedMins <= 360 ? 5 : 9);
-  const endsAt = new Date(Date.now() + endsInDays * 86_400_000).toISOString();
+  // Use empty string to indicate no real merchant expiry data is available.
+  // Fabricated urgency ("Ends in 7 days") is intentionally removed — only
+  // real merchant expiry data should drive urgency labels.
+  const endsAt = options.endsInDays
+    ? new Date(Date.now() + options.endsInDays * 86_400_000).toISOString()
+    : "";
   const startsAt = new Date(Date.now() - card.updatedMins * 60_000).toISOString();
 
   return {
@@ -77,6 +79,7 @@ export function formatDealEndsInLabel(
     days: (count: number) => string;
   },
 ): string {
+  if (!endsAt) return "";
   const days = dealEndsInDaysRemaining(endsAt);
   if (labels) {
     if (days === 0) return labels.today;
@@ -100,5 +103,7 @@ export function trendingDealEndsInLabel(
     days: (count: number) => string;
   },
 ): string {
-  return formatDealEndsInLabel(trendingDealToDeal(card).endsAt, labels);
+  const deal = trendingDealToDeal(card);
+  if (!deal.endsAt) return "";
+  return formatDealEndsInLabel(deal.endsAt, labels);
 }

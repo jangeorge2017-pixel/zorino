@@ -28,29 +28,34 @@ export default function ProductCardActions({
   const showShopButton = showShop && !compareOnly;
 
   return (
-    <div
-      className={`product-card-actions${showShopButton ? " product-card-actions-dual" : " product-card-actions-single"}`}
-    >
-      {showShopButton ? (
-        shopExternal ? (
-          <a
-            href={href}
-            target="_blank"
-            rel="nofollow sponsored noopener noreferrer"
-            className="home-shop-btn"
-            onClick={onShopClick}
-          >
-            {t("shopNow")}
-            <ExternalLink size={16} />
-          </a>
-        ) : (
-          <Link href={href} className="home-shop-btn" onClick={onShopClick}>
-            {t("shopNow")}
-            <ExternalLink size={16} />
-          </Link>
-        )
-      ) : null}
-      <ComparePricesButton productId={productId} className="home-compare-btn" />
+    <div className="product-card-actions-group">
+      <div
+        className={`product-card-actions${showShopButton ? " product-card-actions-dual" : " product-card-actions-single"}`}
+      >
+        {showShopButton ? (
+          shopExternal ? (
+            <a
+              href={href}
+              target="_blank"
+              rel="nofollow sponsored noopener noreferrer"
+              className="home-shop-btn"
+              onClick={onShopClick}
+            >
+              {t("shopNow")}
+              <ExternalLink size={16} />
+            </a>
+          ) : (
+            <Link href={href} className="home-shop-btn" onClick={onShopClick}>
+              {t("shopNow")}
+              <ExternalLink size={16} />
+            </Link>
+          )
+        ) : null}
+        <ComparePricesButton productId={productId} className="home-compare-btn" />
+      </div>
+      <p className="product-card-disclosure">
+        {t("affiliateDisclosure")}
+      </p>
     </div>
   );
 }

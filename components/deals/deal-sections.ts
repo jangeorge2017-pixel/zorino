@@ -10,6 +10,7 @@ export type DealSection = {
 const SECTION_LIMIT = 4;
 
 function daysLeft(iso: string): number {
+  if (!iso) return Infinity;
   const diff = new Date(iso).getTime() - Date.now();
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }

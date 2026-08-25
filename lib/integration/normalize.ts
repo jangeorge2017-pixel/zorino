@@ -134,15 +134,9 @@ export function catalogItemToDeal(item: NormalizedCatalogItem, index = 0): Deal 
   };
 
   const now = Date.now();
-  // Rolling deal window driven by price-snapshot freshness — mirrors the
-  // convention in lib/zorino-home/trending-deal-to-deal.ts so freshly
-  // refreshed prices surface under "Ending soon" before older ones.
-  const ageMins = Math.max(
-    0,
-    Math.round((now - new Date(item.fetchedAt).getTime()) / 60_000),
-  );
-  const endsInDays = ageMins <= 60 ? 2 : ageMins <= 360 ? 5 : 9;
-  const endsAt = new Date(now + endsInDays * 86_400_000).toISOString();
+  // No real merchant expiry data is available — use empty string to
+  // signal "no urgency" instead of fabricating an expiry date.
+  const endsAt = "";
   const startsAt = new Date(now - 30 * 60_000).toISOString();
 
   const product: Product = {
