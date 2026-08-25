@@ -166,7 +166,8 @@
     "action": "Action",
     "home": "Home",
     "pleaseLogIn": "Please log in",
-    "signInToManage": "Sign in to manage your account settings."
+    "signInToManage": "Sign in to manage your account settings.",
+    "affiliateDisclosure": "ZORINO earns commissions on qualifying purchases."
   },
   "nav": {
     "deals": "Deals",
