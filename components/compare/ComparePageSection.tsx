@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { BarChart3, DollarSign, Scale, TrendingUp } from "lucide-react";
 import CompareProductCard from "@/components/compare/CompareProductCard";
 import type { CompareSectionId } from "@/components/compare/compare-sections";
@@ -10,23 +11,23 @@ const SECTION_META: Record<
   { title: string; subtitle: string; icon: typeof Scale }
 > = {
   best_savings: {
-    title: "Best Savings",
-    subtitle: "Products with the biggest price gaps across stores",
+    title: "sectionBestSavingsTitle",
+    subtitle: "sectionBestSavingsSubtitle",
     icon: TrendingUp,
   },
   lowest_prices: {
-    title: "Lowest Prices",
-    subtitle: "Top picks with the most competitive starting prices",
+    title: "sectionLowestPricesTitle",
+    subtitle: "sectionLowestPricesSubtitle",
     icon: DollarSign,
   },
   most_stores: {
-    title: "Most Store Options",
-    subtitle: "Compare the widest selection of marketplace offers",
+    title: "sectionMostStoresTitle",
+    subtitle: "sectionMostStoresSubtitle",
     icon: BarChart3,
   },
   trending: {
-    title: "Trending Comparisons",
-    subtitle: "Popular products shoppers compare most often",
+    title: "sectionTrendingTitle",
+    subtitle: "sectionTrendingSubtitle",
     icon: Scale,
   },
 };
@@ -37,6 +38,7 @@ type ComparePageSectionProps = {
 };
 
 export default function ComparePageSection({ sectionId, products }: ComparePageSectionProps) {
+  const t = useTranslations("compare");
   const meta = SECTION_META[sectionId];
   const Icon = meta.icon;
 
@@ -52,12 +54,12 @@ export default function ComparePageSection({ sectionId, products }: ComparePageS
           </span>
           <div>
             <h2 id={`compare-section-${sectionId}`} className="zor-compare-page__section-title">
-              {meta.title}
+              {t(meta.title)}
             </h2>
-            <p className="zor-compare-page__section-subtitle">{meta.subtitle}</p>
+            <p className="zor-compare-page__section-subtitle">{t(meta.subtitle)}</p>
           </div>
         </div>
-        <span className="zor-compare-page__section-count">{products.length} products</span>
+        <span className="zor-compare-page__section-count">{t("productsCount", { count: products.length })}</span>
       </header>
 
       <div className="zor-compare-page__stack zor-compare-page__section-stack">

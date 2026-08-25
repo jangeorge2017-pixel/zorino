@@ -36,7 +36,7 @@ export default function ProductCardActions({
           <a
             href={href}
             target="_blank"
-            rel="noopener noreferrer sponsored"
+            rel="nofollow sponsored noopener noreferrer"
             className="home-shop-btn"
             onClick={onShopClick}
           >

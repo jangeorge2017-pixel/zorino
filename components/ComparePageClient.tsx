@@ -27,10 +27,10 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
 
   const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
-    { id: "all", label: "All Products" },
-    { id: "savings", label: "Best Savings" },
-    { id: "lowest", label: "Lowest Prices" },
-    { id: "multi_store", label: "Most Stores" },
+    { id: "all", label: t("quickAll") },
+    { id: "savings", label: t("quickSavings") },
+    { id: "lowest", label: t("quickLowest") },
+    { id: "multi_store", label: t("quickMultiStore") },
   ];
 
   const stats = useMemo(() => {
@@ -69,7 +69,7 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
       <div className="zor-compare-page">
         <ComparePageHero
           title={t("title")}
-          subtitle="Compare prices across Amazon, AliExpress, eBay, Walmart and more"
+          subtitle={t("subtitle")}
           productCount={stats.productCount}
           storeCount={stats.storeCount}
           avgSavings={stats.avgSavings}
@@ -77,7 +77,7 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
         />
 
         <div className="zor-compare-page__toolbar">
-          <div className="zor-compare-page__quick-filters" role="tablist" aria-label="Quick compare filters">
+          <div className="zor-compare-page__quick-filters" role="tablist" aria-label={t("quickFiltersAria")}>
             {QUICK_FILTERS.map((item) => (
               <button
                 key={item.id}
@@ -97,16 +97,16 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
               <Select
                 label={tCommon("sortBy")}
                 options={[
-                  { value: "savings", label: "Highest Savings" },
-                  { value: "lowest", label: "Lowest Price" },
-                  { value: "stores", label: "Most Stores" },
+                  { value: "savings", label: t("sortSavings") },
+                  { value: "lowest", label: t("sortLowestPrice") },
+                  { value: "stores", label: t("sortMostStores") },
                 ]}
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               />
               <div className="zor-compare-page__filter-action">
                 <Link href="/products" className="w-full block">
-                  <Button variant="outline" className="w-full">Browse Products</Button>
+                  <Button variant="outline" className="w-full">{t("browseProducts")}</Button>
                 </Link>
               </div>
               <div className="zor-compare-page__filter-action">
@@ -119,14 +119,9 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
         <div className="zor-compare-page__results-bar">
           <p className="zor-compare-page__results-count">
             {showCuratedSections ? (
-              <>
-                <strong>{stats.productCount}</strong> products ready to compare
-              </>
+              <>{t("productsReadyToCompare", { count: stats.productCount })}</>
             ) : (
-              <>
-                Showing <strong>{filtered.length}</strong>{" "}
-                {filtered.length === 1 ? "comparison" : "comparisons"}
-              </>
+              <>{t("showingComparisons", { count: filtered.length })}</>
             )}
           </p>
         </div>
@@ -134,8 +129,8 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
         {products.length === 0 ? (
           <PageEmptyState
             title={t("noProductsToCompare")}
-            description="Browse products and add them to compare prices across stores."
-            actionLabel="Browse Products"
+            description={t("emptyDescription")}
+            actionLabel={t("browseProducts")}
             onAction={() => {
               window.location.href = "/products";
             }}
@@ -156,11 +151,11 @@ export default function ComparePageClient({ products }: ComparePageClientProps) 
 
         <PageIdentityCta
           block="zor-compare-page"
-          title="Never overpay again"
-          description="Track prices, unlock coupons, and shop trusted stores — all from one Zorino workflow."
+          title={t("ctaTitle")}
+          description={t("ctaDescription")}
         >
-          <Link href="/coupons"><Button>View Coupons</Button></Link>
-          <Link href="/stores"><Button variant="outline">Explore Stores</Button></Link>
+          <Link href="/coupons"><Button>{t("viewCoupons")}</Button></Link>
+          <Link href="/stores"><Button variant="outline">{t("exploreStores")}</Button></Link>
         </PageIdentityCta>
       </div>
     </PageLayout>

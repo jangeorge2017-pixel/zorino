@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   ...buildSeoMetadata({
     title: "Find Better Deals Faster",
     description:
-      "Compare prices across thousands of stores and discover the best deals in seconds.",
+      "Compare prices across trusted partner stores and discover the best deals in seconds.",
   }),
   other: {
     "verify-admitad": "32ef59cc79",

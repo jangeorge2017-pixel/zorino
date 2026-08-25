@@ -13,5 +13,5 @@ export default async function WishlistPage() {
     seen.add(item.id);
     return true;
   });
-  return <WishlistPageClient items={[]} recommendations={recommendations} />;
+  return <WishlistPageClient recommendations={recommendations} />;
 }

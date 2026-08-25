@@ -3273,6 +3273,27 @@ img {
   transform: translateY(-2px);
 }
 
+/* Wishlist toggle inside listing card secondary actions — match icon-btn look */
+.listing-secondary-actions .product-wishlist-btn {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  transition: background 0.22s ease, color 0.22s ease, transform 0.22s ease;
+}
+
+.listing-secondary-actions .product-wishlist-btn:hover {
+  background: rgba(139, 92, 246, 0.15);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
 .listing-stock {
   font-size: 13px;
   font-weight: 600;

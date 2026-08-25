@@ -7,13 +7,11 @@ import {
   useMemo,
   useRef,
   useState,
-  useTransition,
 } from "react";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import DealsDealCard from "@/components/deals/DealsDealCard";
-import ZorinoHomeTrendingDealsSkeleton from "@/components/zorino-home/ZorinoHomeTrendingDealsSkeleton";
 import { ZH_TRENDING_DEALS_META } from "@/lib/zorino-home/home-section-meta";
 import {
   TRENDING_DEAL_FILTERS,
@@ -57,20 +55,35 @@ type ZorinoHomeDealsPanelProps = {
 
 export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProps) {
   const t = useTranslations("home");
+  const tDeals = useTranslations("deals");
   const trackRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<TrendingDealFilter>("all");
   const [sort, setSort] = useState<TrendingDealSort>("biggest_discount");
+  const [store, setStore] = useState<string>("all");
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const [showSkeleton, setShowSkeleton] = useState(false);
 
   const enrichedDeals = useMemo(() => enrichTrendingDeals(deals), [deals]);
 
+  /** Store dropdown options — derived from the deals actually loaded. */
+  const storeOptions = useMemo(() => {
+    const names = new Set<string>();
+    for (const deal of enrichedDeals) {
+      if (deal.store) names.add(deal.store);
+    }
+    return [...names].sort((a, b) => a.localeCompare(b));
+  }, [enrichedDeals]);
+
   const visibleDeals = useMemo(() => {
-    const filtered = filterTrendingDeals(enrichedDeals, filter);
-    return sortTrendingDeals(filtered, sort);
-  }, [enrichedDeals, filter, sort]);
+    const filteredByStore =
+      store === "all"
+        ? enrichedDeals
+        : enrichedDeals.filter(
+            (deal) =>
+              (deal.store ?? "").toLowerCase() === store.toLowerCase(),
+          );
+    return sortTrendingDeals(filterTrendingDeals(filteredByStore, filter), sort);
+  }, [enrichedDeals, filter, sort, store]);
 
   const syncButtons = useCallback(() => {
     const node = trackRef.current;
@@ -81,9 +94,8 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   }, []);
 
   useLayoutEffect(() => {
-    if (isPending || showSkeleton) return;
     syncButtons();
-  }, [visibleDeals.length, isPending, showSkeleton, syncButtons]);
+  }, [visibleDeals.length, syncButtons]);
 
   useEffect(() => {
     syncButtons();
@@ -92,7 +104,6 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   }, [visibleDeals.length, syncButtons]);
 
   useEffect(() => {
-    if (isPending || showSkeleton) return;
     const node = trackRef.current;
     if (!node) return;
     const id = window.requestAnimationFrame(() => syncButtons());
@@ -101,20 +112,20 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
       window.cancelAnimationFrame(id);
       detach();
     };
-  }, [visibleDeals.length, isPending, showSkeleton, syncButtons]);
+  }, [visibleDeals.length, syncButtons]);
 
-  useEffect(() => {
-    setShowSkeleton(true);
-    const timer = window.setTimeout(() => setShowSkeleton(false), 180);
-    return () => window.clearTimeout(timer);
-  }, [filter, sort]);
-
+  /*
+   * Filter/sort are synchronous computations over already-loaded deals —
+   * update state directly so results stay mounted and re-render in place.
+   * (A deferred transition + skeleton swap here used to unmount the track on
+   * every change, racing any interaction happening while it was hidden.)
+   */
   const handleFilterChange = (next: TrendingDealFilter) => {
-    startTransition(() => setFilter(next));
+    setFilter(next);
   };
 
   const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    startTransition(() => setSort(event.target.value as TrendingDealSort));
+    setSort(event.target.value as TrendingDealSort);
   };
 
   const scroll = (direction: -1 | 1) => {
@@ -125,7 +136,6 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
     window.setTimeout(syncButtons, 700);
   };
 
-  const isLoading = isPending || showSkeleton;
   const TrendingIcon = ZH_TRENDING_DEALS_META.icon;
 
   return (
@@ -154,21 +164,43 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
         icon={<TrendingIcon size={18} aria-hidden />}
         viewAll={{ href: "/deals", variant: "deals" }}
         actions={
-          <label className="zh-trending-deals__sort">
-            <span className="zh-trending-deals__sort-label">{t("sortBy")}</span>
-            <select
-              value={sort}
-              onChange={handleSortChange}
-              aria-label={t("sortBy")}
-              className="zh-trending-deals__sort-select"
-            >
-              {TRENDING_DEAL_SORTS.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {t(SORT_KEYS[item.id] as "sortNewest")}
-                </option>
-              ))}
-            </select>
-          </label>
+          <>
+            {storeOptions.length > 1 ? (
+              <label className="zh-trending-deals__sort">
+                <span className="zh-trending-deals__sort-label">
+                  {tDeals("filterByStore")}
+                </span>
+                <select
+                  value={store}
+                  onChange={(event) => setStore(event.target.value)}
+                  aria-label={tDeals("filterByStore")}
+                  className="zh-trending-deals__sort-select"
+                >
+                  <option value="all">{t("filterAll")}</option>
+                  {storeOptions.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <label className="zh-trending-deals__sort">
+              <span className="zh-trending-deals__sort-label">{t("sortBy")}</span>
+              <select
+                value={sort}
+                onChange={handleSortChange}
+                aria-label={t("sortBy")}
+                className="zh-trending-deals__sort-select"
+              >
+                {TRENDING_DEAL_SORTS.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {t(SORT_KEYS[item.id] as "sortNewest")}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </>
         }
       >
         <div className="zh-trending-deals__controls">
@@ -216,32 +248,28 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
             indicator cannot be painted outside / clipped by parent panels.
           */}
           <div className="zh-trending-deals__viewport">
-            {isLoading ? (
-              <ZorinoHomeTrendingDealsSkeleton count={Math.min(visibleDeals.length, 4)} />
-            ) : (
-              <div
-                className="zh-trending-deals__track"
-                ref={trackRef}
-                onScroll={syncButtons}
-                aria-live="polite"
-              >
-                {visibleDeals.map((deal) => (
-                  <div key={deal.id} className="zh-trending-deals__slide">
-                    <DealsDealCard
-                      deal={trendingDealToDeal(deal, {
-                        featured: deal.displayBadge === "hot" || deal.displayBadge === "limited",
-                      })}
-                      endsInLabel={trendingDealEndsInLabel(deal, {
-                        today: t("endsInLabelToday"),
-                        oneDay: t("endsInLabelOneDay"),
-                        days: (count) => t("endsInLabelDays", { count }),
-                      })}
-                      featuredLabel={t("featured")}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <div
+              className="zh-trending-deals__track"
+              ref={trackRef}
+              onScroll={syncButtons}
+              aria-live="polite"
+            >
+              {visibleDeals.map((deal) => (
+                <div key={deal.id} className="zh-trending-deals__slide">
+                  <DealsDealCard
+                    deal={trendingDealToDeal(deal, {
+                      featured: deal.displayBadge === "hot" || deal.displayBadge === "limited",
+                    })}
+                    endsInLabel={trendingDealEndsInLabel(deal, {
+                      today: t("endsInLabelToday"),
+                      oneDay: t("endsInLabelOneDay"),
+                      days: (count) => t("endsInLabelDays", { count }),
+                    })}
+                    featuredLabel={t("featured")}
+                  />
+                </div>
+              ))}
+            </div>
 
             <button
               type="button"

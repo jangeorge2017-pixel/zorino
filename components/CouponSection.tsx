@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, CheckCircle, Clock, Users } from "lucide-react";
+import { Copy, Check, CheckCircle, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import AssetImage from "@/components/AssetImage";
 import ReferenceSectionHeader from "@/components/ReferenceSectionHeader";
 import { HOME_SECTIONS } from "@/lib/homepage/sections";
-import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
 
 type CouponSectionProps = {
@@ -13,6 +13,8 @@ type CouponSectionProps = {
 };
 
 export default function CouponSection({ coupons }: CouponSectionProps) {
+  const t = useTranslations("home");
+  const tCoupons = useTranslations("coupons");
   const [copiedId, setCopiedId] = useState<number | string | null>(null);
 
   const handleCopy = (id: number | string, code: string) => {
@@ -25,8 +27,6 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
     return null;
   }
 
-  const verifiedCount = coupons.filter((coupon) => coupon.verified).length;
-
   return (
     <section
       id={HOME_SECTIONS["top-coupons"].sectionId}
@@ -34,9 +34,9 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
     >
       <ReferenceSectionHeader
         headingId="top-coupons-heading"
-        title="Top Coupons"
+        title={t("topCoupons")}
         linkHref="/coupons"
-        linkLabel="View all coupons"
+        linkLabel={tCoupons("viewAllCoupons")}
       />
 
       <div className="coupons-list">
@@ -57,10 +57,6 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
               <h3>{coupon.store}</h3>
               <p className="coupon-offer">{coupon.offer}</p>
               <p className="coupon-min">{coupon.minSpend}</p>
-              <p className="coupon-expires">
-                <Clock size={12} />
-                Expires soon
-              </p>
             </div>
 
             <div className="coupon-actions">
@@ -70,7 +66,7 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
                   type="button"
                   className="coupon-copy-btn"
                   onClick={() => handleCopy(coupon.id, coupon.code)}
-                  aria-label={`Copy ${coupon.code}`}
+                  aria-label={`${t("copyCoupon")} ${coupon.code}`}
                 >
                   {copiedId === coupon.id ? <Check size={16} /> : <Copy size={16} />}
                 </button>
@@ -78,12 +74,12 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
               <div className="coupon-meta">
                 <span className="coupon-users-used">
                   <Users size={12} />
-                  Used {coupon.usedTimes.toLocaleString("en-US")} times
+                  {t("usedTimes", { count: coupon.usedTimes })}
                 </span>
                 {coupon.verified ? (
                   <span className="coupon-verified">
                     <CheckCircle size={13} />
-                    Verified ({verifiedCount})
+                    {t("verified")}
                   </span>
                 ) : null}
               </div>

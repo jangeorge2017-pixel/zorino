@@ -60,7 +60,7 @@ const STORE_META: Record<string, Pick<Store, "id" | "name" | "slug" | "website" 
   },
 };
 
-function buildStore(slug: string, displayName?: string): Store {
+export function buildStore(slug: string, displayName?: string): Store {
   const meta = STORE_META[slug] ?? {
     id: slug,
     name: displayName || slug,
@@ -348,6 +348,25 @@ async function resolveCjProductDetail(externalId: string): Promise<ProductDetail
  * Amazon is intentionally unsupported here (no connector changes).
  */
 export async function resolveMarketplaceProductDetail(
+  id: string,
+): Promise<ProductDetail | null> {
+  const detail = await resolveMarketplaceProductDetailBase(id);
+  if (!detail) return null;
+  // Attach real cross-store offers so the compare table shows more than
+  // one merchant when genuine matches exist on other providers.
+  try {
+    const { enrichCompareResult } = await import("@/lib/data/multi-store-comparison");
+    const comparison = await enrichCompareResult(detail.comparison);
+    if (comparison !== detail.comparison) {
+      return { ...detail, comparison };
+    }
+  } catch {
+    // Enrichment is best-effort; the base detail remains valid.
+  }
+  return detail;
+}
+
+async function resolveMarketplaceProductDetailBase(
   id: string,
 ): Promise<ProductDetail | null> {
   // DB-sourced Admitad catalog items: `db-<lowest_prices_today.product_id>`

@@ -334,6 +334,7 @@ export interface HomepageCategoryItem {
 export interface TopCouponCard {
   id: number | string;
   store: string;
+  storeSlug?: string;
   storeLogoSrc: string;
   storeInitial: string;
   offer: string;
@@ -341,6 +342,8 @@ export interface TopCouponCard {
   code: string;
   usedTimes: number;
   verified: boolean;
+  /** Store website — used for honest outbound "Use Coupon" links. */
+  url?: string;
 }
 
 export interface ServiceResult<T> {

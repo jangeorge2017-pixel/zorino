@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { BarChart3, DollarSign, Scale, TrendingUp } from "lucide-react";
 
 type ComparePageHeroProps = {
@@ -19,6 +20,8 @@ export default function ComparePageHero({
   avgSavings,
   bestDeal,
 }: ComparePageHeroProps) {
+  const t = useTranslations("compare");
+
   return (
     <section className="zor-compare-page__hero" aria-labelledby="compare-page-title">
       <div className="zor-compare-page__hero-glow" aria-hidden />
@@ -27,7 +30,7 @@ export default function ComparePageHero({
         <div className="zor-compare-page__hero-copy">
           <p className="zor-compare-page__eyebrow">
             <Scale size={14} aria-hidden />
-            Price intelligence
+            {t("heroEyebrow")}
           </p>
           <h1 id="compare-page-title" className="zor-compare-page__title">
             {title}
@@ -35,14 +38,14 @@ export default function ComparePageHero({
           <p className="zor-compare-page__subtitle">{subtitle}</p>
         </div>
 
-        <div className="zor-compare-page__stats" aria-label="Compare overview">
+        <div className="zor-compare-page__stats" aria-label={t("title")}>
           <div className="zor-compare-page__stat">
             <span className="zor-compare-page__stat-icon" aria-hidden>
               <BarChart3 size={15} />
             </span>
             <div>
               <strong>{productCount}</strong>
-              <span>Products</span>
+              <span>{t("statProducts")}</span>
             </div>
           </div>
           <div className="zor-compare-page__stat zor-compare-page__stat--hot">
@@ -51,7 +54,7 @@ export default function ComparePageHero({
             </span>
             <div>
               <strong>{storeCount}</strong>
-              <span>Store offers</span>
+              <span>{t("statStoreOffers")}</span>
             </div>
           </div>
           <div className="zor-compare-page__stat">
@@ -60,7 +63,7 @@ export default function ComparePageHero({
             </span>
             <div>
               <strong>{avgSavings}%</strong>
-              <span>Avg. savings</span>
+              <span>{t("statAvgSavings")}</span>
             </div>
           </div>
           <div className="zor-compare-page__stat">
@@ -68,8 +71,8 @@ export default function ComparePageHero({
               <DollarSign size={15} />
             </span>
             <div>
-              <strong>Up to ${bestDeal}</strong>
-              <span>Best deal</span>
+              <strong>{t("upToAmount", { amount: `$${bestDeal}` })}</strong>
+              <span>{t("statBestDeal")}</span>
             </div>
           </div>
         </div>
@@ -77,3 +80,4 @@ export default function ComparePageHero({
     </section>
   );
 }
+

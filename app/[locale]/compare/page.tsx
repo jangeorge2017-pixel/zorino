@@ -2,6 +2,7 @@ import ComparePageClient from "@/components/ComparePageClient";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 import { searchProducts } from "@/lib/search/engine";
 import { searchItemToCompareResult } from "@/services/aliexpress/search";
+import { enrichCompareResults } from "@/lib/data/multi-store-comparison";
 
 export async function generateMetadata({
   params,
@@ -29,6 +30,7 @@ export default async function ComparePage() {
     seen.add(item.id);
     return true;
   });
-  const products = items.slice(0, 6).map(searchItemToCompareResult);
+  const baseProducts = items.slice(0, 6).map(searchItemToCompareResult);
+  const products = await enrichCompareResults(baseProducts);
   return <ComparePageClient products={products} />;
 }

@@ -12,6 +12,10 @@ import {
 } from "@/lib/integration/catalog-service";
 import { HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
 import { ZH_POPULAR_SEARCHES } from "@/lib/zorino-home/content";
+import {
+  couponToFeaturedBrand,
+  type FeaturedCouponBrand,
+} from "@/lib/zorino-home/featured-coupon-brands";
 import { withFallbackCategories } from "@/lib/zorino-home/presentation";
 import { INTL_COOKIE_CURRENCY } from "@/lib/international/cookies";
 import { isSupportedCurrency } from "@/lib/international/config";
@@ -108,6 +112,7 @@ function couponToCard(coupon: Awaited<ReturnType<typeof fetchTopCoupons>>["data"
   return {
     id: coupon.id,
     store: store?.name ?? "Store",
+    storeSlug: store?.slug,
     storeLogoSrc: store?.logoUrl ?? `/stores/${store?.slug ?? "default"}.svg`,
     storeInitial: store?.logoInitial ?? store?.name.slice(0, 2) ?? "?",
     offer: coupon.offer,
@@ -115,6 +120,7 @@ function couponToCard(coupon: Awaited<ReturnType<typeof fetchTopCoupons>>["data"
     code: coupon.code,
     usedTimes: coupon.usedTimes,
     verified: coupon.verified,
+    url: store?.website,
   };
 }
 
@@ -141,6 +147,18 @@ export async function getTopCouponsForHomepage(limit = 4): Promise<TopCouponCard
   const { data, error } = await loadTopCouponsCached(limit);
   if (error || !data) return [];
   return data.map(couponToCard);
+}
+
+/**
+ * Featured coupon brands for the homepage carousel — real DB coupons only.
+ * The static brand list contributes visual styling (colors/logos), never
+ * offers or codes. Returns an empty array when no live coupons exist.
+ */
+export async function getFeaturedCouponBrandsForHomepage(
+  limit = 8,
+): Promise<FeaturedCouponBrand[]> {
+  const coupons = await getTopCouponsForHomepage(limit);
+  return coupons.map(couponToFeaturedBrand);
 }
 /** All active coupons (coupons listing page). */
 export async function getCouponsForPage() {

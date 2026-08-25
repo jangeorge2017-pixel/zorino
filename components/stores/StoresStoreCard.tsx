@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
-import { CheckCircle, ExternalLink, Star } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import type { Store } from "@/lib/types/entities";
 
@@ -52,15 +52,12 @@ export default function StoresStoreCard({
         <div className="zor-stores-page__card-title-wrap">
           <h3 className="zor-stores-page__card-title">
             {store.name}
-            <CheckCircle className="zor-stores-page__card-verified" size={16} aria-hidden />
           </h3>
           <span className="zor-stores-page__card-badge">{store.integrationType}</span>
         </div>
       </div>
 
       <div className="zor-stores-page__card-rating">
-        <Star size={14} aria-hidden />
-        <strong>4.5</strong>
         <span>Partner store</span>
       </div>
 
@@ -84,7 +81,11 @@ export default function StoresStoreCard({
         <Link href={`/stores/${store.slug}`} className="zor-stores-page__card-action-link">
           <Button className="w-full">{viewProductsLabel}</Button>
         </Link>
-        <a href={store.website} target="_blank" rel="noopener noreferrer">
+        <a
+          href={`/api/affiliate/go?productId=store-${encodeURIComponent(store.slug)}&store=${encodeURIComponent(store.slug)}&to=${encodeURIComponent(store.website)}&source=stores`}
+          target="_blank"
+          rel="nofollow sponsored noopener noreferrer"
+        >
           <Button variant="outline" className="zor-stores-page__card-visit">
             <ExternalLink size={14} aria-hidden />
             {visitLabel}
