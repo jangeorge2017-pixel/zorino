@@ -1,9 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Star, Heart } from "lucide-react";
+import { Star } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
+import WishlistButton from "@/components/WishlistButton";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 
@@ -164,13 +165,25 @@ export default function ListingProductCard({
 
       {showWishlist && (
         <div className="listing-secondary-actions">
-          <button
-            type="button"
-            className="listing-icon-btn"
-            aria-label={tCommon("addToWishlist")}
-          >
-            <Heart size={18} />
-          </button>
+          <WishlistButton
+            productId={product.id}
+            item={{
+              id: product.id,
+              name: product.name,
+              imageSrc: product.imageSrc,
+              emoji: product.emoji,
+              price: product.price,
+              originalPrice:
+                product.originalPrice && product.originalPrice > product.price
+                  ? product.originalPrice
+                  : undefined,
+              discount: discount > 0 ? discount : undefined,
+              store: product.store,
+              storeSlug: product.storeSlug,
+              inStock: product.inStock ?? true,
+            }}
+            className="listing-wishlist-btn"
+          />
         </div>
       )}
     </article>

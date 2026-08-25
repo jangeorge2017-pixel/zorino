@@ -1,4 +1,5 @@
 import { STORE_LOGOS } from "@/lib/assets";
+import type { TopCouponCard } from "@/lib/types/entities";
 
 export type FeaturedCouponBrand = {
   id: string;
@@ -146,3 +147,44 @@ export const ZH_FEATURED_COUPON_BRANDS: readonly FeaturedCouponBrand[] = [
     textTone: "light",
   },
 ] as const;
+
+/**
+ * Visual styling only (brand colors/glows keyed by store slug) — reused for
+ * live DB coupons so cards keep their per-brand look. Offers/codes always come
+ * from the database, never from this list.
+ */
+const BRAND_VISUAL_CONFIG: ReadonlyMap<
+  string,
+  Pick<FeaturedCouponBrand, "brandColor" | "brandGlow" | "textTone">
+> = new Map(
+  ZH_FEATURED_COUPON_BRANDS.map((brand) => [
+    brand.slug,
+    {
+      brandColor: brand.brandColor,
+      brandGlow: brand.brandGlow,
+      textTone: brand.textTone,
+    },
+  ]),
+);
+
+export function couponToFeaturedBrand(
+  coupon: TopCouponCard,
+): FeaturedCouponBrand {
+  const slug =
+    coupon.storeSlug ??
+    coupon.store.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const visuals = BRAND_VISUAL_CONFIG.get(slug);
+  return {
+    id: String(coupon.id),
+    slug,
+    name: coupon.store,
+    logoSrc: coupon.storeLogoSrc,
+    logoInitial: coupon.storeInitial,
+    offer: coupon.offer,
+    code: coupon.code,
+    verified: coupon.verified,
+    brandColor: visuals?.brandColor ?? "#7c3aed",
+    brandGlow: visuals?.brandGlow ?? "rgba(124, 58, 237, 0.35)",
+    textTone: visuals?.textTone ?? "light",
+  };
+}

@@ -21,17 +21,15 @@ export function generateMetadata(props: SEOProps) {
   const siteUrl = getSiteUrl();
   const {
     title = "ZORINO - Find the Best Deals Across All Marketplaces",
-    description = "Discover amazing deals, coupons, and price comparisons across Amazon, Alibaba, AliExpress, Noon, Temu and more. Save money on every purchase with ZORINO.",
+    description = "Discover real deals, coupons, and price comparisons from trusted partner stores including AliExpress, eBay and CJdropshipping. Save money on every purchase with ZORINO.",
     keywords = [
       "deals",
       "coupons",
       "discounts",
       "price comparison",
-      "Amazon",
-      "Alibaba",
       "AliExpress",
-      "Noon",
-      "Temu",
+      "eBay",
+      "CJdropshipping",
       "shopping",
       "save money",
     ],

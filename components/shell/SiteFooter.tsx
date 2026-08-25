@@ -57,6 +57,13 @@ export default function SiteFooter() {
         <p className="zor-site-footer__copy zor-site-footer__copy--full">
           {t("rights", { year })}
         </p>
+
+        <p className="zor-site-footer__copy zor-site-footer__copy--full zor-site-footer__disclosure">
+          {t("affiliateDisclosure")}{" "}
+          <Link href="/affiliate-disclosure" className="zor-site-footer__link">
+            {t("affiliateDisclosureMore")}
+          </Link>
+        </p>
       </div>
     </footer>
   );

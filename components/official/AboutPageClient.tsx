@@ -78,11 +78,11 @@ export default function AboutPageClient() {
               <h2 className="text-2xl font-bold text-white mb-4">{t("story")}</h2>
               <p className="text-[var(--zor-text-soft)] leading-relaxed mb-4">
                 ZORINO was founded to solve a simple problem: finding the best price shouldn&apos;t take hours.
-                We aggregate deals from thousands of stores, compare prices with AI, and deliver personalized
+                We aggregate deals from trusted partner stores, compare prices with AI, and deliver personalized
                 recommendations so you save time and money.
               </p>
               <p className="text-[var(--zor-text-soft)] leading-relaxed">
-                Today, millions of shoppers trust ZORINO for deal discovery, coupons, and price tracking —
+                Today, shoppers use ZORINO for deal discovery, coupons, and price tracking —
                 and we&apos;re just getting started.
               </p>
             </div>
@@ -122,7 +122,7 @@ export default function AboutPageClient() {
         <Card className="text-center mb-8 bg-gradient-to-r from-purple-600/80 to-indigo-600/80 border-0">
           <h2 className="text-2xl font-bold text-white mb-3">Ready to Start Saving?</h2>
           <p className="text-white/85 mb-6 max-w-xl mx-auto">
-            Join millions of smart shoppers. Browse deals, set price alerts, and never overpay again.
+            Join smart shoppers saving with ZORINO. Browse deals, set price alerts, and never overpay again.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link href="/deals"><Button className="bg-white text-purple-700 hover:bg-gray-100">Browse Deals</Button></Link>

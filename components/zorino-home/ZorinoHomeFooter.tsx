@@ -3,10 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Mail, Package, Send, Star, Store, Tag, Users } from "lucide-react";
-import { TRUSTPILOT_LOGO } from "@/lib/assets";
+import { Mail, Package, Send, Store, Tag, Users } from "lucide-react";
 import { useNewsletter } from "@/lib/features/newsletter-system";
-import { ZH_FEATURED_COUPON_BRANDS } from "@/lib/zorino-home/featured-coupon-brands";
 import type { FooterStatItem } from "@/lib/types/entities";
 import type { Locale } from "@/i18n/config";
 import "./ZorinoHomeFooter.css";
@@ -18,17 +16,16 @@ const ICONS = {
   users: Users,
 } as const;
 
-/** Featured Stores only — official logos from existing project assets. */
-const FEATURED_STORE_LOGOS: Record<string, string> = {
-  amazon: "/stores/amazon.svg",
-  aliexpress: "/stores/aliexpress.svg",
-  noon: "/stores/noon.svg",
-  ebay: "/stores/ebay.svg",
-  temu: "/stores/temu.svg",
-  shein: "/stores/shein.svg",
-  nike: "/stores/nike.svg",
-  adidas: "/stores/adidas.svg",
-};
+/** Featured Stores strip — slugs that exist in the live stores table. */
+const FEATURED_STORES = [
+  { id: "amazon", slug: "amazon", name: "Amazon", logoSrc: "/stores/amazon.svg", initial: "a" },
+  { id: "aliexpress", slug: "aliexpress", name: "AliExpress", logoSrc: "/stores/aliexpress.svg", initial: "AE" },
+  { id: "noon", slug: "noon", name: "Noon", logoSrc: "/stores/noon.svg", initial: "N" },
+  { id: "ebay", slug: "ebay", name: "eBay", logoSrc: "/stores/ebay.svg", initial: "e" },
+  { id: "nike", slug: "nike", name: "Nike", logoSrc: "/stores/nike.svg", initial: "N" },
+  { id: "walmart", slug: "walmart", name: "Walmart", logoSrc: "/stores/walmart.svg", initial: "W" },
+  { id: "cjdropshipping", slug: "cjdropshipping", name: "CJdropshipping", logoSrc: "/stores/cjdropshipping.svg", initial: "CJ" },
+] as const;
 
 type ZorinoHomeFooterProps = {
   footerStats: FooterStatItem[];
@@ -39,7 +36,6 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
   const tHero = useTranslations("hero");
   const tFooter = useTranslations("footer");
   const locale = useLocale() as Locale;
-  const [logoFailed, setLogoFailed] = useState(false);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const { loading, subscribe } = useNewsletter();
@@ -82,23 +78,21 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
           </Link>
         </div>
         <div className="zh-footer__store-logos">
-          {ZH_FEATURED_COUPON_BRANDS.slice(0, 8).map((brand) => {
-            const logoSrc = FEATURED_STORE_LOGOS[brand.id] ?? brand.logoSrc;
-            return (
-              <Link
-                key={brand.id}
-                href={`/stores/${brand.slug}`}
-                className="zh-footer__store-logo"
-                title={brand.name}
-              >
-                {logoSrc ? (
-                  <img src={logoSrc} alt={brand.name} loading="lazy" decoding="async" />
-                ) : (
-                  <span>{brand.logoInitial}</span>
-                )}
-              </Link>
-            );
-          })}
+          {FEATURED_STORES.map((store) => (
+            <Link
+              key={store.id}
+              href={`/stores/${store.slug}`}
+              className="zh-footer__store-logo"
+              title={store.name}
+            >
+              <img
+                src={store.logoSrc}
+                alt={store.name}
+                loading="lazy"
+                decoding="async"
+              />
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -141,26 +135,10 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
           })}
         </div>
 
-        <div className="zh-footer__trustpilot">
-          <strong>{t("trustExcellent")}</strong>
-          <span className="zh-footer__stars" aria-label={t("outOfStars", { rating: 5 })}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} size={16} fill="#22c55e" color="#22c55e" />
-            ))}
-          </span>
-          <span>{t("trustReviews")}</span>
-          {logoFailed ? (
-            <strong>Trustpilot</strong>
-          ) : (
-            <img
-              src={TRUSTPILOT_LOGO}
-              alt="Trustpilot"
-              width={88}
-              height={22}
-              onError={() => setLogoFailed(true)}
-            />
-          )}
-        </div>
+        <p className="zh-footer__disclosure">
+          {t("affiliateDisclosure")}{" "}
+          <Link href="/affiliate-disclosure">{t("affiliateDisclosureMore")}</Link>
+        </p>
       </div>
 
       <nav className="zh-footer__legal-links" aria-label={tFooter("legal")}>

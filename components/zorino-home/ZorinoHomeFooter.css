@@ -35,3 +35,16 @@
   color: var(--zor-purple-light, #c084fc);
   text-decoration: underline;
 }
+
+/**
+ * Affiliate disclosure — replaces the fabricated Trustpilot rating block.
+ */
+.zh-footer__disclosure {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.72);
+}
+.zh-footer__disclosure a {
+  color: var(--zor-purple-light, #c084fc);
+  text-decoration: underline;
+}

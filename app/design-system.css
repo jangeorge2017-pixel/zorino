@@ -432,6 +432,14 @@
   color: var(--zor-text-muted);
 }
 
+/* Affiliate disclosure line under the copyright — quieter than the copy row */
+.zor-site-footer__disclosure {
+  margin-top: 0;
+  padding-top: var(--zor-space-2);
+  border-top: 0;
+  font-size: var(--zor-text-xs);
+}
+
 /*
  * Scroll clearance is CSS-owned (not overwritten by JS px measurements).
  * Homepage: primary nav + secondary quick-nav (token updated live by QuickNav).

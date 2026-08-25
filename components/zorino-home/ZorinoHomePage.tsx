@@ -30,6 +30,7 @@ import ZorinoHomeCtaBand from "@/components/zorino-home/ZorinoHomeCtaBand";
 import ZorinoHomeFooter from "@/components/zorino-home/ZorinoHomeFooter";
 import "@/components/zorino-home/homepage-landscape-phones.css";
 import {
+  getFeaturedCouponBrandsForHomepage,
   getHeroFloatingProducts,
   getHomepageCategories,
   getHomepageSectionProducts,
@@ -39,7 +40,6 @@ import {
   getTopCouponsForHomepage,
   getTrendingDeals,
 } from "@/lib/data/homepage";
-import { ZH_FEATURED_COUPON_BRANDS } from "@/lib/zorino-home/featured-coupon-brands";
 
 /**
  * Hero orbit artwork depends on the live merged catalog (the slowest data
@@ -89,6 +89,23 @@ async function ProductSectionsContent() {
 async function SearchSection() {
   const popularSearches = await getPopularSearchesLive();
   return <ZorinoHomeSearch popularSearches={popularSearches} />;
+}
+
+/**
+ * Featured coupon brands — real coupons from the database only. The section is
+ * omitted entirely when no live coupons exist (no fabricated fallback offers).
+ */
+async function FeaturedCouponBrandsSection() {
+  const brands = await getFeaturedCouponBrandsForHomepage(8);
+  if (brands.length === 0) return null;
+  return (
+    <section
+      className="zh-featured-brands-wrap"
+      aria-label="Featured coupon brands"
+    >
+      <ZorinoHomeFeaturedCouponBrands brands={brands} />
+    </section>
+  );
 }
 
 export default async function ZorinoHomePage() {
@@ -159,9 +176,15 @@ export default async function ZorinoHomePage() {
           </section>
         </HomeHeroBackground>
 
-        <section className="zh-featured-brands-wrap" aria-label="Featured coupon brands">
-          <ZorinoHomeFeaturedCouponBrands brands={[...ZH_FEATURED_COUPON_BRANDS]} />
-        </section>
+        <Suspense
+          fallback={
+            <div className="zh-featured-brands-wrap" aria-hidden>
+              <div className="zh-panel" style={{ minHeight: 420 }} />
+            </div>
+          }
+        >
+          <FeaturedCouponBrandsSection />
+        </Suspense>
 
         <section className="zh-product-sections-wrap" aria-label="Featured products">
           <Suspense

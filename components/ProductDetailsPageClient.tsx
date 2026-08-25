@@ -21,6 +21,7 @@ import type { ProductDetail } from "@/lib/data/product-detail";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { trackProductInteraction } from "@/lib/trending/track-client";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
+import { useWishlist } from "@/lib/wishlist/use-wishlist";
 
 type ProductDetailsPageClientProps = {
   detail: ProductDetail;
@@ -37,6 +38,17 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
 
   const gallery = images.length > 0 ? images : [product.imageUrl];
   const [activeImage, setActiveImage] = useState(gallery[0]);
+  const { has: hasWishlisted, toggle: toggleWishlisted } = useWishlist();
+  const wishlisted = hasWishlisted(product.id);
+
+  const handleShare = () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({ title: product.name, url }).catch(() => {});
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(url).catch(() => {});
+    }
+  };
 
   const cheapest = offers.find((o) => o.isLowest) ?? offers[0];
   const price = lowestPrice || cheapest?.price || 0;
@@ -147,18 +159,29 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
 
             <h1 className="text-3xl font-bold text-white mb-4">{product.name}</h1>
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <span className="text-white font-semibold">{product.rating ?? 4.5}</span>
-                <span className="text-gray-400">
-                  ({t("reviewsCount", { count: product.reviewCount })})
+            {(product.rating ?? 0) > 0 && (
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                  <span className="text-white font-semibold">{product.rating}</span>
+                  {product.reviewCount ? (
+                    <span className="text-gray-400">
+                      ({t("reviewsCount", { count: product.reviewCount })})
+                    </span>
+                  ) : null}
+                </div>
+                <span className={`text-sm ${product.inStock ? "text-green-400" : "text-red-400"}`}>
+                  {product.inStock ? tCommon("inStock") : tCommon("outOfStock")}
                 </span>
               </div>
-              <span className={`text-sm ${product.inStock ? "text-green-400" : "text-red-400"}`}>
-                {product.inStock ? tCommon("inStock") : tCommon("outOfStock")}
-              </span>
-            </div>
+            )}
+            {(product.rating ?? 0) <= 0 && (
+              <div className="mb-6">
+                <span className={`text-sm ${product.inStock ? "text-green-400" : "text-red-400"}`}>
+                  {product.inStock ? tCommon("inStock") : tCommon("outOfStock")}
+                </span>
+              </div>
+            )}
 
             <div className="flex items-center gap-4 mb-6">
               <span className="text-4xl font-bold text-white">{formatPrice(price)}</span>
@@ -178,10 +201,28 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
               <Link href="#compare-prices" className="deal-compare-btn flex-1 text-center">
                 {t("comparePrices")}
               </Link>
-              <Button variant="outline" aria-label={tCommon("addToWishlist")}>
-                <Heart className="w-5 h-5" />
+              <Button
+                variant="outline"
+                aria-label={wishlisted ? tCommon("removeFromWishlist") : tCommon("addToWishlist")}
+                aria-pressed={wishlisted}
+                onClick={() =>
+                  toggleWishlisted({
+                    id: product.id,
+                    name: product.name,
+                    imageSrc: product.imageUrl,
+                    emoji: product.emoji ?? undefined,
+                    price,
+                    originalPrice: originalPrice > price ? originalPrice : undefined,
+                    discount: discount > 0 ? discount : undefined,
+                    store: product.brand ?? cheapest?.store?.name,
+                    storeSlug: cheapest?.provider,
+                    inStock: product.inStock ?? true,
+                  })
+                }
+              >
+                <Heart className="w-5 h-5" fill={wishlisted ? "currentColor" : "none"} />
               </Button>
-              <Button variant="outline" aria-label={t("shareProduct")}>
+              <Button variant="outline" aria-label={t("shareProduct")} onClick={handleShare}>
                 <Share2 className="w-5 h-5" />
               </Button>
             </div>
@@ -195,6 +236,9 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                 savingsVsHighest={savingsVsHighest}
                 savingsPercent={savingsPercent}
               />
+            )}
+            {offers.length === 1 && (
+              <p className="text-gray-400 text-sm mt-3">{t("singleOfferNote")}</p>
             )}
           </div>
         </div>
@@ -222,7 +266,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                   countryCode: product.countryCode ?? "US",
                 })}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="nofollow sponsored noopener noreferrer"
                 onClick={() => trackClick("product_detail_cheapest")}
               >
                 <Button className="w-full mt-6 flex items-center justify-center gap-2">

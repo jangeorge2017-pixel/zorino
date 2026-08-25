@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
-import { ArrowLeft, CheckCircle, ExternalLink, Star, Tag } from "lucide-react";
+import { ArrowLeft, CheckCircle, ExternalLink, Tag } from "lucide-react";
 import type { MockStoreDetail } from "@/lib/mock/types";
 
 type StoreDetailHeroProps = {
@@ -11,7 +11,7 @@ type StoreDetailHeroProps = {
 };
 
 export default function StoreDetailHero({ detail }: StoreDetailHeroProps) {
-  const { store, description, productCount, avgRating, dealsCount, couponsCount } = detail;
+  const { store, description, productCount, dealsCount, couponsCount } = detail;
 
   return (
     <section className="zor-stores-page__detail-hero" aria-labelledby="store-detail-title">
@@ -33,7 +33,7 @@ export default function StoreDetailHero({ detail }: StoreDetailHeroProps) {
           <div>
             <p className="zor-stores-page__eyebrow">
               <CheckCircle size={14} aria-hidden />
-              Verified partner
+              Partner store
             </p>
             <h1 id="store-detail-title" className="zor-stores-page__title">
               {store.name}
@@ -47,27 +47,33 @@ export default function StoreDetailHero({ detail }: StoreDetailHeroProps) {
             <span className="zor-stores-page__stat-icon" aria-hidden><Tag size={15} /></span>
             <div><strong>{productCount.toLocaleString("en-US")}</strong><span>Products</span></div>
           </div>
-          <div className="zor-stores-page__stat zor-stores-page__stat--hot">
-            <span className="zor-stores-page__stat-icon" aria-hidden><Star size={15} /></span>
-            <div><strong>{avgRating}</strong><span>Rating</span></div>
-          </div>
-          <div className="zor-stores-page__stat">
-            <span className="zor-stores-page__stat-icon" aria-hidden><Tag size={15} /></span>
-            <div><strong>{dealsCount}</strong><span>Active deals</span></div>
-          </div>
+          {dealsCount > 0 ? (
+            <div className="zor-stores-page__stat zor-stores-page__stat--hot">
+              <span className="zor-stores-page__stat-icon" aria-hidden><Tag size={15} /></span>
+              <div><strong>{dealsCount}</strong><span>Active deals</span></div>
+            </div>
+          ) : null}
           <div className="zor-stores-page__stat">
             <span className="zor-stores-page__stat-icon" aria-hidden><Tag size={15} /></span>
             <div><strong>{couponsCount}</strong><span>Coupons</span></div>
           </div>
         </div>
 
-        <Link href={store.website} target="_blank" rel="noopener noreferrer" className="zor-stores-page__detail-visit">
-          <Button variant="outline">
-            <ExternalLink size={14} aria-hidden />
-            Visit Store
-          </Button>
-        </Link>
+        {store.website ? (
+          <a
+            href={`/api/affiliate/go?productId=store-${encodeURIComponent(store.slug)}&store=${encodeURIComponent(store.slug)}&to=${encodeURIComponent(store.website)}&source=stores`}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            className="zor-stores-page__detail-visit"
+          >
+            <Button variant="outline">
+              <ExternalLink size={14} aria-hidden />
+              Visit Store
+            </Button>
+          </a>
+        ) : null}
       </div>
     </section>
   );
 }
+

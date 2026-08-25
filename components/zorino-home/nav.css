@@ -175,6 +175,9 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
+  /* Labels must never intercept clicks/hovers aimed at a neighbouring link
+     when the links band squeezes narrower than the nowrap labels. */
+  pointer-events: none;
   text-shadow: none;
   transition:
     color 250ms ease,

@@ -134,7 +134,21 @@ export default function HomeProductCard({
 
       {!hideQuickActions ? (
         <div className="product-card-quick-actions">
-          <WishlistButton productId={productId} />
+          <WishlistButton
+            productId={productId}
+            item={{
+              id: productId,
+              name,
+              imageSrc,
+              emoji,
+              price,
+              originalPrice: showOriginal ? originalPrice : undefined,
+              discount: discount > 0 ? discount : undefined,
+              store: storeName,
+              storeSlug: undefined,
+              inStock: true,
+            }}
+          />
           <ShareButton productId={productId} productName={name} />
           <PriceAlertButton productId={productId} />
         </div>

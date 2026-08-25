@@ -126,3 +126,95 @@ html.light .theme-option {
 html.light .theme-option-active {
   color: #0f172a;
 }
+
+/* ── Homepage (zorino-home) — unpin the hardcoded space-black surfaces ── */
+html.light:has(.zh-page),
+html.light body:has(.zh-page) {
+  background: #f4f6fb !important;
+}
+
+html.light .zh-page,
+html.light .zh-page .zh-page__background,
+html.light .zh-page .zh-page__background::before {
+  background: #f4f6fb !important;
+  --homepage-bg-fallback: #f4f6fb;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+html.light .zh-page .zh-nav {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Hero zone keeps its artwork but drops the black page wash */
+html.light .zh-page .zh-hero-zone {
+  background: transparent !important;
+}
+
+/* The hero artwork is a dark space-themed PNG — hide it on light surfaces */
+html.light .zh-page .zh-page__artwork {
+  display: none;
+}
+
+/* ── Homepage typography & glass surfaces on light ──────────────────── */
+html.light .zh-page {
+  color: #0f172a;
+}
+html.light .zh-nav__link,
+html.light .zh-nav__logo-lockup,
+html.light .zh-hero__title,
+html.light .zh-stat__value,
+html.light .zh-panel__title,
+html.light .zh-section-header__title,
+html.light .zh-trending-deals__title,
+html.light .zh-footer__newsletter-title,
+html.light .zh-footer__featured-title,
+html.light .zh-footer__stat strong {
+  color: #0f172a !important;
+}
+html.light .zh-hero__subtitle,
+html.light .zh-hero__subtitle-lead,
+html.light .zh-hero__subtitle-tail,
+html.light .zh-hero__badge,
+html.light .zh-stat__label,
+html.light .zh-stat__meta,
+html.light .zh-section-header__subtitle,
+html.light .zh-categories__label,
+html.light .zh-quick-nav__label,
+html.light .zh-footer__newsletter-text,
+html.light .zh-footer__stat span,
+html.light .zh-footer__legal-links a,
+html.light .zh-footer__disclosure {
+  color: #475569 !important;
+}
+html.light .zh-search__bar,
+html.light .zh-search__bar input,
+html.light .zh-search input {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
+}
+html.light .zh-search__suggestion-text,
+html.light .zh-search__view-all {
+  color: #334155 !important;
+}
+html.light .zh-quick-nav__pill {
+  background: #ffffff !important;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+html.light .zh-categories__icon-box {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+html.light .zh-orbit-card {
+  background: #ffffff !important;
+}
+html.light .zh-orbit-card__price {
+  color: #0f172a !important;
+}
+html.light .zh-orbit-card__was,
+html.light .zh-orbit-card__discount {
+  color: #64748b !important;
+}
