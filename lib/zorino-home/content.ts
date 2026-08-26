@@ -70,9 +70,9 @@ export type ZhFooterStat = {
 };
 
 export const ZH_HERO_STATS: ZhHeroStat[] = [
-  { icon: "stores", value: "50+", label: "Stores", tone: "purple" },
-  { icon: "products", value: "10M+", label: "Products", tone: "blue" },
-  { icon: "coupons", value: "100K+", label: "Coupons", tone: "green" },
+  { icon: "stores", value: "4", label: "Live Providers", tone: "purple" },
+  { icon: "products", value: "Real", label: "Live Deals", tone: "blue" },
+  { icon: "coupons", value: "Verified", label: "Coupon Sources", tone: "green" },
   { icon: "tracking", value: "Real-time", label: "Price Tracking", tone: "violet" },
 ];
 

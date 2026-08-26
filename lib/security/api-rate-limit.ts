@@ -14,11 +14,11 @@ export function getClientIp(request: Request): string {
   return request.headers.get("x-real-ip") ?? "unknown";
 }
 
-export function enforceRateLimit(
+export async function enforceRateLimit(
   request: Request,
   limiter: RateLimiter,
-): NextResponse | null {
-  if (!limiter.isAllowed(getClientIp(request))) {
+): Promise<NextResponse | null> {
+  if (!(await limiter.isAllowed(getClientIp(request)))) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
   return null;

@@ -57,26 +57,36 @@ export const temuSearchConnector = createSyncBridgeConnector({
 
 /**
  * Best Buy — UNAVAILABLE in production.
- * Requires: BESTBUY_API_KEY
- * Status: No API credentials configured.
+ * Requires: sync-layer provider adapter + BESTBUY_API_KEY credentials.
+ * Status: No API credentials configured. Architecture-ready.
  */
-export const bestBuySearchConnector = createEnvGatedStub("bestbuy", "Best Buy", [
-  "BESTBUY_API_KEY",
-]);
+export const bestBuySearchConnector = createSyncBridgeConnector({
+  id: "bestbuy",
+  name: "Best Buy",
+  importId: "bestbuy",
+  productionId: "bestbuy",
+});
 
 /**
  * Noon — UNAVAILABLE in production.
- * Requires: NOON_API_KEY
- * Status: No API credentials configured. Env-gated stub.
+ * Requires: sync-layer provider adapter + NOON_API_KEY credentials.
+ * Status: No API credentials configured. Architecture-ready.
  */
-export const noonSearchConnector = createEnvGatedStub("noon", "Noon", ["NOON_API_KEY"]);
+export const noonSearchConnector = createSyncBridgeConnector({
+  id: "noon",
+  name: "Noon",
+  importId: "noon",
+  productionId: "noon",
+});
 
 /**
  * Jumia — UNAVAILABLE in production.
- * Requires: JUMIA_API_KEY + JUMIA_AFFILIATE_ID
- * Status: No API credentials configured. Env-gated stub.
+ * Requires: sync-layer provider adapter + JUMIA_API_KEY + JUMIA_AFFILIATE_ID credentials.
+ * Status: No API credentials configured. Architecture-ready.
  */
-export const jumiaSearchConnector = createEnvGatedStub("jumia", "Jumia", [
-  "JUMIA_API_KEY",
-  "JUMIA_AFFILIATE_ID",
-]);
+export const jumiaSearchConnector = createSyncBridgeConnector({
+  id: "jumia",
+  name: "Jumia",
+  importId: "jumia",
+  productionId: "jumia",
+});

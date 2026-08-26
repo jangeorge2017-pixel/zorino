@@ -43,7 +43,7 @@ export default function CategoryDetailHero({ detail, categoriesLabel }: Category
           <div className="zor-categories-page__stat">
             <div>
               <strong>Live</strong>
-              <span>Updated daily</span>
+              <span>From active providers</span>
             </div>
           </div>
         </div>

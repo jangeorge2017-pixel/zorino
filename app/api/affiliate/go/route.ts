@@ -16,7 +16,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 /** Track click and redirect to the affiliate destination URL. */
 export async function GET(request: Request) {
-  const rateLimited = enforceRateLimit(request, affiliateRateLimiter);
+  const rateLimited = await enforceRateLimit(request, affiliateRateLimiter);
   if (rateLimited) return rateLimited;
 
   const url = new URL(request.url);
@@ -105,6 +105,22 @@ export async function GET(request: Request) {
       storeSlug,
       marketplace: marketplace as AffiliateMarketplace,
     });
+  }
+
+  // Revalidate the final affiliate URL destination to ensure it's still live
+  try {
+    const headResponse = await fetch(affiliateUrl, {
+      method: "HEAD",
+      redirect: "follow",
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!headResponse.ok) {
+      // If the affiliate URL is dead, fall back to the original destination
+      affiliateUrl = destinationUrl;
+    }
+  } catch {
+    // Network error — use the original destination as fallback
+    affiliateUrl = destinationUrl;
   }
 
   await recordAffiliateClick({

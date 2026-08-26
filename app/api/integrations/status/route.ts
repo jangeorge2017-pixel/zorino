@@ -14,6 +14,13 @@ export const maxDuration = 60;
 export async function GET(request: Request) {
   await hydrateIntegrationCredentials();
 
+  // Only allow in development or when a management secret is provided
+  const managementSecret = request.headers.get("x-management-secret");
+  const expectedSecret = process.env.MANAGEMENT_SECRET;
+  if (process.env.NODE_ENV === "production" && managementSecret !== expectedSecret) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const ae = getAliExpressCredentialStatus();
   const url = new URL(request.url);
   const probe = url.searchParams.get("probe") === "1";

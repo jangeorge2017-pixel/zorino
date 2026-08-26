@@ -13,6 +13,23 @@ const securityHeaders = [
   { key: "X-XSS-Protection", value: "1; mode=block" },
 ];
 
+const cspValue = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "media-src 'self'",
+  "object-src 'none'",
+  "frame-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+securityHeaders.push({ key: "Content-Security-Policy", value: cspValue });
+
 const isProduction = process.env.NODE_ENV === "production";
 
 // Sandbox marketplace image hosts (e.g. eBay Sandbox) are only encountered when

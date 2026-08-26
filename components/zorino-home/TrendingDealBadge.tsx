@@ -6,7 +6,6 @@ import type { TrendingDealDisplayBadge } from "@/lib/zorino-home/trending-deals-
 const BADGE_KEYS: Record<TrendingDealDisplayBadge, string> = {
   trending: "filterTrending",
   hot: "filterHot",
-  limited: "filterLimited",
   "best-value": "filterBestValue",
 };
 

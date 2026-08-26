@@ -8,7 +8,7 @@ import type { ProductEngagementEventType } from "@/lib/types/entities";
 const VALID_EVENTS: ProductEngagementEventType[] = ["view", "click", "favorite", "purchase"];
 
 export async function POST(request: Request) {
-  const rateLimited = enforceRateLimit(request, trackingRateLimiter);
+  const rateLimited = await enforceRateLimit(request, trackingRateLimiter);
   if (rateLimited) return rateLimited;
 
   let body: {

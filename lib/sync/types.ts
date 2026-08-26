@@ -8,7 +8,7 @@ export type SyncJobType = "products" | "prices" | "deals" | "images" | "full";
 export type SyncRunStatus = "pending" | "running" | "completed" | "failed" | "cancelled";
 export type ProductSyncStatus = "idle" | "pending" | "syncing" | "synced" | "failed" | "stale";
 export type ConnectorId = StoreIntegrationType | "mock";
-export type ImportProviderId = "amazon" | "aliexpress" | "cjdropshipping" | "ebay";
+export type ImportProviderId = "amazon" | "aliexpress" | "cjdropshipping" | "ebay" | "temu" | "walmart" | "bestbuy" | "noon" | "jumia";
 
 /** Normalized payload from any partner connector before DB persistence. */
 export interface ExternalProduct {

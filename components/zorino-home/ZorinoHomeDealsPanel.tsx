@@ -38,7 +38,6 @@ const FILTER_KEYS: Record<TrendingDealFilter, string> = {
   all: "filterAll",
   trending: "filterTrending",
   hot: "filterHot",
-  limited: "filterLimited",
   "best-value": "filterBestValue",
 };
 
@@ -258,7 +257,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
                 <div key={deal.id} className="zh-trending-deals__slide">
                   <DealsDealCard
                     deal={trendingDealToDeal(deal, {
-                      featured: deal.displayBadge === "hot" || deal.displayBadge === "limited",
+                      featured: deal.displayBadge === "hot",
                     })}
                     endsInLabel={trendingDealEndsInLabel(deal, {
                       today: t("endsInLabelToday"),

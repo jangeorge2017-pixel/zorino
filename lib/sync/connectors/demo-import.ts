@@ -12,6 +12,9 @@ const PROVIDER_STORE_SLUG: Record<ImportProviderId, string> = {
   amazon: "amazon",
   temu: "temu",
   walmart: "walmart",
+  bestbuy: "bestbuy",
+  noon: "noon",
+  jumia: "jumia",
 };
 
 /**
@@ -79,6 +82,9 @@ const PROVIDER_CREDENTIAL_KEYS: Partial<Record<ImportProviderId, string[]>> = {
   amazon: ["AMAZON_CREATORS_CLIENT_ID", "AMAZON_CREATORS_CLIENT_SECRET"],
   temu: ["TEMU_API_KEY"],
   walmart: ["WALMART_API_KEY"],
+  bestbuy: ["BESTBUY_API_KEY"],
+  noon: ["NOON_API_KEY"],
+  jumia: ["JUMIA_API_KEY", "JUMIA_AFFILIATE_ID"],
 };
 
 export function isDemoImportMode(providerId: ImportProviderId): boolean {

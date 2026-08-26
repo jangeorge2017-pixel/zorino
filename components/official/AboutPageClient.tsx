@@ -19,10 +19,10 @@ export default function AboutPageClient() {
   ];
 
   const stats = [
-    { icon: Users, label: "Active Users", value: "2M+" },
-    { icon: Globe, label: "Countries", value: "150+" },
-    { icon: Zap, label: "Deals Tracked", value: "50M+" },
-    { icon: Award, label: "Saved by Shoppers", value: "$500M+" },
+    { icon: Globe, label: "Providers Connected", value: "4" },
+    { icon: Zap, label: "Live Deal Sources", value: "Real-time" },
+    { icon: Shield, label: "Platform Status", value: "Production" },
+    { icon: Heart, label: "Mission", value: "Transparency" },
   ];
 
   const team = [
@@ -34,7 +34,7 @@ export default function AboutPageClient() {
     { icon: Zap, title: "Real-Time Updates", description: "Instant alerts when prices drop or new deals appear" },
     { icon: Globe, title: "Global Coverage", description: "Deals from stores in 150+ countries" },
     { icon: Users, title: "Community Driven", description: "Ratings and insights from real shoppers" },
-    { icon: Award, title: "Best Price Focus", description: "AI-powered comparison across marketplaces" },
+    { icon: Award, title: "Best Price Focus", description: "Comparison across marketplaces" },
     { icon: Heart, title: "Privacy First", description: "Enterprise-grade security for your data" },
   ];
 

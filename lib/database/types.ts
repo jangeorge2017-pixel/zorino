@@ -15,6 +15,8 @@ export type StoreIntegrationType =
   | "shopify"
   | "noon"
   | "walmart"
+  | "bestbuy"
+  | "jumia"
   | "custom"
   | "partner";
 export type NotificationType =

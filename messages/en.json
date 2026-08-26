@@ -178,7 +178,7 @@
     "blog": "Blog"
   },
   "hero": {
-    "badge": "AI-Powered",
+    "badge": "Live Deals",
     "title": "Find Better Deals Faster",
     "titleLine1": "Find Better",
     "titleLine2": "Deals Faster",
@@ -188,7 +188,7 @@
     "subtitleTail": "the best deals in seconds.",
     "searchPlaceholder": "Search products, brands, categories...",
     "searchButton": "Search",
-    "aiSearch": "AI Search",
+    "aiSearch": "Smart Search",
     "popularSearches": "Popular searches",
     "viewAllSuggestions": "View all suggestions →",
     "statStores": "Stores",

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 import { getCronSecret } from "@/lib/sync/config";
 
 /** Fail closed in production when CRON_SECRET is unset. Bearer header only. */
@@ -9,7 +10,13 @@ export function authorizeCronRequest(request: Request): boolean {
   }
 
   const authHeader = request.headers.get("authorization");
-  return authHeader === `Bearer ${secret}`;
+  if (!authHeader) return false;
+  const expected = `Bearer ${secret}`;
+  if (authHeader.length !== expected.length) return false;
+  return crypto.timingSafeEqual(
+    new TextEncoder().encode(authHeader),
+    new TextEncoder().encode(expected),
+  );
 }
 
 export function cronUnauthorizedResponse(): NextResponse {
