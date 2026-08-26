@@ -21,7 +21,7 @@ INSERT INTO stores (
   '/stores/amazon.png',
   'AZ',
   'https://www.amazon.eg',
-  'amazon-eg',
+  'amazon',
   4.0,
   ARRAY['EG'],
   ARRAY['EGP'],
