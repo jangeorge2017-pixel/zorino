@@ -5,11 +5,13 @@ import {
 } from "@/lib/integrations/amazon/config";
 import type { AmazonValidationResult } from "@/lib/integrations/amazon/types";
 import type {
+  AmazonCreatorsError,
   AmazonCreatorsItem,
   AmazonSearchItemsResponse,
 } from "@/lib/sync/providers/amazon/paapi-types";
 
-const CREATORS_API_ENDPOINT = "https://creatorsapi.amazon/catalog/v1/searchItems";
+const CREATORS_API_SEARCH_ENDPOINT = "https://creatorsapi.amazon/catalog/v1/searchItems";
+const CREATORS_API_ITEMS_ENDPOINT = "https://creatorsapi.amazon/catalog/v1/getItems";
 
 const SEARCH_RESOURCES = [
   "images.primary.large",
@@ -177,7 +179,7 @@ export class AmazonPaApiClient {
         resources: SEARCH_RESOURCES,
       });
 
-      const response = await fetch(CREATORS_API_ENDPOINT, {
+      const response = await fetch(CREATORS_API_SEARCH_ENDPOINT, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -220,6 +222,64 @@ export class AmazonPaApiClient {
     }
 
     return all;
+  }
+
+  /**
+   * Fetch a single product by ASIN via Creators API GetItems.
+   */
+  async getByASIN(asin: string): Promise<AmazonRawProduct | null> {
+    const creds = this.creds ?? getAmazonCredentials();
+    if (!creds) return null;
+
+    const trimmed = asin.trim().toUpperCase();
+    if (!trimmed || trimmed.length < 5) return null;
+
+    const token = await getCreatorsAccessToken({
+      clientId: creds.clientId,
+      clientSecret: creds.clientSecret,
+      version: creds.version,
+    });
+
+    const body = JSON.stringify({
+      ItemIds: [trimmed],
+      PartnerTag: creds.associateTag,
+      Marketplace: creds.marketplace,
+      Resources: SEARCH_RESOURCES,
+    });
+
+    const response = await fetch(CREATORS_API_ITEMS_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "x-marketplace": creds.marketplace,
+      },
+      body,
+      cache: "no-store",
+    });
+
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(`Amazon Creators API getItems ${response.status}: ${text.slice(0, 300)}`);
+    }
+
+    let parsed: { itemsResult?: { items?: AmazonCreatorsItem[] }; errors?: AmazonCreatorsError[] };
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new Error("Amazon Creators API returned invalid JSON");
+    }
+
+    if (parsed.errors?.length) {
+      throw new Error(
+        parsed.errors.map((e) => e.message ?? e.code).filter(Boolean).join("; ")
+      );
+    }
+
+    const item = parsed.itemsResult?.items?.[0];
+    if (!item) return null;
+
+    return mapAmazonCreatorsItem(item, creds.associateTag, creds.marketplace.includes("eg") ? "EGP" : "USD");
   }
 }
 

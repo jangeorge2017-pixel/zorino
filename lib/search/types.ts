@@ -27,7 +27,7 @@ export type SearchProviderId = (typeof SEARCH_PROVIDER_IDS)[number];
  * Admitad is active: ADMITAD_FEED_URL env var is set, feed returns ~120K
  * real Alibaba marketplace products. Display name "Alibaba" in UI.
  */
-export const LIVE_SEARCH_PROVIDER_IDS = ["aliexpress", "ebay", "amazon", "cjdropshipping", "admitad"] as const;
+export const LIVE_SEARCH_PROVIDER_IDS = ["aliexpress", "ebay", "cjdropshipping", "admitad"] as const;
 
 export type LiveSearchProviderId = (typeof LIVE_SEARCH_PROVIDER_IDS)[number];
 
