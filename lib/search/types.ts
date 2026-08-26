@@ -5,6 +5,7 @@ export const SEARCH_PROVIDER_IDS = [
   "aliexpress",
   "ebay",
   "amazon",
+  "amazon-eg",
   "cjdropshipping",
   "walmart",
   "bestbuy",

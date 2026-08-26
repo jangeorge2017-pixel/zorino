@@ -17,6 +17,7 @@ const PROVIDER_ALIASES: Record<string, string> = {
   alibaba: "admitad",
   "alibaba-ww": "admitad",
   "alibaba (via admitad)": "admitad",
+  "amazon-egypt": "amazon-eg",
 };
 
 function compact(value: string): string {

@@ -65,6 +65,13 @@ const STORE_META: Record<string, Pick<Store, "id" | "name" | "slug" | "website" 
     website: "https://www.amazon.eg",
     logoInitial: "AZ",
   },
+  "amazon-eg": {
+    id: "amazon-eg",
+    name: "Amazon Egypt",
+    slug: "amazon-eg",
+    website: "https://www.amazon.eg",
+    logoInitial: "AZ",
+  },
 };
 
 export function buildStore(slug: string, displayName?: string): Store {
@@ -79,6 +86,7 @@ export function buildStore(slug: string, displayName?: string): Store {
     slug === "aliexpress" ||
     slug === "ebay" ||
     slug === "amazon" ||
+    slug === "amazon-eg" ||
     slug === "walmart" ||
     slug === "temu" ||
     slug === "noon"

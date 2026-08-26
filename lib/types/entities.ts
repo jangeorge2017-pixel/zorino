@@ -7,6 +7,7 @@ export type Locale = "en" | "ar";
 export type DiscountType = "percentage" | "fixed";
 export type StoreIntegrationType =
   | "amazon"
+  | "amazon-eg"
   | "aliexpress"
   | "cjdropshipping"
   | "ebay"

@@ -53,6 +53,8 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
     // These return false until valid API keys are added to Vercel.
     case "amazon":
       return isAmazonConfigured(); // Requires AMAZON_CREATORS_CLIENT_ID + CLIENT_SECRET
+    case "amazon-eg":
+      return true; // Seed-link only — always available, no credentials needed
     case "walmart":
       return createWalmartProvider().isConfigured(); // Requires WALMART_API_KEY
     case "temu":

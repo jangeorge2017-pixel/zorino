@@ -72,6 +72,7 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
 
     switch (marketplace) {
       case "amazon":
+      case "amazon-eg":
         url.searchParams.set("tag", tag);
         break;
       case "ebay":
