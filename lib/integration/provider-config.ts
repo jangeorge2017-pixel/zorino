@@ -52,7 +52,7 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
     // --- UNAVAILABLE in production (no credentials configured) ---
     // These return false until valid API keys are added to Vercel.
     case "amazon":
-      return isAmazonConfigured(); // Requires AMAZON_CREATORS_CLIENT_ID + CLIENT_SECRET
+      return true; // Seed-link only — always available, no credentials needed
     case "amazon-eg":
       return true; // Seed-link only — always available, no credentials needed
     case "walmart":
