@@ -15,11 +15,11 @@ const securityHeaders = [
 
 const cspValue = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "style-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: https:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "connect-src 'self' https://static.cloudflareinsights.com https://*.cloudflareinsights.com",
   "media-src 'self'",
   "object-src 'none'",
   "frame-src 'none'",
