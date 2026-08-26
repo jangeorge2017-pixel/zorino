@@ -41,6 +41,9 @@ const PHASE1_META: Record<
   amazon: { name: "Amazon", phase: "placeholder" },
   temu: { name: "Temu", phase: "placeholder" },
   walmart: { name: "Walmart", phase: "placeholder" },
+  bestbuy: { name: "Best Buy", phase: "placeholder" },
+  noon: { name: "Noon", phase: "placeholder" },
+  jumia: { name: "Jumia", phase: "placeholder" },
 };
 
 const LIVE_ONLY_PROVIDERS = new Set<ImportProviderId>(["aliexpress", "ebay"]);

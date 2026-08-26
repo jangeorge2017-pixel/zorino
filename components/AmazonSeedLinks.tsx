@@ -21,7 +21,7 @@ export default function AmazonSeedLinks() {
         {AMAZON_US_SEED_LINKS.map((link) => (
           <a
             key={link.id}
-            href={link.affiliateUrl}
+            href={`/api/affiliate/go?to=${encodeURIComponent(link.affiliateUrl)}&store=amazon&source=seed-links`}
             target="_blank"
             rel="noopener noreferrer sponsored"
             className="amazon-seed-links__btn"

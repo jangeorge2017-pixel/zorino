@@ -3,10 +3,9 @@ import type { TrendingDealCard } from "@/lib/types/entities";
 export type TrendingDealDisplayBadge =
   | "trending"
   | "hot"
-  | "limited"
   | "best-value";
 
-export type TrendingDealFilter = "all" | TrendingDealDisplayBadge;
+export type TrendingDealFilter = "all" | "trending" | "hot" | "best-value";
 
 export type TrendingDealSort =
   | "biggest_discount"
@@ -21,7 +20,6 @@ export const TRENDING_DEAL_FILTERS: {
   { id: "all", label: "All Deals" },
   { id: "trending", label: "Trending" },
   { id: "hot", label: "Hot" },
-  { id: "limited", label: "Limited" },
   { id: "best-value", label: "Best Value" },
 ];
 
@@ -43,7 +41,6 @@ export function resolveTrendingDealBadge(
   if (deal.badge === "trending") return "trending";
 
   if (deal.discount >= 14) return "hot";
-  if (deal.updatedMins <= 5) return "limited";
   if (deal.reviews >= 1800 || deal.rating >= 4.85) return "best-value";
   if (deal.reviews >= 900) return "trending";
 

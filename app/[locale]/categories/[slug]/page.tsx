@@ -4,6 +4,7 @@ import { searchProducts } from "@/lib/search/engine";
 import type { MockCategoryDetail } from "@/lib/mock/types";
 import type { Category } from "@/lib/types/entities";
 import { generateCategoryMetadata } from "@/lib/seo/metadata";
+import { getCategorySearchKeyword, productMatchesCategory } from "@/lib/data/category-keywords";
 
 type CategoryDetailPageProps = {
   params: Promise<{ slug: string; locale: string }>;
@@ -34,28 +35,20 @@ export async function generateMetadata({ params }: CategoryDetailPageProps) {
   );
 }
 
-const CATEGORY_QUERIES = ["iphone", "samsung", "laptop", "monitor", "earbuds", "keyboard", "smartwatch", "camera"] as const;
-
 export default async function CategoryDetailPage({ params }: CategoryDetailPageProps) {
   const { slug } = await params;
   const { data: categories } = await getCategories();
   const category = categories.find((c) => c.slug === slug) ?? categoryFromSlug(slug);
 
-  const batches = await Promise.all(
-    CATEGORY_QUERIES.map((q) => searchProducts(q, 8).catch(() => [])),
-  );
-  const seen = new Set<string>();
-  const allProducts = batches.flat().filter((item) => {
-    if (seen.has(item.id)) return false;
-    seen.add(item.id);
-    return true;
-  });
+  // Use category-specific keywords instead of hardcoded electronics queries
+  const keyword = getCategorySearchKeyword(slug);
+  const allProducts = await searchProducts(keyword, 60).catch(() => []);
 
-  const slugLower = slug.toLowerCase();
-  const products = allProducts.filter((item) => {
-    const cat = (item.category || "").toLowerCase().replace(/\s+/g, "-");
-    return cat === slugLower || cat.includes(slugLower) || slugLower.includes(cat);
-  });
+  // Filter products that actually belong to this category
+  const products = allProducts.filter((item) =>
+    productMatchesCategory(item.category, slug),
+  );
+
   const displayProducts = products.length > 0 ? products : allProducts.slice(0, 24);
 
   const detail: MockCategoryDetail = {

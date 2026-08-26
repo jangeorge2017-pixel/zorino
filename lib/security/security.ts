@@ -101,55 +101,59 @@ export function validateCSRFToken(token: string, sessionToken: string): boolean 
   return token === sessionToken;
 }
 
-// Rate Limiting
+// Rate Limiting — Supabase-backed for serverless safety.
+// Falls back to in-memory when Supabase is unavailable (local dev without DB).
+import { createSupabaseServiceClient } from "@/lib/supabase/server";
+
 export class RateLimiter {
-  private requests: Map<string, number[]>;
   private maxRequests: number;
   private windowMs: number;
+  private fallbackRequests: Map<string, number[]>;
 
   constructor(maxRequests: number = 100, windowMs: number = 60000) {
-    this.requests = new Map();
     this.maxRequests = maxRequests;
     this.windowMs = windowMs;
+    this.fallbackRequests = new Map();
   }
 
-  isAllowed(identifier: string): boolean {
-    const now = Date.now();
-    const userRequests = this.requests.get(identifier) || [];
-    
-    // Remove requests outside the time window
-    const validRequests = userRequests.filter((timestamp) => now - timestamp < this.windowMs);
-    
-    if (validRequests.length >= this.maxRequests) {
-      return false;
+  async isAllowed(identifier: string): Promise<boolean> {
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) return this.isAllowedFallback(identifier);
+
+    try {
+      const windowStart = new Date(Date.now() - this.windowMs).toISOString();
+      const { count } = await supabase
+        .from("rate_limit_events" as any)
+        .select("id", { count: "exact", head: true })
+        .eq("identifier", identifier)
+        .gte("created_at", windowStart);
+
+      if ((count ?? 0) >= this.maxRequests) return false;
+
+      await supabase.from("rate_limit_events" as any).insert({
+        identifier,
+        created_at: new Date().toISOString(),
+      } as any);
+      return true;
+    } catch {
+      return this.isAllowedFallback(identifier);
     }
-    
+  }
+
+  private isAllowedFallback(identifier: string): boolean {
+    const now = Date.now();
+    const userRequests = this.fallbackRequests.get(identifier) || [];
+    const validRequests = userRequests.filter((t) => now - t < this.windowMs);
+    if (validRequests.length >= this.maxRequests) return false;
     validRequests.push(now);
-    this.requests.set(identifier, validRequests);
-    
+    this.fallbackRequests.set(identifier, validRequests);
     return true;
-  }
-
-  reset(identifier: string): void {
-    this.requests.delete(identifier);
-  }
-
-  cleanup(): void {
-    const now = Date.now();
-    for (const [identifier, timestamps] of this.requests.entries()) {
-      const valid = timestamps.filter((t) => now - t < this.windowMs);
-      if (valid.length === 0) {
-        this.requests.delete(identifier);
-      } else {
-        this.requests.set(identifier, valid);
-      }
-    }
   }
 }
 
-export const rateLimiter = new RateLimiter(100, 60000); // 100 requests per minute
-export const authRateLimiter = new RateLimiter(5, 60000); // 5 auth requests per minute
-export const apiRateLimiter = new RateLimiter(1000, 60000); // 1000 API requests per minute
+export const rateLimiter = new RateLimiter(100, 60000);
+export const authRateLimiter = new RateLimiter(5, 60000);
+export const apiRateLimiter = new RateLimiter(1000, 60000);
 
 // Secure Headers
 export function getSecurityHeaders(): Record<string, string> {

@@ -21,13 +21,13 @@ ON CONFLICT (slug) DO UPDATE SET
   supported_currencies = EXCLUDED.supported_currencies;
 
 -- ─── Sample coupons (stores must exist) ───
-INSERT INTO coupons (store_id, code, title, offer, min_spend, discount, discount_type, used_times, verified, is_active)
-SELECT s.id, v.code, v.title, v.offer, v.min_spend, v.discount, v.discount_type, v.used_times, TRUE, TRUE
+INSERT INTO coupons (store_id, code, title, offer, min_spend, discount, discount_type, verified, is_active)
+SELECT s.id, v.code, v.title, v.offer, v.min_spend, v.discount, v.discount_type, FALSE, TRUE
 FROM (VALUES
-  ('amazon',      'SAVE10',  '10% Off Electronics', '10% off select electronics', '$50',   10, 'percentage', 1240),
-  ('best-buy',    'TECH20',  '$20 Off Tech',        '$20 off orders over $100',     '$100',  20, 'fixed',       890),
-  ('walmart',     'FREESHIP','Free Shipping',       'Free shipping on orders $35+', '$35',   0,  'fixed',      2100),
-  ('foot-locker', 'KICKS15', '15% Off Sneakers',    '15% off sneakers',             NULL,    15, 'percentage',  560)
-) AS v(store_slug, code, title, offer, min_spend, discount, discount_type, used_times)
+  ('amazon',      'SAVE10',  '10% Off Electronics', '10% off select electronics', '$50',   10, 'percentage'),
+  ('best-buy',    'TECH20',  '$20 Off Tech',        '$20 off orders over $100',     '$100',  20, 'fixed'),
+  ('walmart',     'FREESHIP','Free Shipping',       'Free shipping on orders $35+', '$35',   0,  'fixed'),
+  ('foot-locker', 'KICKS15', '15% Off Sneakers',    '15% off sneakers',             NULL,    15, 'percentage')
+) AS v(store_slug, code, title, offer, min_spend, discount, discount_type)
 JOIN stores s ON s.slug = v.store_slug
 ON CONFLICT DO NOTHING;

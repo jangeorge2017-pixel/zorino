@@ -8,7 +8,10 @@ export type ImportProviderId =
   | "cjdropshipping"
   | "ebay"
   | "temu"
-  | "walmart";
+  | "walmart"
+  | "bestbuy"
+  | "noon"
+  | "jumia";
 
 export interface ProviderCredentials {
   envKeys: string[];

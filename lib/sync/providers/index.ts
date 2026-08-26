@@ -6,6 +6,9 @@ import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshippin
 import { createEbayProvider } from "@/lib/sync/providers/ebay";
 import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
+import { createBestBuyProvider } from "@/lib/sync/providers/bestbuy";
+import { createNoonProvider } from "@/lib/sync/providers/amazon/noon";
+import { createJumiaProvider } from "@/lib/sync/providers/jumia";
 const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   amazon: createAmazonProvider(),
   aliexpress: createAliExpressProvider(),
@@ -13,6 +16,9 @@ const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   ebay: createEbayProvider(),
   temu: createTemuProvider(),
   walmart: createWalmartProvider(),
+  bestbuy: createBestBuyProvider(),
+  noon: createNoonProvider(),
+  jumia: createJumiaProvider(),
 };
 
 /** Resolve provider — live adapters only; never fall back to mock/demo catalogs. */
@@ -39,4 +45,7 @@ export {
   createEbayProvider,
   createTemuProvider,
   createWalmartProvider,
+  createBestBuyProvider,
+  createNoonProvider,
+  createJumiaProvider,
 };

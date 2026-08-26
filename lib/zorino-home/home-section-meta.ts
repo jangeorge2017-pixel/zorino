@@ -20,7 +20,7 @@ export const ZH_HOME_SECTION_META: Record<
   ZhHomeSectionMeta
 > = {
   flash: {
-    subtitle: "Limited-time offers ending soon — grab them before they expire",
+    subtitle: "Top deals with significant discounts across all stores",
     sectionClass: "flash",
     icon: Zap,
   },
@@ -40,7 +40,7 @@ export const ZH_HOME_SECTION_META: Record<
     icon: Star,
   },
   editorsPicks: {
-    subtitle: "Hand-picked favorites from the Zorino editorial team",
+    subtitle: "Top-performing deals based on ratings and reviews",
     sectionClass: "trending",
     icon: Heart,
   },

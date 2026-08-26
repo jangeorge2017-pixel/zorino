@@ -71,7 +71,7 @@ function resolveLocale(
 }
 
 export async function POST(request: Request) {
-  const rateLimited = enforceRateLimit(request, publicApiRateLimiter);
+  const rateLimited = await enforceRateLimit(request, publicApiRateLimiter);
   if (rateLimited) return rateLimited;
 
   if (!isSameSiteRequest(request)) {
