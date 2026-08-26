@@ -17,8 +17,7 @@ export const amazonSearchConnector: SearchConnector = {
   name: "Amazon",
 
   async isAvailable() {
-    await loadAmazonCredentials();
-    return isAmazonConfigured();
+    return true;
   },
 
   async search(query: string, options?: ConnectorSearchOptions): Promise<RawProviderListing[]> {

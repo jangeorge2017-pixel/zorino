@@ -29,10 +29,8 @@ function resolveLocale(value: string): Locale {
 
 async function loadStores(countryCode: CountryCode): Promise<Store[]> {
   const liveStores = await getStoresForPage();
-  // Only surface AliExpress as a live product store — no Amazon/Best Buy mock catalogs.
-  const aliexpressOnly = liveStores.filter((s) => s.slug === "aliexpress" || s.integrationType === "aliexpress");
-  if (aliexpressOnly.length > 0) {
-    return filterStoresByMarketplaceVisibility(aliexpressOnly, countryCode);
+  if (liveStores.length > 0) {
+    return filterStoresByMarketplaceVisibility(liveStores, countryCode);
   }
   return [
     {
