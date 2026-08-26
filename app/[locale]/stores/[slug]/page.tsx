@@ -21,6 +21,11 @@ const STORE_META: Record<string, { title: string; description: string }> = {
     description:
       "Browse Amazon offers and tracked prices on Zorino.",
   },
+  "amazon-eg": {
+    title: "Amazon Egypt",
+    description:
+      "Browse Amazon Egypt offers and tracked prices on Zorino.",
+  },
   ebay: {
     title: "eBay",
     description:

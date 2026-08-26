@@ -28,6 +28,12 @@ const STORE_META: Record<
     integrationType: "amazon",
     name: "Amazon",
   },
+  "amazon-eg": {
+    storeId: "store-amazon-eg",
+    storeSlug: "amazon-eg",
+    integrationType: "amazon-eg",
+    name: "Amazon Egypt",
+  },
   cjdropshipping: {
     storeId: "store-cjdropshipping",
     storeSlug: "cjdropshipping",

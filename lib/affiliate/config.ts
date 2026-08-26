@@ -1,6 +1,7 @@
 /** Supported affiliate marketplaces (Phase 1). */
 export const AFFILIATE_MARKETPLACES = [
   "amazon",
+  "amazon-eg",
   "aliexpress",
   "ebay",
   "walmart",
@@ -13,6 +14,7 @@ export type AffiliateMarketplace = (typeof AFFILIATE_MARKETPLACES)[number];
 
 export const AFFILIATE_ENV_KEYS: Record<AffiliateMarketplace, string[]> = {
   amazon: ["AMAZON_ASSOCIATE_TAG"],
+  "amazon-eg": ["AMAZON_EG_ASSOCIATE_TAG"],
   /** Portal tracking ID only — Open API keys are separate and unused for portal links. */
   aliexpress: ["ALIEXPRESS_TRACKING_ID"],
   ebay: ["EBAY_CAMPAIGN_ID", "EBAY_APP_ID", "EBAY_CERT_ID", "EBAY_REFERENCE_ID"],
@@ -24,6 +26,7 @@ export const AFFILIATE_ENV_KEYS: Record<AffiliateMarketplace, string[]> = {
 
 export const DEFAULT_COMMISSION_RATES: Record<AffiliateMarketplace, number> = {
   amazon: 4,
+  "amazon-eg": 4,
   aliexpress: 5,
   ebay: 4,
   walmart: 3,
@@ -43,6 +46,8 @@ export function resolveMarketplace(
   }
   const aliases: Record<string, AffiliateMarketplace> = {
     amz: "amazon",
+    "amz-eg": "amazon-eg",
+    "amazon-egypt": "amazon-eg",
     ae: "aliexpress",
   };
   return aliases[key] ?? null;
@@ -51,6 +56,7 @@ export function resolveMarketplace(
 export function extractMarketplaceFromUrl(url: string): AffiliateMarketplace | null {
   try {
     const host = new URL(url).hostname.toLowerCase();
+    if (host.includes("amazon.eg")) return "amazon-eg";
     if (host.includes("amazon")) return "amazon";
     if (host.includes("aliexpress")) return "aliexpress";
     if (host.includes("ebay")) return "ebay";

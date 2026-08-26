@@ -8,6 +8,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type DiscountType = "percentage" | "fixed";
 export type StoreIntegrationType =
   | "amazon"
+  | "amazon-eg"
   | "aliexpress"
   | "cjdropshipping"
   | "ebay"

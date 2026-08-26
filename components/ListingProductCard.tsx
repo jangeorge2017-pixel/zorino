@@ -37,6 +37,7 @@ function marketplaceBadgeLabel(storeSlug?: string, store?: string): string | nul
   if (slug === "aliexpress") return "AliExpress";
   if (slug === "ebay") return "eBay";
   if (slug === "amazon") return "Amazon";
+  if (slug === "amazon-eg") return "Amazon Egypt";
   if (slug === "walmart") return "Walmart";
   if (slug === "temu") return "Temu";
   if (slug === "noon") return "Noon";

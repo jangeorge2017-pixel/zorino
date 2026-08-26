@@ -7,6 +7,7 @@ import Select from "@/components/ui/Select";
 import ListingProductCard from "@/components/ListingProductCard";
 import StoreDetailHero from "@/components/stores/StoreDetailHero";
 import AmazonSeedLinks from "@/components/AmazonSeedLinks";
+import AmazonEgSeedLinks from "@/components/AmazonEgSeedLinks";
 import PageIdentityCta from "@/components/page-identity/PageIdentityCta";
 import { PageFilterBar, PageLayout } from "@/components/pages";
 import type { MockStoreDetail } from "@/lib/mock/types";
@@ -35,6 +36,7 @@ export default function StoreDetailPageClient({ detail }: StoreDetailPageClientP
         <StoreDetailHero detail={detail} />
 
         {store.slug === "amazon" && <AmazonSeedLinks />}
+        {store.slug === "amazon-eg" && <AmazonEgSeedLinks />}
 
         <PageFilterBar className="zor-stores-page__filters">
           <div className="zor-stores-page__filter-grid">
