@@ -78,7 +78,7 @@ export function getAmazonCreatorsConfig(): AmazonCreatorsConfig | null {
     clientId,
     clientSecret,
     associateTag: tag,
-    marketplace: process.env.AMAZON_CREATORS_MARKETPLACE ?? "www.amazon.com",
-    version: process.env.AMAZON_CREATORS_VERSION ?? "3.1",
+    marketplace: process.env.AMAZON_CREATORS_MARKETPLACE ?? "www.amazon.eg",
+    version: process.env.AMAZON_CREATORS_VERSION ?? "3.2",
   };
 }

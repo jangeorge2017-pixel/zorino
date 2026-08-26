@@ -58,6 +58,13 @@ const STORE_META: Record<string, Pick<Store, "id" | "name" | "slug" | "website" 
     website: "https://www.jumia.com",
     logoInitial: "JM",
   },
+  amazon: {
+    id: "amazon",
+    name: "Amazon",
+    slug: "amazon",
+    website: "https://www.amazon.eg",
+    logoInitial: "AZ",
+  },
 };
 
 export function buildStore(slug: string, displayName?: string): Store {
@@ -343,9 +350,75 @@ async function resolveCjProductDetail(externalId: string): Promise<ProductDetail
   return detail;
 }
 
+const amazonDetailCache = new Map<
+  string,
+  { at: number; detail: Promise<ProductDetail | null> }
+>();
+const AMAZON_DETAIL_TTL_MS = 60_000;
+
+function getAmazonProductDetail(externalId: string): Promise<ProductDetail | null> {
+  const cached = amazonDetailCache.get(externalId);
+  if (cached && Date.now() - cached.at < AMAZON_DETAIL_TTL_MS) {
+    return cached.detail;
+  }
+
+  const detail = resolveAmazonProductDetail(externalId).finally(() => {
+    const entry = amazonDetailCache.get(externalId);
+    if (entry?.detail === detail) {
+      amazonDetailCache.set(externalId, { at: Date.now(), detail });
+    }
+  });
+  amazonDetailCache.set(externalId, { at: Date.now(), detail });
+  return detail;
+}
+
+async function resolveAmazonProductDetail(externalId: string): Promise<ProductDetail | null> {
+  try {
+    const { isAmazonConfigured } = await import("@/lib/integrations/amazon");
+    const { createAmazonClientFromEnv } = await import(
+      "@/lib/integrations/amazon/client"
+    );
+
+    if (!isAmazonConfigured()) return null;
+
+    const client = createAmazonClientFromEnv();
+    if (!client) return null;
+
+    const raw = await client.getByASIN(externalId);
+    if (!raw) return null;
+
+    const listing: RawProviderListing = {
+      providerId: "amazon",
+      externalId: raw.asin,
+      title: raw.title,
+      storeName: "Amazon",
+      imageUrl: raw.imageUrl,
+      price: raw.price,
+      originalPrice: raw.originalPrice,
+      discount: raw.originalPrice > raw.price
+        ? Math.round(((raw.originalPrice - raw.price) / raw.originalPrice) * 100)
+        : 0,
+      currency: raw.currency,
+      productUrl: raw.productUrl,
+      affiliateUrl: raw.affiliateUrl,
+      rating: raw.rating,
+      reviewCount: raw.reviewCount,
+      inStock: raw.inStock,
+      category: raw.category,
+    };
+
+    return searchItemToProductDetail(rawListingToSearchItem(listing));
+  } catch (error) {
+    console.error(
+      "[amazon-detail]",
+      error instanceof Error ? error.message : "Amazon product detail failed",
+    );
+    return null;
+  }
+}
+
 /**
- * Resolve PDP for any supported marketplace except Amazon.
- * Amazon is intentionally unsupported here (no connector changes).
+ * Resolve PDP for any supported marketplace.
  */
 export async function resolveMarketplaceProductDetail(
   id: string,
@@ -378,7 +451,7 @@ async function resolveMarketplaceProductDetailBase(
   const { providerId, externalId } = parseMarketplaceProductId(id);
 
   if (providerId === "amazon") {
-    return null;
+    return getAmazonProductDetail(externalId);
   }
 
   if (providerId === "ebay") {

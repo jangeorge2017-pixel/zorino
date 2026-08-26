@@ -70,8 +70,8 @@ export function getAmazonCredentials(): {
     clientSecret,
     associateTag: getAmazonAssociateTag(),
     marketplace:
-      getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.MARKETPLACE) ?? "www.amazon.com",
-    version: getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.VERSION) ?? "3.1",
+      getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.MARKETPLACE) ?? "www.amazon.eg",
+    version: getIntegrationCredential(AMAZON_CREDENTIAL_KEYS.VERSION) ?? "3.2",
   };
 }
 
