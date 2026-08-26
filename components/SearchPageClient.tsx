@@ -223,7 +223,7 @@ export default function SearchPageClient({
               ) : null}
             </div>
           ) : (
-            <div className="listing-products-grid">
+            <div className="listing-products-grid" key={`filters-${selectedStore}-${selectedCategory}-${rating}-${sortBy}-${minPrice}-${maxPrice}-${inStockOnly}`}>
               {filteredResults.map((product) => (
                 <ListingProductCard
                   key={product.id}
