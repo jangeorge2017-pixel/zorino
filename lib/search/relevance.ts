@@ -311,6 +311,17 @@ const TIER_BASE_SCORE: Record<ProductMatchTier, number> = {
   none: 0,
 };
 
+/**
+ * True when the query is a bare Amazon ASIN (10-char alphanumeric code with at
+ * least one letter, e.g. "B0BDHWDR12"). ASINs are product codes, not words, so
+ * they cannot match against a title via normal token overlap — the relevance
+ * engine must special-case them (see rankRawListings).
+ */
+export function looksLikeAsin(query: string): boolean {
+  const t = query.trim();
+  return /^[A-Z0-9]{6,12}$/.test(t) && /[A-Z]/.test(t);
+}
+
 /** Significant tokens from the user query (lowercased). */
 export function queryTokens(query: string): string[] {
   return query
