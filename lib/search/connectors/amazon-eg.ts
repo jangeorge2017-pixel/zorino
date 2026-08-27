@@ -3,6 +3,11 @@ import type { RawProviderListing } from "@/lib/search/types";
 import { AMAZON_EG_SEED_LINKS } from "@/lib/amazon-eg/seed-links";
 import { getAmazonCredentials } from "@/lib/integrations/amazon/config";
 import { getCreatorsAccessToken } from "@/lib/integrations/amazon/auth";
+import {
+  fetchOxylabsAmazonProduct,
+  isOxylabsConfigured,
+} from "@/lib/integrations/oxylabs";
+import { normalizeOxylabsAmazonRaw } from "@/lib/search/normalization";
 
 /**
  * Amazon Egypt search connector.
@@ -177,11 +182,31 @@ export const amazonEgSearchConnector: SearchConnector = {
 
     if (matched.length === 0) return [];
 
+    const asins = matched.map((link) => link.id.replace("eg-", ""));
+
+    // Additive Oxylabs source: when configured, fetch real product data for the
+    // matched Egypt ASINs via the Oxylabs `amazon_product` source on the amazon.eg
+    // marketplace. This feeds the SAME store mapping and does not replace the
+    // existing seed-link / Creators path below (which remains the fallback).
+    if (isOxylabsConfigured()) {
+      try {
+        const oListing: RawProviderListing[] = [];
+        for (const asin of asins) {
+          const product = await fetchOxylabsAmazonProduct(asin, "amazon-eg");
+          if (!product) continue;
+          const item = normalizeOxylabsAmazonRaw(product, "amazon-eg");
+          if (item) oListing.push(item);
+        }
+        if (oListing.length > 0) return oListing;
+      } catch {
+        // An Oxylabs failure must never silence the existing Egypt path.
+      }
+    }
+
     // Attempt to enrich seed ASINs with real data from the Creators API.
     // Without credentials, getAmazonCredentials() returns null and
     // fetchEgProductsByAsins() returns an empty map — so the connector
     // returns [] and no broken product cards appear.
-    const asins = matched.map((link) => link.id.replace("eg-", ""));
     const enriched = await fetchEgProductsByAsins(asins);
 
     const results: RawProviderListing[] = [];
