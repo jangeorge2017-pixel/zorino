@@ -3,6 +3,13 @@ import type { AmazonRawProduct } from "@/lib/integrations/amazon/client";
 import { getAmazonAssociateTag } from "@/lib/integrations/amazon/config";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { EbayRawProduct } from "@/lib/integrations/ebay/types";
+import { buildAffiliateUrl } from "@/lib/affiliate/generate";
+import type { AffiliateMarketplace } from "@/lib/affiliate/config";
+import type {
+  OxylabsAmazonMarketplaceKey,
+  OxylabsAmazonProduct,
+} from "@/lib/integrations/oxylabs";
+import { OXYLABS_AMAZON_MARKETPLACES } from "@/lib/integrations/oxylabs";
 import { getIntegrationCredential } from "@/lib/integration/credentials";
 import { computeDiscountPercent } from "@/lib/integration/normalize";
 import {
@@ -122,6 +129,63 @@ export function normalizeAmazonRaw(raw: AmazonRawProduct): RawProviderListing | 
     discount,
     currency: raw.currency?.trim() || "USD",
     storeName: "Amazon",
+    category: raw.category?.trim() || "General",
+    rating: raw.rating ?? 0,
+    reviewCount: raw.reviewCount ?? 0,
+    inStock: raw.inStock,
+    productUrl: raw.productUrl,
+    affiliateUrl,
+  };
+}
+
+/**
+ * Map an Oxylabs real Amazon product onto the SAME unified marketplace product
+ * shape as the existing Amazon connectors. The marketplace key decides which
+ * Zorino store/provider the product belongs to (US/UK → "amazon", EG →
+ * "amazon-eg") so Oxylabs never replaces an existing Amazon store — it feeds
+ * the existing store mapping via the shared normalization/canonical pipeline.
+ */
+export function normalizeOxylabsAmazonRaw(
+  raw: OxylabsAmazonProduct,
+  marketplace: OxylabsAmazonMarketplaceKey
+): RawProviderListing | null {
+  if (!raw.asin || !raw.title) return null;
+
+  const isEgypt = marketplace === "amazon-eg";
+  const providerId: SearchProviderId = isEgypt ? "amazon-eg" : "amazon";
+  const storeName = isEgypt ? "Amazon Egypt" : "Amazon";
+  const affiliateMarketplace: AffiliateMarketplace = isEgypt
+    ? "amazon-eg"
+    : "amazon";
+
+  const price = raw.price;
+  if (!price || price <= 0) return null;
+
+  const originalPrice = raw.originalPrice > price ? raw.originalPrice : price;
+  const discount =
+    originalPrice > price
+      ? Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100))
+      : 0;
+
+  const imageUrl = raw.imageUrl ?? "";
+  if (!imageUrl.startsWith("http")) return null;
+
+  const affiliateUrl = buildAffiliateUrl({
+    destinationUrl: raw.productUrl,
+    marketplace: affiliateMarketplace,
+    partnerTag: isEgypt ? "zorinoeg-21" : getAmazonAssociateTag(),
+  });
+
+  return {
+    providerId,
+    externalId: raw.asin,
+    title: raw.title.trim(),
+    imageUrl,
+    price,
+    originalPrice,
+    discount,
+    currency: raw.currency?.trim() || OXYLABS_AMAZON_MARKETPLACES[marketplace].currency,
+    storeName,
     category: raw.category?.trim() || "General",
     rating: raw.rating ?? 0,
     reviewCount: raw.reviewCount ?? 0,
