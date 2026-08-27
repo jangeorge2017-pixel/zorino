@@ -1,4 +1,4 @@
-import { analyzeSearchListing, queryWantsAccessory, type ProductMatchTier } from "@/lib/search/relevance";
+import { analyzeSearchListing, looksLikeAsin, queryWantsAccessory, type ProductMatchTier } from "@/lib/search/relevance";
 import { normalizeRawListing } from "@/lib/search/normalization";
 import type {
   NormalizedSearchListing,
@@ -104,8 +104,18 @@ export function rankRawListings(
   const { MIN_DEVICES_BEFORE_ACCESSORIES } = SEARCH_ENGINE_DEFAULTS;
   const wantsAccessory = queryWantsAccessory(query);
 
+  // ASIN queries: normal token-overlap fails (an ASIN code isn't a word found
+  // in a product title), so listings whose externalId exactly equals the ASIN
+  // are the exact requested product and must rank as an exact device match.
+  // Purely additive — only affects ASIN-shaped queries; keyword search and all
+  // other providers are untouched.
+  const asin = looksLikeAsin(query) ? query.trim().toUpperCase() : null;
+
   const analyzed = listings
     .map((raw) => {
+      if (asin && raw.externalId && raw.externalId.toUpperCase() === asin) {
+        return normalizeRawListing(raw, { score: 1060, tier: "exact", isDevice: true });
+      }
       const result = analyzeSearchListing(raw.title, query, { category: raw.category });
       if (result.tier === "none" || result.tier === "repair") return null;
       return normalizeRawListing(raw, {
