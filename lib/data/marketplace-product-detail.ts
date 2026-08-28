@@ -7,6 +7,7 @@ import { normalizeEbayRaw } from "@/lib/search/normalization";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { SEARCH_PROVIDER_IDS } from "@/lib/search/types";
 import { marketplaceDisplayName } from "@/lib/search/price-comparison";
+import type { OxylabsAmazonMarketplaceKey } from "@/lib/integrations/oxylabs";
 
 const STORE_META: Record<string, Pick<Store, "id" | "name" | "slug" | "website" | "logoInitial">> = {
   aliexpress: {
@@ -107,14 +108,24 @@ export function parseMarketplaceProductId(id: string): {
   externalId: string;
 } {
   const trimmed = id.trim().split("#")[0]!.split("?")[0]!.trim();
+  // Prefer the MOST specific (longest) provider prefix so closely-named
+  // providers (e.g. "amazon" vs "amazon-eg", "ebay" vs "ebay-motors") never
+  // shadow one another regardless of SEARCH_PROVIDER_IDS ordering.
+  let bestProvider: (typeof SEARCH_PROVIDER_IDS)[number] | null = null;
+  let bestPrefixLen = -1;
   for (const provider of SEARCH_PROVIDER_IDS) {
     const prefix = `${provider}-`;
-    if (trimmed.toLowerCase().startsWith(prefix)) {
-      return {
-        providerId: provider,
-        externalId: decodeURIComponent(trimmed.slice(prefix.length)),
-      };
+    if (trimmed.toLowerCase().startsWith(prefix) && prefix.length > bestPrefixLen) {
+      bestProvider = provider;
+      bestPrefixLen = prefix.length;
     }
+  }
+  if (bestProvider) {
+    const prefix = `${bestProvider}-`;
+    return {
+      providerId: bestProvider,
+      externalId: decodeURIComponent(trimmed.slice(prefix.length)),
+    };
   }
   // Legacy bare AliExpress numeric ids
   if (/^\d{6,}$/.test(trimmed)) {
@@ -364,62 +375,94 @@ const amazonDetailCache = new Map<
 >();
 const AMAZON_DETAIL_TTL_MS = 60_000;
 
-function getAmazonProductDetail(externalId: string): Promise<ProductDetail | null> {
-  const cached = amazonDetailCache.get(externalId);
+function getAmazonProductDetail(
+  externalId: string,
+  marketplace: OxylabsAmazonMarketplaceKey,
+): Promise<ProductDetail | null> {
+  const cacheKey = `${marketplace}:${externalId}`;
+  const cached = amazonDetailCache.get(cacheKey);
   if (cached && Date.now() - cached.at < AMAZON_DETAIL_TTL_MS) {
     return cached.detail;
   }
 
-  const detail = resolveAmazonProductDetail(externalId).finally(() => {
-    const entry = amazonDetailCache.get(externalId);
+  const detail = resolveAmazonProductDetail(externalId, marketplace).finally(() => {
+    const entry = amazonDetailCache.get(cacheKey);
     if (entry?.detail === detail) {
-      amazonDetailCache.set(externalId, { at: Date.now(), detail });
+      amazonDetailCache.set(cacheKey, { at: Date.now(), detail });
     }
   });
-  amazonDetailCache.set(externalId, { at: Date.now(), detail });
+  amazonDetailCache.set(cacheKey, { at: Date.now(), detail });
   return detail;
 }
 
-async function resolveAmazonProductDetail(externalId: string): Promise<ProductDetail | null> {
+async function resolveAmazonProductDetail(
+  externalId: string,
+  marketplace: OxylabsAmazonMarketplaceKey,
+): Promise<ProductDetail | null> {
+  // Preferred source: Amazon Creators API — only available when credentials
+  // are configured. Bails out gracefully (no throw) when they aren't, so real
+  // Amazon product data can still resolve through the credentials-free path.
   try {
     const { isAmazonConfigured } = await import("@/lib/integrations/amazon");
-    const { createAmazonClientFromEnv } = await import(
-      "@/lib/integrations/amazon/client"
-    );
-
-    if (!isAmazonConfigured()) return null;
-
-    const client = createAmazonClientFromEnv();
-    if (!client) return null;
-
-    const raw = await client.getByASIN(externalId);
-    if (!raw) return null;
-
-    const listing: RawProviderListing = {
-      providerId: "amazon",
-      externalId: raw.asin,
-      title: raw.title,
-      storeName: "Amazon",
-      imageUrl: raw.imageUrl,
-      price: raw.price,
-      originalPrice: raw.originalPrice,
-      discount: raw.originalPrice > raw.price
-        ? Math.round(((raw.originalPrice - raw.price) / raw.originalPrice) * 100)
-        : 0,
-      currency: raw.currency,
-      productUrl: raw.productUrl,
-      affiliateUrl: raw.affiliateUrl,
-      rating: raw.rating,
-      reviewCount: raw.reviewCount,
-      inStock: raw.inStock,
-      category: raw.category,
-    };
-
-    return searchItemToProductDetail(rawListingToSearchItem(listing));
+    if (isAmazonConfigured()) {
+      const { createAmazonClientFromEnv } = await import(
+        "@/lib/integrations/amazon/client"
+      );
+      const client = createAmazonClientFromEnv();
+      if (client) {
+        const raw = await client.getByASIN(externalId);
+        if (raw) {
+          const listing: RawProviderListing = {
+            providerId: "amazon",
+            externalId: raw.asin,
+            title: raw.title,
+            storeName: "Amazon",
+            imageUrl: raw.imageUrl,
+            price: raw.price,
+            originalPrice: raw.originalPrice,
+            discount: raw.originalPrice > raw.price
+              ? Math.round(((raw.originalPrice - raw.price) / raw.originalPrice) * 100)
+              : 0,
+            currency: raw.currency,
+            productUrl: raw.productUrl,
+            affiliateUrl: raw.affiliateUrl,
+            rating: raw.rating,
+            reviewCount: raw.reviewCount,
+            inStock: raw.inStock,
+            category: raw.category,
+          };
+          return searchItemToProductDetail(rawListingToSearchItem(listing));
+        }
+      }
+    }
   } catch (error) {
     console.error(
       "[amazon-detail]",
       error instanceof Error ? error.message : "Amazon product detail failed",
+    );
+  }
+
+  // Credentials-free fallback: real Amazon product data via Oxylabs — the same
+  // source the search engine uses. This keeps product detail pages working for
+  // valid Amazon.com / Amazon.eg products even when Creators credentials are
+  // not configured on the running environment.
+  try {
+    const { fetchOxylabsAmazonProduct, isOxylabsConfigured } = await import(
+      "@/lib/integrations/oxylabs"
+    );
+    const { normalizeOxylabsAmazonRaw } = await import(
+      "@/lib/search/normalization"
+    );
+    if (!isOxylabsConfigured()) return null;
+    const raw = await fetchOxylabsAmazonProduct(externalId, marketplace);
+    if (!raw) return null;
+    const item = normalizeOxylabsAmazonRaw(raw, marketplace);
+    if (!item) return null;
+    return searchItemToProductDetail(rawListingToSearchItem(item));
+  } catch (error) {
+    console.error(
+      "[amazon-detail] oxylabs fallback failed:",
+      error instanceof Error ? error.message : String(error),
     );
     return null;
   }
@@ -458,8 +501,10 @@ async function resolveMarketplaceProductDetailBase(
 
   const { providerId, externalId } = parseMarketplaceProductId(id);
 
-  if (providerId === "amazon") {
-    return getAmazonProductDetail(externalId);
+  if (providerId === "amazon" || providerId === "amazon-eg") {
+    const marketplace: OxylabsAmazonMarketplaceKey =
+      providerId === "amazon-eg" ? "amazon-eg" : "amazon-storefront";
+    return getAmazonProductDetail(externalId, marketplace);
   }
 
   if (providerId === "ebay") {

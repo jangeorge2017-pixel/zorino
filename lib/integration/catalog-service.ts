@@ -8,6 +8,7 @@ import {
   catalogItemToTrendingDealCard,
 } from "@/lib/integration/normalize";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
+import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
@@ -97,6 +98,32 @@ const loadMergedCatalogItems = unstable_cache(
       for (const admitadItem of fromAdmitad) {
         if (!merged.some((live) => isDuplicate(live, admitadItem))) {
           merged.push(admitadItem);
+        }
+      }
+
+      // Image backfill: when a product snapshot carries a genuinely valid image
+      // for the same product (matched by normalized title) but another snapshot
+      // for that product resolved to the placeholder, prefer the real image so
+      // valid product photos always render. The placeholder is only kept when no
+      // snapshot anywhere has a usable image.
+      let validImageByTitle: Map<string, string> | null = null;
+      for (const item of merged) {
+        const normal = normalizeTitle(item.title);
+        if (!normal) continue;
+        if (item.imageUrl && item.imageUrl !== PRODUCT_IMAGE_PLACEHOLDER) {
+          validImageByTitle ??= new Map();
+          if (!validImageByTitle.has(normal)) validImageByTitle.set(normal, item.imageUrl);
+        }
+      }
+      if (validImageByTitle) {
+        for (const item of merged) {
+          const normal = normalizeTitle(item.title);
+          if (!normal) continue;
+          const hasReal = item.imageUrl && item.imageUrl !== PRODUCT_IMAGE_PLACEHOLDER;
+          if (!hasReal) {
+            const real = validImageByTitle.get(normal);
+            if (real) item.imageUrl = real;
+          }
         }
       }
 
