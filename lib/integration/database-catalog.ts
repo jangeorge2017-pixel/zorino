@@ -120,6 +120,13 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
     )
     .eq("country_code", "US")
     .eq("currency", "USD")
+    // Only real, image-bearing products enter the homepage catalog. The DB is
+    // ~92% image-covered (120K rows), but some store feeds stored empty image
+    // URLs that sort to the top by discount and would otherwise flood the
+    // homepage with placeholder-only cards. Filtering here surfaces real
+    // products with real images so valid URLs render instead of placeholders.
+    .not("image_url", "is", null)
+    .neq("image_url", "")
     .order("discount_percent", { ascending: false })
     .order("lowest_price", { ascending: false })
     .limit(500);
@@ -127,7 +134,10 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
   if (error || !data?.length) return [];
 
   const rows = (data as LowestPriceRow[]).filter(
-    (row) => row.product_name && row.image_url,
+    (row) =>
+      row.product_name &&
+      row.image_url &&
+      row.image_url.trim().startsWith("http"),
   );
 
   // Batch-fetch category_slug from products table for these product IDs
