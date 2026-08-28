@@ -15,6 +15,18 @@ const eslintConfig = defineConfig([
       "@next/next/no-img-element": "warn",
     },
   },
+  {
+    // cai/ is a self-contained CommonJS CLI sub-project (its own package.json,
+    // run via `node index.js`, no "type":"module"). It intentionally uses
+    // require()/module.exports, which the Next/TS config forbids as errors.
+    // Relax only require-related rules for this subtree so its existing,
+    // behavior-preserving CommonJS style isn't rejected by the app config.
+    files: ["cai/**/*.{js,cjs,mjs}"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-var-requires": "off",
+    },
+  },
   globalIgnores([
     ".next/**",
     "out/**",
