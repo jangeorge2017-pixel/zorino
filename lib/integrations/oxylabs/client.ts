@@ -55,6 +55,40 @@ type OxylabsApiResponse = {
   }>;
 };
 
+/** A single parsed product from the Oxylabs `amazon_search` source. */
+export type OxylabsAmazonSearchResult = {
+  asin: string;
+  title: string;
+  imageUrl: string;
+  price: number;
+  originalPrice: number;
+  currency: string;
+  productUrl: string;
+  rating: number;
+  reviewCount: number;
+  marketplace: OxylabsAmazonMarketplaceKey;
+};
+
+type OxylabsSearchContent = {
+  results?: {
+    organic?: OxylabsSearchItem[];
+    amazons_choices?: OxylabsSearchItem[];
+  };
+};
+
+type OxylabsSearchItem = {
+  asin?: string;
+  title?: string;
+  price?: number;
+  price_strikethrough?: number;
+  price_upper?: number;
+  currency?: string;
+  rating?: number;
+  reviews_count?: number;
+  url?: string;
+  url_image?: string;
+};
+
 type OxylabsAmazonContent = {
   url?: string;
   asin?: string;
@@ -203,4 +237,89 @@ export async function fetchOxylabsAmazonProduct(
   if (!unwrapped) return null;
 
   return parseOxylabsContent(unwrapped, marketplace);
+}
+
+/**
+ * Fetch real Amazon keyword search results via the Oxylabs Realtime Scraper API
+ * (`source: amazon_search`, `parse: true`) targeted at a specific marketplace.
+ * Returns the organic (non-sponsored) product results. Returns an empty array
+ * when credentials are missing, the request fails, or no usable products exist.
+ * Never throws for a normal API failure — callers treat an empty result as
+ * "no search data for this query on this marketplace".
+ */
+export async function fetchOxylabsAmazonSearch(
+  query: string,
+  marketplace: OxylabsAmazonMarketplaceKey = "amazon-storefront"
+): Promise<OxylabsAmazonSearchResult[]> {
+  const creds = getOxylabsCredentials();
+  if (!creds) return [];
+
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const auth = Buffer.from(`${creds.username}:${creds.password}`).toString("base64");
+  const meta = OXYLABS_AMAZON_MARKETPLACES[marketplace];
+
+  const response = await fetch(OXYLABS_API_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${auth}`,
+    },
+    body: JSON.stringify({
+      source: "amazon_search",
+      domain: meta.domain,
+      query: trimmed,
+      parse: true,
+      geo_location: meta.geoLocation,
+      locale: meta.locale,
+    }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Oxylabs search API ${response.status}: ${(await response.text()).slice(0, 300)}`
+    );
+  }
+
+  const data = (await response.json()) as OxylabsApiResponse;
+  const rawContent = data.results?.[0]?.content;
+  const content = (Array.isArray(rawContent) ? rawContent[0] : rawContent) as
+    | OxylabsSearchContent
+    | undefined;
+
+  const items = [...(content?.results?.organic ?? []), ...(content?.results?.amazons_choices ?? [])];
+
+  const results: OxylabsAmazonSearchResult[] = [];
+  for (const item of items) {
+    const asin = item.asin?.trim();
+    const title = item.title?.trim();
+    if (!asin || !title) continue;
+
+    const price = item.price ?? 0;
+    if (!price || price <= 0) continue;
+
+    const imageUrl = item.url_image?.trim() ?? "";
+    if (!imageUrl.startsWith("http")) continue;
+
+    const initial = item.price_strikethrough ?? 0;
+    const original = initial > price ? initial : item.price_upper ?? price;
+    const originalPrice = original >= price ? original : price;
+
+    results.push({
+      asin,
+      title,
+      imageUrl,
+      price,
+      originalPrice,
+      currency: item.currency?.trim() || meta.currency,
+      productUrl: `${meta.storeUrl}/dp/${asin}`,
+      rating: item.rating ?? 0,
+      reviewCount: item.reviews_count ?? 0,
+      marketplace,
+    });
+  }
+
+  return results;
 }

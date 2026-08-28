@@ -8,10 +8,24 @@ import {
   catalogItemToTrendingDealCard,
 } from "@/lib/integration/normalize";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
-import { getConfiguredProductionProviders } from "@/lib/integration/provider-config";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
+
+/**
+ * Providers that have NO real production data source (no credentials, no live
+ * connector). Their rows would otherwise leak placeholder bogus products into
+ * the homepage through the DB catalog path. Every live provider — aliExpress,
+ * eBay, Amazon US/EG, CJdropshipping, Admitad — is intentionally NOT in this
+ * set, so the homepage catalog stays a strict superset of all live stores.
+ */
+const STUB_CATALOG_PROVIDERS = new Set([
+  "walmart",
+  "bestbuy",
+  "temu",
+  "noon",
+  "jumia",
+]);
 
 /** How long a merged live-catalog snapshot stays fresh (seconds). */
 const CATALOG_REVALIDATE_SECONDS = 5 * 60;
@@ -86,17 +100,18 @@ const loadMergedCatalogItems = unstable_cache(
         }
       }
 
-      // Single source of truth: only products whose provider is currently
-      // ACTIVE (credentials configured, connector verified) may enter the
-      // unified catalog.  This closes the DB bypass where inactive/stub
-      // providers (e.g. Temu, Amazon) could leak products through
-      // getCatalogItemsFromDatabase() without passing isAvailable().
-      const activeProviders = new Set(getConfiguredProductionProviders());
+      // Single source of truth: the homepage catalog must be a SUPERSET of
+      // every provider that is live, additive to whatever was visible before.
+      // We keep products from every provider that can produce real data and
+      // only drop the clearly stub-only providers (no credentials, no live
+      // connector) that could otherwise leak placeholder rows through
+      // getCatalogItemsFromDatabase(). Live providers (aliExpress, eBay,
+      // Amazon US/EG, CJdropshipping, Admitad) are never excluded here.
       const activeFiltered = merged.filter((item) => {
         const providerId = resolveMarketplaceId(
           item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
         );
-        return activeProviders.has(providerId as never);
+        return !STUB_CATALOG_PROVIDERS.has(providerId);
       });
 
       if (activeFiltered.length > 0) {

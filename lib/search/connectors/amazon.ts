@@ -4,8 +4,10 @@ import {
 } from "@/lib/integrations/amazon";
 import { normalizeAmazonRaw } from "@/lib/search/normalization";
 import { normalizeOxylabsAmazonRaw } from "@/lib/search/normalization";
+import { normalizeOxylabsAmazonSearchResults } from "@/lib/search/normalization";
 import {
   fetchOxylabsAmazonProduct,
+  fetchOxylabsAmazonSearch,
   isOxylabsConfigured,
 } from "@/lib/integrations/oxylabs";
 import type { RawProviderListing } from "@/lib/search/types";
@@ -37,27 +39,41 @@ export const amazonSearchConnector: SearchConnector = {
     const trimmed = query.trim();
     if (!trimmed) return [];
 
-    // Additive Oxylabs source: when configured and the query is a real Amazon
-    // ASIN, fetch real product data for Amazon US (com) and UK (co.uk) and feed
-    // it through the same normalization as the existing Amazon connector. This
-    // does NOT replace the existing Creators/seed path below.
-    if (looksLikeAsin(trimmed) && isOxylabsConfigured()) {
+    // Additive Oxylabs source: when configured, fetch real Amazon product data
+    // for BOTH product (ASIN) lookups and normal keyword searches, across the
+    // US (com) and UK (co.uk) storefronts. Results feed the same normalization
+    // as the existing Amazon connector. This does NOT replace the existing
+    // Creators/seed path below — it only augments it when Oxylabs is configured.
+    if (isOxylabsConfigured()) {
       try {
-        const [us, uk] = await Promise.all([
-          fetchOxylabsAmazonProduct(trimmed, "amazon-storefront"),
-          fetchOxylabsAmazonProduct(trimmed, "amazon-co-uk"),
-        ]);
+        if (looksLikeAsin(trimmed)) {
+          const [us, uk] = await Promise.all([
+            fetchOxylabsAmazonProduct(trimmed, "amazon-storefront"),
+            fetchOxylabsAmazonProduct(trimmed, "amazon-co-uk"),
+          ]);
 
-        const listings: RawProviderListing[] = [];
-        if (us) {
-          const item = normalizeOxylabsAmazonRaw(us, "amazon-storefront");
-          if (item) listings.push(item);
+          const oListing: RawProviderListing[] = [];
+          if (us) {
+            const item = normalizeOxylabsAmazonRaw(us, "amazon-storefront");
+            if (item) oListing.push(item);
+          }
+          if (uk) {
+            const item = normalizeOxylabsAmazonRaw(uk, "amazon-co-uk");
+            if (item) oListing.push(item);
+          }
+          if (oListing.length > 0) return oListing;
+        } else {
+          const [us, uk] = await Promise.all([
+            fetchOxylabsAmazonSearch(trimmed, "amazon-storefront"),
+            fetchOxylabsAmazonSearch(trimmed, "amazon-co-uk"),
+          ]);
+
+          const oListing: RawProviderListing[] = [
+            ...normalizeOxylabsAmazonSearchResults(us, "amazon-storefront"),
+            ...normalizeOxylabsAmazonSearchResults(uk, "amazon-co-uk"),
+          ];
+          if (oListing.length > 0) return oListing;
         }
-        if (uk) {
-          const item = normalizeOxylabsAmazonRaw(uk, "amazon-co-uk");
-          if (item) listings.push(item);
-        }
-        if (listings.length > 0) return listings;
       } catch {
         // Fall through to the existing source — an Oxylabs failure must never
         // silence the rest of the provider set.
