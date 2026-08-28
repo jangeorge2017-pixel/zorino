@@ -5,9 +5,11 @@ import { getAmazonCredentials } from "@/lib/integrations/amazon/config";
 import { getCreatorsAccessToken } from "@/lib/integrations/amazon/auth";
 import {
   fetchOxylabsAmazonProduct,
+  fetchOxylabsAmazonSearch,
   isOxylabsConfigured,
 } from "@/lib/integrations/oxylabs";
 import { normalizeOxylabsAmazonRaw } from "@/lib/search/normalization";
+import { normalizeOxylabsAmazonSearchResults } from "@/lib/search/normalization";
 
 /**
  * Amazon Egypt search connector.
@@ -171,6 +173,21 @@ export const amazonEgSearchConnector: SearchConnector = {
   ): Promise<RawProviderListing[]> {
     const trimmed = query.trim().toLowerCase();
     if (!trimmed) return [];
+
+    // Additive Oxylabs source: when configured, fetch real amazon.eg keyword
+    // search results via the Oxylabs `amazon_search` source. This lets real
+    // Egypt Amazon products surface in normal keyword search, not just seed
+    // links. It feeds the SAME "amazon-eg" store mapping and does not replace
+    // the existing seed-link / Creators path below (which remains the fallback).
+    if (isOxylabsConfigured()) {
+      try {
+        const searchResults = await fetchOxylabsAmazonSearch(trimmed, "amazon-eg");
+        const oListing = normalizeOxylabsAmazonSearchResults(searchResults, "amazon-eg");
+        if (oListing.length > 0) return oListing;
+      } catch {
+        // An Oxylabs failure must never silence the existing Egypt path.
+      }
+    }
 
     // Match seed products whose title contains any query word
     const words = trimmed.split(/\s+/).filter((w) => w.length > 1);

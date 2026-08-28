@@ -32,9 +32,9 @@ const endpoint = "https://realtime.oxylabs.io/v1/queries";
 const auth = Buffer.from(`${username}:${password}`).toString("base64");
 
 const domains = [
-  { domain: "com", label: "US", expectedHost: "amazon.com", locale: "en_US", geo: "US" },
-  { domain: "co.uk", label: "UK", expectedHost: "amazon.co.uk", locale: "en_GB", geo: "UK" },
-  { domain: "eg", label: "Egypt", expectedHost: "amazon.eg", locale: "en_AE", geo: "EG" },
+  { domain: "com", label: "US", expectedHost: "amazon.com", locale: "en_US", geo: "10001" },
+  { domain: "co.uk", label: "UK", expectedHost: "amazon.co.uk", locale: "en_GB", geo: "SW1A1AA" },
+  { domain: "eg", label: "Egypt", expectedHost: "amazon.eg", locale: "en_AE", geo: "11511" },
 ];
 
 let allOk = true;

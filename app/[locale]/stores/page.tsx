@@ -1,9 +1,5 @@
 import StoresPageClient from "@/components/StoresPageClient";
 import { getStoresForPage } from "@/lib/data/homepage";
-import { locales, type Locale } from "@/i18n/config";
-import type { CountryCode } from "@/lib/international/config";
-import { filterStoresByMarketplaceVisibility } from "@/lib/international/stores";
-import { getServerIntlPreferences } from "@/lib/international/preferences";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
 import type { Store } from "@/lib/types/entities";
 
@@ -23,14 +19,14 @@ export async function generateMetadata({ params }: StoresPageProps) {
   });
 }
 
-function resolveLocale(value: string): Locale {
-  return locales.includes(value as Locale) ? (value as Locale) : "en";
-}
-
-async function loadStores(countryCode: CountryCode): Promise<Store[]> {
+async function loadStores(): Promise<Store[]> {
   const liveStores = await getStoresForPage();
   if (liveStores.length > 0) {
-    return filterStoresByMarketplaceVisibility(liveStores, countryCode);
+    // The store directory is intentionally market-agnostic: it shows the full
+    // set of active stores so no store is hidden behind a country/region gate.
+    // Affiliate/marketplace selection for a specific country happens deeper in
+    // the pipeline (store pages / checkout), not at the directory level.
+    return liveStores;
   }
   return [
     {
@@ -48,10 +44,8 @@ async function loadStores(countryCode: CountryCode): Promise<Store[]> {
   ];
 }
 
-export default async function StoresPage({ params }: StoresPageProps) {
-  const { locale } = await params;
-  const prefs = await getServerIntlPreferences(resolveLocale(locale));
-  const stores = await loadStores(prefs.countryCode);
+export default async function StoresPage() {
+  const stores = await loadStores();
 
   return <StoresPageClient stores={stores} />;
 }

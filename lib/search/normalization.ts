@@ -8,6 +8,7 @@ import type { AffiliateMarketplace } from "@/lib/affiliate/config";
 import type {
   OxylabsAmazonMarketplaceKey,
   OxylabsAmazonProduct,
+  OxylabsAmazonSearchResult,
 } from "@/lib/integrations/oxylabs";
 import { OXYLABS_AMAZON_MARKETPLACES } from "@/lib/integrations/oxylabs";
 import { getIntegrationCredential } from "@/lib/integration/credentials";
@@ -193,6 +194,64 @@ export function normalizeOxylabsAmazonRaw(
     productUrl: raw.productUrl,
     affiliateUrl,
   };
+}
+
+/**
+ * Map Oxylabs `amazon_search` keyword results onto the SAME unified marketplace
+ * product shape as the rest of the pipeline. The marketplace key decides which
+ * Zorino store/provider the products belong to (US/UK → "amazon", EG →
+ * "amazon-eg"). This is what lets real Amazon products surface in normal
+ * keyword search and the homepage catalog — not just exact ASIN lookups.
+ */
+export function normalizeOxylabsAmazonSearchResults(
+  raw: OxylabsAmazonSearchResult[],
+  marketplace: OxylabsAmazonMarketplaceKey
+): RawProviderListing[] {
+  const isEgypt = marketplace === "amazon-eg";
+  const providerId: SearchProviderId = isEgypt ? "amazon-eg" : "amazon";
+  const storeName = isEgypt ? "Amazon Egypt" : "Amazon";
+  const affiliateMarketplace: AffiliateMarketplace = isEgypt
+    ? "amazon-eg"
+    : "amazon";
+
+  const listings: RawProviderListing[] = [];
+  for (const item of raw) {
+    if (!item.asin || !item.title) continue;
+    const price = item.price;
+    if (!price || price <= 0) continue;
+    if (!item.imageUrl.startsWith("http")) continue;
+
+    const originalPrice = item.originalPrice > price ? item.originalPrice : price;
+    const discount =
+      originalPrice > price
+        ? Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100))
+        : 0;
+
+    const affiliateUrl = buildAffiliateUrl({
+      destinationUrl: item.productUrl,
+      marketplace: affiliateMarketplace,
+      partnerTag: isEgypt ? "zorinoeg-21" : getAmazonAssociateTag(),
+    });
+
+    listings.push({
+      providerId,
+      externalId: item.asin,
+      title: item.title.trim(),
+      imageUrl: item.imageUrl,
+      price,
+      originalPrice,
+      discount,
+      currency: item.currency?.trim() || OXYLABS_AMAZON_MARKETPLACES[marketplace].currency,
+      storeName,
+      category: "General",
+      rating: item.rating ?? 0,
+      reviewCount: item.reviewCount ?? 0,
+      inStock: true,
+      productUrl: item.productUrl,
+      affiliateUrl,
+    });
+  }
+  return listings;
 }
 
 /** eBay Browse API → raw provider listing. */
