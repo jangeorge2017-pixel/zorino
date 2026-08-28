@@ -533,3 +533,47 @@ async function resolveMarketplaceProductDetailBase(
   // Prefer notFound over fake Amazon/mock data.
   return null;
 }
+
+/** Rough Amazon ASIN shape for validating redirect targets (10-char alnum, >=1 letter). */
+function looksLikeAsin(id: string): boolean {
+  const t = id.trim().toUpperCase();
+  return /^[A-Z0-9]{6,12}$/.test(t) && /[A-Z]/.test(t);
+}
+
+/**
+ * Outbound redirect target for marketplaces that genuinely cannot serve an
+ * internal product-detail page without extra credentials (Amazon US / Egypt).
+ *
+ * Returns the REAL Amazon product URL with the existing affiliate tag when the
+ * id is a valid ASIN, and null otherwise (so unrelated ids still 404 cleanly).
+ * This is the correct existing outbound flow — never a fabricated detail page
+ * and never a made-up tracking URL.
+ */
+export async function resolveMarketplaceRedirectUrl(
+  id: string,
+): Promise<string | null> {
+  const trimmedId = id.trim().split("#")[0]!.split("?")[0]!.trim();
+  if (/^db-/i.test(trimmedId)) return null;
+
+  const { providerId, externalId } = parseMarketplaceProductId(trimmedId);
+  if (providerId !== "amazon" && providerId !== "amazon-eg") return null;
+  if (!looksLikeAsin(externalId)) return null;
+
+  try {
+    if (providerId === "amazon-eg") {
+      return `https://www.amazon.eg/dp/${externalId}?tag=zorinoeg-21`;
+    }
+    const { getAmazonAssociateTag } = await import(
+      "@/lib/integrations/amazon/config"
+    );
+    const tag = getAmazonAssociateTag();
+    // Real tag (zorino-20 by default) — never a placeholder.
+    const safeTag =
+      tag && tag.toLowerCase() !== "placeholder" && tag.trim()
+        ? tag.trim()
+        : "zorino-20";
+    return `https://www.amazon.com/dp/${externalId}?tag=${encodeURIComponent(safeTag)}`;
+  } catch {
+    return null;
+  }
+}
