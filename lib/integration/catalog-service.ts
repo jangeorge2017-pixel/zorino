@@ -67,9 +67,12 @@ const loadMergedCatalogItems = unstable_cache(
         fetchCatalogFromSearchEngine().catch(() => [] as NormalizedCatalogItem[]),
         getCatalogItemsFromDatabase().catch(() => [] as NormalizedCatalogItem[]),
         getIngestedCatalogItems().catch(() => [] as NormalizedCatalogItem[]),
-        // Pre-warm Admitad feed cache so the search connector activates
+        // Pre-warm Admitad feed cache so the search connector activates.
+        // Pass the broader feed defaults (all real merchant programs within
+        // the deadline) so every real merchant surfaces with real images on
+        // the live path — not just the first few feeds.
         Promise.race([
-          import("@/lib/integrations/admitad/feed-fetcher").then((m) => m.fetchAdmitadFeedProducts()),
+          import("@/lib/integrations/admitad/feed-fetcher").then((m) => m.fetchAdmitadFeedProducts({ maxFeeds: 20, maxProductsPerFeed: 300, deadlineMs: 25_000 })),
           new Promise<{ offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]>((resolve) =>
             setTimeout(() => resolve([]), 30_000),
           ),
