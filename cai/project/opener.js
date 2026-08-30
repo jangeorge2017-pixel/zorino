@@ -62,11 +62,13 @@ function launchEditor(filePath) {
     }
 
     const launch = () => new Promise((resolve, reject) => {
-        const executable = process.platform === "win32" ? (process.env.ComSpec || "cmd.exe") : command;
-        const args = process.platform === "win32"
-            ? ["/d", "/s", "/c", "call \"" + command + "\" \"" + filePath + "\""]
-            : [filePath];
-        const child = spawn(executable, args, {
+        // On Windows `code.cmd` is a batch file. Node spawns `.cmd`/`.bat`
+        // executables through `cmd.exe` while quoting each argument and passing
+        // it as data (not as an interpolated shell string), so shell
+        // metacharacters in the file path cannot be interpreted as commands.
+        // On other platforms the `code` binary is spawned directly. Either way
+        // no user-influenced value is ever concatenated into a shell command.
+        const child = spawn(command, [filePath], {
             shell: false,
             stdio: "ignore",
             windowsHide: true

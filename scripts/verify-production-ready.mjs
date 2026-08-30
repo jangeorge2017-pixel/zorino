@@ -35,11 +35,11 @@ const DEVICE_HINTS = {
 
 function decode(html) {
   return html
-    .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
     .replace(/&#x27;/g, "'")
     .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
 }
 
 function parseCards(html) {

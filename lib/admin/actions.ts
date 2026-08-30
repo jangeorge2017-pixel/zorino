@@ -442,6 +442,15 @@ export async function adminRunAliExpressSync(
     full: runAliExpressFullSync,
   } as const;
 
+  // Runtime validation of the dispatch key — a caller-supplied value must be
+  // one of the known sync kinds before it is used as a method selector.
+  const KNOWN_ALIEXPRESS_SYNC_KINDS = Object.keys(runners) as Array<
+    keyof typeof runners
+  >;
+  if (!KNOWN_ALIEXPRESS_SYNC_KINDS.includes(kind)) {
+    return { ok: false, error: `Unknown AliExpress sync kind: ${kind}` };
+  }
+
   const result = await runners[kind]();
   revalidateAdmin();
   return {
@@ -489,6 +498,13 @@ export async function adminRunEbaySync(
     images: syncEbayImages,
     full: runEbayFullSync,
   } as const;
+
+  // Runtime validation of the dispatch key — a caller-supplied value must be
+  // one of the known sync kinds before it is used as a method selector.
+  const KNOWN_EBAY_SYNC_KINDS = Object.keys(runners) as Array<keyof typeof runners>;
+  if (!KNOWN_EBAY_SYNC_KINDS.includes(kind)) {
+    return { ok: false, error: `Unknown eBay sync kind: ${kind}` };
+  }
 
   const result = await runners[kind]();
   revalidateAdmin();

@@ -8,6 +8,11 @@ type HeroFloatingCardProps = {
   product: FloatingProductCard;
 };
 
+/** True when host equals the domain or is a strict subdomain of it. */
+function isHostOrSubdomainOf(host: string, domain: string): boolean {
+  return host === domain || host.endsWith(`.${domain}`);
+}
+
 /** Prefer the largest available CDN variant for orbit product art. */
 function preferOrbitImageSrc(src: string): string {
   if (!src || src.startsWith("/")) return src;
@@ -23,20 +28,23 @@ function preferOrbitImageSrc(src: string): string {
       url.searchParams.delete("h");
       return url.toString();
     }
-    if (host.includes("media-amazon.com") || host.includes("ssl-images-amazon.com")) {
+    if (
+      isHostOrSubdomainOf(host, "media-amazon.com") ||
+      isHostOrSubdomainOf(host, "ssl-images-amazon.com")
+    ) {
       return src
         .replace(/_SL\d+_/g, "_SL2000_")
         .replace(/\._SS\d+_/, "._SS2000_")
         .replace(/_AC_UL\d+_/, "_AC_SL2000_")
         .replace(/_AC_UX\d+_/, "_AC_SL2000_");
     }
-    if (host.includes("alicdn.com") || host.includes("aliexpress")) {
+    if (isHostOrSubdomainOf(host, "alicdn.com") || isHostOrSubdomainOf(host, "aliexpress.com")) {
       // Prefer largest square variant; fall back to stripping size suffix for original
       const enlarged = src.replace(/_\d+x\d+\./, "_1200x1200.");
       if (enlarged !== src) return enlarged;
       return src.replace(/_\d+x\d+\./, ".");
     }
-    if (host.includes("noon") || host.includes("f.nooncdn.com")) {
+    if (isHostOrSubdomainOf(host, "nooncdn.com") || isHostOrSubdomainOf(host, "noon.com")) {
       return src.replace(/\/[a-z]?_?\d+x\d+\//i, "/").replace(/_\d+x\d+(\.\w+)/, "$1");
     }
     return src;

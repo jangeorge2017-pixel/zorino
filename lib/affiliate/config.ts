@@ -53,16 +53,54 @@ export function resolveMarketplace(
   return aliases[key] ?? null;
 }
 
+/** True when host equals the domain or is a strict subdomain of it. */
+function isHostOrSubdomainOf(host: string, domain: string): boolean {
+  return host === domain || host.endsWith(`.${domain}`);
+}
+
+/** True when host matches any of the given registrable domains (or subdomain). */
+function hostMatchesAnyDomain(host: string, domains: string[]): boolean {
+  return domains.some((domain) => isHostOrSubdomainOf(host, domain));
+}
+
 export function extractMarketplaceFromUrl(url: string): AffiliateMarketplace | null {
   try {
     const host = new URL(url).hostname.toLowerCase();
-    if (host.includes("amazon.eg")) return "amazon-eg";
-    if (host.includes("amazon")) return "amazon";
-    if (host.includes("aliexpress")) return "aliexpress";
-    if (host.includes("ebay")) return "ebay";
-    if (host.includes("walmart")) return "walmart";
-    if (host.includes("temu")) return "temu";
-    if (host.includes("noon.com")) return "noon";
+    if (hostMatchesAnyDomain(host, ["amazon.eg"])) return "amazon-eg";
+    if (
+      hostMatchesAnyDomain(host, [
+        "amazon.com",
+        "amazon.co.uk",
+        "amazon.de",
+        "amazon.fr",
+        "amazon.it",
+        "amazon.es",
+        "amazon.ca",
+        "amazon.com.mx",
+        "amazon.com.br",
+        "amazon.in",
+        "amazon.com.au",
+        "amazon.co.jp",
+        "amazon.nl",
+        "amazon.ae",
+        "amazon.sa",
+      ])
+    )
+      return "amazon";
+    if (hostMatchesAnyDomain(host, ["aliexpress.com"])) return "aliexpress";
+    if (
+      hostMatchesAnyDomain(host, [
+        "ebay.com",
+        "ebay.co.uk",
+        "ebay.de",
+        "ebay.fr",
+        "ebay.com.au",
+      ])
+    )
+      return "ebay";
+    if (hostMatchesAnyDomain(host, ["walmart.com"])) return "walmart";
+    if (hostMatchesAnyDomain(host, ["temu.com"])) return "temu";
+    if (hostMatchesAnyDomain(host, ["noon.com", "nooncdn.com"])) return "noon";
     return null;
   } catch {
     return null;

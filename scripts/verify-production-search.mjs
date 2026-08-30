@@ -18,7 +18,7 @@ const QUERIES = [
 
 function parseTitles(html) {
   return [...html.matchAll(/class="deal-name">([^<]+)/g)].map((m) =>
-    m[1].replace(/&amp;/g, "&").replace(/&quot;/g, '"').trim()
+    m[1].replace(/&quot;/g, '"').replace(/&amp;/g, "&").trim()
   );
 }
 
