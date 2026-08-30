@@ -1,5 +1,6 @@
 import { mapStore } from "@/lib/database/mappers";
 import type { StoreRow } from "@/lib/database/types";
+import { isRealDataStore } from "@/lib/integration/real-stores";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Store, ServiceResult } from "@/lib/types/entities";
 
@@ -13,26 +14,30 @@ export async function getStores(options?: {
     return { data: [], error: "Supabase not configured" };
   }
 
-  let query = supabase
+  const { data, error } = await supabase
     .from("stores")
     .select("*")
     .eq("is_active", true)
     .order("name");
 
-  if (options?.integrationType) {
-    query = query.eq("integration_type", options.integrationType);
-  }
-  if (options?.region) {
-    query = query.contains("supported_regions", [options.region]);
-  }
-  if (options?.limit) {
-    query = query.limit(options.limit);
-  }
-
-  const { data, error } = await query;
   if (error) return { data: [], error: error.message };
 
-  return { data: (data ?? []).map(mapStore), error: null };
+  // Directory shows only stores that actually have (or produce) real product
+  // data. Seed/static/stub rows (walmart, temu, noon, best-buy, jumia, nike,
+  // foot-locker, …) and credential-less Amazon rows are never advertised.
+  const rows = ((data as StoreRow[] | null) ?? []).filter((row) => {
+    if (!isRealDataStore(row)) return false;
+    if (options?.integrationType && row.integration_type !== options.integrationType) {
+      return false;
+    }
+    if (options?.region && !(row.supported_regions ?? []).includes(options.region)) {
+      return false;
+    }
+    return true;
+  });
+
+  const limited = options?.limit ? rows.slice(0, options.limit) : rows;
+  return { data: limited.map(mapStore), error: null };
 }
 
 export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store | null>> {

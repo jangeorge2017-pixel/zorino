@@ -13,7 +13,10 @@ import type { SupabaseDb } from "@/lib/supabase/config";
 import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
 import type { ProductionProviderId } from "@/lib/integration/constants";
 import type { SearchResultItem } from "@/lib/data/homepage";
-import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import {
+  normalizeProductImageUrl,
+  PRODUCT_IMAGE_PLACEHOLDER,
+} from "@/lib/images/product-image";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -137,7 +140,9 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
     (row) =>
       row.product_name &&
       row.image_url &&
-      row.image_url.trim().startsWith("http"),
+      // Reject rows whose image normalizes to the placeholder (empty,
+      // http-only, or invalid URLs all land there) — never show placeholder cards.
+      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER,
   );
 
   // Batch-fetch category_slug from products table for these product IDs
@@ -233,7 +238,10 @@ export async function getSearchResultsFromDatabase(
   if (error || !data?.length) return [];
 
   const rows = (data as LowestPriceRow[]).filter(
-    (row) => row.product_name && row.image_url,
+    (row) =>
+      row.product_name &&
+      row.image_url &&
+      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER,
   );
 
   const productIds = rows.map((r) => r.product_id);
@@ -291,7 +299,15 @@ export async function getDatabaseSearchItemByProductId(
     .limit(1);
 
   const row = (data as LowestPriceRow[] | null)?.[0];
-  if (error || !row || !row.product_name || !row.image_url) return null;
+  if (
+    error ||
+    !row ||
+    !row.product_name ||
+    !row.image_url ||
+    normalizeProductImageUrl(row.image_url) === PRODUCT_IMAGE_PLACEHOLDER
+  ) {
+    return null;
+  }
 
   const { data: productRows } = await db(supabase)
     .from("products")

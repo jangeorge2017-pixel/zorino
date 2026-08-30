@@ -1,7 +1,10 @@
 import type { SearchConnector, ConnectorSearchOptions } from "./types";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { getAllAdmitadFeeds } from "@/lib/integrations/admitad/config";
-import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import {
+  normalizeProductImageUrl,
+  PRODUCT_IMAGE_PLACEHOLDER,
+} from "@/lib/images/product-image";
 import { normalizeAdmitadRaw } from "@/lib/search/normalization";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import { fetchAdmitadFeedProducts } from "@/lib/integrations/admitad/feed-fetcher";
@@ -68,6 +71,9 @@ async function searchIngestedRows(
           ? row.original_price
           : row.lowest_price;
       const url = row.affiliate_url || row.external_url || "";
+      const imageUrl = normalizeProductImageUrl(row.image_url || "");
+      // Never surface a row whose image resolves to the placeholder.
+      if (imageUrl === PRODUCT_IMAGE_PLACEHOLDER) continue;
 
       listings.push({
         providerId: "admitad",
@@ -75,7 +81,7 @@ async function searchIngestedRows(
         // toNormalizedListing prepends "admitad-" once, so strip it here.
         externalId: row.product_slug.replace(/^admitad-/, ""),
         title: row.product_name,
-        imageUrl: normalizeProductImageUrl(row.image_url || ""),
+        imageUrl,
         price: row.lowest_price,
         originalPrice,
         discount:
@@ -154,6 +160,11 @@ export const admitadSearchConnector: SearchConnector = {
           if (seenIds.has(dedupeKey)) continue;
           seenIds.add(dedupeKey);
 
+          const image = normalizeProductImageUrl(offer.image || "");
+          // Skip offers that have no usable product image — never emit a
+          // placeholder-image search card as real data.
+          if (image === PRODUCT_IMAGE_PLACEHOLDER) continue;
+
           const normalized = normalizeAdmitadRaw(
             {
               // Plain offer id — normalizeAdmitadRaw + toNormalizedListing add
@@ -165,7 +176,7 @@ export const admitadSearchConnector: SearchConnector = {
               oldprice: offer.oldprice,
               currencyId: offer.currencyId,
               url: offer.url,
-              image: normalizeProductImageUrl(offer.image || ""),
+              image,
               vendor: offer.vendor,
             },
             feedResult.feedName,

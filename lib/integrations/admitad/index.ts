@@ -1,6 +1,9 @@
 import type { AdmitadFeedOffer } from "./types";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
-import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import {
+  normalizeProductImageUrl,
+  PRODUCT_IMAGE_PLACEHOLDER,
+} from "@/lib/images/product-image";
 
 export { ADMITAD_FEEDS, ADMITAD_PROVIDER_ID, FEED_CACHE_TTL_MS } from "./config";
 export { fetchAdmitadFeedProducts, isAdmitadFeedReady } from "./feed-fetcher";
@@ -37,6 +40,11 @@ export function admitadFeedsToCatalogItems(
   for (const feed of feeds) {
     for (const offer of feed.offers.slice(0, 500)) {
       if (!offer.url) continue;
+      // Real, image-bearing products only. An offer with no usable image
+      // resolves to the local placeholder — skip it so real products do not
+      // surface as placeholder-only cards (mirrors the database-catalog rule).
+      const imageUrl = normalizeProductImageUrl(offer.image || "");
+      if (!imageUrl || imageUrl === PRODUCT_IMAGE_PLACEHOLDER) continue;
       const discount =
         offer.oldprice && offer.oldprice > offer.price
           ? Math.round(((offer.oldprice - offer.price) / offer.oldprice) * 100)
@@ -46,7 +54,7 @@ export function admitadFeedsToCatalogItems(
         id,
         slug: id,
         title: offer.name,
-        imageUrl: normalizeProductImageUrl(offer.image || ""),
+        imageUrl,
         emoji: "🛍️",
         categorySlug: "general",
         rating: 0,

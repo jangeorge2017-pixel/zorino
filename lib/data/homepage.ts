@@ -10,6 +10,7 @@ import {
   getIntegratedTrendingDeals,
   getMergedCatalogItems,
 } from "@/lib/integration/catalog-service";
+import { countRealStoresFromCatalog } from "@/lib/integration/real-stores";
 import { HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
 import { ZH_POPULAR_SEARCHES } from "@/lib/zorino-home/content";
 import {
@@ -246,10 +247,10 @@ export async function getHomepageStats(): Promise<{
 
   try {
     const items = await getMergedCatalogItems();
-    const providers = new Set(
-      items.map((item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown"),
-    );
-    storeCount = providers.size;
+    // Distinct real store identities: every real Admitad merchant present in
+    // the catalog counts individually, plus one per other live provider.
+    // Stub/seed rows can never appear here because the catalog is real data only.
+    storeCount = countRealStoresFromCatalog(items);
     productCount = items.length;
   } catch {
     // Catalog fetch failed — counts stay at 0. No fake fallback.
