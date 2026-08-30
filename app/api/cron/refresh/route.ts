@@ -143,7 +143,44 @@ export async function GET(request: Request) {
       }
     }
 
-    // ── 4. Heavy provider schedulers / imports / aggregates ───────────────
+    // ── 4. Admitad image backfill (core canonical-DB fix) ──────────────────
+    // The persisted catalog rows written before the image-parser fix carry an
+    // empty image_url for most real merchants. Re-read the real merchant feeds
+    // (fixed parser) and patch those rows with their genuine images so the
+    // canonical DB — not just the live feed — shows every real merchant.
+    if (!budget.hasRoomFor(10_000)) {
+      results.admitadImageBackfill = { skipped: true, reason: "budget-exhausted" };
+    } else {
+      try {
+        const deadlineMs = Math.max(
+          10_000,
+          Math.min(budget.remainingMs() - 5_000, 40_000),
+        );
+        const { backfillAdmitadImages } = await import(
+          "@/services/admitad-image-backfill"
+        );
+        const backfill = await backfillAdmitadImages({
+          maxFeeds: 20,
+          maxProductsPerFeed: 800,
+          timeoutPerFeedMs: 12_000,
+          deadlineMs,
+        });
+        results.admitadImageBackfill = {
+          feedsChecked: backfill.feedsChecked,
+          offersWithImage: backfill.offersWithImage,
+          rowsScanned: backfill.rowsScanned,
+          rowsPatched: backfill.rowsPatched,
+          errors: backfill.errors.slice(0, 10),
+          deadlineMs,
+        };
+      } catch (err) {
+        results.admitadImageBackfill = {
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
+    }
+
+    // ── 5. Heavy provider schedulers / imports / aggregates ───────────────
     // Each guarded individually: one slow provider must not starve the rest.
     // These schedulers loop provider APIs internally without deadline support,
     // so each also runs under a hard wall-clock cap (withBudgetCap) — without
@@ -259,7 +296,7 @@ export async function GET(request: Request) {
       results.universalCatalog = { skipped: true };
     }
 
-    // ── 5. Due store-sync jobs LAST, deadline-bounded ─────────────────────
+    // ── 6. Due store-sync jobs LAST, deadline-bounded ─────────────────────
     // This was the historical wedge: unbounded sequential provider imports
     // ran FIRST and got the function killed before anything else could run.
     // The watchdog inside also sweeps runs orphaned by earlier kills.
@@ -284,7 +321,7 @@ export async function GET(request: Request) {
       }
     }
 
-    // ── 6. Notification alerts ─────────────────────────────────────────────
+    // ── 7. Notification alerts ─────────────────────────────────────────────
     if (force || hourUtc === 8) {
       if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
         results.notifications = { skipped: true, reason: "budget-exhausted" };

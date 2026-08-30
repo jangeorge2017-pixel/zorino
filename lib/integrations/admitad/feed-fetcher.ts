@@ -18,10 +18,13 @@ export function isAdmitadFeedReady(): boolean {
   return false;
 }
 
-/** Default bounds for the live catalog/search path (overridable via env). */
-const DEFAULT_MAX_FEEDS = Number(process.env.ADMITAD_CATALOG_MAX_FEEDS ?? 4);
+/** Default bounds for the live catalog/search path (overridable via env).
+ *  One feed per real Admitad merchant program (best effort within the
+ *  deadline) so the live feed surfaces EVERY real merchant, not just a small
+ *  first slice — without this the homepage/search collapse to a few stores. */
+const DEFAULT_MAX_FEEDS = Number(process.env.ADMITAD_CATALOG_MAX_FEEDS ?? 20);
 const DEFAULT_MAX_PRODUCTS_PER_FEED = Number(
-  process.env.ADMITAD_CATALOG_MAX_PRODUCTS_PER_FEED ?? 400,
+  process.env.ADMITAD_CATALOG_MAX_PRODUCTS_PER_FEED ?? 300,
 );
 const DEFAULT_TIMEOUT_PER_FEED_MS = 20_000;
 const DEFAULT_DEADLINE_MS = 25_000;
@@ -161,7 +164,7 @@ function decodeXmlEntities(text: string): string {
  * as maxOffers offers have been parsed, and returns partial data when the
  * request times out mid-stream. Partial data is still real provider data.
  */
-async function fetchFeedFromUrl(
+export async function fetchFeedOffersFromUrl(
   feedUrl: string,
   opts: { timeoutMs?: number; maxOffers?: number } = {},
 ): Promise<AdmitadFeedOffer[]> {
@@ -273,7 +276,7 @@ export async function fetchAdmitadFeedProducts(
       console.log(
         `[admitad] fetching feed "${feed.name}" from URL (budget ${maxProductsPerFeed})...`,
       );
-      const capped = await fetchFeedFromUrl(feed.feedUrl, {
+      const capped = await fetchFeedOffersFromUrl(feed.feedUrl, {
         timeoutMs: timeoutPerFeedMs,
         maxOffers: maxProductsPerFeed,
       });
