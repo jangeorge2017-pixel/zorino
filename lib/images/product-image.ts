@@ -47,6 +47,11 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
 ];
 
 /** Prefer larger Unsplash / Amazon CDN variants when the URL advertises a small size. */
+/** True when host equals the domain or is a strict subdomain of it. */
+function isHostOrSubdomainOf(host: string, domain: string): boolean {
+  return host === domain || host.endsWith(`.${domain}`);
+}
+
 function preferHighResProductUrl(url: string): string {
   try {
     const parsed = new URL(url);
@@ -67,7 +72,10 @@ function preferHighResProductUrl(url: string): string {
     }
 
     // Amazon media: upgrade common small SL tokens to a sharper size.
-    if (host.includes("media-amazon.com") || host.includes("ssl-images-amazon.com")) {
+    if (
+      isHostOrSubdomainOf(host, "media-amazon.com") ||
+      isHostOrSubdomainOf(host, "ssl-images-amazon.com")
+    ) {
       return url.replace(/_SL\d+_/g, "_SL1200_").replace(/\._SS\d+_/, "._SS1200_");
     }
 

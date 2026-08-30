@@ -1,43 +1,6 @@
 // Security Utilities
 // This file provides security utilities for validation, XSS prevention, CSRF protection, etc.
 
-// XSS Prevention
-export function sanitizeInput(input: string): string {
-  if (typeof input !== 'string') return '';
-  
-  // Remove potentially dangerous characters
-  return input
-    .replace(/[<>]/g, '') // Remove < and >
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+=/gi, '') // Remove event handlers like onclick=
-    .trim();
-}
-
-export function escapeHtml(unsafe: string): string {
-  return unsafe
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
-  const sanitized: any = {};
-  
-  for (const key in obj) {
-    if (typeof obj[key] === 'string') {
-      sanitized[key] = sanitizeInput(obj[key]);
-    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-      sanitized[key] = sanitizeObject(obj[key]);
-    } else {
-      sanitized[key] = obj[key];
-    }
-  }
-  
-  return sanitized;
-}
-
 // Input Validation
 export function validateEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

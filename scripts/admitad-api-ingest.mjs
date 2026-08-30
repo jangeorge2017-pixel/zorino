@@ -141,7 +141,12 @@ function extractTag(xml, tag) {
 }
 
 function decodeXml(text) {
-  return text.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'");
+  return text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+}
+
+/** Strip markup by re-joining the text content between tags (text nodes). */
+function toPlainText(value) {
+  return (value || "").split(/<[^>]+>/).join("").trim();
 }
 
 function parsePrice(raw) {
@@ -167,7 +172,7 @@ function parseOffer(xml) {
     url = decodeXml(extractTag(xml, "url") || "");
     image = decodeXml(extractTag(xml, "image") || "");
     vendor = extractTag(xml, "vendor") || "";
-    description = (extractTag(xml, "description") || "").replace(/<[^>]+>/g, "");
+    description = toPlainText(extractTag(xml, "description"));
   } else {
     // Google Merchant / Atom format: <entry> with <g:id>, <g:price>, etc.
     id = extractTag(xml, "id");
@@ -178,7 +183,7 @@ function parseOffer(xml) {
     if (priceMatch) currencyId = priceMatch[1];
     url = decodeXml(extractTag(xml, "link") || "");
     image = decodeXml(extractTag(xml, "image_link") || "");
-    description = (extractTag(xml, "description") || "").replace(/<[^>]+>/g, "");
+    description = toPlainText(extractTag(xml, "description"));
     vendor = "";
     oldpriceStr = null;
   }

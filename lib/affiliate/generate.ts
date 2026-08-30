@@ -56,9 +56,17 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
     }
   }
 
-  // Handle Noon specific affiliate links (use provided URLs directly)
-  if (input.destinationUrl.includes("s.noon.com")) {
-    return input.destinationUrl;
+  // Handle Noon specific affiliate links (use provided URLs directly).
+  // Match the s.noon.com short-link host on a domain boundary so a hostname
+  // merely containing the string (e.g. s.noon.com.evil.example) is never
+  // treated as Noon.
+  try {
+    const noonHost = new URL(input.destinationUrl).hostname.toLowerCase();
+    if (noonHost === "s.noon.com" || noonHost.endsWith(".s.noon.com")) {
+      return input.destinationUrl;
+    }
+  } catch {
+    // Not a parseable URL — fall through to normal generation below.
   }
 
   // Never invent partner tags — untracked destinations stay untracked.

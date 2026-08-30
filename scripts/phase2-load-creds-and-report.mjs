@@ -68,9 +68,9 @@ const TRACKING_ID = process.env.ALIEXPRESS_TRACKING_ID?.trim();
 const API_URL = "https://api-sg.aliexpress.com/sync";
 
 console.log("credentials after hydrate:", {
-  ALIEXPRESS_APP_KEY: mask(APP_KEY),
-  ALIEXPRESS_APP_SECRET: mask(APP_SECRET),
-  ALIEXPRESS_TRACKING_ID: mask(TRACKING_ID),
+  ALIEXPRESS_APP_KEY: APP_KEY ? "SET" : "EMPTY",
+  ALIEXPRESS_APP_SECRET: APP_SECRET ? "SET" : "EMPTY",
+  ALIEXPRESS_TRACKING_ID: TRACKING_ID ? "SET" : "EMPTY",
   configured: Boolean(APP_KEY && APP_SECRET),
 });
 

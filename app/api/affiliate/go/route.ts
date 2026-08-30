@@ -107,21 +107,13 @@ export async function GET(request: Request) {
     });
   }
 
-  // Revalidate the final affiliate URL destination to ensure it's still live
-  try {
-    const headResponse = await fetch(affiliateUrl, {
-      method: "HEAD",
-      redirect: "follow",
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!headResponse.ok) {
-      // If the affiliate URL is dead, fall back to the original destination
-      affiliateUrl = destinationUrl;
-    }
-  } catch {
-    // Network error — use the original destination as fallback
-    affiliateUrl = destinationUrl;
-  }
+  // NOTE: No server-side network request is made for the destination URL here.
+  // The destination was validated above (protocol + host policy) and is only
+  // used to build the client-side redirect below. Affiliate/deeplink generation
+  // already falls back to the validated destination when it cannot produce a
+  // real tracked URL, so no liveness revalidation is required — and performing
+  // a HEAD request against a user-influenced URL would create a request-forgery
+  // (SSRF) sink.
 
   await recordAffiliateClick({
     productId,
