@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
 import { logAliExpress, maskSecret } from "@/lib/integrations/aliexpress/logger";
+import { md5HexUtf8 } from "@/lib/integrations/aliexpress/md5";
 
 /**
  * AliExpress / TOP signature (MD5):
@@ -23,7 +23,7 @@ export function signAliExpressParams(
   }
   base += appSecret;
 
-  const sign = createHash("md5").update(base, "utf8").digest("hex").toUpperCase();
+  const sign = md5HexUtf8(base).toUpperCase();
 
   logAliExpress("signature computed", {
     algorithm: "md5",

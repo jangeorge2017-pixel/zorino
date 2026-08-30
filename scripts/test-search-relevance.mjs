@@ -4,7 +4,7 @@
  */
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { createHash } from "node:crypto";
+import { md5HexUtf8 } from "./lib/md5.mjs";
 
 function loadEnv() {
   const envPath = resolve(process.cwd(), ".env.local");
@@ -209,7 +209,7 @@ function sign(params, secret) {
   let base = secret;
   for (const key of sorted) base += key + params[key];
   base += secret;
-  return createHash("md5").update(base, "utf8").digest("hex").toUpperCase();
+  return md5HexUtf8(base).toUpperCase();
 }
 
 async function liveSearch(query) {

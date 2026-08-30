@@ -1,20 +1,13 @@
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
+import { filterSvgMarkup } from "./lib/svg-allowlist.mjs";
 
 const root = process.cwd();
 const storesDir = path.join(root, "public", "stores");
 
 function sanitize(svg) {
-  return svg
-    .replace(/<\?xml[\s\S]*?\?>/gi, "")
-    .replace(/<!DOCTYPE[\s\S]*?>/gi, "")
-    .replace(/<metadata[\s\S]*?<\/metadata>/gi, "")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/\sxmlns:(sodipodi|inkscape|rdf|cc|dc)="[^"]*"/gi, "")
-    .replace(/\s(sodipodi|inkscape):[a-zA-Z0-9:_-]+="[^"]*"/gi, "")
-    .replace(/<(sodipodi|inkscape):[^>]*\/>/gi, "")
-    .replace(/<(sodipodi|inkscape):[^>]*>[\s\S]*?<\/\1:[^>]*>/gi, "");
+  return filterSvgMarkup(svg);
 }
 
 function extract(svg) {
