@@ -108,46 +108,135 @@ function rowToCatalogItem(row: LowestPriceRow): NormalizedCatalogItem {
 }
 
 /**
- * Read products from the Supabase `lowest_prices_today` table.
+ * Providers that carry real, image-bearing products in `lowest_prices_today`.
+ * Used to (a) enumerate the real merchant universe and (b) filter the catalog.
+ * Stub-only providers (temu, walmart, jumia, noon, best-buy) are excluded so
+ * their legacy rows never surface in the homepage catalog or stats.
+ */
+const REAL_CATALOG_PROVIDERS = ["admitad", "aliexpress", "ebay", "cjdropshipping"];
+
+/** Reciprocal of the .in() filter above — kept for the per-merchant query. */
+function realProviderOr(): string {
+  return `provider.in.(${REAL_CATALOG_PROVIDERS.join(",")})`;
+}
+
+/**
+ * Enumerate the distinct real merchants present in `lowest_prices_today`.
+ *
+ * IMPORTANT: rows are heavily concentrated by merchant (one merchant can own
+ * tens of thousands of rows, another only a handful at the very tail), so a
+ * bounded "first N" slice would miss whole merchants. We page the full
+ * real-provider set and dedupe on store_name to get every real merchant.
+ * Runs once per 5-min catalog cache, so the full scan is acceptable.
+ */
+export async function getRealMerchantNames(supabase?: SupabaseDb): Promise<string[]> {
+  const client = supabase ?? createSupabaseAnonClient();
+  if (!client) return [];
+  const names = new Set<string>();
+  let offset = 0;
+  // IMPORTANT: the Supabase anon client caps responses at 1000 rows regardless
+  // of the requested range, so stepping by >1000 silently truncates and stops
+  // early (missing whole merchants at the tail). Step by exactly 1000.
+  const page = 1000;
+
+  for (;;) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (client as any)
+      .from("lowest_prices_today")
+      .select("store_name")
+      .eq("country_code", "US")
+      .eq("currency", "USD")
+      .not("image_url", "is", null)
+      .neq("image_url", "")
+      .or(realProviderOr())
+      .range(offset, offset + page - 1);
+
+    if (error) break;
+    const rows = (data ?? []) as Array<{ store_name: string | null }>;
+    if (rows.length === 0) break;
+
+    for (const r of rows) {
+      const name = r.store_name?.trim();
+      if (name) names.add(name);
+    }
+
+    offset += page;
+    if (rows.length < page) break;
+    if (offset > 130_000) break; // hard safety cap
+  }
+
+  return Array.from(names);
+}
+/**
+ * Read a merchant-breadth sample of the Supabase `lowest_prices_today` table.
  * Returns NormalizedCatalogItems that can be merged with live search results.
- * Gracefully returns [] when Supabase is not configured.
+ *
+ * Unlike a single discount-limited slice (which a single dominant merchant can
+ * flood and thereby hide every other real store), this pulls a bounded number
+ * of the top products FROM EACH real merchant. Every real store in the DB is
+ * therefore represented in the homepage catalog — so the store count is real
+ * and the rendered feed stays diverse. Gracefully returns [] when Supabase is
+ * not configured.
  */
 export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogItem[]> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) return [];
 
-  const { data, error } = await db(supabase)
-    .from("lowest_prices_today")
-    .select(
-      "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
-    )
-    .eq("country_code", "US")
-    .eq("currency", "USD")
-    // Only real, image-bearing products enter the homepage catalog. The DB is
-    // ~92% image-covered (120K rows), but some store feeds stored empty image
-    // URLs that sort to the top by discount and would otherwise flood the
-    // homepage with placeholder-only cards. Filtering here surfaces real
-    // products with real images so valid URLs render instead of placeholders.
-    .not("image_url", "is", null)
-    .neq("image_url", "")
-    .order("discount_percent", { ascending: false })
-    .order("lowest_price", { ascending: false })
-    .limit(500);
+  const storeNames = await getRealMerchantNames(supabase);
+  if (storeNames.length === 0) return [];
 
-  if (error || !data?.length) return [];
+  const PER_MERCHANT = 40;
+  const collected: LowestPriceRow[] = [];
 
-  const rows = (data as LowestPriceRow[]).filter(
-    (row) =>
-      row.product_name &&
-      row.image_url &&
-      // Reject rows whose image normalizes to the placeholder (empty,
-      // http-only, or invalid URLs all land there) — never show placeholder cards.
-      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER,
-  );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sb = supabase as any;
+
+  for (const storeName of storeNames) {
+    const { data, error } = await sb
+      .from("lowest_prices_today")
+      .select(
+        "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
+      )
+      .eq("country_code", "US")
+      .eq("currency", "USD")
+      .eq("store_name", storeName)
+      // Only real, image-bearing products enter the homepage catalog. The DB is
+      // ~92% image-covered (120K rows), but some store feeds stored empty image
+      // URLs that would otherwise resolve to placeholder cards. Filtering here
+      // surfaces real products with real images so valid URLs render.
+      .not("image_url", "is", null)
+      .neq("image_url", "")
+      .order("discount_percent", { ascending: false })
+      .order("lowest_price", { ascending: false })
+      .limit(PER_MERCHANT);
+
+    if (error || !data) continue;
+
+    for (const row of data as LowestPriceRow[]) {
+      if (
+        row.product_name &&
+        row.image_url &&
+        // Reject rows whose image normalizes to the placeholder (empty,
+        // http-only, or invalid URLs all land there) — never placeholder cards.
+        normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER
+      ) {
+        collected.push(row);
+      }
+    }
+  }
+
+  // Dedupe on product_id so a product present across multiple merchants/rows
+  // (rare) is not double-counted in the catalog feed.
+  const byId = new Map<string, LowestPriceRow>();
+  for (const row of collected) {
+    if (!byId.has(row.product_id)) byId.set(row.product_id, row);
+  }
+  const rows = Array.from(byId.values());
+  if (rows.length === 0) return [];
 
   // Batch-fetch category_slug from products table for these product IDs
   const productIds = rows.map((r) => r.product_id);
-  const { data: productRows } = await db(supabase)
+  const { data: productRows } = await sb
     .from("products")
     .select("id, category_slug")
     .in("id", productIds);
@@ -161,6 +250,28 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
     row.category_slug = categoryMap.get(row.product_id) ?? null;
     return rowToCatalogItem(row);
   });
+}
+
+/**
+ * Total count of real, image-bearing products in `lowest_prices_today` across
+ * the live providers. This is the honest product-catalog size (not the bounded
+ * in-memory feed), so the homepage "Products" stat reflects reality.
+ * Returns 0 when Supabase is not configured or the count is unavailable.
+ */
+export async function getRealCatalogProductCount(): Promise<number> {
+  const supabase = createSupabaseAnonClient();
+  if (!supabase) return 0;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { count, error } = await (supabase as any)
+    .from("lowest_prices_today")
+    .select("product_id", { count: "exact", head: true })
+    .eq("country_code", "US")
+    .eq("currency", "USD")
+    .or(realProviderOr());
+
+  if (error || typeof count !== "number") return 0;
+  return count;
 }
 
 function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {

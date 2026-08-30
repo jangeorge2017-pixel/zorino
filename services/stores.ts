@@ -1,8 +1,19 @@
 import { mapStore } from "@/lib/database/mappers";
 import type { StoreRow } from "@/lib/database/types";
-import { isRealDataStore } from "@/lib/integration/real-stores";
+import {
+  getRealMerchantStores,
+  isRealDataStore,
+} from "@/lib/integration/real-stores";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Store, ServiceResult } from "@/lib/types/entities";
+
+async function loadMerchantStores(): Promise<Store[]> {
+  try {
+    return await getRealMerchantStores();
+  } catch {
+    return [];
+  }
+}
 
 export async function getStores(options?: {
   integrationType?: StoreRow["integration_type"];
@@ -36,25 +47,49 @@ export async function getStores(options?: {
     return true;
   });
 
-  const limited = options?.limit ? rows.slice(0, options.limit) : rows;
-  return { data: limited.map(mapStore), error: null };
+  // Append the real Admitad merchants derived from the live DB catalog so the
+  // directory lists every real merchant that has products. Only merchants with
+  // a real program record (site URL) are included — nothing is fabricated.
+  const merchantStores = await loadMerchantStores();
+  const it = options?.integrationType;
+  const combined: Store[] = [
+    ...rows.map(mapStore),
+    ...merchantStores.filter((m) => !it || m.integrationType === it),
+  ];
+  const region = options?.region;
+  const filtered = region
+    ? combined.filter(
+        (s) => !s.supportedRegions.length || s.supportedRegions.includes(region),
+      )
+    : combined;
+  const result = options?.limit ? filtered.slice(0, options.limit) : filtered;
+  return { data: result, error: null };
 }
 
 export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store | null>> {
   const supabase = createSupabaseAnonClient();
-  if (!supabase) {
-    return { data: null, error: "Supabase not configured" };
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("stores")
+      .select("*")
+      .eq("slug", slug)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (error) return { data: null, error: error.message };
+    if (data) return { data: mapStore(data), error: null };
   }
 
-  const { data, error } = await supabase
-    .from("stores")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_active", true)
-    .maybeSingle();
+  // Merchant rows (slug "admitad-<merchant>") are derived on the fly from the
+  // live DB catalog + Admitad program metadata rather than persisted rows, so
+  // look them up here so the store page resolves instead of 404-ing.
+  if (slug.startsWith("admitad-")) {
+    const merchants = await loadMerchantStores();
+    const found = merchants.find((m) => m.slug === slug) ?? null;
+    return { data: found, error: null };
+  }
 
-  if (error) return { data: null, error: error.message };
-  return { data: data ? mapStore(data) : null, error: null };
+  return { data: null, error: "Store not found" };
 }
 
 export async function getStoreById(id: string): Promise<ServiceResult<Store | null>> {

@@ -1,11 +1,15 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import reactHooks from "eslint-plugin-react-hooks";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    plugins: {
+      "react-hooks": reactHooks,
+    },
     rules: {
       // Pre-existing codebase debt — keep visible as warnings, don't block deploy.
       "@typescript-eslint/no-explicit-any": "warn",
