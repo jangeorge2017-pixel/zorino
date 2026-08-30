@@ -238,7 +238,7 @@ export async function getPopularSearches(): Promise<string[]> {
  * Products = total real products from live providers.
  * Coupons = real Supabase coupon rows.
  */
-export async function getHomepageStats(): Promise<{
+async function loadHomepageStats(): Promise<{
   hero: HeroStatItem[];
   footer: FooterStatItem[];
 }> {
@@ -249,11 +249,23 @@ export async function getHomepageStats(): Promise<{
     const items = await getMergedCatalogItems();
     // Distinct real store identities: every real Admitad merchant present in
     // the catalog counts individually, plus one per other live provider.
-    // Stub/seed rows can never appear here because the catalog is real data only.
+    // The catalog is merchant-breadth (see getCatalogItemsFromDatabase), so
+    // ALL real merchants are represented — no store is hidden by a dominant
+    // merchant flooding the discount-sorted slice.
     storeCount = countRealStoresFromCatalog(items);
-    productCount = items.length;
   } catch {
     // Catalog fetch failed — counts stay at 0. No fake fallback.
+  }
+
+  try {
+    // Products = the REAL catalog size across live providers (120K+), not the
+    // bounded in-memory feed that only carries a representative sample.
+    const { getRealCatalogProductCount } = await import(
+      "@/lib/integration/database-catalog"
+    );
+    productCount = await getRealCatalogProductCount();
+  } catch {
+    // Database count failed — product count stays at 0. No fake fallback.
   }
 
   let couponCount = 0;
@@ -279,6 +291,15 @@ export async function getHomepageStats(): Promise<{
     ],
   };
 }
+
+/** Homepage stats — cached with the catalog so the exact product/store counts
+ *  aren't recomputed (and the DB isn't hit) on every homepage render. */
+export const getHomepageStats = unstable_cache(
+  loadHomepageStats,
+  ["homepage:stats-v3"],
+  { revalidate: 300, tags: ["homepage-catalog"] },
+);
+
 /** Active stores for /stores page. */
 export async function getStoresForPage() {
   const { data, error } = await getStores();

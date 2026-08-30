@@ -33,15 +33,54 @@ export type FeedFetchOptions = {
   deadlineMs?: number;
 };
 
+/** Match a single element value, tolerating optional "g:" prefix, CDATA
+ *  wrappers, and whitespace/newlines inside the value (common in real feeds). */
+function extractTagValue(xml: string, tag: string): string | null {
+  const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const cdata = xml.match(
+    new RegExp(`<(?:g:)?${escaped}(?:[^>]*)>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*</(?:g:)?${escaped}>`),
+  );
+  if (cdata) return cdata[1].trim();
+  const plain = xml.match(
+    new RegExp(`<(?:g:)?${escaped}(?:[^>]*)>([^<]*)</(?:g:)?${escaped}>`),
+  );
+  if (plain) return plain[1].trim();
+  return null;
+}
+
 function extractTag(xml: string, tag: string): string | null {
-  // Try g: namespace first (Google Merchant format), then plain tag
-  const gTag = `g:${tag}`;
-  const gRegex = new RegExp(`<${gTag}>([^<]*)</${gTag}>`);
-  const gMatch = xml.match(gRegex);
-  if (gMatch) return gMatch[1].trim();
-  const regex = new RegExp(`<${tag}>([^<]*)</${tag}>`);
-  const match = xml.match(regex);
-  return match ? match[1].trim() : null;
+  // Try g: namespace first (Google Merchant format), then plain tag.
+  return extractTagValue(xml, `g:${tag}`) ?? extractTagValue(xml, tag);
+}
+
+/** Pull the first image URL out of a raw description's embedded <img>. */
+function imageFromDescription(description: string): string | null {
+  if (!description) return null;
+  const m = description.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return m ? m[1].trim() : null;
+}
+
+/**
+ * Extract a product image from a parsed offer element, trying every standard
+ * Admitad feed image tag: Google Merchant (image_link, additional_image_link),
+ * plain (image, picture, photo), then any <img> embedded in the description.
+ * Returns "" when the feed genuinely carries no image (never fabricates one).
+ */
+function extractOfferImage(xml: string, description: string): string {
+  const candidates = [
+    extractTag(xml, "image_link"),
+    extractTag(xml, "image"),
+    extractTag(xml, "picture"),
+    extractTag(xml, "photo"),
+    // Google's additional_image_link can carry several space-separated URLs —
+    // take the first one.
+    extractTag(xml, "additional_image_link")?.split(/\s+/)[0],
+    imageFromDescription(description),
+  ];
+  for (const c of candidates) {
+    if (c && /^https?:\/\//i.test(c)) return c;
+  }
+  return "";
 }
 
 function parsePriceValue(raw: string): number | null {
@@ -70,21 +109,20 @@ function parseOfferElement(xml: string): AdmitadFeedOffer | null {
     oldpriceStr = extractTag(xml, "oldprice");
     currencyId = extractTag(xml, "currencyId");
     url = extractTag(xml, "url");
-    // Feeds vary between <g:image>, <image>, <g:image_link> and <picture_link>.
-    image =
-      extractTag(xml, "image") ||
-      extractTag(xml, "image_link") ||
-      extractTag(xml, "picture_link");
     vendor = extractTag(xml, "vendor");
     description = extractTag(xml, "description");
     modified_time = extractTag(xml, "modified_time");
+    // Feeds vary between <g:image_link>, <image>, <picture>, <photo> and
+    // <g:additional_image_link> (see extractOfferImage). Recover the first
+    // real image the feed provides — never fabricate one.
+    image = extractOfferImage(xml, description ?? "");
   } else {
     id = extractTag(xml, "id");
     name = extractTag(xml, "title");
     priceStr = extractTag(xml, "price");
     url = extractTag(xml, "link");
-    image = extractTag(xml, "image_link");
     description = extractTag(xml, "description");
+    image = extractOfferImage(xml, description ?? "");
     const priceMatch = priceStr?.match(/([A-Z]{3})$/);
     currencyId = priceMatch ? priceMatch[1] : "USD";
   }
