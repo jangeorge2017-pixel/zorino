@@ -25,6 +25,7 @@ import {
   initializeMultiMerchantDiscovery,
   ADMITAD_FEEDS,
 } from "./config";
+import type { AdmitadMerchantProgram } from "./merchant-discovery";
 
 // ---------------------------------------------------------------------------
 // Feed XML streaming parser (reuses logic from feed-fetcher.ts)
@@ -540,6 +541,7 @@ async function runAdmitadIngestionLocked(
   };
   const allFeeds: FeedCandidate[] = [];
   const seenFeedUrls = new Set<string>();
+  let merchantPrograms: AdmitadMerchantProgram[] = [];
 
   const addCandidate = (candidate: FeedCandidate) => {
     if (!candidate.feedUrl || seenFeedUrls.has(candidate.feedUrl)) return;
@@ -549,11 +551,11 @@ async function runAdmitadIngestionLocked(
 
   try {
     const { getAdmitadPrograms } = await import("./merchant-discovery");
-    const programs = await getAdmitadPrograms();
+    merchantPrograms = await getAdmitadPrograms();
 
     // Breadth-first: one feed per merchant first, then extra multi-GEO feeds,
     // so a bounded maxFeeds budget covers as many distinct merchants as possible.
-    for (const p of programs) {
+    for (const p of merchantPrograms) {
       const urls = (p.feedUrls.length > 0 ? p.feedUrls : p.feedUrl ? [p.feedUrl] : [])
         .map((u) => u?.replace("http://", "https://"))
         .filter((u): u is string => Boolean(u));
@@ -567,7 +569,7 @@ async function runAdmitadIngestionLocked(
         });
       }
     }
-    for (const p of programs) {
+    for (const p of merchantPrograms) {
       const urls = (p.feedUrls.length > 0 ? p.feedUrls : p.feedUrl ? [p.feedUrl] : [])
         .map((u) => u?.replace("http://", "https://"))
         .filter((u): u is string => Boolean(u));
@@ -582,7 +584,7 @@ async function runAdmitadIngestionLocked(
       }
     }
     console.log(
-      `[admitad-ingest] registry supplied ${allFeeds.length} feeds from ${programs.length} active merchant programs`,
+      `[admitad-ingest] registry supplied ${allFeeds.length} feeds from ${merchantPrograms.length} active merchant programs`,
     );
   } catch (err) {
     result.errors.push(
@@ -713,6 +715,21 @@ async function runAdmitadIngestionLocked(
     result.errors.push(
       `DB save failed: ${err instanceof Error ? err.message : String(err)}`,
     );
+  }
+
+  // Surface each merchant that actually produced products as its own REAL
+  // `stores` row (name/site/geo/currency from the Admitad Publisher API).
+  // Runs independently so a store-sync hiccup never blocks the product save.
+  if (allItems.length > 0) {
+    try {
+      const { syncMerchantStores } = await import("./merchant-stores");
+      const merchantsSynced = await syncMerchantStores(allItems, merchantPrograms);
+      console.log(`[admitad-ingest] Synced ${merchantsSynced} real merchant stores`);
+    } catch (err) {
+      result.errors.push(
+        `Merchant store sync failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   return result;
