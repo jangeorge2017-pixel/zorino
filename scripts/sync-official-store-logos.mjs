@@ -9,6 +9,7 @@
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
+import { filterSvgMarkup } from "./lib/svg-allowlist.mjs";
 
 const root = process.cwd();
 const storesDir = path.join(root, "public", "stores");
@@ -69,10 +70,7 @@ async function fetchWikiCandidates(titles) {
 }
 
 function extractInnerSvg(svg) {
-  const cleaned = svg
-    .replace(/<\?xml[\s\S]*?\?>/i, "")
-    .replace(/<!DOCTYPE[\s\S]*?>/i, "")
-    .replace(/<!--[\s\S]*?-->/g, "");
+  const cleaned = filterSvgMarkup(svg);
   const m = cleaned.match(/<svg\b[^>]*>([\s\S]*)<\/svg>/i);
   if (!m) return { vb: [0, 0, 128, 128], inner: cleaned };
   const open = cleaned.match(/<svg\b([^>]*)>/i)?.[1] ?? "";

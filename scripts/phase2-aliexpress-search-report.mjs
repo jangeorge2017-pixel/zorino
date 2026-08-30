@@ -3,9 +3,9 @@
  * Prints search input → request → response summary → mapped products.
  * Does not print secrets.
  */
-import { createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { md5HexUtf8 } from "./lib/md5.mjs";
 
 function loadEnv() {
   const envPath = resolve(process.cwd(), ".env.local");
@@ -57,7 +57,7 @@ function sign(params, secret) {
   let base = secret;
   for (const key of sorted) base += key + params[key];
   base += secret;
-  return createHash("md5").update(base, "utf8").digest("hex").toUpperCase();
+  return md5HexUtf8(base).toUpperCase();
 }
 
 function extractProducts(productsNode) {
