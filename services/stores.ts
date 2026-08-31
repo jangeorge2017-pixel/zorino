@@ -77,7 +77,12 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
       .maybeSingle();
 
     if (error) return { data: null, error: error.message };
-    if (data) return { data: mapStore(data), error: null };
+    // A store page is only real if it maps to a real data-backed merchant.
+    // Stub/seed rows (walmart, temu, noon, best-buy, jumia, nike, foot-locker)
+    // and credential-less Amazon rows must not resolve to a store page.
+    if (data && isRealDataStore(data)) {
+      return { data: mapStore(data), error: null };
+    }
   }
 
   // Merchant rows (slug "admitad-<merchant>") are derived on the fly from the

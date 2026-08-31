@@ -292,6 +292,75 @@ async function getDatabaseProductDetail(productId: string): Promise<ProductDetai
   }
 }
 
+/**
+ * PDP for live Admitad feed products (`admitad-<campaignId>-<offerId>`).
+ *
+ * Homepage/deals/search surface live Admitad products with real merchant
+ * names, images, prices and URLs (fed through `fetchAdmitadFeedProducts`). The
+ * persisted `lowest_prices_today` rows for these can lag behind (empty images
+ * until the cron backfill patches them), so resolve first through the SAME
+ * canonical live-feed path the homepage uses — which carries the real
+ * merchant name, image, price and affiliate URL — and only fall back to the
+ * persisted row by `product_slug` when the feed is unavailable. Never
+ * fabricates data: every field comes from the real Admitad feed or a real DB row.
+ */
+async function getAdmitadLiveProductDetail(fullSlug: string): Promise<ProductDetail | null> {
+  try {
+    const { fetchAdmitadFeedProducts } = await import(
+      "@/lib/integrations/admitad/feed-fetcher"
+    );
+    const { normalizeAdmitadRaw } = await import("@/lib/search/normalization");
+    const { normalizeProductImageUrl, PRODUCT_IMAGE_PLACEHOLDER } = await import(
+      "@/lib/images/product-image"
+    );
+
+    const query = fullSlug.trim();
+    if (!query) return null;
+
+    const feeds = await fetchAdmitadFeedProducts();
+    for (const feed of feeds) {
+      for (const offer of feed.offers) {
+        if (`${feed.feedSlug}-${offer.id}` !== query) continue;
+        if (!offer.url || offer.price <= 0) return null;
+        const image = normalizeProductImageUrl(offer.image || "");
+        if (!image || image === PRODUCT_IMAGE_PLACEHOLDER) return null;
+
+        const listing = normalizeAdmitadRaw(
+          {
+            id: offer.id,
+            name: offer.name,
+            price: offer.price,
+            oldprice: offer.oldprice,
+            currencyId: offer.currencyId,
+            url: offer.url,
+            image,
+            vendor: offer.vendor,
+          },
+          feed.feedName,
+        );
+        if (!listing) return null;
+        // Campaign-qualified, prefix-free external id → final product id
+        // becomes `admitad-<campaignId>-<offerId>`, matching homepage/search.
+        listing.externalId = `${feed.feedSlug.replace(/^admitad-/, "")}-${offer.id}`;
+        return searchItemToProductDetail(rawListingToSearchItem(listing));
+      }
+    }
+
+    // Cold-feed fallback: resolve from the persisted canonical row by slug.
+    const { getDatabaseSearchItemByProductSlug } = await import(
+      "@/lib/integration/database-catalog"
+    );
+    const item = await getDatabaseSearchItemByProductSlug(query);
+    return item ? searchItemToProductDetail(item) : null;
+  } catch (error) {
+    console.error(
+      "[admitad-detail]",
+      error instanceof Error ? error.message : "Admitad product detail failed",
+    );
+    return null;
+  }
+}
+
 const cjDetailCache = new Map<
   string,
   { at: number; detail: Promise<ProductDetail | null> }
@@ -513,6 +582,12 @@ async function resolveMarketplaceProductDetailBase(
 
   if (providerId === "cjdropshipping") {
     return getCjProductDetail(externalId);
+  }
+
+  if (providerId === "admitad") {
+    // Full slug (`admitad-<campaignId>-<offerId>`) matches homepage/search ids
+    // and the persisted product_slug on lowest_prices_today.
+    return getAdmitadLiveProductDetail(trimmedId);
   }
 
   if (providerId === "aliexpress" || providerId === "unknown") {

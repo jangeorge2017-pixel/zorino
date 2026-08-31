@@ -16,14 +16,16 @@ const ICONS = {
   users: Users,
 } as const;
 
-/** Featured Stores strip — slugs that exist in the live stores table. */
+/**
+ * Featured Stores strip — only stores with a REAL, currently-active data
+ * source are advertised. Stub/seed identities (noon, nike, walmart, amazon
+ * without live credentials, …) are never linked, so the footer can never
+ * route a user to a fake/empty store.
+ */
 const FEATURED_STORES = [
-  { id: "amazon", slug: "amazon", name: "Amazon", logoSrc: "/stores/amazon.svg", initial: "a" },
   { id: "aliexpress", slug: "aliexpress", name: "AliExpress", logoSrc: "/stores/aliexpress.svg", initial: "AE" },
-  { id: "noon", slug: "noon", name: "Noon", logoSrc: "/stores/noon.svg", initial: "N" },
   { id: "ebay", slug: "ebay", name: "eBay", logoSrc: "/stores/ebay.svg", initial: "e" },
-  { id: "nike", slug: "nike", name: "Nike", logoSrc: "/stores/nike.svg", initial: "N" },
-  { id: "walmart", slug: "walmart", name: "Walmart", logoSrc: "/stores/walmart.svg", initial: "W" },
+  { id: "admitad", slug: "admitad", name: "Admitad", logoSrc: "/stores/alibaba.svg", initial: "Ad" },
   { id: "cjdropshipping", slug: "cjdropshipping", name: "CJdropshipping", logoSrc: "/stores/cjdropshipping.svg", initial: "CJ" },
 ] as const;
 

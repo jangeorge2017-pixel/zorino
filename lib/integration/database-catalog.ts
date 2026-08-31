@@ -429,3 +429,48 @@ export async function getDatabaseSearchItemByProductId(
   row.category_slug = productRows?.[0]?.category_slug ?? null;
   return rowToSearchResultItem(row);
 }
+
+/**
+ * Look up a single lowest_prices_today row by its Admitad product_slug
+ * (`admitad-<campaignId>-<offerId>`) and map it to a SearchResultItem.
+ * This is the persisted-row counterpart of the live `admitad-…` feed products,
+ * used as a fallback by the PDP resolver when the live feed cache is cold.
+ * Only real rows (real name + real image) are ever returned.
+ */
+export async function getDatabaseSearchItemByProductSlug(
+  productSlug: string,
+): Promise<SearchResultItem | null> {
+  const trimmed = productSlug.trim();
+  if (!trimmed) return null;
+
+  const supabase = createSupabaseAnonClient();
+  if (!supabase) return null;
+
+  const { data, error } = await db(supabase)
+    .from("lowest_prices_today")
+    .select(
+      "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
+    )
+    .eq("product_slug", trimmed)
+    .limit(1);
+
+  const row = (data as LowestPriceRow[] | null)?.[0];
+  if (
+    error ||
+    !row ||
+    !row.product_name ||
+    !row.image_url ||
+    normalizeProductImageUrl(row.image_url) === PRODUCT_IMAGE_PLACEHOLDER
+  ) {
+    return null;
+  }
+
+  const { data: productRows } = await db(supabase)
+    .from("products")
+    .select("id, category_slug")
+    .eq("id", row.product_id)
+    .limit(1);
+
+  row.category_slug = productRows?.[0]?.category_slug ?? null;
+  return rowToSearchResultItem(row);
+}
