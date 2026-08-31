@@ -2,7 +2,7 @@ import type { SearchResultItem } from "@/lib/data/homepage";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import type { ProductionProviderId } from "@/lib/integration/constants";
 import { getProviderStoreMeta, searchProviderToProductionId } from "@/lib/integration/provider-context";
-import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import { normalizeProductImageUrl, PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 
 /** Curated queries that feed homepage widgets from the same search engine as /search. */
@@ -100,6 +100,13 @@ export async function fetchCatalogFromSearchEngine(): Promise<NormalizedCatalogI
   for (const batch of batches) {
     for (const row of batch) {
       if (!row?.id || seen.has(row.id)) continue;
+      // Data-quality gate: only real, complete cards enter the homepage pool.
+      // Drop placeholder-image items, non-positive prices, and cards with no
+      // merchant/affiliate destination — mirroring the DB catalog rules.
+      const imageUrl = normalizeProductImageUrl(row.imageSrc);
+      if (imageUrl === PRODUCT_IMAGE_PLACEHOLDER) continue;
+      if (!row.price || row.price <= 0) continue;
+      if (!row.affiliateUrl) continue;
       seen.add(row.id);
       items.push(searchResultToCatalogItem(row));
     }

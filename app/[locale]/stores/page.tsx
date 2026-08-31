@@ -20,28 +20,10 @@ export async function generateMetadata({ params }: StoresPageProps) {
 }
 
 async function loadStores(): Promise<Store[]> {
-  const liveStores = await getStoresForPage();
-  if (liveStores.length > 0) {
-    // The store directory is intentionally market-agnostic: it shows the full
-    // set of active stores so no store is hidden behind a country/region gate.
-    // Affiliate/marketplace selection for a specific country happens deeper in
-    // the pipeline (store pages / checkout), not at the directory level.
-    return liveStores;
-  }
-  return [
-    {
-      id: "aliexpress",
-      name: "AliExpress",
-      slug: "aliexpress",
-      website: "https://www.aliexpress.com",
-      integrationType: "aliexpress",
-      commissionRate: 5,
-      supportedRegions: ["US", "GB", "DE", "FR", "ES", "IT", "AE", "SA", "EG"],
-      supportedCurrencies: ["USD", "EUR", "GBP", "AED", "SAR", "EGP"],
-      isActive: true,
-      logoInitial: "AE",
-    },
-  ];
+  // The store directory shows only real, data-backed merchants derived from
+  // the live system. When none resolve, the directory is empty — we never
+  // fabricate a store to make the page look populated.
+  return getStoresForPage();
 }
 
 export default async function StoresPage() {

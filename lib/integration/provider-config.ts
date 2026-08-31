@@ -6,6 +6,7 @@ import { isAliExpressConfigured } from "@/lib/integrations/aliexpress";
 import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 import { isIntegrationConfigured } from "@/lib/integration/credentials";
+import { isOxylabsConfigured } from "@/lib/integrations/oxylabs";
 import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
 import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshipping";
@@ -50,11 +51,14 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
       return createCJdropshippingProvider().isConfigured();
 
     // --- UNAVAILABLE in production (no credentials configured) ---
-    // These return false until valid API keys are added to Vercel.
+    // Amazon is only advertised as configured when a REAL Amazon data source is
+    // present: Amazon Creators API credentials OR the Oxylabs Amazon scraper.
+    // Without either there is no genuine Amazon product data, so Amazon must
+    // not be falsely reported as active/configured. Never fabricated.
     case "amazon":
-      return true; // Seed-link only — always available, no credentials needed
+      return isAmazonConfigured() || isOxylabsConfigured();
     case "amazon-eg":
-      return true; // Seed-link only — always available, no credentials needed
+      return isAmazonConfigured() || isOxylabsConfigured();
     case "walmart":
       return createWalmartProvider().isConfigured(); // Requires WALMART_API_KEY
     case "temu":
