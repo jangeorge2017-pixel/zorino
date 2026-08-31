@@ -258,6 +258,14 @@ export function normalizeOxylabsAmazonSearchResults(
 export function normalizeEbayRaw(raw: EbayRawProduct): RawProviderListing | null {
   if (!raw.itemId || !raw.title) return null;
 
+  // A real, resolvable eBay id always carries a numeric legacy segment. The
+  // Browse API search can emit a bare `v1` (version-marker only) for degraded
+  // items; such an id can never resolve to a product page, so reject it rather
+  // than surface a card that 404s. Composite ids like `v1|284393027916|0` keep
+  // their numeric component and pass through unchanged.
+  const hasNumericIdSegment = raw.itemId.split("|").some((seg) => /^\d{4,}$/.test(seg));
+  if (!hasNumericIdSegment) return null;
+
   const price = parseFloat(raw.price?.value ?? "0");
   if (!price || price <= 0) return null;
 
