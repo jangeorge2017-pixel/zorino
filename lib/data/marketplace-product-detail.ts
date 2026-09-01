@@ -7,7 +7,11 @@ import { normalizeEbayRaw } from "@/lib/search/normalization";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { SEARCH_PROVIDER_IDS } from "@/lib/search/types";
 import { marketplaceDisplayName } from "@/lib/search/price-comparison";
-import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
+import {
+  isValidProductDestinationUrl,
+  isAlibabaHostUrl,
+  resolveAlibabaProduct,
+} from "@/lib/affiliate/product-url";
 import { resolveStoreLogoSrc } from "@/lib/assets";
 import type { AdmitadFeedOffer } from "@/lib/integrations/admitad/types";
 import type { OxylabsAmazonMarketplaceKey } from "@/lib/integrations/oxylabs";
@@ -278,17 +282,33 @@ async function getEbayProductDetail(externalId: string): Promise<ProductDetail |
 }
 
 /**
+ * Whether a DB-sourced catalog item originates from the Alibaba program
+ * (through the Admitad "Alibaba WW" feed). Detected from the real store name /
+ * provider slug or a native Alibaba host in the stored destination URL.
+ */
+function isAlibabaSourcedRow(item: SearchResultItem): boolean {
+  const haystack = `${item.store || ""} ${item.storeSlug || ""} ${item.id || ""}`.toLowerCase();
+  if (haystack.includes("alibaba")) return true;
+  if (item.id?.toLowerCase().startsWith("admitad-")) return true;
+  return isAlibabaHostUrl(item.affiliateUrl);
+}
+
+/**
  * PDP for Admitad/DB-sourced catalog items (`db-<product_id>` ids).
  * Reads the lowest_prices_today row so homepage cards can open a real
  * product page with a working affiliate compare table.
  *
- * The persisted DB row may store only a merchant HOMEPAGE in
- * external_url/affiliate_url (e.g. https://www.alibaba.com/) instead of the
- * deep product link. NEVER expose a homepage as a Shop destination. Resolve the
- * deep product URL (1) by the canonical `product_slug`, then (2) by a
- * strong/exact live-feed product-title match — each live offer requires a real
- * product URL (isValidProductDestinationUrl), real image, and positive price.
- * If no real deep product URL can be proven, the offer is left unavailable.
+ * The persisted DB row may store only a merchant HOMEPAGE (e.g.
+ * https://www.alibaba.com/) or an opaque Admitad tracking URL in
+ * external_url/affiliate_url instead of the deep product link. NEVER expose
+ * either as a Shop destination.
+ *
+ * Alibaba rows resolve LIVE-FEED-FIRST: (1) by the canonical `product_slug`,
+ * then (2) by a strong/exact live-feed product-title match — each live offer
+ * requires a real Alibaba product URL, real image, and positive price. Only
+ * when the live feed yields nothing AND the stored URL is a natively-valid
+ * Alibaba product URL does the stored row become the destination. If no real
+ * deep product URL can be proven, the offer is left unavailable (returns null).
  */
 async function getDatabaseProductDetail(productId: string): Promise<ProductDetail | null> {
   try {
@@ -298,21 +318,33 @@ async function getDatabaseProductDetail(productId: string): Promise<ProductDetai
     const item = await getDatabaseSearchItemByProductId(productId);
     if (!item) return null;
 
-    if (!isValidProductDestinationUrl(item.affiliateUrl)) {
+    if (isAlibabaSourcedRow(item)) {
+      // LIVE-FEED-FIRST: prefer the real live Alibaba feed product.
       // 1) Canonical product_slug → live-feed exact offer match.
       const { getDatabaseProductSlug } = await import(
         "@/lib/integration/database-catalog"
       );
       const slug = await getDatabaseProductSlug(productId);
+      let live: ProductDetail | null = null;
       if (slug) {
-        const live = await getAdmitadLiveProductDetail(slug);
-        if (live) return live;
+        live = await getAdmitadLiveProductDetail(slug);
       }
       // 2) Strong/exact live-feed product-TITLE match (real URL/image/price).
-      const byTitle = await getAdmitadLiveProductDetailByTitle(item.name);
-      if (byTitle) return byTitle;
+      if (!live) {
+        live = await getAdmitadLiveProductDetailByTitle(item.name);
+      }
+
+      // LIVE-FEED-FIRST: live product preferred; else the stored row only when
+      // its URL is a natively-valid Alibaba product URL; else unavailable.
+      const decision = resolveAlibabaProduct(item.affiliateUrl, live !== null);
+      if (decision === "live") return live;
+      if (decision === "stored") return searchItemToProductDetail(item);
+      return null;
     }
 
+    // Non-Alibaba Admitad/DB rows keep the original behavior: use the stored
+    // URL when it is a real product destination, else leave unavailable.
+    if (!isValidProductDestinationUrl(item.affiliateUrl)) return null;
     return searchItemToProductDetail(item);
   } catch (error) {
     console.error(
