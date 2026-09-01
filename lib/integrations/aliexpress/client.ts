@@ -291,7 +291,9 @@ export class AliExpressAffiliateClient {
       aliexpress_affiliate_link_generate_response?: {
         resp_result?: {
           result?: {
-            promotion_links?: { source_value?: string; promotion_link?: string }[];
+            promotion_links?: 
+              | { source_value?: string; promotion_link?: string }[]
+              | { promotion_link?: { source_value?: string; promotion_link?: string }[] };
           };
         };
       };
@@ -301,9 +303,22 @@ export class AliExpressAffiliateClient {
       tracking_id: trackingId,
     });
 
-    const links =
-      batch.aliexpress_affiliate_link_generate_response?.resp_result?.result
-        ?.promotion_links ?? [];
+    let links = batch.aliexpress_affiliate_link_generate_response?.resp_result?.result
+      ?.promotion_links ?? [];
+
+    // Handle nested response structure: result.promotion_links.promotion_link[]
+    // The API sometimes nests the array inside a promotion_link property
+    if (links && !Array.isArray(links) && typeof links === 'object' && 'promotion_link' in links) {
+      links = (links as any).promotion_link ?? [];
+    }
+
+    if (!Array.isArray(links)) {
+      logAliExpress("generatePromotionLinks: unexpected response structure", {
+        linksType: typeof links,
+        linksValue: links,
+      });
+      return result;
+    }
 
     for (const link of links) {
       if (link.source_value && link.promotion_link) {
