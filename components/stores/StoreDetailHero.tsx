@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
 import { ArrowLeft, CheckCircle, ExternalLink, Tag } from "lucide-react";
+import { resolveStoreLogoSrc } from "@/lib/assets";
 import type { MockStoreDetail } from "@/lib/mock/types";
 
 type StoreDetailHeroProps = {
@@ -12,6 +13,7 @@ type StoreDetailHeroProps = {
 
 export default function StoreDetailHero({ detail }: StoreDetailHeroProps) {
   const { store, description, productCount, dealsCount, couponsCount } = detail;
+  const logoSrc = store.logoUrl || resolveStoreLogoSrc(store.slug);
 
   return (
     <section className="zor-stores-page__detail-hero" aria-labelledby="store-detail-title">
@@ -24,8 +26,8 @@ export default function StoreDetailHero({ detail }: StoreDetailHeroProps) {
       <div className="zor-stores-page__detail-inner">
         <div className="zor-stores-page__detail-brand">
           <div className="zor-stores-page__detail-logo">
-            {store.logoUrl ? (
-              <Image src={store.logoUrl} alt={store.name} fill className="zor-stores-page__card-logo-img" unoptimized />
+            {logoSrc ? (
+              <Image src={logoSrc} alt={store.name} fill className="zor-stores-page__card-logo-img" unoptimized />
             ) : (
               <span className="zor-stores-page__card-logo-fallback">{store.logoInitial}</span>
             )}

@@ -591,6 +591,7 @@
     "cheapest": "الأرخص",
     "bestDeal": "أفضل عرض",
     "shop": "تسوق",
+    "shopUnavailable": "غير متاح",
     "lowestPrice": "أقل سعر",
     "atStore": "في {store}",
     "highestDiscount": "أعلى خصم",
