@@ -49,6 +49,7 @@ html {
   width: 100%;
   overflow-x: clip;
   overflow-y: scroll;
+  scroll-behavior: smooth;
 }
 
 body {

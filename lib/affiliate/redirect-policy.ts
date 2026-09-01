@@ -1,4 +1,5 @@
 import { extractMarketplaceFromUrl } from "@/lib/affiliate/config";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 
 const BLOCKED_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 
@@ -109,6 +110,12 @@ export function isAllowedAffiliateDestination(
     const parsed = new URL(destinationUrl);
     if (!isSafeRedirectProtocol(parsed.protocol)) return false;
     if (isBlockedRedirectHost(parsed.hostname)) return false;
+    // Hard-stop: a merchant HOMEPAGE or bare marketplace root is never an
+    // acceptable affiliate destination — even for allowlisted hosts (e.g.
+    // https://www.alibaba.com/, https://www.alibaba.com/?..., and
+    // offer.alibaba.com/ with no product path). Only a real product-level URL
+    // may redirect. This also covers stores whose website is their homepage.
+    if (!isValidProductDestinationUrl(destinationUrl)) return false;
     if (isKnownMarketplaceDestination(destinationUrl)) return true;
     // Admitad goto/tracking links and Alibaba program destinations are valid,
     // already-tracked affiliate destinations.

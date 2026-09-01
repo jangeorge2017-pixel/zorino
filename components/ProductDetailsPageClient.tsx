@@ -68,22 +68,11 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
     });
   }, [product.id, product.countryCode]);
 
-  const handleScrollToComparePrices = () => {
-    if (typeof window === "undefined") return;
-    const section = document.getElementById("compare-prices");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-    // Fallback: query DOM broadly in case the section isn't found by id.
-    const fallback = document.querySelector("[data-compare-prices]") as HTMLElement | null;
-    fallback?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash === "#compare-prices") {
-      document.getElementById("compare-prices")?.scrollIntoView({ behavior: "smooth" });
-      handleScrollToComparePrices();
+      document
+        .getElementById("compare-prices")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, []);
 
@@ -212,14 +201,13 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
             </div>
 
             <div className="flex items-center gap-4 mb-8">
-              <button
-                type="button"
+              <a
+                href="#compare-prices"
                 className="deal-compare-btn flex-1 text-center"
-                onClick={handleScrollToComparePrices}
                 aria-label={t("comparePrices")}
               >
                 {t("comparePrices")}
-              </button>
+              </a>
               <Button
                 variant="outline"
                 aria-label={wishlisted ? tCommon("removeFromWishlist") : tCommon("addToWishlist")}
