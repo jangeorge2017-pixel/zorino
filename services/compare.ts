@@ -8,6 +8,7 @@ import {
   getLowestPrice,
 } from "@/services/prices";
 import type { Price, Product, ServiceResult } from "@/lib/types/entities";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 
 export type CompareOffer = Price & {
   provider?: string;
@@ -41,6 +42,42 @@ type ExternalPriceRow = {
   in_stock: boolean;
 };
 
+/**
+ * Convert external_prices row to CompareOffer shape.
+ * Only includes offers with valid product-destination URLs.
+ */
+function externalPriceToOffer(
+  external: ExternalPriceRow & { product_url?: string | null }
+): CompareOffer | null {
+  // Validate the product URL: must be a real product destination, not a homepage/landing page
+  if (!external.product_url || !isValidProductDestinationUrl(external.product_url)) {
+    return null;
+  }
+
+  const original = external.original_price ?? external.price;
+  const discountPercent =
+    original > external.price
+      ? Math.round(((original - external.price) / original) * 10000) / 100
+      : 0;
+
+  return {
+    id: `external-${external.external_id}`,
+    productId: "",
+    storeId: external.store_id,
+    price: external.price,
+    originalPrice: external.original_price ?? external.price,
+    currency: external.currency,
+    countryCode: external.country_code ?? undefined,
+    externalUrl: external.product_url,
+    externalProductId: external.external_id,
+    inStock: external.in_stock,
+    isCurrent: true,
+    recordedAt: new Date().toISOString(),
+    provider: external.provider,
+    discountPercent,
+  };
+}
+
 /** Compare prices across all imported sources for a single product. */
 export async function compareImportedProductPrices(
   productId: string,
@@ -59,6 +96,7 @@ export async function compareImportedProductPrices(
     (externalResult.data ?? []).map((row) => [row.store_id, row.provider])
   );
 
+  // Build offers from internal prices
   const offers: CompareOffer[] = pricesResult.data.map((price) => {
     const original = price.originalPrice ?? price.price;
     const discountPercent =
@@ -72,7 +110,31 @@ export async function compareImportedProductPrices(
     };
   });
 
-  if (offers.length === 0) {
+  // Add external provider offers (real, live data from multiple sources)
+  // Only include offers with validated product URLs
+  const externalOffers = (externalResult.data ?? [])
+    .map((ext) => externalPriceToOffer(ext as ExternalPriceRow & { product_url?: string | null }))
+    .filter((offer): offer is CompareOffer => offer !== null);
+
+  // Combine: external offers first (live, priority), then internal prices
+  // Deduplicate by external_id to avoid duplicate store listings
+  const offerMap = new Map<string, CompareOffer>();
+  for (const offer of externalOffers) {
+    if (offer.externalProductId) {
+      offerMap.set(`external-${offer.externalProductId}`, offer);
+    }
+  }
+  for (const offer of offers) {
+    // Only add internal prices if we don't already have an external offer from the same store
+    const storeKey = `store-${offer.storeId}`;
+    if (!offerMap.has(storeKey)) {
+      offerMap.set(storeKey, offer);
+    }
+  }
+
+  const mergedOffers = Array.from(offerMap.values());
+
+  if (mergedOffers.length === 0) {
     return {
       data: {
         product: productResult.data,
@@ -90,7 +152,7 @@ export async function compareImportedProductPrices(
     };
   }
 
-  const sorted = [...offers].sort((a, b) => a.price - b.price);
+  const sorted = [...mergedOffers].sort((a, b) => a.price - b.price);
   const lowest = sorted[0].price;
   const highest = sorted[sorted.length - 1].price;
   const maxDiscount = Math.max(...sorted.map((o) => o.discountPercent));
@@ -187,13 +249,13 @@ async function getProductById(id: string): Promise<ServiceResult<Product | null>
 async function getExternalPricesForProduct(
   productId: string,
   options?: { countryCode?: string; currency?: string }
-): Promise<ServiceResult<ExternalPriceRow[]>> {
+): Promise<ServiceResult<(ExternalPriceRow & { product_url?: string | null })[]>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) return { data: [], error: "Supabase not configured" };
 
   let query = supabase
     .from("external_prices")
-    .select("provider, store_id, external_id, canonical_product_id, price, original_price, currency, country_code, in_stock")
+    .select("provider, store_id, external_id, canonical_product_id, price, original_price, currency, country_code, in_stock, raw_payload")
     .eq("canonical_product_id", productId)
     .eq("is_current", true);
 
@@ -202,7 +264,20 @@ async function getExternalPricesForProduct(
 
   const { data, error } = await query;
   if (error) return { data: [], error: error.message };
-  return { data: (data ?? []) as ExternalPriceRow[], error: null };
+
+  // Extract product_url from raw_payload if available
+  const result = (data ?? []).map((row: any) => {
+    let product_url: string | null = null;
+    if (row.raw_payload && typeof row.raw_payload === 'object') {
+      product_url = row.raw_payload.product_url || row.raw_payload.productUrl || null;
+    }
+    return {
+      ...row,
+      product_url,
+    };
+  });
+
+  return { data: result as (ExternalPriceRow & { product_url?: string | null })[], error: null };
 }
 
 /** Re-export core price helpers used by product detail. */
