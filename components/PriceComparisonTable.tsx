@@ -5,6 +5,7 @@ import { ExternalLink, Tag, TrendingDown, Trophy, ChevronRight } from "lucide-re
 import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { CompareOffer } from "@/services/compare";
 
@@ -43,13 +44,17 @@ export default function PriceComparisonTable({
           {offers.map((offer) => {
             const storeName = offer.store?.name ?? tCommon("stores");
             const storeSlug = offer.store?.slug ?? offer.provider ?? "store";
-            const destination = offer.externalUrl ?? offer.store?.website ?? `/product/${productId}`;
-            const shopUrl = buildAffiliateRedirectPath({
-              productId,
-              storeSlug,
-              destinationUrl: destination,
-              source: "compare_table",
-            });
+            // NEVER fall back to a merchant homepage or an internal product path.
+            // Only a real product-level external URL is an acceptable Shop target.
+            const hasValidDestination = isValidProductDestinationUrl(offer.externalUrl);
+            const shopUrl = hasValidDestination
+              ? buildAffiliateRedirectPath({
+                  productId,
+                  storeSlug,
+                  destinationUrl: offer.externalUrl as string,
+                  source: "compare_table",
+                })
+              : null;
             return (
               <tr
                 key={offer.id}
@@ -105,16 +110,22 @@ export default function PriceComparisonTable({
                   </span>
                 </td>
                 <td>
-                  <a
-                    href={shopUrl}
-                    target="_blank"
-                    rel="noopener noreferrer sponsored"
-                    className="price-comparison-shop-link"
-                    onClick={() => onShopClick?.(storeName)}
-                  >
-                    {t("shop")}
-                    <ExternalLink size={12} />
-                  </a>
+                  {hasValidDestination && shopUrl ? (
+                    <a
+                      href={shopUrl}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      className="price-comparison-shop-link"
+                      onClick={() => onShopClick?.(storeName)}
+                    >
+                      {t("shop")}
+                      <ExternalLink size={12} />
+                    </a>
+                  ) : (
+                    <span className="price-comparison-unavailable">
+                      {t("shopUnavailable")}
+                    </span>
+                  )}
                 </td>
               </tr>
             );

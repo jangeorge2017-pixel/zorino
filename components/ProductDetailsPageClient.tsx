@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { ProductDetail } from "@/lib/data/product-detail";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { trackProductInteraction } from "@/lib/trending/track-client";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import { useWishlist } from "@/lib/wishlist/use-wishlist";
@@ -67,9 +68,22 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
     });
   }, [product.id, product.countryCode]);
 
+  const handleScrollToComparePrices = () => {
+    if (typeof window === "undefined") return;
+    const section = document.getElementById("compare-prices");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    // Fallback: query DOM broadly in case the section isn't found by id.
+    const fallback = document.querySelector("[data-compare-prices]") as HTMLElement | null;
+    fallback?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash === "#compare-prices") {
       document.getElementById("compare-prices")?.scrollIntoView({ behavior: "smooth" });
+      handleScrollToComparePrices();
     }
   }, []);
 
@@ -198,9 +212,14 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
             </div>
 
             <div className="flex items-center gap-4 mb-8">
-              <Link href="#compare-prices" className="deal-compare-btn flex-1 text-center">
+              <button
+                type="button"
+                className="deal-compare-btn flex-1 text-center"
+                onClick={handleScrollToComparePrices}
+                aria-label={t("comparePrices")}
+              >
                 {t("comparePrices")}
-              </Link>
+              </button>
               <Button
                 variant="outline"
                 aria-label={wishlisted ? tCommon("removeFromWishlist") : tCommon("addToWishlist")}
@@ -251,7 +270,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
           </div>
         </div>
 
-        <section id="compare-prices" className="mb-12 scroll-mt-24">
+        <section id="compare-prices" data-compare-prices className="mb-12 scroll-mt-24">
           <Card>
             <h2 className="text-2xl font-bold text-white mb-2">{t("comparePrices")}</h2>
             <p className="text-gray-400 text-sm mb-6">{t("comparePricesSubtitle")}</p>
@@ -264,12 +283,12 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                 onShopClick={(store) => trackClick(`product_compare_${store}`)}
               />
             )}
-            {cheapest?.externalUrl && (
+            {cheapest && isValidProductDestinationUrl(cheapest.externalUrl) && (
               <Link
                 href={buildAffiliateRedirectPath({
                   productId: product.id,
                   storeSlug: cheapest.store?.slug ?? cheapest.provider ?? "store",
-                  destinationUrl: cheapest.externalUrl,
+                  destinationUrl: cheapest.externalUrl as string,
                   source: "product_detail_cheapest",
                   countryCode: product.countryCode ?? "US",
                 })}

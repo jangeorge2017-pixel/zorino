@@ -4575,6 +4575,15 @@ img {
   color: #c4b5fd;
 }
 
+.price-comparison-unavailable {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 13px;
+}
+
 .product-detail-gallery.product-card-media {
   width: 100%;
   max-height: 420px;

@@ -304,6 +304,8 @@ function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
     reviewCount: 0,
     inStock: true,
     category,
+    currency: row.currency,
+    countryCode: row.country_code,
     affiliateUrl,
   };
 }
@@ -388,7 +390,33 @@ export async function getSearchResultsFromDatabase(
 }
 
 /**
- * Fetch a single lowest_prices_today row by its product_id (the id embedded in
+ * Read the Admitad `product_slug` (`admitad-<campaignId>-<offerId>`) for a
+ * `lowest_prices_today` product_id. Used by the PDP resolver to match a DB row
+ * to its live-feed offer so the real deep product/affiliate URL can be resolved
+ * even when the persisted row stored only a merchant homepage URL.
+ */
+export async function getDatabaseProductSlug(
+  productId: string,
+): Promise<string | null> {
+  const trimmed = productId.trim();
+  if (!trimmed) return null;
+
+  const supabase = createSupabaseAnonClient();
+  if (!supabase) return null;
+
+  const { data, error } = await db(supabase)
+    .from("lowest_prices_today")
+    .select("product_slug")
+    .eq("product_id", trimmed)
+    .limit(1);
+
+  if (error) return null;
+  const row = (data as { product_slug?: string | null }[] | null)?.[0];
+  return row?.product_slug?.trim() || null;
+}
+
+/**
+ * Read a single lowest_prices_today row by its product_id (the id embedded in
  * `db-<product_id>` catalog ids) and map it to a SearchResultItem.
  * Used by the marketplace PDP resolver for Admitad/DB-sourced products.
  */

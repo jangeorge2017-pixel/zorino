@@ -8,9 +8,7 @@ import {
   getIntegratedDeals,
   getIntegratedSectionProducts,
   getIntegratedTrendingDeals,
-  getMergedCatalogItems,
 } from "@/lib/integration/catalog-service";
-import { countRealStoresFromCatalog } from "@/lib/integration/real-stores";
 import { HOMEPAGE_LIVE_FETCH_ENABLED } from "@/lib/integration/homepage-fetch-profile";
 import { ZH_POPULAR_SEARCHES } from "@/lib/zorino-home/content";
 import {
@@ -246,15 +244,15 @@ async function loadHomepageStats(): Promise<{
   let productCount = 0;
 
   try {
-    const items = await getMergedCatalogItems();
-    // Distinct real store identities: every real Admitad merchant present in
-    // the catalog counts individually, plus one per other live provider.
-    // The catalog is merchant-breadth (see getCatalogItemsFromDatabase), so
-    // ALL real merchants are represented — no store is hidden by a dominant
-    // merchant flooding the discount-sorted slice.
-    storeCount = countRealStoresFromCatalog(items);
+    // Store count = the exact set of REAL data-backed stores that the /stores
+    // directory renders (live providers + real Admitad merchants with a
+    // discoverable program site). Deriving it from getStores() guarantees the
+    // hero/footer count always agrees with /stores and never counts provider
+    // registrations, seed rows, or unavailable providers. 0 on failure — no fake.
+    const { data: storeRows } = await getStores();
+    storeCount = storeRows?.length ?? 0;
   } catch {
-    // Catalog fetch failed — counts stay at 0. No fake fallback.
+    // Store fetch failed — count stays at 0. No fake fallback.
   }
 
   try {
@@ -337,6 +335,10 @@ export type SearchResultItem = {
   shipping?: string;
   inStock: boolean;
   category: string;
+  /** Real currency code for this listing (provider source). Defaults are never assumed here. */
+  currency?: string;
+  /** Real country code for this listing (provider source). */
+  countryCode?: string;
   /** Outbound affiliate or product URL (live marketplace results). */
   affiliateUrl?: string;
 };

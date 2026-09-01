@@ -7,6 +7,8 @@ import { normalizeEbayRaw } from "@/lib/search/normalization";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { SEARCH_PROVIDER_IDS } from "@/lib/search/types";
 import { marketplaceDisplayName } from "@/lib/search/price-comparison";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
+import { resolveStoreLogoSrc } from "@/lib/assets";
 import type { OxylabsAmazonMarketplaceKey } from "@/lib/integrations/oxylabs";
 
 const STORE_META: Record<string, Pick<Store, "id" | "name" | "slug" | "website" | "logoInitial">> = {
@@ -95,6 +97,8 @@ export function buildStore(slug: string, displayName?: string): Store {
       : "partner";
   return {
     ...meta,
+    // Canonical real store logo asset (only initials are a final fallback).
+    logoUrl: resolveStoreLogoSrc(meta.slug),
     integrationType,
     commissionRate: 0,
     supportedRegions: ["US"],
@@ -151,6 +155,8 @@ function rawListingToSearchItem(listing: RawProviderListing): SearchResultItem {
     shipping: listing.shipping,
     inStock: listing.inStock,
     category: listing.category,
+    currency: listing.currency,
+    countryCode: listing.countryCode,
     affiliateUrl: listing.affiliateUrl ?? listing.productUrl,
   };
 }
@@ -168,8 +174,8 @@ export function searchItemToProduct(item: SearchResultItem): Product {
     brand: item.store,
     rating: item.rating,
     reviewCount: item.salesCount ?? item.reviewCount,
-    currency: "USD",
-    countryCode: "US",
+    currency: item.currency ?? "",
+    countryCode: item.countryCode ?? null,
     inStock: item.inStock,
     tags: item.category ? [item.category] : [],
     isActive: true,
@@ -187,8 +193,8 @@ export function searchItemToCompareResult(item: SearchResultItem): CompareProduc
     storeId: store.id,
     price: item.price,
     originalPrice: item.originalPrice,
-    currency: "USD",
-    countryCode: "US",
+    currency: item.currency ?? (store.supportedCurrencies?.[0] ?? ""),
+    countryCode: item.countryCode ?? null,
     inStock: item.inStock,
     isCurrent: true,
     recordedAt: new Date().toISOString(),
@@ -235,7 +241,7 @@ export function searchItemToProductDetail(item: SearchResultItem): ProductDetail
         id: `ph-${item.id}`,
         productId: item.id,
         price: item.price,
-        currency: "USD",
+        currency: item.currency ?? "USD",
         recordedAt: new Date().toISOString(),
       },
     ],
@@ -282,6 +288,25 @@ async function getDatabaseProductDetail(productId: string): Promise<ProductDetai
     );
     const item = await getDatabaseSearchItemByProductId(productId);
     if (!item) return null;
+
+    // The persisted DB row may store only a merchant HOMEPAGE in
+    // external_url/affiliate_url (e.g. https://www.alibaba.com/) instead of the
+    // deep product link. Never send the user to a homepage. When the row lacks
+    // a real product-level URL, resolve the deep product/affiliate URL through
+    // the canonical live Admitad feed (matched by product_slug) so the Shop
+    // actions land on the exact product. If that fails, the (guard-fallback)
+    // offers surface as "Unavailable" rather than a misleading homepage link.
+    if (!isValidProductDestinationUrl(item.affiliateUrl)) {
+      const { getDatabaseProductSlug } = await import(
+        "@/lib/integration/database-catalog"
+      );
+      const slug = await getDatabaseProductSlug(productId);
+      if (slug) {
+        const live = await getAdmitadLiveProductDetail(slug);
+        if (live) return live;
+      }
+    }
+
     return searchItemToProductDetail(item);
   } catch (error) {
     console.error(

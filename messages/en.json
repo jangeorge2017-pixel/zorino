@@ -591,6 +591,7 @@
     "cheapest": "Cheapest",
     "bestDeal": "Best deal",
     "shop": "Shop",
+    "shopUnavailable": "Unavailable",
     "lowestPrice": "Lowest price",
     "atStore": "at {store}",
     "highestDiscount": "Highest discount",

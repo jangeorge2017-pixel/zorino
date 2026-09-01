@@ -91,6 +91,7 @@ export const STORE_LOGOS = {
   apple: "/stores/apple.svg",
   samsung: "/stores/samsung.svg",
   cjDropshipping: "/stores/cjdropshipping.svg",
+  alibaba: "/stores/alibaba.svg",
   default: "/stores/default.svg",
 } as const;
 
@@ -111,6 +112,9 @@ const STORE_LOGO_BY_SLUG: Record<string, string> = {
   apple: STORE_LOGOS.apple,
   samsung: STORE_LOGOS.samsung,
   cjdropshipping: STORE_LOGOS.cjDropshipping,
+  alibaba: STORE_LOGOS.alibaba,
+  admitad: STORE_LOGOS.alibaba,
+  "amazon-eg": STORE_LOGOS.amazon,
   default: STORE_LOGOS.default,
 };
 

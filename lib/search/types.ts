@@ -68,6 +68,8 @@ export type RawProviderListing = {
   inStock: boolean;
   productUrl: string;
   affiliateUrl?: string;
+  /** Real country code for this listing when the source provides one. */
+  countryCode?: string;
 };
 
 /** Provider-agnostic normalized listing used by ranking and deduplication. */
