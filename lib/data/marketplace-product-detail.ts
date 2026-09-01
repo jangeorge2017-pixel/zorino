@@ -318,6 +318,34 @@ async function getDatabaseProductDetail(productId: string): Promise<ProductDetai
 }
 
 /**
+ * Canonical database resolution for an internal ZORINO product id that carries
+ * no marketplace prefix (e.g. a raw UUID from lowest_prices_today.product_id).
+ *
+ * Reads the canonical SearchResultItem via getDatabaseSearchItemByProductId and
+ * only routes onward when that record PROVES a real provider (non-empty
+ * storeSlug). The canonical DB resolver then derives the real external product
+ * slug + product URL from the persisted row (live-feed fallback when the stored
+ * URL is a merchant homepage), so the internal UUID is NEVER sent to an
+ * external provider API. Returns null when no canonical record exists, so the
+ * caller keeps its safe fallback behavior.
+ */
+async function getCanonicalProductDetailFromDatabase(
+  rawId: string,
+): Promise<ProductDetail | null> {
+  try {
+    const { getDatabaseSearchItemByProductId } = await import(
+      "@/lib/integration/database-catalog"
+    );
+    const canonical = await getDatabaseSearchItemByProductId(rawId);
+    // No canonical record / no proof of provider → do NOT manufacture one.
+    if (!canonical || !canonical.storeSlug) return null;
+    return getDatabaseProductDetail(rawId);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * PDP for live Admitad feed products (`admitad-<campaignId>-<offerId>`).
  *
  * Homepage/deals/search surface live Admitad products with real merchant
@@ -615,16 +643,23 @@ async function resolveMarketplaceProductDetailBase(
     return getAdmitadLiveProductDetail(trimmedId);
   }
 
-  if (providerId === "aliexpress" || providerId === "unknown") {
-    const ae = await getAliExpressProductDetail(
-      providerId === "aliexpress" ? `aliexpress-${externalId}` : id,
-    );
-    if (ae) return ae;
-    if (providerId === "unknown") {
-      // Last resort: try eBay Browse for raw ids that look like Browse item ids
-      if (externalId.includes("|") || externalId.startsWith("v1")) {
-        return getEbayProductDetail(externalId);
-      }
+  if (providerId === "aliexpress") {
+    // Real AliExpress numeric product id — safe to call the API directly.
+    return getAliExpressProductDetail(`aliexpress-${externalId}`);
+  }
+
+  if (providerId === "unknown") {
+    // Internal ZORINO product id (a raw database UUID with no marketplace
+    // prefix). AliExpress productdetail.get requires the REAL external
+    // AliExpress numeric id and errors (407) when handed an internal UUID.
+    // Resolve the real provider + external identity through the canonical
+    // database catalog FIRST so an internal UUID is never forwarded to an
+    // external provider API.
+    const canonical = await getCanonicalProductDetailFromDatabase(trimmedId);
+    if (canonical) return canonical;
+    // Last resort: try eBay Browse for raw ids that look like Browse item ids.
+    if (externalId.includes("|") || externalId.startsWith("v1")) {
+      return getEbayProductDetail(externalId);
     }
     return null;
   }
