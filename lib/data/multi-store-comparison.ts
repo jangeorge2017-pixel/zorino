@@ -30,6 +30,32 @@ const MIN_TITLE_SIMILARITY = 0.55;
 const MIN_PRICE_RATIO = 0.33;
 const MAX_PRICE_RATIO = 3;
 const MAX_EXTRA_OFFERS = 4;
+// Cap how long enrichment waits for the search fan-out. The engine already
+// isolates per-provider failures (one provider 405/429 doesn't drop the ones
+// that succeeded), but a stalled provider must never block the compare section.
+const ENRICH_SEARCH_TIMEOUT_MS = 8_000;
+
+/**
+ * Run the unified search fan-out with a hard deadline. If a provider stalls and
+ * the whole fan-out exceeds the budget, resolve with [] so enrichment fails
+ * gracefully (returning the base result) instead of never settling.
+ */
+async function searchProductsWithinDeadline(
+  query: string,
+  limit: number,
+): Promise<SearchResultItem[]> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      searchProducts(query, limit),
+      new Promise<SearchResultItem[]>((resolve) => {
+        timer = setTimeout(() => resolve([]), ENRICH_SEARCH_TIMEOUT_MS);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 export function tokenizeTitle(name: string): string[] {
   return name
@@ -128,7 +154,7 @@ async function enrichCompareResultUncached(
 
   let candidates: SearchResultItem[];
   try {
-    candidates = await searchProducts(baseName, 12);
+    candidates = await searchProductsWithinDeadline(baseName, 12);
   } catch {
     return result;
   }

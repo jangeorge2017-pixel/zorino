@@ -10,6 +10,7 @@ import {
 } from "@/lib/affiliate/config";
 import { isAllowedAffiliateDestination } from "@/lib/affiliate/redirect-policy";
 import { ADMITAD_TRACKING_HOSTS } from "@/lib/affiliate/redirect-policy";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { affiliateRateLimiter, enforceRateLimit } from "@/lib/security/api-rate-limit";
 import { clampString } from "@/lib/security/input";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -37,6 +38,19 @@ export async function GET(request: Request) {
     new URL(destinationUrl);
   } catch {
     return NextResponse.json({ error: "Invalid destination URL" }, { status: 400 });
+  }
+
+  // Hard-stop homepage redirects: only a real product-level URL is an
+  // acceptable affiliate destination. This server-side guard applies even when
+  // somebody manually calls /api/affiliate/go — merchant homepages, bare "/"
+  // and bare marketplace roots (e.g. https://www.alibaba.com/,
+  // https://www.alibaba.com/?..., offer.alibaba.com/ with no product path) get
+  // a controlled 4xx instead of redirecting the user to the merchant homepage.
+  if (!isValidProductDestinationUrl(destinationUrl)) {
+    return NextResponse.json(
+      { error: "Merchant homepage URLs are not valid affiliate destinations" },
+      { status: 422 },
+    );
   }
 
   let storeWebsite: string | null = null;

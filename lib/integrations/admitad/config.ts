@@ -73,12 +73,22 @@ export async function getAllAdmitadFeeds(): Promise<AdmitadFeedConfig[]> {
   // Deduplicate by slug AND by feed URL.
   const seenSlugs = new Set<string>();
   const seenUrls = new Set<string>();
-  return discoveryFeeds.filter((feed) => {
+  const unique = discoveryFeeds.filter((feed) => {
     if (seenSlugs.has(feed.slug) || seenUrls.has(feed.feedUrl)) return false;
     seenSlugs.add(feed.slug);
     seenUrls.add(feed.feedUrl);
     return true;
   });
+
+  // Process Alibaba / "Alibaba WW" merchant programs FIRST. The live feed
+  // fetcher runs within a wall-clock deadline, so without this Alibaba could be
+  // skipped while other Admitad merchants consume the budget. Stable sort moves
+  // every Alibaba feed to the front while preserving all other merchants (and
+  // the relative order of remaining feeds) untouched.
+  const isAlibaba = (name: string) => /alibaba/i.test(name);
+  return unique.sort(
+    (a, b) => Number(isAlibaba(b.name)) - Number(isAlibaba(a.name)),
+  );
 }
 
 export const ADMITAD_FEEDS = feedUrl

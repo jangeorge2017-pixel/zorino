@@ -9,6 +9,7 @@ import { SEARCH_PROVIDER_IDS } from "@/lib/search/types";
 import { marketplaceDisplayName } from "@/lib/search/price-comparison";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { resolveStoreLogoSrc } from "@/lib/assets";
+import type { AdmitadFeedOffer } from "@/lib/integrations/admitad/types";
 import type { OxylabsAmazonMarketplaceKey } from "@/lib/integrations/oxylabs";
 
 const STORE_META: Record<string, Pick<Store, "id" | "name" | "slug" | "website" | "logoInitial">> = {
@@ -280,6 +281,14 @@ async function getEbayProductDetail(externalId: string): Promise<ProductDetail |
  * PDP for Admitad/DB-sourced catalog items (`db-<product_id>` ids).
  * Reads the lowest_prices_today row so homepage cards can open a real
  * product page with a working affiliate compare table.
+ *
+ * The persisted DB row may store only a merchant HOMEPAGE in
+ * external_url/affiliate_url (e.g. https://www.alibaba.com/) instead of the
+ * deep product link. NEVER expose a homepage as a Shop destination. Resolve the
+ * deep product URL (1) by the canonical `product_slug`, then (2) by a
+ * strong/exact live-feed product-title match — each live offer requires a real
+ * product URL (isValidProductDestinationUrl), real image, and positive price.
+ * If no real deep product URL can be proven, the offer is left unavailable.
  */
 async function getDatabaseProductDetail(productId: string): Promise<ProductDetail | null> {
   try {
@@ -289,14 +298,8 @@ async function getDatabaseProductDetail(productId: string): Promise<ProductDetai
     const item = await getDatabaseSearchItemByProductId(productId);
     if (!item) return null;
 
-    // The persisted DB row may store only a merchant HOMEPAGE in
-    // external_url/affiliate_url (e.g. https://www.alibaba.com/) instead of the
-    // deep product link. Never send the user to a homepage. When the row lacks
-    // a real product-level URL, resolve the deep product/affiliate URL through
-    // the canonical live Admitad feed (matched by product_slug) so the Shop
-    // actions land on the exact product. If that fails, the (guard-fallback)
-    // offers surface as "Unavailable" rather than a misleading homepage link.
     if (!isValidProductDestinationUrl(item.affiliateUrl)) {
+      // 1) Canonical product_slug → live-feed exact offer match.
       const { getDatabaseProductSlug } = await import(
         "@/lib/integration/database-catalog"
       );
@@ -305,6 +308,9 @@ async function getDatabaseProductDetail(productId: string): Promise<ProductDetai
         const live = await getAdmitadLiveProductDetail(slug);
         if (live) return live;
       }
+      // 2) Strong/exact live-feed product-TITLE match (real URL/image/price).
+      const byTitle = await getAdmitadLiveProductDetailByTitle(item.name);
+      if (byTitle) return byTitle;
     }
 
     return searchItemToProductDetail(item);
@@ -345,6 +351,64 @@ async function getCanonicalProductDetailFromDatabase(
   }
 }
 
+type AdmitadFeed = {
+  offers: AdmitadFeedOffer[];
+  feedName: string;
+  feedSlug: string;
+};
+
+/**
+ * Build a validated SearchResultItem from a live Admitad feed offer.
+ *
+ * Real-data-only: the offer is only returned when it has a positive price, a
+ * real (non-placeholder) image, and a real product-level URL (the URL MUST pass
+ * isValidProductDestinationUrl — a merchant homepage like https://www.alibaba.com/
+ * never qualifies). Never fabricates an Alibaba product id: the external id is
+ * the feed's real offer id, campaign-qualified to `admitad-<campaignId>-<offerId>`.
+ */
+async function buildAdmitadSearchItemFromFeed(
+  feed: AdmitadFeed,
+  offer: AdmitadFeedOffer,
+): Promise<SearchResultItem | null> {
+  if (!offer.url || offer.price <= 0) return null;
+  // NEVER surface a merchant homepage / bare marketplace root as a destination.
+  if (!isValidProductDestinationUrl(offer.url)) return null;
+
+  const { normalizeAdmitadRaw } = await import("@/lib/search/normalization");
+  const { normalizeProductImageUrl, PRODUCT_IMAGE_PLACEHOLDER } = await import(
+    "@/lib/images/product-image"
+  );
+  const image = normalizeProductImageUrl(offer.image || "");
+  if (!image || image === PRODUCT_IMAGE_PLACEHOLDER) return null;
+
+  const listing = normalizeAdmitadRaw(
+    {
+      id: offer.id,
+      name: offer.name,
+      price: offer.price,
+      oldprice: offer.oldprice,
+      currencyId: offer.currencyId,
+      url: offer.url,
+      image,
+      vendor: offer.vendor,
+    },
+    feed.feedName,
+  );
+  if (!listing) return null;
+  // Campaign-qualified, prefix-free external id → final product id
+  // becomes `admitad-<campaignId>-<offerId>`, matching homepage/search.
+  listing.externalId = `${feed.feedSlug.replace(/^admitad-/, "")}-${offer.id}`;
+  return rawListingToSearchItem(listing);
+}
+
+function normalizeTitleForMatch(raw: string): string {
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /**
  * PDP for live Admitad feed products (`admitad-<campaignId>-<offerId>`).
  *
@@ -359,43 +423,19 @@ async function getCanonicalProductDetailFromDatabase(
  */
 async function getAdmitadLiveProductDetail(fullSlug: string): Promise<ProductDetail | null> {
   try {
-    const { fetchAdmitadFeedProducts } = await import(
-      "@/lib/integrations/admitad/feed-fetcher"
-    );
-    const { normalizeAdmitadRaw } = await import("@/lib/search/normalization");
-    const { normalizeProductImageUrl, PRODUCT_IMAGE_PLACEHOLDER } = await import(
-      "@/lib/images/product-image"
-    );
-
     const query = fullSlug.trim();
     if (!query) return null;
 
+    const { fetchAdmitadFeedProducts } = await import(
+      "@/lib/integrations/admitad/feed-fetcher"
+    );
     const feeds = await fetchAdmitadFeedProducts();
     for (const feed of feeds) {
       for (const offer of feed.offers) {
         if (`${feed.feedSlug}-${offer.id}` !== query) continue;
-        if (!offer.url || offer.price <= 0) return null;
-        const image = normalizeProductImageUrl(offer.image || "");
-        if (!image || image === PRODUCT_IMAGE_PLACEHOLDER) return null;
-
-        const listing = normalizeAdmitadRaw(
-          {
-            id: offer.id,
-            name: offer.name,
-            price: offer.price,
-            oldprice: offer.oldprice,
-            currencyId: offer.currencyId,
-            url: offer.url,
-            image,
-            vendor: offer.vendor,
-          },
-          feed.feedName,
-        );
-        if (!listing) return null;
-        // Campaign-qualified, prefix-free external id → final product id
-        // becomes `admitad-<campaignId>-<offerId>`, matching homepage/search.
-        listing.externalId = `${feed.feedSlug.replace(/^admitad-/, "")}-${offer.id}`;
-        return searchItemToProductDetail(rawListingToSearchItem(listing));
+        const item = await buildAdmitadSearchItemFromFeed(feed, offer);
+        if (!item) return null;
+        return searchItemToProductDetail(item);
       }
     }
 
@@ -409,6 +449,52 @@ async function getAdmitadLiveProductDetail(fullSlug: string): Promise<ProductDet
     console.error(
       "[admitad-detail]",
       error instanceof Error ? error.message : "Admitad product detail failed",
+    );
+    return null;
+  }
+}
+
+/**
+ * Resolve a DB-sourced product's deep product URL by a strong/exact live-feed
+ * product-TITLE match (used when the canonical product_slug cannot be matched
+ * to a live feed). The matched live offer must have a real URL (passing
+ * isValidProductDestinationUrl), a real image, and a positive price. Never
+ * fabricates an id and never falls back to a merchant homepage.
+ */
+async function getAdmitadLiveProductDetailByTitle(
+  title: string,
+): Promise<ProductDetail | null> {
+  const query = normalizeTitleForMatch(title);
+  if (!query) return null;
+
+  try {
+    const { fetchAdmitadFeedProducts } = await import(
+      "@/lib/integrations/admitad/feed-fetcher"
+    );
+    const feeds = await fetchAdmitadFeedProducts();
+    for (const feed of feeds) {
+      for (const offer of feed.offers) {
+        const name = normalizeTitleForMatch(offer.name);
+        if (!name) continue;
+        // Strong/exact match: either the titles are equal, or one fully
+        // contains the other with enough distinctive length to avoid junk
+        // matches (accessories, unrelated items).
+        const exact = name === query;
+        const strong =
+          name.length >= 8 &&
+          query.length >= 8 &&
+          (name.includes(query) || query.includes(name));
+        if (!exact && !strong) continue;
+        const item = await buildAdmitadSearchItemFromFeed(feed, offer);
+        if (!item) continue;
+        return searchItemToProductDetail(item);
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error(
+      "[admitad-title-detail]",
+      error instanceof Error ? error.message : "Admitad title match failed",
     );
     return null;
   }
