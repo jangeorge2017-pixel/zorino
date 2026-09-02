@@ -7,6 +7,7 @@ import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import { formatRelativeTime } from "@/lib/homepage/format";
 import { LOWEST_PRICE_SORT_OPTIONS } from "@/lib/lowest-prices/config";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { trackProductInteraction } from "@/lib/trending/track-client";
 import type { LowestPriceSort, LowestPriceTodayItem } from "@/lib/types/entities";
 
@@ -88,16 +89,16 @@ export default function LowestPricesSection({
 
 function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
   const rawDestination = item.externalUrl || item.affiliateUrl || "";
-  const destination = rawDestination.startsWith("http")
-    ? rawDestination
-    : `https://${item.provider}.com`;
-  const shopUrl = buildAffiliateRedirectPath({
-    productId: item.productId,
-    storeSlug: item.provider,
-    destinationUrl: destination,
-    source: "lowest_prices_section",
-    countryCode: item.countryCode,
-  });
+  const destination = rawDestination.trim();
+  const shopUrl = isValidProductDestinationUrl(destination)
+    ? buildAffiliateRedirectPath({
+        productId: item.productId,
+        storeSlug: item.provider,
+        destinationUrl: destination,
+        source: "lowest_prices_section",
+        countryCode: item.countryCode,
+      })
+    : undefined;
   const tracked = useRef(false);
 
   useEffect(() => {
@@ -131,12 +132,9 @@ function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
       price={item.lowestPrice}
       originalPrice={item.originalPrice}
       discount={item.discountPercent}
-      rating={4.6}
-      reviewCount={1280}
       storeName={item.storeName}
       storeInitial={item.provider.charAt(0).toUpperCase()}
-      storesCompared={3}
-      shippingTime="2–4 days"
+      shippingTime=""
       isNewLow={item.isNewLow}
       updatedLabel={
         item.priceRecordedAt
@@ -144,7 +142,7 @@ function LowestPriceCard({ item }: { item: LowestPriceTodayItem }) {
           : undefined
       }
       shopHref={shopUrl}
-      shopExternal
+      shopExternal={Boolean(shopUrl)}
       onShopClick={handleShopClick}
     />
   );

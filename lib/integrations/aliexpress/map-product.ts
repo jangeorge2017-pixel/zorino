@@ -1,6 +1,9 @@
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { AliExpressOpenApiProduct } from "@/lib/integrations/aliexpress/open-api-types";
-import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
+import {
+  isValidAliExpressDestinationUrl,
+  resolveAliExpressProductDestination,
+} from "@/lib/affiliate/product-url";
 
 function upgradeImageUrl(url: string): string {
   if (!url) return url;
@@ -62,7 +65,7 @@ export function formatAliExpressShipping(raw: AliExpressRawProduct): string {
 
 /**
  * Map Open Platform raw product → ZORINO product fields.
- * Requires a usable image and price; affiliate URL may be filled later via link.generate.
+ * Requires a usable image, price, and API-provided product/deep-link URL.
  */
 export function mapAliExpressRawToOpenApiProduct(
   raw: AliExpressRawProduct,
@@ -86,17 +89,10 @@ export function mapAliExpressRawToOpenApiProduct(
 
   const rawPromotion = raw.promotion_link?.trim() ?? "";
   const rawDetail = raw.product_detail_url?.trim() ?? "";
-  const rawShop = raw.shop_url?.trim() ?? "";
-
-  // Only real AliExpress product/deep-link URLs qualify as the destination.
-  // The canonical item URL built from the real numeric product id is a valid
-  // product page; everything else must be an API-provided validated link.
-  const productUrl =
-    rawDetail && isValidAliExpressDestinationUrl(rawDetail)
-      ? rawDetail
-      : rawShop && isValidAliExpressDestinationUrl(rawShop)
-        ? rawShop
-        : `https://www.aliexpress.com/item/${productId}.html`;
+  // Only an API-provided, validated product/deep-link URL qualifies. Do not
+  // synthesize a destination from an id or use shop/search/category URLs.
+  const productUrl = resolveAliExpressProductDestination(rawDetail, rawPromotion) ?? "";
+  if (!productUrl) return null;
 
   const affiliateUrl =
     affiliateUrlOverride?.trim() && isValidAliExpressDestinationUrl(affiliateUrlOverride)

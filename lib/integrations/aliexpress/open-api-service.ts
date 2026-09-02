@@ -8,6 +8,7 @@ import type { AliExpressOpenApiProduct } from "@/lib/integrations/aliexpress/ope
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
 import { logAliExpress } from "@/lib/integrations/aliexpress/logger";
+import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
 
 export type AliExpressOpenApiSearchOptions = {
   limit?: number;
@@ -43,7 +44,7 @@ export async function attachOpenApiAffiliateLinks(
 
   const sourceUrls = products
     .map((p) => p.product_detail_url?.trim() || p.promotion_link?.trim() || "")
-    .filter(Boolean);
+    .filter(isValidAliExpressDestinationUrl);
 
   if (sourceUrls.length === 0) return products;
 
@@ -52,7 +53,7 @@ export async function attachOpenApiAffiliateLinks(
     return products.map((product) => {
       const source =
         product.product_detail_url?.trim() || product.promotion_link?.trim() || "";
-      const link = source ? generated.get(source) : undefined;
+      const link = isValidAliExpressDestinationUrl(source) ? generated.get(source) : undefined;
       if (link) {
         return { ...product, promotion_link: link };
       }

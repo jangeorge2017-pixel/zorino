@@ -37,6 +37,33 @@ export function mergeOffersDedupe<T>(
   return merged;
 }
 
+/**
+ * Return product ids that have offers at two or more distinct stores across
+ * both persisted price sources.  `external_prices` is not merely a cache of
+ * `prices`: a product can be comparable before an internal price row exists.
+ */
+export function collectComparableProductIds(
+  internalRows: Array<{ productId: string; storeId: string }>,
+  externalRows: Array<{ productId: string | null; storeId: string }>,
+  limit: number,
+): string[] {
+  const storesByProduct = new Map<string, Set<string>>();
+  const add = (productId: string | null, storeId: string) => {
+    if (!productId || !storeId) return;
+    const stores = storesByProduct.get(productId) ?? new Set<string>();
+    stores.add(storeId);
+    storesByProduct.set(productId, stores);
+  };
+
+  for (const row of internalRows) add(row.productId, row.storeId);
+  for (const row of externalRows) add(row.productId, row.storeId);
+
+  return [...storesByProduct]
+    .filter(([, stores]) => stores.size >= 2)
+    .map(([productId]) => productId)
+    .slice(0, limit);
+}
+
 export type CompareStats = {
   lowestPrice: number;
   highestPrice: number;
