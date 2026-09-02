@@ -244,15 +244,19 @@ async function loadHomepageStats(): Promise<{
   let productCount = 0;
 
   try {
-    // Store count = the exact set of REAL data-backed stores that the /stores
-    // directory renders (live providers + real Admitad merchants with a
-    // discoverable program site). Deriving it from getStores() guarantees the
-    // hero/footer count always agrees with /stores and never counts provider
-    // registrations, seed rows, or unavailable providers. 0 on failure — no fake.
-    const { data: storeRows } = await getStores();
-    storeCount = storeRows?.length ?? 0;
+    // Store count = the authoritative CONFIGURED production provider/store set
+    // (credentials present on Vercel). It is deliberately NOT derived from
+    // per-request runtime health or a live merchant scan, because both fluctuate
+    // when a provider times out — the exact symptom this count must never show.
+    // Configured providers are deterministic from env, so the hero/footer count
+    // stays stable and always reports the REAL number of configured active
+    // stores. 0 on failure — no fabrication, no hardcoded value.
+    const { getConfiguredProductionProviders } = await import(
+      "@/lib/integration/provider-config"
+    );
+    storeCount = (await getConfiguredProductionProviders()).length;
   } catch {
-    // Store fetch failed — count stays at 0. No fake fallback.
+    // Configured-provider fetch failed — count stays at 0. No fake fallback.
   }
 
   try {
