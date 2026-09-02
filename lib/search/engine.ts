@@ -38,6 +38,16 @@ const fairSearchCache = new Map<
 >();
 
 /**
+ * Hard per-provider budget inside the search fan-out. A slow or stalled
+ * connector (e.g. the Admitad feed can take up to ~25s on a cold cache) must
+ * never hold the search fan-out — and therefore the homepage catalog, which
+ * fans out 8 curated queries through this same engine — hostage. When a
+ * connector exceeds the budget its partial work is dropped and the fan-out
+ * settles with the faster providers' real results.
+ */
+const PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+
+/**
  * ZORINO Global Search Engine
  *
  * Pipeline: Provider Connectors (parallel) → per-marketplace Ranking →
@@ -123,11 +133,16 @@ async function fetchProvidersInParallel(
     connectors.map(async (connector) => {
       const started = Date.now();
       try {
-        const batch = await connector.search(query, {
-          minFetch: options?.minFetch ?? SEARCH_ENGINE_DEFAULTS.MIN_FETCH_COUNT,
-          targetFetch: options?.targetFetch ?? SEARCH_ENGINE_DEFAULTS.TARGET_FETCH_COUNT,
-          maxPages: options?.maxPages,
-        });
+        const batch = await Promise.race([
+          connector.search(query, {
+            minFetch: options?.minFetch ?? SEARCH_ENGINE_DEFAULTS.MIN_FETCH_COUNT,
+            targetFetch: options?.targetFetch ?? SEARCH_ENGINE_DEFAULTS.TARGET_FETCH_COUNT,
+            maxPages: options?.maxPages,
+          }),
+          new Promise<RawProviderListing[]>((resolve) =>
+            setTimeout(() => resolve([]), PROVIDER_FETCH_TIMEOUT_MS),
+          ),
+        ]);
         allRaw.push(...batch);
         recordProviderRun(connector.id, batch.length);
         providerStats.push({

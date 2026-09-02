@@ -31,6 +31,14 @@ const STUB_CATALOG_PROVIDERS = new Set([
 /** How long a merged live-catalog snapshot stays fresh (seconds). */
 const CATALOG_REVALIDATE_SECONDS = 5 * 60;
 
+/**
+ * Hard budget for the direct Admitad feed fetch on the homepage catalog path.
+ * The feed can legitimately take ~25s on a cold cache; bounding it here keeps
+ * the initial homepage response fast (the feed drops out gracefully and the
+ * catalog resolves from the search fan-out + persisted DB Admitad rows).
+ */
+const ADMITAD_FEED_CATALOG_BUDGET_MS = 5_000;
+
 /** Normalise a product title for deduplication across live search and database. */
 function normalizeTitle(title: string): string {
   return title
@@ -67,14 +75,15 @@ const loadMergedCatalogItems = unstable_cache(
         fetchCatalogFromSearchEngine().catch(() => [] as NormalizedCatalogItem[]),
         getCatalogItemsFromDatabase().catch(() => [] as NormalizedCatalogItem[]),
         getIngestedCatalogItems().catch(() => [] as NormalizedCatalogItem[]),
-        // Pre-warm Admitad feed cache so the search connector activates.
-        // Pass the broader feed defaults (all real merchant programs within
-        // the deadline) so every real merchant surfaces with real images on
-        // the live path — not just the first few feeds.
+        // Pre-warm Admitad feed cache so the search connector activates. This
+        // must NEVER hold the homepage hostage: the direct feed fetch is raced
+        // against a short budget so a cold/slow Admitad feed (~25s) cannot block
+        // the initial catalog response. Admitad products remain present via the
+        // search fan-out's Admitad connector and the persisted DB catalog.
         Promise.race([
-          import("@/lib/integrations/admitad/feed-fetcher").then((m) => m.fetchAdmitadFeedProducts({ maxFeeds: 20, maxProductsPerFeed: 300, deadlineMs: 25_000 })),
+          import("@/lib/integrations/admitad/feed-fetcher").then((m) => m.fetchAdmitadFeedProducts({ maxFeeds: 20, maxProductsPerFeed: 300, deadlineMs: ADMITAD_FEED_CATALOG_BUDGET_MS })),
           new Promise<{ offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]>((resolve) =>
-            setTimeout(() => resolve([]), 30_000),
+            setTimeout(() => resolve([]), ADMITAD_FEED_CATALOG_BUDGET_MS + 1_000),
           ),
         ])
           .then((feeds) => feeds ?? [])

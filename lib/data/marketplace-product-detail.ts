@@ -461,7 +461,7 @@ async function getAdmitadLiveProductDetail(fullSlug: string): Promise<ProductDet
     const { fetchAdmitadFeedProducts } = await import(
       "@/lib/integrations/admitad/feed-fetcher"
     );
-    const feeds = await fetchAdmitadFeedProducts();
+    const feeds = await fetchAdmitadFeedProducts({ deadlineMs: 8_000 });
     for (const feed of feeds) {
       for (const offer of feed.offers) {
         if (`${feed.feedSlug}-${offer.id}` !== query) continue;
@@ -503,7 +503,7 @@ async function getAdmitadLiveProductDetailByTitle(
     const { fetchAdmitadFeedProducts } = await import(
       "@/lib/integrations/admitad/feed-fetcher"
     );
-    const feeds = await fetchAdmitadFeedProducts();
+    const feeds = await fetchAdmitadFeedProducts({ deadlineMs: 8_000 });
     for (const feed of feeds) {
       for (const offer of feed.offers) {
         const name = normalizeTitleForMatch(offer.name);

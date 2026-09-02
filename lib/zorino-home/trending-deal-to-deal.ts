@@ -49,7 +49,9 @@ export function trendingDealToDeal(
       inStock: true,
       tags: [],
       isActive: true,
+      affiliateUrl: card.affiliateUrl ?? null,
     },
+    affiliateUrl: card.affiliateUrl ?? null,
     store: {
       id: card.store.toLowerCase().replace(/\s+/g, "-"),
       name: card.store,
