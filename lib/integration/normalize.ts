@@ -1,4 +1,5 @@
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import { resolveProductDestination } from "@/lib/affiliate/product-url";
 import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
 import type { ProductionProviderId } from "@/lib/integration/constants";
 import { getProviderStoreMeta } from "@/lib/integration/provider-context";
@@ -8,6 +9,11 @@ import type { Deal, Product, Store, TrendingDealCard } from "@/lib/types/entitie
 export function computeDiscountPercent(price: number, originalPrice: number): number {
   if (originalPrice <= 0 || price >= originalPrice) return 0;
   return Math.round(((originalPrice - price) / originalPrice) * 100);
+}
+
+/** Pick the first real merchant product-level destination from an offer. */
+function offerDestination(offer?: ProviderOffer): string | null {
+  return resolveProductDestination(offer?.affiliateUrl, offer?.productUrl);
 }
 
 function storeForProvider(providerId: ProductionProviderId): Store {
@@ -113,6 +119,7 @@ export function catalogItemToTrendingDealCard(
         ? [item.originalPrice, item.price]
         : [item.price],
     badge: item.discount >= 20 ? "hot" : item.discount > 0 ? "price_drop" : undefined,
+    affiliateUrl: offerDestination(bestOffer),
   };
 }
 
@@ -153,6 +160,7 @@ export function catalogItemToDeal(item: NormalizedCatalogItem, index = 0): Deal 
     inStock: bestOffer?.inStock ?? true,
     tags: item.providerIds,
     isActive: true,
+    affiliateUrl: offerDestination(bestOffer),
   };
 
   return {
@@ -173,6 +181,7 @@ export function catalogItemToDeal(item: NormalizedCatalogItem, index = 0): Deal 
     endsAt,
     product,
     store,
+    affiliateUrl: offerDestination(bestOffer),
   };
 }
 

@@ -95,6 +95,8 @@ export interface Product {
   tags: string[];
   isActive: boolean;
   lastSyncedAt?: string | null;
+  /** Real merchant product/affiliate destination, when one exists. */
+  affiliateUrl?: string | null;
 }
 
 export interface Price {
@@ -146,6 +148,8 @@ export interface Deal {
   endsAt: string;
   product?: Product;
   store?: Store;
+  /** Real merchant product/affiliate destination, when one exists. */
+  affiliateUrl?: string | null;
 }
 
 export interface Coupon {
@@ -249,6 +253,8 @@ export interface TrendingDealCard {
   badge?: TrendingBadge | null;
   providerCount?: number;
   rankingScore?: number;
+  /** Real merchant product/affiliate destination, when one exists. */
+  affiliateUrl?: string | null;
 }
 
 export type TrendingRankingType =

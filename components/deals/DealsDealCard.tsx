@@ -30,6 +30,7 @@ export default function DealsDealCard({
           reviewCount: deal.product?.reviewCount ?? undefined,
           store: deal.store?.name ?? undefined,
           storeSlug: deal.store?.slug ?? undefined,
+          affiliateUrl: deal.product?.affiliateUrl ?? deal.affiliateUrl ?? undefined,
         }}
         showWishlist
         featuredLabel={deal.isFeatured ? featuredLabel : undefined}

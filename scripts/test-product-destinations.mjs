@@ -63,3 +63,32 @@ test("discovers products comparable solely through external_prices", () => {
     ["internal-and-external", "external-only"],
   );
 });
+
+test("shop-now: a real merchant product URL passes through as the destination", () => {
+  const destination = productUrl.resolveProductDestination(
+    "https://www.aliexpress.com/",
+    "https://www.aliexpress.com/item/1005001234567890.html",
+    "https://s.click.aliexpress.com/e/_abc123",
+  );
+  assert.equal(destination, "https://www.aliexpress.com/item/1005001234567890.html");
+  assert.equal(productUrl.isValidProductDestinationUrl(destination), true);
+});
+
+test("shop-now: a bare merchant homepage never becomes a Shop destination", () => {
+  assert.equal(
+    productUrl.resolveProductDestination(
+      "https://www.aliexpress.com/",
+      "https://www.alibaba.com/",
+      "https://s.click.aliexpress.com/w/wholesale.html",
+    ),
+    null,
+  );
+  assert.equal(productUrl.isValidProductDestinationUrl("https://www.aliexpress.com/"), false);
+});
+
+test("shop-now: Admitad tracking deep links are real product destinations", () => {
+  assert.equal(
+    productUrl.isValidProductDestinationUrl("https://ad.admitad.com/g/abc123def456/"),
+    true,
+  );
+});
