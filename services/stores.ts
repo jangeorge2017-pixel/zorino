@@ -36,8 +36,10 @@ export async function getStores(options?: {
   // Directory shows only stores that actually have (or produce) real product
   // data. Seed/static/stub rows (walmart, temu, noon, best-buy, jumia, nike,
   // foot-locker, …) and credential-less Amazon rows are never advertised.
-  const rows = ((data as StoreRow[] | null) ?? []).filter((row) => {
-    if (!isRealDataStore(row)) return false;
+  const allRows = (data as StoreRow[] | null) ?? [];
+  const realFlags = await Promise.all(allRows.map((row) => isRealDataStore(row)));
+  const rows = allRows.filter((row, index) => {
+    if (!realFlags[index]) return false;
     if (options?.integrationType && row.integration_type !== options.integrationType) {
       return false;
     }
@@ -80,7 +82,7 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
     // A store page is only real if it maps to a real data-backed merchant.
     // Stub/seed rows (walmart, temu, noon, best-buy, jumia, nike, foot-locker)
     // and credential-less Amazon rows must not resolve to a store page.
-    if (data && isRealDataStore(data)) {
+    if (data && (await isRealDataStore(data))) {
       return { data: mapStore(data), error: null };
     }
   }

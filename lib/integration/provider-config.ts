@@ -7,6 +7,7 @@ import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 import { isIntegrationConfigured } from "@/lib/integration/credentials";
 import { isOxylabsConfigured } from "@/lib/integrations/oxylabs";
+import { isProviderLive } from "@/lib/integration/provider-health";
 import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
 import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshipping";
@@ -77,4 +78,59 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
 
 export function getConfiguredProductionProviders(): ProductionProviderId[] {
   return PRODUCTION_PROVIDER_IDS.filter(isProductionProviderConfigured);
+}
+
+/**
+ * Runtime health + durable evidence gates for provider ACTIVATION.
+ *
+ * "Configured" only means credentials exist. A provider is ACTIVATED (allowed
+ * to appear in search/homepage and counted in stats/UI) only when it also
+ * passes at least one of:
+ *   1. durable DB evidence of real product rows (provider-evidence), or
+ *   2. recent successful runtime runs through the search engine
+ *      (provider-health, recorded on every fan-out).
+ *
+ * This is the synchronous form (runtime health only) — usable where a DB
+ * round-trip cannot be awaited (e.g. per-row store filtering).
+ */
+export function isProductionProviderActive(providerId: ProductionProviderId): boolean {
+  if (!isProductionProviderConfigured(providerId)) return false;
+  return isProviderLive(providerId) || hasLoadedEvidenceFor(providerId);
+}
+
+/** Evidence snapshot loaded via refreshProviderEvidence(). */
+let loadedEvidenceIds: ReadonlySet<ProductionProviderId> | null = null;
+
+/** (Re)load the durable DB evidence snapshot (called by page/engine entry). */
+export async function refreshProviderEvidence(): Promise<void> {
+  try {
+    const { hasProviderEvidence } = await import(
+      "@/lib/integration/provider-evidence"
+    );
+    const result = new Set<ProductionProviderId>();
+    for (const providerId of PRODUCTION_PROVIDER_IDS) {
+      if (await hasProviderEvidence(providerId)) result.add(providerId);
+    }
+    loadedEvidenceIds = result;
+  } catch {
+    loadedEvidenceIds = null;
+  }
+}
+
+function hasLoadedEvidenceFor(providerId: ProductionProviderId): boolean {
+  return loadedEvidenceIds?.has(providerId) ?? false;
+}
+
+/**
+ * Active providers = configured AND (durable DB evidence OR recent live runs).
+ * Async form — refreshes the DB evidence snapshot first (cached, cheap).
+ */
+export async function getActiveProductionProviders(): Promise<ProductionProviderId[]> {
+  await refreshProviderEvidence();
+  return PRODUCTION_PROVIDER_IDS.filter(isProductionProviderActive);
+}
+
+/** Only for tests. */
+export function resetProviderEvidenceForTests(): void {
+  loadedEvidenceIds = null;
 }

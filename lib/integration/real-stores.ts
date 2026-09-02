@@ -14,7 +14,7 @@
  */
 
 import type { ProductionProviderId } from "@/lib/integration/constants";
-import { isProductionProviderConfigured } from "@/lib/integration/provider-config";
+import { isProductionProviderActive } from "@/lib/integration/provider-config";
 import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import type { StoreRow } from "@/lib/database/types";
@@ -40,10 +40,15 @@ function isAdmitadMerchantRow(slug: string): boolean {
  * Whether a `stores` row represents a real store that has (or can produce)
  * real product data. Used to filter the /stores directory and any count that
  * derives from the `stores` table.
+ *
+ * Provider rows are REAL only while the provider is ACTIVATED — credentials
+ * PLUS durable DB evidence of real product rows OR recent successful live runs
+ * (see provider-config / provider-evidence / provider-health). A configured-
+ * but-never-produced provider cannot advertise a store.
  */
-export function isRealDataStore(
+export async function isRealDataStore(
   row: Pick<StoreRow, "slug" | "integration_type">,
-): boolean {
+): Promise<boolean> {
   const slug = row.slug;
 
   if (isAdmitadMerchantRow(slug)) {
@@ -51,7 +56,7 @@ export function isRealDataStore(
   }
 
   if (LIVE_DATA_STORE_SLUGS.has(slug)) {
-    return isProductionProviderConfigured(slug as ProductionProviderId);
+    return isProductionProviderActive(slug as ProductionProviderId);
   }
 
   if (slug === "amazon" || slug === "amazon-eg") {

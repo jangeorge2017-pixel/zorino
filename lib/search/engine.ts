@@ -1,5 +1,6 @@
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
-import { getConfiguredProductionProviders } from "@/lib/integration/provider-config";
+import { getActiveProductionProviders } from "@/lib/integration/provider-config";
+import { recordProviderRun } from "@/lib/integration/provider-health";
 import { getActiveSearchConnectors } from "@/lib/search/connectors/registry";
 import {
   buildSearchCacheKey,
@@ -128,6 +129,7 @@ async function fetchProvidersInParallel(
           maxPages: options?.maxPages,
         });
         allRaw.push(...batch);
+        recordProviderRun(connector.id, batch.length);
         providerStats.push({
           providerId: connector.id,
           fetched: batch.length,
@@ -135,6 +137,7 @@ async function fetchProvidersInParallel(
           durationMs: Date.now() - started,
         });
       } catch (err) {
+        recordProviderRun(connector.id, 0);
         providerStats.push({
           providerId: connector.id,
           fetched: 0,
@@ -181,10 +184,11 @@ export async function searchProducts(
   ]);
 
   // Filter DB results: only products whose provider is ACTIVE may enter
-  // the unified catalog.  Closes the DB bypass where inactive/stub
-  // providers could leak products through getSearchResultsFromDatabase()
-  // without passing isAvailable().
-  const activeProviders = new Set(getConfiguredProductionProviders());
+  // the unified catalog. Active = credentials + durable DB evidence or recent
+  // successful live runs. Closes the DB bypass where inactive/stub providers
+  // could leak products through getSearchResultsFromDatabase() without passing
+  // isAvailable() or producing any real data.
+  const activeProviders = new Set(await getActiveProductionProviders());
   const activeDb = fromDb.filter((item) =>
     activeProviders.has(item.storeSlug as never),
   );

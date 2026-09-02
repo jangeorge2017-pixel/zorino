@@ -1,7 +1,7 @@
-import { computeSavingsPercent } from "@/lib/marketplace-engine/utils";
-import { mapProduct } from "@/lib/database/mappers";
-import type { ProductRow } from "@/lib/database/types";
+import { mapProduct, mapStore } from "@/lib/database/mappers";
+import type { ProductRow, StoreRow } from "@/lib/database/types";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
+import { computeCompareStats, mergeOffersDedupe } from "@/lib/compare/merge";
 import {
   compareProductPrices,
   getCurrentPricesForProduct,
@@ -39,7 +39,28 @@ type ExternalPriceRow = {
   currency: string;
   country_code: string | null;
   in_stock: boolean;
+  recorded_at: string;
+  stores: StoreRow | null;
+  external_products: {
+    product_url: string | null;
+    affiliate_url: string | null;
+  } | null;
 };
+
+function emptyCompareResult(product: Product): CompareProductResult {
+  return {
+    product,
+    offers: [],
+    lowestPrice: 0,
+    highestPrice: 0,
+    highestDiscount: 0,
+    savingsVsHighest: 0,
+    savingsPercent: 0,
+    providerCount: 0,
+    cheapestStoreName: "",
+    highestDiscountStoreName: "",
+  };
+}
 
 /** Compare prices across all imported sources for a single product. */
 export async function compareImportedProductPrices(
@@ -59,7 +80,8 @@ export async function compareImportedProductPrices(
     (externalResult.data ?? []).map((row) => [row.store_id, row.provider])
   );
 
-  const offers: CompareOffer[] = pricesResult.data.map((price) => {
+  // Internal offers: per-store current price rows from the `prices` table.
+  const internalOffers: CompareOffer[] = pricesResult.data.map((price) => {
     const original = price.originalPrice ?? price.price;
     const discountPercent =
       original > price.price
@@ -72,50 +94,85 @@ export async function compareImportedProductPrices(
     };
   });
 
-  if (offers.length === 0) {
-    return {
-      data: {
-        product: productResult.data,
-        offers: [],
-        lowestPrice: 0,
-        highestPrice: 0,
-        highestDiscount: 0,
-        savingsVsHighest: 0,
-        savingsPercent: 0,
-        providerCount: 0,
-        cheapestStoreName: "",
-        highestDiscountStoreName: "",
-      },
-      error: null,
-    };
-  }
+  // External offers: REAL provider price snapshots from `external_prices`,
+  // keyed to the canonical product via canonical_product_id. These were fetched
+  // but never merged into the final CompareOffer[] — include them now so Compare
+  // Prices shows every valid real store/offer, not just internal price rows.
+  const externalOffers: CompareOffer[] = (externalResult.data ?? [])
+    .filter((row) => row.price > 0 && Boolean(row.store_id))
+    .map((row) => {
+      const original =
+        row.original_price != null && row.original_price > row.price
+          ? row.original_price
+          : row.price;
+      const discountPercent =
+        original > row.price
+          ? Math.round(((original - row.price) / original) * 10000) / 100
+          : 0;
+      const store = row.stores ? mapStore(row.stores) : undefined;
+      const externalUrl =
+        row.external_products?.affiliate_url?.trim() ||
+        row.external_products?.product_url?.trim() ||
+        null;
+      return {
+        id: `ext-${row.provider}-${row.store_id}-${row.external_id}`,
+        productId,
+        storeId: row.store_id,
+        price: row.price,
+        originalPrice: original || null,
+        currency: row.currency,
+        countryCode: row.country_code,
+        externalUrl,
+        externalProductId: row.external_id,
+        inStock: row.in_stock,
+        isCurrent: true,
+        recordedAt: row.recorded_at,
+        store,
+        provider: row.provider,
+        discountPercent,
+      };
+    });
 
-  const sorted = [...offers].sort((a, b) => a.price - b.price);
-  const lowest = sorted[0].price;
-  const highest = sorted[sorted.length - 1].price;
-  const maxDiscount = Math.max(...sorted.map((o) => o.discountPercent));
-  const highestDiscountOffer = sorted.reduce((best, o) =>
-    o.discountPercent > best.discountPercent ? o : best
+  // Merge both real sources, one offer per store (internal rows win).
+  const merged = mergeOffersDedupe(
+    internalOffers,
+    externalOffers,
+    (offer) => offer.storeId,
   );
 
-  sorted[0].isLowest = true;
-  for (const offer of sorted) {
-    if (offer.discountPercent === maxDiscount && maxDiscount > 0) {
-      offer.isHighestDiscount = true;
-    }
+  if (merged.length === 0) {
+    return { data: emptyCompareResult(productResult.data), error: null };
   }
+
+  const sorted = [...merged].sort((a, b) => a.price - b.price);
+  const stats = computeCompareStats(sorted);
+
+  for (const offer of sorted) {
+    offer.isLowest = false;
+    offer.isHighestDiscount = false;
+  }
+  if (stats.cheapestIndex >= 0) sorted[stats.cheapestIndex]!.isLowest = true;
+  for (const index of stats.highestDiscountIndexes) {
+    sorted[index]!.isHighestDiscount = true;
+  }
+
+  const cheapest = sorted[stats.cheapestIndex >= 0 ? stats.cheapestIndex : 0]!;
+  const highestDiscountOffer =
+    stats.highestDiscountIndexes.length > 0
+      ? sorted[stats.highestDiscountIndexes[0]!]!
+      : sorted[0]!;
 
   return {
     data: {
       product: productResult.data,
       offers: sorted,
-      lowestPrice: lowest,
-      highestPrice: highest,
-      highestDiscount: maxDiscount,
-      savingsVsHighest: Math.max(0, highest - lowest),
-      savingsPercent: computeSavingsPercent(lowest, highest),
+      lowestPrice: stats.lowestPrice,
+      highestPrice: stats.highestPrice,
+      highestDiscount: stats.highestDiscount,
+      savingsVsHighest: stats.savingsVsHighest,
+      savingsPercent: stats.savingsPercent,
       providerCount: new Set(sorted.map((o) => o.storeId)).size,
-      cheapestStoreName: sorted[0].store?.name ?? "Store",
+      cheapestStoreName: cheapest.store?.name ?? "Store",
       highestDiscountStoreName: highestDiscountOffer.store?.name ?? "Store",
     },
     error: null,
@@ -193,9 +250,12 @@ async function getExternalPricesForProduct(
 
   let query = supabase
     .from("external_prices")
-    .select("provider, store_id, external_id, canonical_product_id, price, original_price, currency, country_code, in_stock")
+    .select(
+      "provider, store_id, external_id, canonical_product_id, price, original_price, currency, country_code, in_stock, recorded_at, stores (*), external_products (product_url, affiliate_url)"
+    )
     .eq("canonical_product_id", productId)
-    .eq("is_current", true);
+    .eq("is_current", true)
+    .order("price", { ascending: true });
 
   if (options?.countryCode) query = query.eq("country_code", options.countryCode);
   if (options?.currency) query = query.eq("currency", options.currency);
