@@ -20,17 +20,24 @@ async function countTable(
 }
 
 /** Products that are real-data-backed: rows in the canonical cache produced by
- *  an active real provider (admitad/aliexpress/ebay/cjdropshipping). Not every
- *  `products` row is real-data-backed, so an exact total is not used here. */
+ *  an active, evidence-backed real provider. Not every `products` row is
+ *  real-data-backed, so an exact total is not used here. */
 async function countRealProducts(
   supabase: NonNullable<ReturnType<typeof createSupabaseAnonClient>>
 ): Promise<number> {
+  const { getActiveProductionProviders } = await import(
+    "@/lib/integration/provider-config"
+  );
+  const activeProviders = await getActiveProductionProviders();
+
+  if (activeProviders.length === 0) return 0;
+
   const { count, error } = await supabase
     .from("lowest_prices_today")
     .select("*", { count: "exact", head: true })
     .eq("country_code", "US")
     .eq("currency", "USD")
-    .in("provider", ["admitad", "aliexpress", "ebay", "cjdropshipping"]);
+    .in("provider", activeProviders);
 
   if (error) return 0;
   return count ?? 0;
@@ -45,9 +52,15 @@ async function countRealStores(
     .select("*")
     .eq("is_active", true);
   if (error) return 0;
-  let count = ((data ?? []) as { integration_type: string; slug: string }[])
-    .filter((row) => isRealDataStore(row as Parameters<typeof isRealDataStore>[0]))
-    .length;
+
+  const rows = (data ?? []) as { integration_type: string; slug: string }[];
+  const realFlags = await Promise.all(
+    rows.map((row) =>
+      isRealDataStore(row as Parameters<typeof isRealDataStore>[0])
+    )
+  );
+  let count = rows.filter((_, index) => realFlags[index]).length;
+
   try {
     const { getRealMerchantStores } = await import("@/lib/integration/real-stores");
     const merchants = await getRealMerchantStores();

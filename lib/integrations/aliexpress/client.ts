@@ -10,6 +10,8 @@ import type {
   AliExpressRawProduct,
   AliExpressValidationResult,
 } from "@/lib/integrations/aliexpress/types";
+import { extractPromotionLinks } from "@/lib/integrations/aliexpress/promotion-links";
+import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
 
 /** Explicit Open Platform fields required by ZORINO product cards + affiliate links. */
 export const ALIEXPRESS_PRODUCT_FIELDS = [
@@ -276,7 +278,7 @@ export class AliExpressAffiliateClient {
     return extractProducts(resp?.resp_result?.result?.products);
   }
 
-  /** Generate tracked promotion links for product URLs. */
+  /** Generate tracked promotion links for product URLs (deep links only). */
   async generatePromotionLinks(sourceUrls: string[]): Promise<Map<string, string>> {
     const result = new Map<string, string>();
     if (sourceUrls.length === 0) return result;
@@ -291,7 +293,7 @@ export class AliExpressAffiliateClient {
       aliexpress_affiliate_link_generate_response?: {
         resp_result?: {
           result?: {
-            promotion_links?: { source_value?: string; promotion_link?: string }[];
+            promotion_links?: unknown;
           };
         };
       };
@@ -301,15 +303,39 @@ export class AliExpressAffiliateClient {
       tracking_id: trackingId,
     });
 
-    const links =
+    // The API wraps promotion links in a NESTED object
+    // (`result.promotion_links.promotion_link[]`) as well as the plain array
+    // form. The old code iterated `promotion_links` as if it were always an
+    // array, so object-shaped responses silently yielded nothing. Use the
+    // robust extractor that handles array/object variants, then keep only
+    // links that resolve to a real product page — never a homepage, category,
+    // search or generic landing page.
+    const links = extractPromotionLinks(
       batch.aliexpress_affiliate_link_generate_response?.resp_result?.result
-        ?.promotion_links ?? [];
+        ?.promotion_links,
+    );
 
+    let kept = 0;
+    let rejected = 0;
     for (const link of links) {
-      if (link.source_value && link.promotion_link) {
-        result.set(link.source_value, link.promotion_link);
+      if (!link.source_value || !link.promotion_link) continue;
+      if (!isValidAliExpressDestinationUrl(link.promotion_link)) {
+        rejected += 1;
+        logAliExpress("generatePromotionLinks rejected non-product link", {
+          promotion_link: link.promotion_link,
+        });
+        continue;
       }
+      result.set(link.source_value, link.promotion_link);
+      kept += 1;
     }
+
+    logAliExpress("generatePromotionLinks result", {
+      requested: sourceUrls.length,
+      parsed: links.length,
+      kept,
+      rejected,
+    });
 
     return result;
   }
