@@ -2,6 +2,7 @@ import type { SearchResultItem } from "@/lib/data/homepage";
 import type { ProductDetail } from "@/lib/data/product-detail";
 import type { Product, Store } from "@/lib/types/entities";
 import type { CompareProductResult } from "@/services/compare";
+import { computeCompareStats } from "@/lib/compare/merge";
 import { getAliExpressProductDetail } from "@/services/aliexpress/search";
 import { normalizeEbayRaw } from "@/lib/search/normalization";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
@@ -709,6 +710,77 @@ async function resolveAmazonProductDetail(
 }
 
 /**
+ * Recompute the comparison summary fields from a merged offers list.
+ * Mirrors the aggregate logic in services/compare.ts (never fabricates — the
+ * offers are the real ones; only their derived summary stats are recomputed).
+ */
+function rebuildComparisonSummary(result: CompareProductResult): CompareProductResult {
+  const sorted = [...result.offers].sort((a, b) => a.price - b.price);
+  const stats = computeCompareStats(sorted);
+
+  for (const offer of sorted) {
+    offer.isLowest = false;
+    offer.isHighestDiscount = false;
+  }
+  if (stats.cheapestIndex >= 0) sorted[stats.cheapestIndex]!.isLowest = true;
+  for (const index of stats.highestDiscountIndexes) {
+    sorted[index]!.isHighestDiscount = true;
+  }
+
+  const cheapest = sorted[stats.cheapestIndex >= 0 ? stats.cheapestIndex : 0];
+  const highestDiscountOffer =
+    stats.highestDiscountIndexes.length > 0 && sorted[stats.highestDiscountIndexes[0]!]
+      ? sorted[stats.highestDiscountIndexes[0]!]
+      : sorted[0];
+
+  return {
+    ...result,
+    offers: sorted,
+    lowestPrice: stats.lowestPrice,
+    highestPrice: stats.highestPrice,
+    highestDiscount: stats.highestDiscount,
+    savingsVsHighest: stats.savingsVsHighest,
+    savingsPercent: stats.savingsPercent,
+    providerCount: new Set(sorted.map((o) => o.provider ?? o.store?.slug ?? o.storeId)).size,
+    cheapestStoreName: cheapest?.store?.name ?? result.cheapestStoreName,
+    highestDiscountStoreName:
+      highestDiscountOffer?.store?.name ?? result.highestDiscountStoreName,
+  };
+}
+
+/**
+ * For a canonical DB product (id is a products.id UUID, i.e. the `db-<uuid>`
+ * path), surface the persisted multi-store comparison data as the PRIMARY
+ * source. `compareImportedProductPrices` reads `external_prices` (by
+ * canonical_product_id) PLUS the internal `prices` rows, keeps only offers with
+ * a provable merchant destination, and dedupes by store_id. Its result is the
+ * authoritative multi-store view for the canonical product.
+ *
+ * Real-data-only / no duplicates: the base PDP offer is itself backed by the
+ * same canonical `prices` row (via lowest_prices_today), so substituting the
+ * canonical offer list cannot drop the merchant's real offer and cannot produce
+ * a duplicate store — the base decomposition never double-counts. When the DB
+ * genuinely holds fewer than two real stores, the comparison is returned
+ * unchanged (one store stays one). No fabricated stores/prices/URLs.
+ */
+async function mergeCanonicalExternalOffersIntoComparison(
+  canonicalProductId: string,
+  comparison: CompareProductResult,
+): Promise<CompareProductResult> {
+  try {
+    const { compareImportedProductPrices } = await import("@/services/compare");
+    const { data: canonical } = await compareImportedProductPrices(canonicalProductId);
+    if (!canonical || canonical.offers.length < 2) return comparison;
+    // offers are already store_id-deduped and valid-destination-only — no
+    // double-counting, no fabricated offers.
+    return rebuildComparisonSummary({ ...comparison, offers: canonical.offers });
+  } catch {
+    // Canonical merge is best-effort — the base detail remains valid.
+    return comparison;
+  }
+}
+
+/**
  * Resolve PDP for any supported marketplace.
  */
 export async function resolveMarketplaceProductDetail(
@@ -716,18 +788,33 @@ export async function resolveMarketplaceProductDetail(
 ): Promise<ProductDetail | null> {
   const detail = await resolveMarketplaceProductDetailBase(id);
   if (!detail) return null;
-  // Attach real cross-store offers so the compare table shows more than
-  // one merchant when genuine matches exist on other providers.
+
+  let comparison = detail.comparison;
+
+  // Canonical DB path (`db-<uuid>`): the persisted `external_prices` for the
+  // canonical_product_id plus internal `prices` rows are the PRIMARY multi-store
+  // source. Merge them in first so the compare section reflects every real store
+  // already present in the database rather than depending on the broad search.
+  if (/^db-/i.test(id.trim().split("#")[0]!.split("?")[0]!.trim())) {
+    const canonicalProductId = id.trim().split("#")[0]!.split("?")[0]!.trim().slice(3);
+    comparison = await mergeCanonicalExternalOffersIntoComparison(
+      canonicalProductId,
+      comparison,
+    );
+  }
+
+  // Optional fallback: broad search fills only stores genuinely missing from the
+  // canonical merge. enrichCompareResult skips stores already known to us, so it
+  // never duplicates real external_prices offers.
   try {
     const { enrichCompareResult } = await import("@/lib/data/multi-store-comparison");
-    const comparison = await enrichCompareResult(detail.comparison);
-    if (comparison !== detail.comparison) {
-      return { ...detail, comparison };
-    }
+    const enriched = await enrichCompareResult(comparison);
+    if (enriched !== comparison) comparison = enriched;
   } catch {
     // Enrichment is best-effort; the base detail remains valid.
   }
-  return detail;
+
+  return comparison !== detail.comparison ? { ...detail, comparison } : detail;
 }
 
 async function resolveMarketplaceProductDetailBase(

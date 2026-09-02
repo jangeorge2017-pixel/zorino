@@ -39,6 +39,15 @@ const CATALOG_REVALIDATE_SECONDS = 5 * 60;
  */
 const ADMITAD_FEED_CATALOG_BUDGET_MS = 5_000;
 
+/**
+ * Hard budget for the persisted DB catalog path (lowest_prices_today + merchant
+ * queries). On a cold cache this can take 15–25s due to a paginated scan of
+ * 120K rows plus per-merchant queries — more than the search fan-out. Bounding
+ * it keeps the total catalog Promise.all wall-time short and ensures a slow DB
+ * never prevents the faster live-search source from rendering usable data.
+ */
+const DB_CATALOG_BUDGET_MS = 10_000;
+
 /** Normalise a product title for deduplication across live search and database. */
 function normalizeTitle(title: string): string {
   return title
@@ -73,7 +82,16 @@ const loadMergedCatalogItems = unstable_cache(
 
       const [fromSearch, fromDb, fromIngestion, admitadFeeds] = await Promise.all([
         fetchCatalogFromSearchEngine().catch(() => [] as NormalizedCatalogItem[]),
-        getCatalogItemsFromDatabase().catch(() => [] as NormalizedCatalogItem[]),
+        // The DB catalog scans ~120K rows + per-merchant queries; on a cold cache
+        // this can take 15–25 s. Bounding it to DB_CATALOG_BUDGET_MS ensures a
+        // slow DB never prevents the faster live-search source from rendering
+        // usable data — any products collected before the budget expires are kept.
+        Promise.race([
+          getCatalogItemsFromDatabase(),
+          new Promise<NormalizedCatalogItem[]>((resolve) =>
+            setTimeout(() => resolve([]), DB_CATALOG_BUDGET_MS),
+          ),
+        ]).catch(() => [] as NormalizedCatalogItem[]),
         getIngestedCatalogItems().catch(() => [] as NormalizedCatalogItem[]),
         // Pre-warm Admitad feed cache so the search connector activates. This
         // must NEVER hold the homepage hostage: the direct feed fetch is raced
