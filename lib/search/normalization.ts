@@ -4,7 +4,7 @@ import { getAmazonAssociateTag } from "@/lib/integrations/amazon/config";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { EbayRawProduct } from "@/lib/integrations/ebay/types";
 import { buildAffiliateUrl } from "@/lib/affiliate/generate";
-import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
+import { resolveAliExpressProductDestination } from "@/lib/affiliate/product-url";
 import type { AffiliateMarketplace } from "@/lib/affiliate/config";
 import type {
   OxylabsAmazonMarketplaceKey,
@@ -71,15 +71,7 @@ export function normalizeAliExpressRaw(raw: AliExpressRawProduct): RawProviderLi
   // homepage URL on degraded responses.
   const rawPromotion = raw.promotion_link?.trim() ?? "";
   const rawDetail = raw.product_detail_url?.trim() ?? "";
-  const rawShop = raw.shop_url?.trim() ?? "";
-  const affiliateLink =
-    rawPromotion && isValidAliExpressDestinationUrl(rawPromotion)
-      ? rawPromotion
-      : rawDetail && isValidAliExpressDestinationUrl(rawDetail)
-        ? rawDetail
-        : rawShop && isValidAliExpressDestinationUrl(rawShop)
-          ? rawShop
-          : "";
+  const affiliateLink = resolveAliExpressProductDestination(rawPromotion, rawDetail) ?? "";
   if (!affiliateLink) return null;
 
   const imageUrl = upgradeAliExpressImage(raw.product_main_image_url ?? "");

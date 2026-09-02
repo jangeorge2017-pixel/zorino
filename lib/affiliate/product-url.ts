@@ -24,6 +24,21 @@ const HOMEPAGE_PATH_PATTERNS = [
   /^\/(home|index|default|catalog|products?|shop|store|stores?)(\.html?|\.php|\.aspx?|\/)*$/i,
 ];
 
+/**
+ * Parse the `to` value after URLSearchParams has decoded it once.  Do not run
+ * decodeURIComponent here: merchant URLs frequently contain their own encoded
+ * callback URLs, and a second decode either changes them or rejects `%`.
+ */
+export function parseAffiliateDestinationParam(raw: string | null): string | null {
+  if (!raw) return null;
+  try {
+    new URL(raw);
+    return raw;
+  } catch {
+    return null;
+  }
+}
+
 export function isMerchantHomepageUrl(raw: string): boolean {
   let url: URL;
   try {
@@ -78,6 +93,17 @@ export function isValidProductDestinationUrl(raw: string | null | undefined): bo
   if (isCjdropshippingHostUrl(host)) return isCjdropshippingProductUrl(trimmed);
   if (isNoonHostUrl(host)) return isNoonProductUrl(trimmed);
   return true;
+}
+
+/** Choose the first real merchant product URL from stored provider fields. */
+export function resolveProductDestination(
+  ...candidates: Array<string | null | undefined>
+): string | null {
+  for (const candidate of candidates) {
+    const trimmed = candidate?.trim();
+    if (trimmed && isValidProductDestinationUrl(trimmed)) return trimmed;
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -141,6 +167,20 @@ export function isValidAliExpressDestinationUrl(
   const trimmed = raw.trim();
   if (!trimmed || isMerchantHomepageUrl(trimmed)) return false;
   return isAliExpressProductUrl(trimmed);
+}
+
+/**
+ * Select an API-provided AliExpress product destination without fabricating a
+ * URL from a product id or accepting shop, search, and category pages.
+ */
+export function resolveAliExpressProductDestination(
+  ...candidates: Array<string | null | undefined>
+): string | null {
+  for (const candidate of candidates) {
+    const trimmed = candidate?.trim();
+    if (trimmed && isValidAliExpressDestinationUrl(trimmed)) return trimmed;
+  }
+  return null;
 }
 
 // --- eBay ---

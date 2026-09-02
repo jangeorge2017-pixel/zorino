@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { ExternalLink } from "lucide-react";
 import { ComparePricesButton } from "@/components/PriceComparisonTable";
 
@@ -24,8 +23,9 @@ export default function ProductCardActions({
   shopExternal = false,
 }: ProductCardActionsProps) {
   const t = useTranslations("common");
-  const href = shopHref ?? `/product/${productId}#compare-prices`;
-  const showShopButton = showShop && !compareOnly;
+  // A missing merchant URL must leave the product unshoppable. In particular,
+  // do not turn "Shop Now" into an internal ZORINO product/compare URL.
+  const showShopButton = showShop && !compareOnly && shopExternal && Boolean(shopHref);
 
   return (
     <div className="product-card-actions-group">
@@ -33,23 +33,16 @@ export default function ProductCardActions({
         className={`product-card-actions${showShopButton ? " product-card-actions-dual" : " product-card-actions-single"}`}
       >
         {showShopButton ? (
-          shopExternal ? (
-            <a
-              href={href}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              className="home-shop-btn"
-              onClick={onShopClick}
-            >
-              {t("shopNow")}
-              <ExternalLink size={16} />
-            </a>
-          ) : (
-            <Link href={href} className="home-shop-btn" onClick={onShopClick}>
-              {t("shopNow")}
-              <ExternalLink size={16} />
-            </Link>
-          )
+          <a
+            href={shopHref}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            className="home-shop-btn"
+            onClick={onShopClick}
+          >
+            {t("shopNow")}
+            <ExternalLink size={16} />
+          </a>
         ) : null}
         <ComparePricesButton productId={productId} className="home-compare-btn" />
       </div>

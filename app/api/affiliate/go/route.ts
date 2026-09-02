@@ -10,7 +10,10 @@ import {
 } from "@/lib/affiliate/config";
 import { isAllowedAffiliateDestination } from "@/lib/affiliate/redirect-policy";
 import { ADMITAD_TRACKING_HOSTS } from "@/lib/affiliate/redirect-policy";
-import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
+import {
+  isValidProductDestinationUrl,
+  parseAffiliateDestinationParam,
+} from "@/lib/affiliate/product-url";
 import { affiliateRateLimiter, enforceRateLimit } from "@/lib/security/api-rate-limit";
 import { clampString } from "@/lib/security/input";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -32,11 +35,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing destination URL" }, { status: 400 });
   }
 
-  let destinationUrl: string;
-  try {
-    destinationUrl = decodeURIComponent(destination);
-    new URL(destinationUrl);
-  } catch {
+  const destinationUrl = parseAffiliateDestinationParam(destination);
+  if (!destinationUrl) {
     return NextResponse.json({ error: "Invalid destination URL" }, { status: 400 });
   }
 

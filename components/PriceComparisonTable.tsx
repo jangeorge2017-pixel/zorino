@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { ExternalLink, Tag, TrendingDown, Trophy, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
+import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { CompareOffer } from "@/services/compare";
@@ -16,6 +17,7 @@ type PriceComparisonTableProps = {
 
 export default function PriceComparisonTable({
   offers,
+  productId,
   onShopClick,
 }: PriceComparisonTableProps) {
   const t = useTranslations("product");
@@ -42,9 +44,18 @@ export default function PriceComparisonTable({
           {offers.map((offer) => {
             const storeName = offer.store?.name ?? tCommon("stores");
             // NEVER fall back to a merchant homepage or an internal product path.
-            // Only a real product-level external URL is an acceptable Shop target,
-            // and the validated live URL is opened directly (no redirect wrapper).
+            // Only a real product-level external URL is an acceptable Shop target.
             const hasValidDestination = isValidProductDestinationUrl(offer.externalUrl);
+            const shopUrl =
+              hasValidDestination && offer.externalUrl
+                ? buildAffiliateRedirectPath({
+                    productId,
+                    storeSlug: offer.store?.slug ?? offer.provider ?? "store",
+                    destinationUrl: offer.externalUrl,
+                    source: "compare_table",
+                    countryCode: offer.countryCode ?? undefined,
+                  })
+                : null;
             return (
               <tr
                 key={offer.id}
@@ -100,9 +111,9 @@ export default function PriceComparisonTable({
                   </span>
                 </td>
                 <td>
-                  {hasValidDestination && offer.externalUrl ? (
+                  {shopUrl ? (
                     <a
-                      href={offer.externalUrl}
+                      href={shopUrl}
                       target="_blank"
                       rel="noopener noreferrer sponsored"
                       className="price-comparison-shop-link"

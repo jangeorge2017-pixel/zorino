@@ -6,6 +6,7 @@ import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
 import WishlistButton from "@/components/WishlistButton";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 
 export type ListingProductCardData = {
@@ -66,11 +67,12 @@ export default function ListingProductCard({
 
   const salesLabel = product.salesCount ?? product.reviewCount;
   const marketplace = marketplaceBadgeLabel(product.storeSlug, product.store);
-  const shopHref = product.affiliateUrl
+  const merchantDestination = product.affiliateUrl?.trim();
+  const shopHref = merchantDestination && isValidProductDestinationUrl(merchantDestination)
     ? buildAffiliateRedirectPath({
         productId: product.id,
         storeSlug: product.storeSlug || "unknown",
-        destinationUrl: product.affiliateUrl,
+        destinationUrl: merchantDestination,
         source: "search",
       })
     : undefined;
@@ -161,7 +163,7 @@ export default function ListingProductCard({
       <ProductCardActions
         productId={product.id}
         shopHref={shopHref}
-        shopExternal={Boolean(product.affiliateUrl)}
+        shopExternal={Boolean(shopHref)}
       />
 
       {showWishlist && (

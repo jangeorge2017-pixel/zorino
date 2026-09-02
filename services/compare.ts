@@ -1,7 +1,12 @@
 import { mapProduct, mapStore } from "@/lib/database/mappers";
 import type { ProductRow, StoreRow } from "@/lib/database/types";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
-import { computeCompareStats, mergeOffersDedupe } from "@/lib/compare/merge";
+import {
+  collectComparableProductIds,
+  computeCompareStats,
+  mergeOffersDedupe,
+} from "@/lib/compare/merge";
+import { resolveProductDestination } from "@/lib/affiliate/product-url";
 import {
   compareProductPrices,
   getCurrentPricesForProduct,
@@ -74,6 +79,7 @@ export async function compareImportedProductPrices(
   ]);
 
   if (pricesResult.error) return { data: null, error: pricesResult.error };
+  if (externalResult.error) return { data: null, error: externalResult.error };
   if (!productResult.data) return { data: null, error: productResult.error ?? "Product not found" };
 
   const providerByStore = new Map(
@@ -81,7 +87,12 @@ export async function compareImportedProductPrices(
   );
 
   // Internal offers: per-store current price rows from the `prices` table.
-  const internalOffers: CompareOffer[] = pricesResult.data.map((price) => {
+  const internalOffers: CompareOffer[] = pricesResult.data.flatMap((price) => {
+    const externalUrl = resolveProductDestination(price.externalUrl);
+    // A price without a provable merchant product destination is not a
+    // shoppable offer and must not hide a valid external_prices offer for the
+    // same store during source deduplication.
+    if (!externalUrl) return [];
     const original = price.originalPrice ?? price.price;
     const discountPercent =
       original > price.price
@@ -89,6 +100,7 @@ export async function compareImportedProductPrices(
         : 0;
     return {
       ...price,
+      externalUrl,
       provider: price.storeId ? providerByStore.get(price.storeId) : price.store?.integrationType,
       discountPercent,
     };
@@ -100,7 +112,7 @@ export async function compareImportedProductPrices(
   // Prices shows every valid real store/offer, not just internal price rows.
   const externalOffers: CompareOffer[] = (externalResult.data ?? [])
     .filter((row) => row.price > 0 && Boolean(row.store_id))
-    .map((row) => {
+    .map((row): CompareOffer | null => {
       const original =
         row.original_price != null && row.original_price > row.price
           ? row.original_price
@@ -110,10 +122,11 @@ export async function compareImportedProductPrices(
           ? Math.round(((original - row.price) / original) * 10000) / 100
           : 0;
       const store = row.stores ? mapStore(row.stores) : undefined;
-      const externalUrl =
-        row.external_products?.affiliate_url?.trim() ||
-        row.external_products?.product_url?.trim() ||
-        null;
+      const externalUrl = resolveProductDestination(
+        row.external_products?.affiliate_url,
+        row.external_products?.product_url,
+      );
+      if (!externalUrl) return null;
       return {
         id: `ext-${row.provider}-${row.store_id}-${row.external_id}`,
         productId,
@@ -131,7 +144,8 @@ export async function compareImportedProductPrices(
         provider: row.provider,
         discountPercent,
       };
-    });
+    })
+    .filter((offer): offer is CompareOffer => offer !== null);
 
   // Merge both real sources, one offer per store (internal rows win).
   const merged = mergeOffersDedupe(
@@ -188,25 +202,41 @@ export async function getComparableProducts(
 
   let priceQuery = supabase
     .from("prices")
-    .select("product_id")
+    .select("product_id, store_id")
     .eq("is_current", true);
 
-  if (options?.countryCode) priceQuery = priceQuery.eq("country_code", options.countryCode);
-  if (options?.currency) priceQuery = priceQuery.eq("currency", options.currency);
+  let externalQuery = supabase
+    .from("external_prices")
+    .select("canonical_product_id, store_id")
+    .eq("is_current", true);
 
-  const { data: priceRows, error } = await priceQuery;
-  if (error) return { data: [], error: error.message };
-
-  const counts = new Map<string, number>();
-  for (const row of priceRows ?? []) {
-    const id = (row as { product_id: string }).product_id;
-    counts.set(id, (counts.get(id) ?? 0) + 1);
+  if (options?.countryCode) {
+    priceQuery = priceQuery.eq("country_code", options.countryCode);
+    externalQuery = externalQuery.eq("country_code", options.countryCode);
+  }
+  if (options?.currency) {
+    priceQuery = priceQuery.eq("currency", options.currency);
+    externalQuery = externalQuery.eq("currency", options.currency);
   }
 
-  const multiSourceIds = [...counts.entries()]
-    .filter(([, count]) => count >= 2)
-    .map(([id]) => id)
-    .slice(0, options?.limit ?? 12);
+  const [priceResult, externalResult] = await Promise.all([priceQuery, externalQuery]);
+  if (priceResult.error) return { data: [], error: priceResult.error.message };
+  if (externalResult.error) return { data: [], error: externalResult.error.message };
+
+  const multiSourceIds = collectComparableProductIds(
+    ((priceResult.data ?? []) as Array<{ product_id: string; store_id: string }>).map((row) => ({
+      productId: row.product_id,
+      storeId: row.store_id,
+    })),
+    ((externalResult.data ?? []) as Array<{
+      canonical_product_id: string | null;
+      store_id: string;
+    }>).map((row) => ({
+      productId: row.canonical_product_id,
+      storeId: row.store_id,
+    })),
+    options?.limit ?? 12,
+  );
 
   const results: CompareProductResult[] = [];
   for (const productId of multiSourceIds) {
