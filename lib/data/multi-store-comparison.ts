@@ -26,14 +26,30 @@ const STOPWORDS = new Set([
   "free", "shipping", "fast", "delivery", "original", "genuine",
 ]);
 
+// Tokens that describe a listing's condition, seller phrasing, or irrelevant
+// presentation detail. When present in the title they mark the start of the
+// "seller tail" and are dropped when building the focused cross-store query.
+const CONDITION_NOISE = new Set([
+  // condition
+  "good", "excellent", "better", "best", "new", "like", "never", "used",
+  "poor", "fair", "acceptable", "unacceptable", "refurbished", "renewed",
+  "brandnew", "brand", "sealed", "open", "boxed", "a", "aa", "a1", "b",
+  "c", "grade", "s", "scratch", "scratches", "blemish", "plain",
+  // seller / presentation
+  "fully", "factory", "international", "global", "official", "version",
+  "unlocked", "warranty", "condition", "available", "stock", "ship",
+  "ships", "ready", "colors", "color", "colour", "colors", "all", "wide",
+]);
+
 const MIN_TITLE_SIMILARITY = 0.55;
 const MIN_PRICE_RATIO = 0.33;
 const MAX_PRICE_RATIO = 3;
 const MAX_EXTRA_OFFERS = 4;
+const MAX_QUERY_TOKENS = 6;
 // Cap how long enrichment waits for the search fan-out. The engine already
 // isolates per-provider failures (one provider 405/429 doesn't drop the ones
 // that succeeded), but a stalled provider must never block the compare section.
-const ENRICH_SEARCH_TIMEOUT_MS = 8_000;
+const ENRICH_SEARCH_TIMEOUT_MS = 12_000;
 
 /**
  * Run the unified search fan-out with a hard deadline. If a provider stalls and
@@ -78,6 +94,44 @@ export function titleSimilarity(a: string, b: string): number {
   let inter = 0;
   for (const t of sa) if (sb.has(t)) inter += 1;
   return inter / Math.sqrt(sa.size * sb.size);
+}
+
+/**
+ * Build a focused cross-store search query from a seller title.
+ *
+ * The full seller title (e.g. "Apple iPhone 15 Fully Unlocked 6.1in - 128GB -
+ * eSIM -Good") is a poor query: it mixes in condition, color and seller detail
+ * that dilutes every provider connector's ranking, so the genuine same-product
+ * listing on another store rarely makes the top-N cut. This derives a short
+ * query of the meaningful core tokens (brand, model, capacity) while trimming
+ * the condition/seller tail, keeping the model number that tokenizeTitle drops
+ * (pure digits like "15" are otherwise filtered out).
+ */
+export function buildCoreQuery(name: string): string {
+  const words = name
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .split(/\s+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
+
+  const kept: string[] = [];
+  for (const word of words) {
+    const alnum = word.replace(/[^\p{L}\p{N}]+/gu, "");
+    if (alnum.length === 1) continue;
+    if (STOPWORDS.has(word)) continue;
+    if (CONDITION_NOISE.has(word)) {
+      // A condition token marks the end of the meaningful title. Once we have
+      // collected the core brand/model, stop — the rest is seller/condition tail.
+      if (kept.length > 0) break;
+      continue;
+    }
+    kept.push(alnum);
+    if (kept.length >= MAX_QUERY_TOKENS) break;
+  }
+
+  if (kept.length === 0) return name;
+  return kept.join(" ");
 }
 
 function offerFromSearchItem(item: SearchResultItem, baseProductId: string): CompareOffer {
@@ -147,6 +201,11 @@ async function enrichCompareResultUncached(
   const basePrice = baseOffer.price;
   if (!baseName || basePrice <= 0) return result;
 
+  // Search the live pipeline with a focused core query rather than the full
+  // seller title. A full title dilutes every provider's ranking so the genuine
+  // same-product listing on another store rarely makes the top-N cut.
+  const coreQuery = buildCoreQuery(baseName);
+
   const knownStores = new Set(
     result.offers.map((o) => o.provider ?? o.store?.slug ?? o.storeId),
   );
@@ -154,7 +213,7 @@ async function enrichCompareResultUncached(
 
   let candidates: SearchResultItem[];
   try {
-    candidates = await searchProductsWithinDeadline(baseName, 12);
+    candidates = await searchProductsWithinDeadline(coreQuery, 12);
   } catch {
     return result;
   }
