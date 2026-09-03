@@ -26,19 +26,24 @@ const STOPWORDS = new Set([
   "free", "shipping", "fast", "delivery", "original", "genuine",
 ]);
 
-// Tokens that describe a listing's condition, seller phrasing, or irrelevant
-// presentation detail. When present in the title they mark the start of the
-// "seller tail" and are dropped when building the focused cross-store query.
-const CONDITION_NOISE = new Set([
-  // condition
-  "good", "excellent", "better", "best", "new", "like", "never", "used",
+// Terminal condition words mark the end of a listing's meaningful title (the
+// "condition / seller tail"). When building the cross-store query we stop at
+// these — everything after is seller/condition detail we don't need.
+const TERMINAL_NOISE = new Set([
+  "good", "excellent", "better", "best", "like", "never", "used",
   "poor", "fair", "acceptable", "unacceptable", "refurbished", "renewed",
-  "brandnew", "brand", "sealed", "open", "boxed", "a", "aa", "a1", "b",
-  "c", "grade", "s", "scratch", "scratches", "blemish", "plain",
-  // seller / presentation
+  "sealed", "open", "boxed", "grade", "scratch", "scratches", "blemish",
+  "blemished", "plain", "cracked", "broken", "battery", "condition",
+]);
+
+// Presentation / dimension / color words that should be *skipped* but must NOT
+// truncate the query — a capacity or model token can legitimately follow them
+// (e.g. "Fully Unlocked 6.1in - 128GB ..."). Dropping those next tokens is what
+// made the generated query too broad to surface the genuine device.
+const SKIP_NOISE = new Set([
   "fully", "factory", "international", "global", "official", "version",
-  "unlocked", "warranty", "condition", "available", "stock", "ship",
-  "ships", "ready", "colors", "color", "colour", "colors", "all", "wide",
+  "warranty", "available", "stock", "ship", "ships", "ready", "all", "wide",
+  "colors", "color", "colour", "esim", "sim", "inch", "inches", "1in", "only",
 ]);
 
 const MIN_TITLE_SIMILARITY = 0.55;
@@ -104,8 +109,12 @@ export function titleSimilarity(a: string, b: string): number {
  * that dilutes every provider connector's ranking, so the genuine same-product
  * listing on another store rarely makes the top-N cut. This derives a short
  * query of the meaningful core tokens (brand, model, capacity) while trimming
- * the condition/seller tail, keeping the model number that tokenizeTitle drops
- * (pure digits like "15" are otherwise filtered out).
+ * the condition/seller tail.
+ *
+ * The capacity/model tokens are deliberately kept — AliExpress relevance, for
+ * example, returns the genuine device for queries like "iphone 15 128gb
+ * unlocked" but not for the bare "apple iphone 15" (which surfaces only cases
+ * and the wrong model). Only the terminal condition tail is dropped.
  */
 export function buildCoreQuery(name: string): string {
   const words = name
@@ -118,12 +127,17 @@ export function buildCoreQuery(name: string): string {
   const kept: string[] = [];
   for (const word of words) {
     const alnum = word.replace(/[^\p{L}\p{N}]+/gu, "");
-    if (alnum.length === 1) continue;
+    if (alnum.length <= 1) continue;
     if (STOPWORDS.has(word)) continue;
-    if (CONDITION_NOISE.has(word)) {
-      // A condition token marks the end of the meaningful title. Once we have
-      // collected the core brand/model, stop — the rest is seller/condition tail.
+    if (TERMINAL_NOISE.has(word)) {
+      // A condition word marks the end of the meaningful title. Stop here once
+      // we have already collected the core brand/model.
       if (kept.length > 0) break;
+      continue;
+    }
+    if (SKIP_NOISE.has(word)) {
+      // Presentation/dimension/color word: skip it but keep scanning — a useful
+      // capacity or model token can follow ("Fully Unlocked 6.1in - 128GB").
       continue;
     }
     kept.push(alnum);
@@ -203,7 +217,9 @@ async function enrichCompareResultUncached(
 
   // Search the live pipeline with a focused core query rather than the full
   // seller title. A full title dilutes every provider's ranking so the genuine
-  // same-product listing on another store rarely makes the top-N cut.
+  // same-product listing on another store rarely makes the top-N cut. The limit
+  // is kept above the engine's default so a genuine cross-store twin is not
+  // drowned out by the base store's own numerous listings.
   const coreQuery = buildCoreQuery(baseName);
 
   const knownStores = new Set(
@@ -213,7 +229,7 @@ async function enrichCompareResultUncached(
 
   let candidates: SearchResultItem[];
   try {
-    candidates = await searchProductsWithinDeadline(coreQuery, 12);
+    candidates = await searchProductsWithinDeadline(coreQuery, 24);
   } catch {
     return result;
   }
