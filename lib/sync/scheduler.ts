@@ -1,6 +1,7 @@
 import type { StoreRow } from "@/lib/database/types";
 import { SYNC_DEFAULT_INTERVAL_MINUTES } from "@/lib/sync/config";
 import { runSyncJob } from "@/lib/sync/engine";
+import { getConnectorForIntegration } from "@/lib/sync/connectors";
 import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
 import type { StoreIntegrationType } from "@/lib/types/entities";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
@@ -120,6 +121,8 @@ export interface RunDueSyncJobsOutcome {
   sweptStaleRuns: number;
   /** Jobs capped mid-run because they exceeded their time slice. */
   timedOut?: number;
+  /** Due jobs skipped because their provider connector is not configured. */
+  skipped?: number;
 }
 
 /** Run due sync jobs (oldest-due first) within an optional deadline. */
@@ -142,8 +145,42 @@ export async function runDueSyncJobs(
   let attempted = 0;
   let deferred = 0;
   let timedOut = 0;
+  let skipped = 0;
+
+  const advanceNextRun = async (job: DueSyncJob) => {
+    if (!supabase || !job.id) return;
+    const intervalMs = (job.intervalMinutes ?? SYNC_DEFAULT_INTERVAL_MINUTES) * 60_000;
+    const nextRun = new Date(Date.now() + intervalMs).toISOString();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any)
+      .from("sync_jobs")
+      .update({ last_run_at: new Date().toISOString(), next_run_at: nextRun })
+      .eq("id", job.id);
+  };
 
   for (const job of jobs) {
+    // Skip providers that are not configured instead of attempting them and
+    // failing. Unconfigured connectors (e.g. Amazon/CJdropshipping "placeholder"
+    // rows in sync_jobs) throw "Connector not configured", which wastes the cron
+    // budget and starves the real providers (eBay/AliExpress) whose successful
+    // ingestion is what builds cross-provider Compare Prices data. Matching the
+    // existing gate in triggerPhase1Imports keeps the scheduler consistent.
+    const connector = getConnectorForIntegration(job.integrationType);
+    try {
+      if (!connector.isConfigured()) {
+        skipped++;
+        console.warn(
+          `[sync-scheduler] skipping job ${job.storeSlug}/${job.jobType}: connector "${job.integrationType}" not configured`,
+        );
+        await advanceNextRun(job);
+        continue;
+      }
+    } catch {
+      skipped++;
+      await advanceNextRun(job);
+      continue;
+    }
+
     const roomLeft =
       deadlineAt !== undefined ? deadlineAt - Date.now() : Number.POSITIVE_INFINITY;
     if (roomLeft < SYNC_MIN_JOB_ROOM_MS) {
@@ -188,18 +225,10 @@ export async function runDueSyncJobs(
     }
     attempted++;
 
-    if (supabase && job.id) {
-      const intervalMs = (job.intervalMinutes ?? SYNC_DEFAULT_INTERVAL_MINUTES) * 60_000;
-      const nextRun = new Date(Date.now() + intervalMs).toISOString();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any)
-        .from("sync_jobs")
-        .update({ last_run_at: new Date().toISOString(), next_run_at: nextRun })
-        .eq("id", job.id);
-    }
+    await advanceNextRun(job);
   }
 
-  return { results, deferred, sweptStaleRuns, timedOut };
+  return { results, deferred, sweptStaleRuns, timedOut, skipped };
 }
 
 /** Fallback jobs when Supabase is not configured — runs mock sync in dry-run. */
