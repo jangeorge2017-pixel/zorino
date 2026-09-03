@@ -133,13 +133,18 @@ export async function getRealMerchantNames(supabase?: SupabaseDb): Promise<strin
   const client = supabase ?? createSupabaseAnonClient();
   if (!client) return [];
   const names = new Set<string>();
-  let offset = 0;
-  // IMPORTANT: the Supabase anon client caps responses at 1000 rows regardless
-  // of the requested range, so stepping by >1000 silently truncates and stops
-  // early (missing whole merchants at the tail). Step by exactly 1000.
-  const page = 1000;
 
-  for (;;) {
+  // IMPORTANT: the Supabase anon client caps responses at 1000 rows regardless
+  // of the requested range, so we must step by exactly 1000. Previously each
+  // page was fetched sequentially (~120 round-trips over the 120K-row table,
+  // ~13s) just to discover the merchant set. Fetching pages concurrently
+  // collapses that to a handful of parallel batches while remaining correct
+  // (we stop only once a batch contains the short tail page).
+  const page = 1000;
+  const BATCH = 8; // concurrent pages per round
+  const HARD_CAP = 130_000;
+
+  const fetchPage = async (offset: number): Promise<Array<{ store_name: string | null }>> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (client as any)
       .from("lowest_prices_today")
@@ -150,19 +155,30 @@ export async function getRealMerchantNames(supabase?: SupabaseDb): Promise<strin
       .neq("image_url", "")
       .or(realProviderOr())
       .range(offset, offset + page - 1);
+    if (error) return [];
+    return (data ?? []) as Array<{ store_name: string | null }>;
+  };
 
-    if (error) break;
-    const rows = (data ?? []) as Array<{ store_name: string | null }>;
-    if (rows.length === 0) break;
-
-    for (const r of rows) {
-      const name = r.store_name?.trim();
-      if (name) names.add(name);
+  let offset = 0;
+  for (;;) {
+    if (offset > HARD_CAP) break;
+    const offsets = Array.from(
+      { length: BATCH },
+      (_, i) => offset + i * page,
+    );
+    const batches = await Promise.all(offsets.map((o) => fetchPage(o)));
+    let sawTail = false;
+    for (const rows of batches) {
+      for (const r of rows) {
+        const name = r.store_name?.trim();
+        if (name) names.add(name);
+      }
+      if (rows.length < page) sawTail = true;
     }
-
-    offset += page;
-    if (rows.length < page) break;
-    if (offset > 130_000) break; // hard safety cap
+    // Advance past this batch. If any page in the batch was short we are past
+    // the tail and there are no more rows to enumerate.
+    offset += BATCH * page;
+    if (sawTail) break;
   }
 
   return Array.from(names);
@@ -256,22 +272,42 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
  * Total count of real, image-bearing products in `lowest_prices_today` across
  * the live providers. This is the honest product-catalog size (not the bounded
  * in-memory feed), so the homepage "Products" stat reflects reality.
- * Returns 0 when Supabase is not configured or the count is unavailable.
+ *
+ * Reliability: the anon `count: "exact"` over the 120K-row table can fail
+ * transiently (PostgREST statement cancellation / timeout ~4s), and the caller
+ * caches the result for 5 minutes. A single failure must never surface "0" —
+ * that is exactly the intermittent Products=0 bug. We retry transient failures
+ * and fall back to the last-known-good count so the statistic always reflects a
+ * real recent value. Returns 0 only when Supabase is truly unavailable.
  */
+const COUNT_RETRIES = 3;
+let lastKnownProductCount = 0;
+
 export async function getRealCatalogProductCount(): Promise<number> {
   const supabase = createSupabaseAnonClient();
-  if (!supabase) return 0;
+  if (!supabase) return lastKnownProductCount > 0 ? lastKnownProductCount : 0;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { count, error } = await (supabase as any)
-    .from("lowest_prices_today")
-    .select("product_id", { count: "exact", head: true })
-    .eq("country_code", "US")
-    .eq("currency", "USD")
-    .or(realProviderOr());
+  const sb = supabase as any;
 
-  if (error || typeof count !== "number") return 0;
-  return count;
+  for (let attempt = 0; attempt < COUNT_RETRIES; attempt++) {
+    const { count, error } = await sb
+      .from("lowest_prices_today")
+      .select("product_id", { count: "exact", head: true })
+      .eq("country_code", "US")
+      .eq("currency", "USD")
+      .or(realProviderOr());
+
+    if (!error && typeof count === "number") {
+      lastKnownProductCount = count;
+      return count;
+    }
+  }
+
+  // All attempts failed — never report a transient failure as 0. Return the most
+  // recent real count we have observed so the stat stays truthful across the
+  // 5-minute cache window instead of flickering to 0.
+  return lastKnownProductCount;
 }
 
 function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {

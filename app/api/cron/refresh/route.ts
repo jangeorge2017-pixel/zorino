@@ -312,6 +312,7 @@ export async function GET(request: Request) {
               deferred: sync.deferred ?? 0,
               sweptStaleRuns: sync.sweptStaleRuns ?? 0,
               timedOut: sync.timedOut ?? 0,
+              skipped: sync.skipped ?? 0,
               results: sync.data,
             };
       } catch (err) {
