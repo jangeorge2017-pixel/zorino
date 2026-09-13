@@ -131,13 +131,13 @@ Each product must retain its original provider identity:
 - Valid product/affiliate URL
 
 ## Adding a new provider
-1. Add the provider ID to `PRODUCTION_PROVIDER_IDS` in `lib/integration/constants.ts`.
-2. Create a search connector in `lib/search/connectors/` implementing `SearchConnector` interface.
-3. Register it in `lib/search/connectors/registry.ts` (`ALL_CONNECTORS`).
-4. Add `normalize<Provider>Raw()` in `lib/search/normalization.ts`.
-5. Add `is<Provider>Configured()` in `lib/integration/provider-config.ts`.
-6. Add the provider to `STORE_META` in `lib/integration/provider-context.ts`.
-7. Add remote image patterns to `lib/images/product-image.ts` if needed.
+1. Register the provider in `lib/providers/registry.ts` (`PROVIDER_REGISTRY`) with a canonical `status` (`active`/`configured`/`stub`) and DB-compatible `integrationType`. All derived lists (`PROVIDER_IDS`, `LIVE_PROVIDER_IDS`, `STUB_PROVIDER_IDS`, `SEARCH_PROVIDER_IDS`, `PRODUCTION_PROVIDER_IDS`, `LIVE_SEARCH_PROVIDER_IDS`, `COMPARISON_STORES`, `REAL_CATALOG_PROVIDERS`, `STUB_CATALOG_PROVIDERS`) follow automatically — never hardcode a provider list elsewhere.
+2. Create a search connector in `lib/search/connectors/` implementing `SearchConnector` interface, and register it in `lib/search/connectors/registry.ts` (`ALL_CONNECTORS`).
+3. Add `normalize<Provider>Raw()` in `lib/search/normalization.ts`.
+4. Add `is<Provider>Configured()` in `lib/integration/provider-config.ts`.
+5. Add the sync-layer store identity to `SYNC_STORE_META` in `lib/integration/provider-context.ts` (`getSyncStoreMeta`), and the display identity to `PROVIDER_STORE_META` in `lib/providers/registry.ts` when the store has a product-page/compare presence.
+6. Add remote image patterns to `lib/images/product-image.ts` if needed.
+7. Id-aliases (brand/display names that differ from the provider id) belong ONLY in `PROVIDER_ALIASES` inside `lib/providers/registry.ts` — `resolveMarketplaceId()` delegates there.
 8. **No changes needed to Homepage or Search pages** — the unified pipeline auto-discovers active providers.
 
 ## Never remove or disable a working provider
