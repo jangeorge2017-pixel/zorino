@@ -1,15 +1,25 @@
 /**
- * Generic affiliate URL ingestion pipeline.
+ * Generic affiliate URL ingestion engine (Phase 5).
  *
- * For each configured provider, processes a list of affiliate URLs:
+ * For each DECLARATIVE ingestion source (a provider + a list of affiliate
+ * URLs), the engine:
  *   1. Resolves redirects to get the final destination URL.
- *   2. Detects product identifiers in the resolved URL.
- *   3. If a product is detected, attempts extraction via the provider's API.
+ *   2. Detects product identifiers in the resolved URL (GENERIC — no
+ *      provider-specific detection forks).
+ *   3. Looks up an EXTRACTION STRATEGY by the detected product FORMAT
+ *      (e.g. "asin"), never by provider id, and attempts extraction.
  *   4. Returns NormalizedCatalogItems for real products.
  *   5. Logs destination-only URLs (store homepages, landing pages).
  *
- * Adding a new provider = adding a ProviderIngestionSource entry below.
- * No changes to Home, Deals, Search, or any consumer page are needed.
+ * No provider-specific special cases exist in the engine. The DETECTION
+ * patterns are product-format patterns; EXTRACTION strategies are registered
+ * against product formats and may internally know one format's API (e.g. the
+ * "asin" strategy talks to the Amazon Creators API because ASIN is an Amazon
+ * identifier — but the engine routes to it purely by detected format).
+ *
+ * Adding a new provider = adding a declarative source entry (+ registering a
+ * product-format extraction strategy when its URLs resolve to a format we can
+ * extract). No changes to Home, Deals, Search, or any consumer page are needed.
  */
 
 import { unstable_cache } from "next/cache";
@@ -24,27 +34,56 @@ export type ProductDetection =
   | { found: false; reason: string }
   | { found: true; productId: string; productType: string };
 
+/**
+ * A declarative ingestion source. `providerId` is the acquisition layer the
+ * URLs belong to; the engine treats every source identically.
+ */
 export type ProviderIngestionSource = {
+  /** Provider registry id (acquisition layer) the URLs belong to. */
+  providerId: string;
   /** Human-readable provider name */
   name: string;
   /** URL-safe slug used for routing and marketplace balance */
   slug: string;
   /** List of affiliate URLs to process */
   urls: { id: string; affiliateUrl: string }[];
-  /**
-   * Given a resolved destination URL, detect whether it identifies
-   * a specific product and extract an identifier if so.
-   */
-  detectProduct: (resolvedUrl: string) => ProductDetection;
-  /**
-   * Given a detected product identifier, attempt to fetch real product
-   * data from the provider's API. Return null if extraction fails.
-   */
-  extractProduct?: (
-    detection: Extract<ProductDetection, { found: true }>,
-    affiliateUrl: string,
-  ) => Promise<NormalizedCatalogItem | null>;
 };
+
+/**
+ * A product-format extraction strategy. Registered against the product TYPE
+ * detected in a resolved URL (e.g. "asin"), NOT against a provider id.
+ */
+export type IngestionExtractor = (
+  detection: Extract<ProductDetection, { found: true }>,
+  affiliateUrl: string,
+  resolvedUrl: string,
+) => Promise<NormalizedCatalogItem | null>;
+
+// ---------------------------------------------------------------------------
+// Extraction strategy registry (keyed by product format)
+// ---------------------------------------------------------------------------
+
+const extractionStrategies = new Map<string, IngestionExtractor>();
+
+/** Register an extractor for a detected product format (e.g. "asin"). */
+export function registerExtractionStrategy(
+  productType: string,
+  extractor: IngestionExtractor,
+): void {
+  extractionStrategies.set(productType, extractor);
+}
+
+/** Look up an extractor by the detected product format. */
+export function getExtractionStrategy(
+  productType: string,
+): IngestionExtractor | undefined {
+  return extractionStrategies.get(productType);
+}
+
+/** Reset the registry (tests / hot reload). */
+export function resetExtractionStrategiesForTests(): void {
+  extractionStrategies.clear();
+}
 
 // ---------------------------------------------------------------------------
 // URL resolution
@@ -74,7 +113,7 @@ export async function resolveRedirect(url: string): Promise<string> {
 }
 
 // ---------------------------------------------------------------------------
-// Generic product detection patterns
+// Generic product detection (product-format patterns, no provider forks)
 // ---------------------------------------------------------------------------
 
 const PRODUCT_URL_PATTERNS: Array<{ regex: RegExp; type: string }> = [
@@ -92,7 +131,7 @@ const PRODUCT_URL_PATTERNS: Array<{ regex: RegExp; type: string }> = [
 
 /**
  * Detect product identifiers in a URL.
- * Checks the path and query string against known patterns.
+ * Checks the path and query string against known product-format patterns.
  */
 export function detectProductFromUrl(url: string): ProductDetection {
   try {
@@ -114,18 +153,31 @@ export function detectProductFromUrl(url: string): ProductDetection {
 }
 
 // ---------------------------------------------------------------------------
-// Amazon provider — processes amazon.com seed links
+// Built-in product-format extraction strategies
 // ---------------------------------------------------------------------------
 
-function detectAmazonProduct(resolvedUrl: string): ProductDetection {
-  return detectProductFromUrl(resolvedUrl);
+function isAmazonHost(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+    return host === "amazon.com" || host.endsWith(".amazon.com") || /^amazon\./.test(host);
+  } catch {
+    return false;
+  }
 }
 
-async function extractAmazonProduct(
+/**
+ * "asin" product-format strategy — extracts real product data from the Amazon
+ * Creators API. ASIN is an Amazon identifier, so this strategy only resolves
+ * when the destination host is an Amazon property (one network's links cannot
+ * trigger another network's extractor).
+ */
+async function extractAmazonAsin(
   detection: Extract<ProductDetection, { found: true }>,
   affiliateUrl: string,
+  resolvedUrl: string,
 ): Promise<NormalizedCatalogItem | null> {
   if (detection.productType !== "asin") return null;
+  if (!isAmazonHost(resolvedUrl)) return null;
 
   try {
     const { createAmazonClientFromEnv } = await import(
@@ -205,29 +257,16 @@ function amazonItemToCatalogItem(
   };
 }
 
-// ---------------------------------------------------------------------------
-// Admitad provider — processes admitad tracking links
-// ---------------------------------------------------------------------------
+let builtInExtractorsRegistered = false;
 
-function detectAdmitadProduct(resolvedUrl: string): ProductDetection {
-  return detectProductFromUrl(resolvedUrl);
-}
-
-async function extractAdmitadProduct(
-  detection: Extract<ProductDetection, { found: true }>,
-  _affiliateUrl: string,
-): Promise<NormalizedCatalogItem | null> {
-  // Admitad links redirect to third-party stores.
-  // Without a provider-specific API for each destination store,
-  // we cannot reliably extract product data.
-  // When Admitad provides a product-feed API in the future,
-  // implement extraction here.
-  void detection;
-  return null;
+function ensureBuiltInExtractors(): void {
+  if (builtInExtractorsRegistered) return;
+  builtInExtractorsRegistered = true;
+  registerExtractionStrategy("asin", extractAmazonAsin);
 }
 
 // ---------------------------------------------------------------------------
-// All configured ingestion sources
+// All configured ingestion sources (DECLARATIVE — no per-source detection)
 // ---------------------------------------------------------------------------
 
 async function buildIngestionSources(): Promise<ProviderIngestionSource[]> {
@@ -236,27 +275,25 @@ async function buildIngestionSources(): Promise<ProviderIngestionSource[]> {
 
   return [
     {
+      providerId: "amazon",
       name: "Amazon",
       slug: "amazon",
       urls: AMAZON_US_SEED_LINKS,
-      detectProduct: detectAmazonProduct,
-      extractProduct: extractAmazonProduct,
     },
     {
+      providerId: "admitad",
       name: "Alibaba",
       slug: "alibaba",
       urls: ADMITAD_STORE_LINKS.map((l) => ({
         id: l.storeSlug,
         affiliateUrl: l.affiliateUrl,
       })),
-      detectProduct: detectAdmitadProduct,
-      extractProduct: extractAdmitadProduct,
     },
   ];
 }
 
 // ---------------------------------------------------------------------------
-// Processing engine
+// Processing engine (one generic loop for every source)
 // ---------------------------------------------------------------------------
 
 type IngestionEntry = {
@@ -271,14 +308,23 @@ type IngestionEntry = {
 async function processSource(
   source: ProviderIngestionSource,
 ): Promise<IngestionEntry[]> {
+  ensureBuiltInExtractors();
+
   const entries = await Promise.all(
     source.urls.map(async (entry) => {
       const resolvedUrl = await resolveRedirect(entry.affiliateUrl);
-      const detection = source.detectProduct(resolvedUrl);
+      const detection = detectProductFromUrl(resolvedUrl);
       let catalogItem: NormalizedCatalogItem | null = null;
 
-      if (detection.found && source.extractProduct) {
-        catalogItem = await source.extractProduct(detection, entry.affiliateUrl);
+      if (detection.found) {
+        const extractor = getExtractionStrategy(detection.productType);
+        if (extractor) {
+          catalogItem = await extractor(
+            detection,
+            entry.affiliateUrl,
+            resolvedUrl,
+          );
+        }
       }
 
       return {
