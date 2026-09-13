@@ -24,7 +24,9 @@ import { getAccessToken } from "./auth";
 import {
   initializeMultiMerchantDiscovery,
   ADMITAD_FEEDS,
+  ADMITAD_PROVIDER_ID,
 } from "./config";
+import { admitadFeedToRawOffer } from "./adapter";
 import type { AdmitadMerchantProgram } from "./merchant-discovery";
 
 // ---------------------------------------------------------------------------
@@ -242,6 +244,15 @@ function feedOfferToCatalogItem(
   const destinationUrl = offer.url || gotolink || "";
   if (!destinationUrl) return null;
 
+  // Phase 5: the offer now enters the canonical spine through the UNIFORM
+  // indirect adapter. identity/price/link fields below are read from the
+  // adapter's RawOffer, keeping the emitted DB rows byte-identical.
+  const raw = admitadFeedToRawOffer(offer, {
+    merchantName: campaignName,
+    sourceRef: `ingest:${campaignId}:${offer.id}`,
+    urlOverride: destinationUrl,
+  });
+
   const storeSlug = campaignName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -254,35 +265,35 @@ function feedOfferToCatalogItem(
       : 0;
 
   const offer_: ProviderOffer = {
-    providerId: "admitad",
+    providerId: ADMITAD_PROVIDER_ID,
     storeSlug,
     storeName: campaignName,
-    externalId: offer.id,
+    externalId: raw.externalOfferId ?? offer.id,
     price: offer.price,
     originalPrice: offer.oldprice ?? offer.price,
     currency: offer.currencyId,
     countryCode: "US",
-    affiliateUrl: destinationUrl,
-    productUrl: destinationUrl,
+    affiliateUrl: raw.affiliateUrl ?? destinationUrl,
+    productUrl: raw.productUrl ?? destinationUrl,
     inStock: true,
   };
 
   return {
     id: `admitad-${campaignId}-${offer.id}`,
     slug: `admitad-${campaignId}-${offer.id}`,
-    title: offer.name,
+    title: raw.title ?? offer.name,
     imageUrl: offer.image || "",
     emoji: "🛍️",
     categorySlug: "general",
     rating: 0,
     reviewCount: 0,
     countryCode: "US",
-    currency: offer.currencyId,
-    price: offer.price,
+    currency: raw.currency ?? offer.currencyId,
+    price: raw.price ?? offer.price,
     originalPrice: offer.oldprice ?? offer.price,
     discount,
     discountType: "percentage",
-    providerIds: ["admitad"],
+    providerIds: [ADMITAD_PROVIDER_ID],
     offers: [offer_],
     fetchedAt: new Date().toISOString(),
   };
