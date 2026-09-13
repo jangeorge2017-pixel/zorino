@@ -1,6 +1,7 @@
 import SearchPageClient from "@/components/SearchPageClient";
-import { getSearchFilters, getSearchResults } from "@/lib/data/homepage";
+import { getSearchFilters, getSearchResults, getSearchResultsPage } from "@/lib/data/homepage";
 import { generateMetadata as buildSeoMetadata } from "@/lib/seo/metadata";
+import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 
 export const maxDuration = 60;
 
@@ -26,13 +27,20 @@ export async function generateMetadata({
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q = "" } = await searchParams;
-  const results = await getSearchResults(q);
-  const filters = await getSearchFilters(results);
+  const trimmed = q.trim();
+  const filters = await getSearchFilters(await getSearchResults(trimmed));
+  const firstPage = await getSearchResultsPage(
+    trimmed,
+    0,
+    SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+  );
 
   return (
     <SearchPageClient
-      initialQuery={q}
-      initialResults={results}
+      initialQuery={trimmed}
+      initialResults={firstPage.items}
+      total={firstPage.total}
+      hasMore={firstPage.hasMore}
       categories={filters.categories}
       stores={filters.stores}
     />

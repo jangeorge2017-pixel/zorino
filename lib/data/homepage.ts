@@ -355,9 +355,18 @@ export async function getSearchResults(query: string): Promise<SearchResultItem[
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const { searchProducts } = await import("@/lib/search/engine");
-  const { SEARCH_ENGINE_DEFAULTS } = await import("@/lib/search/types");
-  return searchProducts(trimmed, SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT);
+  const { searchProductsSurface } = await import("@/lib/canonical/consumption/search");
+  return searchProductsSurface(trimmed);
+}
+
+/** Paged search results for the /search page "Load more" flow. */
+export async function getSearchResultsPage(
+  query: string,
+  offset: number,
+  limit: number
+) {
+  const { searchResultsPagedSurface } = await import("@/lib/canonical/consumption/search");
+  return searchResultsPagedSurface(query, offset, limit);
 }
 
 /** Filter options for search page — derived from live search results across all active providers. */

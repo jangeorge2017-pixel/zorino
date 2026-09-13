@@ -3,24 +3,48 @@
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import ListingProductCard from "@/components/ListingProductCard";
 import { PageHeader, PageLayout } from "@/components/pages";
 import type { SearchResultItem } from "@/lib/data/homepage";
+import type { SearchPageResult } from "@/lib/search/engine";
+import { mergePagedResults } from "@/lib/search/pagination";
+import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 
 type SearchPageClientProps = {
   initialQuery: string;
   initialResults: SearchResultItem[];
+  total: number;
+  hasMore: boolean;
   categories: { value: string; label: string }[];
   stores: { value: string; label: string }[];
 };
 
+/**
+ * Search results UI with server-side "Load more" pagination.
+ *
+ * Semantics (chosen to preserve the original all-at-once UX as closely as
+ * possible):
+ * - The server renders only the FIRST page (PAGE_SIZE items) and streams
+ *   additional pages from `/api/search/paged` on demand.
+ * - Filter options (categories/stores) are still derived server-side from the
+ *   FULL search pool, so every value a result could have is available to
+ *   filter by from the start.
+ * - Client-side filtering and sorting run over the items LOADED so far. This
+ *   is the documented trade-off of incremental loading: the filter/sort
+ *   re-applies to everything rendered, but cannot see unloaded pages.
+ * - `receivedCount` tracks how many pool items have been consumed, so the
+ *   next request always asks for the next contiguous slice regardless of
+ *   duplicates dropped by the merge.
+ */
 export default function SearchPageClient({
   initialQuery,
   initialResults,
+  total,
+  hasMore,
   categories,
   stores,
 }: SearchPageClientProps) {
@@ -29,6 +53,11 @@ export default function SearchPageClient({
   const tStores = useTranslations("stores");
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [items, setItems] = useState(initialResults);
+  const [receivedCount, setReceivedCount] = useState(initialResults.length);
+  const [currentHasMore, setCurrentHasMore] = useState(hasMore);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStore, setSelectedStore] = useState("");
   const [minPrice, setMinPrice] = useState("");
@@ -61,7 +90,7 @@ export default function SearchPageClient({
   ];
 
   const filteredResults = useMemo(() => {
-    return [...initialResults]
+    return [...items]
       .filter((product) => {
         if (selectedCategory && product.category !== selectedCategory) return false;
         if (selectedStore && product.storeSlug !== selectedStore) return false;
@@ -78,7 +107,7 @@ export default function SearchPageClient({
         return 0;
       });
   }, [
-    initialResults,
+    items,
     selectedCategory,
     selectedStore,
     minPrice,
@@ -87,6 +116,30 @@ export default function SearchPageClient({
     inStockOnly,
     sortBy,
   ]);
+
+  const handleLoadMore = async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    setLoadError(false);
+    try {
+      const offset = receivedCount;
+      const params = new URLSearchParams({
+        q: initialQuery,
+        offset: String(offset),
+        limit: String(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE),
+      });
+      const res = await fetch(`/api/search/paged?${params.toString()}`);
+      if (!res.ok) throw new Error("paged-search-failed");
+      const page = (await res.json()) as SearchPageResult;
+      setItems((prev) => mergePagedResults(prev, page.items));
+      setReceivedCount((prev) => prev + page.items.length);
+      setCurrentHasMore(page.hasMore);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,7 +253,12 @@ export default function SearchPageClient({
         <div>
           <div className="flex items-center justify-between mb-6">
             <span className="text-gray-400">
-              {t("resultsFound", { count: filteredResults.length })}
+              {total > 0
+                ? t("resultsOfTotal", {
+                    count: filteredResults.length,
+                    total,
+                  })
+                : t("resultsFound", { count: filteredResults.length })}
             </span>
             <Select
               options={sortOptions}
@@ -223,30 +281,56 @@ export default function SearchPageClient({
               ) : null}
             </div>
           ) : (
-            <div className="listing-products-grid" key={`filters-${selectedStore}-${selectedCategory}-${rating}-${sortBy}-${minPrice}-${maxPrice}-${inStockOnly}`}>
-              {filteredResults.map((product) => (
-                <ListingProductCard
-                  key={product.id}
-                  product={{
-                    id: product.id,
-                    name: product.name,
-                    imageSrc: product.imageSrc,
-                    emoji: product.emoji,
-                    price: product.price,
-                    originalPrice: product.originalPrice,
-                    discount: product.discount,
-                    rating: product.rating,
-                    reviewCount: product.reviewCount,
-                    salesCount: product.salesCount,
-                    store: product.store,
-                    storeSlug: product.storeSlug,
-                    category: product.category,
-                    inStock: product.inStock,
-                    affiliateUrl: product.affiliateUrl,
-                  }}
-                />
-              ))}
-            </div>
+            <>
+              <div className="listing-products-grid" key={`filters-${selectedStore}-${selectedCategory}-${rating}-${sortBy}-${minPrice}-${maxPrice}-${inStockOnly}`}>
+                {filteredResults.map((product) => (
+                  <ListingProductCard
+                    key={product.id}
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      imageSrc: product.imageSrc,
+                      emoji: product.emoji,
+                      price: product.price,
+                      originalPrice: product.originalPrice,
+                      discount: product.discount,
+                      rating: product.rating,
+                      reviewCount: product.reviewCount,
+                      salesCount: product.salesCount,
+                      store: product.store,
+                      storeSlug: product.storeSlug,
+                      category: product.category,
+                      inStock: product.inStock,
+                      affiliateUrl: product.affiliateUrl,
+                    }}
+                  />
+                ))}
+              </div>
+
+              {currentHasMore ? (
+                <div className="mt-8 flex flex-col items-center gap-3">
+                  {loadError ? (
+                    <p className="text-sm text-red-400">{t("loadMoreError")}</p>
+                  ) : null}
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="px-8"
+                  >
+                    {loadingMore ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {tCommon("pleaseWait")}
+                      </span>
+                    ) : (
+                      tCommon("loadMore")
+                    )}
+                  </Button>
+                </div>
+              ) : null}
+            </>
           )}
         </div>
       </div>

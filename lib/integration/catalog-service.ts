@@ -11,22 +11,16 @@ import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
+import { STUB_PROVIDER_IDS } from "@/lib/providers/registry";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
 
 /**
  * Providers that have NO real production data source (no credentials, no live
  * connector). Their rows would otherwise leak placeholder bogus products into
- * the homepage through the DB catalog path. Every live provider — aliExpress,
- * eBay, Amazon US/EG, CJdropshipping, Admitad — is intentionally NOT in this
- * set, so the homepage catalog stays a strict superset of all live stores.
+ * the homepage through the DB catalog path. Derived from the canonical
+ * provider registry (status === "stub") so the set cannot drift.
  */
-const STUB_CATALOG_PROVIDERS = new Set([
-  "walmart",
-  "bestbuy",
-  "temu",
-  "noon",
-  "jumia",
-]);
+const STUB_CATALOG_PROVIDERS = new Set(STUB_PROVIDER_IDS);
 
 /** How long a merged live-catalog snapshot stays fresh (seconds). */
 const CATALOG_REVALIDATE_SECONDS = 5 * 60;
@@ -193,6 +187,10 @@ const loadMergedCatalogItems = unstable_cache(
 const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> => {
   if (!HOMEPAGE_LIVE_FETCH_ENABLED) return [];
 
+  const { applyCanonicalCatalogIfEnabled } = await import(
+    "@/lib/canonical/consumption/homepage"
+  );
+
   const { isAnyProductionProviderConfigured } = await import(
     "@/lib/integration/comparison-engine"
   );
@@ -200,12 +198,14 @@ const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> =>
     const { getCatalogItemsFromDatabase } = await import(
       "@/lib/integration/database-catalog"
     );
-    return getCatalogItemsFromDatabase().catch(() => []);
+    return applyCanonicalCatalogIfEnabled(
+      await getCatalogItemsFromDatabase().catch(() => []),
+    );
   }
 
   void scheduleAdmitadIngestionIfStale();
 
-  return loadMergedCatalogItems();
+  return applyCanonicalCatalogIfEnabled(await loadMergedCatalogItems());
 });
 
 // ---------------------------------------------------------------------------

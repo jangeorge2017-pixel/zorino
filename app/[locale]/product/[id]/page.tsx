@@ -4,9 +4,9 @@ import ProductOutboundRedirect from "@/components/ProductOutboundRedirect";
 import { ProductJsonLd } from "@/components/ProductJsonLd";
 import {
   parseMarketplaceProductId,
-  resolveMarketplaceProductDetail,
   resolveMarketplaceRedirectUrl,
 } from "@/lib/data/marketplace-product-detail";
+import { resolveMarketplaceProductDetailCanonical } from "@/lib/canonical/consumption";
 import { generateProductMetadata } from "@/lib/seo/metadata";
 
 type ProductPageProps = {
@@ -15,7 +15,7 @@ type ProductPageProps = {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { id, locale } = await params;
-  const detail = await resolveMarketplaceProductDetail(id);
+  const detail = await resolveMarketplaceProductDetailCanonical(id);
   if (!detail) {
     const redirectUrl = await resolveMarketplaceRedirectUrl(id);
     if (redirectUrl) {
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
 export default async function ProductDetailsPage({ params }: ProductPageProps) {
   const { id } = await params;
-  const detail = await resolveMarketplaceProductDetail(id);
+  const detail = await resolveMarketplaceProductDetailCanonical(id);
   if (!detail) {
     // When a marketplace genuinely cannot serve an internal detail page but the
     // product really exists (e.g. Amazon US/EG without API credentials), use its
