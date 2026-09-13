@@ -858,6 +858,42 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["lowest_price_history"]["Insert"]>;
         Relationships: [];
       };
+      canonical_identity_map: {
+        Row: {
+          id: string;
+          source: string;
+          provider_id: string;
+          external_id: string;
+          store_name: string | null;
+          country_code: string | null;
+          currency: string | null;
+          canonical_product_id: string;
+          canonical_offer_id: string;
+          confidence: string;
+          identifiers: unknown;
+          title_key: string | null;
+          title: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          source: string;
+          provider_id: string;
+          external_id: string;
+          store_name?: string | null;
+          country_code?: string | null;
+          currency?: string | null;
+          canonical_product_id: string;
+          canonical_offer_id: string;
+          confidence: string;
+          identifiers?: unknown;
+          title_key?: string | null;
+          title?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["canonical_identity_map"]["Insert"]>;
+        Relationships: [];
+      };
       lowest_prices_today: {
         Row: {
           id: string;
@@ -934,6 +970,48 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["lowest_price_refresh_jobs"]["Insert"]>;
+        Relationships: [];
+      };
+      provider_health_checkpoints: {
+        Row: {
+          id: string;
+          provider_id: string;
+          status: "ok" | "degraded" | "error";
+          source: string;
+          strategy: string | null;
+          acquired_count: number;
+          accepted_count: number;
+          rejected_count: number;
+          product_count: number;
+          duration_ms: number | null;
+          error_code: string | null;
+          error_detail: string | null;
+          validation_rejections: {
+            [key: string]: number;
+          };
+          collected_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          provider_id: string;
+          status: "ok" | "degraded" | "error";
+          source?: string;
+          strategy?: string | null;
+          acquired_count?: number;
+          accepted_count?: number;
+          rejected_count?: number;
+          product_count?: number;
+          duration_ms?: number | null;
+          error_code?: string | null;
+          error_detail?: string | null;
+          validation_rejections?: {
+            [key: string]: number;
+          };
+          collected_at?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["provider_health_checkpoints"]["Insert"]>;
         Relationships: [];
       };
     };
