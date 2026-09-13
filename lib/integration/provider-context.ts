@@ -6,7 +6,16 @@ import {
 import type { SyncContext } from "@/lib/sync/types";
 import type { StoreIntegrationType } from "@/lib/types/entities";
 
-const STORE_META: Record<
+/**
+ * Sync-layer store identity per provider.
+ *
+ * This is a SEPARATE data model from the display metadata in the provider
+ * registry (lib/providers/registry.ts PROVIDER_STORE_META). These fields
+ * describe the sync/DB store row (storeId, storeSlug) plus the
+ * stores.integration_type CHECK-compatible value used by the sync engine.
+ * Display name follows the provider's canonical name.
+ */
+const SYNC_STORE_META: Record<
   ProductionProviderId,
   { storeId: string; storeSlug: string; integrationType: StoreIntegrationType; name: string }
 > = {
@@ -74,12 +83,14 @@ const STORE_META: Record<
     storeId: "store-admitad",
     storeSlug: "alibaba",
     integrationType: "partner",
-    name: "Alibaba",
+    // Provider network identity. Individual merchants (e.g. "Alibaba" itself)
+    // are carried per-offer via the offer storeName, not here.
+    name: "Admitad",
   },
 };
 
-export function getProviderStoreMeta(providerId: string) {
-  return STORE_META[providerId as ProductionProviderId] ?? {
+export function getSyncStoreMeta(providerId: string) {
+  return SYNC_STORE_META[providerId as ProductionProviderId] ?? {
     storeId: `store-${providerId}`,
     storeSlug: providerId,
     integrationType: "partner",
@@ -95,7 +106,7 @@ export function buildProviderSyncContext(
     jobConfig?: SyncContext["jobConfig"];
   },
 ): SyncContext {
-  const meta = STORE_META[providerId];
+  const meta = SYNC_STORE_META[providerId];
   return {
     storeId: meta.storeId,
     storeSlug: meta.storeSlug,
@@ -111,7 +122,7 @@ export function buildProviderSyncContext(
 export function searchProviderToProductionId(
   providerId: string
 ): ProductionProviderId | null {
-  if (providerId in STORE_META) {
+  if (providerId in SYNC_STORE_META) {
     return providerId as ProductionProviderId;
   }
   return null;

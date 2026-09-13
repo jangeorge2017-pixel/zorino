@@ -1,28 +1,13 @@
 /**
  * Resolve marketplace / provider ids without hardcoded share maps.
  * Unknown ids pass through so newly registered marketplaces keep working.
+ *
+ * The canonical resolver lives in the provider registry
+ * (lib/providers/registry.ts) — this module is just the search-layer view,
+ * so provider identity is maintained in exactly one place.
  */
 
-import { SEARCH_PROVIDER_IDS } from "@/lib/search/types";
-
-const KNOWN_IDS = SEARCH_PROVIDER_IDS as readonly string[];
-
-/**
- * Marketplace display names / brand names → canonical provider id.
- * Admitad feed products display as "Alibaba" in the UI (brand name),
- * but their provider id is "admitad" (affiliate network).
- * Add new aliases here when a provider's display name differs from its id.
- */
-const PROVIDER_ALIASES: Record<string, string> = {
-  alibaba: "admitad",
-  "alibaba-ww": "admitad",
-  "alibaba (via admitad)": "admitad",
-  "amazon-egypt": "amazon-eg",
-};
-
-function compact(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
-}
+import { resolveProviderId } from "@/lib/providers/registry";
 
 /**
  * Map a store slug, store name, product id prefix, or raw provider id
@@ -30,31 +15,5 @@ function compact(value: string): string {
  * a default marketplace like AliExpress.
  */
 export function resolveMarketplaceId(raw: string | null | undefined): string {
-  const input = (raw ?? "").trim().toLowerCase();
-  if (!input) return "unknown";
-
-  const slug = input.replace(/\s+/g, "-");
-  const packed = compact(input);
-
-  // Check aliases first (e.g. "alibaba" → "admitad")
-  const alias = PROVIDER_ALIASES[packed] ?? PROVIDER_ALIASES[slug];
-  if (alias) return alias;
-
-  for (const id of KNOWN_IDS) {
-    if (slug === id || packed === compact(id)) return id;
-  }
-
-  for (const id of KNOWN_IDS) {
-    if (slug.includes(id) || packed.includes(compact(id))) return id;
-  }
-
-  // Ids like "flash-ebay-123" / "pick-amazon-abc"
-  const parts = slug.split("-").filter(Boolean);
-  for (const part of parts) {
-    for (const id of KNOWN_IDS) {
-      if (part === id || compact(part) === compact(id)) return id;
-    }
-  }
-
-  return slug || packed || "unknown";
+  return resolveProviderId(raw);
 }

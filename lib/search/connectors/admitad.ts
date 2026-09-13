@@ -118,7 +118,7 @@ async function searchIngestedRows(
  */
 export const admitadSearchConnector: SearchConnector = {
   id: "admitad" as SearchProviderId,
-  name: "Alibaba & Partners",
+  name: "Admitad",
 
   async isAvailable() {
     try {

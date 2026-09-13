@@ -556,9 +556,11 @@
     "rating2Plus": "2+ Stars",
     "sortRating": "Rating",
     "resultsFound": "{count} results found",
+    "resultsOfTotal": "{count} of {total} results",
     "clear": "Clear",
     "category": "Category",
-    "store": "Store"
+    "store": "Store",
+    "loadMoreError": "Couldn't load more results. Please try again."
   },
   "product": {
     "title": "Product Details",

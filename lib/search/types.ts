@@ -1,34 +1,22 @@
 import type { ProductMatchTier } from "@/lib/search/relevance";
+import { LIVE_PROVIDER_IDS, PROVIDER_IDS } from "@/lib/providers/registry";
+import type { ProviderId } from "@/lib/providers/registry";
 
 /** All marketplace providers the engine can fan out to. */
-export const SEARCH_PROVIDER_IDS = [
-  "aliexpress",
-  "ebay",
-  "amazon",
-  "amazon-eg",
-  "cjdropshipping",
-  "walmart",
-  "bestbuy",
-  "temu",
-  "noon",
-  "jumia",
-  "admitad",
-] as const;
+export const SEARCH_PROVIDER_IDS: readonly ProviderId[] = PROVIDER_IDS;
 
-export type SearchProviderId = (typeof SEARCH_PROVIDER_IDS)[number];
+export type SearchProviderId = ProviderId;
 
 /**
- * Providers confirmed active in production (credentials configured on Vercel,
+ * Providers currently live in production (credentials configured on Vercel,
  * connector returns verified real product data, tested in live deployment).
  *
- * This is the type-level source of truth for "which providers are live".
+ * Derived from the canonical provider registry (status === "active") —
+ * no provider can be live here without being registered there.
  * Runtime availability is checked by getActiveSearchConnectors() via each
  * connector's isAvailable() — that is the runtime source of truth.
- *
- * Admitad is active: ADMITAD_FEED_URL env var is set, feed returns ~120K
- * real Alibaba marketplace products. Display name "Alibaba" in UI.
  */
-export const LIVE_SEARCH_PROVIDER_IDS = ["aliexpress", "ebay", "cjdropshipping", "admitad"] as const;
+export const LIVE_SEARCH_PROVIDER_IDS: readonly ProviderId[] = LIVE_PROVIDER_IDS;
 
 export type LiveSearchProviderId = (typeof LIVE_SEARCH_PROVIDER_IDS)[number];
 

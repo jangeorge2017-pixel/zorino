@@ -8,7 +8,7 @@ import { HOMEPAGE_CATALOG_FETCH } from "@/lib/integration/homepage-fetch-profile
 import { externalProductsToCatalogItems } from "@/lib/integration/normalize";
 import {
   buildProviderSyncContext,
-  getProviderStoreMeta,
+  getSyncStoreMeta,
 } from "@/lib/integration/provider-context";
 import {
   getConfiguredProductionProviders,
@@ -202,4 +202,4 @@ export function getConfiguredProductionProvidersList(): ProductionProviderId[] {
   return getConfiguredProductionProviders();
 }
 
-export { getProviderStoreMeta };
+export { getSyncStoreMeta };

@@ -25,9 +25,26 @@ const providerInstances: Record<ImportProviderId, PartnerConnector> = {
 export function getProviderAdapter(providerId: ImportProviderId | string): PartnerConnector {
   const adapter = providerInstances[providerId as ImportProviderId];
   if (!adapter) {
-    return createAliExpressProvider();
+    throw new Error(
+      `Unknown sync provider adapter: "${providerId}". Register the provider in providerInstances — an unknown provider must never silently alias to a different (e.g. AliExpress) adapter.`,
+    );
   }
   return adapter;
+}
+
+/**
+ * Capability gate: whether a sync provider adapter can actually produce real
+ * products. Placeholder adapters (phase "placeholder") return empty sets by
+ * design — they must never be advertised as available merely because
+ * credentials exist (see the sync-bridge availability check). A "live" phase
+ * only means a real client path exists; actual activation is still decided by
+ * the credential/config checks.
+ */
+export function isSyncProviderCapable(providerId: ImportProviderId | string): boolean {
+  const adapter = providerInstances[providerId as ImportProviderId];
+  if (!adapter) return false;
+  const meta = (adapter as { meta?: { phase: "placeholder" | "live" } }).meta;
+  return meta?.phase === "live";
 }
 
 export function listProviderAdapters(): PartnerConnector[] {
