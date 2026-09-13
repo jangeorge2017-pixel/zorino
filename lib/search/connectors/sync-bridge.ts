@@ -1,5 +1,5 @@
 import type { ImportProviderId } from "@/lib/sync/providers/types";
-import { getProviderAdapter } from "@/lib/sync/providers";
+import { getProviderAdapter, isSyncProviderCapable } from "@/lib/sync/providers";
 import { buildProviderSyncContext } from "@/lib/integration/provider-context";
 import { isProductionProviderConfigured } from "@/lib/integration/provider-config";
 import { externalProductToRawListing } from "@/lib/search/normalization";
@@ -25,7 +25,15 @@ export function createSyncBridgeConnector(config: SyncBridgeConfig): SearchConne
     name: config.name,
 
     async isAvailable() {
-      return isProductionProviderConfigured(config.productionId);
+      // Credentials alone do not make a provider operational. A provider is
+      // available only when it passes BOTH the production-configuration gate
+      // AND the sync-capability gate (a non-placeholder adapter that can
+      // actually fetch real products). Placeholder sync adapters (walmart /
+      // temu / bestbuy / noon / jumia) return empty sets by design, so even
+      // fully-configured credentials must not advertise them as available —
+      // this closes the "configured but contributes 0" phantom-source path.
+      if (!isProductionProviderConfigured(config.productionId)) return false;
+      return isSyncProviderCapable(config.importId);
     },
 
     async search(query: string, options?: ConnectorSearchOptions): Promise<RawProviderListing[]> {
@@ -33,6 +41,7 @@ export function createSyncBridgeConnector(config: SyncBridgeConfig): SearchConne
       if (!trimmed) return [];
 
       if (!isProductionProviderConfigured(config.productionId)) return [];
+      if (!isSyncProviderCapable(config.importId)) return [];
 
       const connector = getProviderAdapter(config.importId);
       if (!connector.isConfigured()) return [];

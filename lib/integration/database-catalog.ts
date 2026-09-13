@@ -18,6 +18,7 @@ import {
   PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
+import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function db(client: SupabaseDb): any {
@@ -110,10 +111,10 @@ function rowToCatalogItem(row: LowestPriceRow): NormalizedCatalogItem {
 /**
  * Providers that carry real, image-bearing products in `lowest_prices_today`.
  * Used to (a) enumerate the real merchant universe and (b) filter the catalog.
- * Stub-only providers (temu, walmart, jumia, noon, best-buy) are excluded so
- * their legacy rows never surface in the homepage catalog or stats.
+ * Derived from the canonical provider registry (status === "active") so the
+ * set can never drift from the live-provider definition.
  */
-const REAL_CATALOG_PROVIDERS = ["admitad", "aliexpress", "ebay", "cjdropshipping"];
+const REAL_CATALOG_PROVIDERS = LIVE_PROVIDER_IDS;
 
 /** Reciprocal of the .in() filter above — kept for the per-merchant query. */
 function realProviderOr(): string {

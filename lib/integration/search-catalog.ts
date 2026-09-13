@@ -1,7 +1,7 @@
 import type { SearchResultItem } from "@/lib/data/homepage";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import type { ProductionProviderId } from "@/lib/integration/constants";
-import { getProviderStoreMeta, searchProviderToProductionId } from "@/lib/integration/provider-context";
+import { getSyncStoreMeta, searchProviderToProductionId } from "@/lib/integration/provider-context";
 import { normalizeProductImageUrl, PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 
@@ -28,7 +28,7 @@ function providerFromStoreSlug(storeSlug: string): ProductionProviderId {
 /** Map a search-engine card into the homepage catalog schema (keeps affiliate URL). */
 export function searchResultToCatalogItem(item: SearchResultItem): NormalizedCatalogItem {
   const providerId = providerFromStoreSlug(item.storeSlug || item.store);
-  const meta = getProviderStoreMeta(providerId) ?? {
+  const meta = getSyncStoreMeta(providerId) ?? {
     storeSlug: providerId,
     name: item.store || providerId,
   };

@@ -15,7 +15,7 @@ import { OXYLABS_AMAZON_MARKETPLACES } from "@/lib/integrations/oxylabs";
 import { getIntegrationCredential } from "@/lib/integration/credentials";
 import { computeDiscountPercent } from "@/lib/integration/normalize";
 import {
-  getProviderStoreMeta,
+  getSyncStoreMeta,
   searchProviderToProductionId,
 } from "@/lib/integration/provider-context";
 import type { ProductMatchTier } from "@/lib/search/relevance";
@@ -345,7 +345,7 @@ export function externalProductToRawListing(
   const productionId = searchProviderToProductionId(providerId);
   if (!productionId) return null;
 
-  const meta = getProviderStoreMeta(productionId);
+  const meta = getSyncStoreMeta(productionId);
   const originalPrice = product.originalPrice ?? product.price;
   const discount = product.discount ?? computeDiscountPercent(product.price, originalPrice);
 

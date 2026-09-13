@@ -19,10 +19,28 @@ const enableMultiMerchantDiscovery = process.env.ADMITAD_DISCOVER_MERCHANTS !== 
 let discoveryFeeds: AdmitadFeedConfig[] = [];
 let discoveryInitialized = false;
 
+/** Whether the Admitad Publisher API credentials required for discovery are set. */
+export function admitadCredentialsConfigured(): boolean {
+  return Boolean(
+    process.env.ADMITAD_CLIENT_ID?.trim() &&
+      process.env.ADMITAD_CLIENT_SECRET?.trim(),
+  );
+}
+
 /** Initialize multi-merchant discovery by running in a separate process. */
 export async function initializeMultiMerchantDiscovery(): Promise<void> {
   if (discoveryInitialized) return;
-  
+
+  // Without Publisher API credentials discovery can never authenticate —
+  // obtainAccessToken() throws before any network call. Short-circuit quietly
+  // so the common local/unconfigured case produces no error noise. Behavior is
+  // identical to the old catch path: discoveryFeeds stays empty and
+  // isAvailable() → getActiveProviderAdapters() → false.
+  if (!admitadCredentialsConfigured()) {
+    discoveryInitialized = true;
+    return;
+  }
+
   try {
     console.log('[admitad-config] Initializing multi-merchant discovery...');
     

@@ -2,7 +2,7 @@ import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { resolveProductDestination } from "@/lib/affiliate/product-url";
 import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
 import type { ProductionProviderId } from "@/lib/integration/constants";
-import { getProviderStoreMeta } from "@/lib/integration/provider-context";
+import { getSyncStoreMeta } from "@/lib/integration/provider-context";
 import type { ExternalProduct } from "@/lib/sync/types";
 import type { Deal, Product, Store, TrendingDealCard } from "@/lib/types/entities";
 
@@ -17,7 +17,7 @@ function offerDestination(offer?: ProviderOffer): string | null {
 }
 
 function storeForProvider(providerId: ProductionProviderId): Store {
-  const meta = getProviderStoreMeta(providerId);
+  const meta = getSyncStoreMeta(providerId);
   return {
     id: meta.storeId,
     name: meta.name,
@@ -37,7 +37,7 @@ export function externalProductToOffer(
   providerId: ProductionProviderId,
   product: ExternalProduct,
 ): ProviderOffer {
-  const meta = getProviderStoreMeta(providerId);
+  const meta = getSyncStoreMeta(providerId);
   const originalPrice = product.originalPrice ?? product.price;
   return {
     providerId,

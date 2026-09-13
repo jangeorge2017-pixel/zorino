@@ -556,9 +556,11 @@
     "rating2Plus": "٢+ نجوم",
     "sortRating": "التقييم",
     "resultsFound": "{count} نتيجة",
+    "resultsOfTotal": "{count} من {total} نتيجة",
     "clear": "مسح",
     "category": "التصنيف",
-    "store": "المتجر"
+    "store": "المتجر",
+    "loadMoreError": "تعذر تحميل المزيد من النتائج. حاول مرة أخرى."
   },
   "product": {
     "title": "تفاصيل المنتج",

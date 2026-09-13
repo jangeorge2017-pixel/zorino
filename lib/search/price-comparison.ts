@@ -1,7 +1,7 @@
 import type { NormalizedSearchListing, UnifiedSearchProduct } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import {
-  getProviderStoreMeta,
+  getSyncStoreMeta,
   searchProviderToProductionId,
 } from "@/lib/integration/provider-context";
 
@@ -18,7 +18,7 @@ export type PriceComparisonSummary = {
 /** Marketplace brand label for badges / filters (eBay, AliExpress, …). */
 export function marketplaceDisplayName(providerId: string): string {
   const productionId = searchProviderToProductionId(providerId);
-  if (productionId) return getProviderStoreMeta(productionId).name;
+  if (productionId) return getSyncStoreMeta(productionId).name;
   return providerId;
 }
 

@@ -1,7 +1,7 @@
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
 import { getActiveProductionProviders } from "@/lib/integration/provider-config";
 import { recordProviderRun } from "@/lib/integration/provider-health";
-import { getActiveSearchConnectors } from "@/lib/search/connectors/registry";
+import { getActiveProviderAdapters } from "@/lib/providers/adapter-registry";
 import {
   buildSearchCacheKey,
   getCachedSearch,
@@ -125,36 +125,52 @@ async function fetchProvidersInParallel(
 }> {
   await hydrateIntegrationCredentials();
 
-  const connectors = await getActiveSearchConnectors(options?.providers);
+  // All provider fan-out flows through the ProviderAdapter layer, which wraps
+  // the underlying SearchConnectors. This gives the engine a unified interface
+  // while preserving the exact same connectors, normalization, and availability
+  // checks as before.
+  const adapters = await getActiveProviderAdapters(options?.providers);
   const providerStats: SearchEngineResult["providers"] = [];
   const allRaw: RawProviderListing[] = [];
 
   await Promise.all(
-    connectors.map(async (connector) => {
+    adapters.map(async (adapter) => {
       const started = Date.now();
       try {
-        const batch = await Promise.race([
-          connector.search(query, {
+        const result = await Promise.race([
+          adapter.search(query, {
             minFetch: options?.minFetch ?? SEARCH_ENGINE_DEFAULTS.MIN_FETCH_COUNT,
             targetFetch: options?.targetFetch ?? SEARCH_ENGINE_DEFAULTS.TARGET_FETCH_COUNT,
             maxPages: options?.maxPages,
           }),
-          new Promise<RawProviderListing[]>((resolve) =>
-            setTimeout(() => resolve([]), PROVIDER_FETCH_TIMEOUT_MS),
+          new Promise<{ providerId: SearchProviderId; listings: RawProviderListing[]; durationMs: number }>(
+            (resolve) =>
+              setTimeout(
+                () =>
+                  resolve({
+                    providerId: adapter.id,
+                    listings: [],
+                    // A timed-out provider contributes no fetched/normalized
+                    // results and its duration is not credited.
+                    durationMs: 0,
+                  }),
+                PROVIDER_FETCH_TIMEOUT_MS,
+              ),
           ),
         ]);
-        allRaw.push(...batch);
-        recordProviderRun(connector.id, batch.length);
+        allRaw.push(...result.listings);
+        recordProviderRun(result.providerId, result.listings.length);
         providerStats.push({
-          providerId: connector.id,
-          fetched: batch.length,
-          normalized: batch.length,
-          durationMs: Date.now() - started,
+          providerId: result.providerId,
+          fetched: result.listings.length,
+          normalized: result.listings.length,
+          durationMs:
+            result.durationMs > 0 ? result.durationMs : Date.now() - started,
         });
       } catch (err) {
-        recordProviderRun(connector.id, 0);
+        recordProviderRun(adapter.id, 0);
         providerStats.push({
-          providerId: connector.id,
+          providerId: adapter.id,
           fetched: 0,
           normalized: 0,
           error: err instanceof Error ? err.message : String(err),
@@ -253,6 +269,56 @@ export async function searchProducts(
   });
 
   return mixed;
+}
+
+/** One page of search results (offset/limit view over a cached, balanced pool). */
+export type SearchPageResult = {
+  items: SearchResultItem[];
+  total: number;
+  offset: number;
+  limit: number;
+  hasMore: boolean;
+};
+
+/**
+ * Pure slice of a balanced search pool into a page. Kept standalone so the
+ * offset/limit/hasMore contract is unit-testable without live providers.
+ */
+export function sliceSearchPage(
+  pool: SearchResultItem[],
+  offset: number,
+  limit: number
+): SearchPageResult {
+  const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
+  const safeLimit = Number.isFinite(limit)
+    ? Math.max(1, Math.floor(limit))
+    : SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
+  const items = pool.slice(safeOffset, safeOffset + safeLimit);
+  return {
+    items,
+    total: pool.length,
+    offset: safeOffset,
+    limit: safeLimit,
+    hasMore: safeOffset + safeLimit < pool.length,
+  };
+}
+
+/**
+ * Paged view over the unified search pool. The full balanced pool is fetched
+ * (and cached, exactly as searchProducts does) and then sliced — so page 1,
+ * page 2, … always describe the same stable sequence from one search.
+ */
+export async function searchProductsPaged(
+  query: string,
+  offset: number,
+  limit: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE
+): Promise<SearchPageResult> {
+  const trimmed = query.trim();
+  if (!trimmed) {
+    return { items: [], total: 0, offset: 0, limit, hasMore: false };
+  }
+  const pool = await searchProducts(trimmed, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
+  return sliceSearchPage(pool, offset, limit);
 }
 
 /** Keep cheapest-offer mapping available for non-search callers. */

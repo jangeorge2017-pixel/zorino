@@ -35,7 +35,7 @@ export class NoonProvider extends BaseConnector {
   readonly meta: ProviderAdapterMeta = {
     id: "noon" as ImportProviderId,
     name: "Noon UAE/KSA",
-    phase: "live",
+    phase: "placeholder",
     apiDocs: "https://www.noon.com/help/platform",
   };
 

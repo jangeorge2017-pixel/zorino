@@ -30,9 +30,12 @@ export const amazonSearchConnector: SearchConnector = {
   name: "Amazon",
 
   async isAvailable() {
-    // Always available: the store must never disappear when a single
-    // data source (Creators API or Oxylabs) is unavailable.
-    return true;
+    // Credentials-backed: only a REAL Amazon data source (Creators API or
+    // Oxylabs) makes the store available. Without either there is no genuine
+    // Amazon product data, so the connector must not report as operational —
+    // it would run on every fan-out, burn the provider timeout budget, and get
+    // recorded as "available, fetched 0".
+    return isAmazonConfigured() || isOxylabsConfigured();
   },
 
   async search(query: string, options?: ConnectorSearchOptions): Promise<RawProviderListing[]> {

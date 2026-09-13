@@ -1,7 +1,7 @@
 import type { SearchConnector, ConnectorSearchOptions } from "@/lib/search/connectors/types";
 import type { RawProviderListing } from "@/lib/search/types";
 import { AMAZON_EG_SEED_LINKS } from "@/lib/amazon-eg/seed-links";
-import { getAmazonCredentials } from "@/lib/integrations/amazon/config";
+import { getAmazonCredentials, isAmazonConfigured } from "@/lib/integrations/amazon/config";
 import { getCreatorsAccessToken } from "@/lib/integrations/amazon/auth";
 import {
   fetchOxylabsAmazonProduct,
@@ -164,7 +164,11 @@ export const amazonEgSearchConnector: SearchConnector = {
   name: "Amazon Egypt",
 
   async isAvailable(): Promise<boolean> {
-    return true;
+    // Credentials-backed: same rule as the US Amazon connector. The seed-link
+    // path alone returns [] without real product data (enrichment requires
+    // Creators API / Oxylabs), so without credentials the connector must not
+    // report as operational.
+    return isAmazonConfigured() || isOxylabsConfigured();
   },
 
   async search(

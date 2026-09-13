@@ -1,19 +1,10 @@
 /** Production marketplace providers enabled for live catalog + search integration. */
-export const PRODUCTION_PROVIDER_IDS = [
-  "aliexpress",
-  "ebay",
-  "amazon",
-  "amazon-eg",
-  "cjdropshipping",
-  "walmart",
-  "bestbuy",
-  "temu",
-  "noon",
-  "jumia",
-  "admitad",
-] as const;
+import { PROVIDER_IDS } from "@/lib/providers/registry";
+import type { ProviderId } from "@/lib/providers/registry";
 
-export type ProductionProviderId = (typeof PRODUCTION_PROVIDER_IDS)[number];
+export const PRODUCTION_PROVIDER_IDS: readonly ProviderId[] = PROVIDER_IDS;
+
+export type ProductionProviderId = ProviderId;
 
 export const DEFAULT_INTEGRATION_COUNTRY = "US";
 export const DEFAULT_INTEGRATION_CURRENCY = "USD";

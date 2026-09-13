@@ -3,7 +3,8 @@ import type { ProductDetail } from "@/lib/data/product-detail";
 import type { Product, Store } from "@/lib/types/entities";
 import type { CompareProductResult } from "@/services/compare";
 import { computeCompareStats } from "@/lib/compare/merge";
-import { getAliExpressProductDetail } from "@/services/aliexpress/search";
+import { resolveProviderProductDetail } from "@/lib/providers/adapter-registry";
+import { getProviderStoreMeta } from "@/lib/providers/registry";
 import { normalizeEbayRaw } from "@/lib/search/normalization";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { SEARCH_PROVIDER_IDS } from "@/lib/search/types";
@@ -17,74 +18,8 @@ import { resolveStoreLogoSrc } from "@/lib/assets";
 import type { AdmitadFeedOffer } from "@/lib/integrations/admitad/types";
 import type { OxylabsAmazonMarketplaceKey } from "@/lib/integrations/oxylabs";
 
-const STORE_META: Record<string, Pick<Store, "id" | "name" | "slug" | "website" | "logoInitial">> = {
-  aliexpress: {
-    id: "aliexpress",
-    name: "AliExpress",
-    slug: "aliexpress",
-    website: "https://www.aliexpress.com",
-    logoInitial: "AE",
-  },
-  ebay: {
-    id: "ebay",
-    name: "eBay",
-    slug: "ebay",
-    website: "https://www.ebay.com",
-    logoInitial: "EB",
-  },
-  walmart: {
-    id: "walmart",
-    name: "Walmart",
-    slug: "walmart",
-    website: "https://www.walmart.com",
-    logoInitial: "WM",
-  },
-  temu: {
-    id: "temu",
-    name: "Temu",
-    slug: "temu",
-    website: "https://www.temu.com",
-    logoInitial: "TM",
-  },
-  bestbuy: {
-    id: "bestbuy",
-    name: "Best Buy",
-    slug: "best-buy",
-    website: "https://www.bestbuy.com",
-    logoInitial: "BB",
-  },
-  noon: {
-    id: "noon",
-    name: "Noon",
-    slug: "noon",
-    website: "https://www.noon.com",
-    logoInitial: "NN",
-  },
-  jumia: {
-    id: "jumia",
-    name: "Jumia",
-    slug: "jumia",
-    website: "https://www.jumia.com",
-    logoInitial: "JM",
-  },
-  amazon: {
-    id: "amazon",
-    name: "Amazon",
-    slug: "amazon",
-    website: "https://www.amazon.eg",
-    logoInitial: "AZ",
-  },
-  "amazon-eg": {
-    id: "amazon-eg",
-    name: "Amazon Egypt",
-    slug: "amazon-eg",
-    website: "https://www.amazon.eg",
-    logoInitial: "AZ",
-  },
-};
-
 export function buildStore(slug: string, displayName?: string): Store {
-  const meta = STORE_META[slug] ?? {
+  const meta = getProviderStoreMeta(slug) ?? {
     id: slug,
     name: displayName || slug,
     slug,
@@ -849,8 +784,10 @@ async function resolveMarketplaceProductDetailBase(
   }
 
   if (providerId === "aliexpress") {
-    // Real AliExpress numeric product id — safe to call the API directly.
-    return getAliExpressProductDetail(`aliexpress-${externalId}`);
+    // Real AliExpress numeric product id — resolved through the provider
+    // adapter layer (same real AliExpress API client as before), never a
+    // provider-specific import in this layer.
+    return resolveProviderProductDetail("aliexpress", externalId);
   }
 
   if (providerId === "unknown") {

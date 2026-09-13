@@ -165,6 +165,31 @@ export const CONNECTOR_REGISTRY: ConnectorSpec[] = [
     notes: "Real implementation exists but no production credentials configured on Vercel",
   },
 
+  // ── Amazon Egypt ──────────────────────────────────────────────────────
+  {
+    id: "amazon-eg",
+    name: "Amazon Egypt",
+    category: "marketplace",
+    description: "Amazon Egypt (www.amazon.eg) via Creators API + Oxylabs for the EG marketplace",
+    envVars: [
+      { name: "AMAZON_CREATORS_CLIENT_ID", requirement: "required", description: "Amazon Creators API Client ID", secret: false },
+      { name: "AMAZON_CREATORS_CLIENT_SECRET", requirement: "required", description: "Amazon Creators API Client Secret", secret: true },
+      { name: "AMAZON_EG_ASSOCIATE_TAG", requirement: "optional", description: "Amazon.eg Associates tracking tag", secret: false, defaultValue: "zorinoeg-21" },
+      { name: "AMAZON_CREATORS_MARKETPLACE", requirement: "optional", description: "Amazon marketplace domain", secret: false, defaultValue: "www.amazon.eg" },
+    ],
+    implementationFiles: [
+      "lib/integrations/amazon/",
+      "lib/search/connectors/amazon-eg.ts",
+      "lib/amazon-eg/seed-links.ts",
+    ],
+    hasSearchConnector: true,
+    hasSyncProvider: false,
+    hasAffiliateLinks: true,
+    hasCatalogIntegration: true,
+    producesRealResults: true,
+    notes: "Creators API + Oxylabs enrichment for amazon.eg ASINs. Returns [] without credentials.",
+  },
+
   // ── Admitad (Alibaba feed) ─────────────────────────────────────────
   {
     id: "admitad",
