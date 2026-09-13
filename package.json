@@ -36,7 +36,8 @@
     "affiliate:verify": "node scripts/verify-affiliate.mjs",
     "admin:create": "node scripts/create-admin.mjs",
     "assets:generate": "node scripts/generate-missing-assets.mjs",
-    "assets:verify": "node scripts/verify-assets.mjs"
+    "assets:verify": "node scripts/verify-assets.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -58,9 +59,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^3.2.7",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   }
 }
