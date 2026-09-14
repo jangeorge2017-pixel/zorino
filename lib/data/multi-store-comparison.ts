@@ -2,6 +2,7 @@ import type { CompareProductResult, CompareOffer } from "@/services/compare";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import { searchProducts } from "@/lib/search/engine";
 import { buildStore } from "@/lib/data/marketplace-product-detail";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 
 /**
  * Multi-store comparison enrichment.
@@ -46,7 +47,12 @@ const SKIP_NOISE = new Set([
   "colors", "color", "colour", "esim", "sim", "inch", "inches", "1in", "only",
 ]);
 
-const MIN_TITLE_SIMILARITY = 0.55;
+// Cosine similarity over filtered token sets. 0.40 together with the
+// sharedCoreTokens>=1 guard admits genuine model-variant twins whose titles
+// differ in spelling/packaging ("Samsung Galaxy Watch 4 44mm" vs "Samsung
+// Galaxy Watch4 SM-R870 Blk" score 0.5) while the token guard still rejects
+// unrelated listings that happen to share a generic word.
+const MIN_TITLE_SIMILARITY = 0.4;
 const MIN_PRICE_RATIO = 0.33;
 const MAX_PRICE_RATIO = 3;
 const MAX_EXTRA_OFFERS = 4;
@@ -99,6 +105,24 @@ export function titleSimilarity(a: string, b: string): number {
   let inter = 0;
   for (const t of sa) if (sb.has(t)) inter += 1;
   return inter / Math.sqrt(sa.size * sb.size);
+}
+
+/**
+ * Count of meaningful title tokens shared between two product names.
+ *
+ * Works over the same stopword-filtered token sets as titleSimilarity, so a
+ * shared token is a loaded identifier (brand/model/capacity word) — not "the",
+ * "for", or a bare number. A genuinely comparable product must share at least
+ * one such token with the base product; this hard guard is what lets the
+ * similarity threshold be loosened without also admitting unrelated listings
+ * that share only a generic word.
+ */
+export function sharedCoreTokens(a: string, b: string): number {
+  const sa = setTitle(tokenizeTitle(a));
+  const sb = setTitle(tokenizeTitle(b));
+  let shared = 0;
+  for (const t of sa) if (sb.has(t)) shared += 1;
+  return shared;
 }
 
 /**
@@ -173,6 +197,92 @@ function offerFromSearchItem(item: SearchResultItem, baseProductId: string): Com
   };
 }
 
+export type ScoredCandidate = {
+  item: SearchResultItem;
+  score: number;
+  ratio: number;
+  storeSlug: string;
+};
+
+/**
+ * Score a single search-engine candidate against a base product and decide
+ * whether it is the SAME product available on another store.
+ *
+ * Strict real-data rules (nothing fabricated, ever):
+ *  - Must not duplicate an already-attached offer.
+ *  - Must come from a store not already represented in the base result.
+ *  - Must carry a REAL, shoppable product-level destination URL. A merchant
+ *    homepage, search/category page or opaque link never qualifies — such a
+ *    listing is left unshoppable instead of being silently attached.
+ *  - Must be in stock at a positive price inside the base price band
+ *    (look-alike accessories that are much cheaper than the base product are
+ *    rejected even when their titles overlap).
+ *  - Must share at least one meaningful title token with the base product and
+ *    clear MIN_TITLE_SIMILARITY cosine over the filtered token sets.
+ *
+ * Returns null when the candidate is a different product or cannot be shopped,
+ * so enrichment never attaches a fabricated or unreachable offer.
+ */
+export function scoreCompareCandidate(
+  baseName: string,
+  basePrice: number,
+  candidate: SearchResultItem,
+  knownStores: ReadonlySet<string>,
+  knownOfferIds: ReadonlySet<string>,
+): ScoredCandidate | null {
+  if (!candidate.name) return null;
+  if (knownOfferIds.has(`${candidate.storeSlug}-${candidate.id}`)) return null;
+  const storeSlug = candidate.storeSlug || "partner";
+  if (knownStores.has(storeSlug)) return null;
+  if (candidate.price <= 0 || !candidate.inStock) return null;
+  if (!isValidProductDestinationUrl(candidate.affiliateUrl)) return null;
+
+  const ratio = candidate.price / basePrice;
+  if (ratio < MIN_PRICE_RATIO || ratio > MAX_PRICE_RATIO) return null;
+
+  if (sharedCoreTokens(baseName, candidate.name) < 1) return null;
+  const score = titleSimilarity(baseName, candidate.name);
+  if (score < MIN_TITLE_SIMILARITY) return null;
+
+  return { item: candidate, score, ratio, storeSlug };
+}
+
+/**
+ * Pick the qualifying cross-store extras for a base product: the highest-scoring
+ * match per store, capped at MAX_EXTRA_OFFERS, in score order. Pure and
+ * synchronous so the cross-store matching rules can be regression-tested
+ * without a network.
+ */
+export function selectCompareExtras(
+  baseName: string,
+  basePrice: number,
+  candidates: readonly SearchResultItem[],
+  knownStores: ReadonlySet<string>,
+  knownOfferIds: ReadonlySet<string>,
+  baseProductId: string,
+): CompareOffer[] {
+  const bestPerStore = new Map<string, ScoredCandidate>();
+  for (const candidate of candidates) {
+    const scored = scoreCompareCandidate(
+      baseName,
+      basePrice,
+      candidate,
+      knownStores,
+      knownOfferIds,
+    );
+    if (!scored) continue;
+    const existing = bestPerStore.get(scored.storeSlug);
+    if (!existing || scored.score > existing.score) {
+      bestPerStore.set(scored.storeSlug, scored);
+    }
+  }
+
+  return [...bestPerStore.values()]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, MAX_EXTRA_OFFERS)
+    .map(({ item }) => offerFromSearchItem(item, baseProductId));
+}
+
 type EnrichedEntry = {
   result: CompareProductResult;
   expiresAt: number;
@@ -225,7 +335,12 @@ async function enrichCompareResultUncached(
   const knownStores = new Set(
     result.offers.map((o) => o.provider ?? o.store?.slug ?? o.storeId),
   );
-  const knownIds = new Set(result.offers.map((o) => o.id));
+  const knownIds = new Set(
+    result.offers.map((o) => {
+      const slug = o.provider ?? o.store?.slug ?? o.storeId;
+      return `${slug}-${o.id.replace(/^price-/, "")}`;
+    }),
+  );
 
   let candidates: SearchResultItem[];
   try {
@@ -234,29 +349,14 @@ async function enrichCompareResultUncached(
     return result;
   }
 
-  const bestPerStore = new Map<string, { item: SearchResultItem; score: number }>();
-  for (const candidate of candidates) {
-    if (knownIds.has(`${candidate.storeSlug}-${candidate.id}`)) continue;
-    const slug = candidate.storeSlug || "partner";
-    if (knownStores.has(slug)) continue;
-    if (candidate.price <= 0 || !candidate.inStock) continue;
-
-    const ratio = candidate.price / basePrice;
-    if (ratio < MIN_PRICE_RATIO || ratio > MAX_PRICE_RATIO) continue;
-
-    const score = titleSimilarity(baseName, candidate.name);
-    if (score < MIN_TITLE_SIMILARITY) continue;
-
-    const existing = bestPerStore.get(slug);
-    if (!existing || score > existing.score) {
-      bestPerStore.set(slug, { item: candidate, score });
-    }
-  }
-
-  const extras = [...bestPerStore.values()]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, MAX_EXTRA_OFFERS)
-    .map(({ item }) => offerFromSearchItem(item, result.product.id));
+  const extras = selectCompareExtras(
+    baseName,
+    basePrice,
+    candidates,
+    knownStores,
+    knownIds,
+    result.product.id,
+  );
 
   if (extras.length === 0) return result;
 
