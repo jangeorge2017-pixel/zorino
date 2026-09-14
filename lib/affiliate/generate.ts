@@ -4,6 +4,11 @@ import {
   extractMarketplaceFromUrl,
   resolveMarketplace,
 } from "@/lib/affiliate/config";
+import {
+  isAlreadyTrackedAliExpressUrl,
+  isCredibleAliExpressTrackingId,
+} from "@/lib/affiliate/aliexpress-tracking";
+import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
 
 export type AffiliatePartnerConfig = {
   marketplace: AffiliateMarketplace;
@@ -33,11 +38,23 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
 
   // AliExpress: never invent tracking IDs — portal service owns this path.
   if (marketplace === "aliexpress") {
+    const destination = input.destinationUrl.trim();
+    // Only a REAL AliExpress product page may be tagged. A homepage, search or
+    // category URL is never converted into a tracked link.
+    if (!isValidAliExpressDestinationUrl(destination)) return input.destinationUrl;
+    // Never re-tag a URL that already carries AliExpress tracking (Open API /
+    // portal promotion links, s.click deep-links).
+    if (isAlreadyTrackedAliExpressUrl(destination)) return input.destinationUrl;
+
     const trackingId =
       input.partnerTag?.trim() ||
       process.env.ALIEXPRESS_TRACKING_ID?.trim() ||
       null;
-    if (!trackingId) return input.destinationUrl;
+    // Placeholder / default / test values are treated as UNCONFIGURED — the
+    // real product URL stays untouched rather than emitting aff_trace_key=default.
+    if (!trackingId || !isCredibleAliExpressTrackingId(trackingId)) {
+      return input.destinationUrl;
+    }
     try {
       const url = new URL(input.destinationUrl);
       const base = process.env.ALIEXPRESS_AFFILIATE_BASE_URL?.trim();
