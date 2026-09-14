@@ -9,6 +9,10 @@ import {
   isCredibleAliExpressTrackingId,
 } from "@/lib/affiliate/aliexpress-tracking";
 import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
+import {
+  buildCjPassThroughUrl,
+  isNonAffiliatePassThroughMarketplace,
+} from "@/lib/affiliate/cjdropshipping-passthrough";
 
 export type AffiliatePartnerConfig = {
   marketplace: AffiliateMarketplace;
@@ -35,6 +39,13 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
     extractMarketplaceFromUrl(input.destinationUrl);
 
   if (!marketplace) return input.destinationUrl;
+
+  // CJdropshipping: no legitimate product-level affiliate capability — the real
+  // product URL is the ONLY correct destination. Never fabricate tracking IDs,
+  // referral codes, or affiliate params. Pass through byte-identical.
+  if (isNonAffiliatePassThroughMarketplace(marketplace)) {
+    return buildCjPassThroughUrl(input.destinationUrl).url ?? input.destinationUrl;
+  }
 
   // AliExpress: never invent tracking IDs — portal service owns this path.
   if (marketplace === "aliexpress") {
