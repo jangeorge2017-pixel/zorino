@@ -4,6 +4,10 @@ import {
   type AffiliateMarketplace,
 } from "@/lib/affiliate/config";
 import { buildAffiliateUrl, getPartnerTagFromEnv } from "@/lib/affiliate/generate";
+import {
+  buildCjPassThroughUrl,
+  isNonAffiliatePassThroughMarketplace,
+} from "@/lib/affiliate/cjdropshipping-passthrough";
 import { createSupabaseAnonClient, createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { SupabaseDb } from "@/lib/supabase/config";
 
@@ -87,6 +91,14 @@ export async function generateProductAffiliateUrl(input: {
     input.marketplace ??
     (input.storeSlug?.toLowerCase() as AffiliateMarketplace | undefined) ??
     null;
+
+  // CJdropshipping: no legitimate product-level affiliate capability — its
+  // affiliate program is a merchant-referral scheme and its v2.0 product API
+  // returns no affiliate/promotion-link field. Pass the destination through
+  // untouched (byte-identical) — never fabricate tracking.
+  if (isNonAffiliatePassThroughMarketplace(marketplace ?? "")) {
+    return buildCjPassThroughUrl(input.destinationUrl).url ?? input.destinationUrl;
+  }
 
   // Marketplaces without an affiliate integration (e.g. cjdropshipping) have
   // no partner-tag config — pass the destination through untouched instead of
