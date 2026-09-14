@@ -4,6 +4,11 @@ import {
   type AliExpressPortalConfig,
   validateAliExpressPortalEnv,
 } from "@/lib/affiliate/providers/aliexpress/portal-config";
+import {
+  isAlreadyTrackedAliExpressUrl,
+  isCredibleAliExpressTrackingId,
+} from "@/lib/affiliate/aliexpress-tracking";
+import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
 
 /**
  * Build an AliExpress Affiliate Portal tracking URL.
@@ -26,7 +31,31 @@ export function buildAliExpressPortalAffiliateLink(
     };
   }
 
-  if (!resolved.trackingId) {
+  // Only a REAL AliExpress product page may be tagged — a homepage, search or
+  // category URL is never turned into a tracked link.
+  if (!isValidAliExpressDestinationUrl(original)) {
+    return {
+      url: original,
+      source: "original",
+      providerId: "aliexpress",
+      trackingApplied: false,
+    };
+  }
+
+  // Never re-tag a URL that already carries AliExpress tracking (Open API /
+  // portal promotion links, s.click deep-links).
+  if (isAlreadyTrackedAliExpressUrl(original)) {
+    return {
+      url: original,
+      source: "original",
+      providerId: "aliexpress",
+      trackingApplied: false,
+    };
+  }
+
+  // Placeholder / default / test values are treated as UNCONFIGURED — fail
+  // safe back to the real product URL instead of emitting aff_trace_key=default.
+  if (!resolved.trackingId || !isCredibleAliExpressTrackingId(resolved.trackingId)) {
     return {
       url: original,
       source: "original",
