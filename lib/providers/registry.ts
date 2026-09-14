@@ -53,6 +53,12 @@ export const PROVIDER_REGISTRY: ProviderConfig[] = [
     id: "amazon",
     name: "Amazon",
     version: "1.0.0",
+    // PHASE 5 DECISION: amazon/amazon-eg are INDIRECT — the only approved
+    // acquisition path is affiliate/network URL → host-guarded ASIN extraction
+    // → indirect ingestion → RawOffer → validate → canonicalize. The LATENT
+    // DIRECT path (query → Creators API / Oxylabs) is isolated/deferred and
+    // requires AMAZON_DIRECT_ENABLE=1 to even advertise as configured — adding
+    // credentials alone must never activate it.
     status: "configured",
     integrationType: "amazon",
     requiredEnvVars: ["AMAZON_CREATORS_CLIENT_ID", "AMAZON_CREATORS_CLIENT_SECRET"],

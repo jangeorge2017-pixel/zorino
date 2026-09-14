@@ -65,6 +65,9 @@ export type IngestionExtractor = (
 
 const extractionStrategies = new Map<string, IngestionExtractor>();
 
+/** Modeled after the extractor registry: tracks whether built-ins are seeded. */
+let builtInExtractorsRegistered = false;
+
 /** Register an extractor for a detected product format (e.g. "asin"). */
 export function registerExtractionStrategy(
   productType: string,
@@ -80,9 +83,10 @@ export function getExtractionStrategy(
   return extractionStrategies.get(productType);
 }
 
-/** Reset the registry (tests / hot reload). */
+/** Reset the registry (tests / hot reload) so built-ins register again. */
 export function resetExtractionStrategiesForTests(): void {
   extractionStrategies.clear();
+  builtInExtractorsRegistered = false;
 }
 
 // ---------------------------------------------------------------------------
@@ -156,7 +160,13 @@ export function detectProductFromUrl(url: string): ProductDetection {
 // Built-in product-format extraction strategies
 // ---------------------------------------------------------------------------
 
-function isAmazonHost(url: string): boolean {
+/**
+ * Host guard: is this destination an Amazon property?
+ * ASIN is an Amazon identifier, so the "asin" strategy must never fire on
+ * another network's resolved URL — one network's links can never trigger
+ * another network's extractor.
+ */
+export function isAmazonHost(url: string): boolean {
   try {
     const host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
     return host === "amazon.com" || host.endsWith(".amazon.com") || /^amazon\./.test(host);
@@ -167,11 +177,11 @@ function isAmazonHost(url: string): boolean {
 
 /**
  * "asin" product-format strategy — extracts real product data from the Amazon
- * Creators API. ASIN is an Amazon identifier, so this strategy only resolves
- * when the destination host is an Amazon property (one network's links cannot
- * trigger another network's extractor).
+ * Creators API. Routed by the engine PURELY by detected product format
+ * ("asin"), never by provider id; the host guard (`isAmazonHost`) makes sure
+ * it cannot accidentally fire on another network's URLs.
  */
-async function extractAmazonAsin(
+export async function extractAmazonAsin(
   detection: Extract<ProductDetection, { found: true }>,
   affiliateUrl: string,
   resolvedUrl: string,
@@ -257,8 +267,6 @@ function amazonItemToCatalogItem(
   };
 }
 
-let builtInExtractorsRegistered = false;
-
 function ensureBuiltInExtractors(): void {
   if (builtInExtractorsRegistered) return;
   builtInExtractorsRegistered = true;
@@ -296,7 +304,7 @@ async function buildIngestionSources(): Promise<ProviderIngestionSource[]> {
 // Processing engine (one generic loop for every source)
 // ---------------------------------------------------------------------------
 
-type IngestionEntry = {
+export type IngestionEntry = {
   source: string;
   sourceSlug: string;
   affiliateUrl: string;
@@ -305,14 +313,21 @@ type IngestionEntry = {
   catalogItem: NormalizedCatalogItem | null;
 };
 
-async function processSource(
+/**
+ * Process ONE declarative ingestion source through the single generic engine
+ * loop. Exported for tests / admin diagnostics; production entry points call
+ * it via `getIngestedCatalogItems` / `getIngestionReport`.
+ */
+export async function processSource(
   source: ProviderIngestionSource,
 ): Promise<IngestionEntry[]> {
   ensureBuiltInExtractors();
 
   const entries = await Promise.all(
     source.urls.map(async (entry) => {
-      const resolvedUrl = await resolveRedirect(entry.affiliateUrl);
+      const resolvedUrl = entry.affiliateUrl
+        ? await resolveRedirect(entry.affiliateUrl)
+        : "";
       const detection = detectProductFromUrl(resolvedUrl);
       let catalogItem: NormalizedCatalogItem | null = null;
 

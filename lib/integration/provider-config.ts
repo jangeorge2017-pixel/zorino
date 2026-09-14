@@ -3,7 +3,7 @@ import {
   type ProductionProviderId,
 } from "@/lib/integration/constants";
 import { isAliExpressConfigured } from "@/lib/integrations/aliexpress";
-import { isAmazonConfigured } from "@/lib/integrations/amazon";
+import { isAmazonConfigured, isAmazonDirectEnabled } from "@/lib/integrations/amazon";
 import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 import { isIntegrationConfigured } from "@/lib/integration/credentials";
 import { isOxylabsConfigured } from "@/lib/integrations/oxylabs";
@@ -30,6 +30,14 @@ import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshippin
  * ACTIVATABLE when credentials are added (currently no credentials on Vercel):
  *   amazon / amazon-eg — Amazon Creators API or Oxylabs scraper credentials
  *
+ * PHASE 5 DECISION: AMAZON AND AMAZON-EG ARE INDIRECT. The only approved
+ * acquisition path is affiliate/network URL → host-guarded ASIN extraction →
+ * indirect ingestion. The LATENT DIRECT path (query → Creators API / Oxylabs)
+ * stays isolated/deferred: adding credentials later must NOT activate it. Both
+ * amazon / amazon-eg report configured ONLY behind the explicit
+ * AMAZON_DIRECT_ENABLE=1 architecture opt-in. (The approved indirect
+ * affiliate-ingestion path is unaffected and remains credential-gated.)
+ *
  * UNAVAILABLE placeholders (no credentials on Vercel). Capability-gated:
  *   credentials alone can never make these report as available, because their
  *   sync adapters are placeholders that cannot produce real products.
@@ -55,15 +63,18 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
     case "cjdropshipping":
       return createCJdropshippingProvider().isConfigured();
 
-    // --- UNAVAILABLE in production (no credentials configured) ---
-    // Amazon is only advertised as configured when a REAL Amazon data source is
-    // present: Amazon Creators API credentials OR the Oxylabs Amazon scraper.
-    // Without either there is no genuine Amazon product data, so Amazon must
-    // not be falsely reported as active/configured. Never fabricated.
+    // --- PHASE 5: AMAZON / AMAZON-EG ARE INDIRECT (latent direct isolated) ---
+    // Amazon is only advertised as configured when BOTH the explicit
+    // AMAZON_DIRECT_ENABLE=1 architecture opt-in AND a REAL Amazon data source
+    // (Creators API credentials OR the Oxylabs Amazon scraper) are present.
+    // This ensures the latent direct search/sync path can never activate
+    // merely because credentials are later added to Vercel. The approved
+    // indirect path (affiliate URL → ASIN → ingestion) does not flow through
+    // this gate. Never fabricated.
     case "amazon":
-      return isAmazonConfigured() || isOxylabsConfigured();
+      return isAmazonDirectEnabled() && (isAmazonConfigured() || isOxylabsConfigured());
     case "amazon-eg":
-      return isAmazonConfigured() || isOxylabsConfigured();
+      return isAmazonDirectEnabled() && (isAmazonConfigured() || isOxylabsConfigured());
     case "walmart":
       return createWalmartProvider().isConfigured(); // Requires WALMART_API_KEY
     case "temu":

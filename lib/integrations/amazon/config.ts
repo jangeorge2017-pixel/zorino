@@ -3,6 +3,30 @@ import { getIntegrationCredential } from "@/lib/integration/credentials";
 /** Default Amazon Associates tracking ID for ZORINO production. */
 export const AMAZON_DEFAULT_ASSOCIATE_TAG = "zorino-20";
 
+/**
+ * ≡≡≡ PHASE 5 ARCHITECTURAL DECISION (enforced) ≡≡≡
+ *
+ * AMAZON AND AMAZON-EG ARE INDIRECT for the current production architecture.
+ *
+ * The ONLY approved Amazon acquisition path is:
+ *   affiliate/network URL → host-guarded ASIN extraction → indirect ingestion
+ *   → RawOffer → validate → canonicalize.
+ *
+ * The LATENT DIRECT Amazon path (query → Amazon Creators API / Oxylabs) is
+ * deliberately isolated and deferred. It must NEVER become active merely
+ * because credentials are later added to Vercel. Activating it requires an
+ * EXPLICIT opt-in: set AMAZON_DIRECT_ENABLE=1 in production env (first
+ * revisiting this decision) — a future credential addition alone cannot
+ * switch the normal Phase 5 indirect pipeline to the direct path.
+ */
+export const AMAZON_DIRECT_ENABLE_KEY = "AMAZON_DIRECT_ENABLE" as const;
+
+/** Explicit architecture opt-in gate for the latent DIRECT Amazon acquisition path. */
+export function isAmazonDirectEnabled(): boolean {
+  const value = getIntegrationCredential(AMAZON_DIRECT_ENABLE_KEY)?.trim().toLowerCase();
+  return value === "1" || value === "true" || value === "yes" || value === "on";
+}
+
 export const AMAZON_CREDENTIAL_KEYS = {
   CLIENT_ID: "AMAZON_CREATORS_CLIENT_ID",
   CLIENT_SECRET: "AMAZON_CREATORS_CLIENT_SECRET",

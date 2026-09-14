@@ -1,7 +1,7 @@
 import type { SearchConnector, ConnectorSearchOptions } from "@/lib/search/connectors/types";
 import type { RawProviderListing } from "@/lib/search/types";
 import { AMAZON_EG_SEED_LINKS } from "@/lib/amazon-eg/seed-links";
-import { getAmazonCredentials, isAmazonConfigured } from "@/lib/integrations/amazon/config";
+import { getAmazonCredentials, isAmazonConfigured, isAmazonDirectEnabled } from "@/lib/integrations/amazon/config";
 import { getCreatorsAccessToken } from "@/lib/integrations/amazon/auth";
 import {
   fetchOxylabsAmazonProduct,
@@ -168,7 +168,14 @@ export const amazonEgSearchConnector: SearchConnector = {
     // path alone returns [] without real product data (enrichment requires
     // Creators API / Oxylabs), so without credentials the connector must not
     // report as operational.
-    return isAmazonConfigured() || isOxylabsConfigured();
+    //
+    // Phase 5 decision (AMAZON-EG IS INDIRECT): this is the LATENT DIRECT path
+    // (seed ASINs → Creators API getItems / Oxylabs). It must NOT activate
+    // merely because credentials are later added — it requires the explicit
+    // AMAZON_DIRECT_ENABLE=1 architecture opt-in. The approved indirect path
+    // (affiliate URL → host-guarded ASIN → ingestion) does not use this
+    // connector.
+    return isAmazonDirectEnabled() && (isAmazonConfigured() || isOxylabsConfigured());
   },
 
   async search(

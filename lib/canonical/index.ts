@@ -13,6 +13,7 @@ export {
   type DirectAcquirer,
   type IndirectAcquirer,
   type AnyAcquirer,
+  type ProviderAcquirerFailure,
   type AcquisitionRunResult,
   type AcquisitionOptions,
   type RunAllAcquisitionOptions,

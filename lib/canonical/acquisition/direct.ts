@@ -36,6 +36,7 @@ export function createDirectAcquirer(
   return {
     mode: "direct",
     strategy: options.strategy,
+    providerId: options.providerId,
     fetchOffers: async () => {
       const listings = await options.fetchListings();
       return listings

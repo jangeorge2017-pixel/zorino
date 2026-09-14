@@ -1,6 +1,7 @@
 import {
   createAmazonClientFromEnv,
   isAmazonConfigured,
+  isAmazonDirectEnabled,
 } from "@/lib/integrations/amazon";
 import { normalizeAmazonRaw } from "@/lib/search/normalization";
 import { normalizeOxylabsAmazonRaw } from "@/lib/search/normalization";
@@ -35,7 +36,14 @@ export const amazonSearchConnector: SearchConnector = {
     // Amazon product data, so the connector must not report as operational —
     // it would run on every fan-out, burn the provider timeout budget, and get
     // recorded as "available, fetched 0".
-    return isAmazonConfigured() || isOxylabsConfigured();
+    //
+    // Phase 5 decision (AMAZON IS INDIRECT): the LATENT DIRECT path
+    // (query → Creators API / Oxylabs) must NOT activate merely because
+    // credentials are later added. It is additionally gated behind the
+    // explicit AMAZON_DIRECT_ENABLE=1 architecture opt-in. The approved
+    // indirect path (affiliate URL → ASIN → ingestion) does not go through
+    // this connector.
+    return isAmazonDirectEnabled() && (isAmazonConfigured() || isOxylabsConfigured());
   },
 
   async search(query: string, options?: ConnectorSearchOptions): Promise<RawProviderListing[]> {

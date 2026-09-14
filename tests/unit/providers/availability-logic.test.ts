@@ -6,6 +6,7 @@ import {
   getProviderAdapter as getSyncProviderAdapter,
   isSyncProviderCapable,
 } from "@/lib/sync/providers";
+import { createAmazonProvider } from "@/lib/sync/providers/amazon";
 import { createSyncBridgeConnector } from "@/lib/search/connectors/sync-bridge";
 import { getActiveProviderAdapters } from "@/lib/providers/adapter-registry";
 
@@ -117,6 +118,45 @@ describe("sync-bridge availability", () => {
     await withCredential("WALMART_API_KEY", async () => {
       const active = await getActiveProviderAdapters(["walmart"]);
       expect(active).toEqual([]);
+    });
+  });
+});
+
+// ─── Phase 5: Amazon / amazon-eg are INDIRECT (latent direct isolated) ──────
+// The only approved Amazon acquisition path is the indirect affiliate/network
+// URL → host-guarded ASIN → ingestion path. The LATENT DIRECT path
+// (query → Creators API / Oxylabs) must never activate merely because
+// credentials are added later — it requires the explicit AMAZON_DIRECT_ENABLE=1
+// architecture opt-in.
+
+describe("Amazon INDIRECT gate (Phase 5 decision)", () => {
+  afterEach(() => {
+    delete process.env.AMAZON_CREATORS_CLIENT_ID;
+    delete process.env.AMAZON_CREATORS_CLIENT_SECRET;
+    delete process.env.AMAZON_DIRECT_ENABLE;
+  });
+
+  const withAmazonCreds = async (fn: () => Promise<void>): Promise<void> => {
+    await withCredential("AMAZON_CREATORS_CLIENT_ID", async () => {
+      await withCredential("AMAZON_CREATORS_CLIENT_SECRET", fn);
+    });
+  };
+
+  it("no Amazon adapter activates with credentials ALONE (AMAZON_DIRECT_ENABLE unset)", async () => {
+    await withAmazonCreds(async () => {
+      const active = await getActiveProviderAdapters(["amazon", "amazon-eg"]);
+      expect(active).toEqual([]);
+      expect(createAmazonProvider().isConfigured()).toBe(false);
+    });
+  });
+
+  it("Amazon adapters activate ONLY with the explicit AMAZON_DIRECT_ENABLE=1 opt-in", async () => {
+    await withAmazonCreds(async () => {
+      process.env.AMAZON_DIRECT_ENABLE = "1";
+      const active = await getActiveProviderAdapters(["amazon", "amazon-eg"]);
+      const ids = active.map((a) => a.id).sort();
+      expect(ids).toEqual(["amazon", "amazon-eg"]);
+      expect(createAmazonProvider().isConfigured()).toBe(true);
     });
   });
 });

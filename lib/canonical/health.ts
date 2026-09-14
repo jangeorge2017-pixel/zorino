@@ -40,18 +40,30 @@ export function checkpointFromRun(
   meta: CanonicalRunMeta,
 ): ProviderHealthCheckpoint {
   const { counts } = result;
-  const providerId = result.offers[0]?.providerId ?? "unknown";
+  const providerId =
+    result.offers[0]?.providerId ??
+    result.failures[0]?.providerId ??
+    "unknown";
   const hasAccepted = counts.accepted > 0;
+  const hasFailures = result.failures.length > 0;
   const validationRejections = aggregateValidationRejections(result);
 
-  const status: ProviderHealthCheckpoint["status"] = !hasAccepted
+  const status: ProviderHealthCheckpoint["status"] = !hasAccepted && hasFailures
     ? "error"
-    : counts.rejected > 0
-      ? "degraded"
-      : "ok";
+    : !hasAccepted
+      ? "error"
+      : counts.rejected > 0
+        ? "degraded"
+        : "ok";
 
   const firstRejection =
     result.rejected[0]?.rejectedCodes[0] ?? undefined;
+
+  const errorCode = status === "error"
+    ? (result.failures[0]?.code ?? firstRejection)
+    : undefined;
+  const errorDetail =
+    meta.errorDetail ?? result.failures[0]?.error ?? undefined;
 
   return {
     providerId,
@@ -63,8 +75,8 @@ export function checkpointFromRun(
     rejectedCount: counts.rejected,
     productCount: counts.products,
     durationMs: meta.durationMs,
-    errorCode: status === "error" ? firstRejection : undefined,
-    errorDetail: meta.errorDetail,
+    errorCode,
+    errorDetail,
     validationRejections,
     collectedAt: new Date().toISOString(),
   };
