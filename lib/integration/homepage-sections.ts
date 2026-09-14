@@ -86,6 +86,54 @@ function uniqueCards(cards: TrendingDealCard[]): TrendingDealCard[] {
   });
 }
 
+/**
+ * Short-title fingerprint (lowercased, punctuation stripped, meaningful words
+ * only), matching the merge-layer normalization so identity matching stays
+ * consistent with how cross-source duplicates are collapsed upstream.
+ */
+function titleFingerprint(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter((word) => word.length > 2)
+    .slice(0, 5)
+    .join(" ")
+    .trim();
+}
+
+/**
+ * Robust identity keys for a homepage card.
+ *
+ * - Exact key: the stable catalog `productId` (fallback `id`) — the canonical
+ *   identity used everywhere.
+ * - Merchant-scoped title fingerprint: when the SAME real product reaches the
+ *   merged catalog under two different ids (e.g. a `db-*` row vs a
+ *   `providerId-*` search hit for the same shop), this key still recognizes it
+ *   as one product. Because it is namespaced by the merchant, genuinely
+ *   different products from different providers are never merged, even when
+ *   their short titles coincide.
+ */
+export function cardIdentityKeys(card: TrendingDealCard): string[] {
+  const exact = String(card.productId ?? card.id);
+  if (!exact) return [];
+  const fingerprint = titleFingerprint(card.name);
+  return fingerprint
+    ? [exact, `${merchantKeyFromCard(card)}::title:${fingerprint}`]
+    : [exact];
+}
+
+/** Collapse cards sharing any identity key, keeping the first occurrence. */
+function uniqueByIdentity(cards: TrendingDealCard[]): TrendingDealCard[] {
+  const seen = new Set<string>();
+  return cards.filter((card) => {
+    const keys = cardIdentityKeys(card);
+    if (keys.some((key) => seen.has(key))) return false;
+    for (const key of keys) seen.add(key);
+    return true;
+  });
+}
+
 function prefixCards(cards: TrendingDealCard[], prefix: string): TrendingDealCard[] {
   return cards.map((card) => ({ ...card, id: `${prefix}-${card.id}` }));
 }
@@ -107,8 +155,19 @@ export function emptySectionProducts(): HomepageSectionProducts {
  *    across distinct merchants.
  * 3. `newArrivals` uses the real snapshot age (`updatedMins`) so ordering is by
  *    actual recency rather than the constant placeholder.
+ *
+ * Cross-surface exclusion (Fix 6):
+ * 4. `excludeKeys` seeds the claimed set with identities already shown by the
+ *    sibling trending strip, so a product featured in Trending Deals can never
+ *    reappear in a section bucket. Exclusion matches on the full identity key
+ *    set (exact productId + merchant-scoped title fingerprint), recognising the
+ *    same real product across source formats without merging different
+ *    providers' products.
  */
-export function buildHomepageSections(cards: TrendingDealCard[]): HomepageSectionProducts {
+export function buildHomepageSections(
+  cards: TrendingDealCard[],
+  excludeKeys?: Iterable<string>,
+): HomepageSectionProducts {
   const unique = uniqueCards(cards);
   if (unique.length === 0) return emptySectionProducts();
 
@@ -119,19 +178,22 @@ export function buildHomepageSections(cards: TrendingDealCard[]): HomepageSectio
   const byRating = [...unique].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
   const byRecent = [...unique].sort((a, b) => a.updatedMins - b.updatedMins);
 
-  const usedProductIds = new Set<string>();
+  const usedIdentityKeys = new Set<string>(excludeKeys ?? []);
 
   const takeSection = (
     pool: TrendingDealCard[],
     limit: number,
     compare: (a: TrendingDealCard, b: TrendingDealCard) => number,
   ): TrendingDealCard[] => {
-    const available = pool.filter(
-      (card) => !usedProductIds.has(String(card.productId ?? card.id)),
+    const notClaimed = pool.filter(
+      (card) => !cardIdentityKeys(card).some((key) => usedIdentityKeys.has(key)),
     );
+    const available = uniqueByIdentity(notClaimed);
     const picks = balanceCards(available, limit, compare);
     for (const pick of picks) {
-      usedProductIds.add(String(pick.productId ?? pick.id));
+      for (const key of cardIdentityKeys(pick)) {
+        usedIdentityKeys.add(key);
+      }
     }
     return picks;
   };

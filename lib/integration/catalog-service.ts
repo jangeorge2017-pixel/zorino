@@ -10,7 +10,9 @@ import {
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import {
   balanceCatalogItems,
+  balanceCards,
   buildHomepageSections,
+  cardIdentityKeys,
   emptySectionProducts,
   minutesSinceFetched,
 } from "@/lib/integration/homepage-sections";
@@ -299,14 +301,57 @@ function itemsToCards(items: NormalizedCatalogItem[]): TrendingDealCard[] {
   );
 }
 
-/** Live trending deals — multi-marketplace balanced. */
-export async function getIntegratedTrendingDeals(limit = 8): Promise<TrendingDealCard[]> {
-  const items = await getCatalogItems();
-  if (items.length === 0) return [];
+/** Card count the homepage trending strip shows before the five sections. */
+const TRENDING_SECTION_LIMIT = 8;
 
-  const byDiscount = [...items].sort((a, b) => b.discount - a.discount);
-  const balanced = balanceCatalogItems(byDiscount, limit, (a, b) => b.discount - a.discount);
-  return itemsToCards(balanced);
+interface HomepageProductSurfaces {
+  trending: TrendingDealCard[];
+  sections: HomepageSectionProducts;
+}
+
+/**
+ * ONE shared, cached homepage product selection.
+ *
+ * The trending strip claims its picks first, then the five section buckets
+ * exclude every identity the strip already shows — so the same product can
+ * never appear in more than one of the six homepage surfaces. Because this is
+ * a single cached promise, `CommerceSection` (trending) and
+ * `ProductSectionsContent` (sections) always render consistent,
+ * exclusion-matched sets within the same request.
+ */
+const getHomepageProductSurfaces = reactCache(
+  async (): Promise<HomepageProductSurfaces> => {
+    const items = await getCatalogItems();
+    if (items.length === 0) {
+      return { trending: [], sections: emptySectionProducts() };
+    }
+
+    const cards = itemsToCards(items);
+
+    const trending = balanceCards(
+      [...cards].sort((a, b) => b.discount - a.discount),
+      TRENDING_SECTION_LIMIT,
+      (a, b) => b.discount - a.discount,
+    );
+
+    const claimedKeys = new Set<string>();
+    for (const trendCard of trending) {
+      for (const key of cardIdentityKeys(trendCard)) {
+        claimedKeys.add(key);
+      }
+    }
+
+    return {
+      trending,
+      sections: buildHomepageSections(cards, claimedKeys),
+    };
+  },
+);
+
+/** Live trending deals — multi-marketplace balanced, shared with sections. */
+export async function getIntegratedTrendingDeals(limit = 8): Promise<TrendingDealCard[]> {
+  const { trending } = await getHomepageProductSurfaces();
+  return trending.slice(0, limit);
 }
 
 /** Live deals for /deals page — multi-marketplace balanced. */
@@ -325,11 +370,10 @@ export async function getIntegratedDeals(limit = 48): Promise<Deal[]> {
   return balanced.map((item, index) => catalogItemToDeal(item, index));
 }
 
-/** Live homepage section buckets — each section mixes all enabled marketplaces. */
+/** Live homepage section buckets — exclude anything the trending strip shows. */
 export async function getIntegratedSectionProducts(): Promise<HomepageSectionProducts> {
-  const items = await getCatalogItems();
-  if (items.length === 0) return emptySectionProducts();
-  return buildHomepageSections(itemsToCards(items));
+  const { sections } = await getHomepageProductSurfaces();
+  return sections;
 }
 
 export {
