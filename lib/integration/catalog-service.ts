@@ -8,6 +8,12 @@ import {
   catalogItemToTrendingDealCard,
 } from "@/lib/integration/normalize";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
+import {
+  balanceCatalogItems,
+  buildHomepageSections,
+  emptySectionProducts,
+  minutesSinceFetched,
+} from "@/lib/integration/homepage-sections";
 import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
@@ -285,53 +291,12 @@ async function scheduleAdmitadIngestionIfStale(): Promise<void> {
   }
 }
 
-function uniqueCards(cards: TrendingDealCard[]): TrendingDealCard[] {
-  const seen = new Set<string>();
-  return cards.filter((card) => {
-    const key = String(card.productId ?? card.id);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function prefixCards(cards: TrendingDealCard[], prefix: string): TrendingDealCard[] {
-  return cards.map((card) => ({ ...card, id: `${prefix}-${card.id}` }));
-}
-
-const SECTION_LIMIT = 4;
-
 function itemsToCards(items: NormalizedCatalogItem[]): TrendingDealCard[] {
-  return items.map((item) => catalogItemToTrendingDealCard(item));
-}
-
-function providerIdFromCatalogItem(item: NormalizedCatalogItem): string {
-  return resolveMarketplaceId(
-    item.providerIds[0] ?? item.offers[0]?.providerId ?? item.offers[0]?.storeSlug ?? "unknown",
+  return items.map((item) =>
+    catalogItemToTrendingDealCard(item, {
+      updatedMins: minutesSinceFetched(item.fetchedAt),
+    }),
   );
-}
-
-function providerIdFromCard(card: TrendingDealCard): string {
-  const fromId = resolveMarketplaceId(String(card.productId ?? card.id));
-  if (fromId !== "unknown") return fromId;
-  return resolveMarketplaceId(card.store || "unknown");
-}
-
-/** Mix catalog items fairly across whatever marketplaces are present. */
-function balanceCatalogItems(
-  items: NormalizedCatalogItem[],
-  limit: number,
-  compare?: (a: NormalizedCatalogItem, b: NormalizedCatalogItem) => number,
-): NormalizedCatalogItem[] {
-  return balanceFlatMarketplaceList(items, providerIdFromCatalogItem, limit, compare);
-}
-
-function balanceCards(
-  cards: TrendingDealCard[],
-  limit: number,
-  compare?: (a: TrendingDealCard, b: TrendingDealCard) => number,
-): TrendingDealCard[] {
-  return balanceFlatMarketplaceList(cards, providerIdFromCard, limit, compare);
 }
 
 /** Live trending deals — multi-marketplace balanced. */
@@ -363,47 +328,8 @@ export async function getIntegratedDeals(limit = 48): Promise<Deal[]> {
 /** Live homepage section buckets — each section mixes all enabled marketplaces. */
 export async function getIntegratedSectionProducts(): Promise<HomepageSectionProducts> {
   const items = await getCatalogItems();
-  if (items.length === 0) {
-    return { flash: [], priceDrops: [], newArrivals: [], topRated: [], editorsPicks: [] };
-  }
-  const cards = uniqueCards(itemsToCards(items));
-  const byDiscount = [...cards].sort((a, b) => b.discount - a.discount);
-  const priceDrops = cards
-    .filter((card) => card.originalPrice > card.price)
-    .sort((a, b) => b.discount - a.discount);
-  const byRating = [...cards].sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
-  const byRecent = [...cards].sort((a, b) => a.updatedMins - b.updatedMins);
-
-  return {
-    flash: prefixCards(
-      balanceCards(byDiscount, SECTION_LIMIT, (a, b) => b.discount - a.discount),
-      "flash",
-    ),
-    priceDrops: prefixCards(
-      balanceCards(
-        priceDrops.length > 0 ? priceDrops : byDiscount,
-        SECTION_LIMIT,
-        (a, b) => b.discount - a.discount,
-      ),
-      "drop",
-    ),
-    newArrivals: prefixCards(
-      balanceCards(byRecent, SECTION_LIMIT, (a, b) => a.updatedMins - b.updatedMins),
-      "new",
-    ),
-    topRated: prefixCards(
-      balanceCards(byRating, SECTION_LIMIT, (a, b) => b.rating - a.rating || b.reviews - a.reviews),
-      "rated",
-    ),
-    editorsPicks: prefixCards(
-      balanceCards(
-        byRating.slice(SECTION_LIMIT).length > 0 ? byRating.slice(SECTION_LIMIT) : cards,
-        SECTION_LIMIT,
-        (a, b) => b.rating - a.rating || b.reviews - a.reviews,
-      ),
-      "pick",
-    ),
-  };
+  if (items.length === 0) return emptySectionProducts();
+  return buildHomepageSections(itemsToCards(items));
 }
 
 export {
