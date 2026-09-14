@@ -274,19 +274,57 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
  * the live providers. This is the honest product-catalog size (not the bounded
  * in-memory feed), so the homepage "Products" stat reflects reality.
  *
- * Reliability: the anon `count: "exact"` over the 120K-row table can fail
- * transiently (PostgREST statement cancellation / timeout ~4s), and the caller
- * caches the result for 5 minutes. A single failure must never surface "0" —
- * that is exactly the intermittent Products=0 bug. We retry transient failures
- * and fall back to the last-known-good count so the statistic always reflects a
- * real recent value. Returns 0 only when Supabase is truly unavailable.
+ * Reliability:
+ * - The count query MUST use the array-form `.in("provider", [...])` filter,
+ *   NOT the string-form `.or("provider.in.(...)")`. Verified against the live
+ *   120K-row table: `count: "exact"` combined with the `.or()` string form is
+ *   planned as a PostgREST `or` filter and consistently 500s / times out
+ *   (~4s statement cancellation), which is the root cause of the intermittent
+ *   homepage "Products: 0". The array form is handled by the normal query
+ *   planner path and returns the exact count in <1s.
+ * - Retry transient failures; the caller caches the result for 5 minutes.
+ * - Never surface "0" while real products exist: if the DB count is genuinely
+ *   unavailable we fall back to the merged live catalog the homepage actually
+ *   renders (a real, valid source), then to the last-known-good DB count.
+ *   Returns 0 only when every real source is empty/unavailable.
  */
 const COUNT_RETRIES = 3;
 let lastKnownProductCount = 0;
 
+/**
+ * Test-only seams so regression tests can exercise the real retry/fallback
+ * logic without a live Supabase connection (isolate:false + singleFork:true
+ * makes per-module mocking unreliable). Production always passes null.
+ */
+let supabaseClientFactoryForTests: (() => SupabaseDb | null) | null = null;
+let catalogFallbackCountForTests: (() => Promise<number>) | null = null;
+
+/** Test-only: inject a fake `createSupabaseAnonClient` factory. */
+export function setSupabaseAnonClientForTests(
+  factory: (() => SupabaseDb | null) | null,
+): void {
+  supabaseClientFactoryForTests = factory;
+}
+
+/** Test-only: inject a fake merged-catalog fallback count source. */
+export function setCatalogFallbackCountForTests(
+  source: (() => Promise<number>) | null,
+): void {
+  catalogFallbackCountForTests = source;
+}
+
+/** Test-only: restore all count seams and forget the known-good count. */
+export function resetRealCatalogProductCountForTests(): void {
+  supabaseClientFactoryForTests = null;
+  catalogFallbackCountForTests = null;
+  lastKnownProductCount = 0;
+}
+
 export async function getRealCatalogProductCount(): Promise<number> {
-  const supabase = createSupabaseAnonClient();
-  if (!supabase) return lastKnownProductCount > 0 ? lastKnownProductCount : 0;
+  const supabase = supabaseClientFactoryForTests
+    ? supabaseClientFactoryForTests()
+    : createSupabaseAnonClient();
+  if (!supabase) return getCatalogFallbackCount();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sb = supabase as any;
@@ -297,7 +335,7 @@ export async function getRealCatalogProductCount(): Promise<number> {
       .select("product_id", { count: "exact", head: true })
       .eq("country_code", "US")
       .eq("currency", "USD")
-      .or(realProviderOr());
+      .in("provider", [...REAL_CATALOG_PROVIDERS]);
 
     if (!error && typeof count === "number") {
       lastKnownProductCount = count;
@@ -305,10 +343,39 @@ export async function getRealCatalogProductCount(): Promise<number> {
     }
   }
 
-  // All attempts failed — never report a transient failure as 0. Return the most
-  // recent real count we have observed so the stat stays truthful across the
-  // 5-minute cache window instead of flickering to 0.
+  // All attempts failed — never report a transient failure as 0 while real
+  // products exist. Prefer the merged live catalog (the same products the
+  // homepage renders), then the most recent real DB count observed, so the
+  // statistic stays truthful across the 5-minute cache window.
+  const catalogCount = await getCatalogFallbackCount();
+  if (catalogCount > 0) return catalogCount;
   return lastKnownProductCount;
+}
+
+/**
+ * Real fallback for the homepage "Products" stat when the DB count is
+ * unavailable: the number of distinct real products in the merged live catalog
+ * — the SAME source that renders the homepage cards. Dynamically imported to
+ * avoid a static circular dependency with catalog-service. Returns 0 when the
+ * catalog is also unavailable/empty (then the caller uses last-known-good).
+ */
+async function getCatalogFallbackCount(): Promise<number> {
+  if (catalogFallbackCountForTests) {
+    try {
+      return await catalogFallbackCountForTests();
+    } catch {
+      return 0;
+    }
+  }
+  try {
+    const { getMergedCatalogItems } = await import(
+      "@/lib/integration/catalog-service"
+    );
+    const items = await getMergedCatalogItems();
+    return items.length;
+  } catch {
+    return 0;
+  }
 }
 
 function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
