@@ -1,4 +1,4 @@
-import { createAmazonClientFromEnv } from "@/lib/integrations/amazon";
+import { createAmazonClientFromEnv, isAmazonDirectEnabled } from "@/lib/integrations/amazon";
 import {
   getAmazonCreatorsConfig,
 } from "@/lib/sync/providers/amazon/paapi-types";
@@ -31,6 +31,13 @@ export class AmazonProvider extends BaseConnector {
   };
 
   isConfigured(): boolean {
+    // Phase 5 decision (AMAZON IS INDIRECT): this is the LATENT DIRECT sync
+    // path (keyword → Creators API). It must NOT activate merely because
+    // credentials are later added to Vercel — it requires the explicit
+    // AMAZON_DIRECT_ENABLE=1 architecture opt-in. The approved indirect path
+    // (affiliate URL → host-guarded ASIN → ingestion) does not go through the
+    // sync provider.
+    if (!isAmazonDirectEnabled()) return false;
     return checkProviderCredentials([...CREDENTIAL_KEYS, "AMAZON_ASSOCIATE_TAG"]).configured ||
       checkProviderCredentials([...CREDENTIAL_KEYS]).configured;
   }

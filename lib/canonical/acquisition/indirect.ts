@@ -49,6 +49,7 @@ export function createIndirectFeedAcquirer(
   return {
     mode: "indirect",
     strategy: options.strategy,
+    providerId: options.providerId,
     fetchOffers: async () => {
       const feeds = await options.fetchFeeds();
       const offers: import("@/lib/canonical/types").RawOffer[] = [];

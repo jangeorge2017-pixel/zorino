@@ -3,7 +3,13 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { runAcquisition, summarizeRun, runAllAcquisition } from "@/lib/canonical/acquisition";
+import {
+  runAcquisition,
+  summarizeRun,
+  runAllAcquisition,
+  validateOffer,
+  retargetIndirectFeedOffer,
+} from "@/lib/canonical";
 import { mergeProductBatches } from "@/lib/canonical";
 import {
   createDirectAcquirer,
@@ -354,5 +360,210 @@ describe("runAllAcquisition — separate layers converge in ONE pipeline (Phase 
     expect(
       result.rejected.some((r) => r.rejectedCodes.includes("G2_IMAGE_INVALID")),
     ).toBe(true);
+  });
+});
+
+describe("provider failure isolation — one layer cannot suppress the others (Phase 5)", () => {
+  it("a faulting DIRECT layer records evidence instead of throwing in runAcquisition", async () => {
+    const result = await runAcquisition({
+      mode: "direct",
+      strategy: "ebay-browse",
+      providerId: "ebay",
+      fetchOffers: async () => {
+        throw new Error("HttpError 429 too many requests");
+      },
+    });
+    expect(result.counts.acquired).toBe(0);
+    expect(result.counts.accepted).toBe(0);
+    expect(result.offers).toHaveLength(0);
+    expect(result.products).toHaveLength(0);
+    expect(result.failures).toHaveLength(1);
+    expect(result.failures[0].providerId).toBe("ebay");
+    expect(result.failures[0].mode).toBe("direct");
+    expect(result.failures[0].strategy).toBe("ebay-browse");
+    expect(result.failures[0].code).toBe("rate-limited");
+  });
+
+  it("a timeout is typed as timeout evidence, never a fake offer", async () => {
+    const result = await runAcquisition({
+      mode: "direct",
+      strategy: "aliexpress-dpapi",
+      providerId: "aliexpress",
+      fetchOffers: async () => {
+        throw new Error("failed to fetch: operation timed out after 8000ms");
+      },
+    });
+    expect(result.counts.accepted).toBe(0);
+    expect(result.failures[0].code).toBe("timeout");
+  });
+
+  it("an adhere-unclassifiable fault falls back to unknown evidence", async () => {
+    const result = await runAcquisition({
+      mode: "indirect",
+      strategy: "amazon-affiliate",
+      providerId: "amazon",
+      fetchOffers: async () => {
+        throw new Error("some unprecedented failure");
+      },
+    });
+    expect(result.failures[0].code).toBe("unknown");
+    expect(result.failures[0].error).toContain("unprecedented");
+  });
+
+  it("runAllAcquisition: a faulting provider does NOT suppress unrelated providers", async () => {
+    const good = createDirectAcquirer({
+      providerId: "aliexpress",
+      strategy: "aliexpress-dpapi",
+      fetchListings: async () => [
+        {
+          providerId: "aliexpress",
+          externalId: "ae-100",
+          title: "Sony WH-1000XM5 Headphones",
+          imageUrl: "https://ae01.alicdn.com/img/a.jpg",
+          price: 299,
+          originalPrice: 399,
+          discount: 25,
+          currency: "USD",
+          storeName: "Sony Official Store",
+          category: "Electronics",
+          rating: 4.6,
+          reviewCount: 1200,
+          inStock: true,
+          productUrl: "https://www.aliexpress.com/item/ae-100.html",
+        },
+      ],
+    });
+    const broken = createDirectAcquirer({
+      providerId: "ebay",
+      strategy: "ebay-browse",
+      fetchListings: async () => {
+        throw new Error("timeout after 8000ms");
+      },
+    });
+    const indirect = createIndirectFeedAcquirer({
+      providerId: "admitad",
+      strategy: "admitad-feed",
+      fetchFeeds: async () => [
+        {
+          feedName: "Ajazz",
+          feedSlug: "ajazz",
+          offers: [
+            {
+              id: "1412197",
+              title: "Mechanical Keyboard",
+              price: 38.9,
+              currency: "USD",
+              url: "https://go.admitad.com/redirect/1412197",
+              imageUrl: "https://laz-img-cdn.alicdn.com/images/TB1.jpg",
+            },
+          ],
+        },
+      ],
+    });
+
+    const result = await runAllAcquisition([broken, good, indirect]);
+    // ebay failed; the other two layers still delivered.
+    expect(result.counts.acquired).toBe(2);
+    expect(result.counts.accepted).toBe(2);
+    expect(result.failures).toHaveLength(1);
+    expect(result.failures[0].providerId).toBe("ebay");
+    expect(result.failures[0].code).toBe("timeout");
+    expect(result.offers.map((o) => o.acquisition.mode).sort()).toEqual([
+      "direct",
+      "indirect",
+    ]);
+  });
+
+  it("summarizeRun surfaces provider failures", async () => {
+    const result = await runAcquisition({
+      mode: "direct",
+      strategy: "ebay-browse",
+      providerId: "ebay",
+      fetchOffers: async () => {
+        throw new Error("HttpError 503");
+      },
+    });
+    const summary = summarizeRun(result);
+    expect(summary).toContain("0 raw, 0 accepted");
+    expect(summary).toContain("1 provider failures");
+  });
+});
+
+describe("Admitad → indirect RawOffer via the uniform adapter (Phase 5)", () => {
+  it("converges a real Admitad feed offer with its merchant store identity", async () => {
+    const { admitadFeedToRawOffer } = await import(
+      "@/lib/integrations/admitad"
+    );
+    const raw = admitadFeedToRawOffer(
+      {
+        id: "1412197",
+        name: "Mechanical Keyboard",
+        price: 38.9,
+        oldprice: 45,
+        currencyId: "USD",
+        description: "",
+        vendor: "Ajazz",
+        url: "https://go.admitad.com/redirect/1412197",
+        image: "https://laz-img-cdn.alicdn.com/images/ims-web/TB1w9Keyphoto.jpg",
+        modified_time: "",
+      },
+      { merchantName: "Ajazz", sourceRef: "feed:ajazz" },
+    );
+
+    expect(raw.acquisition).toBe("indirect");
+    expect(raw.merchantName).toBe("Ajazz");
+    expect(raw.providerId).toBe("admitad");
+
+    const result = await runAcquisition({
+      mode: "indirect",
+      strategy: "admitad-feed",
+      providerId: "admitad",
+      fetchOffers: async () => [raw],
+    });
+    expect(result.counts.accepted).toBe(1);
+    expect(result.offers[0].storeId).toBe("merchant-ajazz");
+    expect(result.offers[0].storeName).toBe("Ajazz");
+    expect(result.offers[0].acquisition.strategy).toBe("admitad-feed");
+  });
+});
+
+describe("canonical validation compatibility — uniform adapter output (Phase 5)", () => {
+  it("accepts an indirect-adapted RawOffer through the SAME validateOffer as direct", async () => {
+    const { admitadFeedToIndirectFeedOffer } = await import(
+      "@/lib/integrations/admitad"
+    );
+    const indirectOffer = admitadFeedToIndirectFeedOffer({
+      id: "1412197",
+      name: "Mechanical Keyboard",
+      price: 38.9,
+      oldprice: 45,
+      currencyId: "USD",
+      description: "",
+      vendor: "Ajazz",
+      url: "https://go.admitad.com/redirect/1412197",
+      image: "https://laz-img-cdn.alicdn.com/images/ims-web/TB1w9Keyphoto.jpg",
+      modified_time: "",
+    });
+    const raw = retargetIndirectFeedOffer(indirectOffer, {
+      providerId: "admitad",
+      merchantName: "Ajazz",
+      sourceRef: "feed:ajazz",
+    });
+
+    // The shared gate treats uniformly-adapted offers exactly like direct ones.
+    expect(validateOffer(directRaw()).status).toBe("accepted");
+    expect(validateOffer(raw).status).toBe("accepted");
+    expect(raw.acquisition).toBe("indirect");
+    expect(raw.providerId).toBe("admitad");
+
+    const result = await runAcquisition({
+      mode: "indirect",
+      strategy: "admitad-feed",
+      providerId: "admitad",
+      fetchOffers: async () => [raw],
+    });
+    expect(result.counts.accepted).toBe(1);
+    expect(result.offers[0].storeId).toBe("merchant-ajazz");
+    expect(result.offers[0].acquisition.strategy).toBe("admitad-feed");
   });
 });

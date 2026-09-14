@@ -53,11 +53,18 @@ function slugify(value: string): string {
   );
 }
 
+function normalizeIdentityName(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 /**
  * Resolve the canonical store identity for a provider + optional merchant name.
  *  - providerId is validated against the Provider Registry.
  *  - merchantName (e.g. an Admitad feed/merchant) is used when provided and is
- *    NOT a provider-registry store; otherwise the provider's own store is used.
+ *    NOT the provider's own store; a merchant that merely repeats the
+ *    provider's own store name (e.g. Amazon affiliate links whose store IS
+ *    Amazon) resolves through the Store Registry instead, so the provider's
+ *    provenance can never be mistaken for a separate merchant.
  */
 export function resolveCanonicalStore(
   providerId: string,
@@ -79,15 +86,21 @@ export function resolveCanonicalStore(
   const merchant = merchantName?.trim();
 
   if (merchant) {
-    const merchantSlug = slugify(merchant);
-    return {
-      storeId: `merchant-${merchantSlug}`,
-      slug: merchantSlug,
-      name: merchant,
-      providerId,
-      isMerchant: true,
-      nameSource: "merchant",
-    };
+    const merchantRebrandsOwnStore =
+      (registryMeta != null &&
+        normalizeIdentityName(merchant) === normalizeIdentityName(registryMeta.name)) ||
+      normalizeIdentityName(merchant) === normalizeIdentityName(provider.name);
+    if (!merchantRebrandsOwnStore) {
+      const merchantSlug = slugify(merchant);
+      return {
+        storeId: `merchant-${merchantSlug}`,
+        slug: merchantSlug,
+        name: merchant,
+        providerId,
+        isMerchant: true,
+        nameSource: "merchant",
+      };
+    }
   }
 
   return {
@@ -131,8 +144,20 @@ export type { ProviderId };
 
 /** Provider acquisition availability derivation (config status, not "works"). */
 export function providerAcquisitionMode(providerId: string): "direct" | "indirect" {
-  // Direct API providers vs link-based providers (indirect).
-  const INDIRECT_PROVIDER_IDS: ReadonlySet<string> = new Set(["admitad"]);
+  // Direct API providers vs link/feed-based providers (indirect).
+  //
+  // Amazon / Amazon Egypt are classified INDIRECT: their only PROVEN live
+  // acquisition is affiliate/link ingestion (ASIN extraction from seed-link
+  // redirects into the Amazon Creators API). No production evidence exists of
+  // a live direct Amazon API search/sync path (no credentials on Vercel), so
+  // per the Phase 5 directive they remain INDIRECT until evidence proves a
+  // live direct path. Admitad is the affiliate NETWORK layer; its merchant
+  // feeds stream through the uniform indirect adapter.
+  const INDIRECT_PROVIDER_IDS: ReadonlySet<string> = new Set([
+    "admitad",
+    "amazon",
+    "amazon-eg",
+  ]);
   return INDIRECT_PROVIDER_IDS.has(providerId) ? "indirect" : "direct";
 }
 

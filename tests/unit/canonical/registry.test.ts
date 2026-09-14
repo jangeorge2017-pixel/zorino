@@ -37,6 +37,26 @@ describe("resolveCanonicalStore", () => {
     expect(merchantA.storeId).toMatch(/^merchant-/);
   });
 
+  it("a real Admitad feed merchant keeps its own store identity (not the network)", () => {
+    const ajazz = resolveCanonicalStore("admitad", "Ajazz");
+    expect(ajazz.storeId).toBe("merchant-ajazz");
+    expect(ajazz.name).toBe("Ajazz");
+    expect(ajazz.isMerchant).toBe(true);
+    expect(ajazz.providerId).toBe("admitad");
+  });
+
+  it("collapses an indirect merchant that merely repeats the provider's own store (Amazon)", () => {
+    // Amazon affiliate links: the store IS Amazon, so "Amazon" must resolve
+    // through the Store Registry — never become a fake separate merchant.
+    const viaMerchant = resolveCanonicalStore("amazon", "Amazon");
+    const direct = resolveCanonicalStore("amazon");
+    expect(viaMerchant.storeId).toBe("store-amazon");
+    expect(viaMerchant.storeId).toBe(direct.storeId);
+    expect(viaMerchant.isMerchant).toBe(false);
+    expect(viaMerchant.nameSource).toBe("registry");
+    expect(viaMerchant.name).toBe("Amazon");
+  });
+
   it("falls back to a stable store id for unknown providers (mirrors legacy tolerance)", () => {
     const store = resolveCanonicalStore("not-a-provider");
     expect(store.storeId).toBe("store-not-a-provider");
@@ -59,8 +79,10 @@ describe("provider registry integration", () => {
     expect(isRegisteredProviderId("amazon-eg")).toBe(true);
     expect(isRegisteredProviderId("not-real")).toBe(false);
   });
-  it("classifies admitad as indirect and api providers as direct", () => {
+  it("classifies admitad and amazon as indirect, api providers as direct", () => {
     expect(providerAcquisitionMode("admitad")).toBe("indirect");
+    expect(providerAcquisitionMode("amazon")).toBe("indirect");
+    expect(providerAcquisitionMode("amazon-eg")).toBe("indirect");
     expect(providerAcquisitionMode("aliexpress")).toBe("direct");
     expect(providerAcquisitionMode("ebay")).toBe("direct");
     expect(providerAcquisitionMode("cjdropshipping")).toBe("direct");
