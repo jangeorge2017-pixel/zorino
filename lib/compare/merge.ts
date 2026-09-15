@@ -64,6 +64,43 @@ export function collectComparableProductIds(
     .slice(0, limit);
 }
 
+/**
+ * Run independent comparison work with a fixed upper bound while retaining the
+ * input order. A failed item is represented as `undefined`, allowing callers
+ * to keep the existing best-effort behavior for individual product failures.
+ */
+export async function mapWithBoundedConcurrency<T, R>(
+  inputs: readonly T[],
+  concurrency: number,
+  worker: (input: T, index: number) => Promise<R>,
+): Promise<Array<R | undefined>> {
+  const results: Array<R | undefined> = Array.from(
+    { length: inputs.length },
+    () => undefined,
+  );
+  const workerCount = Math.min(
+    inputs.length,
+    Math.max(1, Math.floor(concurrency) || 1),
+  );
+  let nextIndex = 0;
+
+  async function run(): Promise<void> {
+    while (nextIndex < inputs.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      try {
+        results[index] = await worker(inputs[index]!, index);
+      } catch {
+        // Product comparison has always been best-effort: one failed product
+        // must not prevent independently comparable products from rendering.
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: workerCount }, () => run()));
+  return results;
+}
+
 export type CompareStats = {
   lowestPrice: number;
   highestPrice: number;
