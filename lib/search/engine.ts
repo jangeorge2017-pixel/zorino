@@ -203,15 +203,18 @@ export async function searchProducts(
     return cached.items.slice(0, capped);
   }
 
-  const [{ allRaw }, fromDb] = await Promise.all([
+  const [{ allRaw }, fromDb, activeProviderIds] = await Promise.all([
     fetchProvidersInParallel(trimmed, {
       minFetch: 60,
       targetFetch: 120,
       maxPages: 4,
     }),
     (await import("@/lib/integration/database-catalog"))
-      .getSearchResultsFromDatabase(trimmed, capped * 3)
+      .getSearchResultsFromDatabase(trimmed, capped * 3, {
+        timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+      })
       .catch(() => [] as SearchResultItem[]),
+    getActiveProductionProviders(),
   ]);
 
   // Filter DB results: only products whose provider is ACTIVE may enter
@@ -219,7 +222,7 @@ export async function searchProducts(
   // successful live runs. Closes the DB bypass where inactive/stub providers
   // could leak products through getSearchResultsFromDatabase() without passing
   // isAvailable() or producing any real data.
-  const activeProviders = new Set(await getActiveProductionProviders());
+  const activeProviders = new Set(activeProviderIds);
   const activeDb = fromDb.filter((item) =>
     activeProviders.has(item.storeSlug as never),
   );

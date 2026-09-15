@@ -58,6 +58,15 @@ export async function hasProviderEvidence(providerId: string): Promise<boolean> 
   return (counts[providerId] ?? 0) > 0;
 }
 
+/**
+ * True when the cached evidence snapshot is still within its 10-minute TTL.
+ * Used to skip the redundant recompute in refreshProviderEvidence() when the
+ * cached snapshot already answers for every provider.
+ */
+export function isProviderEvidenceFresh(): boolean {
+  return evidenceCache !== null && Date.now() - evidenceCache.at < EVIDENCE_TTL_MS;
+}
+
 /** Only for tests. */
 export function resetProviderEvidenceForTests(): void {
   evidenceCache = null;

@@ -417,12 +417,43 @@ function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
 /**
  * Read products from Supabase matching a search query.
  * Returns SearchResultItems that can be merged with live search-engine results.
+ *
+ * The search fan-out passes a hard `timeoutMs` so a slow database read can
+ * never hold the whole query hostage. On timeout the DB supplement resolves to
+ * an EMPTY pool — the same *truthful* "no additional DB products" state the
+ * caller already sees after a DB error — never fabricated/partial rows.
  */
 export async function getSearchResultsFromDatabase(
   query: string,
   limit = 24,
+  options?: { timeoutMs?: number },
 ): Promise<SearchResultItem[]> {
-  const supabase = createSupabaseAnonClient();
+  const deadline = options?.timeoutMs;
+  if (!deadline || deadline <= 0) return loadSearchResultsFromDatabase(query, limit);
+
+  return new Promise<SearchResultItem[]>((resolve) => {
+    const timer = setTimeout(() => resolve([]), deadline);
+    loadSearchResultsFromDatabase(query, limit).then(
+      (items) => {
+        clearTimeout(timer);
+        resolve(items);
+      },
+      (err) => {
+        clearTimeout(timer);
+        // A DB error is a truthful "no database products".
+        resolve([]);
+      },
+    );
+  });
+}
+
+async function loadSearchResultsFromDatabase(
+  query: string,
+  limit: number,
+): Promise<SearchResultItem[]> {
+  const supabase = supabaseClientFactoryForTests
+    ? supabaseClientFactoryForTests()
+    : createSupabaseAnonClient();
   if (!supabase) return [];
 
   // Word-level OR matching: "nike shoes" → ILIKE '%nike%' OR ILIKE '%shoes%'

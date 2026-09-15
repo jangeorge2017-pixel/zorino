@@ -119,9 +119,13 @@ let loadedEvidenceIds: ReadonlySet<ProductionProviderId> | null = null;
 /** (Re)load the durable DB evidence snapshot (called by page/engine entry). */
 export async function refreshProviderEvidence(): Promise<void> {
   try {
-    const { hasProviderEvidence } = await import(
+    const { hasProviderEvidence, isProviderEvidenceFresh } = await import(
       "@/lib/integration/provider-evidence"
     );
+    // Skip the recompute when the cached snapshot is still within its 10-min
+    // TTL — identical data, avoids 11 redundant per-provider count reads
+    // serialized on every search fan-out.
+    if (loadedEvidenceIds !== null && isProviderEvidenceFresh()) return;
     const result = new Set<ProductionProviderId>();
     for (const providerId of PRODUCTION_PROVIDER_IDS) {
       if (await hasProviderEvidence(providerId)) result.add(providerId);
