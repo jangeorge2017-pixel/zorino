@@ -35,7 +35,11 @@ async function throttle(): Promise<void> {
   requestTimestamps.push(Date.now());
 }
 
-async function apiGet<T>(path: string, params?: Record<string, string>): Promise<T> {
+async function apiGet<T>(
+  path: string,
+  params?: Record<string, string>,
+  signal?: AbortSignal,
+): Promise<T> {
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -55,9 +59,17 @@ async function apiGet<T>(path: string, params?: Record<string, string>): Promise
       }
     }
 
+    // Caller-provided deadline (e.g. the config.ts discovery budget) is
+    // combined with the existing per-call 30s cap — whichever fires first
+    // aborts the request. Aborts propagate instead of being swallowed, so a
+    // bounded discovery can never be held hostage by one hung call.
+    const requestSignal = signal
+      ? AbortSignal.any([AbortSignal.timeout(30_000), signal])
+      : AbortSignal.timeout(30_000);
+
     const resp = await fetch(url.toString(), {
       headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(30_000),
+      signal: requestSignal,
     });
 
     if (resp.status === 401) {
@@ -134,7 +146,9 @@ type PaginatedResponse<T> = {
 /**
  * List the publisher's ad spaces (websites).
  */
-export async function listWebsites(): Promise<AdmitadWebsite[]> {
+export async function listWebsites(
+  signal?: AbortSignal,
+): Promise<AdmitadWebsite[]> {
   const all: AdmitadWebsite[] = [];
   let offset = 0;
   const limit = 100;
@@ -143,7 +157,7 @@ export async function listWebsites(): Promise<AdmitadWebsite[]> {
     const data = await apiGet<PaginatedResponse<AdmitadWebsite>>("/websites/", {
       offset: String(offset),
       limit: String(limit),
-    });
+    }, signal);
     all.push(...data.results);
     if (all.length >= data._meta.count || data.results.length === 0) break;
     offset += limit;
@@ -186,6 +200,7 @@ export async function listAllCampaigns(hasTool?: string): Promise<AdmitadCampaig
 export async function listCampaignsForWebsite(
   websiteId: number,
   hasTool?: string,
+  signal?: AbortSignal,
 ): Promise<AdmitadCampaign[]> {
   const all: AdmitadCampaign[] = [];
   let offset = 0;
@@ -201,6 +216,7 @@ export async function listCampaignsForWebsite(
     const data = await apiGet<PaginatedResponse<AdmitadCampaign>>(
       `/advcampaigns/website/${websiteId}/`,
       params,
+      signal,
     );
     all.push(...data.results);
     if (all.length >= data._meta.count || data.results.length === 0) break;

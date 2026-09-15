@@ -84,9 +84,17 @@ function campaignToProgram(campaign: AdmitadCampaign, websiteId: number): Admita
   };
 }
 
-/** Discover all active connected merchant programs across every ad space. */
+/**
+ * Discover all active connected merchant programs across every ad space.
+ *
+ * `signal` is an optional hard deadline owned by the caller (config.ts bounds
+ * it to the search engine's provider budget). When it aborts, the underlying
+ * Publisher API requests are aborted and this resolves with whatever was
+ * collected — never throwing past the caller's deadline.
+ */
 export async function discoverAdmitadMerchants(
   _options: { maxFeeds?: number; maxProductsPerFeed?: number } = {},
+  signal?: AbortSignal,
 ): Promise<MerchantDiscoveryResult> {
   const result: MerchantDiscoveryResult = {
     authenticated: false,
@@ -101,13 +109,13 @@ export async function discoverAdmitadMerchants(
   result.authenticated = true;
 
   // 2. Discover ad spaces
-  const websites = await listWebsites();
+  const websites = await listWebsites(signal);
   result.websitesChecked = websites.length;
 
   // 3. Connected programs per ad space (real pagination inside the client)
   for (const website of websites) {
     try {
-      const campaigns = await listCampaignsForWebsite(website.id);
+      const campaigns = await listCampaignsForWebsite(website.id, undefined, signal);
       result.programsConnected += campaigns.length;
 
       for (const campaign of campaigns) {
