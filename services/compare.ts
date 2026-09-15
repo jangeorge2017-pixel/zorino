@@ -4,6 +4,7 @@ import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import {
   collectComparableProductIds,
   computeCompareStats,
+  mapWithBoundedConcurrency,
   mergeOffersDedupe,
 } from "@/lib/compare/merge";
 import { resolveProductDestination } from "@/lib/affiliate/product-url";
@@ -51,6 +52,11 @@ type ExternalPriceRow = {
     affiliate_url: string | null;
   } | null;
 };
+
+// Each product comparison issues three independent Supabase queries. Keep the
+// Compare page below a small, predictable request budget instead of starting
+// every candidate at once (up to 12 candidates / 36 queries).
+const COMPARE_PRODUCT_CONCURRENCY = 3;
 
 function emptyCompareResult(product: Product): CompareProductResult {
   return {
@@ -238,11 +244,21 @@ export async function getComparableProducts(
     options?.limit ?? 12,
   );
 
-  const results: CompareProductResult[] = [];
-  for (const productId of multiSourceIds) {
-    const { data } = await compareImportedProductPrices(productId, options);
-    if (data && data.offers.length >= 2) results.push(data);
-  }
+  const compared = await mapWithBoundedConcurrency(
+    multiSourceIds,
+    COMPARE_PRODUCT_CONCURRENCY,
+    async (productId) => {
+      const { data } = await compareImportedProductPrices(productId, options);
+      return data && data.offers.length >= 2 ? data : null;
+    },
+  );
+
+  // `mapWithBoundedConcurrency` preserves candidate order. Filtering after
+  // completion therefore keeps the same ranking/section order as the former
+  // sequential loop while dropping only invalid, one-store, or failed entries.
+  const results = compared.filter(
+    (comparison): comparison is CompareProductResult => comparison != null,
+  );
 
   return { data: results, error: null };
 }
