@@ -1,4 +1,5 @@
 import type { AdmitadFeedConfig } from "./types";
+import type { AdmitadMerchantProgram } from "./merchant-discovery";
 
 /**
  * Registered Admitad product feeds.
@@ -19,6 +20,28 @@ const enableMultiMerchantDiscovery = process.env.ADMITAD_DISCOVER_MERCHANTS !== 
 let discoveryFeeds: AdmitadFeedConfig[] = [];
 let discoveryInitialized = false;
 
+/**
+ * Hard wall-clock budget for one merchant-discovery run. Mirrors the search
+ * engine's per-provider budget (`PROVIDER_FETCH_TIMEOUT_MS` in
+ * lib/search/engine.ts) so a slow or rate-limited Admitad Publisher API run
+ * can never hold the provider fan-out — and therefore search/homepage — past
+ * the engine deadline. On expiry the run is aborted and discovery degrades to
+ * the existing empty/fallback state.
+ */
+export const ADMITAD_DISCOVERY_DEADLINE_MS = 8_000;
+
+/**
+ * The single in-flight discovery run shared by ALL concurrent callers.
+ *
+ * Cold-start bursts (e.g. the homepage catalog fans 8 curated queries out in
+ * parallel, each hitting `getAllAdmitadFeeds()` → `isAvailable()` and then
+ * `search()`) previously each started their own OAuth + websites + campaigns
+ * waterfall because `discoveryInitialized` is only set once a run finishes.
+ * Now every caller within the in-flight window awaits this exact promise, so
+ * exactly ONE discovery run executes.
+ */
+let inFlightDiscovery: Promise<void> | null = null;
+
 /** Whether the Admitad Publisher API credentials required for discovery are set. */
 export function admitadCredentialsConfigured(): boolean {
   return Boolean(
@@ -27,10 +50,83 @@ export function admitadCredentialsConfigured(): boolean {
   );
 }
 
-/** Initialize multi-merchant discovery by running in a separate process. */
+/** Test-only override for the discovery deadline (keeps production at 8s). */
+let discoveryDeadlineOverrideMs: number | null = null;
+
+/** Test-only discovery runner override (deterministic, no network). */
+let discoveryRunnerOverride:
+  | ((
+      options: {
+        maxFeeds?: number;
+        maxProductsPerFeed?: number;
+      },
+      signal?: AbortSignal,
+    ) => Promise<{ activeMerchantPrograms: AdmitadMerchantProgram[] }>)
+  | null = null;
+
+export function setAdmitadDiscoveryRunnerForTests(
+  runner:
+    | ((
+        options: {
+          maxFeeds?: number;
+          maxProductsPerFeed?: number;
+        },
+        signal?: AbortSignal,
+      ) => Promise<{ activeMerchantPrograms: AdmitadMerchantProgram[] }>)
+    | null,
+): void {
+  discoveryRunnerOverride = runner;
+}
+
+export function setAdmitadDiscoveryDeadlineForTests(ms: number | null): void {
+  discoveryDeadlineOverrideMs = ms;
+}
+
+/** Reset all discovery state (test seam). */
+export function resetAdmitadDiscoveryForTests(): void {
+  discoveryFeeds = [];
+  discoveryInitialized = false;
+  inFlightDiscovery = null;
+  discoveryDeadlineOverrideMs = null;
+  discoveryRunnerOverride = null;
+}
+
+function activeDiscoveryDeadlineMs(): number {
+  return discoveryDeadlineOverrideMs ?? ADMITAD_DISCOVERY_DEADLINE_MS;
+}
+
+/** Reject as soon as `signal` aborts — belt-and-suspenders hard deadline. */
+function rejectOnAbort(signal: AbortSignal): Promise<never> {
+  return new Promise<never>((_resolve, reject) => {
+    const onAbort = () =>
+      reject(new DOMException("Admitad discovery aborted", "AbortError"));
+    if (signal.aborted) {
+      onAbort();
+      return;
+    }
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
+/**
+ * Initialize multi-merchant discovery by running in a separate process.
+ * Concurrent callers share ONE in-flight run (see `inFlightDiscovery`).
+ */
 export async function initializeMultiMerchantDiscovery(): Promise<void> {
   if (discoveryInitialized) return;
 
+  // Share the single in-flight run with every concurrent caller.
+  if (inFlightDiscovery) return inFlightDiscovery;
+
+  inFlightDiscovery = runMultiMerchantDiscovery();
+  try {
+    await inFlightDiscovery;
+  } finally {
+    inFlightDiscovery = null;
+  }
+}
+
+async function runMultiMerchantDiscovery(): Promise<void> {
   // Without Publisher API credentials discovery can never authenticate —
   // obtainAccessToken() throws before any network call. Short-circuit quietly
   // so the common local/unconfigured case produces no error noise. Behavior is
@@ -41,16 +137,31 @@ export async function initializeMultiMerchantDiscovery(): Promise<void> {
     return;
   }
 
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(),
+    activeDiscoveryDeadlineMs(),
+  );
+
   try {
     console.log('[admitad-config] Initializing multi-merchant discovery...');
-    
+
     // Import here to avoid circular dependencies
-    const { discoverAdmitadMerchants } = await import('./merchant-discovery');
-    const discovery = await discoverAdmitadMerchants({ 
-      maxFeeds: parseInt(process.env.ADMITAD_MAX_FEEDS || '20'), 
-      maxProductsPerFeed: parseInt(process.env.ADMITAD_MAX_PRODUCTS_PER_FEED || '5000')
-    });
-    
+    const runner =
+      discoveryRunnerOverride ??
+      (await import('./merchant-discovery')).discoverAdmitadMerchants;
+
+    const discovery = await Promise.race([
+      runner(
+        {
+          maxFeeds: parseInt(process.env.ADMITAD_MAX_FEEDS || '20'),
+          maxProductsPerFeed: parseInt(process.env.ADMITAD_MAX_PRODUCTS_PER_FEED || '5000'),
+        },
+        controller.signal,
+      ),
+      rejectOnAbort(controller.signal),
+    ]);
+
     if (discovery.activeMerchantPrograms.length > 0) {
       // Transform discovered merchants into feed configs
       discoveryFeeds = discovery.activeMerchantPrograms
@@ -66,18 +177,19 @@ export async function initializeMultiMerchantDiscovery(): Promise<void> {
           geoRestrictions: merchant.geoRestrictions,
           categories: merchant.categories,
         }));
-      
+
       console.log(
         `[admitad-config] Discovered ${discoveryFeeds.length} merchant programs: ${discoveryFeeds.map(f => f.name).join(', ')}`
       );
     } else {
       console.log('[admitad-config] No merchant programs discovered via API');
     }
-    
-    discoveryInitialized = true;
   } catch (error) {
     console.error('[admitad-config] Failed to initialize multi-merchant discovery:', error);
-    discoveryInitialized = true; // Mark as initialized even on failure to prevent retry loops
+  } finally {
+    clearTimeout(timer);
+    // Mark as initialized even on failure to prevent retry loops (unchanged).
+    discoveryInitialized = true;
   }
 }
 
