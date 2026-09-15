@@ -8,6 +8,40 @@ type CachedFeed = {
 
 const feedCache = new Map<string, CachedFeed>();
 
+/** Test-only override for the per-feed downloader (deterministic, no network). */
+let feedFetchOverride:
+  | ((
+      feedUrl: string,
+      opts: { timeoutMs?: number; maxOffers?: number },
+    ) => Promise<AdmitadFeedOffer[]>)
+  | null = null;
+
+export function setAdmitadFeedFetchForTests(
+  impl:
+    | ((
+        feedUrl: string,
+        opts: { timeoutMs?: number; maxOffers?: number },
+      ) => Promise<AdmitadFeedOffer[]>)
+    | null,
+): void {
+  feedFetchOverride = impl;
+}
+
+/** Reset the feed-fetcher caches and test seams (test-only). */
+export function resetAdmitadFeedFetcherForTests(): void {
+  feedCache.clear();
+  feedFetchOverride = null;
+}
+
+/** Current per-feed downloader — the live fetch or the deterministic override. */
+function downloadFeed(
+  feedUrl: string,
+  opts: { timeoutMs?: number; maxOffers?: number },
+): Promise<AdmitadFeedOffer[]> {
+  const impl = feedFetchOverride ?? fetchFeedOffersFromUrl;
+  return impl(feedUrl, opts);
+}
+
 /** Check if any feed has been loaded into memory (non-blocking). */
 export function isAdmitadFeedReady(): boolean {
   for (const cached of feedCache.values()) {
@@ -242,57 +276,89 @@ export async function fetchAdmitadFeedProducts(
     options.maxProductsPerFeed ?? DEFAULT_MAX_PRODUCTS_PER_FEED;
   const timeoutPerFeedMs = options.timeoutPerFeedMs ?? DEFAULT_TIMEOUT_PER_FEED_MS;
   const deadlineMs = options.deadlineMs ?? DEFAULT_DEADLINE_MS;
-  const startedAt = Date.now();
-
-  const results: {
-    offers: AdmitadFeedOffer[];
-    feedName: string;
-    feedSlug: string;
-  }[] = [];
 
   // Real-data only: discovered merchant programs exclusively. When discovery
   // is unavailable this returns [] and the DB catalog still supplies items.
   const feeds = await getAllAdmitadFeeds();
+  const candidates = feeds.slice(0, maxFeeds);
 
-  for (const feed of feeds.slice(0, maxFeeds)) {
-    if (results.length > 0 && Date.now() - startedAt > deadlineMs) {
-      console.log(
-        `[admitad] catalog feed budget reached (${Date.now() - startedAt}ms) — skipping remaining feeds`,
-      );
-      break;
-    }
+  // Fix 11: parallel multi-feed fan-out. The feeds used to be downloaded
+  // serially, so a cold cache paid the full serial ~N feed-download time and
+  // regularly lost the caller's deadline race (Search 8s fan-out, homepage 5s
+  // catalog budget, PDP 8s) — leaving Admitad absent from cold results. Now
+  // every feed download starts concurrently, each bounded by the SAME per-feed
+  // timeout and the shared wall-clock deadline, so the whole run can never
+  // exceed `deadlineMs`. Results keep the feed order, cached feeds resolve
+  // instantly, and a failed feed is skipped — failure isolation preserved.
+  const perFeedTimeoutMs = Math.min(timeoutPerFeedMs, deadlineMs);
+  const results: (
+    | { offers: AdmitadFeedOffer[]; feedName: string; feedSlug: string }
+    | null
+  )[] = new Array(candidates.length).fill(null);
 
-    const cached = feedCache.get(feed.slug);
-    if (cached && Date.now() - cached.fetchedAt < FEED_CACHE_TTL_MS) {
-      results.push({
-        offers: cached.offers,
-        feedName: feed.name,
-        feedSlug: feed.slug,
-      });
-      continue;
-    }
+  await Promise.all(
+    candidates.map(async (feed, index) => {
+      const cached = feedCache.get(feed.slug);
+      if (cached && Date.now() - cached.fetchedAt < FEED_CACHE_TTL_MS) {
+        results[index] = {
+          offers: cached.offers,
+          feedName: feed.name,
+          feedSlug: feed.slug,
+        };
+        return;
+      }
 
-    try {
-      console.log(
-        `[admitad] fetching feed "${feed.name}" from URL (budget ${maxProductsPerFeed})...`,
-      );
-      const capped = await fetchFeedOffersFromUrl(feed.feedUrl, {
-        timeoutMs: timeoutPerFeedMs,
-        maxOffers: maxProductsPerFeed,
-      });
-      console.log(`[admitad] feed "${feed.name}": ${capped.length} products`);
+      let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
 
-      feedCache.set(feed.slug, { offers: capped, fetchedAt: Date.now() });
-      results.push({ offers: capped, feedName: feed.name, feedSlug: feed.slug });
-    } catch (error) {
-      console.error(
-        `[admitad] feed "${feed.name}" fetch failed:`,
-        error instanceof Error ? error.message : error,
-      );
-      // Real-data only: never fall back to mock products. A failed feed is
-      // skipped; remaining feeds and the database catalog still supply items.
-    }
-  }
+      try {
+        console.log(
+          `[admitad] fetching feed "${feed.name}" from URL (budget ${maxProductsPerFeed})...`,
+        );
+        // Hard per-feed wall-clock guard: even if the underlying downloader
+        // stalls, the whole run can never exceed the shared deadline. The
+        // timer is cleared on settle so a fast run doesn't leave a pending
+        // timer keeping a serverless function alive past its response.
+        const capped = await Promise.race([
+          downloadFeed(feed.feedUrl, {
+            timeoutMs: perFeedTimeoutMs,
+            maxOffers: maxProductsPerFeed,
+          }),
+          new Promise<never>((_resolve, reject) => {
+            deadlineTimer = setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    `Admitad feed "${feed.name}" exceeded ${perFeedTimeoutMs}ms budget`,
+                  ),
+                ),
+              perFeedTimeoutMs,
+            );
+          }),
+        ]);
+        if (deadlineTimer) clearTimeout(deadlineTimer);
+        console.log(`[admitad] feed "${feed.name}": ${capped.length} products`);
 
-  return results;
+        feedCache.set(feed.slug, { offers: capped, fetchedAt: Date.now() });
+        results[index] = {
+          offers: capped,
+          feedName: feed.name,
+          feedSlug: feed.slug,
+        };
+      } catch (error) {
+        if (deadlineTimer) clearTimeout(deadlineTimer);
+        console.error(
+          `[admitad] feed "${feed.name}" fetch failed:`,
+          error instanceof Error ? error.message : error,
+        );
+        // Real-data only: never fall back to mock products. A failed feed is
+        // skipped; remaining feeds and the database catalog still supply items.
+      }
+    }),
+  );
+
+  // Stable output order (feed order), skipping failed/nulled slots.
+  return results.filter(
+    (r): r is { offers: AdmitadFeedOffer[]; feedName: string; feedSlug: string } =>
+      r !== null,
+  );
 }

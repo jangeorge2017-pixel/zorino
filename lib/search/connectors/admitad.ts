@@ -11,6 +11,16 @@ import { fetchAdmitadFeedProducts } from "@/lib/integrations/admitad/feed-fetche
 
 const MAX_RESULTS_FROM_FEED = 200;
 
+/**
+ * The engine's hard per-provider budget (PROVIDER_FETCH_TIMEOUT_MS in
+ * lib/search/engine.ts is 8s). The Admitad connector hands this same budget to
+ * the shared feed fetcher so its parallel feed fan-out returns any real
+ * products completed within the fan-out window instead of being dropped by the
+ * engine's race (Fix 11). Kept slightly under the engine deadline so the
+ * connector settles its results onto the page before the engine timer fires.
+ */
+const ADMITAD_CONNECTOR_DEADLINE_MS = 7_000;
+
 type IngestedRow = {
   product_slug: string;
   product_name: string;
@@ -140,8 +150,12 @@ export const admitadSearchConnector: SearchConnector = {
       const maxPages = options?.maxPages ?? SEARCH_ENGINE_DEFAULTS.MAX_PAGES_PER_PROVIDER;
       const targetCount = Math.min(pageSize * maxPages, MAX_RESULTS_FROM_FEED);
 
-      // Shared cached multi-feed fetch — no per-query network refetch.
-      const feedResults = await fetchAdmitadFeedProducts();
+      // Shared cached multi-feed fetch — no per-query network refetch. Bounded
+      // below the engine's fan-out budget so parallel downloads settle partial
+      // real results before the engine drops this provider (Fix 11).
+      const feedResults = await fetchAdmitadFeedProducts({
+        deadlineMs: ADMITAD_CONNECTOR_DEADLINE_MS,
+      });
 
       const listings: RawProviderListing[] = [];
       const seenIds = new Set<string>();
