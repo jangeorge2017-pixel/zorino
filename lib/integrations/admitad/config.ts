@@ -21,6 +21,17 @@ let discoveryFeeds: AdmitadFeedConfig[] = [];
 let discoveryInitialized = false;
 
 /**
+ * True once a discovery run has produced REAL merchant feeds. These are the
+ * "known feeds" served immediately on warm instances while a newer discovery
+ * refreshes in the background (see getAllAdmitadFeeds / kickBackgroundRefresh).
+ * Only ever set from committed discovery output — never fabricated.
+ */
+let discoveryHasFeeds = false;
+
+/** Timestamp of the discovery run that produced the current known feeds. */
+let lastDiscoveryWithFeedsAt = 0;
+
+/**
  * Hard wall-clock budget for one merchant-discovery run. Mirrors the search
  * engine's per-provider budget (`PROVIDER_FETCH_TIMEOUT_MS` in
  * lib/search/engine.ts) so a slow or rate-limited Admitad Publisher API run
@@ -29,6 +40,14 @@ let discoveryInitialized = false;
  * the existing empty/fallback state.
  */
 export const ADMITAD_DISCOVERY_DEADLINE_MS = 8_000;
+
+/**
+ * How long the known-feeds result of a completed discovery is served before a
+ * lazy background re-discovery is kicked on the next read. The known feeds
+ * themselves are only ever replaced by the output of another REAL discovery
+ * run — never by a synthetic/stale cache we fabricate for latency.
+ */
+export const ADMITAD_DISCOVERY_REFRESH_TTL_MS = 30 * 60 * 1000;
 
 /**
  * The single in-flight discovery run shared by ALL concurrent callers.
@@ -82,17 +101,31 @@ export function setAdmitadDiscoveryDeadlineForTests(ms: number | null): void {
   discoveryDeadlineOverrideMs = ms;
 }
 
+/** Test-only override for the background refresh TTL (production: 30 min). */
+let discoveryRefreshTtlOverrideMs: number | null = null;
+
+export function setAdmitadDiscoveryRefreshTtlForTests(ms: number | null): void {
+  discoveryRefreshTtlOverrideMs = ms;
+}
+
 /** Reset all discovery state (test seam). */
 export function resetAdmitadDiscoveryForTests(): void {
   discoveryFeeds = [];
   discoveryInitialized = false;
+  discoveryHasFeeds = false;
+  lastDiscoveryWithFeedsAt = 0;
   inFlightDiscovery = null;
   discoveryDeadlineOverrideMs = null;
   discoveryRunnerOverride = null;
+  discoveryRefreshTtlOverrideMs = null;
 }
 
 function activeDiscoveryDeadlineMs(): number {
   return discoveryDeadlineOverrideMs ?? ADMITAD_DISCOVERY_DEADLINE_MS;
+}
+
+function activeDiscoveryRefreshTtlMs(): number {
+  return discoveryRefreshTtlOverrideMs ?? ADMITAD_DISCOVERY_REFRESH_TTL_MS;
 }
 
 /** Reject as soon as `signal` aborts — belt-and-suspenders hard deadline. */
@@ -109,24 +142,53 @@ function rejectOnAbort(signal: AbortSignal): Promise<never> {
 }
 
 /**
- * Initialize multi-merchant discovery by running in a separate process.
- * Concurrent callers share ONE in-flight run (see `inFlightDiscovery`).
+ * Commit a completed discovery result to the known-feeds state. Real-data
+ * only: feeds are ALWAYS the output of a genuine discovery run (never
+ * synthesized). A run that yielded zero programs does NOT wipe feeds we
+ * already hold from a previous real run — a transient empty window must not
+ * empty the live catalog; the existing feeds remain known and valid.
  */
-export async function initializeMultiMerchantDiscovery(): Promise<void> {
-  if (discoveryInitialized) return;
+function commitDiscoveryResult(merchants: AdmitadMerchantProgram[]): void {
+  const configs = merchants
+    .filter((merchant) => Boolean(merchant.feedUrl))
+    .map((merchant) => ({
+      name: merchant.merchantName,
+      slug: `admitad-${merchant.campaignId}`, // Unique slug per program
+      feedUrl: merchant.feedUrl as string,
+      isPrimary: merchant.merchantName.toLowerCase() === 'alibaba' && !!feedUrl,
+      merchantId: merchant.campaignId,
+      websiteId: merchant.websiteId,
+      canGenerateDeeplinks: merchant.canGenerateDeeplinks,
+      geoRestrictions: merchant.geoRestrictions,
+      categories: merchant.categories,
+    }));
 
-  // Share the single in-flight run with every concurrent caller.
-  if (inFlightDiscovery) return inFlightDiscovery;
-
-  inFlightDiscovery = runMultiMerchantDiscovery();
-  try {
-    await inFlightDiscovery;
-  } finally {
-    inFlightDiscovery = null;
+  // Real-data only: never wipe known feeds on an empty/failed refresh — a
+  // transient empty window must not empty the live catalog. Known feeds are
+  // only ever replaced by another REAL discovery result with REAL feeds.
+  if (configs.length === 0) {
+    console.log(
+      "[admitad-config] Discovery returned no usable merchant feeds — keeping last known feeds",
+    );
+    return;
   }
+
+  discoveryFeeds = configs;
+  discoveryHasFeeds = true;
+  lastDiscoveryWithFeedsAt = Date.now();
+
+  console.log(
+    `[admitad-config] Discovered ${discoveryFeeds.length} merchant programs: ${discoveryFeeds.map(f => f.name).join(', ')}`
+  );
 }
 
-async function runMultiMerchantDiscovery(): Promise<void> {
+/**
+ * Execute ONE discovery run under the hard wall-clock deadline. Aborts on
+ * expiry, swallows errors (mirrors Fix 9: failure → existing empty/fallback
+ * state), and marks discovery as attempted so the cold-start contract is
+ * preserved — a failed/empty first attempt never retries in a loop.
+ */
+async function executeDiscoveryRun(): Promise<void> {
   // Without Publisher API credentials discovery can never authenticate —
   // obtainAccessToken() throws before any network call. Short-circuit quietly
   // so the common local/unconfigured case produces no error noise. Behavior is
@@ -162,42 +224,66 @@ async function runMultiMerchantDiscovery(): Promise<void> {
       rejectOnAbort(controller.signal),
     ]);
 
-    if (discovery.activeMerchantPrograms.length > 0) {
-      // Transform discovered merchants into feed configs
-      discoveryFeeds = discovery.activeMerchantPrograms
-        .filter((merchant) => Boolean(merchant.feedUrl))
-        .map((merchant) => ({
-          name: merchant.merchantName,
-          slug: `admitad-${merchant.campaignId}`, // Unique slug per program
-          feedUrl: merchant.feedUrl as string,
-          isPrimary: merchant.merchantName.toLowerCase() === 'alibaba' && !!feedUrl,
-          merchantId: merchant.campaignId,
-          websiteId: merchant.websiteId,
-          canGenerateDeeplinks: merchant.canGenerateDeeplinks,
-          geoRestrictions: merchant.geoRestrictions,
-          categories: merchant.categories,
-        }));
-
-      console.log(
-        `[admitad-config] Discovered ${discoveryFeeds.length} merchant programs: ${discoveryFeeds.map(f => f.name).join(', ')}`
-      );
-    } else {
-      console.log('[admitad-config] No merchant programs discovered via API');
-    }
+    commitDiscoveryResult(discovery.activeMerchantPrograms);
   } catch (error) {
     console.error('[admitad-config] Failed to initialize multi-merchant discovery:', error);
   } finally {
     clearTimeout(timer);
-    // Mark as initialized even on failure to prevent retry loops (unchanged).
+    // Mark as attempted even on failure to prevent retry loops (unchanged).
     discoveryInitialized = true;
   }
 }
 
+/**
+ * The single in-flight discovery run shared by ALL concurrent callers. Fix 9
+ * dedup is preserved exactly: at most one run exists at a time and every
+ * caller that needs to wait joins the SAME promise. Callers that already hold
+ * known feeds never go through here (they bypass via getAllAdmitadFeeds).
+ */
+function startDiscoveryRun(): Promise<void> {
+  if (inFlightDiscovery) return inFlightDiscovery;
+  const run = executeDiscoveryRun();
+  inFlightDiscovery = run.finally(() => {
+    inFlightDiscovery = null;
+  });
+  return inFlightDiscovery;
+}
+
+/**
+ * Overlap (Fix 10): when known feeds are already available, a due background
+ * refresh is kicked WITHOUT blocking the caller — the request path keeps
+ * serving the real known feeds while the new discovery settles out of band.
+ * In-flight dedup and the hard deadline still apply to that background run.
+ */
+function kickBackgroundRefreshIfDue(): void {
+  if (inFlightDiscovery) return;
+  if (Date.now() - lastDiscoveryWithFeedsAt < activeDiscoveryRefreshTtlMs()) {
+    return;
+  }
+  startDiscoveryRun();
+}
+
+/**
+ * Initialize multi-merchant discovery. When no usable feeds exist yet this
+ * AWAITS the single shared run (safe cold-start behavior preserved). Once a
+ * run has been attempted it is a no-op — refreshes flow through the
+ * background path in getAllAdmitadFeeds.
+ */
+export async function initializeMultiMerchantDiscovery(): Promise<void> {
+  if (discoveryInitialized) return;
+  await startDiscoveryRun();
+}
+
 /** Get all registered feeds — discovered merchant programs only. */
 export async function getAllAdmitadFeeds(): Promise<AdmitadFeedConfig[]> {
-  // Initialize discovery on first call
-  if (!discoveryInitialized) {
-    await initializeMultiMerchantDiscovery();
+  // Fix 10 overlap: when real known feeds are available serve them IMMEDIATELY
+  // (no waiting on any discovery promise) and let a due refresh run in the
+  // background. Cold path (no usable feeds yet) preserves the safe behavior:
+  // await the single shared discovery run.
+  if (discoveryHasFeeds) {
+    kickBackgroundRefreshIfDue();
+  } else if (!discoveryInitialized) {
+    await startDiscoveryRun();
   }
 
   // Deduplicate by slug AND by feed URL.
