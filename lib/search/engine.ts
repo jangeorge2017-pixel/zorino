@@ -9,6 +9,7 @@ import {
 } from "@/lib/search/cache";
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
+import { analyzeSearchListing } from "@/lib/search/relevance";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
 import {
@@ -243,28 +244,42 @@ export async function searchProducts(
     }
   }
 
-  // Balance DB results across marketplaces so providers without live connectors
-  // (Nike, CJdropshipping, Best Buy, Walmart, etc.) get fair representation
-  // instead of being drowned out by the dominant Admitad bulk.
+  // Gate DB supplements through the same relevance analyzer the live pipeline
+  // uses. The old merge bypassed analyzeSearchListing entirely, so rows that
+  // merely matched a short substring ("15", "pro", "max") — facial-lifting
+  // stickers, cat fountains, flag rope, bookbinding rulers — landed on page 1
+  // between genuine devices at full "brand" weight. Drop irrelevant rows
+  // (tier "none"/"repair") and record scores for ordering.
+  const relevantDb: typeof activeDb = [];
+  const dbScoreById = new Map<string, number>();
+  for (const dbItem of dedupedDb) {
+    const analysis = analyzeSearchListing(dbItem.name, trimmed);
+    if (analysis.tier === "none" || analysis.tier === "repair") continue;
+    relevantDb.push(dbItem);
+    dbScoreById.set(dbItem.id, analysis.score);
+  }
+
+  // Balance relevant DB results across marketplaces so providers without live
+  // connectors (Nike, CJdropshipping, Best Buy, Walmart, etc.) get fair
+  // representation instead of being drowned out by the dominant Admitad bulk.
+  // Relevance score (not discount) is the primary ordering key.
   const balancedDb = balanceFlatMarketplaceList(
-    dedupedDb,
+    relevantDb,
     (item) => item.storeSlug || item.store,
-    dedupedDb.length,
-    (a, b) => b.discount - a.discount || a.price - b.price,
+    relevantDb.length,
+    (a, b) =>
+      (dbScoreById.get(b.id) ?? 0) - (dbScoreById.get(a.id) ?? 0) ||
+      b.discount - a.discount ||
+      a.price - b.price,
   );
 
-  // Interleave live + balanced DB results: insert one DB card after every
-  // live card so underrepresented merchants are spread evenly across the page.
-  const mixed: typeof live = [];
-  let di = 0;
-  for (let i = 0; i < live.length && mixed.length < capped; i++) {
-    mixed.push(live[i]);
-    if (di < balancedDb.length && mixed.length < capped) {
-      mixed.push(balancedDb[di++]);
-    }
-  }
-  while (di < balancedDb.length && mixed.length < capped) {
-    mixed.push(balancedDb[di++]);
+  // Append DB results AFTER the live block instead of interleaving one DB card
+  // after every live card. Genuine devices now fill page 1 contiguously;
+  // relevant DB products complement the tail without pushing real results down.
+  const mixed: typeof live = live.slice(0, capped);
+  for (const dbItem of balancedDb) {
+    if (mixed.length >= capped) break;
+    mixed.push(dbItem);
   }
   fairSearchCache.set(cacheKey, {
     items: mixed,

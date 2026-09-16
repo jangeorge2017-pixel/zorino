@@ -25,6 +25,17 @@ function db(client: SupabaseDb): any {
   return client;
 }
 
+/** Escape a query token before embedding it in a regex. */
+function escapeRegexToken(token: string): string {
+  return token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** True when `token` appears in `hay` as a whole word (not a substring). */
+function wordInTitle(hay: string, token: string): boolean {
+  const esc = escapeRegexToken(token);
+  return new RegExp(`(^|[^a-z0-9])${esc}($|[^a-z0-9])`, "i").test(hay);
+}
+
 type LowestPriceRow = {
   id: string;
   product_id: string;
@@ -552,9 +563,11 @@ async function loadSearchResultsFromDatabase(
     : createSupabaseAnonClient();
   if (!supabase) return [];
 
-  // Word-level OR matching: "nike shoes" → ILIKE '%nike%' OR ILIKE '%shoes%'
-  // This finds "Nike Air Max 90" AND "Running Shoes" which the old substring
-  // match and AND-match both missed. Word overlap scoring happens post-query.
+  // Word-level OR matching: "nike shoes" → product_name ~* '\mnike\M' OR
+  // '\mshoes\M'. Word-boundary regex (not ILIKE '%w%') stops short tokens from
+  // matching inside unrelated words ("pro" ⊂ "waterproof"/"professional";
+  // "15" ⊂ "x15-box"), which previously flooded the pool with irrelevant rows.
+  // Word overlap scoring happens post-query.
   const words = query
     .toLowerCase()
     .split(/\s+/)
@@ -563,7 +576,7 @@ async function loadSearchResultsFromDatabase(
   if (words.length === 0) return [];
 
   const orFilter = words
-    .map((w) => `product_name.ilike.%${w}%`)
+    .map((w) => `product_name.iregex.\\m${escapeRegexToken(w)}\\M`)
     .join(",");
 
   const { data, error } = await db(supabase)
@@ -611,8 +624,8 @@ async function loadSearchResultsFromDatabase(
   results.sort((a, b) => {
     const aLower = a.name.toLowerCase();
     const bLower = b.name.toLowerCase();
-    const aMatches = queryWords.filter((w) => aLower.includes(w)).length;
-    const bMatches = queryWords.filter((w) => bLower.includes(w)).length;
+    const aMatches = queryWords.filter((w) => wordInTitle(aLower, w)).length;
+    const bMatches = queryWords.filter((w) => wordInTitle(bLower, w)).length;
     if (aMatches !== bMatches) return bMatches - aMatches;
     return b.discount - a.discount || a.price - b.price;
   });

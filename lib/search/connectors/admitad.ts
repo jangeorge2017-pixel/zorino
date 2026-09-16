@@ -11,6 +11,12 @@ import { fetchAdmitadFeedProducts } from "@/lib/integrations/admitad/feed-fetche
 
 const MAX_RESULTS_FROM_FEED = 200;
 
+/** True when `token` appears in `nameLower` as a whole word (not a substring). */
+function wordInName(nameLower: string, token: string): boolean {
+  const esc = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9])${esc}($|[^a-z0-9])`, "i").test(nameLower);
+}
+
 /**
  * The engine's hard per-provider budget (PROVIDER_FETCH_TIMEOUT_MS in
  * lib/search/engine.ts is 8s). The Admitad connector hands this same budget to
@@ -53,7 +59,9 @@ async function searchIngestedRows(
     const words = query.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
     if (words.length === 0) return [];
 
-    const orFilter = words.map((w) => `product_name.ilike.%${w}%`).join(",");
+    const orFilter = words
+      .map((w) => `product_name.iregex.\\m${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\M`)
+      .join(",");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from("lowest_prices_today")
@@ -167,7 +175,7 @@ export const admitadSearchConnector: SearchConnector = {
           const nameLower = offer.name.toLowerCase();
           const matches =
             queryWords.length === 0 ||
-            queryWords.some((w) => nameLower.includes(w));
+            queryWords.some((w) => wordInName(nameLower, w));
           if (!matches) continue;
 
           const dedupeKey = `${feedResult.feedSlug}:${offer.id}`;
