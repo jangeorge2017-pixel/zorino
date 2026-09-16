@@ -344,9 +344,15 @@ export async function getRealCatalogProductCount(): Promise<number> {
   }
 
   // All attempts failed — never report a transient failure as 0 while real
-  // products exist. Prefer the merged live catalog (the same products the
-  // homepage renders), then the most recent real DB count observed, so the
-  // statistic stays truthful across the 5-minute cache window.
+  // products exist. Prefer the LAST REAL DB count observed (the real catalog
+  // size, e.g. 69K+) over the merged live catalog sample length: the merged
+  // catalog only carries a bounded representative slice of the DB (per-merchant
+  // sample), so on a transient exact-count failure its length (~18) would report
+  // a misleadingly tiny catalog that then gets cached for 5 minutes as the
+  // primary homepage state. The merged catalog remains a fallback only when no
+  // known-good real count exists yet on this instance (cold start). Returns 0
+  // only when every real source is genuinely empty/unavailable.
+  if (lastKnownProductCount > 0) return lastKnownProductCount;
   const catalogCount = await getCatalogFallbackCount();
   if (catalogCount > 0) return catalogCount;
   return lastKnownProductCount;

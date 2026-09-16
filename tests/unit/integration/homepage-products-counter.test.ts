@@ -80,6 +80,28 @@ describe("homepage Products counter (Fix 5)", () => {
     expect(count).toBeGreaterThan(0);
   });
 
+  it("never lets a transient exact-count failure downgrade the stat to the tiny merged-catalog sample", async () => {
+    // Simulate a healthy read first (caches the real catalog size)...
+    setSupabaseAnonClientForTests(buildClient({ count: 69_907 }) as never);
+    setCatalogFallbackCountForTests(async () => 0);
+    expect(await getRealCatalogProductCount()).toBe(69_907);
+
+    // ...then the exact-count query fails transiently. The merged catalog is
+    // only a bounded per-merchant sample (~18 items, single provider visible),
+    // so its length must NOT replace the real catalog size in the stat.
+    setSupabaseAnonClientForTests(
+      buildClient({ count: null, error: { message: "statement timeout" } }) as never,
+    );
+    setCatalogFallbackCountForTests(async () => 18);
+
+    const count = await getRealCatalogProductCount();
+
+    // The truthful last-known-good count wins; the tiny sample length is never
+    // surfaced as the primary ProductCount while a real known-good exists.
+    expect(count).toBe(69_907);
+    expect(count).toBeGreaterThan(18);
+  });
+
   it("falls back to last-known-good when the DB and catalog are both down", async () => {
     // Simulate one successful read first (caches the known-good count)...
     setSupabaseAnonClientForTests(buildClient({ count: 69_907 }) as never);
