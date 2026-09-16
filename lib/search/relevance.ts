@@ -251,6 +251,40 @@ export const DEVICE_ACCESSORY_TYPES = [
   "stylus pen",
 ] as const;
 
+/** Audio-family product words (AirPods & co). Used for same-family tiering. */
+export const AUDIO_FAMILY_RE = /\b(airpods?|earbuds?|earphones?|headphones?|headsets?)\b/i;
+
+/**
+ * Query-side product families the user names. When a query pins one family
+ * but a candidate title belongs to a different family with only weak token
+ * overlap, the listing is unrelated (see analyzeSearchListing family guard).
+ */
+export const DEVICE_FAMILY_RE =
+  /\b(airpods?|earbuds?|earphones?|headphones?|headsets?|iphone|ipad|macbook|galaxy|fold|flip|ps5|playstation|switch|nintendo|rtx|smartwatch|smart watch)\b/i;
+
+/**
+ * Whole-screen / display-panel phrases not covered by the raw repair term
+ * list. Kept out of REPAIR_AND_PARTS_TERMS on purpose: checking them raw
+ * would drop whole-device listings that merely name their panel spec
+ * ("MacBook Pro 13 LCD Screen 16GB 512GB").
+ */
+const SCREEN_PART_PHRASES = [
+  "amoled screen",
+  "oled screen",
+  "lcd screen",
+  "lcd assembly",
+  "screen & frame",
+  "screen assembly",
+  "screen glass",
+  "front glass",
+  "screen only",
+  "screen replacement",
+  "display replacement",
+  "display panel",
+  "touchscreen",
+  "touch screen",
+] as const;
+
 /** Official device brands to prioritize / require on model-specific searches. */
 export const OFFICIAL_DEVICE_BRANDS = [
   "apple",
@@ -370,8 +404,31 @@ export function queryWantsAccessory(query: string): boolean {
   );
 }
 
+/**
+ * True for display/panel listings that are spare parts, not whole devices.
+ * Whole-device titles that merely name their panel spec ("MacBook Pro 13
+ * LCD Screen 16GB 512GB", "iPhone 15 OLED 256GB") carry a storage spec and no
+ * part marker — those stay devices. Part-style titles ("… Screen & Frame OEM",
+ * "… LCD Assembly 661-…", "… OLED Screen Grade C") have no storage, or a part
+ * marker/code, and are repair parts.
+ */
+function isScreenPartOrDisplay(title: string): boolean {
+  const hay = title.toLowerCase();
+  if (!SCREEN_PART_PHRASES.some((phrase) => hay.includes(phrase))) return false;
+
+  const hasStorage = /\b\d{1,5}\s*(gb|tb)\b/i.test(hay);
+  if (!hasStorage) return true;
+
+  return (
+    /\b(assembly|replacement|only|glass|oem|&?\s*frame|front|for\s+parts|grade\s*c|panel)\b/i.test(
+      hay,
+    ) || /\b(661-|a\d{4}\b|sm-s\d{4}\b)\b/i.test(hay)
+  );
+}
+
 function isRepairOrPartsListing(hay: string): boolean {
   if (REPAIR_AND_PARTS_TERMS.some((term) => hay.includes(term))) return true;
+  if (isScreenPartOrDisplay(hay)) return true;
   // Replacement batteries sold by mAh / Samsung part codes.
   if (/\b\d{3,5}\s*mah\b/i.test(hay)) return true;
   if (/\beb-[a-z0-9]{5,}\b/i.test(hay)) return true;
@@ -503,6 +560,9 @@ export function hasSameSeries(title: string, query: string): boolean {
   const hay = title.toLowerCase();
 
   if (/\biphone\b/.test(q) && /\biphone\b/.test(hay)) return true;
+  if (/\bairpods?\b/.test(q) && /\bairpods?\b/.test(hay)) return true;
+  if (/\b(earbuds?|earphones?|headphones?|headsets?)\b/.test(q) &&
+      /\b(earbuds?|earphones?|headphones?|headsets?)\b/.test(hay)) return true;
   if (/\b(galaxy|samsung|fold|flip)\b/.test(q) && /\b(galaxy|samsung|fold|flip)\b/.test(hay)) {
     return true;
   }
@@ -609,7 +669,25 @@ function isAccessoryDominantTitle(hay: string): boolean {
     return false;
   }
 
+  // Stylus/pen-style parts ("Galaxy S24 Ultra S Pen Stylus", "Pen for iPad")
+  // are accessory-only products even when they lead with the device name.
+  for (const term of DEVICE_ACCESSORY_TYPES) {
+    if (hay.includes(term)) return true;
+  }
+
   return ACCESSORY_TERMS.some((term) => hay.includes(term));
+}
+
+/**
+ * Title with leading sale/adjective tokens ("New Sealed", "Factory Unlocked",
+ * "Genuine Original", …) stripped. Market feeds prepend these to phone titles
+ * ("New Sealed Samsung Galaxy S24 Ultra S928U"), which used to defeat the
+ * device-heading anchors and demote real devices to the brand band.
+ */
+function deviceHeadingTitle(title: string): string {
+  const strip = /^(?:brand\s+new|new|sealed|factory\s+unlocked|factory|genuine|original|unlocked|renewed|refurbished)\b[\s-]*/i;
+  const t = title.trim();
+  return t.replace(strip, "").replace(strip, "").replace(strip, "");
 }
 
 /**
@@ -704,6 +782,19 @@ export function looksLikeDevice(title: string, category?: string): boolean {
     if (/\bsony\b/.test(hay) || /^playstation/i.test(title.trim())) return true;
   }
 
+  // Earbuds / headphones as primary audio products (AirPods & family). Genuine
+  // earbuds must count as primary devices or an "airpods pro" query ranks them
+  // in the accessory queue behind unrelated devices. Accessory-style titles
+  // (cleaner kits, covers, straps, tips, cables, chargers) stay accessories.
+  if (
+    AUDIO_FAMILY_RE.test(hay) &&
+    !/\b(for\s+|compatible\s+with|cover|case|strap|tip|tips|clean|cleaner|cleaning|kit|cable|charger|adapter|stand|holder|protector|sleeve|pouch|mount|skin)\b/.test(
+      hay,
+    )
+  ) {
+    return true;
+  }
+
   // Generic laptops / notebooks (non-MacBook)
   if (/\b(laptop|notebook)\b/.test(hay) && !isAccessoryDominantTitle(hay)) {
     if (/\b(mouse\s*pad|desk\s*pad|sleeve|bag|stand|cooler|cooling\s+pad)\b/.test(hay)) {
@@ -735,13 +826,14 @@ export function looksLikeDevice(title: string, category?: string): boolean {
   }
 
   if (!isAccessoryDominantTitle(hay)) {
-    if (/^(apple\s+)?iphone\s+\d/.test(hay)) return true;
-    if (/^samsung\s+galaxy\s+[a-z]?\d+/i.test(title)) return true;
-    if (/^xiaomi\s+\d+/i.test(title)) return true;
-    if (/^apple\s+macbook/i.test(title.trim())) return true;
-    if (/^sony\s+playstation/i.test(title.trim())) return true;
+    const lead = deviceHeadingTitle(title);
+    if (/^(apple\s+)?iphone\s+\d/.test(lead)) return true;
+    if (/^samsung\s+galaxy\s+[a-z]?\d+/i.test(lead)) return true;
+    if (/^xiaomi\s+\d+/i.test(lead)) return true;
+    if (/^apple\s+macbook/i.test(lead)) return true;
+    if (/^sony\s+playstation/i.test(lead)) return true;
     // "iPhone 15 Pro 256GB" without leading Apple
-    if (/\biphone\s+\d{2}\b/.test(hay) && /\b(pro|plus|max|\d+\s*(gb|tb))\b/i.test(title)) return true;
+    if (/\biphone\s+\d{2}\b/.test(lead) && /\b(pro|plus|max|\d+\s*(gb|tb))\b/i.test(lead)) return true;
   }
 
   return false;
@@ -782,6 +874,15 @@ export function isAccessoryListing(title: string, query: string): boolean {
 }
 
 /**
+ * True when the query names a concrete device product family ("iphone 15
+ * pro max", "airpods pro", "macbook pro", "galaxy s24", …). Used by
+ * analyzeSearchListing's family guard to keep unrelated devices/skins out.
+ */
+export function queryPinsDeviceFamily(query: string): boolean {
+  return DEVICE_FAMILY_RE.test(query.toLowerCase());
+}
+
+/**
  * Analyze a listing: assign match tier + composite score.
  * Repair/parts and unrelated listings get tier "repair" / "none".
  */
@@ -810,6 +911,18 @@ export function analyzeSearchListing(
     return { tier: "repair", score: -1, isDevice: false };
   }
   if (overlap === 0) {
+    return { tier: "none", score: 0, isDevice: false };
+  }
+
+  // Family guard: when the query pins one device family ("airpods pro",
+  // "iphone 15 pro max", "macbook pro") but the title shares none of that
+  // family and only overlaps a generic token ("pro", "max", "15"), the
+  // listing is unrelated — a Xiaomi smartphone, a Huawei 4G router, or iPhone
+  // back-glass for a MacBook query. Those previously won a free "brand"/
+  // "series"/"accessory" tier. Genuine same-family listings (any iPhone for an
+  // iPhone query, AirPods 2/3 for "airpods pro") still pass via hasSameSeries.
+  const familyConflict = queryPinsDeviceFamily(query) && !hasSameSeries(title, query);
+  if (familyConflict && overlap < 50) {
     return { tier: "none", score: 0, isDevice: false };
   }
 

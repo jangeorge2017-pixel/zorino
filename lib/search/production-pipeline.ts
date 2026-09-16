@@ -35,7 +35,12 @@ export function pickBestOffer(
 }
 
 function isPrimaryDeviceListing(row: NormalizedSearchListing): boolean {
-  return row.isDevice && row.matchTier !== "accessory" && row.matchTier !== "repair";
+  // Only strong device matches (exact/model) lead a page. Weak device matches
+  // (series/brand tier, e.g. a wrong-generation iPhone, a sibling AirPods
+  // gen, a stylus) must not displace genuine devices from another provider
+  // during marketplace balancing; they rank in the secondary phase behind all
+  // strong matches.
+  return row.isDevice && (row.matchTier === "exact" || row.matchTier === "model");
 }
 
 function splitProviderQueues(
