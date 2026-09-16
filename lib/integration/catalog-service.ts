@@ -20,6 +20,11 @@ import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { STUB_PROVIDER_IDS } from "@/lib/providers/registry";
+import {
+  isCatalogViable,
+  rememberCatalogAsHealthy,
+  getLastKnownGoodCatalog,
+} from "@/lib/integration/database-catalog";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
 
 /**
@@ -174,15 +179,32 @@ const loadMergedCatalogItems = unstable_cache(
       });
 
       if (activeFiltered.length > 0) {
-        return balanceFlatMarketplaceList(
+        const balanced = balanceFlatMarketplaceList(
           activeFiltered,
           (item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
           activeFiltered.length,
         );
+        // Don't let a degraded/partial catalog overwrite a healthy cached
+        // snapshot. When the fan-out collapses to a single fast provider due
+        // to latency/timeout issues, the pool is clearly incomplete -- return
+        // the last-known-good catalog instead (or the degraded pool on cold
+        // start when no healthy snapshot exists yet).
+        if (isCatalogViable(balanced)) {
+          rememberCatalogAsHealthy(balanced);
+          return balanced;
+        }
+        const knownGood = getLastKnownGoodCatalog();
+        return knownGood.length > 0 ? knownGood : balanced;
       }
 
       const { items } = await fetchMergedCatalog();
-      return items;
+      // Apply the same viability gate to the comparison-engine fallback.
+      if (isCatalogViable(items)) {
+        rememberCatalogAsHealthy(items);
+        return items;
+      }
+      const knownGood = getLastKnownGoodCatalog();
+      return knownGood.length > 0 ? knownGood : items;
     } catch (error) {
       console.error("[catalog] merged fetch failed:", error);
       return [];

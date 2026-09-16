@@ -384,6 +384,96 @@ async function getCatalogFallbackCount(): Promise<number> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Catalog viability gate & last-known-good
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimum viable catalog rule: a healthy merged catalog MUST span at least
+ * two distinct real provider sources. The homepage is a multi-marketplace
+ * surface by design (see the balancer rationale in homepage-sections.ts).
+ * When provider latency collapses the fan-out to a single fast source, the
+ * resulting pool is clearly incomplete and must NOT overwrite an existing
+ * healthy snapshot in cache.
+ *
+ * - Deterministic (no randomness, no side effects)
+ * - Provider-neutral (no specific provider named or required)
+ * - Derived from the multi-marketplace identity of the architecture
+ * - Small (>=2 is the smallest non-trivial multi-source threshold)
+ * - Covered by regression tests
+ */
+export const MIN_VIABLE_SOURCES = 2;
+
+export function isCatalogViable(items: NormalizedCatalogItem[]): boolean {
+  if (items.length === 0) return false;
+  const providers = new Set<string>();
+  for (const item of items) {
+    const pid = resolveMarketplaceId(
+      item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
+    );
+    providers.add(pid);
+  }
+  return providers.size >= MIN_VIABLE_SOURCES;
+}
+
+/**
+ * Last-known-good catalog snapshot (per-instance module memory, mirroring the
+ * established `lastKnownProductCount` pattern). Once a healthy catalog has been
+ * generated, subsequent degraded regenerations return this snapshot instead of
+ * letting the unstable_cache slot be overwritten with incomplete data.
+ *
+ * The main `homepage:merged-catalog-v13-image-fix` unstable_cache slot persists
+ * across requests on a warm instance. Module memory is set on the first viable
+ * generation; all subsequent degraded regens within the same process lifetime
+ * use the cached healthy snapshot. The residual cold-instance edge (module
+ * memory empty on a brand-new worker with no prior healthy generation) falls
+ * through to returning the degraded catalog -- this is acceptable because
+ * unstable_cache always caches the return, and the degraded catalog is at least
+ * a truthful representation when no healthy snapshot has ever been established.
+ */
+let lastKnownGoodCatalog: NormalizedCatalogItem[] = [];
+
+/** Store a healthy catalog snapshot in module memory. */
+export function rememberCatalogAsHealthy(items: NormalizedCatalogItem[]): void {
+  lastKnownGoodCatalog = items;
+}
+
+/** Retrieve the last-known-good catalog snapshot (empty array if none yet). */
+export function getLastKnownGoodCatalog(): NormalizedCatalogItem[] {
+  return lastKnownGoodCatalog;
+}
+
+/**
+ * Pure function: resolve the final catalog outcome from the freshly-generated
+ * items. If the fresh catalog is viable, remember and return it. If degraded,
+ * return the last-known-good snapshot (if available) to protect the cache from
+ * being overwritten with incomplete data. If no known-good exists yet (cold
+ * start), return the fresh catalog as-is -- at least it's truthful.
+ *
+ * Exported for direct unit testing; catalog-service.ts uses the individual
+ * helpers (isCatalogViable + rememberCatalogAsHealthy + getLastKnownGoodCatalog)
+ * for the same logic with module-level side effects.
+ */
+export function resolveCatalogOutcome(
+  freshItems: NormalizedCatalogItem[],
+): NormalizedCatalogItem[] {
+  if (isCatalogViable(freshItems)) {
+    rememberCatalogAsHealthy(freshItems);
+    return freshItems;
+  }
+  // Degraded: protect the cache by returning the last-known-good snapshot.
+  // Cold start: no known-good exists yet -> return fresh (truthful fallback).
+  return lastKnownGoodCatalog.length > 0 ? lastKnownGoodCatalog : freshItems;
+}
+
+/**
+ * Test-only seam: reset the viability gate state (known-good catalog memory).
+ * Mirrors the resetRealCatalogProductCountForTests() pattern above.
+ */
+export function resetCatalogViabilityForTests(): void {
+  lastKnownGoodCatalog = [];
+}
+
 function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
   const providerId = resolveMarketplaceId(row.provider ?? row.store_name);
   const affiliateUrl = row.affiliate_url ?? row.external_url ?? "";
