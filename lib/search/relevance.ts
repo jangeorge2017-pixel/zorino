@@ -25,6 +25,13 @@ export const ACCESSORY_TERMS = [
   "camera lens",
   "replacement part",
   "replacement screen",
+  "back glass",
+  "rear glass",
+  "glass housing",
+  "rear housing",
+  "chassis",
+  "chasis",
+  "housing",
   "leather case",
   "soft case",
   "hard case",
@@ -142,6 +149,13 @@ export const REPAIR_AND_PARTS_TERMS = [
   "lcd display",
   "touch screen replacement",
   "back cover glass",
+  "back glass",
+  "rear glass",
+  "glass housing",
+  "rear housing",
+  "chassis",
+  "chasis",
+  "housing",
   "housing frame",
   "middle frame",
   "bezel frame",
@@ -151,6 +165,10 @@ export const REPAIR_AND_PARTS_TERMS = [
   "replacement battery",
   "mobile phone battery",
   "phone battery",
+  "capacity battery",
+  "100% capacity",
+  "battery health 100% capacity",
+  "battery new oem",
   "mah battery",
   "mah eb-",
   " eb-b",
@@ -332,6 +350,17 @@ export function queryTokens(query: string): string[] {
     .filter((t) => t.length >= 2);
 }
 
+/**
+ * True when `token` appears in `hay` as a whole word bounded by start/end or
+ * any non-alphanumeric character. Blocks short-token substring floods: "pro"
+ * will NOT match "waterproof" or "professional"; "15" will NOT match "x15-box".
+ */
+export function titleContainsWord(hay: string, token: string): boolean {
+  if (!token) return false;
+  const esc = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9])${esc}($|[^a-z0-9])`, "i").test(hay);
+}
+
 /** True when the user query explicitly asks for an accessory. */
 export function queryWantsAccessory(query: string): boolean {
   const phrase = query.trim().toLowerCase();
@@ -418,7 +447,7 @@ function queryOverlapScore(title: string, query: string): number {
 
   let matched = 0;
   for (const token of tokens) {
-    if (hay.includes(token)) matched++;
+    if (titleContainsWord(hay, token)) matched++;
   }
   if (matched === 0) {
     return brandMatchesQuery(hay, query) ? 35 : 0;
@@ -507,7 +536,7 @@ export function titleMatchesQuery(title: string, query: string): boolean {
   if (tokens.length === 0) return false;
 
   const hay = title.toLowerCase();
-  if (tokens.every((token) => hay.includes(token))) return true;
+  if (tokens.every((token) => titleContainsWord(hay, token))) return true;
 
   // "galaxy a55" / "galaxy s24" / "galaxy fold" — titles often omit "Galaxy".
   if (tokens.includes("galaxy")) {
@@ -515,7 +544,7 @@ export function titleMatchesQuery(title: string, query: string): boolean {
     if (
       modelTokens.length > 0 &&
       /\bsamsung\b/.test(hay) &&
-      modelTokens.every((t) => hay.includes(t))
+      modelTokens.every((t) => titleContainsWord(hay, t))
     ) {
       return true;
     }
@@ -534,7 +563,7 @@ export function titleMatchesQuery(title: string, query: string): boolean {
   // "rtx 5090" — accept "NVIDIA GeForce RTX 5090".
   if (tokens.includes("rtx")) {
     const rtxTokens = tokens.filter((t) => t !== "rtx");
-    if (rtxTokens.length > 0 && /\brtx\b/.test(hay) && rtxTokens.every((t) => hay.includes(t))) {
+    if (rtxTokens.length > 0 && /\brtx\b/.test(hay) && rtxTokens.every((t) => titleContainsWord(hay, t))) {
       return true;
     }
     if (tokens.length === 1 && tokens[0] === "rtx" && /\brtx\b/.test(hay)) return true;
@@ -544,7 +573,7 @@ export function titleMatchesQuery(title: string, query: string): boolean {
   if (tokens.length === 1) {
     const token = tokens[0];
     if (["iphone", "samsung", "macbook", "ipad", "xiaomi", "ps5", "playstation"].includes(token)) {
-      return hay.includes(token) || (token === "samsung" && /\bgalaxy\b/.test(hay));
+      return titleContainsWord(hay, token) || (token === "samsung" && /\bgalaxy\b/.test(hay));
     }
   }
 
@@ -817,8 +846,14 @@ export function analyzeSearchListing(
       tier = "series";
     } else if (hasOfficialBrand(title, query) || brandMatchesQuery(hay, query)) {
       tier = "brand";
-    } else {
+    } else if (overlap >= 50) {
+      // Device-shaped but no model/series/brand signal: keep only when it
+      // overlaps most query tokens. Fringe devices (e.g. "Android TV-Projektor"
+      // for a "MacBook Pro" query, "GT2 Pro Smartwatch" for "AirPods Pro")
+      // otherwise grab a free "series" slot above genuine matches.
       tier = "series";
+    } else {
+      tier = "none";
     }
   } else if (isAccessory) {
     tier = "accessory";
