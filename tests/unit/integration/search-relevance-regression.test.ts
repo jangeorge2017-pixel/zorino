@@ -21,6 +21,28 @@
  *  Bug 4 — One DB card was interleaved after every live card. Fixed: relevant
  *          DB results are appended AFTER the live block.
  *
+ * Live re-audit (deployed d005e69) then found three ranking-class failures the
+ * first four fixes did not cover:
+ *
+ *  Bug 5 — Stylus/display-part titles opened with the device name and won the
+ *          "exact" device tier ("Galaxy S24 Ultra … S Pen Stylus" ranked #1,
+ *          "… AMOLED Screen & Frame …" #2, "… LCD Assembly 661-…" #11, "…
+ *          OLED Screen OEM …" #49). Fixed: stylus/pen types are accessory-
+ *          dominant; screen/panel phrases classify as repair parts unless the
+ *          title carries a storage spec without a part marker (whole-device
+ *          "LCD Screen 16GB" titles stay devices).
+ *  Bug 6 — Unrelated devices/skins matched a generic token ("pro") and won a
+ *          free "brand"/"accessory" slot above genuine matches regardless of
+ *          product family (Xiaomi MI 9 PRO smartphone #1 for "airpods pro",
+ *          Huawei 4G router #3, iPhone back-glass in the MacBook tail). Fixed:
+ *          family guard — when the query pins a family and the title shares no
+ *          family and overlap < 50%, the listing is "none".
+ *  Bug 7 — Genuine earbuds were not primary devices, so "airpods pro" ranked
+ *          them from the accessory queue interleaved with junk. Fixed:
+ *          earbud/headphone listings classify as devices; strong matches
+ *          (exact/model) alone lead the production page so wrong-generation
+ *          siblings no longer displace genuine devices via balancing.
+ *
  * Mocking: suite runs with isolate:false + singleFork:true where per-module
  * `vi.mock` is unreliable, so this file uses live-binding spies, deterministic
  * feed seams (setAdmitadFeedFetchForTests), and the exported engine/test seams.
@@ -291,6 +313,139 @@ describe("Bug 3: Admitad connector matches query words by whole word, not substr
   });
 });
 
+// ─── Bug 6: family guard — unrelated devices never win a brand slot ─────────
+
+describe("Bug 6: family guard drops unrelated devices/accessories", () => {
+  it("an unrelated smartphone keeps no brand tier for an 'airpods pro' query", () => {
+    expect(
+      analyzeSearchListing(
+        "chinese version Original Xiaomi MI 9 PRO 5G mobiles 6.39 inch 16MP 128GB mi9 pro 5G smartphone android",
+        "airpods pro",
+      ).tier,
+    ).toBe("none");
+  });
+
+  it("Huawei 4G/wifi routers stay out of 'airpods pro' results", () => {
+    expect(
+      analyzeSearchListing(
+        "Cat6 300Mbps Huawei E5885 4G LTE Mobile WiFi Pro 2",
+        "airpods pro",
+      ).tier,
+    ).toBe("none");
+    expect(
+      analyzeSearchListing(
+        "Original Unlocked for Huawei 5G wifi pro E6878 mobile wifi Pocket WiFi Router",
+        "airpods pro",
+      ).tier,
+    ).toBe("none");
+  });
+
+  it("iPhone screen protectors / cases never leak into a 'macbook pro' query", () => {
+    expect(
+      analyzeSearchListing(
+        "anti-explosion Tempered glass for iPhone 11/11PRO/11 PRO MAX BACK 0.3mm 2.5D ultrathin film mobile accessory screen protector",
+        "macbook pro",
+      ).tier,
+    ).toBe("none");
+    expect(
+      analyzeSearchListing(
+        "For iPhone 15 Pro Max Leather-Textured TPU Phone Case(Zebra Pattern)",
+        "macbook pro",
+      ).tier,
+    ).toBe("none");
+  });
+
+  it("same-family listings still pass the family guard", () => {
+    // Any iPhone is same series for an iPhone query (wrong GEN stays in,
+    // but it is demoted to the secondary phase — see Bug 7).
+    expect(
+      analyzeSearchListing(
+        "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7",
+        "iphone 15 pro max",
+      ).tier,
+    ).toBe("series");
+    // Strong token overlap keeps an Apple Pro Max title even when the exact
+    // family word is missing (not hard-dropped).
+    expect(
+      analyzeSearchListing(
+        "Apple Pro Max 15 OLED Display 256GB",
+        "iphone 15 pro max",
+      ).tier,
+    ).not.toBe("none");
+  });
+});
+
+// ─── Bug 5: stylus / display parts never rank as exact devices ─────────────
+
+describe("Bug 5: stylus and screen parts are not exact devices", () => {
+  it("a Galaxy S Pen stylus is an accessory, not the phone itself", () => {
+    const result = analyzeSearchListing(
+      "Samsung Galaxy S24 Ultra Genuine Original S Pen Stylus",
+      "samsung galaxy s24",
+    );
+    expect(result.tier).toBe("accessory");
+    expect(result.isDevice).toBe(false);
+  });
+
+  it("screen/frame/panel parts are repair parts, not devices", () => {
+    for (const part of [
+      "Samsung Galaxy S24 Ultra SM-S928U AMOLED Screen & Frame Authentic OEM NEW",
+      "iPhone 15 Pro Max OLED Screen OEM Original Grade C",
+      "Apple MacBook Pro 16 A2485 2021 Silver LCD Assembly 661-21969 PC1731316",
+      "Apple MacBook Pro 13 A1989 A2159 2018/2019/2020 LCD Screen Space Gray Grade B",
+    ]) {
+      const result = analyzeSearchListing(part, "iphone 15 pro max");
+      expect(result.tier).toBe("repair");
+    }
+  });
+
+  it("whole devices that merely name their panel spec stay devices", () => {
+    const laptop = analyzeSearchListing(
+      "Apple MacBook Pro 13 LCD Screen 16GB 512GB",
+      "macbook pro",
+    );
+    expect(laptop.tier).toBe("exact");
+    expect(laptop.isDevice).toBe(true);
+
+    const phone = analyzeSearchListing(
+      "Apple iPhone 15 Pro Max 256GB OLED Screen Unlocked GSM",
+      "iphone 15 pro max",
+    );
+    expect(phone.tier).toBe("exact");
+  });
+});
+
+// ─── Bug 7: genuine earbuds are primary devices; strong matches lead ────────
+
+describe("Bug 7: earbuds are primary devices and lead the page", () => {
+  it("genuine AirPods Pro classify as exact devices", () => {
+    const result = analyzeSearchListing(
+      "Apple AirPods Pro (2nd Generation) 2023 A2968 Magsafe USB-C",
+      "airpods pro",
+    );
+    expect(result.tier).toBe("exact");
+    expect(result.isDevice).toBe(true);
+  });
+
+  it("sibling AirPods generations stay series devices (same family)", () => {
+    const result = analyzeSearchListing(
+      "Apple AirPods (2nd generation) In-Ear Bluetooth Headset",
+      "airpods pro",
+    );
+    expect(result.tier).toBe("series");
+    expect(result.isDevice).toBe(true);
+  });
+
+  it("earphone cleaner kits stay accessories, not devices", () => {
+    const result = analyzeSearchListing(
+      "Bluetooth Earphone Cleaner Kit For Airpods Pro",
+      "airpods pro",
+    );
+    expect(result.tier).toBe("accessory");
+    expect(result.isDevice).toBe(false);
+  });
+});
+
 // ─── Bug 1 + Bug 4: engine DB supplement is relevance-gated and appended ────
 
 describe("Bug 1 + Bug 4: engine DB supplement", () => {
@@ -495,5 +650,72 @@ describe("Bug 1 + Bug 4: engine DB supplement", () => {
     const dbIdx = [DB_RELEVANT.name, dbSecond.name].map((n) => names.indexOf(n));
     expect(dbIdx.every((i) => i >= 2)).toBe(true);
     expect(dbIdx.filter((i) => i >= 0)).toHaveLength(2);
+  });
+
+  it("Bug 6+7 pipeline: unrelated phone never outranks genuine AirPods", async () => {
+    const earbuds = liveListing(
+      "ebay",
+      "ebay-app2",
+      "Apple AirPods Pro (2nd Generation) 2023 A2968 Magsafe USB-C",
+      229,
+    );
+    const xiaomi = liveListing(
+      "aliexpress",
+      "al-xiaomi",
+      "chinese version Original Xiaomi MI 9 PRO 5G mobiles 6.39 inch 16MP 128GB mi9 pro 5G smartphone android",
+      109,
+    );
+    vi.spyOn(adapterRegistry, "getActiveProviderAdapters").mockResolvedValue([
+      fakeAdapter("ebay", earbuds),
+      fakeAdapter("aliexpress", xiaomi),
+    ]);
+    vi.spyOn(await dbCatalog(), "getSearchResultsFromDatabase").mockResolvedValue([]);
+
+    const items = await searchProducts("airpods pro zr5", 20);
+    const names = items.map((i) => i.name);
+
+    expect(names.some((n) => n.includes("Xiaomi"))).toBe(false);
+    expect(names[0]).toContain("AirPods Pro");
+  });
+
+  it("Bug 5 pipeline: S-Pen and screen parts leave page 1 to genuine phones", async () => {
+    const sPen = liveListing(
+      "ebay",
+      "ebay-spen",
+      "Samsung Galaxy S24 Ultra Genuine Original S Pen Stylus",
+      39,
+    );
+    const screen = liveListing(
+      "ebay",
+      "ebay-screen",
+      "Samsung Galaxy S24 Ultra SM-S928U AMOLED Screen & Frame Authentic OEM NEW",
+      139,
+    );
+    // Production returned 11 genuine S24-series devices; MIN_DEVICES_BEFORE_ACCESSORIES
+    // then hides accessories from the eBay queue entirely.
+    const phones: RawProviderListing[] = [
+      "New Samsung Galaxy S24+ Plus 5G SM-S926U Unlocked",
+      "New Samsung Galaxy S24+ Plus 5G Unlocked",
+      "New Sealed Samsung Galaxy S24 FE 5G Unlocked",
+      "UNLOCKED Samsung Galaxy S24 5G SM-S921U 128GB Good",
+      "New Sealed Samsung Galaxy S24+ Plus 256GB",
+      "NEW SEALED Samsung Galaxy S24+ Factory Unlocked",
+      "New Sealed Samsung Galaxy S24 Ultra S928U",
+    ].map((title, i) => liveListing("ebay", `ebay-s24-${i}`, title, 799 + i * 10));
+
+    vi.spyOn(adapterRegistry, "getActiveProviderAdapters").mockResolvedValue([
+      fakeAdapter("ebay", sPen),
+      fakeAdapter("ebay", screen),
+      ...phones.map((p) => fakeAdapter("ebay", p)),
+    ]);
+    vi.spyOn(await dbCatalog(), "getSearchResultsFromDatabase").mockResolvedValue([]);
+
+    const items = await searchProducts("samsung galaxy s24 zr6", 20);
+    const names = items.map((i) => i.name);
+
+    expect(names.some((n) => n.includes("S Pen"))).toBe(false);
+    expect(names.some((n) => n.includes("Screen & Frame"))).toBe(false);
+    expect(names[0]).toContain("Galaxy S24");
+    expect(names.filter((n) => n.includes("Galaxy S24"))).toHaveLength(phones.length);
   });
 });
