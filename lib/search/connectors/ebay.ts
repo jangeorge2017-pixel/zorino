@@ -5,10 +5,15 @@ import { normalizeEbayRaw } from "@/lib/search/normalization";
 import type { RawProviderListing } from "@/lib/search/types";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { ConnectorSearchOptions, SearchConnector } from "@/lib/search/connectors/types";
+import { getProviderSearchCapabilities } from "@/lib/search/provider-capabilities";
+import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { loadEbayCredentials } from "@/services/ebay/credentials";
 
 /** eBay Browse API max pages per search (50 × 6 = 300 listings). */
 const EBAY_MAX_PAGES = 6;
+
+/** Pages fetched concurrently once a device-intent search opts in. */
+const EBAY_OPTIMIZED_PAGE_BATCH = 2;
 
 /**
  * eBay is the flakiest active provider: under the parallel provider fan-out it
@@ -46,7 +51,42 @@ function cacheKey(query: string, options: ConnectorSearchOptions | undefined): s
   const pageSize = options?.pageSize ?? SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
   const targetFetch = options?.targetFetch ?? SEARCH_ENGINE_DEFAULTS.TARGET_FETCH_COUNT;
   const countryCode = options?.countryCode ?? "US";
-  return `${query.trim().toLowerCase()}|${countryCode}|${pageSize}|${targetFetch}`;
+  const category = resolveEbayDeviceSearchStrategy(query, options).categoryIds ?? "";
+  return `${query.trim().toLowerCase()}|${countryCode}|${pageSize}|${targetFetch}|${category}`;
+}
+
+export type EbayDeviceSearchStrategy = {
+  /** Category id narrowing the keyword search (undefined = keyword only). */
+  categoryIds?: string;
+  /** Pages fetched concurrently. 1 preserves the strictly sequential default. */
+  pageBatch: number;
+};
+
+/**
+ * Pure, testable policy: should an eBay search be narrowed to a device
+ * category? Runs only when the caller (the /search surface) opts in, so the
+ * homepage catalog and Compare Prices keep the exact legacy eBay calls.
+ *
+ * Rules:
+ * - Accessory queries are never category-filtered — a case/charger lives in an
+ *   accessory category, not the device one.
+ * - No condition filter is ever added, so Used/Refurbished devices stay valid.
+ * - Families with no confident category stay keyword-only.
+ */
+export function resolveEbayDeviceSearchStrategy(
+  query: string,
+  options?: ConnectorSearchOptions,
+): EbayDeviceSearchStrategy {
+  if (options?.optimizeForDeviceIntent !== true) {
+    return { pageBatch: 1 };
+  }
+  const capabilities = getProviderSearchCapabilities("ebay");
+  const intent = options?.intent ?? analyzeSearchQueryIntent(query);
+  const categoryIds =
+    capabilities.supportsCategoryFilter && intent.kind !== "accessory"
+      ? intent.ebayCategoryId
+      : undefined;
+  return { categoryIds, pageBatch: EBAY_OPTIMIZED_PAGE_BATCH };
 }
 
 /** Single live Browse API attempt — normalize + dedupe like the old connector. */
@@ -67,26 +107,49 @@ async function fetchAndNormalize(
 
   const maxPagesNeeded = Math.ceil(targetFetch / pageSize);
   const pagesToScan = Math.min(maxPages, maxPagesNeeded);
+  const strategy = resolveEbayDeviceSearchStrategy(trimmed, options);
 
-  const batch = await client.searchByKeyword(trimmed, {
-    pageSize,
-    maxPages: pagesToScan,
-    countryCode,
-  });
+  const attempt = async (categoryIds?: string): Promise<RawProviderListing[]> => {
+    const batch = await client.searchByKeyword(trimmed, {
+      pageSize,
+      maxPages: pagesToScan,
+      countryCode,
+      categoryIds,
+      pageBatch: strategy.pageBatch,
+    });
 
-  const listings: RawProviderListing[] = [];
-  const seenIds = new Set<string>();
+    const listings: RawProviderListing[] = [];
+    const seenIds = new Set<string>();
 
-  for (const raw of batch) {
-    const id = raw.itemId ?? "";
-    if (!id || seenIds.has(id)) continue;
-    seenIds.add(id);
+    for (const raw of batch) {
+      const id = raw.itemId ?? "";
+      if (!id || seenIds.has(id)) continue;
+      seenIds.add(id);
 
-    const normalized = normalizeEbayRaw(raw);
-    if (normalized) listings.push(normalized);
+      const normalized = normalizeEbayRaw(raw);
+      if (normalized) listings.push(normalized);
+    }
+
+    return listings;
+  };
+
+  if (!strategy.categoryIds) {
+    // Default path (no optimization, accessory query, or no confident
+    // category): identical to the legacy single uncategorized fetch.
+    return attempt(undefined);
   }
 
-  return listings;
+  try {
+    const listings = await attempt(strategy.categoryIds);
+    if (listings.length > 0) return listings;
+  } catch {
+    // Fall through to the uncategorized fetch below.
+  }
+
+  // A category-narrowed Browse request can fail or return nothing (transient
+  // 4xx, or an outdated/unsupported category id). Degrade to a plain keyword
+  // search rather than dropping eBay for this query entirely.
+  return attempt(undefined);
 }
 
 /**

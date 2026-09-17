@@ -13,6 +13,28 @@ type SearchResponse = {
   total?: number;
 };
 
+/**
+ * Pure builder for the Browse `/item_summary/search` query string. eBay accepts
+ * at most ONE `category_ids` value per request and still requires `q`, so the
+ * category is only added when explicitly supplied — the default path produces
+ * exactly the same params as before. No condition filter is ever added.
+ */
+export function buildBrowseSearchParams(input: {
+  q: string;
+  limit: number;
+  offset: number;
+  categoryIds?: string;
+}): URLSearchParams {
+  const params = new URLSearchParams({
+    q: input.q,
+    limit: String(input.limit),
+    offset: String(input.offset),
+  });
+  const category = input.categoryIds?.trim();
+  if (category) params.set("category_ids", category);
+  return params;
+}
+
 export class EbayAffiliateClient {
   constructor(
     private campaignId?: string,
@@ -77,6 +99,15 @@ export class EbayAffiliateClient {
       maxPages?: number;
       token?: string;
       marketplaceId?: string;
+      /** Optional single US eBay category id (Browse `category_ids`). */
+      categoryIds?: string;
+      /**
+       * Pages fetched concurrently per batch. Defaults to 1 (strictly
+       * sequential — identical to the original behaviour). Callers sharing a
+       * tight latency budget may raise it so a device search still fills its
+       * pages before the provider fan-out deadline.
+       */
+      pageBatch?: number;
     }
   ): Promise<EbayRawProduct[]> {
     const countryCode = options?.countryCode ?? "US";
@@ -84,30 +115,55 @@ export class EbayAffiliateClient {
     const maxPages = options?.maxPages ?? 1;
     const token = options?.token ?? (await getEbayAccessToken());
     const marketplaceId = options?.marketplaceId ?? ebayMarketplaceId(countryCode);
+    const categoryIds = options?.categoryIds;
+    const batchSize = Math.min(Math.max(options?.pageBatch ?? 1, 1), Math.max(maxPages, 1));
     const q = keyword.trim();
     if (!q) return [];
 
     const all: EbayRawProduct[] = [];
 
-    for (let page = 0; page < maxPages; page++) {
-      const offset = page * pageSize;
-      const params = new URLSearchParams({
-        q,
-        limit: String(pageSize),
-        offset: String(offset),
-      });
-
-      const batch = await fetchJson<SearchResponse>(
-        `${getEbayBrowseApiBase()}/item_summary/search?${params}`,
+    const fetchPage = (page: number) =>
+      fetchJson<SearchResponse>(
+        `${getEbayBrowseApiBase()}/item_summary/search?${buildBrowseSearchParams({
+          q,
+          limit: pageSize,
+          offset: page * pageSize,
+          categoryIds,
+        })}`,
         {
           headers: this.buildHeaders(token, marketplaceId),
           timeoutMs: 12_000,
         }
       );
 
-      const items = batch.itemSummaries ?? [];
-      all.push(...items);
-      if (items.length < pageSize) break;
+    if (batchSize === 1) {
+      for (let page = 0; page < maxPages; page++) {
+        const items = (await fetchPage(page)).itemSummaries ?? [];
+        all.push(...items);
+        if (items.length < pageSize) break;
+      }
+      return dedupeById(all);
+    }
+
+    for (let start = 0; start < maxPages; start += batchSize) {
+      const pages = Array.from(
+        { length: Math.min(batchSize, maxPages - start) },
+        (_, index) => start + index
+      );
+      const settled = await Promise.allSettled(pages.map((page) => fetchPage(page)));
+      let sawShortPage = false;
+      for (const result of settled) {
+        if (result.status === "rejected") {
+          // A single page failing under the shared search deadline must not
+          // discard the pages that did return.
+          sawShortPage = true;
+          continue;
+        }
+        const items = result.value.itemSummaries ?? [];
+        all.push(...items);
+        if (items.length < pageSize) sawShortPage = true;
+      }
+      if (sawShortPage) break;
     }
 
     return dedupeById(all);

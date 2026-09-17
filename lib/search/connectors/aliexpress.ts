@@ -4,6 +4,11 @@ import { attachOpenApiAffiliateLinks } from "@/lib/integrations/aliexpress/open-
 import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
 import { normalizeAliExpressRaw } from "@/lib/search/normalization";
 import { queryWantsAccessory } from "@/lib/search/relevance";
+import { getProviderSearchCapabilities } from "@/lib/search/provider-capabilities";
+import {
+  analyzeSearchQueryIntent,
+  buildExpandedSearchQueries,
+} from "@/lib/search/query-intent";
 import type { RawProviderListing } from "@/lib/search/types";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { ConnectorSearchOptions, SearchConnector } from "@/lib/search/connectors/types";
@@ -47,12 +52,30 @@ function ingestBatch(
  * AliExpress keyword catalog is accessory-heavy for phone/laptop queries.
  * Add device-oriented variants so ranking has real products to interleave —
  * not fake injected cards, just better parallel fetch coverage.
+ *
+ * The device-aware branch is opt-in (`optimizeForDeviceIntent`); the legacy
+ * branch below is byte-for-byte the original variant list so the homepage
+ * catalog fan-out is unaffected.
  */
-function buildAliExpressSearchQueries(query: string): string[] {
+export function buildAliExpressSearchQueries(
+  query: string,
+  options?: ConnectorSearchOptions,
+): string[] {
   const trimmed = query.trim();
   if (!trimmed) return [];
   if (queryWantsAccessory(trimmed)) return [trimmed];
 
+  if (options?.optimizeForDeviceIntent === true) {
+    const intent = options.intent ?? analyzeSearchQueryIntent(trimmed);
+    const capabilities = getProviderSearchCapabilities("aliexpress");
+    const appendTerms = capabilities.deviceAppendTerms?.[intent.family];
+    return buildExpandedSearchQueries(trimmed, appendTerms, { maxVariants: 3 });
+  }
+
+  return buildLegacyAliExpressSearchQueries(trimmed);
+}
+
+function buildLegacyAliExpressSearchQueries(trimmed: string): string[] {
   const variants = [trimmed];
   const lower = trimmed.toLowerCase();
 
@@ -153,7 +176,7 @@ export const aliExpressSearchConnector: SearchConnector = {
     const minFetch = options?.minFetch ?? SEARCH_ENGINE_DEFAULTS.MIN_FETCH_COUNT;
     const currency = options?.currency ?? "USD";
 
-    const keywords = buildAliExpressSearchQueries(trimmed);
+    const keywords = buildAliExpressSearchQueries(trimmed, options);
     // Split page budget across keyword variants so we don't explode latency.
     const pagesPerKeyword = Math.max(2, Math.ceil(maxPages / keywords.length));
     const fetchPerKeyword = Math.max(minFetch, Math.ceil(targetFetch / keywords.length));

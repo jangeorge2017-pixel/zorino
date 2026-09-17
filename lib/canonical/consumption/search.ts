@@ -17,6 +17,7 @@ import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { NormalizedSearchListing, RawProviderListing } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import { searchProducts } from "@/lib/search/engine";
+import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { rankRawListings } from "@/lib/search/ranking";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
@@ -56,6 +57,7 @@ async function fetchCanonicalInputs(query: string, capped: number): Promise<{
   await hydrateIntegrationCredentials();
   const adapters = await getActiveProviderAdapters();
   const allRaw: RawProviderListing[] = [];
+  const intent = analyzeSearchQueryIntent(query.trim());
 
   await Promise.all(
     adapters.map(async (adapter) => {
@@ -65,6 +67,10 @@ async function fetchCanonicalInputs(query: string, capped: number): Promise<{
             minFetch: 60,
             targetFetch: 120,
             maxPages: 4,
+            // Search surface only: let connectors adapt to the query's device
+            // intent (eBay category narrowing, AliExpress family expansion).
+            optimizeForDeviceIntent: true,
+            intent,
           }),
           new Promise<{ providerId: string; listings: RawProviderListing[]; durationMs: number }>(
             (resolve) =>
@@ -170,7 +176,7 @@ export async function canonicalSearchProducts(
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT,
 ): Promise<SearchResultItem[]> {
   if (!isSurfaceEnabled(SURFACE)) {
-    return searchProducts(query, limit);
+    return searchProducts(query, limit, { optimizeForDeviceIntent: true });
   }
 
   const trimmed = query.trim();
@@ -187,7 +193,7 @@ export async function canonicalSearchProducts(
     canSearchCache.set(cacheKey, { items: pooled.items, expiresAt: Date.now() + CACHE_TTL_MS });
     return pooled.items;
   } catch {
-    return searchProducts(trimmed, capped);
+    return searchProducts(trimmed, capped, { optimizeForDeviceIntent: true });
   }
 }
 
@@ -209,7 +215,7 @@ export async function searchResultsPagedSurface(
 ): Promise<SearchPageResult> {
   if (!isSurfaceEnabled(SURFACE)) {
     const { searchProductsPaged } = await import("@/lib/search/engine");
-    return searchProductsPaged(query, offset, limit);
+    return searchProductsPaged(query, offset, limit, { optimizeForDeviceIntent: true });
   }
   const trimmed = query.trim();
   if (!trimmed) {
