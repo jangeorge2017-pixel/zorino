@@ -25,8 +25,10 @@ const PARALLEL_PAGE_BATCH = 2;
 // Cap the affiliate-link generation batch. The engine deadline is tight and a
 // huge promotion-link payload adds several seconds with little benefit — the
 // products already carry product_detail_url and are only enriched when the
-// batch is small enough to finish.
-const MAX_AFFILIATE_LINK_SLICE = 30;
+// batch is small enough to finish. Matches the API's own 50-source_values
+// limit; this only bounds ENRICHMENT, never how many fetched listings are
+// ingested (see the connector below).
+const MAX_AFFILIATE_LINK_SLICE = 50;
 
 async function getClient() {
   await loadAliExpressCredentials();
@@ -216,11 +218,17 @@ export const aliExpressSearchConnector: SearchConnector = {
         }
       }
 
+      // Enrich a bounded leading batch with tracked affiliate links (the link
+      // API generates at most 50 per call). EVERY other fetched listing is
+      // still ingested with its real product URL — previously the enrichment
+      // slice doubled as an ingestion cap and silently discarded ~90% of the
+      // real AliExpress products the connector had already fetched.
       const withLinks = await attachOpenApiAffiliateLinks(
         client,
         collectedRaw.slice(0, MAX_AFFILIATE_LINK_SLICE),
       );
       ingestBatch(withLinks, listings, seenIds);
+      ingestBatch(collectedRaw.slice(MAX_AFFILIATE_LINK_SLICE), listings, seenIds);
       return listings;
     } catch (error) {
       console.error(

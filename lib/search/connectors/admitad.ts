@@ -8,6 +8,7 @@ import {
 import { normalizeAdmitadRaw } from "@/lib/search/normalization";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import { fetchAdmitadFeedProducts } from "@/lib/integrations/admitad/feed-fetcher";
+import { buildWordBoundaryOrFilter } from "@/lib/integration/word-match-filter";
 
 const MAX_RESULTS_FROM_FEED = 200;
 
@@ -59,9 +60,7 @@ async function searchIngestedRows(
     const words = query.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
     if (words.length === 0) return [];
 
-    const orFilter = words
-      .map((w) => `product_name.iregex.\\m${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\M`)
-      .join(",");
+    const orFilter = buildWordBoundaryOrFilter(words);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from("lowest_prices_today")

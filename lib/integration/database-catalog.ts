@@ -23,6 +23,10 @@ import {
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
+  buildWordBoundaryOrFilter,
+  escapeRegexToken,
+} from "@/lib/integration/word-match-filter";
+import {
   CATALOG_COUNT_FRESHNESS_MS,
   getCatalogCount,
   getCatalogCountAgeMs,
@@ -32,11 +36,6 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function db(client: SupabaseDb): any {
   return client;
-}
-
-/** Escape a query token before embedding it in a regex. */
-function escapeRegexToken(token: string): string {
-  return token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /** True when `token` appears in `hay` as a whole word (not a substring). */
@@ -811,9 +810,7 @@ async function loadSearchResultsFromDatabase(
 
   if (words.length === 0) return [];
 
-  const orFilter = words
-    .map((w) => `product_name.iregex.\\m${escapeRegexToken(w)}\\M`)
-    .join(",");
+  const orFilter = buildWordBoundaryOrFilter(words);
 
   const { data, error } = await db(supabase)
     .from("lowest_prices_today")
