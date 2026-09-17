@@ -416,7 +416,7 @@ describe("flag-aware seams (mocked legacy)", () => {
     const engine = await import("@/lib/search/engine");
     const spy = vi.spyOn(engine, "searchProducts").mockResolvedValue([searchItem("legacy-1")]);
     const items = await canonicalSearchProducts("earbuds", 25);
-    expect(spy).toHaveBeenCalledWith("earbuds", 25);
+    expect(spy).toHaveBeenCalledWith("earbuds", 25, { optimizeForDeviceIntent: true });
     expect(items[0]?.id).toBe("legacy-1");
   });
 
@@ -426,7 +426,7 @@ describe("flag-aware seams (mocked legacy)", () => {
       .spyOn(engine, "searchProductsPaged")
       .mockResolvedValue({ items: [searchItem("p1")], total: 1, offset: 0, limit: 1, hasMore: false });
     const page = await searchResultsPagedSurface("earbuds", 0, 1);
-    expect(spy).toHaveBeenCalledWith("earbuds", 0, 1);
+    expect(spy).toHaveBeenCalledWith("earbuds", 0, 1, { optimizeForDeviceIntent: true });
     expect(page.items[0]?.id).toBe("p1");
   });
 

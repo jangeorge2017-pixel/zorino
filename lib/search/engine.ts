@@ -10,6 +10,7 @@ import {
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
 import { analyzeSearchListing } from "@/lib/search/relevance";
+import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
 import {
@@ -30,6 +31,13 @@ export type GlobalSearchOptions = {
   targetFetch?: number;
   maxPages?: number;
   skipCache?: boolean;
+  /**
+   * Opt-in device-intent optimization for connectors that can adapt their
+   * query (eBay category narrowing, AliExpress family keyword expansion). Only
+   * the /search surface sets this; homepage catalog, Compare Prices, and every
+   * other engine caller leave it unset and keep the legacy behaviour.
+   */
+  optimizeForDeviceIntent?: boolean;
 };
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
@@ -46,7 +54,14 @@ const fairSearchCache = new Map<
  * connector exceeds the budget its partial work is dropped and the fan-out
  * settles with the faster providers' real results.
  */
-const PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
+
+/** Test-only: shrink the per-provider budget so timeout degradation is provable fast. */
+export function setProviderFetchTimeoutForTests(ms?: number): void {
+  providerFetchTimeoutMs =
+    ms === undefined ? DEFAULT_PROVIDER_FETCH_TIMEOUT_MS : Math.max(1, Math.floor(ms));
+}
 
 /**
  * ZORINO Global Search Engine
@@ -134,6 +149,11 @@ async function fetchProvidersInParallel(
   const providerStats: SearchEngineResult["providers"] = [];
   const allRaw: RawProviderListing[] = [];
 
+  const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
+  const intent = optimizeForDeviceIntent
+    ? analyzeSearchQueryIntent(query)
+    : undefined;
+
   await Promise.all(
     adapters.map(async (adapter) => {
       const started = Date.now();
@@ -143,6 +163,9 @@ async function fetchProvidersInParallel(
             minFetch: options?.minFetch ?? SEARCH_ENGINE_DEFAULTS.MIN_FETCH_COUNT,
             targetFetch: options?.targetFetch ?? SEARCH_ENGINE_DEFAULTS.TARGET_FETCH_COUNT,
             maxPages: options?.maxPages,
+            // Only present when optimizing, so the default (homepage/compare)
+            // adapter options stay byte-identical to before.
+            ...(intent ? { optimizeForDeviceIntent: true as const, intent } : {}),
           }),
           new Promise<{ providerId: SearchProviderId; listings: RawProviderListing[]; durationMs: number }>(
             (resolve) =>
@@ -155,7 +178,7 @@ async function fetchProvidersInParallel(
                     // results and its duration is not credited.
                     durationMs: 0,
                   }),
-                PROVIDER_FETCH_TIMEOUT_MS,
+                providerFetchTimeoutMs,
               ),
           ),
         ]);
@@ -192,13 +215,19 @@ async function fetchProvidersInParallel(
  */
 export async function searchProducts(
   query: string,
-  limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT
+  limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT,
+  options?: { optimizeForDeviceIntent?: boolean }
 ): Promise<SearchResultItem[]> {
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const cacheKey = `prod-v17-marketplace-balance:${trimmed.toLowerCase()}:${capped}`;
+  const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
+  // Separate cache namespaces per mode so an optimized /search pool can never
+  // be served to (or evict) the legacy homepage/Compare pool for the same query.
+  const cacheKey = `prod-v17-marketplace-balance:${trimmed.toLowerCase()}:${capped}${
+    optimizeForDeviceIntent ? ":device-opt" : ""
+  }`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -209,10 +238,11 @@ export async function searchProducts(
       minFetch: 60,
       targetFetch: 120,
       maxPages: 4,
+      ...(optimizeForDeviceIntent ? { optimizeForDeviceIntent: true } : {}),
     }),
     (await import("@/lib/integration/database-catalog"))
       .getSearchResultsFromDatabase(trimmed, capped * 3, {
-        timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+        timeoutMs: providerFetchTimeoutMs,
       })
       .catch(() => [] as SearchResultItem[]),
     getActiveProductionProviders(),
@@ -329,13 +359,18 @@ export function sliceSearchPage(
 export async function searchProductsPaged(
   query: string,
   offset: number,
-  limit: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE
+  limit: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+  options?: { optimizeForDeviceIntent?: boolean }
 ): Promise<SearchPageResult> {
   const trimmed = query.trim();
   if (!trimmed) {
     return { items: [], total: 0, offset: 0, limit, hasMore: false };
   }
-  const pool = await searchProducts(trimmed, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
+  const pool = await searchProducts(
+    trimmed,
+    SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
+    options
+  );
   return sliceSearchPage(pool, offset, limit);
 }
 
