@@ -31,6 +31,7 @@ import {
   getRealCatalogProductCount,
   resetRealCatalogProductCountForTests,
   setCatalogFallbackCountForTests,
+  setProductCountPersistenceForTests,
   setSupabaseAnonClientForTests,
 } from "@/lib/integration/database-catalog";
 
@@ -143,5 +144,61 @@ describe("homepage Products counter (Fix 5)", () => {
     // A truthful 0 from the source is authoritative — never replaced by the
     // fallback (which would fabricate product existence).
     expect(count).toBe(0);
+  });
+
+  it("persists the last-known-good real count so a fresh instance can restore it", async () => {
+    let persisted = 0;
+    setProductCountPersistenceForTests({
+      writer: async (count) => {
+        persisted = count;
+      },
+    });
+    setSupabaseAnonClientForTests(buildClient({ count: 69_907 }) as never);
+    setCatalogFallbackCountForTests(async () => 0);
+
+    expect(await getRealCatalogProductCount()).toBe(69_907);
+
+    // The persist is fire-and-forget on the stat path — flush the microtask.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(persisted).toBe(69_907);
+  });
+
+  it("restores the persisted real count on a cold instance after a DB failure", async () => {
+    // Fresh instance: module-level lastKnownProductCount is 0 (afterEach
+    // reset). The exact-count query fails again, but the persisted real count
+    // from a previous healthy read must win over the tiny merged-catalog
+    // sample — this is the reported production "383+/17+" degradation.
+    setProductCountPersistenceForTests({
+      reader: async () => 69_907,
+    });
+    setSupabaseAnonClientForTests(
+      buildClient({ count: null, error: { message: "statement timeout" } }) as never,
+    );
+    setCatalogFallbackCountForTests(async () => 18);
+
+    const count = await getRealCatalogProductCount();
+
+    expect(count).toBe(69_907);
+    expect(count).toBeGreaterThan(18);
+  });
+
+  it("still prefers the module-level last-known-good over the persisted value", async () => {
+    // A healthy read this instance observed 69_907; the persisted row (older,
+    // 68_000) must NOT downgrade the fresher in-memory value.
+    setProductCountPersistenceForTests({
+      reader: async () => 68_000,
+    });
+    setSupabaseAnonClientForTests(buildClient({ count: 69_907 }) as never);
+    setCatalogFallbackCountForTests(async () => 0);
+    expect(await getRealCatalogProductCount()).toBe(69_907);
+
+    setSupabaseAnonClientForTests(
+      buildClient({ count: null, error: { message: "statement timeout" } }) as never,
+    );
+    setCatalogFallbackCountForTests(async () => 18);
+
+    const count = await getRealCatalogProductCount();
+
+    expect(count).toBe(69_907);
   });
 });
