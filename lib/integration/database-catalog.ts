@@ -22,6 +22,12 @@ import {
 } from "@/lib/images/product-image";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
+import {
+  CATALOG_COUNT_FRESHNESS_MS,
+  getCatalogCount,
+  getCatalogCountAgeMs,
+  setCatalogCount,
+} from "@/lib/integration/catalog-count";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function db(client: SupabaseDb): any {
@@ -314,6 +320,9 @@ let supabaseClientFactoryForTests: (() => SupabaseDb | null) | null = null;
 let catalogFallbackCountForTests: (() => Promise<number>) | null = null;
 let productCountWriterForTests: ((count: number) => Promise<void>) | null = null;
 let productCountReaderForTests: (() => Promise<number>) | null = null;
+let catalogCountReaderForTests: (() => Promise<number>) | null = null;
+let catalogCountAgeReaderForTests: (() => Promise<number>) | null = null;
+let catalogCountWriterForTests: ((count: number) => Promise<void>) | null = null;
 
 /** Test-only: inject a fake `createSupabaseAnonClient` factory. */
 export function setSupabaseAnonClientForTests(
@@ -341,17 +350,44 @@ export function setProductCountPersistenceForTests(source: {
   productCountReaderForTests = source?.reader ?? null;
 }
 
+/**
+ * Test-only: inject fake `catalog_count` fast-path read/age/write hooks so the
+ * fresh fast path and the stale/absent recompute branches can be exercised
+ * without a live Supabase connection.
+ */
+export function setCatalogCountSourceForTests(source: {
+  reader?: (() => Promise<number>) | null;
+  ageReader?: (() => Promise<number>) | null;
+  writer?: ((count: number) => Promise<void>) | null;
+} | null): void {
+  catalogCountReaderForTests = source?.reader ?? null;
+  catalogCountAgeReaderForTests = source?.ageReader ?? null;
+  catalogCountWriterForTests = source?.writer ?? null;
+}
+
 /** Test-only: restore all count seams and forget the known-good count. */
 export function resetRealCatalogProductCountForTests(): void {
   supabaseClientFactoryForTests = null;
   catalogFallbackCountForTests = null;
   productCountWriterForTests = null;
   productCountReaderForTests = null;
+  setCatalogCountSourceForTests(null);
   lastKnownProductCount = 0;
   lastPersistedProductCount = -1;
 }
 
 export async function getRealCatalogProductCount(): Promise<number> {
+  // Fast path: a FRESH maintained `catalog_count` row is the authoritative
+  // count without paying for the expensive exact-count over the 120K-row
+  // table on the render hot path. Only when the row is absent or stale do we
+  // fall through to the live count (seeded by the cron refresh off-path and
+  // by any successful render).
+  const freshMaintained = await readFreshMaintainedCatalogCount();
+  if (freshMaintained > 0) {
+    lastKnownProductCount = freshMaintained;
+    return freshMaintained;
+  }
+
   const supabase = supabaseClientFactoryForTests
     ? supabaseClientFactoryForTests()
     : createSupabaseAnonClient();
@@ -374,6 +410,7 @@ export async function getRealCatalogProductCount(): Promise<number> {
       // (empty module memory) can restore it after a transient failure. Never
       // blocks or fails the stat path.
       void persistProductCount(count);
+      void writeMaintainedCatalogCount(count);
       return count;
     }
   }
@@ -382,26 +419,112 @@ export async function getRealCatalogProductCount(): Promise<number> {
 }
 
 /**
+ * Read the maintained `catalog_count` row only when it is FRESH (written within
+ * CATALOG_COUNT_FRESHNESS_MS). Stale/absent rows return 0 so the caller
+ * recomputes the live count. Single-row read — single-digit milliseconds.
+ */
+async function readFreshMaintainedCatalogCount(): Promise<number> {
+  let ageMs: number;
+  if (catalogCountAgeReaderForTests) {
+    try {
+      ageMs = await catalogCountAgeReaderForTests();
+    } catch {
+      ageMs = Number.POSITIVE_INFINITY;
+    }
+  } else {
+    if (process.env.NODE_ENV === "test") return 0;
+    ageMs = await getCatalogCountAgeMs();
+  }
+  if (!(ageMs < CATALOG_COUNT_FRESHNESS_MS)) return 0;
+
+  let count: number;
+  if (catalogCountReaderForTests) {
+    try {
+      count = await catalogCountReaderForTests();
+    } catch {
+      return 0;
+    }
+  } else {
+    if (process.env.NODE_ENV === "test") return 0;
+    count = await getCatalogCount();
+  }
+  return count > 0 ? count : 0;
+}
+
+/**
+ * Best-effort write of a known-good count into the maintained `catalog_count`
+ * row (service_role upsert). Never throws into the caller.
+ */
+async function writeMaintainedCatalogCount(count: number): Promise<void> {
+  if (catalogCountWriterForTests) {
+    try {
+      await catalogCountWriterForTests(count);
+    } catch {
+      // best-effort — never let persistence break the stat
+    }
+    return;
+  }
+
+  // Never write through a real service client inside vitest (the suite runs
+  // without an explicit writer seam); production always proceeds below.
+  if (process.env.NODE_ENV === "test") return;
+
+  try {
+    await setCatalogCount(count);
+  } catch {
+    // best-effort — never let persistence break the stat
+  }
+}
+
+/**
  * Preference order after the exact-count query fails on ALL retries.
  * Never report a transient failure as 0 while real products exist:
  * 1) This instance's last observed real DB count (in-memory).
- * 2) The LAST REAL DB count persisted in `integration_settings` — restores
- *    the truthful catalog size (e.g. 69K+) on a cold instance instead of the
- *    tiny merged-catalog sample (merged catalog only carries a bounded
- *    representative slice of the DB, ~18 items).
- * 3) The merged live catalog length the homepage actually renders.
+ * 2) The last count maintained in `catalog_count` — a real DB value, even if
+ *    stale — restores the truthful catalog size (e.g. 69K+) on a cold
+ *    instance instead of the tiny merged-catalog sample (merged catalog only
+ *    carries a bounded representative slice of the DB, ~18 items).
+ * 3) The LAST REAL DB count persisted in `integration_settings`.
+ * 4) The merged live catalog length the homepage actually renders.
  * Returns 0 only when every real source is genuinely empty/unavailable.
  */
 async function fallbackRealCatalogProductCount(): Promise<number> {
   if (lastKnownProductCount > 0) return lastKnownProductCount;
+
+  const maintainedCount = await readAnyMaintainedCatalogCount();
+  if (maintainedCount > 0) {
+    lastKnownProductCount = maintainedCount;
+    return maintainedCount;
+  }
+
   const persistedCount = await readPersistedProductCount();
   if (persistedCount > 0) {
     lastKnownProductCount = persistedCount;
     return persistedCount;
   }
+
   const catalogCount = await getCatalogFallbackCount();
   if (catalogCount > 0) return catalogCount;
   return lastKnownProductCount;
+}
+
+/** Read the maintained count regardless of age; 0 when absent/unreadable. */
+async function readAnyMaintainedCatalogCount(): Promise<number> {
+  if (catalogCountReaderForTests) {
+    try {
+      const count = await catalogCountReaderForTests();
+      return count > 0 ? count : 0;
+    } catch {
+      return 0;
+    }
+  }
+  if (process.env.NODE_ENV === "test") return 0;
+  try {
+    const count = await getCatalogCount();
+    return count > 0 ? count : 0;
+  } catch {
+    return 0;
+  }
 }
 
 /** integration_settings.key holding the last-known-good real catalog count. */
