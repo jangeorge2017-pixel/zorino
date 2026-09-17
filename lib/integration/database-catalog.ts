@@ -8,7 +8,10 @@
  * the /deals page, the Hero orbit, and the search engine's DB fallback.
  */
 
-import { createSupabaseAnonClient } from "@/lib/supabase/server";
+import {
+  createSupabaseAnonClient,
+  createSupabaseServiceClient,
+} from "@/lib/supabase/server";
 import type { SupabaseDb } from "@/lib/supabase/config";
 import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
 import type { ProductionProviderId } from "@/lib/integration/constants";
@@ -309,6 +312,8 @@ let lastKnownProductCount = 0;
  */
 let supabaseClientFactoryForTests: (() => SupabaseDb | null) | null = null;
 let catalogFallbackCountForTests: (() => Promise<number>) | null = null;
+let productCountWriterForTests: ((count: number) => Promise<void>) | null = null;
+let productCountReaderForTests: (() => Promise<number>) | null = null;
 
 /** Test-only: inject a fake `createSupabaseAnonClient` factory. */
 export function setSupabaseAnonClientForTests(
@@ -324,18 +329,33 @@ export function setCatalogFallbackCountForTests(
   catalogFallbackCountForTests = source;
 }
 
+/**
+ * Test-only: inject fake last-known-good persistence read/write hooks so a
+ * fresh-instance failure path can be exercised without a live service client.
+ */
+export function setProductCountPersistenceForTests(source: {
+  writer?: ((count: number) => Promise<void>) | null;
+  reader?: (() => Promise<number>) | null;
+} | null): void {
+  productCountWriterForTests = source?.writer ?? null;
+  productCountReaderForTests = source?.reader ?? null;
+}
+
 /** Test-only: restore all count seams and forget the known-good count. */
 export function resetRealCatalogProductCountForTests(): void {
   supabaseClientFactoryForTests = null;
   catalogFallbackCountForTests = null;
+  productCountWriterForTests = null;
+  productCountReaderForTests = null;
   lastKnownProductCount = 0;
+  lastPersistedProductCount = -1;
 }
 
 export async function getRealCatalogProductCount(): Promise<number> {
   const supabase = supabaseClientFactoryForTests
     ? supabaseClientFactoryForTests()
     : createSupabaseAnonClient();
-  if (!supabase) return getCatalogFallbackCount();
+  if (!supabase) return fallbackRealCatalogProductCount();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sb = supabase as any;
@@ -350,23 +370,116 @@ export async function getRealCatalogProductCount(): Promise<number> {
 
     if (!error && typeof count === "number") {
       lastKnownProductCount = count;
+      // Fire-and-forget: persist the known-good count so a cold instance
+      // (empty module memory) can restore it after a transient failure. Never
+      // blocks or fails the stat path.
+      void persistProductCount(count);
       return count;
     }
   }
 
-  // All attempts failed — never report a transient failure as 0 while real
-  // products exist. Prefer the LAST REAL DB count observed (the real catalog
-  // size, e.g. 69K+) over the merged live catalog sample length: the merged
-  // catalog only carries a bounded representative slice of the DB (per-merchant
-  // sample), so on a transient exact-count failure its length (~18) would report
-  // a misleadingly tiny catalog that then gets cached for 5 minutes as the
-  // primary homepage state. The merged catalog remains a fallback only when no
-  // known-good real count exists yet on this instance (cold start). Returns 0
-  // only when every real source is genuinely empty/unavailable.
+  return fallbackRealCatalogProductCount();
+}
+
+/**
+ * Preference order after the exact-count query fails on ALL retries.
+ * Never report a transient failure as 0 while real products exist:
+ * 1) This instance's last observed real DB count (in-memory).
+ * 2) The LAST REAL DB count persisted in `integration_settings` — restores
+ *    the truthful catalog size (e.g. 69K+) on a cold instance instead of the
+ *    tiny merged-catalog sample (merged catalog only carries a bounded
+ *    representative slice of the DB, ~18 items).
+ * 3) The merged live catalog length the homepage actually renders.
+ * Returns 0 only when every real source is genuinely empty/unavailable.
+ */
+async function fallbackRealCatalogProductCount(): Promise<number> {
   if (lastKnownProductCount > 0) return lastKnownProductCount;
+  const persistedCount = await readPersistedProductCount();
+  if (persistedCount > 0) {
+    lastKnownProductCount = persistedCount;
+    return persistedCount;
+  }
   const catalogCount = await getCatalogFallbackCount();
   if (catalogCount > 0) return catalogCount;
   return lastKnownProductCount;
+}
+
+/** integration_settings.key holding the last-known-good real catalog count. */
+const PRODUCT_COUNT_SETTING_KEY = "homepage_product_count";
+let lastPersistedProductCount = -1;
+
+/**
+ * Best-effort persist of the last-known-good real count into
+ * `integration_settings` (service_role). Skipped when the count is unchanged
+ * (the catalog count is stable between syncs), when no service client is
+ * available, or inside tests without an explicit writer seam.
+ */
+async function persistProductCount(count: number): Promise<void> {
+  if (count <= 0 || count === lastPersistedProductCount) return;
+
+  if (productCountWriterForTests) {
+    try {
+      await productCountWriterForTests(count);
+      lastPersistedProductCount = count;
+    } catch {
+      // best-effort — never let persistence break the stat
+    }
+    return;
+  }
+
+  // Never persist through a real service client inside vitest (the suite runs
+  // without an explicit writer seam); production always proceeds below.
+  if (process.env.NODE_ENV === "test") return;
+
+  try {
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabase as any;
+    const { error } = await sb.from("integration_settings").upsert(
+      {
+        key: PRODUCT_COUNT_SETTING_KEY,
+        value: String(count),
+        provider: "system",
+        label: "Homepage real product count",
+        is_secret: false,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" },
+    );
+    if (!error) lastPersistedProductCount = count;
+  } catch {
+    // best-effort — never let persistence break the stat
+  }
+}
+
+/** Read the persisted last-known-good count; 0 when absent/unreadable. */
+async function readPersistedProductCount(): Promise<number> {
+  try {
+    if (productCountReaderForTests) {
+      const value = await productCountReaderForTests();
+      return value > 0 ? value : 0;
+    }
+
+    // Never read through a real service client inside vitest (the suite runs
+    // without an explicit reader seam); production always proceeds below.
+    if (process.env.NODE_ENV === "test") return 0;
+
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) return 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabase as any;
+    const { data } = await sb
+      .from("integration_settings")
+      .select("value")
+      .eq("key", PRODUCT_COUNT_SETTING_KEY)
+      .maybeSingle();
+    const raw = data as { value?: string | number } | null;
+    const count = Number(raw?.value ?? 0);
+    return Number.isFinite(count) && count > 0 ? count : 0;
+  } catch {
+    return 0;
+  }
 }
 
 /**

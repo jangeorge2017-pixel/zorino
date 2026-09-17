@@ -46,17 +46,26 @@ function isPrimaryDeviceListing(row: NormalizedSearchListing): boolean {
 function splitProviderQueues(
   ranked: NormalizedSearchListing[],
   query: string,
-): { primary: NormalizedSearchListing[]; secondary: NormalizedSearchListing[] } {
+): {
+  primary: NormalizedSearchListing[];
+  secondaryDevices: NormalizedSearchListing[];
+  accessories: NormalizedSearchListing[];
+} {
   const wantsAccessory = queryWantsAccessory(query);
 
   if (wantsAccessory) {
     const kept = ranked.filter((row) => row.matchTier !== "repair" && row.matchTier !== "none");
-    return { primary: kept, secondary: [] };
+    return { primary: kept, secondaryDevices: [], accessories: [] };
   }
 
   const primary = ranked.filter(isPrimaryDeviceListing);
-  const secondary = ranked.filter((row) => !isPrimaryDeviceListing(row));
-  return { primary, secondary };
+  const secondaryDevices = ranked.filter(
+    (row) => !isPrimaryDeviceListing(row) && row.isDevice,
+  );
+  const accessories = ranked.filter(
+    (row) => !isPrimaryDeviceListing(row) && !row.isDevice,
+  );
+  return { primary, secondaryDevices, accessories };
 }
 
 /**
@@ -124,30 +133,53 @@ export function assembleProductionSearchResults(
   }
 
   const primaryQueues = new Map<string, NormalizedSearchListing[]>();
-  const secondaryQueues = new Map<string, NormalizedSearchListing[]>();
+  const secondaryDeviceQueues = new Map<string, NormalizedSearchListing[]>();
+  const accessoryQueues = new Map<string, NormalizedSearchListing[]>();
 
   // Dynamic provider set — no hardcoded marketplace list.
   for (const [providerId, raw] of byProvider) {
     if (!raw.length) continue;
     const ranked = rankRawListings(raw, query);
-    const { primary, secondary } = splitProviderQueues(ranked, query);
+    const { primary, secondaryDevices, accessories } = splitProviderQueues(ranked, query);
     if (primary.length) primaryQueues.set(providerId, primary);
-    if (secondary.length) secondaryQueues.set(providerId, secondary);
+    if (secondaryDevices.length) secondaryDeviceQueues.set(providerId, secondaryDevices);
+    if (accessories.length) accessoryQueues.set(providerId, accessories);
   }
 
-  if (primaryQueues.size === 0 && secondaryQueues.size === 0) return [];
+  if (
+    primaryQueues.size === 0 &&
+    secondaryDeviceQueues.size === 0 &&
+    accessoryQueues.size === 0
+  ) {
+    return [];
+  }
 
   const accepted: NormalizedSearchListing[] = [];
+
+  // Phase 1: strong device matches (exact/model) only.
   const primaryPicks = balancePhase(primaryQueues, limit, accepted);
   for (const item of primaryPicks) accepted.push(item);
 
-  if (accepted.length < limit) {
-    const secondaryPicks = balancePhase(
-      secondaryQueues,
+  // Phase 2: other real devices (wrong-generation phones, sibling devices) —
+  // when a flaky provider leaves zero strong matches, genuine devices must
+  // still lead page 1 ahead of accessories (cases, cables, docks, ...).
+  if (accepted.length < limit && secondaryDeviceQueues.size > 0) {
+    const devicePicks = balancePhase(
+      secondaryDeviceQueues,
       limit - accepted.length,
       accepted,
     );
-    for (const item of secondaryPicks) accepted.push(item);
+    for (const item of devicePicks) accepted.push(item);
+  }
+
+  // Phase 3: accessories / non-device matches fill only the remaining slots.
+  if (accepted.length < limit && accessoryQueues.size > 0) {
+    const accessoryPicks = balancePhase(
+      accessoryQueues,
+      limit - accepted.length,
+      accepted,
+    );
+    for (const item of accessoryPicks) accepted.push(item);
   }
 
   return accepted.map(listingToSearchResultItem);
