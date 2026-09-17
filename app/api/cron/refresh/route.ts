@@ -65,6 +65,36 @@ export async function GET(request: Request) {
   let thrown: unknown = null;
 
   try {
+    // ── 0. Homepage catalog-count maintenance ──────────────────────────────
+    // Keeps the hero "Products" stat truthful (~69K+) by recomputing the real
+    // catalog count OFF the render hot path whenever the maintained
+    // `catalog_count` row is stale. Runs FIRST so it gets the full 60s budget
+    // for the (slow, ~23s) exact-count query. When the row is fresh it returns
+    // instantly via the fast path — no budget consumed.
+    try {
+      if (!budget.hasRoomFor(10_000)) {
+        results.catalogCount = { skipped: true, reason: "budget-exhausted" };
+      } else {
+        const { getCatalogCountAgeMs, CATALOG_COUNT_FRESHNESS_MS } = await import(
+          "@/lib/integration/catalog-count"
+        );
+        const ageMs = await getCatalogCountAgeMs();
+        if (Number.isFinite(ageMs) && ageMs < CATALOG_COUNT_FRESHNESS_MS) {
+          results.catalogCount = { skipped: true, reason: "fresh" };
+        } else {
+          const { getRealCatalogProductCount } = await import(
+            "@/lib/integration/database-catalog"
+          );
+          const count = await getRealCatalogProductCount();
+          results.catalogCount = { refreshed: true, count };
+        }
+      }
+    } catch (err) {
+      results.catalogCount = {
+        error: err instanceof Error ? err.message : String(err),
+      };
+    }
+
     // ── 1. Trending rankings (fast, due-gated) ────────────────────────────
     if (force || (await isTrendingRefreshDue())) {
       if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {

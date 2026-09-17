@@ -31,9 +31,11 @@ import {
   getRealCatalogProductCount,
   resetRealCatalogProductCountForTests,
   setCatalogFallbackCountForTests,
+  setCatalogCountSourceForTests,
   setProductCountPersistenceForTests,
   setSupabaseAnonClientForTests,
 } from "@/lib/integration/database-catalog";
+import { CATALOG_COUNT_FRESHNESS_MS } from "@/lib/integration/catalog-count";
 
 /** Fake supabase chain: .from().select().eq().eq().in() thenable. */
 function buildClient(result: {
@@ -192,6 +194,93 @@ describe("homepage Products counter (Fix 5)", () => {
     setCatalogFallbackCountForTests(async () => 0);
     expect(await getRealCatalogProductCount()).toBe(69_907);
 
+    setSupabaseAnonClientForTests(
+      buildClient({ count: null, error: { message: "statement timeout" } }) as never,
+    );
+    setCatalogFallbackCountForTests(async () => 18);
+
+    const count = await getRealCatalogProductCount();
+
+    expect(count).toBe(69_907);
+  });
+});
+
+describe("homepage Products counter — maintained catalog_count row", () => {
+  it("returns a fresh maintained count without running the live exact count", async () => {
+    setCatalogCountSourceForTests({
+      ageReader: async () => 60_000,
+      reader: async () => 69_907,
+    });
+    // The live client must never be reached when the row is fresh — any call
+    // here throws loudly and would fail the test.
+    setSupabaseAnonClientForTests(() => {
+      throw new Error("live exact count must not run when the maintained row is fresh");
+    });
+
+    const count = await getRealCatalogProductCount();
+
+    expect(count).toBe(69_907);
+  });
+
+  it("recomputes and re-persists the maintained count when the row is stale", async () => {
+    let maintained = 0;
+    setCatalogCountSourceForTests({
+      ageReader: async () => CATALOG_COUNT_FRESHNESS_MS + 1,
+      reader: async () => 10,
+      writer: async (count) => {
+        maintained = count;
+      },
+    });
+    setSupabaseAnonClientForTests(buildClient({ count: 69_907 }) as never);
+
+    const count = await getRealCatalogProductCount();
+
+    expect(count).toBe(69_907);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(maintained).toBe(69_907);
+  });
+
+  it("uses a maintained count (even stale) as cold-instance fallback instead of the merged sample", async () => {
+    // Fresh instance (module memory reset): the exact-count query fails, but a
+    // previously maintained real count exists — it must beat the tiny
+    // merged-catalog sample (18) exactly like the persisted setting does.
+    setCatalogCountSourceForTests({
+      reader: async () => 69_907,
+    });
+    setSupabaseAnonClientForTests(
+      buildClient({ count: null, error: { message: "statement timeout" } }) as never,
+    );
+    setCatalogFallbackCountForTests(async () => 18);
+
+    const count = await getRealCatalogProductCount();
+
+    expect(count).toBe(69_907);
+    expect(count).toBeGreaterThan(18);
+  });
+
+  it("treats a missing/empty maintained row as absent and recomputes the live count", async () => {
+    setCatalogCountSourceForTests({
+      ageReader: async () => Number.POSITIVE_INFINITY,
+      reader: async () => 0,
+      writer: async () => {},
+    });
+    setSupabaseAnonClientForTests(buildClient({ count: 69_907 }) as never);
+
+    const count = await getRealCatalogProductCount();
+
+    expect(count).toBe(69_907);
+  });
+
+  it("keeps preferring the maintained count over integration_settings in the fallback chain", async () => {
+    // Both a maintained row and an integration_settings value exist; the
+    // maintained catalog_count row (written most recently by the cron/render
+    // path) is the fresher truthful source and must win.
+    setCatalogCountSourceForTests({
+      reader: async () => 69_907,
+    });
+    setProductCountPersistenceForTests({
+      reader: async () => 68_000,
+    });
     setSupabaseAnonClientForTests(
       buildClient({ count: null, error: { message: "statement timeout" } }) as never,
     );
