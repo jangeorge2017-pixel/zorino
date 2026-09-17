@@ -47,6 +47,57 @@ const fairSearchCache = new Map<
 >();
 
 /**
+ * Live-only lead that keeps genuine devices ahead of imported DB products, and
+ * the cadence at which DB products are then interleaved (one per N slots).
+ */
+const DB_INTERLEAVE_EVERY = 4;
+
+/** First slots of the mixed pool that stay live-only (never DB-filled). */
+function liveLeadFor(capped: number): number {
+  return Math.max(1, Math.min(20, Math.floor(capped / 2)));
+}
+
+/**
+ * Merge the live pool with relevant DB supplements. The first `liveLead` slots
+ * stay live-only so genuine devices lead; after that one DB item is inserted
+ * every `dbEvery` slots, and any leftover DB items drain at the tail. This
+ * guarantees DB/imported products remain reachable within `capped` even when
+ * the live pool alone already fills the display cap. Pure + exported so the
+ * reachability contract is unit-testable.
+ */
+export function interleaveLiveAndDbResults(
+  live: readonly SearchResultItem[],
+  db: readonly SearchResultItem[],
+  capped: number,
+  liveLead: number,
+  dbEvery: number,
+): SearchResultItem[] {
+  const mixed: SearchResultItem[] = [];
+  if (capped <= 0) return mixed;
+
+  const lead = Math.max(0, Math.min(liveLead, live.length, capped));
+  for (let i = 0; i < lead; i++) mixed.push(live[i]);
+
+  let li = lead;
+  let di = 0;
+  while (mixed.length < capped && (li < live.length || di < db.length)) {
+    if (li < live.length) {
+      mixed.push(live[li]);
+      li += 1;
+      if (mixed.length >= capped) break;
+    }
+    if (mixed.length > lead && di < db.length && mixed.length % dbEvery === 0) {
+      mixed.push(db[di]);
+      di += 1;
+    } else if (li >= live.length && di < db.length) {
+      mixed.push(db[di]);
+      di += 1;
+    }
+  }
+  return mixed;
+}
+
+/**
  * Hard per-provider budget inside the search fan-out. A slow or stalled
  * connector (e.g. the Admitad feed can take up to ~25s on a cold cache) must
  * never hold the search fan-out — and therefore the homepage catalog, which
@@ -303,14 +354,17 @@ export async function searchProducts(
       a.price - b.price,
   );
 
-  // Append DB results AFTER the live block instead of interleaving one DB card
-  // after every live card. Genuine devices now fill page 1 contiguously;
-  // relevant DB products complement the tail without pushing real results down.
-  const mixed: typeof live = live.slice(0, capped);
-  for (const dbItem of balancedDb) {
-    if (mixed.length >= capped) break;
-    mixed.push(dbItem);
-  }
+  // Keep the genuine-device lead live-only, then interleave relevant DB
+  // products so imported inventory stays reachable even when the live pool
+  // saturates the display cap. Pure append-after-live dropped every DB row for
+  // high-volume queries (the pool was already full before the DB block ran).
+  const mixed = interleaveLiveAndDbResults(
+    live,
+    balancedDb,
+    capped,
+    liveLeadFor(capped),
+    DB_INTERLEAVE_EVERY,
+  );
   fairSearchCache.set(cacheKey, {
     items: mixed,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
