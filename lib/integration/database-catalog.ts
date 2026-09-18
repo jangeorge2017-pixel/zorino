@@ -689,27 +689,48 @@ export function getLastKnownGoodCatalog(): NormalizedCatalogItem[] {
   return lastKnownGoodCatalog;
 }
 
+export interface CatalogSnapshotOutcome {
+  items: NormalizedCatalogItem[];
+  /** True when `items` is a trustworthy, full-TTL-worthy snapshot. */
+  healthy: boolean;
+}
+
 /**
- * Pure function: resolve the final catalog outcome from the freshly-generated
- * items. If the fresh catalog is viable, remember and return it. If degraded,
- * return the last-known-good snapshot (if available) to protect the cache from
- * being overwritten with incomplete data. If no known-good exists yet (cold
- * start), return the fresh catalog as-is -- at least it's truthful.
+ * Resolve the final catalog snapshot from freshly-generated items and a
+ * completeness signal.
  *
- * Exported for direct unit testing; catalog-service.ts uses the individual
- * helpers (isCatalogViable + rememberCatalogAsHealthy + getLastKnownGoodCatalog)
- * for the same logic with module-level side effects.
+ * A snapshot is HEALTHY only when it is provider-viable AND `complete` (no
+ * source was skipped for exceeding its budget). A viable-but-incomplete
+ * snapshot (e.g. the fast providers returned while the DB/Admitad sources timed
+ * out) is NOT healthy: the last-known-good snapshot is returned when one exists,
+ * otherwise the truthful partial is returned but flagged unhealthy so callers
+ * reuse it only briefly. Provider-neutral and deterministic.
+ */
+export function resolveCatalogSnapshot(
+  freshItems: NormalizedCatalogItem[],
+  complete = true,
+): CatalogSnapshotOutcome {
+  if (isCatalogViable(freshItems) && complete) {
+    rememberCatalogAsHealthy(freshItems);
+    return { items: freshItems, healthy: true };
+  }
+  // Degraded: protect the cache by returning the last-known-good snapshot.
+  // Cold start: no known-good exists yet -> return fresh (truthful fallback).
+  if (lastKnownGoodCatalog.length > 0) {
+    return { items: lastKnownGoodCatalog, healthy: true };
+  }
+  return { items: freshItems, healthy: false };
+}
+
+/**
+ * Pure function: resolve the final catalog items from the freshly-generated
+ * items (completeness assumed). Thin wrapper over {@link resolveCatalogSnapshot}
+ * retained for existing callers/tests.
  */
 export function resolveCatalogOutcome(
   freshItems: NormalizedCatalogItem[],
 ): NormalizedCatalogItem[] {
-  if (isCatalogViable(freshItems)) {
-    rememberCatalogAsHealthy(freshItems);
-    return freshItems;
-  }
-  // Degraded: protect the cache by returning the last-known-good snapshot.
-  // Cold start: no known-good exists yet -> return fresh (truthful fallback).
-  return lastKnownGoodCatalog.length > 0 ? lastKnownGoodCatalog : freshItems;
+  return resolveCatalogSnapshot(freshItems).items;
 }
 
 /**
