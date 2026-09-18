@@ -6,6 +6,7 @@ import {
 } from "@/lib/search/ranking";
 import { listingToSearchResultItem } from "@/lib/search/price-comparison";
 import { balanceMarketplaceQueues } from "@/lib/search/marketplace-balance";
+import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type {
   NormalizedSearchListing,
   RawProviderListing,
@@ -91,14 +92,36 @@ function dedupeQueue(
   return queue.filter((candidate) => !isSearchCardDuplicate(accepted, candidate));
 }
 
+/**
+ * Pool-level ceiling: before the genuine inventory of every other provider gets
+ * its slots, a SINGLE marketplace's exact/model block may occupy at most this
+ * share of the pool (floored to a full page). Market-agnostic — derived from
+ * the pool size, never from a provider id. When a marketplace genuinely is the
+ * only source of results the ceiling never binds (the refill pass below fills
+ * the pool with its real stock), so genuine volume is never discarded.
+ */
+export const SEARCH_POOL_SINGLE_PROVIDER_EXACT_SHARE = 0.6;
+
+/** Per-provider slot ceiling for the leading exact/model block of one pool. */
+export function exactModelPerProviderCeiling(limit: number): number {
+  return Math.max(
+    SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+    Math.ceil(limit * SEARCH_POOL_SINGLE_PROVIDER_EXACT_SHARE),
+  );
+}
+
 function balancePhase(
   queuesByProvider: Map<string, NormalizedSearchListing[]>,
   limit: number,
   accepted: NormalizedSearchListing[],
+  perProviderSlice?: number,
 ): NormalizedSearchListing[] {
   const cleaned = new Map<string, NormalizedSearchListing[]>();
   for (const [providerId, queue] of queuesByProvider) {
-    const next = dedupeQueue(queue, accepted);
+    let next = dedupeQueue(queue, accepted);
+    if (perProviderSlice !== undefined && next.length > perProviderSlice) {
+      next = next.slice(0, perProviderSlice);
+    }
     if (next.length) cleaned.set(providerId, next);
   }
 
@@ -155,31 +178,46 @@ export function assembleProductionSearchResults(
   }
 
   const accepted: NormalizedSearchListing[] = [];
+  const ceiling = exactModelPerProviderCeiling(limit);
+  const fill = (
+    queues: Map<string, NormalizedSearchListing[]>,
+    budget: number,
+    capped: boolean,
+  ): void => {
+    const picks = balancePhase(queues, budget, accepted, capped ? ceiling : undefined);
+    for (const item of picks) accepted.push(item);
+  };
 
-  // Phase 1: strong device matches (exact/model) only.
-  const primaryPicks = balancePhase(primaryQueues, limit, accepted);
-  for (const item of primaryPicks) accepted.push(item);
+  // Phase 1: strong device matches (exact/model) only. The per-provider ceiling
+  // stops one marketplace's exact/model block from monopolizing the whole pool:
+  // when another provider holds genuine matching inventory (the same family /
+  // imported rows the Category surfaces), it keeps a guaranteed share of the
+  // leading pool instead of being crowded out by sheer volume.
+  fill(primaryQueues, limit, true);
 
   // Phase 2: other real devices (wrong-generation phones, sibling devices) —
   // when a flaky provider leaves zero strong matches, genuine devices must
   // still lead page 1 ahead of accessories (cases, cables, docks, ...).
   if (accepted.length < limit && secondaryDeviceQueues.size > 0) {
-    const devicePicks = balancePhase(
-      secondaryDeviceQueues,
-      limit - accepted.length,
-      accepted,
-    );
-    for (const item of devicePicks) accepted.push(item);
+    fill(secondaryDeviceQueues, limit - accepted.length, true);
   }
 
   // Phase 3: accessories / non-device matches fill only the remaining slots.
   if (accepted.length < limit && accessoryQueues.size > 0) {
-    const accessoryPicks = balancePhase(
-      accessoryQueues,
-      limit - accepted.length,
-      accepted,
-    );
-    for (const item of accessoryPicks) accepted.push(item);
+    fill(accessoryQueues, limit - accepted.length, true);
+  }
+
+  // Refill (UNCAPPED, same phase order): genuine leftovers beyond the ceiling
+  // fill any remaining pool slots so a volume leader's real stock is never
+  // dropped — it simply sits behind every provider's genuine inventory.
+  if (accepted.length < limit && primaryQueues.size > 0) {
+    fill(primaryQueues, limit - accepted.length, false);
+  }
+  if (accepted.length < limit && secondaryDeviceQueues.size > 0) {
+    fill(secondaryDeviceQueues, limit - accepted.length, false);
+  }
+  if (accepted.length < limit && accessoryQueues.size > 0) {
+    fill(accessoryQueues, limit - accepted.length, false);
   }
 
   return accepted.map(listingToSearchResultItem);

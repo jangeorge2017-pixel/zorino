@@ -773,8 +773,46 @@ function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
     category,
     currency: row.currency,
     countryCode: row.country_code,
-    affiliateUrl,
+      affiliateUrl,
   };
+}
+
+/**
+ * Family-breadth DB supplement for the Device-intent Search fan-out.
+ * Sibling of `getSearchResultsFromDatabase` (same real-merchant breadth pool,
+ * same `rowToSearchResultItem` mapper, same hard-`.forEach` timeout seam, same
+ * `SearchResultItem[]` contract) but WITHOUT the word-boundary `product_name`
+ * gate - so the family leg surfaces the same genuine brand+codename inventory
+ * the Categories/Hero catalog breadth already renders (e.g. "iPhone 15 Pro
+ * Max" rows that `\biphone\b` on the concatenated brand+codename name could
+ * never word-boundary match).
+ *
+ * On DB error or timeout it truthfully resolves to `[]` - the same "no
+ * additional DB family products" state the caller would see - never
+ * fabricated/partial rows.
+ */
+export async function getFamilyBreadthResultsFromDatabase(
+  familyKeyword: string,
+  limit: number,
+  options?: { timeoutMs?: number },
+): Promise<SearchResultItem[]> {
+  const timeoutMs = options?.timeoutMs;
+  if (!timeoutMs || timeoutMs <= 0)
+    return loadSearchResultsFromDatabase(familyKeyword, limit);
+
+  return new Promise<SearchResultItem[]>((resolve) => {
+    const timer = setTimeout(() => resolve([]), timeoutMs);
+    loadSearchResultsFromDatabase(familyKeyword, limit).then(
+      (items) => {
+        clearTimeout(timer);
+        resolve(items);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve([]);
+      },
+    );
+  });
 }
 
 /**

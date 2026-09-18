@@ -27,7 +27,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { searchProducts, setProviderFetchTimeoutForTests } from "@/lib/search/engine";
+import { mergeDbSupplementExactFirst, searchProducts, setProviderFetchTimeoutForTests } from "@/lib/search/engine";
 import * as adapterRegistry from "@/lib/providers/adapter-registry";
 import * as providerConfig from "@/lib/integration/provider-config";
 import type { ProviderAdapter } from "@/lib/providers/adapter";
@@ -279,5 +279,124 @@ describe("device-intent multi-provider assembly", () => {
     expect(items[0]!.storeSlug).toBe("aliexpress");
     expect(items[0]!.name).toContain(q);
     expect(items.some((i) => /Case|Protector/i.test(i.name))).toBe(true);
+  });
+});
+
+describe("canonical family-keyword DB supplement (category inventory parity)", () => {
+  function fakeDeviceAdapter(
+    id: SearchProviderId,
+    listing: RawProviderListing,
+  ): ProviderAdapter {
+    return {
+      id,
+      name: id,
+      async isAvailable() {
+        return true;
+      },
+      normalize() {
+        return null;
+      },
+      normalizeBatch() {
+        return [];
+      },
+      async search() {
+        return { providerId: id, listings: [listing], durationMs: 4 };
+      },
+    };
+  }
+
+  it("queries the DB supplement with the exact query AND the family keyword Categories use", async () => {
+    const q = deviceQuery();
+    const ebay = fakeDeviceAdapter(
+      "ebay",
+      device("ebay", 1, `Apple ${q} 256GB Unlocked Smartphone`),
+    );
+    vi.spyOn(adapterRegistry, "getActiveProviderAdapters").mockResolvedValue([ebay]);
+    const dbQueries: string[] = [];
+    vi.spyOn(await dbCatalog(), "getSearchResultsFromDatabase").mockImplementation(
+      async (query: string) => {
+        dbQueries.push(query);
+        return [] as SearchResultItem[];
+      },
+    );
+
+    await searchProducts(q, 50, { optimizeForDeviceIntent: true });
+
+    // Exact query first, then the SAME bare family vocabulary /categories/phones
+    // searches — the canonical/imported ZORINO inventory foundation.
+    expect(dbQueries[0]).toBe(q);
+    expect(dbQueries).toContain("phone");
+    expect(dbQueries).toHaveLength(2);
+  });
+
+  it("does not double-query the DB when the query already IS the family keyword", async () => {
+    const q = "phone";
+    const ebay = fakeDeviceAdapter(
+      "ebay",
+      device("ebay", 1, `Samsung Galaxy A54 128GB Smartphone ${q}`),
+    );
+    vi.spyOn(adapterRegistry, "getActiveProviderAdapters").mockResolvedValue([ebay]);
+    const dbQueries: string[] = [];
+    vi.spyOn(await dbCatalog(), "getSearchResultsFromDatabase").mockImplementation(
+      async (query: string) => {
+        dbQueries.push(query);
+        return [] as SearchResultItem[];
+      },
+    );
+
+    await searchProducts(q, 50, { optimizeForDeviceIntent: true });
+
+    expect(dbQueries).toEqual([q]);
+  });
+
+  it("leaves the default (homepage/compare) path on the exact-query DB supplement only", async () => {
+    const q = deviceQuery();
+    const ebay = fakeDeviceAdapter(
+      "ebay",
+      device("ebay", 1, `Apple ${q} 256GB Unlocked Smartphone`),
+    );
+    vi.spyOn(adapterRegistry, "getActiveProviderAdapters").mockResolvedValue([ebay]);
+    const dbQueries: string[] = [];
+    vi.spyOn(await dbCatalog(), "getSearchResultsFromDatabase").mockImplementation(
+      async (query: string) => {
+        dbQueries.push(query);
+        return [] as SearchResultItem[];
+      },
+    );
+
+    await searchProducts(q, 50);
+
+    expect(dbQueries).toEqual([q]);
+  });
+
+  it("mergeDbSupplementExactFirst keeps exact rows first, family rows after, ids deduped", () => {
+    const exactA: SearchResultItem = {
+      id: "db-1",
+      name: "Apple iPhone 15 256GB Unlocked",
+      imageSrc: "https://img.example/1.jpg",
+      emoji: "🛍️",
+      price: 10,
+      originalPrice: 12,
+      discount: 16,
+      store: "Admitad",
+      storeSlug: "admitad",
+      rating: 0,
+      reviewCount: 0,
+      inStock: true,
+      category: "phones",
+      affiliateUrl: "https://go.admitad.com/1",
+    };
+    const familyB: SearchResultItem = {
+      ...exactA,
+      id: "db-2",
+      name: "Apple iPhone 14 A-Grade Refurbished 128GB",
+    };
+    const duplicate = { ...exactA, name: "Apple iPhone 15 512GB Unlocked (dup)" };
+
+    const merged = mergeDbSupplementExactFirst([exactA], [duplicate, familyB]);
+
+    expect(merged.map((m) => m.id)).toEqual(["db-1", "db-2"]);
+    // The exact-query row is served, not the duplicate family copy.
+    expect(merged[0]!.name).toBe("Apple iPhone 15 256GB Unlocked");
   });
 });
