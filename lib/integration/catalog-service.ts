@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache";
 import { cache as reactCache } from "react";
 import type { HomepageSectionProducts } from "@/lib/data/homepage";
 import { fetchMergedCatalog } from "@/lib/integration/comparison-engine";
@@ -21,9 +20,7 @@ import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { STUB_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
-  isCatalogViable,
-  rememberCatalogAsHealthy,
-  getLastKnownGoodCatalog,
+  resolveCatalogSnapshot,
 } from "@/lib/integration/database-catalog";
 import type { Deal, TrendingDealCard } from "@/lib/types/entities";
 
@@ -37,6 +34,18 @@ const STUB_CATALOG_PROVIDERS = new Set(STUB_PROVIDER_IDS);
 
 /** How long a merged live-catalog snapshot stays fresh (seconds). */
 const CATALOG_REVALIDATE_SECONDS = 5 * 60;
+
+/**
+ * How long a COMPLETE merged-catalog snapshot stays fresh (ms).
+ * An INCOMPLETE (source-budget-degraded) snapshot is reused for only
+ * {@link DEGRADED_CATALOG_REVALIDATE_MS} so the next request recomputes and a
+ * recovered source reappears quickly, instead of a transient cold source hiding
+ * that provider's entire catalog for minutes.
+ */
+const CATALOG_REVALIDATE_MS = CATALOG_REVALIDATE_SECONDS * 1000;
+
+/** Short reuse window for a partial snapshot produced while a source timed out. */
+const DEGRADED_CATALOG_REVALIDATE_MS = 30_000;
 
 /**
  * Hard budget for the direct Admitad feed fetch on the homepage catalog path.
@@ -74,9 +83,17 @@ function isDuplicate(a: NormalizedCatalogItem, b: NormalizedCatalogItem): boolea
   return na === nb;
 }
 
-const loadMergedCatalogItems = unstable_cache(
-  async (): Promise<NormalizedCatalogItem[]> => {
-    try {
+async function computeMergedCatalog(): Promise<{
+  items: NormalizedCatalogItem[];
+  complete: boolean;
+}> {
+  // Tracks whether a slow source was skipped because it exceeded its budget. A
+  // degraded (incomplete) snapshot must never be reused for the full healthy
+  // TTL, or a transient cold source would hide that provider's catalog for
+  // minutes. This is provider-neutral: it reacts to *any* source timing out.
+  let dbDegraded = false;
+  let admitadFeedDegraded = false;
+  try {
       const { fetchCatalogFromSearchEngine } = await import(
         "@/lib/integration/search-catalog"
       );
@@ -96,7 +113,10 @@ const loadMergedCatalogItems = unstable_cache(
         Promise.race([
           getCatalogItemsFromDatabase(),
           new Promise<NormalizedCatalogItem[]>((resolve) =>
-            setTimeout(() => resolve([]), DB_CATALOG_BUDGET_MS),
+            setTimeout(() => {
+              dbDegraded = true;
+              resolve([]);
+            }, DB_CATALOG_BUDGET_MS),
           ),
         ]).catch(() => [] as NormalizedCatalogItem[]),
         getIngestedCatalogItems().catch(() => [] as NormalizedCatalogItem[]),
@@ -108,7 +128,10 @@ const loadMergedCatalogItems = unstable_cache(
         Promise.race([
           import("@/lib/integrations/admitad/feed-fetcher").then((m) => m.fetchAdmitadFeedProducts({ maxFeeds: 20, maxProductsPerFeed: 300, deadlineMs: ADMITAD_FEED_CATALOG_BUDGET_MS })),
           new Promise<{ offers: import("@/lib/integrations/admitad/types").AdmitadFeedOffer[]; feedName: string; feedSlug: string }[]>((resolve) =>
-            setTimeout(() => resolve([]), ADMITAD_FEED_CATALOG_BUDGET_MS + 1_000),
+            setTimeout(() => {
+              admitadFeedDegraded = true;
+              resolve([]);
+            }, ADMITAD_FEED_CATALOG_BUDGET_MS + 1_000),
           ),
         ])
           .then((feeds) => feeds ?? [])
@@ -178,41 +201,77 @@ const loadMergedCatalogItems = unstable_cache(
         return !STUB_CATALOG_PROVIDERS.has(providerId);
       });
 
+      // `complete` is false when any slow source (DB scan or Admitad feed) was
+      // skipped because it exceeded its budget. Such a snapshot is truthful but
+      // partial and must not be treated as healthy.
+      const complete = !dbDegraded && !admitadFeedDegraded;
+
       if (activeFiltered.length > 0) {
         const balanced = balanceFlatMarketplaceList(
           activeFiltered,
           (item) => item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
           activeFiltered.length,
         );
-        // Don't let a degraded/partial catalog overwrite a healthy cached
-        // snapshot. When the fan-out collapses to a single fast provider due
-        // to latency/timeout issues, the pool is clearly incomplete -- return
-        // the last-known-good catalog instead (or the degraded pool on cold
-        // start when no healthy snapshot exists yet).
-        if (isCatalogViable(balanced)) {
-          rememberCatalogAsHealthy(balanced);
-          return balanced;
-        }
-        const knownGood = getLastKnownGoodCatalog();
-        return knownGood.length > 0 ? knownGood : balanced;
+        // Only a viable AND complete snapshot is healthy. A degraded/partial
+        // catalog (e.g. the fan-out collapsed to the fast providers because the
+        // DB/Admitad sources timed out) is not remembered as healthy and the
+        // last-known-good snapshot is preferred when one exists.
+        const outcome = resolveCatalogSnapshot(balanced, complete);
+        return { items: outcome.items, complete: outcome.healthy };
       }
 
       const { items } = await fetchMergedCatalog();
-      // Apply the same viability gate to the comparison-engine fallback.
-      if (isCatalogViable(items)) {
-        rememberCatalogAsHealthy(items);
-        return items;
-      }
-      const knownGood = getLastKnownGoodCatalog();
-      return knownGood.length > 0 ? knownGood : items;
+      // Apply the same viability + completeness gate to the comparison-engine
+      // fallback.
+      const outcome = resolveCatalogSnapshot(items, complete);
+      return { items: outcome.items, complete: outcome.healthy };
     } catch (error) {
       console.error("[catalog] merged fetch failed:", error);
-      return [];
+      return { items: [], complete: false };
     }
-  },
-  ["homepage:merged-catalog-v13-image-fix"],
-  { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ["homepage-catalog"] },
-);
+}
+
+interface MergedCatalogSnapshot {
+  items: NormalizedCatalogItem[];
+  complete: boolean;
+  expiresAt: number;
+}
+
+let mergedCatalogSnapshot: MergedCatalogSnapshot | null = null;
+let mergedCatalogInflight: Promise<MergedCatalogSnapshot> | null = null;
+
+/**
+ * Shared merged-catalog cache with degraded-snapshot self-healing.
+ *
+ * A COMPLETE snapshot is reused for the full healthy TTL. An INCOMPLETE
+ * (source-budget-degraded) snapshot is only reused briefly so the next request
+ * recomputes and a recovered source reappears quickly — instead of a transient
+ * cold source hiding that provider's entire catalog for minutes.
+ */
+async function getMergedCatalogSnapshot(): Promise<MergedCatalogSnapshot> {
+  const now = Date.now();
+  if (mergedCatalogSnapshot && now < mergedCatalogSnapshot.expiresAt) {
+    return mergedCatalogSnapshot;
+  }
+  if (mergedCatalogInflight) return mergedCatalogInflight;
+
+  mergedCatalogInflight = computeMergedCatalog()
+    .then(({ items, complete }) => {
+      mergedCatalogSnapshot = {
+        items,
+        complete,
+        expiresAt:
+          Date.now() +
+          (complete ? CATALOG_REVALIDATE_MS : DEGRADED_CATALOG_REVALIDATE_MS),
+      };
+      return mergedCatalogSnapshot;
+    })
+    .finally(() => {
+      mergedCatalogInflight = null;
+    });
+
+  return mergedCatalogInflight;
+}
 
 const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> => {
   if (!HOMEPAGE_LIVE_FETCH_ENABLED) return [];
@@ -235,7 +294,8 @@ const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> =>
 
   void scheduleAdmitadIngestionIfStale();
 
-  return applyCanonicalCatalogIfEnabled(await loadMergedCatalogItems());
+  const { items } = await getMergedCatalogSnapshot();
+  return applyCanonicalCatalogIfEnabled(items);
 });
 
 // ---------------------------------------------------------------------------

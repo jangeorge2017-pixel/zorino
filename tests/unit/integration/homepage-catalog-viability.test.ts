@@ -14,6 +14,7 @@ import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import {
   isCatalogViable,
   resolveCatalogOutcome,
+  resolveCatalogSnapshot,
   rememberCatalogAsHealthy,
   getLastKnownGoodCatalog,
   resetCatalogViabilityForTests,
@@ -155,6 +156,52 @@ describe("resolveCatalogOutcome", () => {
     const result = resolveCatalogOutcome(healthy2);
     expect(result).toBe(healthy2);
     expect(getLastKnownGoodCatalog()).toBe(healthy2);
+  });
+});
+
+describe("resolveCatalogSnapshot (completeness gate)", () => {
+  it("viable + complete is healthy and remembered", () => {
+    const fresh = [makeItem("aliexpress"), makeItem("ebay")];
+    const result = resolveCatalogSnapshot(fresh, true);
+    expect(result.items).toBe(fresh);
+    expect(result.healthy).toBe(true);
+    expect(getLastKnownGoodCatalog()).toBe(fresh);
+  });
+
+  it("viable but INCOMPLETE is not healthy and not remembered on cold start", () => {
+    // Two providers passed viability, but a slow source was skipped -> partial.
+    const partial = [makeItem("aliexpress"), makeItem("ebay")];
+    const result = resolveCatalogSnapshot(partial, false);
+    expect(result.items).toBe(partial); // truthful fallback, cold start
+    expect(result.healthy).toBe(false);
+    expect(getLastKnownGoodCatalog()).toHaveLength(0);
+  });
+
+  it("viable but INCOMPLETE returns last-known-good when available", () => {
+    const healthy = [makeItem("aliexpress"), makeItem("ebay"), makeItem("cjdropshipping")];
+    rememberCatalogAsHealthy(healthy);
+
+    const partial = [makeItem("aliexpress"), makeItem("ebay")];
+    const result = resolveCatalogSnapshot(partial, false);
+    expect(result.items).toBe(healthy);
+    expect(result.healthy).toBe(true);
+    expect(getLastKnownGoodCatalog()).toBe(healthy);
+  });
+
+  it("incomplete snapshot never overwrites an established healthy catalog", () => {
+    const healthy = [makeItem("aliexpress"), makeItem("ebay")];
+    rememberCatalogAsHealthy(healthy);
+
+    resolveCatalogSnapshot([makeItem("aliexpress"), makeItem("ebay")], false);
+    resolveCatalogSnapshot([makeItem("aliexpress"), makeItem("ebay")], false);
+    expect(getLastKnownGoodCatalog()).toBe(healthy);
+  });
+
+  it("single-provider complete snapshot is still rejected", () => {
+    const single = [makeItem("aliexpress"), makeItem("aliexpress")];
+    const result = resolveCatalogSnapshot(single, true);
+    expect(result.healthy).toBe(false);
+    expect(getLastKnownGoodCatalog()).toHaveLength(0);
   });
 });
 
