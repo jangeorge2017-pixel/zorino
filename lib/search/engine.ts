@@ -86,6 +86,61 @@ export function interleaveLiveAndDbResults(
 }
 
 /**
+ * Exact-first merge of the search-pool DB supplement. The exact-query rows
+ * (highest relevance) come first, then the matching rows for the canonical
+ * family retrieval keyword ("phone", "laptop", "earbuds", …) — the SAME bare
+ * family vocabulary the Category surfaces use — deduplicated by item id so a
+ * row reachable through both vocabularies appears once. Pure + exported so the
+ * exact-first/dedupe contract is unit-testable.
+ */
+export function mergeDbSupplementExactFirst(
+  exactRows: readonly SearchResultItem[],
+  familyRows: readonly SearchResultItem[],
+): SearchResultItem[] {
+  const seen = new Set<string>();
+  const merged: SearchResultItem[] = [];
+  for (const row of [...exactRows, ...familyRows]) {
+    if (seen.has(row.id)) continue;
+    seen.add(row.id);
+    merged.push(row);
+  }
+  return merged;
+}
+
+/**
+ * Search-pool DB supplement: query the canonical/imported ZORINO inventory the
+ * Categories already use. Runs the exact query AND the family retrieval
+ * keyword in parallel behind the same hard deadline the live providers race,
+ * so a slow DB read can never hold the whole search hostage.
+ */
+async function fetchDbSupplementForSearch(
+  query: string,
+  cachedLimit: number,
+  familyKeyword: string | undefined,
+): Promise<SearchResultItem[]> {
+  const limit = cachedLimit * 3;
+  const loadDbCatalog = () => import("@/lib/integration/database-catalog");
+  const exactSub = loadDbCatalog().then((mod) =>
+    mod
+      .getSearchResultsFromDatabase(query, limit, {
+        timeoutMs: providerFetchTimeoutMs,
+      })
+      .catch(() => [] as SearchResultItem[]),
+  );
+  const familySub = familyKeyword
+    ? loadDbCatalog().then((mod) =>
+        mod
+          .getSearchResultsFromDatabase(familyKeyword, limit, {
+            timeoutMs: providerFetchTimeoutMs,
+          })
+          .catch(() => [] as SearchResultItem[]),
+      )
+    : Promise.resolve([] as SearchResultItem[]);
+  const [exactRows, familyRows] = await Promise.all([exactSub, familySub]);
+  return mergeDbSupplementExactFirst(exactRows, familyRows);
+}
+
+/**
  * Hard per-provider budget inside the search fan-out. A slow or stalled
  * connector (e.g. the Admitad feed can take up to ~25s on a cold cache) must
  * never hold the search fan-out — and therefore the homepage catalog, which
@@ -346,9 +401,24 @@ export async function searchProducts(
   // inventory instead of mistaking the first accessory-saturated page for
   // "no genuine match". The pool itself is never gated: assembly stays
   // device-first across all providers.
-  const deviceIntent =
-    optimizeForDeviceIntent &&
-    analyzeSearchQueryIntent(trimmed).kind === "device";
+  // Intent + the canonical family retrieval keyword — the SAME bare family
+  // vocabulary the Category surfaces search ("phone", "laptop", "earbuds", …).
+  // The search pool must reach the same canonical/imported ZORINO inventory the
+  // Categories surface, enriched by the exact query — never a different,
+  // narrower universe of products.
+  const intentForSearch = optimizeForDeviceIntent
+    ? analyzeSearchQueryIntent(trimmed)
+    : undefined;
+  const deviceIntent = intentForSearch?.kind === "device";
+  const familyRetrievalForSearch =
+    deviceIntent && intentForSearch.family !== "unknown"
+      ? FAMILY_RETRIEVAL_KEYWORDS[intentForSearch.family]
+      : undefined;
+  const canonicalFamilyKeyword =
+    familyRetrievalForSearch &&
+    familyRetrievalForSearch.toLowerCase() !== trimmed.toLowerCase()
+      ? familyRetrievalForSearch
+      : undefined;
 
   const [{ allRaw }, fromDb, activeProviderIds] = await Promise.all([
     fetchProvidersInParallel(trimmed, {
@@ -360,11 +430,9 @@ export async function searchProducts(
       maxPages: optimizeForDeviceIntent ? 8 : 4,
       ...(optimizeForDeviceIntent ? { optimizeForDeviceIntent: true } : {}),
     }),
-    (await import("@/lib/integration/database-catalog"))
-      .getSearchResultsFromDatabase(trimmed, capped * 3, {
-        timeoutMs: providerFetchTimeoutMs,
-      })
-      .catch(() => [] as SearchResultItem[]),
+    // DB supplement: exact query first, then the canonical family keyword, so
+    // Search reaches the same imported/canonical inventory the Categories show.
+    fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword),
     getActiveProductionProviders(),
   ]);
 
