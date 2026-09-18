@@ -58,6 +58,16 @@ function liveLeadFor(capped: number): number {
 }
 
 /**
+ * True when a live listing is a genuine primary-device match for `query`
+ * (phone / tablet / laptop / console / audio / camera / …) rather than an
+ * accessory, spare part, or unrelated item. Provider-neutral: decided purely by
+ * the shared relevance analyzer that every provider already passes through.
+ */
+function isGenuineDeviceListing(listing: RawProviderListing, query: string): boolean {
+  return analyzeSearchListing(listing.title, query, { category: listing.category }).isDevice;
+}
+
+/**
  * Merge the live pool with relevant DB supplements. The first `liveLead` slots
  * stay live-only so genuine devices lead; after that one DB item is inserted
  * every `dbEvery` slots, and any leftover DB items drain at the tail. This
@@ -276,7 +286,7 @@ export async function searchProducts(
   const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
   // Separate cache namespaces per mode so an optimized /search pool can never
   // be served to (or evict) the legacy homepage/Compare pool for the same query.
-  const cacheKey = `prod-v17-marketplace-balance:${trimmed.toLowerCase()}:${capped}${
+  const cacheKey = `prod-v18-device-genuine:${trimmed.toLowerCase()}:${capped}${
     optimizeForDeviceIntent ? ":device-opt" : ""
   }`;
   const cached = fairSearchCache.get(cacheKey);
@@ -284,11 +294,23 @@ export async function searchProducts(
     return cached.items.slice(0, capped);
   }
 
+  // Explicit device-intent query (e.g. "iphone 15 pro max", "airpods pro") on
+  // the /search surface. For these, a shallow keyword page can be dominated by
+  // accessories (cases, chargers, screen protectors) even when genuine devices
+  // exist — so retrieval pages deeper and the emitted pool is gated to genuine
+  // devices whenever any provider (live or imported) actually has one.
+  const deviceIntent =
+    optimizeForDeviceIntent &&
+    analyzeSearchQueryIntent(trimmed).kind === "device";
+
   const [{ allRaw }, fromDb, activeProviderIds] = await Promise.all([
     fetchProvidersInParallel(trimmed, {
-      minFetch: 60,
-      targetFetch: 120,
-      maxPages: 4,
+      // Device-intent searches page deeper so an accessory-saturated catalog is
+      // not mistaken for "no genuine inventory" after one shallow page. Still
+      // bounded by the same per-provider fetch budget as before.
+      minFetch: optimizeForDeviceIntent ? 100 : 60,
+      targetFetch: optimizeForDeviceIntent ? 300 : 120,
+      maxPages: optimizeForDeviceIntent ? 8 : 4,
       ...(optimizeForDeviceIntent ? { optimizeForDeviceIntent: true } : {}),
     }),
     (await import("@/lib/integration/database-catalog"))
@@ -309,11 +331,43 @@ export async function searchProducts(
     activeProviders.has(item.storeSlug as never),
   );
 
-  const live = assembleProductionSearchResults(allRaw, trimmed, capped);
+  // Classify once. Live: which listings are genuine device matches. DB: which
+  // rows are relevant at all, and which of those are genuine devices. The old
+  // merge bypassed analyzeSearchListing entirely, so rows that merely matched a
+  // short substring ("15", "pro", "max") — facial-lifting stickers, cat
+  // fountains, flag rope — landed on page 1 between genuine devices at full
+  // "brand" weight. Drop irrelevant rows (tier "none"/"repair") and record
+  // scores for ordering.
+  const genuineLive = deviceIntent
+    ? allRaw.filter((listing) => isGenuineDeviceListing(listing, trimmed))
+    : allRaw;
+
+  const genuineDb: typeof activeDb = [];
+  const relevantDb: typeof activeDb = [];
+  const dbScoreById = new Map<string, number>();
+  for (const dbItem of activeDb) {
+    const analysis = analyzeSearchListing(dbItem.name, trimmed);
+    if (analysis.tier === "none" || analysis.tier === "repair") continue;
+    relevantDb.push(dbItem);
+    dbScoreById.set(dbItem.id, analysis.score);
+    if (analysis.isDevice) genuineDb.push(dbItem);
+  }
+
+  // If ANY genuine device exists (live or imported), an explicit device query
+  // surfaces ONLY genuine devices: providers whose retrieval returned no
+  // genuine match contribute zero instead of accessory filler, so accessories
+  // can never consume first-page slots while a real device is available. When
+  // no genuine device exists anywhere, keep the legacy accessory backfill so
+  // the query still returns real (if accessory) products rather than nothing.
+  const hasGenuine = genuineLive.length > 0 || genuineDb.length > 0;
+  const liveInput = deviceIntent && hasGenuine ? genuineLive : allRaw;
+  const dbPool = deviceIntent && hasGenuine ? genuineDb : relevantDb;
+
+  const live = assembleProductionSearchResults(liveInput, trimmed, capped);
 
   const seen = new Set(live.map((item) => item.id));
   const dedupedDb: typeof activeDb = [];
-  for (const dbItem of activeDb) {
+  for (const dbItem of dbPool) {
     if (seen.has(dbItem.id)) continue;
     const isDup = live.some(
       (l) =>
@@ -325,29 +379,14 @@ export async function searchProducts(
     }
   }
 
-  // Gate DB supplements through the same relevance analyzer the live pipeline
-  // uses. The old merge bypassed analyzeSearchListing entirely, so rows that
-  // merely matched a short substring ("15", "pro", "max") — facial-lifting
-  // stickers, cat fountains, flag rope, bookbinding rulers — landed on page 1
-  // between genuine devices at full "brand" weight. Drop irrelevant rows
-  // (tier "none"/"repair") and record scores for ordering.
-  const relevantDb: typeof activeDb = [];
-  const dbScoreById = new Map<string, number>();
-  for (const dbItem of dedupedDb) {
-    const analysis = analyzeSearchListing(dbItem.name, trimmed);
-    if (analysis.tier === "none" || analysis.tier === "repair") continue;
-    relevantDb.push(dbItem);
-    dbScoreById.set(dbItem.id, analysis.score);
-  }
-
   // Balance relevant DB results across marketplaces so providers without live
   // connectors (Nike, CJdropshipping, Best Buy, Walmart, etc.) get fair
   // representation instead of being drowned out by the dominant Admitad bulk.
   // Relevance score (not discount) is the primary ordering key.
   const balancedDb = balanceFlatMarketplaceList(
-    relevantDb,
+    dedupedDb,
     (item) => item.storeSlug || item.store,
-    relevantDb.length,
+    dedupedDb.length,
     (a, b) =>
       (dbScoreById.get(b.id) ?? 0) - (dbScoreById.get(a.id) ?? 0) ||
       b.discount - a.discount ||
