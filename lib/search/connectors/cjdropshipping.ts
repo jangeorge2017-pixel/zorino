@@ -68,13 +68,19 @@ export const cjdropshippingSearchConnector: SearchConnector = {
     const client = getClient();
     if (!client) return [];
 
-    const pageSize = options?.pageSize ?? SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
-    const maxPages = options?.maxPages ?? SEARCH_ENGINE_DEFAULTS.MAX_PAGES_PER_PROVIDER;
-
+    // CJ's client pages ONE request at a time and CJ rate-limits to 1 QPS.
+    // The engine's device-intent depth (maxPages up to 8, pageSize 50) would
+    // make the connector blow past the 8s provider budget and get discarded
+    // as a timeout — an active provider silently contributing zero. CJ is a
+    // small-catalog sync source, so its fetch is bounded to a few warm
+    // requests: ~20 items/page, 2 pages for a single keyword, 1 page per
+    // keyword when fanning out (≤3 requests total).
+    const pageSize = Math.min(
+      options?.pageSize ?? SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+      20,
+    );
     const keywords = buildCjSearchQueries(trimmed, options);
-    // CJ pages one request at a time and rate-limits to 1 QPS, so split the
-    // page budget across keyword variants to stay inside the engine deadline.
-    const pagesPerKeyword = Math.max(1, Math.ceil(maxPages / keywords.length));
+    const pagesPerKeyword = keywords.length >= 2 ? 1 : 2;
 
     try {
       const rawProducts = await client.searchProducts({
