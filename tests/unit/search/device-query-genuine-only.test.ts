@@ -77,12 +77,13 @@ function dbItem(overrides: Partial<SearchResultItem> & { name: string }): Search
   };
 }
 
-type CapturingAdapter = ProviderAdapter & { captured?: ConnectorSearchOptions };
+type CapturingAdapter = ProviderAdapter & { captured: ConnectorSearchOptions[] };
 
 function adapter(
   id: SearchProviderId,
   listings: RawProviderListing[],
 ): CapturingAdapter {
+  const captured: ConnectorSearchOptions[] = [];
   const a: CapturingAdapter = {
     id,
     name: id,
@@ -96,9 +97,10 @@ function adapter(
       return [];
     },
     async search(_query: string, options?: ConnectorSearchOptions) {
-      a.captured = options;
+      captured.push(options ?? {});
       return { providerId: id, listings, durationMs: 3 };
     },
+    captured,
   };
   return a;
 }
@@ -204,7 +206,11 @@ describe("device-intent multi-provider assembly", () => {
     vi.spyOn(await dbCatalog(), "getSearchResultsFromDatabase").mockResolvedValue([]);
 
     await searchProducts(q, 50, { optimizeForDeviceIntent: true });
-    expect(ebay.captured).toMatchObject({ targetFetch: 300, maxPages: 8, minFetch: 100 });
+    // The exact-query leg pages deeper; the family-keyword fallback uses the
+    // legacy shallow budget that mirrors the category surface.
+    expect(ebay.captured).toHaveLength(2);
+    expect(ebay.captured[0]).toMatchObject({ targetFetch: 300, maxPages: 8, minFetch: 100 });
+    expect(ebay.captured[1]).toMatchObject({ targetFetch: 120, maxPages: 4, minFetch: 60 });
   });
 
   it("never gates accessory-intent queries", async () => {
@@ -231,7 +237,47 @@ describe("device-intent multi-provider assembly", () => {
 
     const items = await searchProducts(q, 50);
 
-    expect(ali.captured).toMatchObject({ targetFetch: 120, maxPages: 4, minFetch: 60 });
+    expect(ali.captured).toHaveLength(1);
+    expect(ali.captured[0]).toMatchObject({ targetFetch: 120, maxPages: 4, minFetch: 60 });
     expect(items.some((i) => /Case/i.test(i.name))).toBe(true);
+  });
+
+  it("reaches genuine devices through the family-keyword fallback when the exact query is accessory-saturated", async () => {
+    const q = deviceQuery();
+    // Simulates the live AliExpress reality that motivated the fix: the exact
+    // device phrase's first pages are accessories, but a bare family keyword
+    // ("phone" — the same word the Phones category page searches) surfaces the
+    // genuine device.
+    const ali = adapter("aliexpress", []);
+    const aliSearch = vi.spyOn(ali, "search").mockImplementation(async (query: string) => {
+      if (query === "phone") {
+        return {
+          providerId: "aliexpress",
+          listings: [device("aliexpress", 99, `Apple ${q} 256GB Unlocked Smartphone`)],
+          durationMs: 5,
+        };
+      }
+      return {
+        providerId: "aliexpress",
+        listings: [
+          accessory("aliexpress", 1, `Silicone Case for ${q}`),
+          accessory("aliexpress", 2, `Tempered Glass Screen Protector for ${q}`),
+        ],
+        durationMs: 5,
+      };
+    });
+    vi.spyOn(adapterRegistry, "getActiveProviderAdapters").mockResolvedValue([ali]);
+    vi.spyOn(await dbCatalog(), "getSearchResultsFromDatabase").mockResolvedValue([]);
+
+    const items = await searchProducts(q, 50, { optimizeForDeviceIntent: true });
+
+    expect(aliSearch).toHaveBeenCalledTimes(2);
+    expect(aliSearch.mock.calls[0]?.[0]).toBe(q);
+    expect(aliSearch.mock.calls[1]?.[0]).toBe("phone");
+    // Genuine device leads ahead of the exact-query accessories it saturates.
+    expect(items.length).toBe(3);
+    expect(items[0]!.storeSlug).toBe("aliexpress");
+    expect(items[0]!.name).toContain(q);
+    expect(items.some((i) => /Case|Protector/i.test(i.name))).toBe(true);
   });
 });

@@ -88,12 +88,13 @@ function rawEbayProduct(overrides: Partial<EbayRawProduct> = {}): EbayRawProduct
   };
 }
 
-/** Adapter that records the options the engine passed it. */
+/** Adapter that records the options the engine passed it (per adapter.search call). */
 function capturingAdapter(
   id: SearchProviderId,
   listing: RawProviderListing,
-): ProviderAdapter & { captured?: ConnectorSearchOptions } {
-  const adapter: ProviderAdapter & { captured?: ConnectorSearchOptions } = {
+): ProviderAdapter & { captured: ConnectorSearchOptions[] } {
+  const captured: ConnectorSearchOptions[] = [];
+  const adapter: ProviderAdapter & { captured: ConnectorSearchOptions[] } = {
     id,
     name: id,
     async isAvailable() {
@@ -106,9 +107,10 @@ function capturingAdapter(
       return [listing];
     },
     async search(_query: string, options?: ConnectorSearchOptions) {
-      adapter.captured = options;
+      captured.push(options ?? {});
       return { providerId: id, listings: [listing], durationMs: 5 };
     },
+    captured,
   };
   return adapter;
 }
@@ -411,8 +413,9 @@ describe("engine device-intent opt-in", () => {
       optimizeForDeviceIntent: true,
     });
 
-    expect(adapter.captured?.optimizeForDeviceIntent).toBe(true);
-    expect(adapter.captured?.intent?.family).toBe("phone");
+    // The exact-query leg carries the opt-in intent.
+    expect(adapter.captured[0]?.optimizeForDeviceIntent).toBe(true);
+    expect(adapter.captured[0]?.intent?.family).toBe("phone");
   });
 
   it("keeps the default (homepage/compare) adapter options byte-identical", async () => {
@@ -422,9 +425,9 @@ describe("engine device-intent opt-in", () => {
 
     await searchProducts(`locked-default-${Date.now()}`, 20);
 
-    expect(adapter.captured).toBeDefined();
-    expect(adapter.captured && "optimizeForDeviceIntent" in adapter.captured).toBe(false);
-    expect(adapter.captured?.intent).toBeUndefined();
+    expect(adapter.captured).toHaveLength(1);
+    expect(adapter.captured[0] && "optimizeForDeviceIntent" in adapter.captured[0]).toBe(false);
+    expect(adapter.captured[0]?.intent).toBeUndefined();
   });
 });
 

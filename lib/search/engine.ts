@@ -9,7 +9,10 @@ import {
 } from "@/lib/search/cache";
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
-import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
+import {
+  analyzeSearchQueryIntent,
+  FAMILY_RETRIEVAL_KEYWORDS,
+} from "@/lib/search/query-intent";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
 import type {
@@ -184,17 +187,45 @@ async function fetchProvidersInParallel(
   const adapters = await getActiveProviderAdapters(options?.providers);
   const providerStats: SearchEngineResult["providers"] = [];
   const allRaw: RawProviderListing[] = [];
+  // One card per provider+externalId: a device-intent search now fetches the
+  // exact query AND the family-keyword fallback, so the same genuine product
+  // can legitimately arrive through both legs (same product_id on AliExpress,
+  // same offer id on Admitad, …). Collapsing identical provider+externalId
+  // here keeps duplicates out of the assembly pipeline entirely.
+  const seenListingKeys = new Set<string>();
 
   const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
   const intent = optimizeForDeviceIntent
     ? analyzeSearchQueryIntent(query)
     : undefined;
 
+  // Provider-neutral family-keyword fallback: a device-intent search fans the
+  // exact query AND that family's generic retrieval keyword ("phone", "laptop",
+  // "earbuds", …) out to EVERY adapter in parallel, inside the same per-provider
+  // budget. The family keyword is the same vocabulary the category surfaces rely
+  // on to reach genuine devices beyond a device query's accessory-saturated
+  // first pages (see lib/data/category-keywords.ts); it uses the legacy shallow
+  // budget so AliExpress searches "phone" exactly as /categories/phones does.
+  // The relevance tiers still rank exact/model matches first and drop unrelated
+  // family results, and duplicate providerId+externalId pairs collapse in
+  // deduplication — so the fallback only ever ADDS genuine inventory to the
+  // pool, never floods it.
+  const familyKeyword =
+    intent?.kind === "device"
+      ? FAMILY_RETRIEVAL_KEYWORDS[intent.family]
+      : undefined;
+
+  const legacyBudget = {
+    minFetch: 60,
+    targetFetch: 120,
+    maxPages: 4,
+  } as const;
+
   await Promise.all(
     adapters.map(async (adapter) => {
       const started = Date.now();
       try {
-        const result = await Promise.race([
+        const searches = [
           adapter.search(query, {
             minFetch: options?.minFetch ?? SEARCH_ENGINE_DEFAULTS.MIN_FETCH_COUNT,
             targetFetch: options?.targetFetch ?? SEARCH_ENGINE_DEFAULTS.TARGET_FETCH_COUNT,
@@ -203,6 +234,25 @@ async function fetchProvidersInParallel(
             // adapter options stay byte-identical to before.
             ...(intent ? { optimizeForDeviceIntent: true as const, intent } : {}),
           }),
+        ];
+        if (familyKeyword) {
+          searches.push(adapter.search(familyKeyword, legacyBudget));
+        }
+        const result = await Promise.race([
+          // allSettled: one failing leg (e.g. a rate-limited family keyword)
+          // must not discard the other leg's real results.
+          Promise.allSettled(searches).then((results) => ({
+            providerId: adapter.id,
+            listings: results.flatMap((r) =>
+              r.status === "fulfilled" ? r.value.listings : [],
+            ),
+            durationMs: Math.max(
+              ...results.map((r) =>
+                r.status === "fulfilled" ? r.value.durationMs : 0,
+              ),
+              0,
+            ),
+          })),
           new Promise<{ providerId: SearchProviderId; listings: RawProviderListing[]; durationMs: number }>(
             (resolve) =>
               setTimeout(
@@ -218,12 +268,18 @@ async function fetchProvidersInParallel(
               ),
           ),
         ]);
-        allRaw.push(...result.listings);
-        recordProviderRun(result.providerId, result.listings.length);
+        const merged = result.listings.filter((listing) => {
+          const key = `${listing.providerId}:${listing.externalId}`;
+          if (seenListingKeys.has(key)) return false;
+          seenListingKeys.add(key);
+          return true;
+        });
+        allRaw.push(...merged);
+        recordProviderRun(result.providerId, merged.length);
         providerStats.push({
           providerId: result.providerId,
-          fetched: result.listings.length,
-          normalized: result.listings.length,
+          fetched: merged.length,
+          normalized: merged.length,
           durationMs:
             result.durationMs > 0 ? result.durationMs : Date.now() - started,
         });
@@ -261,7 +317,7 @@ export async function searchProducts(
   const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
   // Separate cache namespaces per mode so an optimized /search pool can never
   // be served to (or evict) the legacy homepage/Compare pool for the same query.
-  const cacheKey = `prod-v19-device-pool:${trimmed.toLowerCase()}:${capped}${
+  const cacheKey = `prod-v20-device-pool:${trimmed.toLowerCase()}:${capped}${
     optimizeForDeviceIntent ? ":device-opt" : ""
   }`;
   const cached = fairSearchCache.get(cacheKey);
