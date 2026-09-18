@@ -9,13 +9,9 @@ import {
 } from "@/lib/search/cache";
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
-import { analyzeSearchListing } from "@/lib/search/relevance";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
-import {
-  balanceFlatMarketplaceList,
-} from "@/lib/search/marketplace-balance";
 import type {
   RawProviderListing,
   SearchEngineResult,
@@ -45,27 +41,6 @@ const fairSearchCache = new Map<
   string,
   { items: SearchResultItem[]; expiresAt: number }
 >();
-
-/**
- * Live-only lead that keeps genuine devices ahead of imported DB products, and
- * the cadence at which DB products are then interleaved (one per N slots).
- */
-const DB_INTERLEAVE_EVERY = 4;
-
-/** First slots of the mixed pool that stay live-only (never DB-filled). */
-function liveLeadFor(capped: number): number {
-  return Math.max(1, Math.min(20, Math.floor(capped / 2)));
-}
-
-/**
- * True when a live listing is a genuine primary-device match for `query`
- * (phone / tablet / laptop / console / audio / camera / …) rather than an
- * accessory, spare part, or unrelated item. Provider-neutral: decided purely by
- * the shared relevance analyzer that every provider already passes through.
- */
-function isGenuineDeviceListing(listing: RawProviderListing, query: string): boolean {
-  return analyzeSearchListing(listing.title, query, { category: listing.category }).isDevice;
-}
 
 /**
  * Merge the live pool with relevant DB supplements. The first `liveLead` slots
@@ -286,7 +261,7 @@ export async function searchProducts(
   const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
   // Separate cache namespaces per mode so an optimized /search pool can never
   // be served to (or evict) the legacy homepage/Compare pool for the same query.
-  const cacheKey = `prod-v18-device-genuine:${trimmed.toLowerCase()}:${capped}${
+  const cacheKey = `prod-v19-device-pool:${trimmed.toLowerCase()}:${capped}${
     optimizeForDeviceIntent ? ":device-opt" : ""
   }`;
   const cached = fairSearchCache.get(cacheKey);
@@ -297,8 +272,10 @@ export async function searchProducts(
   // Explicit device-intent query (e.g. "iphone 15 pro max", "airpods pro") on
   // the /search surface. For these, a shallow keyword page can be dominated by
   // accessories (cases, chargers, screen protectors) even when genuine devices
-  // exist — so retrieval pages deeper and the emitted pool is gated to genuine
-  // devices whenever any provider (live or imported) actually has one.
+  // exist — so retrieval pages deeper to reach each provider's genuine
+  // inventory instead of mistaking the first accessory-saturated page for
+  // "no genuine match". The pool itself is never gated: assembly stays
+  // device-first across all providers.
   const deviceIntent =
     optimizeForDeviceIntent &&
     analyzeSearchQueryIntent(trimmed).kind === "device";
@@ -331,79 +308,60 @@ export async function searchProducts(
     activeProviders.has(item.storeSlug as never),
   );
 
-  // Classify once. Live: which listings are genuine device matches. DB: which
-  // rows are relevant at all, and which of those are genuine devices. The old
-  // merge bypassed analyzeSearchListing entirely, so rows that merely matched a
-  // short substring ("15", "pro", "max") — facial-lifting stickers, cat
-  // fountains, flag rope — landed on page 1 between genuine devices at full
-  // "brand" weight. Drop irrelevant rows (tier "none"/"repair") and record
-  // scores for ordering.
-  const genuineLive = deviceIntent
-    ? allRaw.filter((listing) => isGenuineDeviceListing(listing, trimmed))
-    : allRaw;
-
-  const genuineDb: typeof activeDb = [];
-  const relevantDb: typeof activeDb = [];
-  const dbScoreById = new Map<string, number>();
+  // One pool that flows from EVERY provider (live + imported) through the same
+  // device-first production pipeline. No device-intent gate: a provider whose
+  // retrieval holds genuine devices contributes them (leading every page), and
+  // a provider with only relevant accessories contributes those behind all
+  // genuine matches — so Search stays multi-provider and can never read as
+  // "eBay-only", while accessories can never displace a genuine match.
+  // Imported rows are mapped to the RawProviderListing vocabulary and pass
+  // through exactly the same relevance tiers as live listings (drop none &
+  // repair inside the pipeline) before being restored to their `db-*` identity.
+  const liveTitlePrefixes = new Set(
+    allRaw.map((listing) => listing.title.toLowerCase().slice(0, 30)),
+  );
+  const dbAsRaw: RawProviderListing[] = [];
   for (const dbItem of activeDb) {
-    const analysis = analyzeSearchListing(dbItem.name, trimmed);
-    if (analysis.tier === "none" || analysis.tier === "repair") continue;
-    relevantDb.push(dbItem);
-    dbScoreById.set(dbItem.id, analysis.score);
-    if (analysis.isDevice) genuineDb.push(dbItem);
+    if (liveTitlePrefixes.has(dbItem.name.toLowerCase().slice(0, 30))) continue;
+    dbAsRaw.push({
+      providerId: dbItem.storeSlug as SearchProviderId,
+      externalId: `__db__${dbItem.id}`,
+      title: dbItem.name,
+      imageUrl: dbItem.imageSrc,
+      price: dbItem.price,
+      originalPrice:
+        dbItem.originalPrice > 0 ? dbItem.originalPrice : dbItem.price,
+      discount: dbItem.discount ?? 0,
+      currency: dbItem.currency ?? "USD",
+      storeName: dbItem.store,
+      category: dbItem.category ?? "General",
+      rating: dbItem.rating ?? 0,
+      reviewCount: dbItem.reviewCount ?? 0,
+      salesCount: dbItem.salesCount,
+      inStock: dbItem.inStock,
+      productUrl: dbItem.affiliateUrl ?? "#",
+      affiliateUrl: dbItem.affiliateUrl,
+      countryCode: dbItem.countryCode,
+    });
   }
 
-  // If ANY genuine device exists (live or imported), an explicit device query
-  // surfaces ONLY genuine devices: providers whose retrieval returned no
-  // genuine match contribute zero instead of accessory filler, so accessories
-  // can never consume first-page slots while a real device is available. When
-  // no genuine device exists anywhere, keep the legacy accessory backfill so
-  // the query still returns real (if accessory) products rather than nothing.
-  const hasGenuine = genuineLive.length > 0 || genuineDb.length > 0;
-  const liveInput = deviceIntent && hasGenuine ? genuineLive : allRaw;
-  const dbPool = deviceIntent && hasGenuine ? genuineDb : relevantDb;
-
-  const live = assembleProductionSearchResults(liveInput, trimmed, capped);
-
-  const seen = new Set(live.map((item) => item.id));
-  const dedupedDb: typeof activeDb = [];
-  for (const dbItem of dbPool) {
-    if (seen.has(dbItem.id)) continue;
-    const isDup = live.some(
-      (l) =>
-        l.name.toLowerCase().slice(0, 30) === dbItem.name.toLowerCase().slice(0, 30),
-    );
-    if (!isDup) {
-      dedupedDb.push(dbItem);
-      seen.add(dbItem.id);
-    }
-  }
-
-  // Balance relevant DB results across marketplaces so providers without live
-  // connectors (Nike, CJdropshipping, Best Buy, Walmart, etc.) get fair
-  // representation instead of being drowned out by the dominant Admitad bulk.
-  // Relevance score (not discount) is the primary ordering key.
-  const balancedDb = balanceFlatMarketplaceList(
-    dedupedDb,
-    (item) => item.storeSlug || item.store,
-    dedupedDb.length,
-    (a, b) =>
-      (dbScoreById.get(b.id) ?? 0) - (dbScoreById.get(a.id) ?? 0) ||
-      b.discount - a.discount ||
-      a.price - b.price,
-  );
-
-  // Keep the genuine-device lead live-only, then interleave relevant DB
-  // products so imported inventory stays reachable even when the live pool
-  // saturates the display cap. Pure append-after-live dropped every DB row for
-  // high-volume queries (the pool was already full before the DB block ran).
-  const mixed = interleaveLiveAndDbResults(
-    live,
-    balancedDb,
+  const assembled = assembleProductionSearchResults(
+    [...allRaw, ...dbAsRaw],
+    trimmed,
     capped,
-    liveLeadFor(capped),
-    DB_INTERLEAVE_EVERY,
   );
+
+  // Restore original imported-row identity so Compare Prices / PDP / affiliate
+  // routing keep resolving the same `db-<product_id>` ids the UI already knows.
+  const dbById = new Map(activeDb.map((item) => [item.id, item]));
+  const mixed = assembled.map((item) => {
+    const dbKey = `${item.storeSlug}-__db__`;
+    if (item.id.startsWith(dbKey)) {
+      const original = dbById.get(item.id.slice(dbKey.length));
+      if (original) return original;
+    }
+    return item;
+  });
   fairSearchCache.set(cacheKey, {
     items: mixed,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,

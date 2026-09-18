@@ -1,20 +1,24 @@
 /**
- * Device-query genuine-only gating (search surface only).
+ * Device-query multi-provider assembly (search surface only).
  *
- * Live problem being locked: on `/search`, an explicit device query
- * ("iphone 15 pro max", "airpods pro", "macbook air m3") returned a pool where
- * the few genuine devices were followed by a flood of accessories
- * (cases, chargers, screen protectors, keyboard covers) from providers whose
- * shallow keyword page is accessory-saturated. Because the pool is filled to
- * the full display cap before paging, those accessories landed on page 1.
+ * Live problem being locked: `/search` for an explicit device query
+ * ("iphone 15 pro max", "macbook air m3", "airpods pro") came back eBay-only
+ * once any provider held genuine devices — a hard gate dropped every other
+ * provider's relevant inventory. eBay was the only provider whose retrieval
+ * surfaced genuine devices for those exact models, so Search read as
+ * "eBay-only" even though Accessories (cases, chargers, screen protectors)
+ * and imported rows existed elsewhere.
  *
  * Contract:
- *   - Device-intent queries surface ONLY genuine devices when any provider
- *     (live or imported) actually has one.
- *   - A provider with no genuine match contributes zero (no accessory filler).
- *   - When no genuine device exists anywhere, the legacy accessory backfill
- *     still applies so the query returns real products.
- *   - Accessory-intent queries are untouched.
+ *   - Device-intent queries assemble ONE pool from every provider (live +
+ *     imported) through the device-first production pipeline.
+ *   - Genuine devices from ALL providers lead every page (never displaced by
+ *     accessories, live or imported).
+ *   - Relevant accessories from the remaining providers balance behind the
+ *     devices, so a query is never eBay-only just because only eBay has the
+ *     exact device — other providers still surface their real inventory.
+ *   - The legacy accessory backfill still applies when no genuine device
+ *     exists anywhere, and accessory-intent queries are untouched.
  *   - The default (homepage / Compare Prices) path is untouched — no
  *     `optimizeForDeviceIntent` means byte-identical legacy behaviour.
  *
@@ -131,8 +135,8 @@ afterEach(() => {
   setProviderFetchTimeoutForTests();
 });
 
-describe("device-intent genuine-only gating", () => {
-  it("drops accessory fillers when genuine devices exist, across providers", async () => {
+describe("device-intent multi-provider assembly", () => {
+  it("lists every genuine device ahead of accessories from every provider", async () => {
     const q = deviceQuery();
     const ebay = adapter("ebay", [
       device("ebay", 1, `Apple ${q} 256GB Unlocked Smartphone`),
@@ -149,12 +153,15 @@ describe("device-intent genuine-only gating", () => {
 
     const items = await searchProducts(q, 50, { optimizeForDeviceIntent: true });
 
-    expect(items.length).toBe(2);
-    expect(items.every((i) => i.storeSlug === "ebay")).toBe(true);
-    expect(items.some((i) => /Case|Protector/i.test(i.name))).toBe(false);
+    // Every source contributes: not eBay-only, accessories never displace a device.
+    expect(items.length).toBe(5);
+    expect(items[0]!.storeSlug).toBe("ebay");
+    expect(items[1]!.storeSlug).toBe("ebay");
+    expect(items.some((i) => i.storeSlug === "aliexpress")).toBe(true);
+    expect(items.some((i) => i.storeSlug === "admitad" && /Case/.test(i.name))).toBe(true);
   });
 
-  it("keeps genuine imported DB devices and drops live accessory filler", async () => {
+  it("never lets an accessory displace a genuine device — imported devices lead too", async () => {
     const q = deviceQuery();
     const ali = adapter("aliexpress", [
       accessory("aliexpress", 1, `Car Mount Holder for ${q}`),
@@ -167,8 +174,12 @@ describe("device-intent genuine-only gating", () => {
 
     const items = await searchProducts(q, 50, { optimizeForDeviceIntent: true });
 
-    expect(items.length).toBe(1);
+    // The imported genuine device leads; the live and imported accessories
+    // balance behind it rather than disappearing (or standing above it).
     expect(items[0]!.id).toBe("db-genuine-1");
+    expect(items.length).toBe(3);
+    expect(items.some((i) => i.id === "db-acc-1")).toBe(true);
+    expect(items.some((i) => i.storeSlug === "aliexpress")).toBe(true);
   });
 
   it("falls back to accessories when no genuine device exists anywhere", async () => {
