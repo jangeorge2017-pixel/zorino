@@ -52,6 +52,26 @@ export type SearchQueryIntent = {
 };
 
 /**
+ * Provider-neutral generic retrieval keyword per product family. A device-intent
+ * search fans this bare family keyword out to every provider in parallel with
+ * the exact query, because for some catalogs the exact query's first pages are
+ * accessory-saturated and never reach the genuine device. This is the SAME
+ * generic vocabulary the category surfaces use (lib/data/category-keywords.ts)
+ * to reach genuine devices — no model, id, or merchant is ever named here.
+ */
+export const FAMILY_RETRIEVAL_KEYWORDS: Readonly<Partial<Record<ProductFamily, string>>> = {
+  phone: "phone",
+  tablet: "tablet",
+  laptop: "laptop",
+  console: "console",
+  audio: "earbuds",
+  smartwatch: "smartwatch",
+  camera: "camera",
+  gpu: "graphics card",
+  "tv-monitor": "television",
+};
+
+/**
  * Family signal words, highest-signal family first. These are generic product
  * categories, not products: "tv", "laptop", "rtx", "airpods". Order resolves
  * cross-family words ("samsung tv" is a TV, "galaxy watch" is a watch, not a
