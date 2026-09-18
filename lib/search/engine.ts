@@ -238,36 +238,50 @@ async function fetchProvidersInParallel(
         if (familyKeyword) {
           searches.push(adapter.search(familyKeyword, legacyBudget));
         }
-        const result = await Promise.race([
-          // allSettled: one failing leg (e.g. a rate-limited family keyword)
-          // must not discard the other leg's real results.
-          Promise.allSettled(searches).then((results) => ({
-            providerId: adapter.id,
-            listings: results.flatMap((r) =>
-              r.status === "fulfilled" ? r.value.listings : [],
-            ),
-            durationMs: Math.max(
-              ...results.map((r) =>
-                r.status === "fulfilled" ? r.value.durationMs : 0,
+        // Every leg races the per-provider timeout INDEPENDENTLY: a slow
+        // family-keyword leg must never keep the fast exact-query leg from
+        // contributing its real results (a broad "phone" keyword hit can run
+        // long on a flaky provider and was silently collapsing the whole
+        // provider to zero under a single shared race). Legs that fail or
+        // time out contribute nothing without discarding their peers.
+        const timeoutOnly = async (leg: ReturnType<typeof adapter.search>) => {
+          try {
+            return await Promise.race([
+              leg,
+              new Promise<{
+                providerId: SearchProviderId;
+                listings: RawProviderListing[];
+                durationMs: number;
+              }>((resolve) =>
+                setTimeout(
+                  () =>
+                    resolve({
+                      providerId: adapter.id,
+                      listings: [],
+                      // A timed-out leg contributes no fetched/normalized
+                      // results and its duration is not credited.
+                      durationMs: 0,
+                    }),
+                  providerFetchTimeoutMs,
+                ),
               ),
-              0,
-            ),
-          })),
-          new Promise<{ providerId: SearchProviderId; listings: RawProviderListing[]; durationMs: number }>(
-            (resolve) =>
-              setTimeout(
-                () =>
-                  resolve({
-                    providerId: adapter.id,
-                    listings: [],
-                    // A timed-out provider contributes no fetched/normalized
-                    // results and its duration is not credited.
-                    durationMs: 0,
-                  }),
-                providerFetchTimeoutMs,
-              ),
-          ),
-        ]);
+            ]);
+          } catch {
+            // One failing leg (e.g. a rate-limited family keyword) must not
+            // discard the other leg's real results.
+            return {
+              providerId: adapter.id,
+              listings: [] as RawProviderListing[],
+              durationMs: 0,
+            };
+          }
+        };
+        const settled = await Promise.all(searches.map(timeoutOnly));
+        const result = {
+          providerId: adapter.id,
+          listings: settled.flatMap((s) => s.listings),
+          durationMs: Math.max(...settled.map((s) => s.durationMs), 0),
+        };
         const merged = result.listings.filter((listing) => {
           const key = `${listing.providerId}:${listing.externalId}`;
           if (seenListingKeys.has(key)) return false;
