@@ -11,6 +11,41 @@ function getClient(): CJdropshippingClient | null {
 }
 
 /**
+ * CJdropshipping query fan-out.
+ *
+ * CJ's `/product/list` matches `productNameEn` as a SUBSTRING of product
+ * titles, so a full compound phrase like "iPhone 15 Pro Max", "MacBook Air
+ * M3" or "Samsung Galaxy S24" matches nothing at all — CJ would report zero
+ * products even though its catalog carries relevant items (cases, covers,
+ * cables, wearables) for each meaningful part of the query.
+ *
+ * For device-intent searches the keyword list is fanned out to progressively
+ * shorter prefixes (the full query always first) so every meaningful part of
+ * the query reaches CJ's real inventory. Mirrors the AliExpress device
+ * expansion and stays gated on `optimizeForDeviceIntent` so the homepage /
+ * Compare fan-out is byte-identical.
+ */
+export function buildCjSearchQueries(
+  query: string,
+  options?: ConnectorSearchOptions,
+): string[] {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  if (options?.optimizeForDeviceIntent !== true) return [trimmed];
+
+  const tokens = trimmed.split(/\s+/).filter(Boolean);
+  if (tokens.length < 2) return [trimmed];
+
+  const variants = [trimmed];
+  for (let i = tokens.length - 1; i >= 1; i--) {
+    if (variants.length >= 3) break;
+    const candidate = tokens.slice(0, i).join(" ");
+    if (candidate !== trimmed) variants.push(candidate);
+  }
+  return variants;
+}
+
+/**
  * CJdropshipping search connector.
  *
  * First-class connector that calls the CJ REST API directly and normalizes
@@ -36,10 +71,15 @@ export const cjdropshippingSearchConnector: SearchConnector = {
     const pageSize = options?.pageSize ?? SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
     const maxPages = options?.maxPages ?? SEARCH_ENGINE_DEFAULTS.MAX_PAGES_PER_PROVIDER;
 
+    const keywords = buildCjSearchQueries(trimmed, options);
+    // CJ pages one request at a time and rate-limits to 1 QPS, so split the
+    // page budget across keyword variants to stay inside the engine deadline.
+    const pagesPerKeyword = Math.max(1, Math.ceil(maxPages / keywords.length));
+
     try {
       const rawProducts = await client.searchProducts({
-        keywords: [trimmed],
-        maxPages,
+        keywords,
+        maxPages: pagesPerKeyword,
         pageSize,
       });
 
