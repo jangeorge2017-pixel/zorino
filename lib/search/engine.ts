@@ -130,7 +130,7 @@ async function fetchDbSupplementForSearch(
   const familySub = familyKeyword
     ? loadDbCatalog().then((mod) =>
         mod
-          .getFamilyBreadthResultsFromDatabase(familyKeyword, limit, {
+          .getSearchResultsFromDatabase(familyKeyword, limit, {
             timeoutMs: providerFetchTimeoutMs,
           })
           .catch(() => [] as SearchResultItem[]),

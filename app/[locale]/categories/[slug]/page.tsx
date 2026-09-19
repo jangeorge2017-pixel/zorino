@@ -1,6 +1,6 @@
 import CategoryDetailPageClient from "@/components/CategoryDetailPageClient";
 import { getCategories } from "@/services/categories";
-import { searchProducts } from "@/lib/search/engine";
+import { searchProductsSurface } from "@/lib/canonical/consumption/search";
 import type { MockCategoryDetail } from "@/lib/mock/types";
 import type { Category } from "@/lib/types/entities";
 import { generateCategoryMetadata } from "@/lib/seo/metadata";
@@ -42,7 +42,7 @@ export default async function CategoryDetailPage({ params }: CategoryDetailPageP
 
   // Use category-specific keywords instead of hardcoded electronics queries
   const keyword = getCategorySearchKeyword(slug);
-  const allProducts = await searchProducts(keyword, 60).catch(() => []);
+  const allProducts = await searchProductsSurface(keyword, 60).catch(() => []);
 
   // Filter products that actually belong to this category
   const products = allProducts.filter((item) =>
