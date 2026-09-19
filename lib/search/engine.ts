@@ -53,36 +53,74 @@ const fairSearchCache = new Map<
  * the live pool alone already fills the display cap. Pure + exported so the
  * reachability contract is unit-testable.
  */
+/**
+ * Structurally-balanced merge of the live provider pool with the canonical
+ * catalog supplement. The DB rows are reserved at a fixed cadence in the
+ * pattern from slot 0 (`dbEvery`-spaced) — NOT appended after a live "lead"
+ * that a single provider's volume could fill to the cap. This is the
+ * retrieval-layer guarantee the root requirement names: no provider may
+ * independently consume the whole window and hide another surface's matching
+ * catalog inventory, and the canonical supplement is always reachable (both
+ * in-window and through the pager over the same pool).
+ *
+ * Pattern construction order: `dbEvery`-spaced DB slots first (so canonical
+ * rows are structurally present the moment the window opens), then live rows
+ * fill every remaining slot. A busy provider can never unbudget the canonical
+ * seam because the cadence is decided before any live rows are considered.
+ */
 export function interleaveLiveAndDbResults(
   live: readonly SearchResultItem[],
   db: readonly SearchResultItem[],
   capped: number,
-  liveLead: number,
-  dbEvery: number,
+  _liveLead: number,
+  dbEvery: number | bigint,
 ): SearchResultItem[] {
   const mixed: SearchResultItem[] = [];
   if (capped <= 0) return mixed;
 
-  const lead = Math.max(0, Math.min(liveLead, live.length, capped));
-  for (let i = 0; i < lead; i++) mixed.push(live[i]);
+  // Normalize the cadence to a Number exactly once; every arithmetic site below
+  // (the `/` divisor and the `+= dbEveryNum` cadence stepper) uses the Number so
+  // a BigInt-arriving `dbEvery` (older bigint-typed callers) can never mix with
+  // Number on this window's byte-stable cadence math — and the cadence decision
+  // itself stays a pure structural cadence, fully independent of how many live
+  // rows each provider returned.
+  const dbEveryNum = Number(dbEvery);
 
-  let li = lead;
+  // Reserve canonical slots first: every dbEvery-th position (0-based) belongs
+  // to the supplement. This is a pure cadence decision and is completely
+  // independent of how many live rows each provider returned.
+  const dbSlotCount = Math.min(Math.ceil(capped / dbEveryNum), db.length);
+  const takenByDb = new Array<boolean>(capped).fill(false);
   let di = 0;
-  while (mixed.length < capped && (li < live.length || di < db.length)) {
+  for (let pos = 0; pos < capped && di < dbSlotCount;     pos += dbEveryNum) {
+    takenByDb[pos] = true;
+    mixed[pos] = db[di];
+    di += 1;
+  }
+
+  // Now live fills every position the cadence left open, in ranked order. When
+  // live runs out the canonical pool keeps draining into the remainder, so the
+  // window is never artificially under-filled and canonical inventory is what
+  // a live-only absence exposes (dev live ideal, both in-window and through the
+  // pager over the same pool).
+  let li = 0;
+  let drainDi = di;
+  for (let pos = 0; pos < capped; pos++) {
+    if (takenByDb[pos] || mixed[pos] !== undefined) continue;
     if (li < live.length) {
-      mixed.push(live[li]);
+      mixed[pos] = live[li];
       li += 1;
-      if (mixed.length >= capped) break;
-    }
-    if (mixed.length > lead && di < db.length && mixed.length % dbEvery === 0) {
-      mixed.push(db[di]);
-      di += 1;
-    } else if (li >= live.length && di < db.length) {
-      mixed.push(db[di]);
-      di += 1;
+    } else if (drainDi < db.length) {
+      mixed[pos] = db[drainDi];
+      drainDi += 1;
+    } else {
+      // Both pools exhausted — the remaining positions are structurally empty
+      // and fall away.
+      break;
     }
   }
-  return mixed;
+
+  return mixed.filter(Boolean);
 }
 
 /**

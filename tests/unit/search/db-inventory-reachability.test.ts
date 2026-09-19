@@ -68,18 +68,19 @@ const live = (n: number) => Array.from({ length: n }, (_, i) => item(`live-${i}`
 const db = (n: number) => Array.from({ length: n }, (_, i) => item(`db-${i}`));
 
 describe("interleaveLiveAndDbResults — DB inventory stays reachable at the cap", () => {
-  it("keeps the live-only lead and still fits DB products when live saturates the cap", () => {
+  it("reserves canonical cadence from slot 0 — a live fill saturating the cap cannot unbudget the DB slots", () => {
     const mixed = interleaveLiveAndDbResults(live(200), db(100), 200, 20, 4);
 
     expect(mixed).toHaveLength(200);
 
-    // Genuine-device lead is never displaced by a DB product.
-    for (let i = 0; i < 20; i++) {
-      expect(mixed[i]!.id).toBe(`live-${i}`);
+    // Cadence-first: every dbEvery-th slot (0-based, from slot 0) is a canonical
+    // DB row. A busy live pool structurally cannot monopolize the window.
+    for (let i = 0; i < 50; i++) {
+      expect(mixed[i * 4]!.id).toBe(`db-${i}`);
     }
 
     const dbCount = mixed.filter((m) => m.id.startsWith("db-")).length;
-    expect(dbCount).toBeGreaterThan(0);
+    expect(dbCount).toBe(50);
 
     // No duplicates and only source items are emitted.
     expect(new Set(mixed.map((m) => m.id)).size).toBe(mixed.length);
@@ -88,12 +89,12 @@ describe("interleaveLiveAndDbResults — DB inventory stays reachable at the cap
     expect(mixed.every((m) => liveIds.has(m.id) || dbIds.has(m.id))).toBe(true);
   });
 
-  it("appends DB rows after a short live block (Bug 4 guard preserved)", () => {
-    const mixed = interleaveLiveAndDbResults(live(2), db(2), 20, 10, 4);
+  it("holds the cadence seam from slot 0 even for a short live block (Bug 4 guard preserved)", () => {
+    const mixed = interleaveLiveAndDbResults(live(2), db(2), 20, 10, BigInt(4));
     expect(mixed.map((m) => m.id)).toEqual([
+      "db-0",
       "live-0",
       "live-1",
-      "db-0",
       "db-1",
     ]);
   });
