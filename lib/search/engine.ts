@@ -124,6 +124,57 @@ export function interleaveLiveAndDbResults(
 }
 
 /**
+ * Default live cadence for beyond-window pages: one live result every N slots,
+ * mirroring how in-window pages reserve DB rows. Named and exported so the
+ * legacy engine seam and the canonical consumption seam cannot drift.
+ */
+export const DB_PAGE_LIVE_INTERLEAVE_CADENCE = 3;
+
+/**
+ * DB-first interleave for pages that reach past the assembled pool window.
+ * The DB leg (the complete catalog, discount-ordered and multi-provider) fills
+ * every open slot; LIVE rows that are still unconsumed are inserted at the same
+ * `Number(dbEvery)` structural cadence that `interleaveLiveAndDbResults`
+ * reserves canonical rows at in-window — so live results keep appearing deep
+ * into the catalog, and once the live head is exhausted the remaining slots run
+ * pure DB. Pure + exported so the cadence seam stays unit-testable.
+ */
+export function interleaveLiveIntoDbPage(
+  live: readonly SearchResultItem[],
+  db: readonly SearchResultItem[],
+  pageSize: number,
+  dbEvery: number | bigint,
+): SearchResultItem[] {
+  if (pageSize <= 0) return [];
+  // Normalize the cadence to a Number exactly once — same seam as
+  // interleaveLiveAndDbResults so a BigInt-arriving caller can never mix with
+  // Number on this window's cadence math.
+  const cadence = Number(dbEvery) > 0 ? Number(dbEvery) : pageSize + 1;
+
+  const page: Array<SearchResultItem | undefined> = [];
+  let li = 0;
+  let di = 0;
+  for (let pos = 0; pos < pageSize; pos++) {
+    if (li < live.length && pos % cadence === 0) {
+      page[pos] = live[li];
+      li += 1;
+    } else if (di < db.length) {
+      page[pos] = db[di];
+      di += 1;
+    }
+  }
+  // Drain any remaining live rows into slots the DB leg could not cover (so the
+  // short-tail page is never artificially under-filled).
+  for (let pos = 0; pos < pageSize && li < live.length; pos++) {
+    if (page[pos] === undefined) {
+      page[pos] = live[li];
+      li += 1;
+    }
+  }
+  return page.filter((item): item is SearchResultItem => item !== undefined);
+}
+
+/**
  * Exact-first merge of the search-pool DB supplement. The exact-query rows
  * (highest relevance) come first, then the matching rows for the canonical
  * family retrieval keyword ("phone", "laptop", "earbuds", …) — the SAME bare
@@ -582,6 +633,18 @@ export function sliceSearchPage(
  * Paged view over the unified search pool. The full balanced pool is fetched
  * (and cached, exactly as searchProducts does) and then sliced — so page 1,
  * page 2, … always describe the same stable sequence from one search.
+ *
+ * Truthful total: `total` and `hasMore` come from the exact Supabase match
+ * count when the DB leg is live (a slow/failed count resolves 0), falling back
+ * to the balanced pool length so the legacy pure-pool behaviour is preserved
+ * when the database is unavailable.
+ *
+ * Beyond the 200-item pool window the pages keep running off the DB-index-level
+ * paged leg (`getSearchResultsFromDatabasePaged`), so the complete catalog
+ * (10,000+) is reachable page-by-page without loading it into memory and no
+ * single provider monopolizes later pages. Any leftover pool items (live ones
+ * included) stay interleaved at the `Number(dbEvery)` cadence; once they are
+ * gone the pages run pure DB.
  */
 export async function searchProductsPaged(
   query: string,
@@ -593,12 +656,86 @@ export async function searchProductsPaged(
   if (!trimmed) {
     return { items: [], total: 0, offset: 0, limit, hasMore: false };
   }
-  const pool = await searchProducts(
-    trimmed,
-    SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
-    options
+  const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
+  const safeLimit = Number.isFinite(limit)
+    ? Math.max(1, Math.floor(limit))
+    : SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
+
+  // The balanced pool and the exact DB count race together so the truthful
+  // total never adds latency to the pool fetch. Count resolves 0 on timeout /
+  // failure / empty DB → pool.length keeps the historical in-window behaviour.
+  const dbModule = import("@/lib/integration/database-catalog");
+  const [pool, dbCountP] = await Promise.all([
+    searchProducts(
+      trimmed,
+      SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
+      options
+    ),
+    dbModule.then((m) =>
+      m.countSearchResultsFromDatabase(trimmed, {
+        timeoutMs: providerFetchTimeoutMs,
+      }),
+    ),
+  ]);
+  const dbCount = await dbCountP;
+  const total = dbCount > 0 ? dbCount : pool.length;
+
+  // Fully inside the balanced pool window AND the pool is the complete
+  // universe (total <= pool.length): the pure pool slice decides the items;
+  // only the reported total/hasMore become truthful.
+  //
+  // When total exceeds the pool, the pool is just the balanced leading window,
+  // NOT the correctness boundary. Falling through to the complete-universe
+  // assembly below keeps every page (page 1 included) a successive portion of
+  // the SAME deterministic catalog: deep DB leg + live interleave at cadence.
+  // This removes the MAX_DISPLAY_LIMIT pool as a ceiling on what pagination
+  // can reach — a device search with 417 genuine matches pages over all 417,
+  // eBay included, with no suppression and no equal-provider quotas.
+  if (total <= pool.length && safeOffset + safeLimit <= pool.length) {
+    const page = sliceSearchPage(pool, safeOffset, safeLimit);
+    return {
+      ...page,
+      total,
+      hasMore: safeOffset + safeLimit < total,
+    };
+  }
+
+  // Page reaches past the capped pool: serve the complete catalog from the DB
+  // leg at the DB-index level. Pool items not served yet (live ones included)
+  // interleave at the Number(dbEvery) cadence; beyond them the page runs pure
+  // DB. overlaps are client-deduped (mergePagedResults), and the deterministic
+  // DB order keeps later pages duplicate/gap-free within the catalog leg.
+  const poolTail = pool.slice(safeOffset);
+  const liveRemaining = poolTail.filter((item) => !item.id.startsWith("db-"));
+  const dbFromPool = poolTail.filter((item) => item.id.startsWith("db-"));
+  const dbConsumedInPool = pool.filter((item) => item.id.startsWith("db-")).length;
+  const dbIndex = dbConsumedInPool + Math.max(0, safeOffset - pool.length);
+
+  const dbPage = await dbModule.then((m) =>
+    m.getSearchResultsFromDatabasePaged(trimmed, dbIndex, safeLimit, {
+      timeoutMs: providerFetchTimeoutMs,
+    }),
   );
-  return sliceSearchPage(pool, offset, limit);
+
+  // Prefer the truthful DB count; if only the paged leg succeeded, trust its
+  // exact count; otherwise the pool length keeps the historical behaviour.
+  const finalTotal =
+    total > 0 ? total : dbPage.total > 0 ? dbPage.total : pool.length;
+
+  const items = interleaveLiveIntoDbPage(
+    liveRemaining,
+    [...dbFromPool, ...dbPage.items],
+    safeLimit,
+    DB_PAGE_LIVE_INTERLEAVE_CADENCE,
+  );
+
+  return {
+    items,
+    total: finalTotal,
+    offset: safeOffset,
+    limit: safeLimit,
+    hasMore: safeOffset + safeLimit < finalTotal,
+  };
 }
 
 /** Keep cheapest-offer mapping available for non-search callers. */
