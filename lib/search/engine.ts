@@ -720,9 +720,9 @@ export async function searchProductsPaged(
   const dbConsumedInPool = pool.filter((item) => item.id.startsWith("db-")).length;
   const dbLegIndex =
     dbConsumedInPool + Math.max(0, safeOffset - pool.length);
-  const dbLegLimit = Math.max(
-    0,
-    safeOffset + safeLimit - pool.length,
+  const dbLegLimit = Math.min(
+    safeLimit,
+    Math.max(0, safeOffset + safeLimit - pool.length),
   );
 
   const dbPage = await dbModule.then((m) =>
