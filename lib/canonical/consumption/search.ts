@@ -205,9 +205,23 @@ export async function searchProductsSurface(
   return canonicalSearchProducts(query, limit);
 }
 
-import { sliceSearchPage, type SearchPageResult } from "@/lib/search/engine";
+import {
+  sliceSearchPage,
+  interleaveLiveIntoDbPage,
+  DB_PAGE_LIVE_INTERLEAVE_CADENCE,
+  type SearchPageResult,
+} from "@/lib/search/engine";
 
-/** Paged seam (search page "load more"). Gate off → legacy paged search verbatim. */
+/**
+ * Paged seam (search page "load more"). Gate off → legacy paged search verbatim
+ * (it inherits the truthful-total / beyond-window fix from engine.ts).
+ *
+ * Gate on → the canonical pool is sliced for the in-window page, but `total`
+ * and `hasMore` come from the exact Supabase match count when the DB leg is
+ * live (fallback: canonical pool length), and pages past the 200-item pool
+ * window continue off the DB-index-level paged leg with leftover live items
+ * interleaved at the `Number(dbEvery)` cadence.
+ */
 export async function searchResultsPagedSurface(
   query: string,
   offset: number,
@@ -221,6 +235,69 @@ export async function searchResultsPagedSurface(
   if (!trimmed) {
     return { items: [], total: 0, offset: 0, limit, hasMore: false };
   }
-  const pool = await canonicalSearchProducts(trimmed, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
-  return sliceSearchPage(pool, offset, limit);
+  const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
+  const safeLimit = Number.isFinite(limit)
+    ? Math.max(1, Math.floor(limit))
+    : SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
+
+  // Canonical pool + exact DB count race together; a slow/failed count
+  // resolves 0 so the pool length keeps the historical in-window behaviour.
+  const dbModule = import("@/lib/integration/database-catalog");
+  const [pool, dbCountP] = await Promise.all([
+    canonicalSearchProducts(trimmed, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT),
+    dbModule.then((m) =>
+      m.countSearchResultsFromDatabase(trimmed, {
+        timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+      }),
+    ),
+  ]);
+  const dbCount = await dbCountP;
+  const total = dbCount > 0 ? dbCount : pool.length;
+
+  // Fully inside the canonical pool window: the pure pool slice decides the
+  // items; only the reported total/hasMore become truthful.
+  if (safeOffset + safeLimit <= pool.length) {
+    const page = sliceSearchPage(pool, safeOffset, safeLimit);
+    return {
+      ...page,
+      total,
+      hasMore: safeOffset + safeLimit < total,
+    };
+  }
+
+  // Beyond the capped pool: serve the complete catalog from the DB paged leg.
+  // Remaining pool items (live ones included) interleave at the
+  // Number(dbEvery) cadence; overlaps are client-deduped, and the deterministic
+  // DB order keeps later pages duplicate/gap-free within the catalog leg.
+  const poolTail = pool.slice(safeOffset);
+  const liveRemaining = poolTail.filter((item) => !item.id.startsWith("db-"));
+  const dbFromPool = poolTail.filter((item) => item.id.startsWith("db-"));
+  const dbConsumedInPool = pool.filter((item) => item.id.startsWith("db-")).length;
+  const dbIndex = dbConsumedInPool + Math.max(0, safeOffset - pool.length);
+
+  const dbPage = await dbModule.then((m) =>
+    m.getSearchResultsFromDatabasePaged(trimmed, dbIndex, safeLimit, {
+      timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+    }),
+  );
+
+  // Prefer the truthful DB count; if only the paged leg succeeded, trust its
+  // exact count; otherwise the pool length keeps the historical behaviour.
+  const finalTotal =
+    total > 0 ? total : dbPage.total > 0 ? dbPage.total : pool.length;
+
+  const items = interleaveLiveIntoDbPage(
+    liveRemaining,
+    [...dbFromPool, ...dbPage.items],
+    safeLimit,
+    DB_PAGE_LIVE_INTERLEAVE_CADENCE,
+  );
+
+  return {
+    items,
+    total: finalTotal,
+    offset: safeOffset,
+    limit: safeLimit,
+    hasMore: safeOffset + safeLimit < finalTotal,
+  };
 }
