@@ -680,18 +680,25 @@ export async function searchProductsPaged(
   const dbCount = await dbCountP;
   const total = dbCount > 0 ? dbCount : pool.length;
 
-  // Fully inside the balanced pool window AND the pool is the complete
-  // universe (total <= pool.length): the pure pool slice decides the items;
-  // only the reported total/hasMore become truthful.
+  // The complete matching universe this pager serves is ONE deterministic
+  // sequence, and page offset N is exactly universe position N:
   //
-  // When total exceeds the pool, the pool is just the balanced leading window,
-  // NOT the correctness boundary. Falling through to the complete-universe
-  // assembly below keeps every page (page 1 included) a successive portion of
-  // the SAME deterministic catalog: deep DB leg + live interleave at cadence.
-  // This removes the MAX_DISPLAY_LIMIT pool as a ceiling on what pagination
-  // can reach — a device search with 417 genuine matches pages over all 417,
-  // eBay included, with no suppression and no equal-provider quotas.
-  if (total <= pool.length && safeOffset + safeLimit <= pool.length) {
+  //   positions [0, pool.length)            → the balanced pool (live + db rows
+  //                                            in device-first assemble order)
+  //   positions [pool.length, total)        → the discount-ordered DB leg,
+  //                                            starting at dbConsumedInPool
+  //                                            (the db rows the pool already
+  //                                            placed as its leading window)
+  //
+  // A page fully inside the pool window is therefore a straight pool slice —
+  // the pool head is the universe, not a separate capped universe. Only pages
+  // reaching past the pool fetch the DB leg, at an index that advances with the
+  // offset past the pool, so every page is a successive, duplicate-free portion
+  // of the SAME complete matching universe with a truthful total. This keeps
+  // the architectural fix (no 200-row cap on reachability, complete catalog
+  // paged by normal pagination, eBay untamed, no provider quotas) while
+  // fixing the deep-leg index regression that repeated rows on pages 2/3.
+  if (safeOffset + safeLimit <= pool.length) {
     const page = sliceSearchPage(pool, safeOffset, safeLimit);
     return {
       ...page,
@@ -700,19 +707,26 @@ export async function searchProductsPaged(
     };
   }
 
-  // Page reaches past the capped pool: serve the complete catalog from the DB
-  // leg at the DB-index level. Pool items not served yet (live ones included)
-  // interleave at the Number(dbEvery) cadence; beyond them the page runs pure
-  // DB. overlaps are client-deduped (mergePagedResults), and the deterministic
-  // DB order keeps later pages duplicate/gap-free within the catalog leg.
-  const poolTail = pool.slice(safeOffset);
-  const liveRemaining = poolTail.filter((item) => !item.id.startsWith("db-"));
-  const dbFromPool = poolTail.filter((item) => item.id.startsWith("db-"));
+  // Page reaches past the balanced pool head: take the remaining pool positions
+  // [safeOffset, pool.length) as-is (they belong first), then continue the
+  // complete universe from the DB leg at
+  // dbConsumedInPool + (safeOffset - pool.length). dbConsumedInPool counts the
+  // db rows the pool already placed, so the leg index advances with offset for
+  // every page past the pool — no re-fetch of the same rows.
+  const poolHeadPortion = pool.slice(
+    safeOffset,
+    Math.min(safeOffset + safeLimit, pool.length),
+  );
   const dbConsumedInPool = pool.filter((item) => item.id.startsWith("db-")).length;
-  const dbIndex = dbConsumedInPool + Math.max(0, safeOffset - pool.length);
+  const dbLegIndex =
+    dbConsumedInPool + Math.max(0, safeOffset - pool.length);
+  const dbLegLimit = Math.max(
+    0,
+    safeOffset + safeLimit - pool.length,
+  );
 
   const dbPage = await dbModule.then((m) =>
-    m.getSearchResultsFromDatabasePaged(trimmed, dbIndex, safeLimit, {
+    m.getSearchResultsFromDatabasePaged(trimmed, dbLegIndex, dbLegLimit, {
       timeoutMs: providerFetchTimeoutMs,
     }),
   );
@@ -722,12 +736,7 @@ export async function searchProductsPaged(
   const finalTotal =
     total > 0 ? total : dbPage.total > 0 ? dbPage.total : pool.length;
 
-  const items = interleaveLiveIntoDbPage(
-    liveRemaining,
-    [...dbFromPool, ...dbPage.items],
-    safeLimit,
-    DB_PAGE_LIVE_INTERLEAVE_CADENCE,
-  );
+  const items = [...poolHeadPortion, ...dbPage.items];
 
   return {
     items,

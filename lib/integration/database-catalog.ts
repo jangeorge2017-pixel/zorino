@@ -926,6 +926,185 @@ async function loadSearchResultsFromDatabase(
 }
 
 /**
+ * Exact match count for a search query against `lowest_prices_today`, using the
+ * SAME word-boundary OR filter + US/USD + image filters as
+ * `getSearchResultsFromDatabase` so `total`/`hasMore` on the pager reflect the
+ * complete matching catalog (120K+ rows), not the 200-item display pool.
+ *
+ * `options?.timeoutMs` mirrors the early-resolve-empty seam of
+ * `getSearchResultsFromDatabase`: a slow/failed count resolves 0 so the pager
+ * falls back to the pool length instead of hanging the "load more" call.
+ */
+export async function countSearchResultsFromDatabase(
+  query: string,
+  options?: { timeoutMs?: number },
+): Promise<number> {
+  const deadline = options?.timeoutMs;
+  if (!deadline || deadline <= 0) return loadSearchResultsCountFromDatabase(query);
+
+  return new Promise<number>((resolve) => {
+    const timer = setTimeout(() => resolve(0), deadline);
+    loadSearchResultsCountFromDatabase(query).then(
+      (count) => {
+        clearTimeout(timer);
+        resolve(count);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(0);
+      },
+    );
+  });
+}
+
+async function loadSearchResultsCountFromDatabase(query: string): Promise<number> {
+  const supabase = supabaseClientFactoryForTests
+    ? supabaseClientFactoryForTests()
+    : createSupabaseAnonClient();
+  if (!supabase) return 0;
+
+  const words = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 1);
+  if (words.length === 0) return 0;
+
+  const orFilter = buildWordBoundaryOrFilter(words);
+
+  const { count, error } = await db(supabase)
+    .from("lowest_prices_today")
+    .select("product_id", { count: "exact", head: true })
+    .or(orFilter)
+    .eq("country_code", "US")
+    .eq("currency", "USD")
+    .not("image_url", "is", null)
+    .neq("image_url", "");
+
+  if (error || typeof count !== "number") return 0;
+  return count;
+}
+
+/**
+ * DB-index-level paged leg over the complete matching catalog. Same
+ * word-boundary OR filter + US/USD + image filters and the same
+ * `rowToSearchResultItem` mapping/ranking as `loadSearchResultsFromDatabase`,
+ * but paginated with `.range(offset, offset + limit - 1)` (not `.limit(limit*2)`)
+ * and a deterministic ORDER (discount desc + product_name/id tiebreaks) so page
+ * boundaries can never have duplicates or gaps. `total` is the exact count of
+ * all matching rows (PostgREST count over the filtered set, before the range),
+ * so a beyond-window page carries the same truthful count as
+ * `countSearchResultsFromDatabase`.
+ *
+ * `options?.timeoutMs` resolves `{ items: [], total: 0 }` on timeout — the same
+ * truthful "no additional DB products" state as a DB error.
+ */
+export async function getSearchResultsFromDatabasePaged(
+  query: string,
+  offset: number,
+  limit: number,
+  options?: { timeoutMs?: number },
+): Promise<{ items: SearchResultItem[]; total: number }> {
+  const deadline = options?.timeoutMs;
+  if (!deadline || deadline <= 0) {
+    return loadSearchResultsFromDatabasePaged(query, offset, limit);
+  }
+
+  return new Promise<{ items: SearchResultItem[]; total: number }>((resolve) => {
+    const timer = setTimeout(() => resolve({ items: [], total: 0 }), deadline);
+    loadSearchResultsFromDatabasePaged(query, offset, limit).then(
+      (page) => {
+        clearTimeout(timer);
+        resolve(page);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve({ items: [], total: 0 });
+      },
+    );
+  });
+}
+
+async function loadSearchResultsFromDatabasePaged(
+  query: string,
+  offset: number,
+  limit: number,
+): Promise<{ items: SearchResultItem[]; total: number }> {
+  const supabase = supabaseClientFactoryForTests
+    ? supabaseClientFactoryForTests()
+    : createSupabaseAnonClient();
+  if (!supabase) return { items: [], total: 0 };
+
+  const words = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 1);
+  if (words.length === 0) return { items: [], total: 0 };
+
+  const orFilter = buildWordBoundaryOrFilter(words);
+
+  const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
+  const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 1;
+
+  const { data, count, error } = await db(supabase)
+    .from("lowest_prices_today")
+    .select(
+      "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
+      { count: "exact" },
+    )
+    .or(orFilter)
+    .eq("country_code", "US")
+    .eq("currency", "USD")
+    .not("image_url", "is", null)
+    .neq("image_url", "")
+    // Deterministic catalog order: deepest discount first, then a stable
+    // tiebreak so every page boundary resolves to the same rows.
+    .order("discount_percent", { ascending: false })
+    .order("product_name", { ascending: true })
+    .order("id", { ascending: true })
+    .range(safeOffset, safeOffset + safeLimit - 1);
+
+  const total = typeof count === "number" ? count : 0;
+  if (error || !data?.length) return { items: [], total };
+
+  const rows = (data as LowestPriceRow[]).filter(
+    (row) =>
+      row.product_name &&
+      row.image_url &&
+      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER,
+  );
+
+  const productIds = rows.map((r) => r.product_id);
+  const { data: productRows } = await db(supabase)
+    .from("products")
+    .select("id, category_slug")
+    .in("id", productIds);
+
+  const categoryMap = new Map<string, string | null>();
+  for (const p of productRows ?? []) {
+    categoryMap.set(p.id, p.category_slug);
+  }
+
+  const results = rows.map((row) => {
+    row.category_slug = categoryMap.get(row.product_id) ?? null;
+    return rowToSearchResultItem(row);
+  });
+
+  // Same word-overlap relevance ranking as the legacy supplement leg, applied
+  // within the deterministic page window.
+  const queryWords = words;
+  results.sort((a, b) => {
+    const aLower = a.name.toLowerCase();
+    const bLower = b.name.toLowerCase();
+    const aMatches = queryWords.filter((w) => wordInTitle(aLower, w)).length;
+    const bMatches = queryWords.filter((w) => wordInTitle(bLower, w)).length;
+    if (aMatches !== bMatches) return bMatches - aMatches;
+    return b.discount - a.discount || a.price - b.price;
+  });
+
+  return { items: results.slice(0, safeLimit), total };
+}
+
+/**
  * Read the Admitad `product_slug` (`admitad-<campaignId>-<offerId>`) for a
  * `lowest_prices_today` product_id. Used by the PDP resolver to match a DB row
  * to its live-feed offer so the real deep product/affiliate URL can be resolved
