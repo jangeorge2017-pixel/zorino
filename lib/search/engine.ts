@@ -247,6 +247,28 @@ export function setProviderFetchTimeoutForTests(ms?: number): void {
 }
 
 /**
+ * Test-only: seed the balanced search pool for a query so the paged seam
+ * (`searchProductsPaged`) can be exercised offline with a fully controlled,
+ * stable pool — no provider fan-out, no DB supplement fetch. The key mirrors
+ * exactly what `searchProducts` builds for a device-intent /search request.
+ */
+export function setSearchPoolForTests(
+  query: string,
+  items: ReadonlyArray<SearchResultItem>,
+): void {
+  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt`;
+  fairSearchCache.set(cacheKey, {
+    items: items as SearchResultItem[],
+    expiresAt: Date.now() + 60_000,
+  });
+}
+
+/** Test-only: clear the seeded pool cache back to an empty state. */
+export function clearSearchPoolForTests(): void {
+  fairSearchCache.clear();
+}
+
+/**
  * ZORINO Global Search Engine
  *
  * Pipeline: Provider Connectors (parallel) → per-marketplace Ranking →
@@ -630,6 +652,62 @@ export function sliceSearchPage(
 }
 
 /**
+ * Resolve which universe positions a paged request past the balanced pool is
+ * asking for. The complete matching universe is ONE deterministic sequence:
+ *
+ *   positions [0, pool.length)           → the balanced pool (live + db rows in
+ *                                         device-first assemble order)
+ *   positions [pool.length, total)       → the discount-ordered DB leg MINUS
+ *                                         the db rows the pool already emitted
+ *
+ * Returns exactly the pool rows the page still needs (`poolHead`), the tail
+ * rank to start the DB leg at (`tailStart`, 0-based within the excluded
+ * universe), how many tail rows the page has room for (`tailCount`), and the
+ * set of `product_id`s to exclude from the DB leg so a window can never
+ * re-serve a row an earlier page already showed. Pure + exported so the
+ * universe-seam contract is unit-testable without live providers.
+ */
+export function resolvePooledPageSelection(
+  pool: readonly SearchResultItem[],
+  offset: number,
+  limit: number,
+): {
+  poolHead: SearchResultItem[];
+  tailStart: number;
+  tailCount: number;
+  excludeProductIds: string[];
+} {
+  const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
+  const safeLimit = Number.isFinite(limit)
+    ? Math.max(1, Math.floor(limit))
+    : SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
+
+  // The pool occupies [0, pool.length); any position at or past it is a tail
+  // rank into the excluded DB universe.
+  const tailStart = Math.max(0, safeOffset - pool.length);
+  const tailCount = Math.min(
+    safeLimit,
+    Math.max(0, safeOffset + safeLimit - pool.length),
+  );
+  const poolHead = pool.slice(
+    safeOffset,
+    Math.min(safeOffset + safeLimit, pool.length),
+  );
+
+  // Every db row the pool emitted belongs to universe positions
+  // [0, pool.length) — exclude ALL of them (by set, wherever they sit in
+  // discount order) so the tail cannot re-serve them.
+  const excludeProductIds: string[] = [];
+  for (const item of pool) {
+    if (!item.id.startsWith("db-")) continue;
+    const productId = item.id.slice("db-".length);
+    if (productId) excludeProductIds.push(productId);
+  }
+
+  return { poolHead, tailStart, tailCount, excludeProductIds };
+}
+
+/**
  * Paged view over the unified search pool. The full balanced pool is fetched
  * (and cached, exactly as searchProducts does) and then sliced — so page 1,
  * page 2, … always describe the same stable sequence from one search.
@@ -642,9 +720,12 @@ export function sliceSearchPage(
  * Beyond the 200-item pool window the pages keep running off the DB-index-level
  * paged leg (`getSearchResultsFromDatabasePaged`), so the complete catalog
  * (10,000+) is reachable page-by-page without loading it into memory and no
- * single provider monopolizes later pages. Any leftover pool items (live ones
- * included) stay interleaved at the `Number(dbEvery)` cadence; once they are
- * gone the pages run pure DB.
+ * single provider monopolizes later pages. The tail index is a rank into the
+ * pool-excluded DB universe (`resolvePooledPageSelection`), so every page is a
+ * successive, duplicate/gap-free portion of the SAME complete matching
+ * universe — the pool's db rows are excluded by SET (not skipped by count),
+ * because the pool is not a discount-prefix and a count-skip re-serves rows
+ * already shown.
  */
 export async function searchProductsPaged(
   query: string,
@@ -686,18 +767,20 @@ export async function searchProductsPaged(
   //   positions [0, pool.length)            → the balanced pool (live + db rows
   //                                            in device-first assemble order)
   //   positions [pool.length, total)        → the discount-ordered DB leg,
-  //                                            starting at dbConsumedInPool
-  //                                            (the db rows the pool already
-  //                                            placed as its leading window)
+  //                                            EXCLUDING the db rows the pool
+  //                                            already emitted (by set, not by
+  //                                            count — the pool is not a
+  //                                            discount-prefix of the leg)
   //
   // A page fully inside the pool window is therefore a straight pool slice —
   // the pool head is the universe, not a separate capped universe. Only pages
-  // reaching past the pool fetch the DB leg, at an index that advances with the
-  // offset past the pool, so every page is a successive, duplicate-free portion
-  // of the SAME complete matching universe with a truthful total. This keeps
-  // the architectural fix (no 200-row cap on reachability, complete catalog
-  // paged by normal pagination, eBay untamed, no provider quotas) while
-  // fixing the deep-leg index regression that repeated rows on pages 2/3.
+  // reaching past the pool fetch the DB leg, at an EXCLUSION-filtered rank that
+  // advances with the offset past the pool, so every page is a successive,
+  // duplicate/gap-free portion of the SAME complete matching universe with a
+  // truthful total. This keeps the architectural fix (no 200-row cap on
+  // reachability, complete catalog paged by normal pagination, eBay untamed,
+  // no provider quotas) while removing the count-skip hedge
+  // (`dbConsumedInPool`) that repeated rows already shown by the pool.
   if (safeOffset + safeLimit <= pool.length) {
     const page = sliceSearchPage(pool, safeOffset, safeLimit);
     return {
@@ -709,26 +792,20 @@ export async function searchProductsPaged(
 
   // Page reaches past the balanced pool head: take the remaining pool positions
   // [safeOffset, pool.length) as-is (they belong first), then continue the
-  // complete universe from the DB leg at
-  // dbConsumedInPool + (safeOffset - pool.length). dbConsumedInPool counts the
-  // db rows the pool already placed, so the leg index advances with offset for
-  // every page past the pool — no re-fetch of the same rows.
-  const poolHeadPortion = pool.slice(
-    safeOffset,
-    Math.min(safeOffset + safeLimit, pool.length),
-  );
-  const dbConsumedInPool = pool.filter((item) => item.id.startsWith("db-")).length;
-  const dbLegIndex =
-    dbConsumedInPool + Math.max(0, safeOffset - pool.length);
-  const dbLegLimit = Math.min(
-    safeLimit,
-    Math.max(0, safeOffset + safeLimit - pool.length),
-  );
+  // complete universe from the pool-excluded DB leg at rank
+  // (safeOffset - pool.length). The DB leg already excludes the pool's db rows
+  // by set (WHERE product_id NOT IN poolDbIds), so rank 0 is the true row after
+  // the pool in discount order — a window can never re-serve a row an earlier
+  // page already showed, nor skip a discount-head row the pool never placed.
+  const selection = resolvePooledPageSelection(pool, safeOffset, safeLimit);
 
   const dbPage = await dbModule.then((m) =>
-    m.getSearchResultsFromDatabasePaged(trimmed, dbLegIndex, dbLegLimit, {
-      timeoutMs: providerFetchTimeoutMs,
-    }),
+    m.getSearchResultsFromDatabasePaged(
+      trimmed,
+      selection.tailStart,
+      selection.tailCount,
+      { timeoutMs: providerFetchTimeoutMs, excludeProductIds: selection.excludeProductIds },
+    ),
   );
 
   // Prefer the truthful DB count; if only the paged leg succeeded, trust its
@@ -736,7 +813,7 @@ export async function searchProductsPaged(
   const finalTotal =
     total > 0 ? total : dbPage.total > 0 ? dbPage.total : pool.length;
 
-  const items = [...poolHeadPortion, ...dbPage.items];
+  const items = [...selection.poolHead, ...dbPage.items];
 
   return {
     items,
