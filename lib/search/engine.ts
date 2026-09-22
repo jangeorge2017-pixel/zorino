@@ -615,11 +615,13 @@ export async function searchProducts(
 
   // /search page-1 composition seam: recompose ONLY the head of the balanced
   // pool so every provider that genuinely holds matching results appears
-  // inside the first page (a truthful presence, bounded, never a forced equal
-  // share). A pure permutation of the SAME item set — total, hasMore,
-  // zero-duplicate and DB-leg exclusion are all computed from the unchanged
-  // pool, so pagination semantics are untouched. Homepage / Compare Prices
-  // never pass the flag, so their pools stay byte-identical.
+  // EARLY inside the first page (providers missing from page 1 get their best
+  // genuine devices placed right behind the preserved global-relevance lead —
+  // a truthful presence, bounded, never a forced equal share). A pure
+  // permutation of the SAME item set — total, hasMore, zero-duplicate and
+  // DB-leg exclusion are all computed from the unchanged pool, so pagination
+  // semantics are untouched. Homepage / Compare Prices never pass the flag,
+  // so their pools stay byte-identical.
   const composed = optimizeForDeviceIntent
     ? composeSearchPageOne(mixed, trimmed)
     : mixed;

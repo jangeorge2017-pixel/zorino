@@ -12,13 +12,17 @@
  * `composeSearchPageOne` is the final page-1 Composition seam: it recomposes
  * ONLY the head of that pool (a pure permutation of the SAME item set) so
  * every provider that actually holds matching results gets a truthful, bounded
- * presence inside the first page —
+ * presence with MEANINGFUL EARLY exposure —
  *
- *   - no provider is fabricated or padded,
+ *   - global relevance stays the primary signal: the preserved leading slots
+ *     are untouched, and each provider's candidates keep their relevance order,
+ *   - a provider missing from page 1 has its best genuine DEVICES placed
+ *     directly behind the preserved global lead (early exposure, never 46-49),
+ *   - a provider holding only relevant accessories gets them at the first
+ *     accessory slots (devices never yield to an accessory),
+ *   - no provider is fabricated or padded, nothing irrelevant is promoted,
  *   - the dominant provider still owns most of the page (no forced-equal
  *     round-robin),
- *   - devices still lead (accessories never precede a device),
- *   - each provider's candidates keep their relevance order,
  *   - pagination semantics are untouched (same total, same items, zero dups).
  *
  * Composition is applied ONLY on the /search device-intent path (the engine
@@ -135,8 +139,8 @@ describe("composeSearchPageOne — no-ops (seeded pools & untouched surfaces)", 
   });
 });
 
-describe("composeSearchPageOne — genuine multi-provider presence", () => {
-  it("promotes missing providers into page 1, devices first, preserving membership", () => {
+describe("composeSearchPageOne — early, meaningful multi-provider exposure", () => {
+  it("places a missing provider's genuine devices in the EARLY page-1 region", () => {
     const pool = [
       ...Array.from({ length: 50 }, (_, i) => ebayDevice(i)),
       ...Array.from({ length: 5 }, (_, i) => aliDevice(i + 1)),
@@ -152,24 +156,25 @@ describe("composeSearchPageOne — genuine multi-provider presence", () => {
     expect(composed.filter((i) => i.storeSlug === "aliexpress")).toHaveLength(5);
     expect(composed.filter((i) => i.storeSlug === "admitad")).toHaveLength(5);
 
-    // The first page now truthfully shows every provider that holds stock.
+    // The first page now truthfully shows every provider that holds stock, with
+    // the missing provider's genuine devices EARLY — not at positions 46-49.
     const head = composed.slice(0, 50);
     const headStores = new Set(head.map((i) => i.storeSlug));
     expect(headStores).toEqual(new Set(["ebay", "aliexpress", "admitad"]));
 
-    // Devices lead: the promoter's devices sit directly behind eBay's kept
-    // leading block, before any accessory.
-    expect(head[0]!.storeSlug).toBe("ebay");
-    expect(head.slice(0, 46).every((i) => i.storeSlug === "ebay")).toBe(true);
-    expect(head[46]!.id).toBe("ali-dev-1");
-    expect(head[47]!.id).toBe("ali-dev-2");
-    // Accessories are admitted only as a bounded tail presence (admitad's 2),
-    // they never precede a device.
+    // Global relevance lead preserved untouched (the assembled top-2).
+    expect(head[0]!.id).toBe("ebay-dev-0");
+    expect(head[1]!.id).toBe("ebay-dev-1");
+
+    // The promoted provider-best devices sit directly behind the lead.
+    expect(head[2]!.id).toBe("ali-dev-1");
+    expect(head[3]!.id).toBe("ali-dev-2");
+
+    // Devices lead; accessories only at the tail, never ahead of a device.
     expect(head[48]!.storeSlug).toBe("admitad");
     expect(head[49]!.storeSlug).toBe("admitad");
 
-    // The dominant provider still owns most of the page (46/50) — nothing was
-    // forcibly equalized.
+    // The dominant provider still owns most of the page — nothing equalized.
     const ebayHead = head.filter((i) => i.storeSlug === "ebay").length;
     expect(ebayHead).toBeGreaterThanOrEqual(40);
 
@@ -194,7 +199,7 @@ describe("composeSearchPageOne — genuine multi-provider presence", () => {
 
   it("promotes a provider's genuine devices ahead of its own accessories", () => {
     // AliExpress's remaining pool has an accessory FIRST, then devices. The
-    // device-first rule must bring the devices, not the accessory.
+    // device-first rule must bring the devices early, not the accessory.
     const pool = [
       ...Array.from({ length: 50 }, (_, i) => ebayDevice(i)),
       admitadAccessory(1),
@@ -207,15 +212,12 @@ describe("composeSearchPageOne — genuine multi-provider presence", () => {
     const composed = composeSearchPageOne(pool, QUERY, 50);
     const head = composed.slice(0, 50);
 
-    expect(head[46]!.id).toBe("ali-dev-1");
-    expect(head[47]!.id).toBe("ali-dev-2");
-    // admitad (missing from the head, but holding only relevant accessories)
-    // still receives its bounded 2-slot presence — at the back of the page,
-    // never ahead of any device.
+    expect(head[2]!.id).toBe("ali-dev-1");
+    expect(head[3]!.id).toBe("ali-dev-2");
     expect(sameIdSets(composed, pool)).toBe(true);
   });
 
-  it("gives an accessory-only provider a bounded tail presence when it holds only relevant accessories", () => {
+  it("gives an accessory-only provider its best accessories at the first accessory slots", () => {
     const pool = [
       ...Array.from({ length: 50 }, (_, i) => ebayDevice(i)),
       ...Array.from({ length: 6 }, (_, i) => cjAccessory(i + 1)),
@@ -248,6 +250,13 @@ describe("composeSearchPageOne — genuine multi-provider presence", () => {
     const composed = composeSearchPageOne(pool, QUERY, 50);
     expect(composed).toHaveLength(86);
     expect(sameIdSets(composed, pool)).toBe(true);
+
+    // Early genuine exposure for the missing providers.
+    const head = composed.slice(0, 50);
+    expect(head[0]!.id).toBe("ebay-dev-0");
+    expect(head[1]!.id).toBe("ebay-dev-1");
+    expect(head[2]!.id).toBe("ali-dev-1");
+    expect(head[3]!.id).toBe("ali-dev-2");
 
     // The untouched remainder (the 30 extra eBay rows beyond the promoted
     // ali/admitad candidates) keeps its original relative order at the tail.
