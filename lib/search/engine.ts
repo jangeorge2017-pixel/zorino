@@ -14,6 +14,7 @@ import {
   FAMILY_RETRIEVAL_KEYWORDS,
 } from "@/lib/search/query-intent";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
+import { composeSearchPageOne } from "@/lib/search/page-one";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
 import type {
   RawProviderListing,
@@ -611,12 +612,23 @@ export async function searchProducts(
     }
     return item;
   });
+
+  // /search page-1 composition seam: recompose ONLY the head of the balanced
+  // pool so every provider that genuinely holds matching results appears
+  // inside the first page (a truthful presence, bounded, never a forced equal
+  // share). A pure permutation of the SAME item set — total, hasMore,
+  // zero-duplicate and DB-leg exclusion are all computed from the unchanged
+  // pool, so pagination semantics are untouched. Homepage / Compare Prices
+  // never pass the flag, so their pools stay byte-identical.
+  const composed = optimizeForDeviceIntent
+    ? composeSearchPageOne(mixed, trimmed)
+    : mixed;
   fairSearchCache.set(cacheKey, {
-    items: mixed,
+    items: composed,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
   });
 
-  return mixed;
+  return composed;
 }
 
 /** One page of search results (offset/limit view over a cached, balanced pool). */
