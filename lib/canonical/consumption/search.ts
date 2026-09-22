@@ -207,8 +207,7 @@ export async function searchProductsSurface(
 
 import {
   sliceSearchPage,
-  interleaveLiveIntoDbPage,
-  DB_PAGE_LIVE_INTERLEAVE_CADENCE,
+  resolvePooledPageSelection,
   type SearchPageResult,
 } from "@/lib/search/engine";
 
@@ -218,9 +217,12 @@ import {
  *
  * Gate on → the canonical pool is sliced for the in-window page, but `total`
  * and `hasMore` come from the exact Supabase match count when the DB leg is
- * live (fallback: canonical pool length), and pages past the 200-item pool
- * window continue off the DB-index-level paged leg with leftover live items
- * interleaved at the `Number(dbEvery)` cadence.
+ * live (fallback: canonical pool length). Pages past the 200-item pool window
+ * continue off the pool-excluded DB-index-level paged leg
+ * (`resolvePooledPageSelection` + `excludeProductIds`), so every page is a
+ * successive, duplicate/gap-free portion of the SAME complete matching universe
+ * (pool positions first, then the DB leg minus the db rows the pool already
+ * emitted).
  */
 export async function searchResultsPagedSurface(
   query: string,
@@ -265,20 +267,24 @@ export async function searchResultsPagedSurface(
     };
   }
 
-  // Beyond the capped pool: serve the complete catalog from the DB paged leg.
-  // Remaining pool items (live ones included) interleave at the
-  // Number(dbEvery) cadence; overlaps are client-deduped, and the deterministic
-  // DB order keeps later pages duplicate/gap-free within the catalog leg.
-  const poolTail = pool.slice(safeOffset);
-  const liveRemaining = poolTail.filter((item) => !item.id.startsWith("db-"));
-  const dbFromPool = poolTail.filter((item) => item.id.startsWith("db-"));
-  const dbConsumedInPool = pool.filter((item) => item.id.startsWith("db-")).length;
-  const dbIndex = dbConsumedInPool + Math.max(0, safeOffset - pool.length);
+  // Beyond the capped pool: serve the complete catalog from the pool-excluded
+  // DB paged leg. `resolvePooledPageSelection` maps the offset onto the ONE
+  // deterministic universe (pool positions first, then the discount-ordered DB
+  // leg minus the db rows the pool already emitted — excluded by SET, not
+  // skipped by count, so a window can never re-serve a row an earlier page
+  // already showed nor skip a discount-head row the pool never placed).
+  const selection = resolvePooledPageSelection(pool, safeOffset, safeLimit);
 
   const dbPage = await dbModule.then((m) =>
-    m.getSearchResultsFromDatabasePaged(trimmed, dbIndex, safeLimit, {
-      timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
-    }),
+    m.getSearchResultsFromDatabasePaged(
+      trimmed,
+      selection.tailStart,
+      selection.tailCount,
+      {
+        timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+        excludeProductIds: selection.excludeProductIds,
+      },
+    ),
   );
 
   // Prefer the truthful DB count; if only the paged leg succeeded, trust its
@@ -286,12 +292,7 @@ export async function searchResultsPagedSurface(
   const finalTotal =
     total > 0 ? total : dbPage.total > 0 ? dbPage.total : pool.length;
 
-  const items = interleaveLiveIntoDbPage(
-    liveRemaining,
-    [...dbFromPool, ...dbPage.items],
-    safeLimit,
-    DB_PAGE_LIVE_INTERLEAVE_CADENCE,
-  );
+  const items = [...selection.poolHead, ...dbPage.items];
 
   return {
     items,

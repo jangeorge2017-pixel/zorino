@@ -995,6 +995,13 @@ async function loadSearchResultsCountFromDatabase(query: string): Promise<number
  * so a beyond-window page carries the same truthful count as
  * `countSearchResultsFromDatabase`.
  *
+ * `options?.excludeProductIds` removes those `product_id`s FROM THE UNIVERSE
+ * *by set* (`product_id not in (...)`), shrinking the indexed space the
+ * `offset`/`limit` window walks. The Search pager uses this to continue the
+ * unified universe after the balanced pool: every db row the pool already
+ * emitted is excluded here, so a window offset can never re-serve a row an
+ * earlier page already showed, no matter where that row sits in discount order.
+ *
  * `options?.timeoutMs` resolves `{ items: [], total: 0 }` on timeout — the same
  * truthful "no additional DB products" state as a DB error.
  */
@@ -1002,16 +1009,26 @@ export async function getSearchResultsFromDatabasePaged(
   query: string,
   offset: number,
   limit: number,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number; excludeProductIds?: readonly string[] },
 ): Promise<{ items: SearchResultItem[]; total: number }> {
   const deadline = options?.timeoutMs;
   if (!deadline || deadline <= 0) {
-    return loadSearchResultsFromDatabasePaged(query, offset, limit);
+    return loadSearchResultsFromDatabasePaged(
+      query,
+      offset,
+      limit,
+      options?.excludeProductIds,
+    );
   }
 
   return new Promise<{ items: SearchResultItem[]; total: number }>((resolve) => {
     const timer = setTimeout(() => resolve({ items: [], total: 0 }), deadline);
-    loadSearchResultsFromDatabasePaged(query, offset, limit).then(
+    loadSearchResultsFromDatabasePaged(
+      query,
+      offset,
+      limit,
+      options?.excludeProductIds,
+    ).then(
       (page) => {
         clearTimeout(timer);
         resolve(page);
@@ -1028,6 +1045,7 @@ async function loadSearchResultsFromDatabasePaged(
   query: string,
   offset: number,
   limit: number,
+  excludeProductIds?: readonly string[],
 ): Promise<{ items: SearchResultItem[]; total: number }> {
   const supabase = supabaseClientFactoryForTests
     ? supabaseClientFactoryForTests()
@@ -1045,7 +1063,16 @@ async function loadSearchResultsFromDatabasePaged(
   const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
   const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 1;
 
-  const { data, count, error } = await db(supabase)
+  // Exclusion set carries real `product_id` values; the `not in (...)` list must
+  // never be able to smuggle raw filter syntax, so only values without
+  // PostgREST list/paren delimiters pass through.
+  const exclusion = Array.isArray(excludeProductIds)
+    ? excludeProductIds.filter(
+        (id) => typeof id === "string" && id.length > 0 && !/[(),]/.test(id),
+      )
+    : [];
+
+  const selected = db(supabase)
     .from("lowest_prices_today")
     .select(
       "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
@@ -1055,7 +1082,13 @@ async function loadSearchResultsFromDatabasePaged(
     .eq("country_code", "US")
     .eq("currency", "USD")
     .not("image_url", "is", null)
-    .neq("image_url", "")
+    .neq("image_url", "");
+
+  if (exclusion.length > 0) {
+    selected.not("product_id", "in", `(${exclusion.join(",")})`);
+  }
+
+  const { data, count, error } = await selected
     // Deterministic catalog order: deepest discount first, then a stable
     // tiebreak so every page boundary resolves to the same rows.
     .order("discount_percent", { ascending: false })

@@ -134,27 +134,46 @@ function serverOrdered(rows: DbRow[]): DbRow[] {
  *    .or().eq().eq().not().neq()` -> thenable `{ count, error }`.
  *  - paged leg: `.from("lowest_prices_today").select().or().eq().eq().not()
  *    .neq().order().order().order().range(from,to)` -> Promise
- *    `{ data, count, error }` with count = exact total (not window-capped).
+ *    `{ data, count, error }`. An optional `.not("product_id","in","(…)")`
+ *    set-exclusion shrinks the indexed universe the range walks (and the count
+ *    it returns), exactly like the real Supabase leg.
  *  - products leg: `.from("products").select().in("id", ids)` -> Promise
  *    `{ data, error }`.
  */
 function buildFakeSupabase(rows: DbRow[]): () => unknown {
   const ordered = serverOrdered(rows);
   const total = rows.length;
+  let excluded = new Set<string>();
 
   const dbChain = {
     select: () => dbChain,
     or: () => dbChain,
     eq: () => dbChain,
-    not: () => dbChain,
+    not: (col?: string, op?: string, val?: unknown) => {
+      if (col === "product_id" && op === "in" && typeof val === "string") {
+        // `.not("product_id", "in", "(id1,id2,…)")` — the paged leg's
+        // set-exclusion seam; the fake universe then EXCLUDES those rows from
+        // its indexed space so every range window walks the reduced universe.
+        excluded = new Set(
+          val
+            .slice(1, -1)
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        );
+      }
+      return dbChain;
+    },
     neq: () => dbChain,
     order: () => dbChain,
-    range: (from: number, to: number) =>
-      Promise.resolve({
-        data: ordered.slice(from, to + 1),
-        count: total,
+    range: (from: number, to: number) => {
+      const inUniverse = ordered.filter((r) => !excluded.has(r.product_id));
+      return Promise.resolve({
+        data: inUniverse.slice(from, to + 1),
+        count: inUniverse.length,
         error: null,
-      }),
+      });
+    },
     then: (resolve: (v: unknown) => unknown) =>
       Promise.resolve({ count: total, error: null }).then(resolve),
   };
@@ -205,7 +224,7 @@ describe("DB-leg Search paging contract", () => {
     expect(deep.items[0]).toBeDefined();
   });
 
-  it("keeps pages contiguous - no duplicate and no gap at the 200 seam", async () => {
+it("keeps pages contiguous - no duplicate and no gap at the 200 seam", async () => {
     setSupabaseAnonClientForTests(buildFakeSupabase(makeDbRows(417)) as never);
 
     const before = await getSearchResultsFromDatabasePaged(
@@ -228,6 +247,64 @@ describe("DB-leg Search paging contract", () => {
     expect(new Set(afterIds).size).toBe(40);
     expect(before.total).toBe(417);
     expect(after.total).toBe(417);
+  });
+
+  it("excludes pool-emitted product_ids FROM the indexed universe (set-exclusion leg)", async () => {
+    // Pool has emitted 30 db rows that sit at SCATTERED positions of the
+    // discount-ordered universe (NOT the head prefix). The caller excludes
+    // them by set; the paged leg must walk the REDUCED universe so a window
+    // can never re-serve a row the pool already showed.
+    const rows = makeDbRows(417);
+    const emitted = [
+      rows[2]!.product_id,
+      rows[50]!.product_id,
+      rows[180]!.product_id,
+      rows[300]!.product_id,
+    ];
+    setSupabaseAnonClientForTests(buildFakeSupabase(rows) as never);
+
+    const page = await getSearchResultsFromDatabasePaged(
+      "wireless earbuds",
+      40,
+      30,
+      { excludeProductIds: emitted },
+    );
+
+    // Universe shrank by exactly the excluded set (all 4 are in it).
+    expect(page.total).toBe(417 - emitted.length);
+    const emittedSet = new Set(emitted);
+    for (const m of page.items as any[]) {
+      const pid = String(m.id ?? m.product_id).replace(/^db-/, "");
+      expect(emittedSet.has(pid)).toBe(false);
+    }
+    expect(page.items).toHaveLength(30);
+    expect(new Set(page.items.map((m: any) => `${m.id ?? m.product_id}`)).size).toBe(30);
+  });
+
+  it("excluded rows never reappear across any page of the reduced universe", async () => {
+    const rows = makeNonUniformDbRows(417);
+    const emitted = new Set(rows.slice(1, 28).map((r) => r.product_id));
+    setSupabaseAnonClientForTests(buildFakeSupabase(rows) as never);
+
+    const seen = new Set<string>();
+    for (let offset = 0; offset < 417; offset += 60) {
+      const page = await getSearchResultsFromDatabasePaged(
+        "wireless earbuds",
+        offset,
+        60,
+        { excludeProductIds: [...emitted] },
+      );
+      for (const m of page.items as any[]) {
+        const pid = String(m.id ?? m.product_id).replace(/^db-/, "");
+        expect(emitted.has(pid)).toBe(false);
+        const id = String(m.id ?? m.product_id);
+        expect(seen.has(id)).toBe(false);
+        seen.add(id);
+      }
+    }
+    // The complete reduced universe: every non-excluded row reachable, none
+    // re-served, none skipped.
+    expect(seen.size).toBe(417 - emitted.size);
   });
 
   it("reaches the COMPLETE matching universe - truthful provider shares, zero suppression", async () => {
