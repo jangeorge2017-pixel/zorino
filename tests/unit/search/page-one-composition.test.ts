@@ -18,8 +18,11 @@
  *     are untouched, and each provider's candidates keep their relevance order,
  *   - a provider missing from page 1 has its best genuine DEVICES placed
  *     directly behind the preserved global lead (early exposure, never 46-49),
- *   - a provider holding only relevant accessories gets them at the first
- *     accessory slots (devices never yield to an accessory),
+ *   - on a device/product query only TRUE product candidates count as provider
+ *     representation — an accessory (case, screen protector) never stands in
+ *     for a provider whose matching inventory is accessories-only; on an
+ *     accessory-intent query a relevant accessory IS the target product and is
+ *     placed at the first accessory slots (devices never yield to an accessory),
  *   - no provider is fabricated or padded, nothing irrelevant is promoted,
  *   - the dominant provider still owns most of the page (no forced-equal
  *     round-robin),
@@ -89,6 +92,30 @@ function cjAccessory(n: number): SearchResultItem {
   );
 }
 
+function ebayMacBook(n: number): SearchResultItem {
+  return item(
+    `mac-ebay-dev-${n}`,
+    "ebay",
+    `Apple MacBook Air M3 (2024) 13-inch ${512 + n}GB Laptop`,
+  );
+}
+
+function aliMacBookCase(n: number): SearchResultItem {
+  return item(
+    `mac-ali-acc-${n}`,
+    "aliexpress",
+    `Silicone Case for MacBook Air M3 13 inch ${n}`,
+  );
+}
+
+function aliMacBookDevice(n: number): SearchResultItem {
+  return item(
+    `mac-ali-dev-${n}`,
+    "aliexpress",
+    `Apple MacBook Air M3 (2024) 13-inch ${512 + n}GB Laptop`,
+  );
+}
+
 function sameIdSets(a: readonly SearchResultItem[], b: readonly SearchResultItem[]): boolean {
   if (a.length !== b.length) return false;
   const ids = new Set(a.map((i) => i.id));
@@ -140,10 +167,12 @@ describe("composeSearchPageOne — no-ops (seeded pools & untouched surfaces)", 
 });
 
 describe("composeSearchPageOne — early, meaningful multi-provider exposure", () => {
-  it("places a missing provider's genuine devices in the EARLY page-1 region", () => {
+  it("places a missing provider's genuine DEVICES in the early page-1 region (accessories never represent on a device query)", () => {
     const pool = [
       ...Array.from({ length: 50 }, (_, i) => ebayDevice(i)),
       ...Array.from({ length: 5 }, (_, i) => aliDevice(i + 1)),
+      // Admitad's only matching inventory is accessories — for a device query
+      // that must NOT count as provider representation.
       ...Array.from({ length: 5 }, (_, i) => admitadAccessory(i + 1)),
     ];
 
@@ -156,11 +185,12 @@ describe("composeSearchPageOne — early, meaningful multi-provider exposure", (
     expect(composed.filter((i) => i.storeSlug === "aliexpress")).toHaveLength(5);
     expect(composed.filter((i) => i.storeSlug === "admitad")).toHaveLength(5);
 
-    // The first page now truthfully shows every provider that holds stock, with
-    // the missing provider's genuine devices EARLY — not at positions 46-49.
+    // The first page truthfully shows every provider that holds genuine
+    // PRODUCT stock, with the missing provider's devices EARLY — not at
+    // positions 46-49. Admitad (accessories-only here) is NOT on page 1.
     const head = composed.slice(0, 50);
     const headStores = new Set(head.map((i) => i.storeSlug));
-    expect(headStores).toEqual(new Set(["ebay", "aliexpress", "admitad"]));
+    expect(headStores).toEqual(new Set(["ebay", "aliexpress"]));
 
     // Global relevance lead preserved untouched (the assembled top-2).
     expect(head[0]!.id).toBe("ebay-dev-0");
@@ -170,9 +200,10 @@ describe("composeSearchPageOne — early, meaningful multi-provider exposure", (
     expect(head[2]!.id).toBe("ali-dev-1");
     expect(head[3]!.id).toBe("ali-dev-2");
 
-    // Devices lead; accessories only at the tail, never ahead of a device.
-    expect(head[48]!.storeSlug).toBe("admitad");
-    expect(head[49]!.storeSlug).toBe("admitad");
+    // No accessory was promoted ahead of any device — the page stays
+    // device-only where a provider had no products to offer.
+    expect(head[48]!.storeSlug).toBe("ebay");
+    expect(head[49]!.storeSlug).toBe("ebay");
 
     // The dominant provider still owns most of the page — nothing equalized.
     const ebayHead = head.filter((i) => i.storeSlug === "ebay").length;
@@ -181,16 +212,16 @@ describe("composeSearchPageOne — early, meaningful multi-provider exposure", (
     // Evicted head devices roll to page 2 (same items, reachable — not dropped).
     const composedIds = composed.map((i) => i.id);
     expect(composedIds.slice(50, 54)).toEqual([
-      "ebay-dev-46",
-      "ebay-dev-47",
       "ebay-dev-48",
       "ebay-dev-49",
-    ]);
-    // Un-promoted rest items keep their original relative order.
-    expect(composedIds.slice(54)).toEqual([
       "ali-dev-3",
       "ali-dev-4",
+    ]);
+    // Accessories and un-promoted devices keep their original relative order.
+    expect(composedIds.slice(54)).toEqual([
       "ali-dev-5",
+      "adm-acc-1",
+      "adm-acc-2",
       "adm-acc-3",
       "adm-acc-4",
       "adm-acc-5",
@@ -217,13 +248,63 @@ describe("composeSearchPageOne — early, meaningful multi-provider exposure", (
     expect(sameIdSets(composed, pool)).toBe(true);
   });
 
-  it("gives an accessory-only provider its best accessories at the first accessory slots", () => {
+  it("does NOT promote an accessory-only provider for a device query (no-op)", () => {
+    // CJdropshipping only owns relevant accessories for this device query.
+    // Accessories must NOT count as provider representation — the pool is
+    // returned unchanged and CJ stays off page 1.
     const pool = [
       ...Array.from({ length: 50 }, (_, i) => ebayDevice(i)),
       ...Array.from({ length: 6 }, (_, i) => cjAccessory(i + 1)),
     ];
 
     const composed = composeSearchPageOne(pool, QUERY, 50);
+    const head = composed.slice(0, 50);
+
+    expect(composed.map((i) => i.id)).toEqual(pool.map((i) => i.id));
+    expect(new Set(head.map((i) => i.storeSlug))).toEqual(new Set(["ebay"]));
+  });
+
+  it("promotes a genuine MacBook product for a MacBook query, never a case in its place", () => {
+    // The live defect being locked: for "macbook air m3", AliExpress was
+    // represented by a silicone case around position 48. An accessory must not
+    // stand in for a provider on a device query.
+    const pool = [
+      ...Array.from({ length: 50 }, (_, i) => ebayMacBook(i)),
+      aliMacBookCase(1),
+      aliMacBookCase(2),
+      aliMacBookDevice(1),
+      aliMacBookDevice(2),
+    ];
+
+    const composed = composeSearchPageOne(pool, "macbook air m3", 50);
+    const head = composed.slice(0, 50);
+
+    expect(sameIdSets(composed, pool)).toBe(true);
+    expect(composed).toHaveLength(54);
+
+    // The preserved global lead + the genuine MacBook product EARLY…
+    expect(head[0]!.id).toBe("mac-ebay-dev-0");
+    expect(head[1]!.id).toBe("mac-ebay-dev-1");
+    expect(head[2]!.id).toBe("mac-ali-dev-1");
+    expect(head[3]!.id).toBe("mac-ali-dev-2");
+
+    // …and NO silicone case anywhere on page 1.
+    expect(head.some((i) => i.storeSlug === "aliexpress" && i.id.startsWith("mac-ali-acc"))).toBe(
+      false,
+    );
+    expect(head[48]!.storeSlug).toBe("ebay");
+    expect(head[49]!.storeSlug).toBe("ebay");
+  });
+
+  it("gives an accessory-intent query its accessory representation at the first accessory slots", () => {
+    // For "… case" queries the accessory IS the genuine target product and
+    // qualifies as provider representation (still never ahead of a device).
+    const pool = [
+      ...Array.from({ length: 50 }, (_, i) => ebayDevice(i)),
+      ...Array.from({ length: 6 }, (_, i) => cjAccessory(i + 1)),
+    ];
+
+    const composed = composeSearchPageOne(pool, "samsung galaxy s24 case", 50);
     const head = composed.slice(0, 50);
 
     expect(sameIdSets(composed, pool)).toBe(true);
