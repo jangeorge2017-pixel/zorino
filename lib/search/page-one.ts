@@ -15,9 +15,14 @@
  *   - a provider missing from page 1 has its genuine devices placed directly
  *     at the start of the page's device block (right behind the preserved
  *     global lead), not stranded at positions 46-49,
- *   - a provider whose matching inventory is only relevant accessories gets its
- *     best accessories at the first accessory slots — a device never yields to
- *     an accessory, so accessories are never brought ahead of a device,
+ *   - on a device/product query only TRUE product candidates count as provider
+ *     representation — an accessory (case, screen protector, privacy filter)
+ *     can never stand in for a provider, so AliExpress is never "represented"
+ *     by a silicone case when its only matching MacBook stock is accessories;
+ *     on an accessory-intent query a relevant accessory IS the target product
+ *     and is placed at the first accessory slots — either way a device never
+ *     yields to an accessory, so an accessory is never brought ahead of a
+ *     device,
  *   - the provider with the most matching results still dominates the page
  *     (presence is bounded, never a forced-equal round-robin),
  *   - nothing irrelevant is ever promoted just to satisfy diversity,
@@ -31,7 +36,11 @@
  * the first page is a no-op.
  */
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
-import { analyzeSearchListing } from "@/lib/search/relevance";
+import {
+  analyzeSearchListing,
+  isAccessoryListing,
+  queryWantsAccessory,
+} from "@/lib/search/relevance";
 import type { SearchResultItem } from "@/lib/data/homepage";
 
 /**
@@ -67,6 +76,11 @@ function isDeviceItem(item: SearchResultItem, query: string): boolean {
 function isSufficientlyRelevant(item: SearchResultItem, query: string): boolean {
   const tier = analyzeSearchListing(item.name, query).tier;
   return tier !== "none" && tier !== "repair";
+}
+
+/** Accessory-style listing for the query (case, screen protector, filter, …). */
+function isAccessoryCandidate(item: SearchResultItem, query: string): boolean {
+  return isAccessoryListing(item.name, query) === true;
 }
 
 /**
@@ -115,6 +129,14 @@ export function composeSearchPageOne(
     restByProvider.set(item.storeSlug, bucket);
   }
 
+  // Query intent decides what counts as genuine provider representation. On an
+  // accessory-intent query ("iphone 15 case") a relevant accessory IS the target
+  // product and qualifies. On a device/product query ("macbook air m3") an
+  // accessory can never stand in for a provider — only true product candidates
+  // qualify, so a provider is never represented by a case merely to satisfy
+  // provider diversity.
+  const promotesAccessories = queryWantsAccessory(query) === true;
+
   // Select each missing provider's genuine inventory (device-first, up to
   // `take` per provider, preserving that provider's own relevance order).
   const take = Math.max(1, Math.floor(presence));
@@ -126,8 +148,13 @@ export function composeSearchPageOne(
     const devices: SearchResultItem[] = [];
     const others: SearchResultItem[] = [];
     for (const candidate of candidates) {
-      if (isDeviceItem(candidate, query)) devices.push(candidate);
-      else others.push(candidate);
+      if (isDeviceItem(candidate, query)) {
+        devices.push(candidate);
+      } else if (isAccessoryCandidate(candidate, query)) {
+        if (promotesAccessories) others.push(candidate);
+      } else if (isSufficientlyRelevant(candidate, query)) {
+        others.push(candidate);
+      }
     }
     for (const item of [...devices, ...others].slice(0, take)) {
       if (isDeviceItem(item, query)) earlyDevices.push(item);
@@ -141,7 +168,8 @@ export function composeSearchPageOne(
   const billing = earlyDevices
     .filter((item) => isSufficientlyRelevant(item, query))
     .slice(0, PAGE_ONE_EARLY_DEVICE_CAP);
-  if (billing.length + promotedOthers.length === 0) return [...pool];
+  const promoted = promotedOthers.filter((item) => isSufficientlyRelevant(item, query));
+  if (billing.length + promoted.length === 0) return [...pool];
 
   const origDevices = head.filter((item) => isDeviceItem(item, query));
   const origOthers = head.filter((item) => !isDeviceItem(item, query));
@@ -158,7 +186,7 @@ export function composeSearchPageOne(
   const origTail = origDevices.slice(lead);
   const origBudget = Math.max(
     0,
-    headLen - billing.length - promotedOthers.length - lead,
+    headLen - billing.length - promoted.length - lead,
   );
   const keptOrigTail = origTail.slice(0, origBudget);
 
@@ -168,10 +196,10 @@ export function composeSearchPageOne(
     ...keptOrigTail,
   ];
   const accessorySlots = Math.max(0, headLen - headDevices.length);
-  const headOthers = [...promotedOthers, ...origOthers].slice(0, accessorySlots);
+  const headOthers = [...promoted, ...origOthers].slice(0, accessorySlots);
 
   const newHead = [...headDevices, ...headOthers];
-  const candidates = [...origDevices, ...earlyDevices, ...origOthers, ...promotedOthers];
+  const candidates = [...origDevices, ...earlyDevices, ...origOthers, ...promoted];
   const candidateIds = new Set(candidates.map((item) => item.id));
 
   // Everything the head did not keep rolls to the tail, then the untouched
