@@ -6,13 +6,21 @@
  * every other provider's genuine matching inventory (same-family devices,
  * imported rows, relevant accessories) sits at pool positions 50+. This module
  * recomposes ONLY the head of that pool (membership is untouched — the same
- * items, reordered) so every provider that actually holds matching results
- * gets a truthful presence on page 1, while:
+ * items, reordered) so every provider that actually holds matching results gets
+ * a truthful presence on page 1 with MEANINGFUL EARLY exposure:
  *
- *   - genuine devices still lead page 1 (accessories never precede a device),
+ *   - global relevance stays the primary signal: the top leading slots are
+ *     preserved untouched, and within every provider the assembled relevance
+ *     order is kept,
+ *   - a provider missing from page 1 has its genuine devices placed directly
+ *     at the start of the page's device block (right behind the preserved
+ *     global lead), not stranded at positions 46-49,
+ *   - a provider whose matching inventory is only relevant accessories gets its
+ *     best accessories at the first accessory slots — a device never yields to
+ *     an accessory, so accessories are never brought ahead of a device,
  *   - the provider with the most matching results still dominates the page
  *     (presence is bounded, never a forced-equal round-robin),
- *   - each provider's candidates keep their relevance order,
+ *   - nothing irrelevant is ever promoted just to satisfy diversity,
  *   - the complete universe is invariant: total, hasMore, zero-duplicate and
  *     DB-leg exclusion are all computed from the SAME item set, so pagination
  *     semantics are unchanged.
@@ -33,6 +41,19 @@ import type { SearchResultItem } from "@/lib/data/homepage";
  */
 export const PAGE_ONE_PROVIDER_PRESENCE = 2;
 
+/**
+ * How many leading page-1 slots stay reserved for the assembled global
+ * relevance order before the diversity placements begin.
+ */
+export const PAGE_ONE_LEADING_GLOBAL_SLOTS = 2;
+
+/**
+ * Upper bound on how many genuinely relevant, provider-best devices may be
+ * placed in the early page-1 region. Bounded so a long tail of single-provider
+ * volume can never be crowded off the page.
+ */
+export const PAGE_ONE_EARLY_DEVICE_CAP = 6;
+
 function headSizeFor(poolLength: number, pageSize: number): number {
   return Math.min(poolLength, Math.max(1, Math.floor(pageSize)));
 }
@@ -42,10 +63,18 @@ function isDeviceItem(item: SearchResultItem, query: string): boolean {
   return analysis.isDevice === true;
 }
 
+/** Only genuinely matching inventory may be promoted — never tier none/repair. */
+function isSufficientlyRelevant(item: SearchResultItem, query: string): boolean {
+  const tier = analyzeSearchListing(item.name, query).tier;
+  return tier !== "none" && tier !== "repair";
+}
+
 /**
  * Reorder `pool` so every provider represented anywhere in it appears inside
- * the first `pageSize` positions. Returns the input unchanged when nothing is
- * missing (pool ≤ page / already representative / single-provider).
+ * the first `pageSize` positions, with its best genuine devices placed EARLY
+ * on page 1 (right behind the preserved global-relevance lead). Returns the
+ * input unchanged when nothing is missing (pool ≤ page / already
+ * representative / single-provider).
  */
 export function composeSearchPageOne(
   pool: ReadonlyArray<SearchResultItem>,
@@ -86,13 +115,14 @@ export function composeSearchPageOne(
     restByProvider.set(item.storeSlug, bucket);
   }
 
+  // Select each missing provider's genuine inventory (device-first, up to
+  // `take` per provider, preserving that provider's own relevance order).
   const take = Math.max(1, Math.floor(presence));
-  const promotedDevices: SearchResultItem[] = [];
+  const earlyDevices: SearchResultItem[] = [];
   const promotedOthers: SearchResultItem[] = [];
   for (const providerId of missing) {
     const candidates = restByProvider.get(providerId) ?? [];
     if (candidates.length === 0) continue;
-    // Device-first, preserve each provider's own relevance order.
     const devices: SearchResultItem[] = [];
     const others: SearchResultItem[] = [];
     for (const candidate of candidates) {
@@ -100,36 +130,48 @@ export function composeSearchPageOne(
       else others.push(candidate);
     }
     for (const item of [...devices, ...others].slice(0, take)) {
-      if (isDeviceItem(item, query)) promotedDevices.push(item);
+      if (isDeviceItem(item, query)) earlyDevices.push(item);
       else promotedOthers.push(item);
     }
   }
-  if (promotedDevices.length + promotedOthers.length === 0) return [...pool];
+  if (earlyDevices.length + promotedOthers.length === 0) return [...pool];
 
-  // Devices lead page 1. The candidate slots are split so that every promoted
-  // item is admitted first: the device block reserves room for every promoted
-  // device (promoted first, then the original leading devices that fit), and
-  // genuine, non-device inventory is admitted only into the tail — promoted
+  // Real inventory only: drop anything the relevance tiers reject so diversity
+  // can never promote an irrelevant product.
+  const billing = earlyDevices
+    .filter((item) => isSufficientlyRelevant(item, query))
+    .slice(0, PAGE_ONE_EARLY_DEVICE_CAP);
+  if (billing.length + promotedOthers.length === 0) return [...pool];
+
+  const origDevices = head.filter((item) => isDeviceItem(item, query));
+  const origOthers = head.filter((item) => !isDeviceItem(item, query));
+
+  // Devices lead page 1. The device block keeps the assembled global-relevance
+  // lead untouched, then places every promoted provider-best device directly
+  // behind it (early exposure), then the remaining original devices in
+  // assembled order. Accessories are admitted only into the tail — promoted
   // ones first (they belong to the provider this whole pass is about), then any
   // the head already held. If the leading device block would otherwise crowd a
   // promotion out, the last leading devices roll to page 2 (same items, still
   // reachable, never discarded).
-  const origDevices = head.filter((item) => isDeviceItem(item, query));
-  const origOthers = head.filter((item) => !isDeviceItem(item, query));
-
-  // Reserve accessory slots so promoted accessories never need to displace a
-  // device; everything else in the device block comes from the original head.
-  const deviceCapacity = Math.max(0, headLen - promotedOthers.length);
-  const keptOrigDevices = origDevices.slice(
+  const lead = Math.min(PAGE_ONE_LEADING_GLOBAL_SLOTS, origDevices.length);
+  const origTail = origDevices.slice(lead);
+  const origBudget = Math.max(
     0,
-    Math.max(0, deviceCapacity - promotedDevices.length),
+    headLen - billing.length - promotedOthers.length - lead,
   );
-  const headDevices = [...keptOrigDevices, ...promotedDevices];
+  const keptOrigTail = origTail.slice(0, origBudget);
+
+  const headDevices = [
+    ...origDevices.slice(0, lead),
+    ...billing,
+    ...keptOrigTail,
+  ];
   const accessorySlots = Math.max(0, headLen - headDevices.length);
   const headOthers = [...promotedOthers, ...origOthers].slice(0, accessorySlots);
 
   const newHead = [...headDevices, ...headOthers];
-  const candidates = [...origDevices, ...promotedDevices, ...origOthers, ...promotedOthers];
+  const candidates = [...origDevices, ...earlyDevices, ...origOthers, ...promotedOthers];
   const candidateIds = new Set(candidates.map((item) => item.id));
 
   // Everything the head did not keep rolls to the tail, then the untouched
