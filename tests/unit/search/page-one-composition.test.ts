@@ -122,6 +122,67 @@ function sameIdSets(a: readonly SearchResultItem[], b: readonly SearchResultItem
   return b.every((i) => ids.has(i.id));
 }
 
+const IPHONE_QUERY = "iphone 15 pro max";
+
+function ebayIphone(n: number): SearchResultItem {
+  return item(
+    `ebay-iphone-${n}`,
+    "ebay",
+    `Apple iPhone 15 Pro Max ${256 + n}GB Unlocked Smartphone`,
+  );
+}
+
+function aliIphone(n: number): SearchResultItem {
+  return item(
+    `ali-iphone-${n}`,
+    "aliexpress",
+    `Apple iPhone 15 Pro Max ${256 + n}GB 5G Network Unlocked Smartphone 6.7" Original`,
+  );
+}
+
+// Shapes of the two real production rows that hijacked page-1 slots 2-3 for
+// "iphone 15 pro max" before the fix (a VR-glasses accessory and a screen
+// repair part). Neither is a genuine iPhone 15 Pro Max.
+function admitadVrGlasses(n: number): SearchResultItem {
+  return item(
+    `adm-vr-${n}`,
+    "admitad",
+    "BOBOVR Z5VR Glasses for iPhone Android BlueTooth VR Virtual Reality 3D Video Player",
+  );
+}
+
+function admitadScreenRepair(n: number): SearchResultItem {
+  return item(
+    `adm-screen-${n}`,
+    "admitad",
+    "For iPhone X OLED Soft display LCD touch glass full assembly replacement",
+  );
+}
+
+function admitadBulkPhone(n: number): SearchResultItem {
+  return item(
+    `adm-bulk-${n}`,
+    "admitad",
+    `Stock Thin Slim Black ${32 + n}GB A Grade Unlocked Mobile Phone`,
+  );
+}
+
+function ebayOlderGalaxy(n: number): SearchResultItem {
+  return item(
+    `ebay-old-${n}`,
+    "ebay",
+    `Samsung Galaxy S23 Ultra ${256 + n}GB Unlocked Smartphone`,
+  );
+}
+
+function cjFamilyGalaxy(n: number): SearchResultItem {
+  return item(
+    `cj-family-${n}`,
+    "cjdropshipping",
+    `Samsung Galaxy A55 128GB Unlocked Smartphone`,
+  );
+}
+
 describe("PAGE_ONE_PROVIDER_PRESENCE", () => {
   it("is a small, bounded presence — never an equal-share quota", () => {
     expect(PAGE_ONE_PROVIDER_PRESENCE).toBe(2);
@@ -147,7 +208,11 @@ describe("composeSearchPageOne — no-ops (seeded pools & untouched surfaces)", 
     expect(composed.map((i) => i.id)).toEqual(pool.map((i) => i.id));
   });
 
-  it("returns the pool unchanged when every provider already sits on page 1", () => {
+  it("reorders toward tiered coverage even when every product provider already sits on page 1 — accessories drop behind devices", () => {
+    // Every provider is present on page 1, but the pool still needs the
+    // coverage reorder: AliExpress's best devices get EARLY exposure behind the
+    // preserved lead, and the accessory-only provider no longer claims
+    // device-tier page-1 slots (its rows move behind every real device).
     const pool = [
       ...Array.from({ length: 30 }, (_, i) => ebayDevice(i)),
       ...Array.from({ length: 10 }, (_, i) => aliDevice(i)),
@@ -155,7 +220,29 @@ describe("composeSearchPageOne — no-ops (seeded pools & untouched surfaces)", 
       ...Array.from({ length: 10 }, (_, i) => ebayDevice(100 + i)),
     ];
     const composed = composeSearchPageOne(pool, QUERY, 50);
-    expect(composed.map((i) => i.id)).toEqual(pool.map((i) => i.id));
+    const head = composed.slice(0, 50);
+
+    // Strict permutation: same items, nothing dropped, pagination untouched.
+    expect(composed).toHaveLength(60);
+    expect(sameIdSets(composed, pool)).toBe(true);
+
+    // Every provider with genuine PRODUCT inventory stays on page 1.
+    expect(new Set(head.map((i) => i.storeSlug))).toEqual(new Set(["ebay", "aliexpress"]));
+
+    // Head[0..1] is the preserved global relevance lead, then each provider's
+    // best genuine devices are hoisted behind it (early, not 30-31).
+    expect(head[0]!.id).toBe("ebay-dev-0");
+    expect(head[1]!.id).toBe("ebay-dev-1");
+    expect(head[2]!.id).toBe("ali-dev-0");
+    expect(head[3]!.id).toBe("ali-dev-1");
+
+    // Admitad (accessories-only on a device query) is NOT on page 1 anymore.
+    expect(composed.slice(50).map((i) => i.storeSlug)).toEqual(
+      Array.from({ length: 10 }, () => "admitad"),
+    );
+
+    // The dominant provider still owns most of the page.
+    expect(head.filter((i) => i.storeSlug === "ebay").length).toBeGreaterThanOrEqual(38);
   });
 
   it("never mutates the input", () => {
@@ -345,5 +432,93 @@ describe("composeSearchPageOne — early, meaningful multi-provider exposure", (
     expect(tail.map((i) => i.id)).toEqual(
       Array.from({ length: 30 }, (_, i) => `ebay-dev-${200 + i}`),
     );
+  });
+});
+
+describe("composeSearchPageOne — production defect regression lock", () => {
+  it("never lets a repair part, accessory or unrelated bulk listing stand in for a provider on a device query (iPhone 15 Pro Max)", () => {
+    // The live defect being locked: for "iphone 15 pro max", Admitad's two
+    // junk rows (VR glasses + screen-repair part) claimed page-1 slots 2-3.
+    const pool = [
+      ...Array.from({ length: 47 }, (_, i) => ebayIphone(i)),
+      ...Array.from({ length: 2 }, (_, i) => aliIphone(i + 1)),
+      admitadVrGlasses(1),
+      admitadScreenRepair(1),
+      admitadBulkPhone(1),
+      ...Array.from({ length: 10 }, (_, i) => ebayIphone(100 + i)),
+    ];
+
+    const composed = composeSearchPageOne(pool, IPHONE_QUERY, 50);
+    const head = composed.slice(0, 50);
+
+    // Strict permutation.
+    expect(composed).toHaveLength(62);
+    expect(sameIdSets(composed, pool)).toBe(true);
+
+    // No junk anywhere on page 1 — page 1 is genuine devices only.
+    expect(head.some((i) => i.storeSlug === "admitad")).toBe(false);
+    expect(new Set(head.map((i) => i.storeSlug))).toEqual(new Set(["ebay", "aliexpress"]));
+
+    // The preserved global lead, then the missing provider's GENUINE devices
+    // directly behind it — that is what occupies the old junk slots 2-3.
+    expect(head[0]!.id).toBe("ebay-iphone-0");
+    expect(head[1]!.id).toBe("ebay-iphone-1");
+    expect(head[2]!.id).toBe("ali-iphone-1");
+    expect(head[3]!.id).toBe("ali-iphone-2");
+
+    // The junk rows still exist in the pool (behind every genuine device).
+    const junkIds = ["adm-vr-1", "adm-screen-1", "adm-bulk-1"];
+    const idxs = junkIds.map((id) => composed.findIndex((i) => i.id === id));
+    expect(Math.max(...idxs)).toBeGreaterThanOrEqual(50);
+  });
+
+  it("seats a family-only provider strictly after every exact/model candidate — exact beats family", () => {
+    // eBay holds the exact S24 Ultra inventory AND some older-series S23 rows;
+    // CJdropshipping only holds a same-family (Galaxy A55) device. The family
+    // seat must come after ALL 40 exact candidates, never displace one.
+    const pool = [
+      ...Array.from({ length: 40 }, (_, i) => ebayDevice(i)),
+      ...Array.from({ length: 15 }, (_, i) => ebayOlderGalaxy(i)),
+      ...Array.from({ length: 3 }, (_, i) => cjFamilyGalaxy(i + 1)),
+    ];
+
+    const composed = composeSearchPageOne(pool, QUERY, 50);
+    const head = composed.slice(0, 50);
+
+    expect(sameIdSets(composed, pool)).toBe(true);
+    expect(composed).toHaveLength(58);
+
+    // The first 40 slots are exactly the exact/model candidates in pool order.
+    expect(head.slice(0, 40).every((i) => i.storeSlug === "ebay" && i.id.startsWith("ebay-dev"))).toBe(
+      true,
+    );
+
+    // CJ's family device gets its truthful seat right after the exacts (before
+    // even eBay's own series rows, which are lower-relevance family matches).
+    expect(head[40]!.storeSlug).toBe("cjdropshipping");
+    expect(head[41]!.storeSlug).toBe("cjdropshipping");
+    expect(head[42]!.storeSlug).toBe("ebay");
+    expect(head[42]!.id.startsWith("ebay-old")).toBe(true);
+
+    // Bounded presence: CJ contributes its 2 coverage seats, nothing more.
+    expect(head.filter((i) => i.storeSlug === "cjdropshipping").length).toBe(2);
+  });
+
+  it("gives an accessory-intent query its accessory representation at the FIRST accessory slots, never ahead of a device", () => {
+    // "… case" query: the accessory IS the genuine target product and gets
+    // coverage seats at the accessory tail, directly after all matching devices.
+    const pool = [
+      ...Array.from({ length: 60 }, (_, i) => ebayDevice(i)),
+      ...Array.from({ length: 6 }, (_, i) => cjAccessory(i + 1)),
+    ];
+
+    const composed = composeSearchPageOne(pool, "samsung galaxy s24 ultra case", 50);
+    const head = composed.slice(0, 50);
+
+    expect(sameIdSets(composed, pool)).toBe(true);
+    expect(head.slice(0, 48).every((i) => i.storeSlug === "ebay")).toBe(true);
+    expect(head[48]!.storeSlug).toBe("cjdropshipping");
+    expect(head[49]!.storeSlug).toBe("cjdropshipping");
+    expect(head.filter((i) => i.storeSlug === "cjdropshipping").length).toBe(2);
   });
 });
