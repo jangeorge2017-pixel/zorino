@@ -575,13 +575,16 @@ describe("composeSearchPageOne — production defect regression lock", () => {
       item("adm-samsung-phone", "admitad", "Mobile phone for Samsung 1205y"),
       // Samsung-branded strap from another peer.
       item("adm-brand-strap", "admitad", "Silicone Strap Compatible Samsung Galaxy Watch 6 Band 20mm"),
+      // Marketing echo: bare "galaxy phones" with a knockoff brand — never a
+      // genuine same-family device seat.
+      item("adm-sphone", "admitad", "S-Phone S6 Edge 2018 Hot Sale Brand newest galaxy phones Original Unlocked refurbished Mobile Used Smart Phone"),
     ];
 
     const composed = composeSearchPageOne(pool, QUERY, 50);
     const head = composed.slice(0, 50);
 
     expect(sameIdSets(composed, pool)).toBe(true);
-    expect(composed).toHaveLength(65);
+    expect(composed).toHaveLength(66);
 
     // Preserved relevance lead + the ONE genuine same-family device early.
     expect(head[0]!.id).toBe("ebay-dev-0");
@@ -591,13 +594,14 @@ describe("composeSearchPageOne — production defect regression lock", () => {
 
     // No for-Samsung compatibility junk anywhere on page 1.
     for (const i of head) {
-      expect(i.name).not.toMatch(/bracelet|for samsung|strap compatible/i);
+      expect(i.name).not.toMatch(/bracelet|for samsung|strap compatible|s-phone s6 edge|galaxy phones/i);
     }
     // The junk titles keep their pool presence (pure permutation), in the tail.
     const poses = composed.map((i, idx) => [i.id, idx] as const);
     expect(poses.find(([id]) => id === "adm-dz09")![1]).toBeGreaterThanOrEqual(50);
     expect(poses.find(([id]) => id === "adm-samsung-phone")![1]).toBeGreaterThanOrEqual(50);
     expect(poses.find(([id]) => id === "adm-brand-strap")![1]).toBeGreaterThanOrEqual(50);
+    expect(poses.find(([id]) => id === "adm-sphone")![1]).toBeGreaterThanOrEqual(50);
   });
 
   it("never seats a screen filter / LCD glass part / VR glasses as same-family coverage (live MacBook+iPhone shape)", () => {

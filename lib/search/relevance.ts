@@ -559,6 +559,19 @@ export function hasSameModel(title: string, query: string): boolean {
   return titleMatchesQuery(title, query);
 }
 
+/**
+ * True when the title references a genuine Samsung Galaxy device (brand echo
+ * "galaxy phones" alone is marketing wording, not a family anchor — a knockoff
+ * like "S-Phone S6 Edge … galaxy phones…" must never count as same-family).
+ */
+function hasGenuineGalaxyFamily(hay: string): boolean {
+  if (/\bsamsung\b/.test(hay) && /\bgalaxy\b/.test(hay)) return true;
+  if (/\bgalaxy\s+(?:z\s+)?(?:fold|flip)\b/i.test(hay)) return true;
+  if (/\bgalaxy\s+(?:a|s|m|j|note|f|e|z)[\s\d-]?\d{0,4}\b/i.test(hay)) return true;
+  if (/\bgalaxy\s+[a-z]?\d{1,4}\b/i.test(hay)) return true;
+  return false;
+}
+
 /** Same product family / series (e.g. any iPhone, Galaxy S line, MacBook). */
 export function hasSameSeries(title: string, query: string): boolean {
   const q = query.toLowerCase();
@@ -568,7 +581,7 @@ export function hasSameSeries(title: string, query: string): boolean {
   if (/\bairpods?\b/.test(q) && /\bairpods?\b/.test(hay)) return true;
   if (/\b(earbuds?|earphones?|headphones?|headsets?)\b/.test(q) &&
       /\b(earbuds?|earphones?|headphones?|headsets?)\b/.test(hay)) return true;
-  if (/\b(galaxy|samsung|fold|flip)\b/.test(q) && /\b(galaxy|samsung|fold|flip)\b/.test(hay)) {
+  if (/\b(galaxy|samsung|fold|flip)\b/.test(q) && hasGenuineGalaxyFamily(hay)) {
     return true;
   }
   if (/\bmacbook\b/.test(q) && /\bmacbook\b/.test(hay)) return true;
