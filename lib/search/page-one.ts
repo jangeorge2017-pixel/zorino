@@ -15,9 +15,16 @@
  *     never stranded at positions 46-49), then the remaining devices, then
  *     family/series matches, then accessories; the relative pool order is
  *     preserved inside every segment,
- *   - EXACT beats FAMILY beats accessory: a series/brand match or an accessory
- *     can never displace an exact/model match that is already earlier in the
- *     pool, and an accessory is never brought ahead of a device,
+ *   - a provider whose ONLY genuine candidates are same-family devices (no
+ *     exact/model row in the pool) still gets its best genuine device in the
+ *     early page-1 region — bounded by the early-device cap — so one
+ *     provider's sheer exact/model volume can never monopolize page 1 while a
+ *     peer holds real matching devices behind it,
+ *   - EXACT beats FAMILY beats accessory: within the early region exact/model
+ *     coverage precedes same-family coverage, a same-family seat or accessory
+ *     never displaces an exact/model candidate already placed in the preserved
+ *     lead, and on a device query an accessory is never brought ahead of a
+ *     device,
  *   - only GENUINE product candidates count as provider representation: on a
  *     device/product query a repair part, screen assembly, or accessory (case,
  *     screen protector, VR glasses, …) can never stand in for a provider whose
@@ -173,7 +180,12 @@ export function composeSearchPageOne(
   coverageStrong.sort(byIndex);
 
   // Family-only providers (no exact/model in the pool) still get a truthful
-  // seat, strictly after every exact/model candidate.
+  // seat. Their best same-family device joins the EARLY region directly behind
+  // the exact/model coverage — bounded by the early-device cap — because a
+  // provider whose only genuine candidates are family devices must still be
+  // prevented from being crowded off page 1 by another provider's exact/model
+  // volume. Providers that DO hold exact/model inventory keep their family
+  // rows behind every exact/model candidate.
   const coverageFamily: ListingRecord[] = [];
   for (const providerId of familyByProvider.keys()) {
     if (strongByProvider.has(providerId)) continue;
@@ -204,14 +216,28 @@ export function composeSearchPageOne(
     : [];
 
   const used = new Set<string>();
-  const strongSegment: ListingRecord[] = [];
-  for (const row of [...coverageStrong, ...strongPool]) {
+
+  // Early device region: exact/model coverage first (a provider with exacts is
+  // represented by its best exact rows, in pool order — which preserves the
+  // global relevance lead), then same-family coverage of family-only providers,
+  // bounded by the early-device cap so a long tail of single-family providers
+  // can never crowd the page.
+  const earlyBlock: ListingRecord[] = [];
+  for (const row of [...coverageStrong, ...coverageFamily]) {
+    if (used.has(row.item.id)) continue;
+    used.add(row.item.id);
+    earlyBlock.push(row);
+  }
+  const early = earlyBlock.slice(0, PAGE_ONE_EARLY_DEVICE_CAP);
+
+  const strongSegment: ListingRecord[] = [...early];
+  for (const row of strongPool) {
     if (used.has(row.item.id)) continue;
     used.add(row.item.id);
     strongSegment.push(row);
   }
   const familySegment: ListingRecord[] = [];
-  for (const row of [...coverageFamily, ...familyPool]) {
+  for (const row of familyPool) {
     if (used.has(row.item.id)) continue;
     used.add(row.item.id);
     familySegment.push(row);

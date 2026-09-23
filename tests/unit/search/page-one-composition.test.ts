@@ -183,6 +183,14 @@ function cjFamilyGalaxy(n: number): SearchResultItem {
   );
 }
 
+function aliFamilyDevice(n: number): SearchResultItem {
+  return item(
+    `ali-family-${n}`,
+    "aliexpress",
+    `Samsung Galaxy S24 FE 128GB Unlocked Smartphone Original`,
+  );
+}
+
 describe("PAGE_ONE_PROVIDER_PRESENCE", () => {
   it("is a small, bounded presence — never an equal-share quota", () => {
     expect(PAGE_ONE_PROVIDER_PRESENCE).toBe(2);
@@ -472,10 +480,13 @@ describe("composeSearchPageOne — production defect regression lock", () => {
     expect(Math.max(...idxs)).toBeGreaterThanOrEqual(50);
   });
 
-  it("seats a family-only provider strictly after every exact/model candidate — exact beats family", () => {
-    // eBay holds the exact S24 Ultra inventory AND some older-series S23 rows;
-    // CJdropshipping only holds a same-family (Galaxy A55) device. The family
-    // seat must come after ALL 40 exact candidates, never displace one.
+  it("gives a family-only provider's best genuine device EARLY page-1 exposure (bounded), without displacing the exact lead", () => {
+    // The live defect being locked: eBay holds the exact S24 Ultra inventory
+    // while CJdropshipping holds only a genuine same-family (Galaxy A55)
+    // device. The family seat was being stranded after ALL exact candidates,
+    // so a volume leader's exact count could monopolize page 1. The family
+    // provider now reaches the early region directly behind the exact
+    // coverage — bounded by the early-device cap, never an equal share.
     const pool = [
       ...Array.from({ length: 40 }, (_, i) => ebayDevice(i)),
       ...Array.from({ length: 15 }, (_, i) => ebayOlderGalaxy(i)),
@@ -488,20 +499,64 @@ describe("composeSearchPageOne — production defect regression lock", () => {
     expect(sameIdSets(composed, pool)).toBe(true);
     expect(composed).toHaveLength(58);
 
-    // The first 40 slots are exactly the exact/model candidates in pool order.
-    expect(head.slice(0, 40).every((i) => i.storeSlug === "ebay" && i.id.startsWith("ebay-dev"))).toBe(
-      true,
-    );
+    // The preserved global relevance lead stays untouched.
+    expect(head[0]!.id).toBe("ebay-dev-0");
+    expect(head[1]!.id).toBe("ebay-dev-1");
 
-    // CJ's family device gets its truthful seat right after the exacts (before
-    // even eBay's own series rows, which are lower-relevance family matches).
-    expect(head[40]!.storeSlug).toBe("cjdropshipping");
-    expect(head[41]!.storeSlug).toBe("cjdropshipping");
-    expect(head[42]!.storeSlug).toBe("ebay");
-    expect(head[42]!.id.startsWith("ebay-old")).toBe(true);
+    // CJ's genuine same-family device gets early exposure right behind the
+    // exact coverage — page 1 is no longer a single-provider page.
+    expect(head[2]!.storeSlug).toBe("cjdropshipping");
+    expect(head[3]!.storeSlug).toBe("cjdropshipping");
 
-    // Bounded presence: CJ contributes its 2 coverage seats, nothing more.
+    // Bounded presence: CJ contributes its 2 coverage seats, nothing more
+    // (its third family row stays behind every exact candidate).
     expect(head.filter((i) => i.storeSlug === "cjdropshipping").length).toBe(2);
+
+    // Exact/model candidates still dominate the page — no equalization.
+    const ebayExactHead = head.filter(
+      (i) => i.storeSlug === "ebay" && i.id.startsWith("ebay-dev"),
+    ).length;
+    expect(ebayExactHead).toBeGreaterThanOrEqual(38);
+
+    // Same-provider lower-relevance family rows compact behind the exacts.
+    expect(head[42]!.id.startsWith("ebay-old")).toBe(true);
+  });
+
+  it("prevents an exact-volume leader from monopolizing page 1 when a peer holds genuine same-family devices (Samsung/MacBook shape)", () => {
+    // Live shape for "samsung galaxy s24" / "macbook air m3": eBay contributes
+    // 50 exact devices; AliExpress's only genuine matching devices are
+    // same-family models plus accessories. The family devices must be on page 1
+    // (truthfully, early), the accessories must not — and eBay keeps its
+    // relevance lead and the majority of the page.
+    const pool = [
+      ...Array.from({ length: 50 }, (_, i) => ebayDevice(i)),
+      ...Array.from({ length: 3 }, (_, i) => aliFamilyDevice(i + 1)),
+      ...Array.from({ length: 6 }, (_, i) => admitadAccessory(i + 1)),
+    ];
+
+    const composed = composeSearchPageOne(pool, QUERY, 50);
+    const head = composed.slice(0, 50);
+
+    expect(sameIdSets(composed, pool)).toBe(true);
+    expect(composed).toHaveLength(59);
+
+    // Not an all-eBay page anymore.
+    expect(new Set(head.map((i) => i.storeSlug)).has("aliexpress")).toBe(true);
+
+    // Preserved exact lead, then the genuine family device early.
+    expect(head[0]!.id).toBe("ebay-dev-0");
+    expect(head[1]!.id).toBe("ebay-dev-1");
+    expect(head[2]!.id).toBe("ali-family-1");
+    expect(head[3]!.id).toBe("ali-family-2");
+
+    // The accessories are never promoted ahead of a device.
+    expect(head.some((i) => i.storeSlug === "admitad")).toBe(false);
+    expect(head[48]!.storeSlug).toBe("ebay");
+    expect(head[49]!.storeSlug).toBe("ebay");
+
+    // The exact-volume leader still owns most of the page.
+    const ebayHead = head.filter((i) => i.storeSlug === "ebay").length;
+    expect(ebayHead).toBeGreaterThanOrEqual(45);
   });
 
   it("gives an accessory-intent query its accessory representation at the FIRST accessory slots, never ahead of a device", () => {
