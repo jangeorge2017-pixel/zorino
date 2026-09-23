@@ -559,6 +559,82 @@ describe("composeSearchPageOne — production defect regression lock", () => {
     expect(ebayHead).toBeGreaterThanOrEqual(45);
   });
 
+  it("never seats a compatibility/for-clause accessory as same-family coverage (live Samsung shape)", () => {
+    // Live "samsung galaxy s24" shape: the only non-eBay genuine candidates are
+    // same-family Samsung devices (Galaxy S22+ / Galaxy J5 style); everything
+    // else non-eBay is compatibility junk that names Samsung only in a
+    // "for Samsung" clause. The genuine family device gets its early seat; the
+    // bracelets / "mobile phone for Samsung" junk contributes zero.
+    const pool: SearchResultItem[] = [
+      ...Array.from({ length: 60 }, (_, i) => ebayDevice(i)),
+      // aliexpress: only same-family genuine devices.
+      item("ali-family-1", "aliexpress", "Samsung Galaxy S22+ 5G Smartphone Unlocked Original"),
+      item("ali-family-2", "aliexpress", "Samsung Galaxy J5 J500F 16GB Unlocked Smartphone Original"),
+      // admitad: only compatibility junk that names Samsung in a for-clause.
+      item("adm-dz09", "admitad", "Smart Bracelet 2019 DZ09 Sport watch waterproof for Xiaomi Huawei Samsung charm bracelet"),
+      item("adm-samsung-phone", "admitad", "Mobile phone for Samsung 1205y"),
+      // Samsung-branded strap from another peer.
+      item("adm-brand-strap", "admitad", "Silicone Strap Compatible Samsung Galaxy Watch 6 Band 20mm"),
+    ];
+
+    const composed = composeSearchPageOne(pool, QUERY, 50);
+    const head = composed.slice(0, 50);
+
+    expect(sameIdSets(composed, pool)).toBe(true);
+    expect(composed).toHaveLength(65);
+
+    // Preserved relevance lead + the ONE genuine same-family device early.
+    expect(head[0]!.id).toBe("ebay-dev-0");
+    expect(head[1]!.id).toBe("ebay-dev-1");
+    expect(head[2]!.storeSlug).toBe("aliexpress");
+    expect(head[3]!.storeSlug).toBe("aliexpress");
+
+    // No for-Samsung compatibility junk anywhere on page 1.
+    for (const i of head) {
+      expect(i.name).not.toMatch(/bracelet|for samsung|strap compatible/i);
+    }
+    // The junk titles keep their pool presence (pure permutation), in the tail.
+    const poses = composed.map((i, idx) => [i.id, idx] as const);
+    expect(poses.find(([id]) => id === "adm-dz09")![1]).toBeGreaterThanOrEqual(50);
+    expect(poses.find(([id]) => id === "adm-samsung-phone")![1]).toBeGreaterThanOrEqual(50);
+    expect(poses.find(([id]) => id === "adm-brand-strap")![1]).toBeGreaterThanOrEqual(50);
+  });
+
+  it("never seats a screen filter / LCD glass part / VR glasses as same-family coverage (live MacBook+iPhone shape)", () => {
+    // "macbook air m3" live shape: ali/admitad genuine non-eBay candidates are
+    // only accessory-style ("screen filter for Macbook", "OLED display for
+    // iphone X", "VR glasses for iPhone"). A provider whose only same-family
+    // inventory is such compatibility accessories contributes ZERO — page 1
+    // stays on genuine devices. Only when a peer holds a genuine same-family
+    // DEVICE (real MacBook Air) does it earn an early seat.
+    const pool: SearchResultItem[] = [
+      ...Array.from({ length: 60 }, (_, i) => ebayMacBook(i)),
+      item("adm-filter", "admitad", "25 Degree Anti SPY Removable Laptop Privacy Screen Filter for Macbook 13.3 inch"),
+      item("adm-glass", "admitad", "For iPhone X OLED Soft display for iphone 11 original screen full assembly for iPhone X Xs Xs Max LCD touch glass"),
+      item("adm-vr", "admitad", "Original BOBOVR Z5VR Glasses 3D Virtual Reality Cardboard Helmet for Iphone Android Smartphone with vr Remote Controller"),
+      aliMacBookDevice(0),
+    ];
+
+    const composed = composeSearchPageOne(pool, "macbook air m3", 50);
+    const head = composed.slice(0, 50);
+
+    expect(sameIdSets(composed, pool)).toBe(true);
+    expect(composed).toHaveLength(64);
+
+    // Genuine Air M3 lead, genuine same-family ali device early, junk absent.
+    expect(head[0]!.id).toBe("mac-ebay-dev-0");
+    expect(head[1]!.id).toBe("mac-ebay-dev-1");
+    expect(head[2]!.id).toBe("mac-ali-dev-0");
+    for (const i of head) {
+      expect(i.name).not.toMatch(/screen filter|oled soft display|vr glasses/i);
+    }
+    // The three accessory titles are a pure permutation → present in the tail.
+    const poses = composed.map((i, idx) => [i.id, idx] as const);
+    for (const id of ["adm-vr", "adm-glass", "adm-filter"]) {
+      expect(poses.find(([i]) => i === id)![1]).toBeGreaterThanOrEqual(50);
+    }
+  });
+
   it("gives an accessory-intent query its accessory representation at the FIRST accessory slots, never ahead of a device", () => {
     // "… case" query: the accessory IS the genuine target product and gets
     // coverage seats at the accessory tail, directly after all matching devices.
