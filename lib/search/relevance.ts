@@ -13,6 +13,8 @@ export const ACCESSORY_TERMS = [
   "privacy screen",
   "anti spy",
   "tempered glass",
+  "docking station",
+  "dock station",
   "phone case",
   "phone cover",
   "phone holder",
