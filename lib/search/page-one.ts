@@ -9,50 +9,54 @@
  * items, reordered) so every provider that actually holds matching results gets
  * a truthful presence on page 1 with MEANINGFUL EARLY exposure:
  *
- *   - global relevance stays the primary signal: the top leading slots are
- *     preserved untouched, and within every provider the assembled relevance
- *     order is kept,
- *   - a provider missing from page 1 has its genuine devices placed directly
- *     at the start of the page's device block (right behind the preserved
- *     global lead), not stranded at positions 46-49,
- *   - on a device/product query only TRUE product candidates count as provider
- *     representation — an accessory (case, screen protector, privacy filter)
- *     can never stand in for a provider, so AliExpress is never "represented"
- *     by a silicone case when its only matching MacBook stock is accessories;
- *     on an accessory-intent query a relevant accessory IS the target product
- *     and is placed at the first accessory slots — either way a device never
- *     yields to an accessory, so an accessory is never brought ahead of a
- *     device,
- *   - the provider with the most matching results still dominates the page
- *     (presence is bounded, never a forced-equal round-robin),
- *   - nothing irrelevant is ever promoted just to satisfy diversity,
+ *   - relevance stays the primary signal: exact/model products of every
+ *     genuinely-inventory-bearing provider lead page 1 (their best candidates
+ *     are placed directly behind the preserved global lead — early exposure,
+ *     never stranded at positions 46-49), then the remaining devices, then
+ *     family/series matches, then accessories; the relative pool order is
+ *     preserved inside every segment,
+ *   - EXACT beats FAMILY beats accessory: a series/brand match or an accessory
+ *     can never displace an exact/model match that is already earlier in the
+ *     pool, and an accessory is never brought ahead of a device,
+ *   - only GENUINE product candidates count as provider representation: on a
+ *     device/product query a repair part, screen assembly, or accessory (case,
+ *     screen protector, VR glasses, …) can never stand in for a provider whose
+ *     matching inventory is accessories/parts-only, so such a provider
+ *     contributes ZERO results on page 1 (its pool rows, if any, stay behind
+ *     every genuine device); on an accessory-intent query a relevant accessory
+ *     IS the target product and is placed at the first accessory slots,
+ *   - nothing irrelevant is ever promoted, no provider is fabricated or padded,
+ *   - the dominant provider still owns most of the page when its relevance
+ *     genuinely is the strongest (no forced-equal round-robin),
  *   - the complete universe is invariant: total, hasMore, zero-duplicate and
  *     DB-leg exclusion are all computed from the SAME item set, so pagination
- *     semantics are unchanged.
+ *     semantics are unchanged and page 2 continues from the same ordered
+ *     candidate universe.
  *
  * The function is a pure permutation of `pool` (when it needs nothing it
  * returns the input unchanged), so it is safe to run over seeded pools in the
- * paged-seam tests: any pool that already puts every present provider inside
- * the first page is a no-op.
+ * paged-seam tests: any pool with a single relevant provider (or nothing to
+ * fix) is a no-op.
  */
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import {
   analyzeSearchListing,
   isAccessoryListing,
   queryWantsAccessory,
+  type ProductMatchTier,
 } from "@/lib/search/relevance";
 import type { SearchResultItem } from "@/lib/data/homepage";
 
 /**
- * How many items one provider may contribute to page 1 when its genuine
- * matching inventory only appears beyond the first page. Small and bounded by
- * design: presence is truthful, never an equal-share quota.
+ * How many items one provider may contribute to the page-1 coverage block when
+ * its genuine matching inventory only appears beyond the early region. Small
+ * and bounded by design: presence is truthful, never an equal-share quota.
  */
 export const PAGE_ONE_PROVIDER_PRESENCE = 2;
 
 /**
  * How many leading page-1 slots stay reserved for the assembled global
- * relevance order before the diversity placements begin.
+ * relevance order before the coverage block begins.
  */
 export const PAGE_ONE_LEADING_GLOBAL_SLOTS = 2;
 
@@ -63,32 +67,36 @@ export const PAGE_ONE_LEADING_GLOBAL_SLOTS = 2;
  */
 export const PAGE_ONE_EARLY_DEVICE_CAP = 6;
 
+type ListingRecord = {
+  item: SearchResultItem;
+  index: number;
+  tier: ProductMatchTier;
+  isDevice: boolean;
+};
+
 function headSizeFor(poolLength: number, pageSize: number): number {
   return Math.min(poolLength, Math.max(1, Math.floor(pageSize)));
 }
 
-function isDeviceItem(item: SearchResultItem, query: string): boolean {
-  const analysis = analyzeSearchListing(item.name, query);
-  return analysis.isDevice === true;
-}
-
-/** Only genuinely matching inventory may be promoted — never tier none/repair. */
-function isSufficientlyRelevant(item: SearchResultItem, query: string): boolean {
-  const tier = analyzeSearchListing(item.name, query).tier;
-  return tier !== "none" && tier !== "repair";
-}
-
-/** Accessory-style listing for the query (case, screen protector, filter, …). */
-function isAccessoryCandidate(item: SearchResultItem, query: string): boolean {
+/**
+ * A listing is a repair part / accessory-style product for the query once
+ * isAccessoryListing says so. On a device query those can never represent a
+ * provider (an "iPhone X LCD screen full assembly" is not an iPhone 15 Pro
+ * Max); on an accessory query a relevant accessory IS the target product.
+ */
+function isPartOrAccessory(item: SearchResultItem, query: string): boolean {
   return isAccessoryListing(item.name, query) === true;
 }
 
 /**
- * Reorder `pool` so every provider represented anywhere in it appears inside
- * the first `pageSize` positions, with its best genuine devices placed EARLY
- * on page 1 (right behind the preserved global-relevance lead). Returns the
- * input unchanged when nothing is missing (pool ≤ page / already
- * representative / single-provider).
+ * Provider coverage on page 1.
+ *
+ * Reorders `pool` (a pure permutation of the SAME item set) so every provider
+ * that genuinely holds relevant candidates gets its best candidates inside the
+ * early region of page 1, ordered by relevance tier: exact/model devices first
+ * (the requested product), then family/series devices, then accessories (only
+ * on accessory-intent queries). Providers whose entire matching inventory is
+ * repair parts or accessories on a device query contribute zero.
  */
 export function composeSearchPageOne(
   pool: ReadonlyArray<SearchResultItem>,
@@ -100,116 +108,169 @@ export function composeSearchPageOne(
   if (headLen <= 0) return [...pool];
   if (pool.length <= headLen) return [...pool];
 
-  const head = pool.slice(0, headLen);
-  const rest = pool.slice(headLen);
-
-  const providersInPool: string[] = [];
-  const seenPool = new Set<string>();
-  for (const item of pool) {
-    if (!item.storeSlug || seenPool.has(item.storeSlug)) continue;
-    seenPool.add(item.storeSlug);
-    providersInPool.push(item.storeSlug);
-  }
-  if (providersInPool.length <= 1) return [...pool];
-
-  const providersInHead = new Set<string>();
-  for (const item of head) {
-    if (item.storeSlug) providersInHead.add(item.storeSlug);
-  }
-
-  const missing = providersInPool.filter((p) => !providersInHead.has(p));
-  if (missing.length === 0) return [...pool];
-
-  // Group the remaining pool (beyond page 1) per provider in pool order.
-  const restByProvider = new Map<string, SearchResultItem[]>();
-  for (const item of rest) {
-    if (!item.storeSlug) continue;
-    const bucket = restByProvider.get(item.storeSlug) ?? [];
-    bucket.push(item);
-    restByProvider.set(item.storeSlug, bucket);
-  }
-
-  // Query intent decides what counts as genuine provider representation. On an
-  // accessory-intent query ("iphone 15 case") a relevant accessory IS the target
-  // product and qualifies. On a device/product query ("macbook air m3") an
-  // accessory can never stand in for a provider — only true product candidates
-  // qualify, so a provider is never represented by a case merely to satisfy
-  // provider diversity.
-  const promotesAccessories = queryWantsAccessory(query) === true;
-
-  // Select each missing provider's genuine inventory (device-first, up to
-  // `take` per provider, preserving that provider's own relevance order).
+  const wantsAccessory = queryWantsAccessory(query) === true;
   const take = Math.max(1, Math.floor(presence));
-  const earlyDevices: SearchResultItem[] = [];
-  const promotedOthers: SearchResultItem[] = [];
-  for (const providerId of missing) {
-    const candidates = restByProvider.get(providerId) ?? [];
-    if (candidates.length === 0) continue;
-    const devices: SearchResultItem[] = [];
-    const others: SearchResultItem[] = [];
-    for (const candidate of candidates) {
-      if (isDeviceItem(candidate, query)) {
-        devices.push(candidate);
-      } else if (isAccessoryCandidate(candidate, query)) {
-        if (promotesAccessories) others.push(candidate);
-      } else if (isSufficientlyRelevant(candidate, query)) {
-        others.push(candidate);
-      }
+
+  const records: ListingRecord[] = pool.map((item, index) => {
+    const analysis = analyzeSearchListing(item.name, query, {
+      category: item.category,
+    });
+    return { item, index, tier: analysis.tier, isDevice: analysis.isDevice };
+  });
+
+  const isProduct = (row: ListingRecord): boolean => {
+    if (row.tier === "none" || row.tier === "repair") return false;
+    if (isPartOrAccessory(row.item, query)) {
+      // On an accessory-intent query the relevance engine tags the matching
+      // accessory as a real product (exact/model/accessory tier) and it IS the
+      // target. On a device/product query an accessory can never represent a
+      // provider.
+      return wantsAccessory;
     }
-    for (const item of [...devices, ...others].slice(0, take)) {
-      if (isDeviceItem(item, query)) earlyDevices.push(item);
-      else promotedOthers.push(item);
+    return row.isDevice === true;
+  };
+
+  const strongByProvider = new Map<string, ListingRecord[]>();
+  const familyByProvider = new Map<string, ListingRecord[]>();
+  const accessoryByProvider = new Map<string, ListingRecord[]>();
+
+  for (const row of records) {
+    if (!isProduct(row)) continue;
+    const providerId = row.item.storeSlug;
+    if (!providerId) continue;
+    if (!isPartOrAccessory(row.item, query)) {
+      if (row.tier === "exact" || row.tier === "model") {
+        const bucket = strongByProvider.get(providerId) ?? [];
+        bucket.push(row);
+        strongByProvider.set(providerId, bucket);
+      } else if (row.tier === "series" || row.tier === "brand") {
+        const bucket = familyByProvider.get(providerId) ?? [];
+        bucket.push(row);
+        familyByProvider.set(providerId, bucket);
+      }
+    } else if (wantsAccessory) {
+      const bucket = accessoryByProvider.get(providerId) ?? [];
+      bucket.push(row);
+      accessoryByProvider.set(providerId, bucket);
     }
   }
-  if (earlyDevices.length + promotedOthers.length === 0) return [...pool];
 
-  // Real inventory only: drop anything the relevance tiers reject so diversity
-  // can never promote an irrelevant product.
-  const billing = earlyDevices
-    .filter((item) => isSufficientlyRelevant(item, query))
-    .slice(0, PAGE_ONE_EARLY_DEVICE_CAP);
-  const promoted = promotedOthers.filter((item) => isSufficientlyRelevant(item, query));
-  if (billing.length + promoted.length === 0) return [...pool];
+  // Representative providers: every provider holding at least one genuine
+  // product anywhere in the pool (device-style products on device queries,
+  // accessory targets on accessory queries).
+  const reps = new Set<string>([...strongByProvider.keys()]);
+  for (const providerId of familyByProvider.keys()) reps.add(providerId);
+  if (wantsAccessory) for (const providerId of accessoryByProvider.keys()) reps.add(providerId);
+  if (reps.size <= 1) return [...pool];
 
-  const origDevices = head.filter((item) => isDeviceItem(item, query));
-  const origOthers = head.filter((item) => !isDeviceItem(item, query));
+  const byIndex = (a: ListingRecord, b: ListingRecord): number => a.index - b.index;
 
-  // Devices lead page 1. The device block keeps the assembled global-relevance
-  // lead untouched, then places every promoted provider-best device directly
-  // behind it (early exposure), then the remaining original devices in
-  // assembled order. Accessories are admitted only into the tail — promoted
-  // ones first (they belong to the provider this whole pass is about), then any
-  // the head already held. If the leading device block would otherwise crowd a
-  // promotion out, the last leading devices roll to page 2 (same items, still
-  // reachable, never discarded).
-  const lead = Math.min(PAGE_ONE_LEADING_GLOBAL_SLOTS, origDevices.length);
-  const origTail = origDevices.slice(lead);
-  const origBudget = Math.max(
-    0,
-    headLen - billing.length - promoted.length - lead,
-  );
-  const keptOrigTail = origTail.slice(0, origBudget);
+  // Coverage block: each genuinely-inventory-bearing provider's best candidates.
+  const coverageStrong: ListingRecord[] = [];
+  for (const providerId of strongByProvider.keys()) {
+    coverageStrong.push(...strongByProvider.get(providerId)!.slice(0, take));
+  }
+  coverageStrong.sort(byIndex);
 
-  const headDevices = [
-    ...origDevices.slice(0, lead),
-    ...billing,
-    ...keptOrigTail,
-  ];
-  const accessorySlots = Math.max(0, headLen - headDevices.length);
-  const headOthers = [...promoted, ...origOthers].slice(0, accessorySlots);
+  // Family-only providers (no exact/model in the pool) still get a truthful
+  // seat, strictly after every exact/model candidate.
+  const coverageFamily: ListingRecord[] = [];
+  for (const providerId of familyByProvider.keys()) {
+    if (strongByProvider.has(providerId)) continue;
+    coverageFamily.push(...familyByProvider.get(providerId)!.slice(0, take));
+  }
+  coverageFamily.sort(byIndex);
 
-  const newHead = [...headDevices, ...headOthers];
-  const candidates = [...origDevices, ...earlyDevices, ...origOthers, ...promoted];
-  const candidateIds = new Set(candidates.map((item) => item.id));
+  const coverageAccessory: ListingRecord[] = [];
+  if (wantsAccessory) {
+    for (const providerId of accessoryByProvider.keys()) {
+      coverageAccessory.push(...accessoryByProvider.get(providerId)!.slice(0, take));
+    }
+    coverageAccessory.sort(byIndex);
+  }
 
-  // Everything the head did not keep rolls to the tail, then the untouched
-  // remainder of the pool keeps its original order. A pure permutation.
-  const evicted = candidates.filter((item) => !include(item, newHead));
-  const tailRest = pool.filter((item) => !candidateIds.has(item.id));
+  if (
+    coverageStrong.length === 0 &&
+    coverageFamily.length === 0 &&
+    (coverageAccessory.length === 0 || !wantsAccessory)
+  ) {
+    return [...pool];
+  }
 
-  return [...newHead, ...evicted, ...tailRest];
+  const strongPool = records.filter((row) => strongRow(row, query, wantsAccessory));
+  const familyPool = records.filter((row) => familyRow(row, query, wantsAccessory));
+  const accessoryPool = wantsAccessory
+    ? records.filter((row) => accessoryRow(row, query))
+    : [];
+
+  const used = new Set<string>();
+  const strongSegment: ListingRecord[] = [];
+  for (const row of [...coverageStrong, ...strongPool]) {
+    if (used.has(row.item.id)) continue;
+    used.add(row.item.id);
+    strongSegment.push(row);
+  }
+  const familySegment: ListingRecord[] = [];
+  for (const row of [...coverageFamily, ...familyPool]) {
+    if (used.has(row.item.id)) continue;
+    used.add(row.item.id);
+    familySegment.push(row);
+  }
+  const accessorySegment: ListingRecord[] = [];
+  for (const row of [...coverageAccessory, ...accessoryPool]) {
+    if (used.has(row.item.id)) continue;
+    used.add(row.item.id);
+    accessorySegment.push(row);
+  }
+
+  // Reserve page-1 tail slots for accessory-intent coverage so a provider whose
+  // only genuine matching inventory is the requested accessory is represented.
+  const reserveAccessory = wantsAccessory
+    ? Math.min(accessorySegment.length, accessoryByProvider.size * take)
+    : 0;
+  const strongBudget = Math.max(0, headLen - reserveAccessory);
+
+  const head: SearchResultItem[] = [];
+  for (const row of strongSegment) {
+    if (head.length >= strongBudget) break;
+    head.push(row.item);
+  }
+  for (const row of familySegment) {
+    if (head.length >= headLen) break;
+    head.push(row.item);
+  }
+  for (const row of accessorySegment) {
+    if (head.length >= headLen) break;
+    head.push(row.item);
+  }
+
+  // Rare underfill: drain the remaining pool in order (accessories included),
+  // still bounded to the page and still a permutation.
+  if (head.length < headLen) {
+    const headIds = new Set(head.map((i) => i.id));
+    for (const row of records) {
+      if (head.length >= headLen) break;
+      if (headIds.has(row.item.id)) continue;
+      headIds.add(row.item.id);
+      head.push(row.item);
+    }
+  }
+
+  const headIds = new Set(head.map((i) => i.id));
+  const tail = pool.filter((item) => !headIds.has(item.id));
+  return [...head, ...tail];
 }
 
-function include(item: SearchResultItem, list: SearchResultItem[]): boolean {
-  return list.some((existing) => existing.id === item.id);
+function strongRow(row: ListingRecord, query: string, wantsAccessory: boolean): boolean {
+  if (wantsAccessory) return row.isDevice === true && !isPartOrAccessory(row.item, query);
+  return row.tier === "exact" || row.tier === "model";
+}
+
+function familyRow(row: ListingRecord, query: string, wantsAccessory: boolean): boolean {
+  if (wantsAccessory || isPartOrAccessory(row.item, query)) return false;
+  return row.tier === "series" || row.tier === "brand";
+}
+
+function accessoryRow(row: ListingRecord, query: string): boolean {
+  return isPartOrAccessory(row.item, query);
 }
