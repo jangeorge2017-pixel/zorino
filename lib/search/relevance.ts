@@ -9,6 +9,9 @@
 /** Accessory terms — longer phrases listed first for substring checks. */
 export const ACCESSORY_TERMS = [
   "screen protector",
+  "screen filter",
+  "privacy screen",
+  "anti spy",
   "tempered glass",
   "phone case",
   "phone cover",
@@ -847,6 +850,17 @@ export function isAccessoryListing(title: string, query: string): boolean {
 
   for (const term of DEVICE_ACCESSORY_TYPES) {
     if (hay.includes(term)) return true;
+  }
+
+  // Compatibility/for-clause accessories: when a title says the product is
+  // FOR a specific device family ("Privacy Screen Filter for Macbook",
+  // "VR Glasses for Iphone", "Smart Bracelet … for Xiaomi Huawei Samsung",
+  // "Mobile phone for Samsung"), it is an accessory for that family, never the
+  // family's own device. This runs BEFORE the device heuristic so accessory
+  // titles that also name a device-sounding word ("laptop", "smartphone",
+  // "mobile phone") cannot masquerade as same-family devices.
+  if (mentionsDeviceInForClause(hay)) {
+    return true;
   }
 
   if (looksLikeDevice(title)) return false;
