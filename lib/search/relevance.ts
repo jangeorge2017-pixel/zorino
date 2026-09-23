@@ -645,10 +645,10 @@ export function titleMatchesQuery(title: string, query: string): boolean {
 
 function mentionsDeviceInForClause(hay: string): boolean {
   return (
-    /\bfor\b[^,.]{0,80}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi|macbook|ps5|playstation)\b/.test(
+    /\bfor\b[^.]{0,90}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi|macbook|ps5|playstation)\b/.test(
       hay
     ) ||
-    /\bpour\b[^,.]{0,80}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi|macbook|ps5|playstation)\b/.test(
+    /\bpour\b[^.]{0,90}\b(iphone|ipad|samsung|galaxy|xiaomi|redmi|macbook|ps5|playstation)\b/.test(
       hay
     )
   );
