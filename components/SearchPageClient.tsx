@@ -21,6 +21,8 @@ type SearchPageClientProps = {
   hasMore: boolean;
   categories: { value: string; label: string }[];
   stores: { value: string; label: string }[];
+  /** Initial sort mode from the URL (?sort=price); keeps the SSR page and the dropdown in sync. */
+  initialSortBy?: string;
 };
 
 /**
@@ -47,6 +49,7 @@ export default function SearchPageClient({
   hasMore,
   categories,
   stores,
+  initialSortBy = "relevance",
 }: SearchPageClientProps) {
   const t = useTranslations("search");
   const tCommon = useTranslations("common");
@@ -64,7 +67,7 @@ export default function SearchPageClient({
   const [maxPrice, setMaxPrice] = useState("");
   const [rating, setRating] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [sortBy, setSortBy] = useState("relevance");
+  const [sortBy, setSortBy] = useState(initialSortBy);
 
   const categoryOptions = [
     { value: "", label: t("allCategories") },
@@ -127,6 +130,7 @@ export default function SearchPageClient({
         q: initialQuery,
         offset: String(offset),
         limit: String(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE),
+        sort: sortBy === "price_low" ? "price" : "relevance",
       });
       const res = await fetch(`/api/search/paged?${params.toString()}`);
       if (!res.ok) throw new Error("paged-search-failed");

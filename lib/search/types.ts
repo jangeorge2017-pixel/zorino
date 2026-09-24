@@ -20,10 +20,19 @@ export const LIVE_SEARCH_PROVIDER_IDS: readonly ProviderId[] = LIVE_PROVIDER_IDS
 
 export type LiveSearchProviderId = (typeof LIVE_SEARCH_PROVIDER_IDS)[number];
 
+/** Universal sort modes the search engine accepts. */
+export type SearchSortMode = "relevance" | "price";
+
 export const SEARCH_ENGINE_DEFAULTS = {
   PAGE_SIZE: 50,
   /** Max API pages per provider (50 × 12 = 600 listings). */
   MAX_PAGES_PER_PROVIDER: 12,
+  /**
+   * Strict cap on raw listings a SINGLE source may contribute per search query
+   * (requirement: fetching limit per source). Applied after parallel fetch +
+   * dedupe so no single provider's volume can flood the ranking pool.
+   */
+  MAX_LISTINGS_PER_SOURCE: 50,
   /** Minimum raw listings to collect before stopping pagination. */
   MIN_FETCH_COUNT: 100,
   /** Target pool size for ranking depth. */

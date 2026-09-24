@@ -11,11 +11,18 @@ import type {
   NormalizedSearchListing,
   RawProviderListing,
   SearchProviderId,
+  SearchSortMode,
 } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 
-/** @deprecated Use dynamic fairShare in marketplace-balance — kept for tests. */
-export const MAX_CONSECUTIVE_SAME_MARKETPLACE = 2;
+/**
+ * Search-result assembly policy: strict alternation. After a pick, the very
+ * next slot belongs to a different source whenever a peer still has stock, so
+ * the final layout interleaves providers 1-1-1 (eBay → AliExpress → Source C
+ * → loop) instead of letting one source's volume read as a block. Homepage
+ * sections (`balanceFlatMarketplaceList`) keep the looser 2-consecutive rule.
+ */
+export const MAX_CONSECUTIVE_SAME_MARKETPLACE = 1;
 
 /**
  * Best offer among duplicates (used when collapsing leftover ties / price comparison).
@@ -110,6 +117,19 @@ export function exactModelPerProviderCeiling(limit: number): number {
   );
 }
 
+/**
+ * Strict per-source share of a search pool: `ceil(limit / n)` where n = number
+ * of sources that actually returned results. This is the hard, source-agnostic
+ * cap behind Requirement 1 — no single marketplace may contribute more than its
+ * equal share of a query's final results. It stays dynamic so a genuinely lone
+ * provider (n = 1) still fills the whole pool with real stock and is never
+ * trimmed.
+ */
+export function perProviderEqualShareCeiling(limit: number, activeProviders: number): number {
+  if (activeProviders <= 0) return limit;
+  return Math.max(1, Math.ceil(limit / activeProviders));
+}
+
 function balancePhase(
   queuesByProvider: Map<string, NormalizedSearchListing[]>,
   limit: number,
@@ -134,10 +154,59 @@ function balancePhase(
 }
 
 /**
+ * Universal price sort (Requirement 3): merge EVERY source's ranked inventory
+ * into one array, then sort strictly by price (lowest → highest) regardless of
+ * which marketplace a product belongs to. Relevance survives only as a
+ * tie-breaker for equal-priced items. Round-robin balancing is intentionally
+ * skipped here — the user asked for a pure global price order when sort is on.
+ */
+function assemblePriceSortedSearchResults(
+  allRaw: RawProviderListing[],
+  query: string,
+  limit: number,
+): SearchResultItem[] {
+  const ranked: NormalizedSearchListing[] = [];
+  const byProvider = groupRawByProvider(allRaw);
+  for (const raw of byProvider.values()) {
+    if (!raw.length) continue;
+    ranked.push(...rankRawListings(raw, query));
+  }
+  const sorted = [...ranked].sort((a, b) => {
+    if (a.price !== b.price) return a.price - b.price;
+    // Equal price → the better-relevance / higher-quality listing first.
+    return compareByRelevanceThenQuality(a, b);
+  });
+  return sorted.slice(0, limit).map(listingToSearchResultItem);
+}
+
+function groupRawByProvider(
+  listings: RawProviderListing[],
+): Map<SearchProviderId, RawProviderListing[]> {
+  const byProvider = new Map<SearchProviderId, RawProviderListing[]>();
+  for (const listing of listings) {
+    const bucket = byProvider.get(listing.providerId) ?? [];
+    bucket.push(listing);
+    byProvider.set(listing.providerId, bucket);
+  }
+  return byProvider;
+}
+
+export type ProductionAssemblyOptions = {
+  /**
+   * "relevance" (default) → phased, strictly-interleaved round-robin assembly.
+   * "price" → all sources merged and sorted lowest→highest by price.
+   */
+  sortBy?: SearchSortMode;
+};
+
+/**
  * Production search assembly — marketplace-agnostic:
  * 1) Rank each present marketplace independently
- * 2) Balance dynamically across whatever providers returned results
- * 3) Preserve affiliate URLs; keep cross-marketplace offers for comparison
+ * 2) Cap each source to its strict equal share of the pool (ceil(limit / n))
+ * 3) Balance dynamically across whatever providers returned results via a
+ *    strictly alternating 1-1-1 round-robin (no provider may put two results
+ *    back-to-back while a peer still has stock)
+ * 4) Preserve affiliate URLs; keep cross-marketplace offers for comparison
  *
  * New marketplaces participate automatically when their connector returns data.
  */
@@ -145,25 +214,42 @@ export function assembleProductionSearchResults(
   allRaw: RawProviderListing[],
   query: string,
   limit: number,
+  options?: ProductionAssemblyOptions,
 ): SearchResultItem[] {
   if (allRaw.length === 0 || limit <= 0) return [];
 
-  const byProvider = new Map<SearchProviderId, RawProviderListing[]>();
-  for (const listing of allRaw) {
-    const bucket = byProvider.get(listing.providerId) ?? [];
-    bucket.push(listing);
-    byProvider.set(listing.providerId, bucket);
+  if (options?.sortBy === "price") {
+    return assemblePriceSortedSearchResults(allRaw, query, limit);
   }
+
+  // Pass 1 — rank each present marketplace independently and count how many
+  // sources genuinely returned results (a source that ranks to nothing is not
+  // counted, so it never eats into the equal share of real contributors).
+  const rankedByProvider = new Map<SearchProviderId, NormalizedSearchListing[]>();
+  for (const [providerId, raw] of groupRawByProvider(allRaw)) {
+    if (!raw.length) continue;
+    const ranked = rankRawListings(raw, query);
+    if (ranked.length > 0) rankedByProvider.set(providerId, ranked);
+  }
+  if (rankedByProvider.size === 0) return [];
+
+  // Strict per-source cap (Requirement 1): no single source may contribute more
+  // than ceil(limit / activeSources) of the final pool, so eBay's 300-listing
+  // response can never crowd out AliExpress / Admitad / DB inventory. A lone
+  // provider keeps the whole pool.
+  const maxPerProvider = perProviderEqualShareCeiling(limit, rankedByProvider.size);
 
   const primaryQueues = new Map<string, NormalizedSearchListing[]>();
   const secondaryDeviceQueues = new Map<string, NormalizedSearchListing[]>();
   const accessoryQueues = new Map<string, NormalizedSearchListing[]>();
 
-  // Dynamic provider set — no hardcoded marketplace list.
-  for (const [providerId, raw] of byProvider) {
-    if (!raw.length) continue;
-    const ranked = rankRawListings(raw, query);
-    const { primary, secondaryDevices, accessories } = splitProviderQueues(ranked, query);
+  // Pass 2 — slice each source to its equal share, then split into device tiers.
+  // Slicing BEFORE the tier split is what makes the cap HARD across every phase
+  // (including the uncapped refill): a source can never reappear from a later
+  // tier once its share is spent.
+  for (const [providerId, ranked] of rankedByProvider) {
+    const capped = ranked.length > maxPerProvider ? ranked.slice(0, maxPerProvider) : ranked;
+    const { primary, secondaryDevices, accessories } = splitProviderQueues(capped, query);
     if (primary.length) primaryQueues.set(providerId, primary);
     if (secondaryDevices.length) secondaryDeviceQueues.set(providerId, secondaryDevices);
     if (accessories.length) accessoryQueues.set(providerId, accessories);
@@ -207,9 +293,10 @@ export function assembleProductionSearchResults(
     fill(accessoryQueues, limit - accepted.length, true);
   }
 
-  // Refill (UNCAPPED, same phase order): genuine leftovers beyond the ceiling
-  // fill any remaining pool slots so a volume leader's real stock is never
-  // dropped — it simply sits behind every provider's genuine inventory.
+  // Refill (ceiling off, same phase order): genuine leftovers beyond the exact-
+  // model ceiling fill any remaining pool slots. Still HARD-capped at each
+  // source's equal share (queues were pre-sliced above), so a volume leader's
+  // real stock is only kept while its fair share is not yet exhausted.
   if (accepted.length < limit && primaryQueues.size > 0) {
     fill(primaryQueues, limit - accepted.length, false);
   }

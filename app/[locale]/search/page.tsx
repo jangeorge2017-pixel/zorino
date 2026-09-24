@@ -7,7 +7,7 @@ export const maxDuration = 60;
 
 type SearchPageProps = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; sort?: string }>;
 };
 
 export async function generateMetadata({
@@ -26,13 +26,15 @@ export async function generateMetadata({
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q = "" } = await searchParams;
+  const { q = "", sort: sortRaw = "" } = await searchParams;
   const trimmed = q.trim();
-  const filters = await getSearchFilters(await getSearchResults(trimmed));
+  const sort = sortRaw === "price" || sortRaw === "price_low" ? "price" : "relevance";
+  const filters = await getSearchFilters(await getSearchResults(trimmed, sort));
   const firstPage = await getSearchResultsPage(
     trimmed,
     0,
     SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+    sort,
   );
 
   return (
@@ -43,6 +45,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       hasMore={firstPage.hasMore}
       categories={filters.categories}
       stores={filters.stores}
+      initialSortBy={sort === "price" ? "price_low" : "relevance"}
     />
   );
 }

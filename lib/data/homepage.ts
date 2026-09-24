@@ -351,22 +351,26 @@ export type SearchResultItem = {
  * Product search for /search page — ZORINO Global Search Engine.
  * Fans out to configured providers (AliExpress, eBay, …), ranks, dedupes, compares.
  */
-export async function getSearchResults(query: string): Promise<SearchResultItem[]> {
+export async function getSearchResults(
+  query: string,
+  sort?: "relevance" | "price",
+): Promise<SearchResultItem[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
   const { searchProductsSurface } = await import("@/lib/canonical/consumption/search");
-  return searchProductsSurface(trimmed);
+  return searchProductsSurface(trimmed, undefined, sort);
 }
 
 /** Paged search results for the /search page "Load more" flow. */
 export async function getSearchResultsPage(
   query: string,
   offset: number,
-  limit: number
+  limit: number,
+  sort?: "relevance" | "price",
 ) {
   const { searchResultsPagedSurface } = await import("@/lib/canonical/consumption/search");
-  return searchResultsPagedSurface(query, offset, limit);
+  return searchResultsPagedSurface(query, offset, limit, sort);
 }
 
 /** Filter options for search page — derived from live search results across all active providers. */

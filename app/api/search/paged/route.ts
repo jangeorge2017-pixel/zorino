@@ -11,10 +11,13 @@ export async function GET(req: Request) {
   const limit = Number(
     url.searchParams.get("limit") ?? SEARCH_ENGINE_DEFAULTS.PAGE_SIZE
   );
+  const sortRaw = url.searchParams.get("sort") ?? "relevance";
+  const sort = sortRaw === "price" || sortRaw === "price_low" ? "price" : "relevance";
   const page = await getSearchResultsPage(
     q,
     Number.isFinite(offset) ? offset : 0,
     Number.isFinite(limit) ? Math.min(Math.max(1, limit), SEARCH_ENGINE_DEFAULTS.PAGE_SIZE) : SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+    sort,
   );
   return NextResponse.json(page);
 }
