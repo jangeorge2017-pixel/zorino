@@ -445,6 +445,19 @@ async function fetchProvidersInParallel(
           }
         };
         const settled = await Promise.all(searches.map(timeoutOnly));
+        // Requirement 3 — strict per-provider debug logging: record how many
+        // raw provider listings each leg (exact query / family keyword) actually
+        // returned BEFORE dedupe, cap, or ranking so a disappearing source is
+        // diagnosable instead of silently absent.
+        const legCounts = settled.map((s) => s.listings.length);
+        console.log(
+          `[search-engine] provider=${adapter.id} query="${query}"${
+            familyKeyword ? ` family="${familyKeyword}"` : ""
+          } raw_leg_counts=[${legCounts.join(",")}] duration_ms=${Math.max(
+            ...settled.map((s) => s.durationMs),
+            0,
+          )}`,
+        );
         const result = {
           providerId: adapter.id,
           listings: settled.flatMap((s) => s.listings),
@@ -466,6 +479,9 @@ async function fetchProvidersInParallel(
         );
         allRaw.push(...cappedMerged);
         recordProviderRun(result.providerId, cappedMerged.length);
+        console.log(
+          `[search-engine] provider=${adapter.id} raw_after_dedupe_cap=${cappedMerged.length} (merged=${merged.length})`,
+        );
         providerStats.push({
           providerId: result.providerId,
           fetched: cappedMerged.length,

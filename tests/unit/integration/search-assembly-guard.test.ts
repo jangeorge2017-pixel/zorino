@@ -18,7 +18,10 @@ import { describe, expect, it } from "vitest";
 
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import {
+  diversifyTopViewport,
   exactModelPerProviderCeiling,
+  PRICE_SORT_DIVERSITY_WINDOW,
+  PRICE_SORT_MAX_CONSECUTIVE_SAME_PROVIDER,
   SEARCH_POOL_SINGLE_PROVIDER_EXACT_SHARE,
 } from "@/lib/search/production-pipeline";
 import type { RawProviderListing } from "@/lib/search/types";
@@ -306,5 +309,174 @@ describe("production search assembly — universal price sort (Requirement 3)", 
       { sortBy: "price" },
     );
     expect(results.map((r) => r.price)).toEqual([1000, 1050]);
+  });
+});
+
+describe("production search assembly — iPhone 15 Pro must stay multi-provider", () => {
+  const QUERY = "iphone 15 pro";
+
+  function phone(
+    providerId: RawProviderListing["providerId"],
+    externalId: string,
+    title: string,
+    price: number,
+  ): RawProviderListing {
+    return rawListing({
+      providerId,
+      externalId,
+      title,
+      price,
+      originalPrice: Math.round(price * 1.25),
+    });
+  }
+
+  it("keeps AliExpress + Admitad genuine device inventory in the pool when only eBay has the exact model", () => {
+    // eBay genuinely dominates the exact "iPhone 15 Pro" device volume, while
+    // AliExpress holds same-family devices and Admitad holds imported/refurb
+    // devices that resolve to the requested family.
+    const ebay = Array.from({ length: 60 }, (_, i) =>
+      phone(
+        "ebay",
+        `eb-${i}`,
+        `Apple iPhone 15 Pro ${128 + i}GB Unlocked GSM - ${i}`,
+        800 + i * 5,
+      ),
+    );
+    const aliExpress = Array.from({ length: 8 }, (_, i) =>
+      phone(
+        "aliexpress",
+        `ali-${i}`,
+        `Apple iPhone 14 Pro Max ${128 + i}GB Factory Unlocked Device ${i}`,
+        600 + i * 10,
+      ),
+    );
+    const admitad = Array.from({ length: 8 }, (_, i) =>
+      phone(
+        "admitad",
+        `adm-${i}`,
+        `Apple iPhone 15 Pro Grade-A Refurbished ${256 + i}GB Device ${i}`,
+        520 + i * 7,
+      ),
+    );
+
+    const results = assembleProductionSearchResults(
+      [...ebay, ...aliExpress, ...admitad],
+      QUERY,
+      50,
+    );
+
+    const stores = new Set(results.map((r) => r.storeSlug));
+    expect(stores).toEqual(new Set(["ebay", "aliexpress", "admitad"]));
+
+    // Strict equal share of the leading pool: eBay capped, peers keep genuine
+    // device inventory reachable (not pushed off the top-12 viewport).
+    expect(results.filter((r) => r.storeSlug === "ebay").length).toBeLessThan(25);
+    expect(results.filter((r) => r.storeSlug === "aliexpress").length).toBeGreaterThan(0);
+    expect(results.filter((r) => r.storeSlug === "admitad").length).toBeGreaterThan(0);
+  });
+
+  it("enforces at most 2 consecutive eBay slots in the top 12 when eBay owns the cheapest devices", () => {
+    const ebay = Array.from({ length: 20 }, (_, i) =>
+      phone(
+        "ebay",
+        `eb-${i}`,
+        `Apple iPhone 15 Pro $${500 + i} Unlocked Device ${i}`,
+        500 + i * 4,
+      ),
+    );
+    const aliExpress = Array.from({ length: 6 }, (_, i) =>
+      phone(
+        "aliexpress",
+        `ali-${i}`,
+        `Apple iPhone 15 Pro Max 512GB Device ${i}`,
+        1000 + i,
+      ),
+    );
+
+    const results = assembleProductionSearchResults(
+      [...ebay, ...aliExpress],
+      QUERY,
+      12,
+      { sortBy: "price" },
+    );
+
+    // Price sort is preserved (cheapest first) but no single provider may hold
+    // more than 2 consecutive slots in the leading viewport — eBay's cheap run
+    // is broken by AliExpress's next-cheapest genuine device.
+    const expected = [...results.map((r) => r.price)];
+    expect(expected[0]!).toBeLessThanOrEqual(expected[11]!);
+
+    let run = 0;
+    for (const r of results) {
+      run = r.storeSlug === "ebay" ? run + 1 : 0;
+      expect(run).toBeLessThanOrEqual(2);
+    }
+    expect(results.some((r) => r.storeSlug === "aliexpress")).toBe(true);
+  });
+});
+
+describe("price-mode top-viewport diversity (diversifyTopViewport)", () => {
+  const item = (providerId: string, price: number) => ({ providerId, price });
+
+  it("keeps pure order when no provider exceeds 2 consecutive", () => {
+    const sorted = [
+      item("admitad", 100),
+      item("aliexpress", 105),
+      item("ebay", 110),
+      item("admitad", 115),
+    ];
+    const out = diversifyTopViewport(sorted);
+    expect(out).toEqual(sorted);
+  });
+
+  it("interleaves next-cheapest from another provider to break an eBay run", () => {
+    // eBay owns the cheap block; AliExpress owns the next-cheapest items. Pure
+    // sort would show 12 eBay slots in the leading viewport; the cap interleaves
+    // AliExpress's items so no single provider holds more than 2 consecutive
+    // slots inside the top-12 window.
+    const sorted = [
+      ...Array.from({ length: 12 }, (_, i) => item("ebay", 100 + i)),
+      item("aliexpress", 500),
+      item("aliexpress", 501),
+      item("aliexpress", 502),
+      item("aliexpress", 503),
+    ] as ReturnType<typeof item>[];
+    const out = diversifyTopViewport(sorted);
+
+    expect(out).toHaveLength(16);
+
+    let run = 0;
+    for (const r of out.slice(0, PRICE_SORT_DIVERSITY_WINDOW)) {
+      run = r.providerId === "ebay" ? run + 1 : 0;
+      expect(run).toBeLessThanOrEqual(2);
+    }
+    // AliExpress gets pulled into the viewport (not stranded at the tail).
+    expect(out.slice(0, PRICE_SORT_DIVERSITY_WINDOW).some((r) => r.providerId === "aliexpress")).toBe(true);
+  });
+
+  it("is a pure permutation of the input (same items, same count)", () => {
+    const sorted = [
+      ...Array.from({ length: 10 }, (_, i) => item("ebay", 100 + i)),
+      item("aliexpress", 900),
+      item("admitad", 901),
+    ];
+    const out = diversifyTopViewport(sorted);
+    expect(out).toHaveLength(sorted.length);
+    const identity = ([p, price]: [string, number]) => `${p}:${price}`;
+    expect(new Set(out.map((r) => identity([r.providerId, r.price])))).toEqual(
+      new Set(sorted.map((r) => identity([r.providerId, r.price]))),
+    );
+  });
+
+  it("does not trim a genuinely lone provider (real stock fills the viewport)", () => {
+    const sorted = Array.from({ length: 20 }, (_, i) => item("ebay", 100 + i));
+    const out = diversifyTopViewport(sorted);
+    expect(out).toHaveLength(20);
+    expect(out.every((r) => r.providerId === "ebay")).toBe(true);
+  });
+
+  it("exports the documented window/cap constants", () => {
+    expect(PRICE_SORT_DIVERSITY_WINDOW).toBe(12);
+    expect(PRICE_SORT_MAX_CONSECUTIVE_SAME_PROVIDER).toBe(2);
   });
 });

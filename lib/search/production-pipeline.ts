@@ -153,12 +153,87 @@ function balancePhase(
   });
 }
 
+/** Number of leading positions the price-mode diversity cap covers. */
+export const PRICE_SORT_DIVERSITY_WINDOW = 12;
+
+/** Max consecutive slots one provider may hold inside the diversity window. */
+export const PRICE_SORT_MAX_CONSECUTIVE_SAME_PROVIDER = 2;
+
+export type DiversityEnforceable = { providerId: string };
+
+/**
+ * Pure viewport diversity enforcement for a sorted (price-ordered) list.
+ *
+ * Keeps the pure global sort order EXCEPT where it would let one marketplace
+ * hold more than `maxConsecutive` consecutive slots inside the leading
+ * `windowSize` viewport. When the head would violate the cap, the next-cheapest
+ * item from a DIFFERENT provider is interleaved instead. A genuinely lone
+ * provider (no other provider has any remaining items) is never trimmed — the
+ * head is taken as-is rather than dropping real stock into the tail. The result
+ * is a pure permutation of `sorted` (same items, minimally reordered), so
+ * pagination totals / hasMore semantics computed from the pool are untouched.
+ */
+export function diversifyTopViewport<T extends DiversityEnforceable>(
+  sorted: readonly T[],
+  windowSize = PRICE_SORT_DIVERSITY_WINDOW,
+  maxConsecutive = PRICE_SORT_MAX_CONSECUTIVE_SAME_PROVIDER,
+): T[] {
+  if (sorted.length <= 1) return [...sorted];
+  const window = Math.max(1, Math.floor(windowSize));
+  const cap = Math.max(1, Math.floor(maxConsecutive));
+  const queue: T[] = [...sorted];
+  const out: T[] = [];
+  let streakProvider: string | null = null;
+  let streakCount = 0;
+
+  const push = (item: T): void => {
+    if (item.providerId === streakProvider) {
+      streakCount += 1;
+    } else {
+      streakProvider = item.providerId;
+      streakCount = 1;
+    }
+    out.push(item);
+  };
+
+  while (out.length < window && queue.length > 0) {
+    const head = queue[0]!;
+    const wouldViolate =
+      streakProvider === head.providerId && streakCount >= cap;
+
+    if (wouldViolate) {
+      // Interleave the next-cheapest item from a different provider so the
+      // current streak is broken before another single-provider slot.
+      const otherIdx = queue.findIndex(
+        (item, i) => i > 0 && item.providerId !== streakProvider,
+      );
+      if (otherIdx !== -1) {
+        const [picked] = queue.splice(otherIdx, 1);
+        push(picked);
+        continue;
+      }
+      // No other provider has any remaining stock → lone provider keeps the
+      // spot (genuine volume is never discarded).
+    }
+
+    push(queue.shift()!);
+  }
+
+  // The rest of the list stays in its pure sorted order.
+  for (const item of queue) out.push(item);
+  return out;
+}
+
 /**
  * Universal price sort (Requirement 3): merge EVERY source's ranked inventory
  * into one array, then sort strictly by price (lowest → highest) regardless of
  * which marketplace a product belongs to. Relevance survives only as a
  * tie-breaker for equal-priced items. Round-robin balancing is intentionally
  * skipped here — the user asked for a pure global price order when sort is on.
+ * A top-viewport diversity cap (no single provider more than 2 consecutive
+ * slots in the leading 12) interleaves the next-cheapest from other platforms
+ * so a single marketplace's cheap items can never monopolize the user's first
+ * viewport.
  */
 function assemblePriceSortedSearchResults(
   allRaw: RawProviderListing[],
@@ -171,12 +246,27 @@ function assemblePriceSortedSearchResults(
     if (!raw.length) continue;
     ranked.push(...rankRawListings(raw, query));
   }
+  const rankedBySource = new Map<SearchProviderId, number>();
+  for (const listing of ranked) {
+    rankedBySource.set(
+      listing.providerId,
+      (rankedBySource.get(listing.providerId) ?? 0) + 1,
+    );
+  }
+  console.log(
+    `[search-assembly] query="${query}" price_mode ranked_total=${ranked.length} by_source=[${[
+      ...rankedBySource.entries(),
+    ]
+      .map(([id, count]) => `${id}:${count}`)
+      .join(",")}]`,
+  );
   const sorted = [...ranked].sort((a, b) => {
     if (a.price !== b.price) return a.price - b.price;
     // Equal price → the better-relevance / higher-quality listing first.
     return compareByRelevanceThenQuality(a, b);
   });
-  return sorted.slice(0, limit).map(listingToSearchResultItem);
+  const diversified = diversifyTopViewport(sorted);
+  return diversified.slice(0, limit).map(listingToSearchResultItem);
 }
 
 function groupRawByProvider(
@@ -232,6 +322,16 @@ export function assembleProductionSearchResults(
     if (ranked.length > 0) rankedByProvider.set(providerId, ranked);
   }
   if (rankedByProvider.size === 0) return [];
+
+  // Requirement 3 — strict per-source debug logging: after passing through the
+  // exact same relevance gates that decide the final pool, report how many
+  // listings each provider actually contributed, so a provider that vanished
+  // during ranking is visible even when one marketplace holds the whole pool.
+  console.log(
+    `[search-assembly] query="${query}" ranked_sources=${rankedByProvider.size} counts=[${[...rankedByProvider.entries()]
+      .map(([id, list]) => `${id}:${list.length}`)
+      .join(",")}]`,
+  );
 
   // Strict per-source cap (Requirement 1): no single source may contribute more
   // than ceil(limit / activeSources) of the final pool, so eBay's 300-listing
