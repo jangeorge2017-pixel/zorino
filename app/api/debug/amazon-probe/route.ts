@@ -75,6 +75,21 @@ export async function GET(request: Request) {
   }
 
   try {
+    const scraperSearchEg = await fetchAmazonSearchScraper(query, "amazon-eg");
+    results.scraperSearchEg = {
+      count: scraperSearchEg.length,
+      items: scraperSearchEg.slice(0, 10).map((p) => ({
+        asin: p.asin,
+        title: p.title,
+        price: p.price,
+        currency: p.currency,
+      })),
+    };
+  } catch (err) {
+    results.scraperSearchEg = { error: err instanceof Error ? err.message : String(err) };
+  }
+
+  try {
     const scraperProduct = await fetchAmazonProductScraper("B0BN6RVLQJ", "amazon-storefront");
     results.scraperProduct = scraperProduct
       ? { ok: true, title: scraperProduct.title, price: scraperProduct.price, inStock: scraperProduct.inStock }
