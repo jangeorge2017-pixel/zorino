@@ -144,7 +144,7 @@ export const CONNECTOR_REGISTRY: ConnectorSpec[] = [
     id: "amazon",
     name: "Amazon",
     category: "marketplace",
-    description: "Amazon Creators API (PA-API) + Amazon Associates affiliate tracking",
+    description: "Amazon Creators API (PA-API) + local storefront scraper + Amazon Associates affiliate tracking",
     envVars: [
       { name: "AMAZON_CREATORS_CLIENT_ID", requirement: "required", description: "Amazon Creators API Client ID", secret: false },
       { name: "AMAZON_CREATORS_CLIENT_SECRET", requirement: "required", description: "Amazon Creators API Client Secret", secret: true },
@@ -154,6 +154,7 @@ export const CONNECTOR_REGISTRY: ConnectorSpec[] = [
     ],
     implementationFiles: [
       "lib/integrations/amazon/",
+      "lib/integrations/amazon-scraper/",
       "lib/search/connectors/amazon.ts",
       "lib/sync/providers/amazon/",
     ],
@@ -170,7 +171,7 @@ export const CONNECTOR_REGISTRY: ConnectorSpec[] = [
     id: "amazon-eg",
     name: "Amazon Egypt",
     category: "marketplace",
-    description: "Amazon Egypt (www.amazon.eg) via Creators API + Oxylabs for the EG marketplace",
+    description: "Amazon Egypt (www.amazon.eg) via Creators API or local storefront scraper for the EG marketplace",
     envVars: [
       { name: "AMAZON_CREATORS_CLIENT_ID", requirement: "required", description: "Amazon Creators API Client ID", secret: false },
       { name: "AMAZON_CREATORS_CLIENT_SECRET", requirement: "required", description: "Amazon Creators API Client Secret", secret: true },
@@ -179,6 +180,7 @@ export const CONNECTOR_REGISTRY: ConnectorSpec[] = [
     ],
     implementationFiles: [
       "lib/integrations/amazon/",
+      "lib/integrations/amazon-scraper/",
       "lib/search/connectors/amazon-eg.ts",
       "lib/amazon-eg/seed-links.ts",
     ],
@@ -187,7 +189,7 @@ export const CONNECTOR_REGISTRY: ConnectorSpec[] = [
     hasAffiliateLinks: true,
     hasCatalogIntegration: true,
     producesRealResults: true,
-    notes: "Creators API + Oxylabs enrichment for amazon.eg ASINs. Returns [] without credentials.",
+    notes: "Creators API + local storefront scraper (no keys) enrichment for amazon.eg ASINs. Returns [] without a real data source.",
   },
 
   // ── Admitad (Alibaba feed) ─────────────────────────────────────────

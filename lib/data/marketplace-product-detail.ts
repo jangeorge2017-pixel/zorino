@@ -16,7 +16,7 @@ import {
 } from "@/lib/affiliate/product-url";
 import { resolveStoreLogoSrc } from "@/lib/assets";
 import type { AdmitadFeedOffer } from "@/lib/integrations/admitad/types";
-import type { OxylabsAmazonMarketplaceKey } from "@/lib/integrations/oxylabs";
+import type { AmazonScraperMarketplaceKey } from "@/lib/integrations/amazon-scraper";
 
 export function buildStore(slug: string, displayName?: string): Store {
   const meta = getProviderStoreMeta(slug) ?? {
@@ -553,7 +553,7 @@ const AMAZON_DETAIL_TTL_MS = 60_000;
 
 function getAmazonProductDetail(
   externalId: string,
-  marketplace: OxylabsAmazonMarketplaceKey,
+  marketplace: AmazonScraperMarketplaceKey,
 ): Promise<ProductDetail | null> {
   const cacheKey = `${marketplace}:${externalId}`;
   const cached = amazonDetailCache.get(cacheKey);
@@ -573,7 +573,7 @@ function getAmazonProductDetail(
 
 async function resolveAmazonProductDetail(
   externalId: string,
-  marketplace: OxylabsAmazonMarketplaceKey,
+  marketplace: AmazonScraperMarketplaceKey,
 ): Promise<ProductDetail | null> {
   // Preferred source: Amazon Creators API — only available when credentials
   // are configured. Bails out gracefully (no throw) when they aren't, so real
@@ -618,26 +618,27 @@ async function resolveAmazonProductDetail(
     );
   }
 
-  // Credentials-free fallback: real Amazon product data via Oxylabs — the same
-  // source the search engine uses. This keeps product detail pages working for
-  // valid Amazon.com / Amazon.eg products even when Creators credentials are
-  // not configured on the running environment.
+  // Credentials-free fallback: real Amazon product data via the local
+  // open-source storefront scraper — the same source the search engine now
+  // uses (Oxylabs retired). This keeps product detail pages working for valid
+  // Amazon.com / Amazon.eg products even when Creators credentials are not
+  // configured on the running environment.
   try {
-    const { fetchOxylabsAmazonProduct, isOxylabsConfigured } = await import(
-      "@/lib/integrations/oxylabs"
+    const { fetchAmazonProductScraper, isAmazonScraperAvailable } = await import(
+      "@/lib/integrations/amazon-scraper"
     );
-    const { normalizeOxylabsAmazonRaw } = await import(
+    const { normalizeAmazonScraperRaw } = await import(
       "@/lib/search/normalization"
     );
-    if (!isOxylabsConfigured()) return null;
-    const raw = await fetchOxylabsAmazonProduct(externalId, marketplace);
+    if (!isAmazonScraperAvailable()) return null;
+    const raw = await fetchAmazonProductScraper(externalId, marketplace);
     if (!raw) return null;
-    const item = normalizeOxylabsAmazonRaw(raw, marketplace);
+    const item = normalizeAmazonScraperRaw(raw, marketplace);
     if (!item) return null;
     return searchItemToProductDetail(rawListingToSearchItem(item));
   } catch (error) {
     console.error(
-      "[amazon-detail] oxylabs fallback failed:",
+      "[amazon-detail] scraper fallback failed:",
       error instanceof Error ? error.message : String(error),
     );
     return null;
@@ -764,7 +765,7 @@ async function resolveMarketplaceProductDetailBase(
   const { providerId, externalId } = parseMarketplaceProductId(id);
 
   if (providerId === "amazon" || providerId === "amazon-eg") {
-    const marketplace: OxylabsAmazonMarketplaceKey =
+    const marketplace: AmazonScraperMarketplaceKey =
       providerId === "amazon-eg" ? "amazon-eg" : "amazon-storefront";
     return getAmazonProductDetail(externalId, marketplace);
   }

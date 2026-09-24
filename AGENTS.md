@@ -81,6 +81,9 @@ getCatalogItems() [lib/integration/catalog-service.ts]
   → NormalizedCatalogItem[]
 ```
 
+### Device queries: single-provider page 1 is expected
+On a device-model query (e.g. "iPhone 15 Pro", "samsung galaxy s24"), page 1 legitimately shows only the provider(s) whose catalog genuinely carries the handset — even if it ends up being one provider for the whole page. Verified live (Sep 2026): for "iPhone 15 Pro", eBay is the only provider with exact-model device matches (`primary=[ebay:50]`); AliExpress/Admitad returned accessories only (cases, cables, holders, screen protectors). `composeSearchPageOne()` (`lib/search/page-one.ts`) is designed this way: an accessory-only provider contributes ZERO page 1 results on a device query. This is NOT a bug — do not "fix" it by forcing accessory listings onto page 1. The same pipeline produces multi-provider page 1 for provider-neutral queries (e.g. "wireless earbuds" → admitad + aliexpress + ebay). Diagnostic seam logs: `[search-assembly] ... tier_split ...` (production-pipeline.ts) and `[search-seam] ... pool_mix/primary/secondary/accessories` (engine.ts).
+
 ### Shared components
 - **Search engine** (`lib/search/engine.ts`): Single entry point for both Search and Homepage fan-out. All connectors searched in parallel.
 - **Marketplace balancer** (`lib/search/marketplace-balance.ts`): `balanceFlatMarketplaceList()` and `balanceMarketplaceQueues()` — equal-opportunity round-robin, max 2 consecutive from one provider, new providers auto-participate.

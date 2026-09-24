@@ -11,6 +11,12 @@ export const ALIEXPRESS_PROVIDER_ID = "aliexpress" as const;
 
 export const ALIEXPRESS_API_URL = "https://api-sg.aliexpress.com/sync";
 
+export const ALIEXPRESS_LOCALE = {
+  country: "US",
+  currency: "USD",
+  language: "EN",
+} as const;
+
 export function getAliExpressCredentialStatus(): AliExpressCredentialStatus {
   const appKey = getIntegrationCredential(ALIEXPRESS_CREDENTIAL_KEYS.APP_KEY);
   const appSecret = getIntegrationCredential(ALIEXPRESS_CREDENTIAL_KEYS.APP_SECRET);

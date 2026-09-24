@@ -39,6 +39,10 @@ const eslintConfig = defineConfig([
     "scripts/**",
     ".pw-browsers/**",
     ".tmp-*.log",
+    // Nested git worktree created by tooling (git-ignored). Its own repo's
+    // codebase (pre-Next.js rewrite) is not part of this app and must not
+    // be linted against this app's config.
+    ".kilo/**",
   ]),
 ]);
 

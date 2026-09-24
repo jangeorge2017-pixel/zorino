@@ -12,6 +12,12 @@ import type {
   OxylabsAmazonSearchResult,
 } from "@/lib/integrations/oxylabs";
 import { OXYLABS_AMAZON_MARKETPLACES } from "@/lib/integrations/oxylabs";
+import type {
+  AmazonScraperMarketplaceKey,
+  AmazonScrapedProduct,
+  AmazonScrapedSearchResult,
+} from "@/lib/integrations/amazon-scraper";
+import { AMAZON_SCRAPER_MARKETPLACES } from "@/lib/integrations/amazon-scraper";
 import { getIntegrationCredential } from "@/lib/integration/credentials";
 import { computeDiscountPercent } from "@/lib/integration/normalize";
 import {
@@ -245,6 +251,117 @@ export function normalizeOxylabsAmazonSearchResults(
       originalPrice,
       discount,
       currency: item.currency?.trim() || OXYLABS_AMAZON_MARKETPLACES[marketplace].currency,
+      storeName,
+      category: "General",
+      rating: item.rating ?? 0,
+      reviewCount: item.reviewCount ?? 0,
+      inStock: true,
+      productUrl: item.productUrl,
+      affiliateUrl,
+    });
+  }
+  return listings;
+}
+
+/**
+ * Map a real Amazon product scraped directly from the storefront onto the SAME
+ * unified marketplace product shape. The marketplace key decides which Zorino
+ * store/provider the product belongs to (US/UK → "amazon", EG → "amazon-eg").
+ */
+export function normalizeAmazonScraperRaw(
+  raw: AmazonScrapedProduct,
+  marketplace: AmazonScraperMarketplaceKey
+): RawProviderListing | null {
+  if (!raw.asin || !raw.title) return null;
+
+  const isEgypt = marketplace === "amazon-eg";
+  const providerId: SearchProviderId = isEgypt ? "amazon-eg" : "amazon";
+  const storeName = isEgypt ? "Amazon Egypt" : "Amazon";
+  const affiliateMarketplace: AffiliateMarketplace = isEgypt
+    ? "amazon-eg"
+    : "amazon";
+
+  const price = raw.price;
+  if (!price || price <= 0) return null;
+
+  const originalPrice = raw.originalPrice > price ? raw.originalPrice : price;
+  const discount =
+    originalPrice > price
+      ? Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100))
+      : 0;
+
+  const imageUrl = raw.imageUrl ?? "";
+  if (!imageUrl.startsWith("http")) return null;
+
+  const affiliateUrl = buildAffiliateUrl({
+    destinationUrl: raw.productUrl,
+    marketplace: affiliateMarketplace,
+    partnerTag: isEgypt ? "zorinoeg-21" : getAmazonAssociateTag(),
+  });
+
+  return {
+    providerId,
+    externalId: raw.asin,
+    title: raw.title.trim(),
+    imageUrl,
+    price,
+    originalPrice,
+    discount,
+    currency: raw.currency?.trim() || AMAZON_SCRAPER_MARKETPLACES[marketplace].currency,
+    storeName,
+    category: raw.category?.trim() || "General",
+    rating: raw.rating ?? 0,
+    reviewCount: raw.reviewCount ?? 0,
+    inStock: "inStock" in raw ? raw.inStock : true,
+    productUrl: raw.productUrl,
+    affiliateUrl,
+  };
+}
+
+/**
+ * Map scraper keyword-search results onto the SAME unified marketplace product
+ * shape. The marketplace key decides which Zorino store/provider the products
+ * belong to (US/UK → "amazon", EG → "amazon-eg").
+ */
+export function normalizeAmazonScraperSearchResults(
+  raw: AmazonScrapedSearchResult[],
+  marketplace: AmazonScraperMarketplaceKey
+): RawProviderListing[] {
+  const isEgypt = marketplace === "amazon-eg";
+  const providerId: SearchProviderId = isEgypt ? "amazon-eg" : "amazon";
+  const storeName = isEgypt ? "Amazon Egypt" : "Amazon";
+  const affiliateMarketplace: AffiliateMarketplace = isEgypt
+    ? "amazon-eg"
+    : "amazon";
+
+  const listings: RawProviderListing[] = [];
+  for (const item of raw) {
+    if (!item.asin || !item.title) continue;
+    const price = item.price;
+    if (!price || price <= 0) continue;
+    if (!item.imageUrl.startsWith("http")) continue;
+
+    const originalPrice = item.originalPrice > price ? item.originalPrice : price;
+    const discount =
+      originalPrice > price
+        ? Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100))
+        : 0;
+
+    const affiliateUrl = buildAffiliateUrl({
+      destinationUrl: item.productUrl,
+      marketplace: affiliateMarketplace,
+      partnerTag: isEgypt ? "zorinoeg-21" : getAmazonAssociateTag(),
+    });
+
+    listings.push({
+      providerId,
+      externalId: item.asin,
+      title: item.title.trim(),
+      imageUrl: item.imageUrl,
+      price,
+      originalPrice,
+      discount,
+      currency: item.currency?.trim() || AMAZON_SCRAPER_MARKETPLACES[marketplace].currency,
       storeName,
       category: "General",
       rating: item.rating ?? 0,
