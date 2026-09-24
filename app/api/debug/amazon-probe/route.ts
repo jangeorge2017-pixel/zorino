@@ -118,7 +118,6 @@ export async function GET(request: Request) {
       const warmed = await cookieWarmed.text();
       return {
         homeStatus: home.status,
-        homeLen: home.text ? undefined : undefined,
         cookieCount: cookieHeader.split(";").filter(Boolean).length,
         warmedStatus: cookieWarmed.status,
         warmedLen: warmed.length,
