@@ -653,6 +653,19 @@ export async function searchProducts(
     optimizeForDeviceIntent && sortBy !== "price"
       ? composeSearchPageOne(mixed, trimmed)
       : mixed;
+  const mixedHead = mixed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
+  const composedHead = composed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
+  const summarize = (items: SearchResultItem[]): string =>
+    [...new Set(items.map((i) => i.storeSlug || i.store))]
+      .map(
+        (slug) =>
+          `${slug}:${items.filter((i) => i.storeSlug === slug || i.store === slug).length}`,
+      )
+      .join(",");
+  console.log(
+    `[search-seam] query="${trimmed}" device_only=${optimizeForDeviceIntent} sort=${sortBy} ` +
+      `pool_mix=[${summarize(mixedHead)}] composed_mix=[${summarize(composedHead)}] pooled_len=${mixed.length} composed_len=${composed.length}`,
+  );
   fairSearchCache.set(cacheKey, {
     items: composed,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
