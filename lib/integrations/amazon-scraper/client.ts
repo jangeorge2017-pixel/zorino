@@ -328,28 +328,44 @@ export async function fetchAmazonSearchScraper(
   if (!trimmed) return [];
 
   const url = buildAmazonSearchUrl(trimmed, marketplace);
-  let html = await fetchHtml(url);
 
-  if (process.env.AMAZON_SCRAPER_DEBUG === "1") {
-    console.log(
-      "[amazon-scraper] url=", url,
-      "htmlLen=", html.length,
-      "hasSearchResult=", html.includes("s-search-result"),
-      "caption=", html.includes("captcha-form") || html.includes("api-services-support@amazon.com"),
-      "title=", html.match(/<title>([^<]*)<\/title>/)?.[1],
-    );
-  }
-
-  let results = parseSearchHtml(html, marketplace);
-
-  // Retry up to 2 more times with a different user-agent — cheap retries that
-  // escape rate-limit/geo-desync responses where the page rendered empty.
-  // AWS WAF JS challenges (HTTP 202) are never escaped by a UA rotation, so
-  // skip them instead of burning the retry budget.
-  for (let attempt = 0; attempt < 2 && results.length === 0 && !isWafChallenge(html); attempt++) {
-    await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
-    html = await fetchHtml(url);
+  let results: AmazonScrapedSearchResult[] = [];
+  let html = "";
+  // Keep fetching until we get a parseable page, the WAF challenge shows up,
+  // or the retry budget runs out. Amazon load-balances across multiple egress
+  // cells; a fraction of those cells hard-503 datacenter IPs while the rest
+  // serve full organic results (verified live from Vercel: identical request
+  // alternately returns HTTP 503 then 16 real listings). Cheap rotation with a
+  // backoff escapes a bad cell.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+    }
+    const before = html;
+    try {
+      html = await fetchHtml(url);
+    } catch {
+      // HTTP error (e.g. a 503 cell). Treat as a miss and retry — the next
+      // attempt may land on a healthy cell.
+      html = "";
+    }
+    if (before && html.length > 0 && before === html && !html.includes("s-search-result")) {
+      // Same unproductive page back to back — stop burning the retry budget.
+      break;
+    }
+    if (process.env.AMAZON_SCRAPER_DEBUG === "1") {
+      console.log(
+        "[amazon-scraper] url=", url,
+        "attempt=", attempt + 1,
+        "htmlLen=", html.length,
+        "hasSearchResult=", html.includes("s-search-result"),
+        "caption=", html.includes("captcha-form") || html.includes("api-services-support@amazon.com"),
+        "title=", html.match(/<title>([^<]*)<\/title>/)?.[1],
+      );
+    }
     results = parseSearchHtml(html, marketplace);
+    if (results.length > 0) return results;
+    if (isWafChallenge(html)) break; // JS challenge never resolves via rotation
   }
 
   return results;
@@ -488,16 +504,22 @@ export async function fetchAmazonProductScraper(
 
   const url = buildAmazonProductUrl(trimmed, marketplace);
 
-  let html = await fetchHtml(url);
-  let product = parseProductHtml(html, trimmed, marketplace);
-
-  // Retry up to 2 more times with a different user-agent when the first parse
-  // failed (empty/upsell-rendered buy box, rate-limit page, geo-desync).
-  // AWS WAF JS challenges are skipped — a UA rotation never solves them.
-  for (let attempt = 0; attempt < 2 && !product && !isWafChallenge(html); attempt++) {
-    await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
-    html = await fetchHtml(url);
+  let product: AmazonScrapedProduct | null = null;
+  let html = "";
+  // Same egress-cell rotation as search: Amazon load-balances across cells,
+  // some hard-503 datacenter IPs, others serve the real page. Retry HTTP
+  // errors + flat "no buy-box price" parses until a cell cooperates.
+  for (let attempt = 0; attempt < 3 && !product; attempt++) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 600 * attempt));
+    }
+    try {
+      html = await fetchHtml(url);
+    } catch {
+      html = "";
+    }
     product = parseProductHtml(html, trimmed, marketplace);
+    if (isWafChallenge(html)) break;
   }
 
   return product;
