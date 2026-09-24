@@ -22,18 +22,20 @@ import {
  */
 
 const SEARCH_PATH = "/s";
+
+/**
+ * Header set for the http engine. Deliberately minimal and browser-consistent:
+ * the hardcoded `sec-ch-ua` brands previously went stale next to the rotating
+ * UAs (Chrome/124, Chromium/123, Linux, macOS…), which is an exact bot-signal
+ * datacenter IPs get flagged for (HTTP 503 `api-services-support`). Amazon
+ * serves full organic results with just the plain UA + locale + accept set.
+ */
 const SEARCH_HEADERS = {
   Accept:
     "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
   "Accept-Language": "en-US,en;q=0.9",
   "Cache-Control": "no-cache",
   Pragma: "no-cache",
-  "sec-ch-ua": '"Chromium";v="125", "Not.A/Brand";v="24", "Google Chrome";v="125"',
-  "sec-ch-ua-mobile": "?0",
-  "Sec-Fetch-Dest": "document",
-  "Sec-Fetch-Mode": "navigate",
-  "Sec-Fetch-Site": "none",
-  "Sec-Fetch-User": "?1",
   "Upgrade-Insecure-Requests": "1",
 } as const;
 
