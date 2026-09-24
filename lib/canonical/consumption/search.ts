@@ -19,6 +19,10 @@ import type { SearchResultItem } from "@/lib/data/homepage";
 import { searchProducts } from "@/lib/search/engine";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { rankRawListings } from "@/lib/search/ranking";
+import {
+  classifyListingCondition,
+  enforceConditionDiversity,
+} from "@/lib/search/condition-diversity";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { getActiveProductionProviders } from "@/lib/integration/provider-config";
@@ -157,8 +161,17 @@ export function assembleCanonicalSearchPool(input: {
     const priceSorted = [...live, ...dedupedDb].sort(
       (a, b) => a.price - b.price || a.reviewCount - b.reviewCount || a.rating - b.rating,
     );
+    const guarded = enforceConditionDiversity<SearchResultItem>(
+      priceSorted.slice(0, capped),
+      {
+        windowSize: SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+        newFirst: false,
+        providerOf: (item) => item.storeSlug || item.store,
+        conditionOf: (item) => classifyListingCondition(item.name, item.condition),
+      },
+    );
     return {
-      items: priceSorted.slice(0, capped),
+      items: guarded,
       rejectedCount: canonical.rejected.length,
       rejectedByCode,
       acceptedCount: canonical.accepted.length,
@@ -181,8 +194,23 @@ export function assembleCanonicalSearchPool(input: {
   }
   while (di < balancedDb.length && mixed.length < capped) mixed.push(balancedDb[di++]);
 
+  // Stable-trim diversity guardrail (mirrors the legacy engine seam): caps a
+  // single source's Refurbished/Used share per 50-slot window (40%, a dominant
+  // source drops to ≤5/page) without regrouping. Preserves the relevance
+  // interleave and DB-leg placement exactly; only over-budget non-new rows are
+  // trimmed. Aligned with searchProducts (engine.ts) which deliberately does
+  // NOT New-first regroup — doing so would move imported "New" rows above a
+  // live "Refurbished" exact-match device and could displace an accessory over
+  // a genuine device.
+  const guarded = enforceConditionDiversity<SearchResultItem>(mixed, {
+    windowSize: SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+    newFirst: false,
+    providerOf: (item) => item.storeSlug || item.store,
+    conditionOf: (item) => classifyListingCondition(item.name, item.condition),
+  });
+
   return {
-    items: mixed,
+    items: guarded,
     rejectedCount: canonical.rejected.length,
     rejectedByCode,
     acceptedCount: canonical.accepted.length,

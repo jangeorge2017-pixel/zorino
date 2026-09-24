@@ -23,6 +23,14 @@ export type LiveSearchProviderId = (typeof LIVE_SEARCH_PROVIDER_IDS)[number];
 /** Universal sort modes the search engine accepts. */
 export type SearchSortMode = "relevance" | "price";
 
+/**
+ * Product condition class (from the source's own condition field when it has
+ * one, otherwise derived from the listing title). Used by the condition-
+ * diversity guardrail to keep any single source's Refurbished/Used inventory
+ * from monopolizing the search viewport.
+ */
+export type ListingCondition = "new" | "refurbished" | "used";
+
 export const SEARCH_ENGINE_DEFAULTS = {
   PAGE_SIZE: 50,
   /** Max API pages per provider (50 × 12 = 600 listings). */
@@ -67,6 +75,11 @@ export type RawProviderListing = {
   affiliateUrl?: string;
   /** Real country code for this listing when the source provides one. */
   countryCode?: string;
+  /**
+   * Listing condition class ("new" | "refurbished" | "used"). Absent → treated
+   * as "new" by the diversity guardrail unless derivable from the title.
+   */
+  condition?: ListingCondition;
 };
 
 /** Provider-agnostic normalized listing used by ranking and deduplication. */
