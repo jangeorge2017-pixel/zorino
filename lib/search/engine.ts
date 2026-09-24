@@ -10,6 +10,10 @@ import {
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
 import {
+  classifyListingCondition,
+  enforceConditionDiversity,
+} from "@/lib/search/condition-diversity";
+import {
   analyzeSearchQueryIntent,
   FAMILY_RETRIEVAL_KEYWORDS,
 } from "@/lib/search/query-intent";
@@ -653,7 +657,30 @@ export async function searchProducts(
     optimizeForDeviceIntent && sortBy !== "price"
       ? composeSearchPageOne(mixed, trimmed)
       : mixed;
-  const mixedHead = mixed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
+
+  // Condition-diversity guardrail (anti-eBay-monopoly): every page window of
+  // the pool caps a single source's Refurbished/Used share at 40% (a dominant
+  // source drops to ≤5 per page when its peers are thinner) and trims only
+  // over-budget Refurbished/Used DISPLAY rows — catalogue/DB totals, relevance
+  // tiers and pagination are untouched.
+  //
+  // The guardrail is applied to the cached pool, so every page sliced from it
+  // inherits the invariant. It is a STABLE TRIM (newFirst: false): the ordered
+  // pool — composition-seam device leads, live-vs-imported relevance, DB
+  // supplement placement — is preserved exactly as assembled. A New-first
+  // REGROUP is intentionally NOT applied here: it would move an imported "New"
+  // device row above a live "Refurbished" exact-match device (breaking the
+  // Bug 1/Bug 4 live-lead contiguity contract) and, per the same principle,
+  // can never displace an accessory above a genuine device. Price mode keeps
+  // its strict lowest-price order by the same rule (newFirst: false).
+  const guarded = enforceConditionDiversity<SearchResultItem>(composed, {
+    windowSize: SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+    newFirst: false,
+    providerOf: (item) => item.storeSlug || item.store,
+    conditionOf: (item) => classifyListingCondition(item.name, item.condition),
+  });
+
+  const mixedHead = guarded.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const composedHead = composed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const summarize = (items: SearchResultItem[]): string =>
     [...new Set(items.map((i) => i.storeSlug || i.store))]
@@ -664,14 +691,15 @@ export async function searchProducts(
       .join(",");
   console.log(
     `[search-seam] query="${trimmed}" device_only=${optimizeForDeviceIntent} sort=${sortBy} ` +
-      `pool_mix=[${summarize(mixedHead)}] composed_mix=[${summarize(composedHead)}] pooled_len=${mixed.length} composed_len=${composed.length}`,
+      `pool_mix=[${summarize(mixedHead)}] composed_mix=[${summarize(composedHead)}] ` +
+      `pooled_len=${mixed.length} composed_len=${composed.length} guarded_len=${guarded.length}`,
   );
   fairSearchCache.set(cacheKey, {
-    items: composed,
+    items: guarded,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
   });
 
-  return composed;
+  return guarded;
 }
 
 /** One page of search results (offset/limit view over a cached, balanced pool). */

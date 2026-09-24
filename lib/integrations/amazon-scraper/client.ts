@@ -58,15 +58,17 @@ function pickUserAgent(): string {
   return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)] ?? USER_AGENTS[0]!;
 }
 
-/** Build the storefront search URL for a query + marketplace. */
+/** Build the storefront search URL for a query + marketplace (+ optional page). */
 export function buildAmazonSearchUrl(
   query: string,
   marketplace: AmazonScraperMarketplaceKey,
+  page?: number,
 ): string {
   const meta = AMAZON_SCRAPER_MARKETPLACES[marketplace];
   const url = new URL(`${meta.storeUrl}${SEARCH_PATH}`);
   url.searchParams.set("k", query);
   url.searchParams.set("ref", "nb_sb_noss");
+  if (page != null && page > 1) url.searchParams.set("page", String(page));
   return url.toString();
 }
 
@@ -319,15 +321,57 @@ function parseSearchHtml(
 /**
  * Fetch real Amazon keyword search results from the storefront.
  * Returns organic results with a real ASIN/title/price/image/URL.
+ *
+ * Paginates toward `maxResults` raw organic listings (up to 2 /s pages) so a
+ * search pool can hold a genuine per-source share (~50) without the first page
+ * being the whole world — mirrored by SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE.
+ * Every raw listing is kept regardless of price: the diversity guardrail and
+ * assembly caps, never a price filter, decide what surfaces.
  */
 export async function fetchAmazonSearchScraper(
   query: string,
   marketplace: AmazonScraperMarketplaceKey = "amazon-storefront",
+  maxResults: number = SEARCH_DEFAULT_MAX_RESULTS,
 ): Promise<AmazonScrapedSearchResult[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const url = buildAmazonSearchUrl(trimmed, marketplace);
+  const target = Math.max(1, Math.floor(maxResults));
+  const results: AmazonScrapedSearchResult[] = [];
+  const seen = new Set<string>();
+
+  for (let page = 1; page <= SEARCH_MAX_PAGES && results.length < target; page++) {
+    const pageResults = await fetchAmazonSearchPage(trimmed, marketplace, page);
+    if (pageResults.length === 0) break;
+    let added = 0;
+    for (const item of pageResults) {
+      if (seen.has(item.asin)) continue;
+      seen.add(item.asin);
+      results.push(item);
+      added += 1;
+      if (results.length >= target) break;
+    }
+    // Second page only helps when the first genuinely delivered organic rows
+    // but still fell short of the target — a 503'd / empty first page means
+    // page 2 will be equally unproductive, so stop burning egress.
+    if (page === 1 && added === 0) break;
+  }
+
+  return results.slice(0, target);
+}
+
+/** Max organic /s pages the local scraper walks (page 1 + page 2). */
+const SEARCH_MAX_PAGES = 2;
+
+/** Default raw listing target for a storefront keyword search. */
+const SEARCH_DEFAULT_MAX_RESULTS = 50;
+
+async function fetchAmazonSearchPage(
+  query: string,
+  marketplace: AmazonScraperMarketplaceKey,
+  page: number,
+): Promise<AmazonScrapedSearchResult[]> {
+  const url = buildAmazonSearchUrl(query, marketplace, page);
 
   let results: AmazonScrapedSearchResult[] = [];
   let html = "";

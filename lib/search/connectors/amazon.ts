@@ -53,10 +53,18 @@ export const amazonSearchConnector: SearchConnector = {
 
     // Additive local scraper source: real Amazon storefront keyword search
     // across the US (com) and UK (co.uk) storefronts. No API keys needed.
+    // Split the per-source fetch budget across the two storefronts so the
+    // merged "amazon" pool never exceeds MAX_LISTINGS_PER_SOURCE raw rows
+    // regardless of price — the diversity/assembly caps, never a price filter,
+    // decide what surfaces.
     try {
+      const perMarketplace = Math.max(
+        1,
+        Math.floor(SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE / 2),
+      );
       const [us, uk] = await Promise.all([
-        fetchAmazonSearchScraper(trimmed, "amazon-storefront"),
-        fetchAmazonSearchScraper(trimmed, "amazon-co-uk"),
+        fetchAmazonSearchScraper(trimmed, "amazon-storefront", perMarketplace),
+        fetchAmazonSearchScraper(trimmed, "amazon-co-uk", perMarketplace),
       ]);
 
       const sListing: RawProviderListing[] = [

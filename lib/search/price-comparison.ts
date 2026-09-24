@@ -88,6 +88,7 @@ export function listingToSearchResultItem(
     shipping: listing.shipping,
     inStock: listing.inStock,
     category: listing.category,
+    condition: listing.condition,
     affiliateUrl: listing.affiliateUrl ?? listing.productUrl,
   };
 }

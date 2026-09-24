@@ -19,6 +19,7 @@ import { withFallbackCategories } from "@/lib/zorino-home/presentation";
 import { INTL_COOKIE_CURRENCY } from "@/lib/international/cookies";
 import { isSupportedCurrency } from "@/lib/international/config";
 import { formatCurrency as formatCurrencyValue } from "@/lib/international/format";
+import type { ListingCondition } from "@/lib/search/types";
 import type {
   FloatingProductCard,
   FooterStatItem,
@@ -345,6 +346,12 @@ export type SearchResultItem = {
   countryCode?: string;
   /** Outbound affiliate or product URL (live marketplace results). */
   affiliateUrl?: string;
+  /**
+   * Listing condition class ("new" | "refurbished" | "used") — used by the
+   * condition-diversity guardrail and New/Refurbished grouping. Absent rows
+   * (e.g. DB-imported) are classified from the title by the guardrail.
+   */
+  condition?: ListingCondition;
 };
 
 /**

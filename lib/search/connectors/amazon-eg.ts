@@ -1,5 +1,6 @@
 import type { SearchConnector, ConnectorSearchOptions } from "@/lib/search/connectors/types";
 import type { RawProviderListing } from "@/lib/search/types";
+import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import { getAmazonCredentials, isAmazonConfigured, isAmazonDirectEnabled } from "@/lib/integrations/amazon/config";
 import { getCreatorsAccessToken } from "@/lib/integrations/amazon/auth";
 import {
@@ -9,6 +10,7 @@ import {
 } from "@/lib/integrations/amazon-scraper";
 import { normalizeAmazonScraperRaw } from "@/lib/search/normalization";
 import { normalizeAmazonScraperSearchResults } from "@/lib/search/normalization";
+import { classifyListingCondition } from "@/lib/search/condition-diversity";
 import { AMAZON_EG_SEED_LINKS } from "@/lib/amazon-eg/seed-links";
 
 /**
@@ -195,7 +197,11 @@ export const amazonEgSearchConnector: SearchConnector = {
     // Feeds the SAME "amazon-eg" store mapping and does not replace the
     // seed-link / Creators path below (which remains the fallback).
     try {
-      const searchResults = await fetchAmazonSearchScraper(trimmed, "amazon-eg");
+      const searchResults = await fetchAmazonSearchScraper(
+        trimmed,
+        "amazon-eg",
+        SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE,
+      );
       const sListing = normalizeAmazonScraperSearchResults(searchResults, "amazon-eg");
       if (sListing.length > 0) return sListing;
     } catch {
@@ -254,6 +260,7 @@ export const amazonEgSearchConnector: SearchConnector = {
           currency: api.currency,
           storeName: "Amazon Egypt",
           category: api.category,
+          condition: classifyListingCondition(api.title),
           rating: api.rating,
           reviewCount: api.reviewCount,
           inStock: api.inStock,
