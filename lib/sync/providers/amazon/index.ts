@@ -3,6 +3,8 @@ import {
   getAmazonCreatorsConfig,
 } from "@/lib/sync/providers/amazon/paapi-types";
 import { mapAmazonProduct } from "@/lib/sync/providers/amazon/mapper";
+import { mapAmazonScraperSyncProduct } from "@/lib/sync/providers/amazon/scraper-mapper";
+import { fetchAmazonSearchScraper, isAmazonScraperAvailable } from "@/lib/integrations/amazon-scraper";
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
 import { BaseConnector } from "@/lib/sync/connectors/base";
 import {
@@ -32,14 +34,20 @@ export class AmazonProvider extends BaseConnector {
 
   isConfigured(): boolean {
     // Phase 5 decision (AMAZON IS INDIRECT): this is the LATENT DIRECT sync
-    // path (keyword → Creators API). It must NOT activate merely because
-    // credentials are later added to Vercel — it requires the explicit
-    // AMAZON_DIRECT_ENABLE=1 architecture opt-in. The approved indirect path
-    // (affiliate URL → host-guarded ASIN → ingestion) does not go through the
-    // sync provider.
+    // path (keyword → Creators API / storefront scraper). It must NOT
+    // activate merely because credentials are later added to Vercel — it
+    // requires the explicit AMAZON_DIRECT_ENABLE=1 architecture opt-in. The
+    // approved indirect path (affiliate URL → host-guarded ASIN → ingestion)
+    // does not go through the sync provider.
     if (!isAmazonDirectEnabled()) return false;
-    return checkProviderCredentials([...CREDENTIAL_KEYS, "AMAZON_ASSOCIATE_TAG"]).configured ||
-      checkProviderCredentials([...CREDENTIAL_KEYS]).configured;
+    if (checkProviderCredentials([...CREDENTIAL_KEYS, "AMAZON_ASSOCIATE_TAG"]).configured ||
+      checkProviderCredentials([...CREDENTIAL_KEYS]).configured) {
+      return true;
+    }
+    // Phase 6: the account-local Oxylabs scraper is retired (401). The local
+    // open-source storefront scraper needs no keys, so when the direct opt-in
+    // is set the provider is fully operational through it.
+    return isAmazonScraperAvailable();
   }
 
   getCredentials() {
@@ -52,21 +60,42 @@ export class AmazonProvider extends BaseConnector {
     }
 
     const client = createAmazonClientFromEnv();
-    if (!client) return [];
-
     const keywords = ctx.jobConfig?.keywords ?? ["electronics"];
     const maxPages = Math.min(ctx.jobConfig?.maxPages ?? 5, 10);
     const products: ExternalProduct[] = [];
 
-    for (const keyword of keywords) {
-      const items = await client.searchByKeyword(keyword, {
-        itemCount: 10,
-        maxPages,
-      });
-      for (const raw of items) {
-        const external = mapAmazonProduct(ctx, raw);
-        if (external) products.push(external);
+    // Creators API path (preferred when credentials configured).
+    if (client) {
+      for (const keyword of keywords) {
+        const items = await client.searchByKeyword(keyword, {
+          itemCount: 10,
+          maxPages,
+        });
+        for (const raw of items) {
+          const external = mapAmazonProduct(ctx, raw);
+          if (external) products.push(external);
+        }
       }
+      if (products.length > 0) return products;
+    }
+
+    // Storefront scraper path (no credentials). Searches the real Amazon US +
+    // UK storefronts and builds affiliate-tagged product URLs for the same
+    // sync/catalog pipeline.
+    for (const keyword of keywords) {
+      try {
+        const [us, uk] = await Promise.all([
+          fetchAmazonSearchScraper(keyword, "amazon-storefront"),
+          fetchAmazonSearchScraper(keyword, "amazon-co-uk"),
+        ]);
+        for (const item of [...us, ...uk]) {
+          const external = mapAmazonScraperSyncProduct(ctx, item);
+          if (external) products.push(external);
+        }
+      } catch {
+        // A scraper failure must never abort the whole sync job.
+      }
+      if (products.length >= 20) break;
     }
 
     return products;

@@ -1,5 +1,5 @@
 import type { ImportJobConfig } from "@/lib/sync/providers/shared/import-config";
-import { ALIEXPRESS_API_URL } from "@/lib/integrations/aliexpress/config";
+import { ALIEXPRESS_API_URL, ALIEXPRESS_LOCALE } from "@/lib/integrations/aliexpress/config";
 import { buildSignedParams } from "@/lib/integrations/aliexpress/auth";
 import {
   logAliExpress,
@@ -101,9 +101,9 @@ export class AliExpressAffiliateClient {
         keywords: "phone",
         page_no: "1",
         page_size: "1",
-        target_currency: "USD",
-        target_language: "EN",
-        ship_to_country: "US",
+        target_currency: ALIEXPRESS_LOCALE.currency,
+        target_language: ALIEXPRESS_LOCALE.language,
+        ship_to_country: ALIEXPRESS_LOCALE.country,
         fields: ALIEXPRESS_PRODUCT_FIELDS,
         ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
       });
@@ -142,8 +142,8 @@ export class AliExpressAffiliateClient {
   ): Promise<AliExpressRawProduct[]> {
     const pageSize = Math.min(Math.max(options?.pageSize ?? 24, 1), 50);
     const pageNo = options?.pageNo ?? 1;
-    const currency = options?.currency ?? "USD";
-    const shipToCountry = options?.shipToCountry?.trim() || "US";
+    const currency = options?.currency?.trim() || ALIEXPRESS_LOCALE.currency;
+    const shipToCountry = options?.shipToCountry?.trim() || ALIEXPRESS_LOCALE.country;
 
     // Exact user query — no rewrite, no default/demo keywords.
     const keywords = keyword.trim();
@@ -175,7 +175,7 @@ export class AliExpressAffiliateClient {
       page_no: String(pageNo),
       page_size: String(pageSize),
       target_currency: currency,
-      target_language: "EN",
+      target_language: ALIEXPRESS_LOCALE.language,
       ship_to_country: shipToCountry,
       fields: ALIEXPRESS_PRODUCT_FIELDS,
       ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
@@ -255,9 +255,9 @@ export class AliExpressAffiliateClient {
       };
     }>("aliexpress.affiliate.productdetail.get", {
       product_ids: ids.slice(0, 50).join(","),
-      target_currency: currency,
-      target_language: "EN",
-      ship_to_country: "US",
+      target_currency: ALIEXPRESS_LOCALE.currency,
+      target_language: ALIEXPRESS_LOCALE.language,
+      ship_to_country: ALIEXPRESS_LOCALE.country,
       fields: ALIEXPRESS_PRODUCT_FIELDS,
       ...(this.trackingId ? { tracking_id: this.trackingId } : {}),
     });

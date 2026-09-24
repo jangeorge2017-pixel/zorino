@@ -1,22 +1,24 @@
 import type { SearchConnector, ConnectorSearchOptions } from "@/lib/search/connectors/types";
 import type { RawProviderListing } from "@/lib/search/types";
-import { AMAZON_EG_SEED_LINKS } from "@/lib/amazon-eg/seed-links";
 import { getAmazonCredentials, isAmazonConfigured, isAmazonDirectEnabled } from "@/lib/integrations/amazon/config";
 import { getCreatorsAccessToken } from "@/lib/integrations/amazon/auth";
 import {
-  fetchOxylabsAmazonProduct,
-  fetchOxylabsAmazonSearch,
-  isOxylabsConfigured,
-} from "@/lib/integrations/oxylabs";
-import { normalizeOxylabsAmazonRaw } from "@/lib/search/normalization";
-import { normalizeOxylabsAmazonSearchResults } from "@/lib/search/normalization";
+  fetchAmazonProductScraper,
+  fetchAmazonSearchScraper,
+  isAmazonScraperAvailable,
+} from "@/lib/integrations/amazon-scraper";
+import { normalizeAmazonScraperRaw } from "@/lib/search/normalization";
+import { normalizeAmazonScraperSearchResults } from "@/lib/search/normalization";
+import { AMAZON_EG_SEED_LINKS } from "@/lib/amazon-eg/seed-links";
 
 /**
  * Amazon Egypt search connector.
- * Uses seed-link ASINs and enriches them via the Creators API when credentials
- * are available. Without credentials the connector returns [] so no broken
- * (price: 0 / placeholder-image) cards appear in search or on the homepage.
- * The /stores/amazon-eg page shows seed-link buttons independently.
+ * Uses real amazon.eg storefront scraping (no API keys required) for keyword
+ * searches and ASIN product lookups, feeding the same "amazon-eg" mapping.
+ * Falls back to seed-link ASINs enriched via the Creators API when credentials
+ * are available. Without either real source the connector returns [] so no
+ * broken (price: 0 / placeholder-image) cards appear in search or on the
+ * homepage. The /stores/amazon-eg page shows seed-link buttons independently.
  */
 
 const EG_MARKETPLACE = "www.amazon.eg";
@@ -164,18 +166,22 @@ export const amazonEgSearchConnector: SearchConnector = {
   name: "Amazon Egypt",
 
   async isAvailable(): Promise<boolean> {
-    // Credentials-backed: same rule as the US Amazon connector. The seed-link
-    // path alone returns [] without real product data (enrichment requires
-    // Creators API / Oxylabs), so without credentials the connector must not
-    // report as operational.
+    // A REAL Amazon Egypt data source (Creators API credentials OR the local
+    // open-source storefront scraper, which needs no keys) makes the store
+    // available. Without either there is no genuine amazon.eg product data, so
+    // the connector must not report as operational.
     //
     // Phase 5 decision (AMAZON-EG IS INDIRECT): this is the LATENT DIRECT path
-    // (seed ASINs → Creators API getItems / Oxylabs). It must NOT activate
-    // merely because credentials are later added — it requires the explicit
-    // AMAZON_DIRECT_ENABLE=1 architecture opt-in. The approved indirect path
-    // (affiliate URL → host-guarded ASIN → ingestion) does not use this
-    // connector.
-    return isAmazonDirectEnabled() && (isAmazonConfigured() || isOxylabsConfigured());
+    // (seed ASINs / query → Creators API getItems / storefront scraper). It
+    // must NOT activate merely because credentials are later added — it
+    // requires the explicit AMAZON_DIRECT_ENABLE=1 architecture opt-in. The
+    // approved indirect path (affiliate URL → host-guarded ASIN → ingestion)
+    // does not use this connector.
+    //
+    // Phase 6 (current): Oxylabs subscription retired (401). The local
+    // storefront scraper (fetchAmazonSearchScraper on amazon.eg) is the
+    // production source — additive, no credentials required.
+    return isAmazonDirectEnabled() && (isAmazonConfigured() || isAmazonScraperAvailable());
   },
 
   async search(
@@ -185,19 +191,15 @@ export const amazonEgSearchConnector: SearchConnector = {
     const trimmed = query.trim().toLowerCase();
     if (!trimmed) return [];
 
-    // Additive Oxylabs source: when configured, fetch real amazon.eg keyword
-    // search results via the Oxylabs `amazon_search` source. This lets real
-    // Egypt Amazon products surface in normal keyword search, not just seed
-    // links. It feeds the SAME "amazon-eg" store mapping and does not replace
-    // the existing seed-link / Creators path below (which remains the fallback).
-    if (isOxylabsConfigured()) {
-      try {
-        const searchResults = await fetchOxylabsAmazonSearch(trimmed, "amazon-eg");
-        const oListing = normalizeOxylabsAmazonSearchResults(searchResults, "amazon-eg");
-        if (oListing.length > 0) return oListing;
-      } catch {
-        // An Oxylabs failure must never silence the existing Egypt path.
-      }
+    // Additive local scraper source: real amazon.eg keyword search results.
+    // Feeds the SAME "amazon-eg" store mapping and does not replace the
+    // seed-link / Creators path below (which remains the fallback).
+    try {
+      const searchResults = await fetchAmazonSearchScraper(trimmed, "amazon-eg");
+      const sListing = normalizeAmazonScraperSearchResults(searchResults, "amazon-eg");
+      if (sListing.length > 0) return sListing;
+    } catch {
+      // A scraper failure must never silence the existing Egypt path.
     }
 
     // Match seed products whose title contains any query word
@@ -212,23 +214,20 @@ export const amazonEgSearchConnector: SearchConnector = {
 
     const asins = matched.map((link) => link.id.replace("eg-", ""));
 
-    // Additive Oxylabs source: when configured, fetch real product data for the
-    // matched Egypt ASINs via the Oxylabs `amazon_product` source on the amazon.eg
-    // marketplace. This feeds the SAME store mapping and does not replace the
-    // existing seed-link / Creators path below (which remains the fallback).
-    if (isOxylabsConfigured()) {
-      try {
-        const oListing: RawProviderListing[] = [];
-        for (const asin of asins) {
-          const product = await fetchOxylabsAmazonProduct(asin, "amazon-eg");
-          if (!product) continue;
-          const item = normalizeOxylabsAmazonRaw(product, "amazon-eg");
-          if (item) oListing.push(item);
-        }
-        if (oListing.length > 0) return oListing;
-      } catch {
-        // An Oxylabs failure must never silence the existing Egypt path.
+    // Additive local scraper source: fetch real product data for the matched
+    // Egypt ASINs via the storefront product page fetch on amazon.eg. Feeds
+    // the SAME store mapping and does not replace the Creators path.
+    try {
+      const sListing: RawProviderListing[] = [];
+      for (const asin of asins) {
+        const product = await fetchAmazonProductScraper(asin, "amazon-eg");
+        if (!product) continue;
+        const item = normalizeAmazonScraperRaw(product, "amazon-eg");
+        if (item) sListing.push(item);
       }
+      if (sListing.length > 0) return sListing;
+    } catch {
+      // A scraper failure must never silence the existing Egypt path.
     }
 
     // Attempt to enrich seed ASINs with real data from the Creators API.

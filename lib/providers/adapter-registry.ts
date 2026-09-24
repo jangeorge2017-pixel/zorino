@@ -121,9 +121,10 @@ export const ebayAdapter: ProviderAdapter = createConnectorAdapter(
 /**
  * Amazon adapter.
  * Wraps the existing Amazon SearchConnector. The connector handles both
- * Creators API and Oxylabs sources; the normalizer varies by source.
- * For the adapter, we use normalizeAmazonRaw as the canonical normalizer;
- * Oxylabs normalization is handled internally by the connector.
+ * Creators API and the local storefront scraper sources; the normalizer varies
+ * by source. For the adapter, we use normalizeAmazonRaw as the canonical
+ * normalizer; scraper/Oxylabs normalization is handled internally by the
+ * connector.
  */
 export const amazonAdapter: ProviderAdapter = createConnectorAdapter(
   "amazon",
@@ -134,7 +135,8 @@ export const amazonAdapter: ProviderAdapter = createConnectorAdapter(
 /**
  * Amazon Egypt adapter.
  * Wraps the existing Amazon EG SearchConnector.
- * The connector handles Creators API + Oxylabs for the EG marketplace.
+ * The connector handles Creators API + the local storefront scraper for the EG
+ * marketplace.
  */
 export const amazonEgAdapter: ProviderAdapter = createConnectorAdapter(
   "amazon-eg",
