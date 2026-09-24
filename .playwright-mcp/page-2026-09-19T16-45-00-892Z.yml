@@ -1,0 +1,137 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=e7]
+        - button "Menu" [ref=e8] [cursor=pointer]
+        - generic [ref=e10]:
+          - link "Search" [ref=e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=e16] [cursor=pointer]:
+            - generic [ref=e17]: Dark
+            - generic [ref=e21]: Light
+          - button "Language, country, and currency" [ref=e31] [cursor=pointer]:
+            - generic [ref=e35]: EN · EGP
+          - link "Wishlist" [ref=e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=e52]: Hello, User
+    - main [ref=e53]:
+      - generic [ref=e55]:
+        - region [ref=e56]:
+          - link "Categories" [ref=e57] [cursor=pointer]:
+            - /url: /categories
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - generic [aria-hidden] [ref=e62]: 💻
+              - generic [ref=e63]:
+                - paragraph [ref=e64]: Category spotlight
+                - heading "Laptops" [level=1] [ref=e65]
+                - paragraph [ref=e66]: Live deals for Laptops across all stores.
+            - generic [ref=e67]:
+              - generic [ref=e69]:
+                - strong [ref=e70]: "1"
+                - generic [ref=e71]: Products tracked
+              - generic [ref=e73]:
+                - strong [ref=e74]: Live
+                - generic [ref=e75]: From active providers
+            - link [ref=e76] [cursor=pointer]:
+              - /url: /search
+              - button "Search in Laptops" [ref=e77]
+        - generic [ref=e79]:
+          - generic [ref=e80]:
+            - generic [ref=e81]: Sort By
+            - combobox [ref=e82] [cursor=pointer]:
+              - option "Highest Discount" [selected]
+              - 'option "Price: Low to High"'
+              - 'option "Price: High to Low"'
+              - option "Rating"
+          - link [ref=e84] [cursor=pointer]:
+            - /url: /deals
+            - button "View Trending Deals" [ref=e85]
+          - link [ref=e87] [cursor=pointer]:
+            - /url: /compare
+            - button "Compare Prices" [ref=e88]
+        - article [ref=e90]:
+          - generic [ref=e91]:
+            - img "Laptop" [ref=e93]
+            - generic: CJdropshipping
+          - generic [ref=e95]:
+            - heading "Laptop" [level=3] [ref=e96]
+            - paragraph [ref=e97]: Laptops • CJdropshipping
+            - generic [ref=e99]: ‏١٥٤٫٠٠ ج.م.‏
+            - paragraph [ref=e101]: In Stock
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - link "Shop Now" [ref=e104] [cursor=pointer]:
+                - /url: /api/affiliate/go?productId=cjdropshipping-2095044341896613889&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Flaptop-p-2095044341896613889.html&source=search
+              - link "Compare Prices" [ref=e109] [cursor=pointer]:
+                - /url: /product/cjdropshipping-2095044341896613889#compare-prices
+            - paragraph [ref=e112]: ZORINO earns commissions on qualifying purchases.
+          - button "Add to Wishlist" [ref=e114] [cursor=pointer]
+        - region [ref=e118]:
+          - generic [ref=e119]:
+            - heading "Keep exploring Laptops" [level=2] [ref=e120]
+            - paragraph [ref=e121]: Compare top products in this category and unlock coupon codes from partner stores.
+            - generic [ref=e122]:
+              - link [ref=e123] [cursor=pointer]:
+                - /url: /search
+                - button "Search Products" [ref=e124]
+              - link [ref=e125] [cursor=pointer]:
+                - /url: /categories
+                - button "All Categories" [ref=e126]
+    - contentinfo [ref=e127]:
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - text: ZORINO
+          - paragraph [ref=e130]: AI-powered deal discovery
+        - navigation "Company" [ref=e131]:
+          - heading "Company" [level=3] [ref=e132]
+          - list [ref=e133]:
+            - listitem [ref=e134]:
+              - link "About Us" [ref=e135] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e136]:
+              - link "Contact" [ref=e137] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e138]:
+              - link "FAQ" [ref=e139] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=e140]:
+              - link "Blog" [ref=e141] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=e142]:
+          - heading "Legal" [level=3] [ref=e143]
+          - list [ref=e144]:
+            - listitem [ref=e145]:
+              - link "Imprint" [ref=e146] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=e147]:
+              - link "Privacy" [ref=e148] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e149]:
+              - link "Terms" [ref=e150] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e151]:
+              - link "Cookies" [ref=e152] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=e153]:
+              - link "Affiliate" [ref=e154] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=e155]:
+              - link "DMCA" [ref=e156] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=e157]:
+              - link "Accessibility" [ref=e158] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=e159]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=e160]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=e161] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=e162]

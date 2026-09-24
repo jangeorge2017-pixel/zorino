@@ -1,0 +1,1107 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - banner [ref=f1e4]:
+      - generic [ref=f1e5]:
+        - link [ref=f1e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f1e7]
+        - button "Menu" [ref=f1e8] [cursor=pointer]
+        - generic [ref=f1e10]:
+          - link "Search" [ref=f1e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f1e16] [cursor=pointer]:
+            - generic [ref=f1e17]: Dark
+            - generic [ref=f1e21]: Light
+          - button "Language, country, and currency" [ref=f1e31] [cursor=pointer]:
+            - generic [ref=f1e35]: EN · EGP
+          - link "Wishlist" [ref=f1e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f1e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f1e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f1e52]: Hello, User
+    - main [ref=f1e53]:
+      - generic [ref=f1e54]:
+        - generic [ref=f1e57]:
+          - heading "Search Results" [level=1] [ref=f1e58]
+          - paragraph [ref=f1e59]: Showing results for "phone"
+        - generic [ref=f1e60]:
+          - complementary [ref=f1e61]:
+            - generic [ref=f1e62]:
+              - heading "Filters" [level=2] [ref=f1e63]
+              - button "Clear" [ref=f1e66] [cursor=pointer]
+            - generic [ref=f1e67]:
+              - generic [ref=f1e68]:
+                - generic [ref=f1e69]: Search for products, brands or categories...
+                - textbox "Search for products, brands or categories..." [ref=f1e70]: phone
+              - generic [ref=f1e71]:
+                - generic [ref=f1e72]: Categories
+                - combobox [ref=f1e73] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "Used"
+                  - option "Phones & Telecommunications"
+                  - option "General"
+                  - option "New"
+                  - option "Security & Protection"
+                  - option "Consumer Electronics"
+                  - option "Home & Garden"
+                  - option "Home Appliances"
+                  - option "Open box"
+                  - option "5-inch Display"
+                  - option "Headband & Hair Band & Hairpin"
+                  - option "Storage Bags & Cases & Boxes"
+                  - option "Waterptoof Cases"
+                  - option "Silicone Cases"
+                  - option "Flip Cases"
+                  - option "Event & Party Supplies"
+                  - option "Leather Cases"
+                  - option "Home Office Storage"
+                  - option "Holders & Stands"
+                  - option "Smart Home Appliances"
+                  - option "Home Electronic Accessories"
+                  - option "Fitness & Bodybuilding"
+                  - option "Power Tools"
+              - generic [ref=f1e74]:
+                - generic [ref=f1e75]: Stores
+                - combobox [ref=f1e76] [cursor=pointer]:
+                  - option "All Stores" [selected]
+                  - option "eBay"
+                  - option "AliExpress"
+                  - option "Admitad"
+                  - option "CJdropshipping"
+              - generic [ref=f1e77]:
+                - generic [ref=f1e78]: Price Range
+                - generic [ref=f1e79]:
+                  - spinbutton "Min Price" [ref=f1e81]
+                  - spinbutton "Max Price" [ref=f1e83]
+              - generic [ref=f1e84]:
+                - generic [ref=f1e85]: Rating
+                - combobox [ref=f1e86] [cursor=pointer]:
+                  - option "All Ratings" [selected]
+                  - option "4+ Stars"
+                  - option "3+ Stars"
+                  - option "2+ Stars"
+              - generic [ref=f1e87] [cursor=pointer]:
+                - checkbox "In Stock Only" [ref=f1e88]
+                - generic [ref=f1e89]: In Stock Only
+              - button "Filter" [ref=f1e90] [cursor=pointer]
+          - generic [ref=f1e91]:
+            - generic [ref=f1e92]:
+              - generic [ref=f1e93]: 50 of 87 results
+              - combobox [ref=f1e95] [cursor=pointer]:
+                - option "Relevance" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Rating"
+            - generic [ref=f1e96]:
+              - article [ref=f1e97]:
+                - generic [ref=f1e98]:
+                  - img "Samsung Galaxy Note 20 Ultra SM-N986U1 512GB Unlocked Used Phone with Black Spot" [ref=f1e100]
+                  - generic:
+                    - generic [ref=f1e101]: eBay
+                    - generic [ref=f1e102]: "-36%"
+                - generic [ref=f1e103]:
+                  - heading "Samsung Galaxy Note 20 Ultra SM-N986U1 512GB Unlocked Used Phone with Black Spot" [level=3] [ref=f1e104]
+                  - paragraph [ref=f1e105]: Used • eBay
+                  - generic [ref=f1e107]:
+                    - generic [ref=f1e108]: ‏١٩٨٫٩٥ ج.م.‏
+                    - generic [ref=f1e109]: ‏٣١٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e110]: In Stock
+                - generic [ref=f1e111]:
+                  - generic [ref=f1e112]:
+                    - link "Shop Now" [ref=f1e113] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C206561229241%7C507288715280&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F206561229241%3F_skw%3Dphone%26hash%3Ditem30180239b9%253Ag%253AVO0AAeSwErFqqq5l%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e118] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C206561229241%7C507288715280#compare-prices
+                  - paragraph [ref=f1e121]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e123] [cursor=pointer]
+              - article [ref=f1e127]:
+                - generic [ref=f1e128]:
+                  - img "Samsung Galaxy S22+ 5G Network Unlocked Mobile Phone Daily Gaming Business Smartphone 6.6 Inch Screen Snapdragon Chip NFC" [ref=f1e130]
+                  - generic:
+                    - generic [ref=f1e131]: AliExpress
+                    - generic [ref=f1e132]: "-33%"
+                - generic [ref=f1e133]:
+                  - heading "Samsung Galaxy S22+ 5G Network Unlocked Mobile Phone Daily Gaming Business Smartphone 6.6 Inch Screen Snapdragon Chip NFC" [level=3] [ref=f1e134]
+                  - paragraph [ref=f1e135]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e137]:
+                    - generic [ref=f1e138]: ‏٢٨٦٫١٠ ج.م.‏
+                    - generic [ref=f1e139]: ‏٤٢٧٫٠٢ ج.م.‏
+                  - paragraph [ref=f1e140]: In Stock
+                - generic [ref=f1e141]:
+                  - generic [ref=f1e142]:
+                    - link "Shop Now" [ref=f1e143] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812250741165&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812250741165.html%3Fpdp_npi%3D6%2540dis%2521USD%2521427.02%2521286.10%2521%2521%25212844.88%25211906.07%2521%254021013cc617898359214466847e0f63%252112000059730611512%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e148] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812250741165#compare-prices
+                  - paragraph [ref=f1e151]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e153] [cursor=pointer]
+              - article [ref=f1e157]:
+                - generic [ref=f1e158]:
+                  - img "Amazon Top seller 2019 Manufacture Smart Watch DZ09 for Xiaomi Smart phone" [ref=f1e160]
+                  - generic: Admitad
+                - generic [ref=f1e162]:
+                  - heading "Amazon Top seller 2019 Manufacture Smart Watch DZ09 for Xiaomi Smart phone" [level=3] [ref=f1e163]
+                  - paragraph [ref=f1e164]: General • Admitad
+                  - generic [ref=f1e166]: ‏٥٫٣٠ ج.م.‏
+                  - paragraph [ref=f1e168]: In Stock
+                - generic [ref=f1e169]:
+                  - generic [ref=f1e170]:
+                    - link "Shop Now" [ref=f1e171] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62367207135&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62367207135%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e176] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62367207135#compare-prices
+                  - paragraph [ref=f1e179]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e181] [cursor=pointer]
+              - article [ref=f1e185]:
+                - generic [ref=f1e186]:
+                  - img "Samsung Galaxy A51 SM-A515U1 128GB Factory Unlocked New Sealed Android Phone" [ref=f1e188]
+                  - generic:
+                    - generic [ref=f1e189]: eBay
+                    - generic [ref=f1e190]: "-5%"
+                - generic [ref=f1e191]:
+                  - heading "Samsung Galaxy A51 SM-A515U1 128GB Factory Unlocked New Sealed Android Phone" [level=3] [ref=f1e192]
+                  - paragraph [ref=f1e193]: New • eBay
+                  - generic [ref=f1e195]:
+                    - generic [ref=f1e196]: ‏١١٤٫٩١ ج.م.‏
+                    - generic [ref=f1e197]: ‏١٢٠٫٩٦ ج.م.‏
+                  - paragraph [ref=f1e198]: In Stock
+                - generic [ref=f1e199]:
+                  - generic [ref=f1e200]:
+                    - link "Shop Now" [ref=f1e201] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C800648534549%7C657546506435&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F800648534549%3F_skw%3Dphone%26hash%3Ditemba6a5f1a15%253Ag%253A9J4AAeSwPABqAYCv%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e206] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C800648534549%7C657546506435#compare-prices
+                  - paragraph [ref=f1e209]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e211] [cursor=pointer]
+              - article [ref=f1e215]:
+                - generic [ref=f1e216]:
+                  - img "Apple iPhone 14 5G Network Unlocked Smartphone 6.1\" Super Retina OLED 6GB RAM 128/256GB ROM Face ID+NFC Original Screen Phone" [ref=f1e218]
+                  - generic:
+                    - generic [ref=f1e219]: AliExpress
+                    - generic [ref=f1e220]: "-30%"
+                - generic [ref=f1e221]:
+                  - heading "Apple iPhone 14 5G Network Unlocked Smartphone 6.1\" Super Retina OLED 6GB RAM 128/256GB ROM Face ID+NFC Original Screen Phone" [level=3] [ref=f1e222]
+                  - paragraph [ref=f1e223]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e225]:
+                    - generic [ref=f1e226]: ‏٤٨٠٫٩٨ ج.م.‏
+                    - generic [ref=f1e227]: ‏٦٨٧٫١١ ج.م.‏
+                  - paragraph [ref=f1e228]: In Stock
+                - generic [ref=f1e229]:
+                  - generic [ref=f1e230]:
+                    - link "Shop Now" [ref=f1e231] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812266099644&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812266099644.html%3Fpdp_npi%3D6%2540dis%2521USD%2521687.11%2521480.98%2521%2521%25214577.67%25213204.37%2521%25402140f88817898359214646268e0f9f%252112000058426402224%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e236] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812266099644#compare-prices
+                  - paragraph [ref=f1e239]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e241] [cursor=pointer]
+              - article [ref=f1e245]:
+                - generic [ref=f1e246]:
+                  - img "Global Version Xiaomi Mi A2 Lite 4GB 64GB Mobile Phone Snapdragon 625 Octa Core" [ref=f1e248]
+                  - generic: Admitad
+                - generic [ref=f1e250]:
+                  - heading "Global Version Xiaomi Mi A2 Lite 4GB 64GB Mobile Phone Snapdragon 625 Octa Core" [level=3] [ref=f1e251]
+                  - paragraph [ref=f1e252]: General • Admitad
+                  - generic [ref=f1e254]: ‏١١٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e256]: In Stock
+                - generic [ref=f1e257]:
+                  - generic [ref=f1e258]:
+                    - link "Shop Now" [ref=f1e259] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62398660812&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62398660812%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e264] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62398660812#compare-prices
+                  - paragraph [ref=f1e267]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e269] [cursor=pointer]
+              - article [ref=f1e273]:
+                - generic [ref=f1e274]:
+                  - img "Samsung Galaxy A16 4G LTE 128GB GSM Dual SIM Unlocked Phone - New" [ref=f1e276]
+                  - generic: eBay
+                - generic [ref=f1e278]:
+                  - heading "Samsung Galaxy A16 4G LTE 128GB GSM Dual SIM Unlocked Phone - New" [level=3] [ref=f1e279]
+                  - paragraph [ref=f1e280]: New • eBay
+                  - generic [ref=f1e282]: ‏١٥٩٫٩٥ ج.م.‏
+                  - paragraph [ref=f1e284]: In Stock
+                - generic [ref=f1e285]:
+                  - generic [ref=f1e286]:
+                    - link "Shop Now" [ref=f1e287] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C126784439071%7C427866549201&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F126784439071%3F_skw%3Dphone%26hash%3Ditem1d84f1031f%253Ag%253AcYQAAOSwGYFnxnmC%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e292] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C126784439071%7C427866549201#compare-prices
+                  - paragraph [ref=f1e295]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e297] [cursor=pointer]
+              - article [ref=f1e301]:
+                - generic [ref=f1e302]:
+                  - img "Apple iPhone 15 Pro Max 5G Network Unlocked Smartphone 6.7 \"Supports Face ID NFC Original Screen Refurbished Mobile Phone" [ref=f1e304]
+                  - generic:
+                    - generic [ref=f1e305]: AliExpress
+                    - generic [ref=f1e306]: "-30%"
+                - generic [ref=f1e307]:
+                  - heading "Apple iPhone 15 Pro Max 5G Network Unlocked Smartphone 6.7 \"Supports Face ID NFC Original Screen Refurbished Mobile Phone" [level=3] [ref=f1e308]
+                  - paragraph [ref=f1e309]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e311]:
+                    - generic [ref=f1e312]: ‏٩٣٨٫٦٢ ج.م.‏
+                    - generic [ref=f1e313]: ‏١٬٣٤٠٫٨٨ ج.م.‏
+                  - paragraph [ref=f1e314]: In Stock
+                - generic [ref=f1e315]:
+                  - generic [ref=f1e316]:
+                    - link "Shop Now" [ref=f1e317] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812266514130&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812266514130.html%3Fpdp_npi%3D6%2540dis%2521USD%25211340.88%2521938.62%2521%2521%25218933.24%25216253.27%2521%25402140f88817898359214646268e0f9f%252112000058427312453%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e322] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812266514130#compare-prices
+                  - paragraph [ref=f1e325]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e327] [cursor=pointer]
+              - article [ref=f1e331]:
+                - generic [ref=f1e332]:
+                  - img "2019 New best Portable Mobile phone use good sound bluetooth speakers with alarm clock" [ref=f1e334]
+                  - generic: Admitad
+                - generic [ref=f1e336]:
+                  - heading "2019 New best Portable Mobile phone use good sound bluetooth speakers with alarm clock" [level=3] [ref=f1e337]
+                  - paragraph [ref=f1e338]: General • Admitad
+                  - generic [ref=f1e340]: ‏٦٫٩٠ ج.م.‏
+                  - paragraph [ref=f1e342]: In Stock
+                - generic [ref=f1e343]:
+                  - generic [ref=f1e344]:
+                    - link "Shop Now" [ref=f1e345] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62159587935&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62159587935%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e350] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62159587935#compare-prices
+                  - paragraph [ref=f1e353]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e355] [cursor=pointer]
+              - article [ref=f1e359]:
+                - generic [ref=f1e360]:
+                  - img "Google Pixel XL 1st Gen Unlimited storage Smartphone 32GB Android Mobile Phone" [ref=f1e362]
+                  - generic: eBay
+                - generic [ref=f1e364]:
+                  - heading "Google Pixel XL 1st Gen Unlimited storage Smartphone 32GB Android Mobile Phone" [level=3] [ref=f1e365]
+                  - paragraph [ref=f1e366]: Used • eBay
+                  - generic [ref=f1e368]: ‏٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e370]: In Stock
+                - generic [ref=f1e371]:
+                  - generic [ref=f1e372]:
+                    - link "Shop Now" [ref=f1e373] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C800628980569%7C657536133760&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F800628980569%3F_skw%3Dphone%26hash%3Ditemba6934bb59%253Ag%253AdGwAAeSwEIhpu22R%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e378] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C800628980569%7C657536133760#compare-prices
+                  - paragraph [ref=f1e381]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e383] [cursor=pointer]
+              - article [ref=f1e387]:
+                - generic [ref=f1e388]:
+                  - img "Samsung Galaxy J5 J500F 5.0\" 16GB ROM 4G LTE Network Unlocked Smartphone | Android Refurbished Mobile Phone" [ref=f1e390]
+                  - generic:
+                    - generic [ref=f1e391]: AliExpress
+                    - generic [ref=f1e392]: "-28%"
+                - generic [ref=f1e393]:
+                  - heading "Samsung Galaxy J5 J500F 5.0\" 16GB ROM 4G LTE Network Unlocked Smartphone | Android Refurbished Mobile Phone" [level=3] [ref=f1e394]
+                  - paragraph [ref=f1e395]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e397]:
+                    - generic [ref=f1e398]: ‏٧١٫٧٥ ج.م.‏
+                    - generic [ref=f1e399]: ‏٩٩٫٦٥ ج.م.‏
+                  - paragraph [ref=f1e400]: In Stock
+                - generic [ref=f1e401]:
+                  - generic [ref=f1e402]:
+                    - link "Shop Now" [ref=f1e403] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812463020336&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812463020336.html%3Fpdp_npi%3D6%2540dis%2521USD%252199.65%252171.75%2521%2521%2521663.88%2521477.99%2521%254021013cc617898359214466847e0f63%252112000058976650672%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e408] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812463020336#compare-prices
+                  - paragraph [ref=f1e411]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e413] [cursor=pointer]
+              - article [ref=f1e417]:
+                - generic [ref=f1e418]:
+                  - img "Wholesale bar phone 1.77 Cheapest feature phone 2G cellphone for H1" [ref=f1e420]
+                  - generic: Admitad
+                - generic [ref=f1e422]:
+                  - heading "Wholesale bar phone 1.77 Cheapest feature phone 2G cellphone for H1" [level=3] [ref=f1e423]
+                  - paragraph [ref=f1e424]: General • Admitad
+                  - generic [ref=f1e426]: ‏٧٫٥٠ ج.م.‏
+                  - paragraph [ref=f1e428]: In Stock
+                - generic [ref=f1e429]:
+                  - generic [ref=f1e430]:
+                    - link "Shop Now" [ref=f1e431] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60777563371&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60777563371%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e436] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60777563371#compare-prices
+                  - paragraph [ref=f1e439]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e441] [cursor=pointer]
+              - article [ref=f1e445]:
+                - generic [ref=f1e446]:
+                  - img "Original Google Pixel XL 1st Gen 2016 Unlocked 32GB 128GB Android Phone" [ref=f1e448]
+                  - generic: eBay
+                - generic [ref=f1e450]:
+                  - heading "Original Google Pixel XL 1st Gen 2016 Unlocked 32GB 128GB Android Phone" [level=3] [ref=f1e451]
+                  - paragraph [ref=f1e452]: Used • eBay
+                  - generic [ref=f1e454]: ‏١٦٦٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e456]: In Stock
+                - generic [ref=f1e457]:
+                  - generic [ref=f1e458]:
+                    - link "Shop Now" [ref=f1e459] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C298628752986%7C595401267946&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F298628752986%3F_skw%3Dphone%26hash%3Ditem4587a9265a%253Ag%253Aj1YAAeSwRUZqk-7d%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGaokAOdJcM6ReEFczBHY3MNd0M%252FyUfNevVivkOzvFouD6CxE5SjG5IrGitnzxuPmrYxqj1VhXegizZck428eZkmkXDrhiIOcP3IJ29fOG6O7Ag23x0b%252BJfX7WMlmoWg0ajPUXT3mNGNQI7XoRTUbycgypkmJwyBbHF5pHrUe9sRCwGFLUwGV%252B4lrZvAE27CKAOwam3SWsSE%252BPuf2F24fXMMXAQRY5oFAZcqNXdOuH4ZCuVKciQ7wbCJjXZewCSM%252FM5wARFwgIijoUs2SxXAya6s%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e464] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C298628752986%7C595401267946#compare-prices
+                  - paragraph [ref=f1e467]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e469] [cursor=pointer]
+              - article [ref=f1e473]:
+                - generic [ref=f1e474]:
+                  - img "MOTOROLA / EDGE (2024) / XT2405 / MIDNIGHT BLUE / UNLOCKED / 256GB / GRADE 3 Functional Used Cell‑Phone Charging Cable Included Functional Used Cell‑Phone Charging Cable Included" [ref=f1e476]
+                  - generic:
+                    - generic [ref=f1e477]: AliExpress
+                    - generic [ref=f1e478]: "-69%"
+                - generic [ref=f1e479]:
+                  - heading "MOTOROLA / EDGE (2024) / XT2405 / MIDNIGHT BLUE / UNLOCKED / 256GB / GRADE 3 Functional Used Cell‑Phone Charging Cable Included Functional Used Cell‑Phone Charging Cable Included" [level=3] [ref=f1e480]
+                  - paragraph [ref=f1e481]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e483]:
+                    - generic [ref=f1e484]: ‏٢٣٣٫٨٥ ج.م.‏
+                    - generic [ref=f1e485]: ‏٧٥٤٫٣٥ ج.م.‏
+                  - paragraph [ref=f1e486]: In Stock
+                - generic [ref=f1e487]:
+                  - generic [ref=f1e488]:
+                    - link "Shop Now" [ref=f1e489] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812735595543&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812735595543.html%3Fpdp_npi%3D6%2540dis%2521USD%2521754.35%2521233.85%2521%2521%2521754.35%2521233.85%2521%254021013cc617898359214466847e0f63%252112000059720863120%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e494] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812735595543#compare-prices
+                  - paragraph [ref=f1e497]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e499] [cursor=pointer]
+              - article [ref=f1e503]:
+                - generic [ref=f1e504]:
+                  - img "New Android BT V3.0 Smart Watch Phone U8 Smart Watch" [ref=f1e506]
+                  - generic: Admitad
+                - generic [ref=f1e508]:
+                  - heading "New Android BT V3.0 Smart Watch Phone U8 Smart Watch" [level=3] [ref=f1e509]
+                  - paragraph [ref=f1e510]: General • Admitad
+                  - generic [ref=f1e512]: ‏٧٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e514]: In Stock
+                - generic [ref=f1e515]:
+                  - generic [ref=f1e516]:
+                    - link "Shop Now" [ref=f1e517] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60415806830&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60415806830%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e522] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60415806830#compare-prices
+                  - paragraph [ref=f1e525]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e527] [cursor=pointer]
+              - article [ref=f1e531]:
+                - generic [ref=f1e532]:
+                  - img "NEW SEALED Samsung Galaxy Note 20 Ultra 5G SM-N986U 128GB Factory Unlocked Phone" [ref=f1e534]
+                  - generic: eBay
+                - generic [ref=f1e536]:
+                  - heading "NEW SEALED Samsung Galaxy Note 20 Ultra 5G SM-N986U 128GB Factory Unlocked Phone" [level=3] [ref=f1e537]
+                  - paragraph [ref=f1e538]: New • eBay
+                  - generic [ref=f1e540]: ‏٢٦٢٫٨٨ ج.م.‏
+                  - paragraph [ref=f1e542]: In Stock
+                - generic [ref=f1e543]:
+                  - generic [ref=f1e544]:
+                    - link "Shop Now" [ref=f1e545] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C398359217052%7C666612019147&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F398359217052%3F_skw%3Dphone%26hash%3Ditem5cc00f439c%253Ag%253A7FoAAOSwxCJmJeac%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e550] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C398359217052%7C666612019147#compare-prices
+                  - paragraph [ref=f1e553]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e555] [cursor=pointer]
+              - article [ref=f1e559]:
+                - generic [ref=f1e560]:
+                  - img "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [ref=f1e562]
+                  - generic:
+                    - generic [ref=f1e563]: AliExpress
+                    - generic [ref=f1e564]: "-55%"
+                - generic [ref=f1e565]:
+                  - heading "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [level=3] [ref=f1e566]
+                  - paragraph [ref=f1e567]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e568]: 5 (2 sold)
+                  - generic [ref=f1e572]:
+                    - generic [ref=f1e573]: ‏٧٥٫٩٠ ج.م.‏
+                    - generic [ref=f1e574]: ‏١٦٨٫٦٨ ج.م.‏
+                  - paragraph [ref=f1e575]: In Stock
+                - generic [ref=f1e576]:
+                  - generic [ref=f1e577]:
+                    - link "Shop Now" [ref=f1e578] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812554314964&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812554314964.html%3Fpdp_npi%3D6%2540dis%2521USD%2521168.68%252175.90%2521%2521%25211123.81%2521505.71%2521%254021013cc617898359214466847e0f63%252112000059243644035%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e583] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812554314964#compare-prices
+                  - paragraph [ref=f1e586]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e588] [cursor=pointer]
+              - article [ref=f1e592]:
+                - generic [ref=f1e593]:
+                  - img "Elderly GPS Smart Watch D200 Smartwatch Phone SOS Anti-lost Gps Tracking for Old People for iOS Android" [ref=f1e595]
+                  - generic: Admitad
+                - generic [ref=f1e597]:
+                  - heading "Elderly GPS Smart Watch D200 Smartwatch Phone SOS Anti-lost Gps Tracking for Old People for iOS Android" [level=3] [ref=f1e598]
+                  - paragraph [ref=f1e599]: General • Admitad
+                  - generic [ref=f1e601]: ‏٣٣٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e603]: In Stock
+                - generic [ref=f1e604]:
+                  - generic [ref=f1e605]:
+                    - link "Shop Now" [ref=f1e606] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60686337393&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60686337393%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e611] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60686337393#compare-prices
+                  - paragraph [ref=f1e614]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e616] [cursor=pointer]
+              - article [ref=f1e620]:
+                - generic [ref=f1e621]:
+                  - img "Unlocked G17 Pro Max 5G Smartphone 256GB Android Cell Phone Dual Sim Mobile" [ref=f1e623]
+                  - generic:
+                    - generic [ref=f1e624]: eBay
+                    - generic [ref=f1e625]: "-20%"
+                - generic [ref=f1e626]:
+                  - heading "Unlocked G17 Pro Max 5G Smartphone 256GB Android Cell Phone Dual Sim Mobile" [level=3] [ref=f1e627]
+                  - paragraph [ref=f1e628]: New • eBay
+                  - generic [ref=f1e630]:
+                    - generic [ref=f1e631]: ‏١١٩٫٥٩ ج.م.‏
+                    - generic [ref=f1e632]: ‏١٤٩٫٥٩ ج.م.‏
+                  - paragraph [ref=f1e633]: In Stock
+                - generic [ref=f1e634]:
+                  - generic [ref=f1e635]:
+                    - link "Shop Now" [ref=f1e636] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C178356090741%7C477793141322&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F178356090741%3F_skw%3Dphone%26hash%3Ditem2986d9f775%253Ag%253AN4YAAeSwlktqau3D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e641] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C178356090741%7C477793141322#compare-prices
+                  - paragraph [ref=f1e644]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e646] [cursor=pointer]
+              - article [ref=f1e650]:
+                - generic [ref=f1e651]:
+                  - img "Refurbished Samsung Galaxy A20e Smart Android Phone 5.8-inch 720x1560 Global Edition 2SIM NFC Samsung Phone Original Unlocking" [ref=f1e653]
+                  - generic:
+                    - generic [ref=f1e654]: AliExpress
+                    - generic [ref=f1e655]: "-55%"
+                - generic [ref=f1e656]:
+                  - heading "Refurbished Samsung Galaxy A20e Smart Android Phone 5.8-inch 720x1560 Global Edition 2SIM NFC Samsung Phone Original Unlocking" [level=3] [ref=f1e657]
+                  - paragraph [ref=f1e658]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e659]: 5 (1 sold)
+                  - generic [ref=f1e663]:
+                    - generic [ref=f1e664]: ‏١٠٧٫٥٣ ج.م.‏
+                    - generic [ref=f1e665]: ‏٢٣٨٫٩٥ ج.م.‏
+                  - paragraph [ref=f1e666]: In Stock
+                - generic [ref=f1e667]:
+                  - generic [ref=f1e668]:
+                    - link "Shop Now" [ref=f1e669] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811762031730&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811762031730.html%3Fpdp_npi%3D6%2540dis%2521USD%2521238.95%2521107.53%2521%2521%25211591.93%2521716.37%2521%254021013cc617898359214466847e0f63%252112000057111080045%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e674] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811762031730#compare-prices
+                  - paragraph [ref=f1e677]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e679] [cursor=pointer]
+              - article [ref=f1e683]:
+                - generic [ref=f1e684]:
+                  - img "High Quality DM09 Plus Smart Watch with Sim Card Bluetooth Phone Call Pedometer Sleep Monitor gps Smart watch" [ref=f1e686]
+                  - generic: Admitad
+                - generic [ref=f1e688]:
+                  - heading "High Quality DM09 Plus Smart Watch with Sim Card Bluetooth Phone Call Pedometer Sleep Monitor gps Smart watch" [level=3] [ref=f1e689]
+                  - paragraph [ref=f1e690]: General • Admitad
+                  - generic [ref=f1e692]: ‏٣٤٫٣٥ ج.م.‏
+                  - paragraph [ref=f1e694]: In Stock
+                - generic [ref=f1e695]:
+                  - generic [ref=f1e696]:
+                    - link "Shop Now" [ref=f1e697] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60838380982&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60838380982%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e702] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60838380982#compare-prices
+                  - paragraph [ref=f1e705]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e707] [cursor=pointer]
+              - article [ref=f1e711]:
+                - generic [ref=f1e712]:
+                  - img "Unlocked G17 Pro Max 5G Smartphone 256GB Android Cell Phone Dual Sim Mobile" [ref=f1e714]
+                  - generic:
+                    - generic [ref=f1e715]: eBay
+                    - generic [ref=f1e716]: "-20%"
+                - generic [ref=f1e717]:
+                  - heading "Unlocked G17 Pro Max 5G Smartphone 256GB Android Cell Phone Dual Sim Mobile" [level=3] [ref=f1e718]
+                  - paragraph [ref=f1e719]: New • eBay
+                  - generic [ref=f1e721]:
+                    - generic [ref=f1e722]: ‏١١٩٫٥٩ ج.م.‏
+                    - generic [ref=f1e723]: ‏١٤٩٫٥٩ ج.م.‏
+                  - paragraph [ref=f1e724]: In Stock
+                - generic [ref=f1e725]:
+                  - generic [ref=f1e726]:
+                    - link "Shop Now" [ref=f1e727] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C178356090741%7C477793141316&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F178356090741%3F_skw%3Dphone%26hash%3Ditem2986d9f775%253Ag%253AN4YAAeSwlktqau3D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e732] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C178356090741%7C477793141316#compare-prices
+                  - paragraph [ref=f1e735]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e737] [cursor=pointer]
+              - article [ref=f1e741]:
+                - generic [ref=f1e742]:
+                  - img "Honor 8X 4G LTE Unlocked Mobile Phone Global ROM Google Play 6.5\" Full Screen Kirin 710 Dual Camera Fingerprint used phone" [ref=f1e744]
+                  - generic:
+                    - generic [ref=f1e745]: AliExpress
+                    - generic [ref=f1e746]: "-53%"
+                - generic [ref=f1e747]:
+                  - heading "Honor 8X 4G LTE Unlocked Mobile Phone Global ROM Google Play 6.5\" Full Screen Kirin 710 Dual Camera Fingerprint used phone" [level=3] [ref=f1e748]
+                  - paragraph [ref=f1e749]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e751]:
+                    - generic [ref=f1e752]: ‏٧٧٫١٢ ج.م.‏
+                    - generic [ref=f1e753]: ‏١٦٤٫٠٨ ج.م.‏
+                  - paragraph [ref=f1e754]: In Stock
+                - generic [ref=f1e755]:
+                  - generic [ref=f1e756]:
+                    - link "Shop Now" [ref=f1e757] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812577758496&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812577758496.html%3Fpdp_npi%3D6%2540dis%2521USD%2521164.08%252177.12%2521%2521%25211093.14%2521513.78%2521%254021013cc617898359214466847e0f63%252112000059275265619%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e762] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812577758496#compare-prices
+                  - paragraph [ref=f1e765]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e767] [cursor=pointer]
+              - article [ref=f1e771]:
+                - generic [ref=f1e772]:
+                  - img "Dropshipping Original Twilight Blue HOMTOM C8 2GB+16GB Smartphone 5.5 inch Android Mobile Phone" [ref=f1e774]
+                  - generic: Admitad
+                - generic [ref=f1e776]:
+                  - heading "Dropshipping Original Twilight Blue HOMTOM C8 2GB+16GB Smartphone 5.5 inch Android Mobile Phone" [level=3] [ref=f1e777]
+                  - paragraph [ref=f1e778]: General • Admitad
+                  - generic [ref=f1e780]: ‏٥٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e782]: In Stock
+                - generic [ref=f1e783]:
+                  - generic [ref=f1e784]:
+                    - link "Shop Now" [ref=f1e785] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62298000243&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62298000243%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e790] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62298000243#compare-prices
+                  - paragraph [ref=f1e793]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e795] [cursor=pointer]
+              - article [ref=f1e799]:
+                - generic [ref=f1e800]:
+                  - img "2026 G25 Ultra 256GB 5G Android Unlocked Smartphone Dual SIM Cheap Mobile Phone" [ref=f1e802]
+                  - generic:
+                    - generic [ref=f1e803]: eBay
+                    - generic [ref=f1e804]: "-15%"
+                - generic [ref=f1e805]:
+                  - heading "2026 G25 Ultra 256GB 5G Android Unlocked Smartphone Dual SIM Cheap Mobile Phone" [level=3] [ref=f1e806]
+                  - paragraph [ref=f1e807]: New • eBay
+                  - generic [ref=f1e809]:
+                    - generic [ref=f1e810]: ‏١٠٩٫٥٩ ج.م.‏
+                    - generic [ref=f1e811]: ‏١٢٩٫٥٩ ج.م.‏
+                  - paragraph [ref=f1e812]: In Stock
+                - generic [ref=f1e813]:
+                  - generic [ref=f1e814]:
+                    - link "Shop Now" [ref=f1e815] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C206454140257%7C507257332436&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F206454140257%3F_skw%3Dphone%26hash%3Ditem3011a02d61%253Ag%253AztwAAeSw-ABqbBOV%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGaY3vjlgHwZAwfje1wdHUTu%252FScpK9eeNUGfihI8QKUrsIUh4dHQSMeBPyy9NYyFKgg4RK7viIqlUWDnPDsRpzaHjzaQK46HxK6FXp8TkRndjnRiAzPsuNFtqCisEFJle%252BbYaBVCWfTmoN2VtamUkyXVE%252F3RBpcAbd8QmXsqNUOBaGPFBW%252FmtVhUE4tb3aWm3JK6pLcTgQR6tQ%252BxFNUAf8curyCCSMwOjFf1N6gHcBMhNAUZkWlWjqgVrTSg%252BxGRwD8bXwF6nWVHtMTaV2a8Z%252FWM%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e820] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C206454140257%7C507257332436#compare-prices
+                  - paragraph [ref=f1e823]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e825] [cursor=pointer]
+              - article [ref=f1e829]:
+                - generic [ref=f1e830]:
+                  - img "OPPO Reno 5 pro 5G smartphone Global firmware 64MP+32MP Android 11 Quadruple camera 12GB 256GB Dimensity 1000+ used phone" [ref=f1e832]
+                  - generic:
+                    - generic [ref=f1e833]: AliExpress
+                    - generic [ref=f1e834]: "-53%"
+                - generic [ref=f1e835]:
+                  - heading "OPPO Reno 5 pro 5G smartphone Global firmware 64MP+32MP Android 11 Quadruple camera 12GB 256GB Dimensity 1000+ used phone" [level=3] [ref=f1e836]
+                  - paragraph [ref=f1e837]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e839]:
+                    - generic [ref=f1e840]: ‏١٣٥٫٦٨ ج.م.‏
+                    - generic [ref=f1e841]: ‏٢٨٨٫٦٨ ج.م.‏
+                  - paragraph [ref=f1e842]: In Stock
+                - generic [ref=f1e843]:
+                  - generic [ref=f1e844]:
+                    - link "Shop Now" [ref=f1e845] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812501167168&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812501167168.html%3Fpdp_npi%3D6%2540dis%2521USD%2521288.68%2521135.68%2521%2521%25211923.22%2521903.91%2521%25402140f88817898359214646268e0f9f%252112000059096150476%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e850] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812501167168#compare-prices
+                  - paragraph [ref=f1e853]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e855] [cursor=pointer]
+              - article [ref=f1e859]:
+                - generic [ref=f1e860]:
+                  - img "FREE SHIPPING 4GB+64GB 5.5INCH GIANT SCREEN SMART ANDROID PHONE 8MP+16MP HD CAMERA SUPPORT T CARD" [ref=f1e862]
+                  - generic: Admitad
+                - generic [ref=f1e864]:
+                  - heading "FREE SHIPPING 4GB+64GB 5.5INCH GIANT SCREEN SMART ANDROID PHONE 8MP+16MP HD CAMERA SUPPORT T CARD" [level=3] [ref=f1e865]
+                  - paragraph [ref=f1e866]: General • Admitad
+                  - generic [ref=f1e868]: ‏٥١٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e870]: In Stock
+                - generic [ref=f1e871]:
+                  - generic [ref=f1e872]:
+                    - link "Shop Now" [ref=f1e873] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62434315313&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62434315313%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e878] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62434315313#compare-prices
+                  - paragraph [ref=f1e881]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e883] [cursor=pointer]
+              - article [ref=f1e887]:
+                - generic [ref=f1e888]:
+                  - img "2026 G25 Ultra 5G Unlocked Smartphone 128GB Dual SIM Android Cheap Mobile Phone" [ref=f1e890]
+                  - generic:
+                    - generic [ref=f1e891]: eBay
+                    - generic [ref=f1e892]: "-15%"
+                - generic [ref=f1e893]:
+                  - heading "2026 G25 Ultra 5G Unlocked Smartphone 128GB Dual SIM Android Cheap Mobile Phone" [level=3] [ref=f1e894]
+                  - paragraph [ref=f1e895]: New • eBay
+                  - generic [ref=f1e897]:
+                    - generic [ref=f1e898]: ‏١٠٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e899]: ‏١٢٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e900]: In Stock
+                - generic [ref=f1e901]:
+                  - generic [ref=f1e902]:
+                    - link "Shop Now" [ref=f1e903] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C178455243210%7C477776805284&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F178455243210%3F_skw%3Dphone%26hash%3Ditem298cc2e9ca%253Ag%253AbBwAAeSwGflqlSfn%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGZDeFIGyeWfz3Jx0lo69qwIsfAVFfsosJfF7oBo2vBL2nAPLB1poVDgD7hsch9EuySfzU%252FXGKq4qhljZ1V67ZpOFRsTsi7T0HH6dpfBZqweSI4hii7fTs2eHNmS1uqB0M%252BpGKu0uQWDU9BPQSdDwZdtvYGT1qeFXzKp7GoEOZmKs9y3YpY%252BtxjqOduPiPr6uR5tqiFW41mOyUVOiseFGGEueEbqr4yVe7WDf95m1yGc4d4T4D%252BOq36exJpGhOhVuoym3xerId6SRDhPhMD8GmL8%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e908] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C178455243210%7C477776805284#compare-prices
+                  - paragraph [ref=f1e911]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e913] [cursor=pointer]
+              - article [ref=f1e917]:
+                - generic [ref=f1e918]:
+                  - img "Unihertz Jelly Star Mini Smartphone Android 13 8GB 256GB Led Light Unlocked Transparent Backshell Cellphones 48MP 3 inch Phone" [ref=f1e920]
+                  - generic:
+                    - generic [ref=f1e921]: AliExpress
+                    - generic [ref=f1e922]: "-45%"
+                - generic [ref=f1e923]:
+                  - heading "Unihertz Jelly Star Mini Smartphone Android 13 8GB 256GB Led Light Unlocked Transparent Backshell Cellphones 48MP 3 inch Phone" [level=3] [ref=f1e924]
+                  - paragraph [ref=f1e925]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e926]: 4.7 (204 sold)
+                  - generic [ref=f1e930]:
+                    - generic [ref=f1e931]: ‏٢١٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e932]: ‏٣٩٩٫٩٨ ج.م.‏
+                  - paragraph [ref=f1e933]: In Stock
+                - generic [ref=f1e934]:
+                  - generic [ref=f1e935]:
+                    - link "Shop Now" [ref=f1e936] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256805662295681&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256805662295681.html%3Fpdp_npi%3D6%2540dis%2521USD%2521399.98%2521219.99%2521%2521%2521399.98%2521219.99%2521%254021013cc617898359215027411e0ee0%252112000050581993140%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e941] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256805662295681#compare-prices
+                  - paragraph [ref=f1e944]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e946] [cursor=pointer]
+              - article [ref=f1e950]:
+                - generic [ref=f1e951]:
+                  - img "6.3 Inch Full Screen Waterproof 6+128G Octa Core Android Mobile Phone" [ref=f1e953]
+                  - generic: Admitad
+                - generic [ref=f1e955]:
+                  - heading "6.3 Inch Full Screen Waterproof 6+128G Octa Core Android Mobile Phone" [level=3] [ref=f1e956]
+                  - paragraph [ref=f1e957]: General • Admitad
+                  - generic [ref=f1e959]: ‏٦٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e961]: In Stock
+                - generic [ref=f1e962]:
+                  - generic [ref=f1e963]:
+                    - link "Shop Now" [ref=f1e964] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62344138307&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62344138307%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e969] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62344138307#compare-prices
+                  - paragraph [ref=f1e972]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e974] [cursor=pointer]
+              - article [ref=f1e978]:
+                - generic [ref=f1e979]:
+                  - img "2026 G17 Pro Max 5G Unlocked Cell Phone 256GB Android Smartphone Dual SIM Mobile" [ref=f1e981]
+                  - generic:
+                    - generic [ref=f1e982]: eBay
+                    - generic [ref=f1e983]: "-8%"
+                - generic [ref=f1e984]:
+                  - heading "2026 G17 Pro Max 5G Unlocked Cell Phone 256GB Android Smartphone Dual SIM Mobile" [level=3] [ref=f1e985]
+                  - paragraph [ref=f1e986]: New • eBay
+                  - generic [ref=f1e988]:
+                    - generic [ref=f1e989]: ‏١٠٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e990]: ‏١١٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e991]: In Stock
+                - generic [ref=f1e992]:
+                  - generic [ref=f1e993]:
+                    - link "Shop Now" [ref=f1e994] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C236803163476%7C537273066365&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F236803163476%3F_skw%3Dphone%26hash%3Ditem3722918554%253Ag%253AyeQAAeSwGYJp%257ECzD%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGarakWwo7o8a%252BJrWPooz8IpwtAztedPSFh68mER0TYsMkzZC6S0gB0gXwi7DPX%252FLbWW5RZSUhnZx1T%252BAg3LWOOnf7y2nulZxedDJ2UNKSpojPEcobIDFAcgTdFglIZb8FSvKdmXLvkXXZZ0whvDpCOO3E4GiyT3eJTD40fNzwwXkI7KqDZklVoPRUa0MpoCFrjvNyg1czg5aqKGMaBRhAeReMvn9%252Foxaih5fsCmKSjdSYZI9J8j0NSMbShShokP4%252BC%252BfQ8UFqxnFhioobidQs7g%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e999] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C236803163476%7C537273066365#compare-prices
+                  - paragraph [ref=f1e1002]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1004] [cursor=pointer]
+              - article [ref=f1e1008]:
+                - generic [ref=f1e1009]:
+                  - img "SERVO A50 PRO Flip Mobile Phone 2G GSM 2.4\" Display Auto Call Recorder Speed Dial 2 SIMs Foldable Telephones Official Authentic" [ref=f1e1011]
+                  - generic:
+                    - generic [ref=f1e1012]: AliExpress
+                    - generic [ref=f1e1013]: "-38%"
+                - generic [ref=f1e1014]:
+                  - heading "SERVO A50 PRO Flip Mobile Phone 2G GSM 2.4\" Display Auto Call Recorder Speed Dial 2 SIMs Foldable Telephones Official Authentic" [level=3] [ref=f1e1015]
+                  - paragraph [ref=f1e1016]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e1017]: 4.3 (70 sold)
+                  - generic [ref=f1e1021]:
+                    - generic [ref=f1e1022]: ‏٢٢٫٤٢ ج.م.‏
+                    - generic [ref=f1e1023]: ‏٣٦٫٠١ ج.م.‏
+                  - paragraph [ref=f1e1024]: In Stock
+                - generic [ref=f1e1025]:
+                  - generic [ref=f1e1026]:
+                    - link "Shop Now" [ref=f1e1027] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256807135046887&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256807135046887.html%3Fpdp_npi%3D6%2540dis%2521USD%252136.01%252122.42%2521%2521%2521239.91%2521149.35%2521%254021013cc617898359215027411e0ee0%252112000040291131737%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1032] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256807135046887#compare-prices
+                  - paragraph [ref=f1e1035]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1037] [cursor=pointer]
+              - article [ref=f1e1041]:
+                - generic [ref=f1e1042]:
+                  - img "Free postage S11 MTK6580m 4core wcdma 3G Smartphone 5.5 inch Octa Core 1GB+16GB Android OS 7.0 Mobile Phone CellPhone" [ref=f1e1044]
+                  - generic: Admitad
+                - generic [ref=f1e1046]:
+                  - heading "Free postage S11 MTK6580m 4core wcdma 3G Smartphone 5.5 inch Octa Core 1GB+16GB Android OS 7.0 Mobile Phone CellPhone" [level=3] [ref=f1e1047]
+                  - paragraph [ref=f1e1048]: General • Admitad
+                  - generic [ref=f1e1050]: ‏٨٥٫٩٢ ج.م.‏
+                  - paragraph [ref=f1e1052]: In Stock
+                - generic [ref=f1e1053]:
+                  - generic [ref=f1e1054]:
+                    - link "Shop Now" [ref=f1e1055] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62153296875&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62153296875%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1060] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62153296875#compare-prices
+                  - paragraph [ref=f1e1063]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1065] [cursor=pointer]
+              - article [ref=f1e1069]:
+                - generic [ref=f1e1070]:
+                  - img "Alcatel -AT&T IdealXCITE/CAMEOX 4G LTE 8GB Phone - Black (UNLOCKED /Mint/Tello)" [ref=f1e1072]
+                  - generic: eBay
+                - generic [ref=f1e1074]:
+                  - heading "Alcatel -AT&T IdealXCITE/CAMEOX 4G LTE 8GB Phone - Black (UNLOCKED /Mint/Tello)" [level=3] [ref=f1e1075]
+                  - paragraph [ref=f1e1076]: New • eBay
+                  - generic [ref=f1e1078]: ‏٢٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1080]: In Stock
+                - generic [ref=f1e1081]:
+                  - generic [ref=f1e1082]:
+                    - link "Shop Now" [ref=f1e1083] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C115977685529%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F115977685529%3F_skw%3Dphone%26hash%3Ditem1b00cf0a19%253Ag%253AQiUAAeSwgsVqEdL7%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1088] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C115977685529%7C0#compare-prices
+                  - paragraph [ref=f1e1091]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1093] [cursor=pointer]
+              - article [ref=f1e1097]:
+                - generic [ref=f1e1098]:
+                  - img "AB53 Single Relay Module Bluetooth Proximity Switch Module Auto Sense Cell Phone Proximity Unlock Module" [ref=f1e1100]
+                  - generic:
+                    - generic [ref=f1e1101]: AliExpress
+                    - generic [ref=f1e1102]: "-64%"
+                - generic [ref=f1e1103]:
+                  - heading "AB53 Single Relay Module Bluetooth Proximity Switch Module Auto Sense Cell Phone Proximity Unlock Module" [level=3] [ref=f1e1104]
+                  - paragraph [ref=f1e1105]: Security & Protection • AliExpress
+                  - generic [ref=f1e1107]:
+                    - generic [ref=f1e1108]: ‏٧٫١٤ ج.م.‏
+                    - generic [ref=f1e1109]: ‏١٩٫٨٣ ج.م.‏
+                  - paragraph [ref=f1e1110]: In Stock
+                - generic [ref=f1e1111]:
+                  - generic [ref=f1e1112]:
+                    - link "Shop Now" [ref=f1e1113] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256809041342029&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256809041342029.html%3Fpdp_npi%3D6%2540dis%2521USD%252119.83%25217.14%2521%2521%252119.83%25217.14%2521%25402101611117898359214535886e0d94%252112000057767118694%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1118] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256809041342029#compare-prices
+                  - paragraph [ref=f1e1121]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1123] [cursor=pointer]
+              - article [ref=f1e1127]:
+                - generic [ref=f1e1128]:
+                  - img "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [ref=f1e1130]
+                  - generic: Admitad
+                - generic [ref=f1e1132]:
+                  - heading "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [level=3] [ref=f1e1133]
+                  - paragraph [ref=f1e1134]: General • Admitad
+                  - generic [ref=f1e1136]: ‏١٨٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1138]: In Stock
+                - generic [ref=f1e1139]:
+                  - generic [ref=f1e1140]:
+                    - link "Shop Now" [ref=f1e1141] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60839430013&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60839430013%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1146] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60839430013#compare-prices
+                  - paragraph [ref=f1e1149]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1151] [cursor=pointer]
+              - article [ref=f1e1155]:
+                - generic [ref=f1e1156]:
+                  - img "Tracfone BLU View Speed Ultra 5G 64GB Prepaid Phone + 1 Year (1500" [ref=f1e1158]
+                  - generic: eBay
+                - generic [ref=f1e1160]:
+                  - heading "Tracfone BLU View Speed Ultra 5G 64GB Prepaid Phone + 1 Year (1500" [level=3] [ref=f1e1161]
+                  - paragraph [ref=f1e1162]: New • eBay
+                  - generic [ref=f1e1164]: ‏٤٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e1166]: In Stock
+                - generic [ref=f1e1167]:
+                  - generic [ref=f1e1168]:
+                    - link "Shop Now" [ref=f1e1169] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C287522785917%7C589428007244&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F287522785917%3F_skw%3Dphone%26hash%3Ditem42f1b18a7d%253Ag%253AQ80AAeSwdIRqrmoE%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGZYmjDJ7hZtkpzaoNr6k9sEusnBH66Z6UwsuL0khqVHiJ9Oalv5q5F62ock7lk--h1sbmSIgtsMFjz1NgjN0RzjOb%252BQYIc3xX6C%252FZd9I6p84wGCqqkU9OPyfCXCJllyRpU8L8HNPMxb1P4SH6ToFQQ%252FeE29X5srkrQ9aXq9la9sdymeXibW8P87DoBTI%252BfPLxJGBYsCWXFbAGBI2kJTEl8l5vVB4ZwPNwB7HSyvs%252Fu5WFNgtLzhK8CDE2rl8CWcckfviSjunkFQzxbtz4VBifgp%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1174] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C287522785917%7C589428007244#compare-prices
+                  - paragraph [ref=f1e1177]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1179] [cursor=pointer]
+              - article [ref=f1e1183]:
+                - generic [ref=f1e1184]:
+                  - img "Single Relay Module Bluetooth Proximity Switch Module Auto Sense Cell Phone Proximity Unlock Module-DT30" [ref=f1e1186]
+                  - generic:
+                    - generic [ref=f1e1187]: AliExpress
+                    - generic [ref=f1e1188]: "-54%"
+                - generic [ref=f1e1189]:
+                  - heading "Single Relay Module Bluetooth Proximity Switch Module Auto Sense Cell Phone Proximity Unlock Module-DT30" [level=3] [ref=f1e1190]
+                  - paragraph [ref=f1e1191]: Consumer Electronics • AliExpress
+                  - generic [ref=f1e1193]:
+                    - generic [ref=f1e1194]: ‏١٠٫٩٢ ج.م.‏
+                    - generic [ref=f1e1195]: ‏٢٣٫٧٤ ج.م.‏
+                  - paragraph [ref=f1e1196]: In Stock
+                - generic [ref=f1e1197]:
+                  - generic [ref=f1e1198]:
+                    - link "Shop Now" [ref=f1e1199] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812606460874&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812606460874.html%3Fpdp_npi%3D6%2540dis%2521USD%252123.74%252110.92%2521%2521%2521158.13%252172.74%2521%25402101611117898359214535886e0d94%252112000059393788218%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1204] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812606460874#compare-prices
+                  - paragraph [ref=f1e1207]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1209] [cursor=pointer]
+              - article [ref=f1e1213]:
+                - generic [ref=f1e1214]:
+                  - img "Infinix HOT 10i X659B 128GB Unlocked Smart Phone - NEW SEALED" [ref=f1e1216]
+                  - generic: eBay
+                - generic [ref=f1e1218]:
+                  - heading "Infinix HOT 10i X659B 128GB Unlocked Smart Phone - NEW SEALED" [level=3] [ref=f1e1219]
+                  - paragraph [ref=f1e1220]: New • eBay
+                  - generic [ref=f1e1222]: ‏٦٣٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1224]: In Stock
+                - generic [ref=f1e1225]:
+                  - generic [ref=f1e1226]:
+                    - link "Shop Now" [ref=f1e1227] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C318848502404%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F318848502404%3F_skw%3Dphone%26hash%3Ditem4a3cda0a84%253Ag%253AmogAAeSwkdpqoWtM%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1232] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C318848502404%7C0#compare-prices
+                  - paragraph [ref=f1e1235]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1237] [cursor=pointer]
+              - article [ref=f1e1241]:
+                - generic [ref=f1e1242]:
+                  - img "10pcs cartoon cute little animal lamb bee pendant DIY keychain necklace mobile phone chain accessory pendant" [ref=f1e1244]
+                  - generic:
+                    - generic [ref=f1e1245]: AliExpress
+                    - generic [ref=f1e1246]: "-50%"
+                - generic [ref=f1e1247]:
+                  - heading "10pcs cartoon cute little animal lamb bee pendant DIY keychain necklace mobile phone chain accessory pendant" [level=3] [ref=f1e1248]
+                  - paragraph [ref=f1e1249]: Home & Garden • AliExpress
+                  - generic [ref=f1e1251]:
+                    - generic [ref=f1e1252]: ‏٣٫٣٤ ج.م.‏
+                    - generic [ref=f1e1253]: ‏٦٫٦٩ ج.م.‏
+                  - paragraph [ref=f1e1254]: In Stock
+                - generic [ref=f1e1255]:
+                  - generic [ref=f1e1256]:
+                    - link "Shop Now" [ref=f1e1257] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812487753432&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812487753432.html%3Fpdp_npi%3D6%2540dis%2521USD%25216.69%25213.34%2521%2521%252144.58%252122.29%2521%25402140f88817898359214646268e0f9f%252112000059047554801%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1262] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812487753432#compare-prices
+                  - paragraph [ref=f1e1265]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1267] [cursor=pointer]
+              - article [ref=f1e1271]:
+                - generic [ref=f1e1272]:
+                  - img "G26 Ultra Android Unlocked Cell Phone 4+32GB Smartphone Dual SIM 5G Cheap Mobile" [ref=f1e1274]
+                  - generic: eBay
+                - generic [ref=f1e1276]:
+                  - heading "G26 Ultra Android Unlocked Cell Phone 4+32GB Smartphone Dual SIM 5G Cheap Mobile" [level=3] [ref=f1e1277]
+                  - paragraph [ref=f1e1278]: New • eBay
+                  - generic [ref=f1e1280]: ‏٨٥٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e1282]: In Stock
+                - generic [ref=f1e1283]:
+                  - generic [ref=f1e1284]:
+                    - link "Shop Now" [ref=f1e1285] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C237045730858%7C537450229562&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F237045730858%3F_skw%3Dphone%26hash%3Ditem373106ce2a%253Ag%253A240AAeSw%257E7pqmOVO%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1290] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C237045730858%7C537450229562#compare-prices
+                  - paragraph [ref=f1e1293]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1295] [cursor=pointer]
+              - article [ref=f1e1299]:
+                - generic [ref=f1e1300]:
+                  - img "10pcs resin cartoon car keychain, suitable for luggage and mobile phone accessories, is the best choice for gifts" [ref=f1e1302]
+                  - generic:
+                    - generic [ref=f1e1303]: AliExpress
+                    - generic [ref=f1e1304]: "-50%"
+                - generic [ref=f1e1305]:
+                  - heading "10pcs resin cartoon car keychain, suitable for luggage and mobile phone accessories, is the best choice for gifts" [level=3] [ref=f1e1306]
+                  - paragraph [ref=f1e1307]: Home & Garden • AliExpress
+                  - generic [ref=f1e1309]:
+                    - generic [ref=f1e1310]: ‏٤٫٢٨ ج.م.‏
+                    - generic [ref=f1e1311]: ‏٨٫٥٧ ج.م.‏
+                  - paragraph [ref=f1e1312]: In Stock
+                - generic [ref=f1e1313]:
+                  - generic [ref=f1e1314]:
+                    - link "Shop Now" [ref=f1e1315] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812666565187&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812666565187.html%3Fpdp_npi%3D6%2540dis%2521USD%25218.57%25214.28%2521%2521%252157.12%252128.56%2521%25402140f88817898359214646268e0f9f%252112000059534001159%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1320] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812666565187#compare-prices
+                  - paragraph [ref=f1e1323]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1325] [cursor=pointer]
+              - article [ref=f1e1329]:
+                - generic [ref=f1e1330]:
+                  - img "G17 Pro Max 5G Unlocked Cell Phone 64GB Smartphone Android Dual SIM Cheap Mobile" [ref=f1e1332]
+                  - generic: eBay
+                - generic [ref=f1e1334]:
+                  - heading "G17 Pro Max 5G Unlocked Cell Phone 64GB Smartphone Android Dual SIM Cheap Mobile" [level=3] [ref=f1e1335]
+                  - paragraph [ref=f1e1336]: New • eBay
+                  - generic [ref=f1e1338]: ‏٨٩٫٨٨ ج.م.‏
+                  - paragraph [ref=f1e1340]: In Stock
+                - generic [ref=f1e1341]:
+                  - generic [ref=f1e1342]:
+                    - link "Shop Now" [ref=f1e1343] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C236974345978%7C537388260468&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F236974345978%3F_skw%3Dphone%26hash%3Ditem372cc58efa%253Ag%253AObwAAeSw%257ELpqbBtg%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGYS%252B03apqYvVjwsKSpqI%252F2FQd9aRncnvbLMPmp89xHl%252FYHC6D6WwJ3UTm0h1YSpzbGRQ4GFtopnMxwnzVeHpEzFcD%252FwtfMj0u9HA8iDhR58eGZCgcvmlMP0Q3gx8PVQcKPzX5SpcbKOijxPliIsvKQ0bsk5DukWOaEDGlQwjJpE1m1fN78qbuZ6bUzAmc7DBmqZ4cMRfHEfZoNVNavWuaviqChlgUj3GLoqklY5TxmJBCdv8VmvwDVXXjLSYVh9d9sUzqplMPLzbQkrYbb%252FVdC%252B%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1348] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C236974345978%7C537388260468#compare-prices
+                  - paragraph [ref=f1e1351]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1353] [cursor=pointer]
+              - article [ref=f1e1357]:
+                - generic [ref=f1e1358]:
+                  - img "Single Cell Lithium Battery Boost Power Module Board 3.7V 4.2V Liter 5V 9V 12V USB Mobile Phone Fast Charge QC2.0 QC3.0 TPS61088" [ref=f1e1360]
+                  - generic:
+                    - generic [ref=f1e1361]: AliExpress
+                    - generic [ref=f1e1362]: "-4%"
+                - generic [ref=f1e1363]:
+                  - heading "Single Cell Lithium Battery Boost Power Module Board 3.7V 4.2V Liter 5V 9V 12V USB Mobile Phone Fast Charge QC2.0 QC3.0 TPS61088" [level=3] [ref=f1e1364]
+                  - paragraph [ref=f1e1365]: Home Appliances • AliExpress
+                  - generic [ref=f1e1367]:
+                    - generic [ref=f1e1368]: ‏١٫٥٥ ج.م.‏
+                    - generic [ref=f1e1369]: ‏١٫٦١ ج.م.‏
+                  - paragraph [ref=f1e1370]: In Stock
+                - generic [ref=f1e1371]:
+                  - generic [ref=f1e1372]:
+                    - link "Shop Now" [ref=f1e1373] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812404406182&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812404406182.html%3Fpdp_npi%3D6%2540dis%2521USD%25211.61%25211.55%2521%2521%252110.70%252110.27%2521%254021013cc617898359214466847e0f63%252112000058792374560%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1378] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812404406182#compare-prices
+                  - paragraph [ref=f1e1381]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1383] [cursor=pointer]
+              - article [ref=f1e1387]:
+                - generic [ref=f1e1388]:
+                  - img "Unlocked 5G Android Phone 6.8\" 1080P, 50MP AI Camera Works with GSM Networks USA" [ref=f1e1390]
+                  - generic: eBay
+                - generic [ref=f1e1392]:
+                  - heading "Unlocked 5G Android Phone 6.8\" 1080P, 50MP AI Camera Works with GSM Networks USA" [level=3] [ref=f1e1393]
+                  - paragraph [ref=f1e1394]: New • eBay
+                  - generic [ref=f1e1396]: ‏٩٨٫٩٥ ج.م.‏
+                  - paragraph [ref=f1e1398]: In Stock
+                - generic [ref=f1e1399]:
+                  - generic [ref=f1e1400]:
+                    - link "Shop Now" [ref=f1e1401] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C167618119280%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F167618119280%3F_skw%3Dphone%26hash%3Ditem2706d18670%253Ag%253AnTAAAeSwfQdoYZO1%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGbL9X5Ns2RLOHfIKZ0hs4%252FbwXueSD7uCA7YHwK49Lw4rib7HsilNAgNzxQY%252FXCl22EdFO%252F68AtLnoqR8APVO71bP01J1xY6VKaLjSGJPkgww%252FED4IMnrA%252FVkTFulTs8mY2qyWuGHcY9FF9e7lGfwu0m9SSP7uBu1zU%252FPep3gqIDOVosoUF37TT0ra%252FqNxzkgE5LHZxwHoXQ1MtBqRnSmJ7pe9SOrTtJlYGEMxWKD7UIuzz40YPQYHUIG7%252F9WocDouTpm7lb%252F5nRjUhqCD1D5CLa%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1406] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C167618119280%7C0#compare-prices
+                  - paragraph [ref=f1e1409]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1411] [cursor=pointer]
+              - article [ref=f1e1415]:
+                - generic [ref=f1e1416]:
+                  - img "DC 12V 24V 48V 72V 80V to 5V 2A USB Step Down Charging Module Converter Stabilizer Non isolated Buck Power For Car Mobile Phone" [ref=f1e1418]
+                  - generic:
+                    - generic [ref=f1e1419]: AliExpress
+                    - generic [ref=f1e1420]: "-4%"
+                - generic [ref=f1e1421]:
+                  - heading "DC 12V 24V 48V 72V 80V to 5V 2A USB Step Down Charging Module Converter Stabilizer Non isolated Buck Power For Car Mobile Phone" [level=3] [ref=f1e1422]
+                  - paragraph [ref=f1e1423]: Home Appliances • AliExpress
+                  - generic [ref=f1e1425]:
+                    - generic [ref=f1e1426]: ‏١٫٦٦ ج.م.‏
+                    - generic [ref=f1e1427]: ‏١٫٧٣ ج.م.‏
+                  - paragraph [ref=f1e1428]: In Stock
+                - generic [ref=f1e1429]:
+                  - generic [ref=f1e1430]:
+                    - link "Shop Now" [ref=f1e1431] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812394439691&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812394439691.html%3Fpdp_npi%3D6%2540dis%2521USD%25211.73%25211.66%2521%2521%252111.54%252111.08%2521%254021013cc617898359214466847e0f63%252112000058737059265%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1436] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812394439691#compare-prices
+                  - paragraph [ref=f1e1439]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1441] [cursor=pointer]
+              - article [ref=f1e1445]:
+                - generic [ref=f1e1446]:
+                  - img "NEW S24 Ultra 5G Unlocked Cell Phone 128GB Android 13 Smartphone Dual SIM Mobile" [ref=f1e1448]
+                  - generic: eBay
+                - generic [ref=f1e1450]:
+                  - heading "NEW S24 Ultra 5G Unlocked Cell Phone 128GB Android 13 Smartphone Dual SIM Mobile" [level=3] [ref=f1e1451]
+                  - paragraph [ref=f1e1452]: New • eBay
+                  - generic [ref=f1e1454]: ‏١٠٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e1456]: In Stock
+                - generic [ref=f1e1457]:
+                  - generic [ref=f1e1458]:
+                    - link "Shop Now" [ref=f1e1459] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C236154177568%7C536705215451&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F236154177568%3F_skw%3Dphone%26hash%3Ditem36fbe2c820%253Ag%253ALLYAAOSwPppoUOZJ%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGa1I%252BhmEesA78p%252BTHXKpcTci0h3C1cBHoguq7SOEosWhJMr07mg33QOEEXOwQcXlhybsxQ0mUhxGMkxkucfUmLS1Onug2YFEagVvOX4S5m8Lw%252B788DWyovCzYnMWZWwTCz70vcVk0cUtb2mg%252BfQF50eS1aqHGtfqQdhPgfCUaicru%252FJLjZneBXZALlsE%252FDEwMNkqqNHmssApOmavYwrx3POlwA3xMyV5O9PpYkhuySjJnEkmQ3QXiS5x8CTpSQYbdhFMAJk%252FqxP8JXQeCT1kI84%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1464] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C236154177568%7C536705215451#compare-prices
+                  - paragraph [ref=f1e1467]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1469] [cursor=pointer]
+              - article [ref=f1e1473]:
+                - generic [ref=f1e1474]:
+                  - img "DIY jewelry mobile phone decoration craft bow accessories 1000 pieces mixed blue-green purple flat-back resin convex round" [ref=f1e1476]
+                  - generic:
+                    - generic [ref=f1e1477]: AliExpress
+                    - generic [ref=f1e1478]: "-4%"
+                - generic [ref=f1e1479]:
+                  - heading "DIY jewelry mobile phone decoration craft bow accessories 1000 pieces mixed blue-green purple flat-back resin convex round" [level=3] [ref=f1e1480]
+                  - paragraph [ref=f1e1481]: Home & Garden • AliExpress
+                  - generic [ref=f1e1483]:
+                    - generic [ref=f1e1484]: ‏٥٠٫٧٨ ج.م.‏
+                    - generic [ref=f1e1485]: ‏٥٢٫٨٩ ج.م.‏
+                  - paragraph [ref=f1e1486]: In Stock
+                - generic [ref=f1e1487]:
+                  - generic [ref=f1e1488]:
+                    - link "Shop Now" [ref=f1e1489] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811882880341&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811882880341.html%3Fpdp_npi%3D6%2540dis%2521USD%252152.89%252150.78%2521%2521%2521352.37%2521338.28%2521%25402140f88817898359214646268e0f9f%252112000057433799625%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1494] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811882880341#compare-prices
+                  - paragraph [ref=f1e1497]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1499] [cursor=pointer]
+              - article [ref=f1e1503]:
+                - generic [ref=f1e1504]:
+                  - img "TCL 605 6.7\" 4G 128GB 12GB RAM GSM Unlocked Android Dual SIM Smart Phone - New" [ref=f1e1506]
+                  - generic: eBay
+                - generic [ref=f1e1508]:
+                  - heading "TCL 605 6.7\" 4G 128GB 12GB RAM GSM Unlocked Android Dual SIM Smart Phone - New" [level=3] [ref=f1e1509]
+                  - paragraph [ref=f1e1510]: New • eBay
+                  - generic [ref=f1e1512]: ‏١١٩٫٩٥ ج.م.‏
+                  - paragraph [ref=f1e1514]: In Stock
+                - generic [ref=f1e1515]:
+                  - generic [ref=f1e1516]:
+                    - link "Shop Now" [ref=f1e1517] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C128084847764%7C429494832000&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F128084847764%3F_skw%3Dphone%26hash%3Ditem1dd273ac94%253Ag%253A0wkAAeSwt5dqrFus%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1522] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C128084847764%7C429494832000#compare-prices
+                  - paragraph [ref=f1e1525]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1527] [cursor=pointer]
+              - article [ref=f1e1531]:
+                - generic [ref=f1e1532]:
+                  - img "SERVO Mini Smartphone ,3.0'' HD Display, Android 9.0 Mobile Phone 2GB+16GB Face Unlock 3G Cellular GPS, Small Size Smart Phones" [ref=f1e1534]
+                  - generic:
+                    - generic [ref=f1e1535]: AliExpress
+                    - generic [ref=f1e1536]: "-51%"
+                - generic [ref=f1e1537]:
+                  - heading "SERVO Mini Smartphone ,3.0'' HD Display, Android 9.0 Mobile Phone 2GB+16GB Face Unlock 3G Cellular GPS, Small Size Smart Phones" [level=3] [ref=f1e1538]
+                  - paragraph [ref=f1e1539]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e1540]: 4 (9 sold)
+                  - generic [ref=f1e1544]:
+                    - generic [ref=f1e1545]: ‏٤٠٫٨٧ ج.م.‏
+                    - generic [ref=f1e1546]: ‏٨٣٫٤١ ج.م.‏
+                  - paragraph [ref=f1e1547]: In Stock
+                - generic [ref=f1e1548]:
+                  - generic [ref=f1e1549]:
+                    - link "Shop Now" [ref=f1e1550] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256808861682517&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256808861682517.html%3Fpdp_npi%3D6%2540dis%2521USD%252183.41%252140.87%2521%2521%2521555.68%2521272.28%2521%254021013cc617898359215027411e0ee0%252112000047716774135%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e1555] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256808861682517#compare-prices
+                  - paragraph [ref=f1e1558]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1560] [cursor=pointer]
+            - button "Load More" [ref=f1e1565] [cursor=pointer]
+    - contentinfo [ref=f1e1566]:
+      - generic [ref=f1e1567]:
+        - generic [ref=f1e1568]:
+          - text: ZORINO
+          - paragraph [ref=f1e1569]: AI-powered deal discovery
+        - navigation "Company" [ref=f1e1570]:
+          - heading "Company" [level=3] [ref=f1e1571]
+          - list [ref=f1e1572]:
+            - listitem [ref=f1e1573]:
+              - link "About Us" [ref=f1e1574] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f1e1575]:
+              - link "Contact" [ref=f1e1576] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f1e1577]:
+              - link "FAQ" [ref=f1e1578] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f1e1579]:
+              - link "Blog" [ref=f1e1580] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f1e1581]:
+          - heading "Legal" [level=3] [ref=f1e1582]
+          - list [ref=f1e1583]:
+            - listitem [ref=f1e1584]:
+              - link "Imprint" [ref=f1e1585] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f1e1586]:
+              - link "Privacy" [ref=f1e1587] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f1e1588]:
+              - link "Terms" [ref=f1e1589] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f1e1590]:
+              - link "Cookies" [ref=f1e1591] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f1e1592]:
+              - link "Affiliate" [ref=f1e1593] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f1e1594]:
+              - link "DMCA" [ref=f1e1595] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f1e1596]:
+              - link "Accessibility" [ref=f1e1597] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f1e1598]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f1e1599]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f1e1600] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f1e1601]

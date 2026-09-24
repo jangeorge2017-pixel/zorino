@@ -1,0 +1,1041 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - banner [ref=f1e4]:
+      - generic [ref=f1e5]:
+        - link [ref=f1e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f1e7]
+        - button "Menu" [ref=f1e8] [cursor=pointer]
+        - generic [ref=f1e10]:
+          - link "Search" [ref=f1e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f1e16] [cursor=pointer]:
+            - generic [ref=f1e17]: Dark
+            - generic [ref=f1e21]: Light
+          - button "Language, country, and currency" [ref=f1e31] [cursor=pointer]:
+            - generic [ref=f1e35]: EN · EGP
+          - link "Wishlist" [ref=f1e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f1e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f1e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f1e52]: Hello, User
+    - main [ref=f1e53]:
+      - generic [ref=f1e54]:
+        - generic [ref=f1e57]:
+          - heading "Search Results" [level=1] [ref=f1e58]
+          - paragraph [ref=f1e59]: Showing results for "laptop"
+        - generic [ref=f1e60]:
+          - complementary [ref=f1e61]:
+            - generic [ref=f1e62]:
+              - heading "Filters" [level=2] [ref=f1e63]
+              - button "Clear" [ref=f1e66] [cursor=pointer]
+            - generic [ref=f1e67]:
+              - generic [ref=f1e68]:
+                - generic [ref=f1e69]: Search for products, brands or categories...
+                - textbox "Search for products, brands or categories..." [ref=f1e70]: laptop
+              - generic [ref=f1e71]:
+                - generic [ref=f1e72]: Categories
+                - combobox [ref=f1e73] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "General"
+                  - option "Good - Refurbished"
+                  - option "Furniture"
+                  - option "Very Good - Refurbished"
+                  - option "New"
+                  - option "Certified - Refurbished"
+                  - option "Excellent - Refurbished"
+                  - option "Used"
+                  - option "Home Appliances"
+                  - option "Luggage & Bags"
+                  - option "Home & Garden"
+              - generic [ref=f1e74]:
+                - generic [ref=f1e75]: Stores
+                - combobox [ref=f1e76] [cursor=pointer]:
+                  - option "All Stores" [selected]
+                  - option "Admitad"
+                  - option "eBay"
+                  - option "AliExpress"
+              - generic [ref=f1e77]:
+                - generic [ref=f1e78]: Price Range
+                - generic [ref=f1e79]:
+                  - spinbutton "Min Price" [ref=f1e81]
+                  - spinbutton "Max Price" [ref=f1e83]
+              - generic [ref=f1e84]:
+                - generic [ref=f1e85]: Rating
+                - combobox [ref=f1e86] [cursor=pointer]:
+                  - option "All Ratings" [selected]
+                  - option "4+ Stars"
+                  - option "3+ Stars"
+                  - option "2+ Stars"
+              - generic [ref=f1e87] [cursor=pointer]:
+                - checkbox "In Stock Only" [ref=f1e88]
+                - generic [ref=f1e89]: In Stock Only
+              - button "Filter" [ref=f1e90] [cursor=pointer]
+          - generic [ref=f1e91]:
+            - generic [ref=f1e92]:
+              - generic [ref=f1e93]: 50 of 117 results
+              - combobox [ref=f1e95] [cursor=pointer]:
+                - option "Relevance" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Rating"
+            - generic [ref=f1e96]:
+              - article [ref=f1e97]:
+                - generic [ref=f1e98]:
+                  - img "Laptop Portable Aux Outdoor Wireless Speaker" [ref=f1e100]
+                  - generic: Admitad
+                - generic [ref=f1e102]:
+                  - heading "Laptop Portable Aux Outdoor Wireless Speaker" [level=3] [ref=f1e103]
+                  - paragraph [ref=f1e104]: General • Admitad
+                  - generic [ref=f1e106]: ‏٩٫٧٧ ج.م.‏
+                  - paragraph [ref=f1e108]: In Stock
+                - generic [ref=f1e109]:
+                  - generic [ref=f1e110]:
+                    - link "Shop Now" [ref=f1e111] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62251862577&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62251862577%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e116] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62251862577#compare-prices
+                  - paragraph [ref=f1e119]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e121] [cursor=pointer]
+              - article [ref=f1e125]:
+                - generic [ref=f1e126]:
+                  - img "HP Windows 11 Pro 14\" Laptop PC i5 11th Gen, up to 32GB RAM, 2TB NVMe SSD" [ref=f1e128]
+                  - generic:
+                    - generic [ref=f1e129]: eBay
+                    - generic [ref=f1e130]: "-80%"
+                - generic [ref=f1e131]:
+                  - heading "HP Windows 11 Pro 14\" Laptop PC i5 11th Gen, up to 32GB RAM, 2TB NVMe SSD" [level=3] [ref=f1e132]
+                  - paragraph [ref=f1e133]: Good - Refurbished • eBay
+                  - generic [ref=f1e135]:
+                    - generic [ref=f1e136]: ‏٣٦٢٫٠٠ ج.م.‏
+                    - generic [ref=f1e137]: ‏١٬٨١٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e138]: In Stock
+                - generic [ref=f1e139]:
+                  - generic [ref=f1e140]:
+                    - link "Shop Now" [ref=f1e141] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C298220737822%7C595235303667&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F298220737822%3F_skw%3Dlaptop%26hash%3Ditem456f57551e%253Ag%253A0h4AAeSw64Vqqh1x%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e146] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C298220737822%7C595235303667#compare-prices
+                  - paragraph [ref=f1e149]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e151] [cursor=pointer]
+              - article [ref=f1e155]:
+                - generic [ref=f1e156]:
+                  - img "Drafting Desk with Tilt-Adjustable Surface 0–60 Degrees Height Range 69.5–92.5 cm Retractable Side Shelf Laptop Platform Dual Fa" [ref=f1e158]
+                  - generic:
+                    - generic [ref=f1e159]: AliExpress
+                    - generic [ref=f1e160]: "-58%"
+                - generic [ref=f1e161]:
+                  - heading "Drafting Desk with Tilt-Adjustable Surface 0–60 Degrees Height Range 69.5–92.5 cm Retractable Side Shelf Laptop Platform Dual Fa" [level=3] [ref=f1e162]
+                  - paragraph [ref=f1e163]: Furniture • AliExpress
+                  - generic [ref=f1e165]:
+                    - generic [ref=f1e166]: ‏١١٥٫٣٠ ج.م.‏
+                    - generic [ref=f1e167]: ‏٢٧٤٫٥٣ ج.م.‏
+                  - paragraph [ref=f1e168]: In Stock
+                - generic [ref=f1e169]:
+                  - generic [ref=f1e170]:
+                    - link "Shop Now" [ref=f1e171] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812874072383&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812874072383.html%3Fpdp_npi%3D6%2540dis%2521USD%2521274.53%2521115.30%2521%2521%25211835.09%2521770.74%2521%25402101611117902612556222541e0fe5%252112000060148403175%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e176] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812874072383#compare-prices
+                  - paragraph [ref=f1e179]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e181] [cursor=pointer]
+              - article [ref=f1e185]:
+                - generic [ref=f1e186]:
+                  - img "CHUWI CoreBook X Laptop-Tastaturfolie - Spanisch" [ref=f1e188]
+                  - generic:
+                    - generic [ref=f1e189]: Admitad
+                    - generic [ref=f1e190]: "-33%"
+                - generic [ref=f1e191]:
+                  - heading "CHUWI CoreBook X Laptop-Tastaturfolie - Spanisch" [level=3] [ref=f1e192]
+                  - paragraph [ref=f1e193]: General • Admitad
+                  - generic [ref=f1e195]:
+                    - generic [ref=f1e196]: ‏١٤٫٩٩ ج.م.‏
+                    - generic [ref=f1e197]: ‏٢٢٫٤٥ ج.م.‏
+                  - paragraph [ref=f1e198]: In Stock
+                - generic [ref=f1e199]:
+                  - generic [ref=f1e200]:
+                    - link "Shop Now" [ref=f1e201] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-15467-530611&store=admitad&to=https%3A%2F%2Fbywiola.com%2Fg%2F78tuvzaw8k32ef59cc790267b86f6e%2F%3Ff_id%3D19719%26ulp%3Dhttps%253A%252F%252Fwww.geekbuying.com%252Fitem%252FCHUWI-CoreBook-X-Laptop-Keyboard-Film-Spanish-530611.html%253FCurrency%253DEUR%2523googtrans%252Fen%252Fde&source=search
+                    - link "Compare Prices" [ref=f1e206] [cursor=pointer]:
+                      - /url: /product/admitad-15467-530611#compare-prices
+                  - paragraph [ref=f1e209]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e211] [cursor=pointer]
+              - article [ref=f1e215]:
+                - generic [ref=f1e216]:
+                  - img "Dell Latitude 7440 i5-1345U 32GB 512GB SSD Touch Laptop" [ref=f1e218]
+                  - generic:
+                    - generic [ref=f1e219]: eBay
+                    - generic [ref=f1e220]: "-58%"
+                - generic [ref=f1e221]:
+                  - heading "Dell Latitude 7440 i5-1345U 32GB 512GB SSD Touch Laptop" [level=3] [ref=f1e222]
+                  - paragraph [ref=f1e223]: Very Good - Refurbished • eBay
+                  - generic [ref=f1e225]:
+                    - generic [ref=f1e226]: ‏٤٢٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e227]: ‏١٬٠٢٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e228]: In Stock
+                - generic [ref=f1e229]:
+                  - generic [ref=f1e230]:
+                    - link "Shop Now" [ref=f1e231] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C366683235852%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F366683235852%3F_skw%3Dlaptop%26hash%3Ditem556006260c%253Ag%253AVCMAAeSwS5hqsZIP%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e236] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C366683235852%7C0#compare-prices
+                  - paragraph [ref=f1e239]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e241] [cursor=pointer]
+              - article [ref=f1e245]:
+                - generic [ref=f1e246]:
+                  - img "CHUWI Magnetische Tastatur für Hi10 Max Laptop" [ref=f1e248]
+                  - generic:
+                    - generic [ref=f1e249]: Admitad
+                    - generic [ref=f1e250]: "-20%"
+                - generic [ref=f1e251]:
+                  - heading "CHUWI Magnetische Tastatur für Hi10 Max Laptop" [level=3] [ref=f1e252]
+                  - paragraph [ref=f1e253]: General • Admitad
+                  - generic [ref=f1e255]:
+                    - generic [ref=f1e256]: ‏٤٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e257]: ‏٦٢٫٨٨ ج.م.‏
+                  - paragraph [ref=f1e258]: In Stock
+                - generic [ref=f1e259]:
+                  - generic [ref=f1e260]:
+                    - link "Shop Now" [ref=f1e261] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-15467-528445&store=admitad&to=https%3A%2F%2Fbywiola.com%2Fg%2F78tuvzaw8k32ef59cc790267b86f6e%2F%3Ff_id%3D19719%26ulp%3Dhttps%253A%252F%252Fwww.geekbuying.com%252Fitem%252FCHUWI-Magnetic-Keyboard-for-Hi10-Max-Laptop-528445.html%253FCurrency%253DEUR%2523googtrans%252Fen%252Fde&source=search
+                    - link "Compare Prices" [ref=f1e266] [cursor=pointer]:
+                      - /url: /product/admitad-15467-528445#compare-prices
+                  - paragraph [ref=f1e269]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e271] [cursor=pointer]
+              - article [ref=f1e275]:
+                - generic [ref=f1e276]:
+                  - img "15.6 inch Laptop 16GB+512GB Windows 11 Computers WiFi Bluetooth 1920*1080 LP" [ref=f1e278]
+                  - generic:
+                    - generic [ref=f1e279]: eBay
+                    - generic [ref=f1e280]: "-50%"
+                - generic [ref=f1e281]:
+                  - heading "15.6 inch Laptop 16GB+512GB Windows 11 Computers WiFi Bluetooth 1920*1080 LP" [level=3] [ref=f1e282]
+                  - paragraph [ref=f1e283]: New • eBay
+                  - generic [ref=f1e285]:
+                    - generic [ref=f1e286]: ‏٢٢٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e287]: ‏٤٥٩٫٩٨ ج.م.‏
+                  - paragraph [ref=f1e288]: In Stock
+                - generic [ref=f1e289]:
+                  - generic [ref=f1e290]:
+                    - link "Shop Now" [ref=f1e291] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C389917513456%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F389917513456%3F_skw%3Dlaptop%26hash%3Ditem5ac8e516f0%253Ag%253AxuUAAeSw7LFp5vWm%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e296] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C389917513456%7C0#compare-prices
+                  - paragraph [ref=f1e299]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e301] [cursor=pointer]
+              - article [ref=f1e305]:
+                - generic [ref=f1e306]:
+                  - img "Quality New USB Optical Computer Gaming Mouse For PC Laptop" [ref=f1e308]
+                  - generic: Admitad
+                - generic [ref=f1e310]:
+                  - heading "Quality New USB Optical Computer Gaming Mouse For PC Laptop" [level=3] [ref=f1e311]
+                  - paragraph [ref=f1e312]: General • Admitad
+                  - generic [ref=f1e314]: ‏١٫٨٠ ج.م.‏
+                  - paragraph [ref=f1e316]: In Stock
+                - generic [ref=f1e317]:
+                  - generic [ref=f1e318]:
+                    - link "Shop Now" [ref=f1e319] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60718849000&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60718849000%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e324] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60718849000#compare-prices
+                  - paragraph [ref=f1e327]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e329] [cursor=pointer]
+              - article [ref=f1e333]:
+                - generic [ref=f1e334]:
+                  - img "Acer Aspire 16 16\" Laptop Core Ultra 5 226V S2 16GB RAM 1TB SSD Arc Refurbished" [ref=f1e336]
+                  - generic:
+                    - generic [ref=f1e337]: eBay
+                    - generic [ref=f1e338]: "-50%"
+                - generic [ref=f1e339]:
+                  - heading "Acer Aspire 16 16\" Laptop Core Ultra 5 226V S2 16GB RAM 1TB SSD Arc Refurbished" [level=3] [ref=f1e340]
+                  - paragraph [ref=f1e341]: Certified - Refurbished • eBay
+                  - generic [ref=f1e343]:
+                    - generic [ref=f1e344]: ‏٥١٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e345]: ‏١٬٠٤٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e346]: In Stock
+                - generic [ref=f1e347]:
+                  - generic [ref=f1e348]:
+                    - link "Shop Now" [ref=f1e349] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257503592006%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257503592006%3F_skw%3Dlaptop%26hash%3Ditem3bf468fe46%253Ag%253Aj84AAeSwwlRqOW9e%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e354] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257503592006%7C0#compare-prices
+                  - paragraph [ref=f1e357]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e359] [cursor=pointer]
+              - article [ref=f1e363]:
+                - generic [ref=f1e364]:
+                  - img "Made in China xergur gaming mouse, SS500 wired mouse with LED Light for computer, laptop" [ref=f1e366]
+                  - generic: Admitad
+                - generic [ref=f1e368]:
+                  - heading "Made in China xergur gaming mouse, SS500 wired mouse with LED Light for computer, laptop" [level=3] [ref=f1e369]
+                  - paragraph [ref=f1e370]: General • Admitad
+                  - generic [ref=f1e372]: ‏٤٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e374]: In Stock
+                - generic [ref=f1e375]:
+                  - generic [ref=f1e376]:
+                    - link "Shop Now" [ref=f1e377] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62429083376&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62429083376%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e382] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62429083376#compare-prices
+                  - paragraph [ref=f1e385]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e387] [cursor=pointer]
+              - article [ref=f1e391]:
+                - generic [ref=f1e392]:
+                  - img "ASUS Zenbook A14 14\" WUXGA Snapdragon X X1-26-100 16GB RAM 512GB SSD W11H Laptop" [ref=f1e394]
+                  - generic:
+                    - generic [ref=f1e395]: eBay
+                    - generic [ref=f1e396]: "-49%"
+                - generic [ref=f1e397]:
+                  - heading "ASUS Zenbook A14 14\" WUXGA Snapdragon X X1-26-100 16GB RAM 512GB SSD W11H Laptop" [level=3] [ref=f1e398]
+                  - paragraph [ref=f1e399]: Very Good - Refurbished • eBay
+                  - generic [ref=f1e401]:
+                    - generic [ref=f1e402]: ‏٥٦٠٫٠٠ ج.م.‏
+                    - generic [ref=f1e403]: ‏١٬٠٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e404]: In Stock
+                - generic [ref=f1e405]:
+                  - generic [ref=f1e406]:
+                    - link "Shop Now" [ref=f1e407] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C168224689294%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F168224689294%3F_skw%3Dlaptop%26hash%3Ditem272af90c8e%253Ag%253AyPcAAeSwxgRqs%257EjV%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e412] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C168224689294%7C0#compare-prices
+                  - paragraph [ref=f1e415]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e417] [cursor=pointer]
+              - article [ref=f1e421]:
+                - generic [ref=f1e422]:
+                  - img "High performance DDR3 4gb/8gb UDIMM 1600/1333MHz computer ram price laptop ram 4gb" [ref=f1e424]
+                  - generic: Admitad
+                - generic [ref=f1e426]:
+                  - heading "High performance DDR3 4gb/8gb UDIMM 1600/1333MHz computer ram price laptop ram 4gb" [level=3] [ref=f1e427]
+                  - paragraph [ref=f1e428]: General • Admitad
+                  - generic [ref=f1e430]: ‏١٢٫٣٥ ج.م.‏
+                  - paragraph [ref=f1e432]: In Stock
+                - generic [ref=f1e433]:
+                  - generic [ref=f1e434]:
+                    - link "Shop Now" [ref=f1e435] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62347293682&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62347293682%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e440] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62347293682#compare-prices
+                  - paragraph [ref=f1e443]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e445] [cursor=pointer]
+              - article [ref=f1e449]:
+                - generic [ref=f1e450]:
+                  - img "Acer Aspire 14\" AI Copilot+PC Laptop Core Ultra 5 226V Gen 4 ARC 16GB 1TB Refurb" [ref=f1e452]
+                  - generic:
+                    - generic [ref=f1e453]: eBay
+                    - generic [ref=f1e454]: "-47%"
+                - generic [ref=f1e455]:
+                  - heading "Acer Aspire 14\" AI Copilot+PC Laptop Core Ultra 5 226V Gen 4 ARC 16GB 1TB Refurb" [level=3] [ref=f1e456]
+                  - paragraph [ref=f1e457]: Certified - Refurbished • eBay
+                  - generic [ref=f1e459]:
+                    - generic [ref=f1e460]: ‏٤٢٧٫٤١ ج.م.‏
+                    - generic [ref=f1e461]: ‏٧٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e462]: In Stock
+                - generic [ref=f1e463]:
+                  - generic [ref=f1e464]:
+                    - link "Shop Now" [ref=f1e465] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257213743386%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257213743386%3F_skw%3Dlaptop%26hash%3Ditem3be322411a%253Ag%253AlF8AAeSwF9hpZ9iF%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e470] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257213743386%7C0#compare-prices
+                  - paragraph [ref=f1e473]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e475] [cursor=pointer]
+              - article [ref=f1e479]:
+                - generic [ref=f1e480]:
+                  - img "Slim used pulled laptop hard drive 500gb 2.5 inch 5400rpm hdd sata hard disk" [ref=f1e482]
+                  - generic: Admitad
+                - generic [ref=f1e484]:
+                  - heading "Slim used pulled laptop hard drive 500gb 2.5 inch 5400rpm hdd sata hard disk" [level=3] [ref=f1e485]
+                  - paragraph [ref=f1e486]: General • Admitad
+                  - generic [ref=f1e488]: ‏١٧٫٨٥ ج.م.‏
+                  - paragraph [ref=f1e490]: In Stock
+                - generic [ref=f1e491]:
+                  - generic [ref=f1e492]:
+                    - link "Shop Now" [ref=f1e493] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62358840443&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62358840443%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e498] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62358840443#compare-prices
+                  - paragraph [ref=f1e501]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e503] [cursor=pointer]
+              - article [ref=f1e507]:
+                - generic [ref=f1e508]:
+                  - img "Acer - Aspire Go 15 15.6\" FHD Laptop AMD Ryzen 7 7730U 2023 AMD Radeon ..." [ref=f1e510]
+                  - generic:
+                    - generic [ref=f1e511]: eBay
+                    - generic [ref=f1e512]: "-29%"
+                - generic [ref=f1e513]:
+                  - heading "Acer - Aspire Go 15 15.6\" FHD Laptop AMD Ryzen 7 7730U 2023 AMD Radeon ..." [level=3] [ref=f1e514]
+                  - paragraph [ref=f1e515]: New • eBay
+                  - generic [ref=f1e517]:
+                    - generic [ref=f1e518]: ‏٤٩٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e519]: ‏٦٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e520]: In Stock
+                - generic [ref=f1e521]:
+                  - generic [ref=f1e522]:
+                    - link "Shop Now" [ref=f1e523] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C198532859679%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F198532859679%3F_skw%3Dlaptop%26hash%3Ditem2e397b071f%253Ag%253AGF0AAeSwZXtqrTLT%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e528] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C198532859679%7C0#compare-prices
+                  - paragraph [ref=f1e531]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e533] [cursor=pointer]
+              - article [ref=f1e537]:
+                - generic [ref=f1e538]:
+                  - img "2019 Ram Memory 2Gb 4Gb 8Gb Ddr3 1333Mhz 1600Mhz Laptop Notebook Ram" [ref=f1e540]
+                  - generic: Admitad
+                - generic [ref=f1e542]:
+                  - heading "2019 Ram Memory 2Gb 4Gb 8Gb Ddr3 1333Mhz 1600Mhz Laptop Notebook Ram" [level=3] [ref=f1e543]
+                  - paragraph [ref=f1e544]: General • Admitad
+                  - generic [ref=f1e546]: ‏٢٠٫٥٠ ج.م.‏
+                  - paragraph [ref=f1e548]: In Stock
+                - generic [ref=f1e549]:
+                  - generic [ref=f1e550]:
+                    - link "Shop Now" [ref=f1e551] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62248716224&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62248716224%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e556] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62248716224#compare-prices
+                  - paragraph [ref=f1e559]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e561] [cursor=pointer]
+              - article [ref=f1e565]:
+                - generic [ref=f1e566]:
+                  - img "HP 17.3\" FHD AMD Ryzen 5 7430U AI Laptop 8GB RAM 256GB SSD Natural Silver" [ref=f1e568]
+                  - generic:
+                    - generic [ref=f1e569]: eBay
+                    - generic [ref=f1e570]: "-28%"
+                - generic [ref=f1e571]:
+                  - heading "HP 17.3\" FHD AMD Ryzen 5 7430U AI Laptop 8GB RAM 256GB SSD Natural Silver" [level=3] [ref=f1e572]
+                  - paragraph [ref=f1e573]: New • eBay
+                  - generic [ref=f1e575]:
+                    - generic [ref=f1e576]: ‏٤٢٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e577]: ‏٥٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e578]: In Stock
+                - generic [ref=f1e579]:
+                  - generic [ref=f1e580]:
+                    - link "Shop Now" [ref=f1e581] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C295907273733%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F295907273733%3F_skw%3Dlaptop%26hash%3Ditem44e572ac05%253Ag%253AuNwAAeSwpIVonhgB%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e586] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C295907273733%7C0#compare-prices
+                  - paragraph [ref=f1e589]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e591] [cursor=pointer]
+              - article [ref=f1e595]:
+                - generic [ref=f1e596]:
+                  - img "USB 3.1 C Laptop Bed USB C Hub 11 in 1 Full Function with Ethernet" [ref=f1e598]
+                  - generic: Admitad
+                - generic [ref=f1e600]:
+                  - heading "USB 3.1 C Laptop Bed USB C Hub 11 in 1 Full Function with Ethernet" [level=3] [ref=f1e601]
+                  - paragraph [ref=f1e602]: General • Admitad
+                  - generic [ref=f1e604]: ‏٢٣٫٥٠ ج.م.‏
+                  - paragraph [ref=f1e606]: In Stock
+                - generic [ref=f1e607]:
+                  - generic [ref=f1e608]:
+                    - link "Shop Now" [ref=f1e609] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62266560766&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62266560766%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e614] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62266560766#compare-prices
+                  - paragraph [ref=f1e617]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e619] [cursor=pointer]
+              - article [ref=f1e623]:
+                - generic [ref=f1e624]:
+                  - img "Dell Latitude 14\" Laptop Computer Intel i7 Up To 32GB RAM 1TB SSD Windows 11 Pro" [ref=f1e626]
+                  - generic:
+                    - generic [ref=f1e627]: eBay
+                    - generic [ref=f1e628]: "-25%"
+                - generic [ref=f1e629]:
+                  - heading "Dell Latitude 14\" Laptop Computer Intel i7 Up To 32GB RAM 1TB SSD Windows 11 Pro" [level=3] [ref=f1e630]
+                  - paragraph [ref=f1e631]: Good - Refurbished • eBay
+                  - generic [ref=f1e633]:
+                    - generic [ref=f1e634]: ‏٣٣٢٫٢٣ ج.م.‏
+                    - generic [ref=f1e635]: ‏٤٤٢٫٩٨ ج.م.‏
+                  - paragraph [ref=f1e636]: In Stock
+                - generic [ref=f1e637]:
+                  - generic [ref=f1e638]:
+                    - link "Shop Now" [ref=f1e639] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C286865561827%7C588893894924&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F286865561827%3F_skw%3Dlaptop%26hash%3Ditem42ca8518e3%253Ag%253ALdYAAeSw3vtqjGMR%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e644] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C286865561827%7C588893894924#compare-prices
+                  - paragraph [ref=f1e647]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e649] [cursor=pointer]
+              - article [ref=f1e653]:
+                - generic [ref=f1e654]:
+                  - img "High Performance Hard Disk SSD SATA 3 2.5&#34; for Desktop and Laptop 512 GB SSD" [ref=f1e656]
+                  - generic: Admitad
+                - generic [ref=f1e658]:
+                  - heading "High Performance Hard Disk SSD SATA 3 2.5&#34; for Desktop and Laptop 512 GB SSD" [level=3] [ref=f1e659]
+                  - paragraph [ref=f1e660]: General • Admitad
+                  - generic [ref=f1e662]: ‏٣٨٫٥٠ ج.م.‏
+                  - paragraph [ref=f1e664]: In Stock
+                - generic [ref=f1e665]:
+                  - generic [ref=f1e666]:
+                    - link "Shop Now" [ref=f1e667] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62376658331&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62376658331%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e672] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62376658331#compare-prices
+                  - paragraph [ref=f1e675]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e677] [cursor=pointer]
+              - article [ref=f1e681]:
+                - generic [ref=f1e682]:
+                  - img "Dell Latitude 5520 i5 15.6\" Touchscreen Laptop 16GB 512GB SSD Win 11 Pro" [ref=f1e684]
+                  - generic:
+                    - generic [ref=f1e685]: eBay
+                    - generic [ref=f1e686]: "-16%"
+                - generic [ref=f1e687]:
+                  - heading "Dell Latitude 5520 i5 15.6\" Touchscreen Laptop 16GB 512GB SSD Win 11 Pro" [level=3] [ref=f1e688]
+                  - paragraph [ref=f1e689]: Excellent - Refurbished • eBay
+                  - generic [ref=f1e691]:
+                    - generic [ref=f1e692]: ‏٣٩٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e693]: ‏٤٧٤٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e694]: In Stock
+                - generic [ref=f1e695]:
+                  - generic [ref=f1e696]:
+                    - link "Shop Now" [ref=f1e697] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C336517253224%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F336517253224%3F_skw%3Dlaptop%26hash%3Ditem4e59fdc868%253Ag%253A%257En4AAeSwxEBpXWER%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e702] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C336517253224%7C0#compare-prices
+                  - paragraph [ref=f1e705]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e707] [cursor=pointer]
+              - article [ref=f1e711]:
+                - generic [ref=f1e712]:
+                  - img "Factory Price 14 Inch Slim Laptop Computer 4GB+64GB Intel Gaming Laptop Computer for Office & Home" [ref=f1e714]
+                  - generic: Admitad
+                - generic [ref=f1e716]:
+                  - heading "Factory Price 14 Inch Slim Laptop Computer 4GB+64GB Intel Gaming Laptop Computer for Office & Home" [level=3] [ref=f1e717]
+                  - paragraph [ref=f1e718]: General • Admitad
+                  - generic [ref=f1e720]: ‏١١١٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e722]: In Stock
+                - generic [ref=f1e723]:
+                  - generic [ref=f1e724]:
+                    - link "Shop Now" [ref=f1e725] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62281231321&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62281231321%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e730] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62281231321#compare-prices
+                  - paragraph [ref=f1e733]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e735] [cursor=pointer]
+              - article [ref=f1e739]:
+                - generic [ref=f1e740]:
+                  - img "Dell Latitude 14\" Laptop Computer Intel i5 Up To 32GB RAM 1TB SSD Windows 11 Pro" [ref=f1e742]
+                  - generic:
+                    - generic [ref=f1e743]: eBay
+                    - generic [ref=f1e744]: "-15%"
+                - generic [ref=f1e745]:
+                  - heading "Dell Latitude 14\" Laptop Computer Intel i5 Up To 32GB RAM 1TB SSD Windows 11 Pro" [level=3] [ref=f1e746]
+                  - paragraph [ref=f1e747]: Good - Refurbished • eBay
+                  - generic [ref=f1e749]:
+                    - generic [ref=f1e750]: ‏٢٨٨٫٩٨ ج.م.‏
+                    - generic [ref=f1e751]: ‏٣٣٩٫٩٨ ج.م.‏
+                  - paragraph [ref=f1e752]: In Stock
+                - generic [ref=f1e753]:
+                  - generic [ref=f1e754]:
+                    - link "Shop Now" [ref=f1e755] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C286601719329%7C588649223896&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F286601719329%3F_skw%3Dlaptop%26hash%3Ditem42bacb2e21%253Ag%253A9MoAAeSwmHdpckMj%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e760] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C286601719329%7C588649223896#compare-prices
+                  - paragraph [ref=f1e763]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e765] [cursor=pointer]
+              - article [ref=f1e769]:
+                - generic [ref=f1e770]:
+                  - img "Ultra Thin Gaming Laptop Intel 2.30GHz 8GB+128GB Win10 Quad-core Notebook Laptop Computer for Office & Home" [ref=f1e772]
+                  - generic: Admitad
+                - generic [ref=f1e774]:
+                  - heading "Ultra Thin Gaming Laptop Intel 2.30GHz 8GB+128GB Win10 Quad-core Notebook Laptop Computer for Office & Home" [level=3] [ref=f1e775]
+                  - paragraph [ref=f1e776]: General • Admitad
+                  - generic [ref=f1e778]: ‏١١٦٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e780]: In Stock
+                - generic [ref=f1e781]:
+                  - generic [ref=f1e782]:
+                    - link "Shop Now" [ref=f1e783] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62290678077&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62290678077%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e788] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62290678077#compare-prices
+                  - paragraph [ref=f1e791]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e793] [cursor=pointer]
+              - article [ref=f1e797]:
+                - generic [ref=f1e798]:
+                  - img "Lenovo 300e 2nd Gen Touchscreen Laptop 11.6\" Intel 4GB RAM 128GB SSD Win 11 HDMI" [ref=f1e800]
+                  - generic: eBay
+                - generic [ref=f1e802]:
+                  - heading "Lenovo 300e 2nd Gen Touchscreen Laptop 11.6\" Intel 4GB RAM 128GB SSD Win 11 HDMI" [level=3] [ref=f1e803]
+                  - paragraph [ref=f1e804]: Good - Refurbished • eBay
+                  - generic [ref=f1e806]: ‏١٠٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e808]: In Stock
+                - generic [ref=f1e809]:
+                  - generic [ref=f1e810]:
+                    - link "Shop Now" [ref=f1e811] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256245941032%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256245941032%3F_skw%3Dlaptop%26hash%3Ditem3ba972c328%253Ag%253Ab9MAAeSwn35qrefw%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e816] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256245941032%7C0#compare-prices
+                  - paragraph [ref=f1e819]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e821] [cursor=pointer]
+              - article [ref=f1e825]:
+                - generic [ref=f1e826]:
+                  - img "Intel Z8350 OEM /ODE 13.3 14.1 15.6inch notebook laptop computer cheap price in china" [ref=f1e828]
+                  - generic: Admitad
+                - generic [ref=f1e830]:
+                  - heading "Intel Z8350 OEM /ODE 13.3 14.1 15.6inch notebook laptop computer cheap price in china" [level=3] [ref=f1e831]
+                  - paragraph [ref=f1e832]: General • Admitad
+                  - generic [ref=f1e834]: ‏١٣٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e836]: In Stock
+                - generic [ref=f1e837]:
+                  - generic [ref=f1e838]:
+                    - link "Shop Now" [ref=f1e839] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60841526472&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60841526472%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e844] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60841526472#compare-prices
+                  - paragraph [ref=f1e847]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e849] [cursor=pointer]
+              - article [ref=f1e853]:
+                - generic [ref=f1e854]:
+                  - img "Windows 11 PRO Laptop Notebook PC Computer, 8GB Ram, Webcam, Wifi, and HDMI" [ref=f1e856]
+                  - generic: eBay
+                - generic [ref=f1e858]:
+                  - heading "Windows 11 PRO Laptop Notebook PC Computer, 8GB Ram, Webcam, Wifi, and HDMI" [level=3] [ref=f1e859]
+                  - paragraph [ref=f1e860]: Used • eBay
+                  - generic [ref=f1e862]: ‏١٤٤٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e864]: In Stock
+                - generic [ref=f1e865]:
+                  - generic [ref=f1e866]:
+                    - link "Shop Now" [ref=f1e867] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C235711075450%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F235711075450%3F_skw%3Dlaptop%26hash%3Ditem36e179947a%253Ag%253AKMMAAOSwJlFmyVxM%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGbUBJaWACTgom1FckCYOHSP93Dn9GI7NC4OH5D9eyhIjlmBHrvX3k8xZGRlA5VftEbS69xzsAE7ojb0W1OA%252BPWFapF7vYTzPJqCr1x%252F0wIrLLYx2xyKermm8p9djrEHgxoj5i%252BNvygc1fNakllZCGwP6rdpQT8rIWMtvQ8TEKdaWZN%252BjotxdOpiOJfySst11LhsadZqHKLz1Jk2%252FaIkfvwtJSweRX%252FYk%252BctJ%252FpEYeXfpvSG%252BbMbODl4BRe%252BevO9yvh6n%252BUvkV2%252Ff5Y%252FkEFRj3PJ%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e872] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C235711075450%7C0#compare-prices
+                  - paragraph [ref=f1e875]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e877] [cursor=pointer]
+              - article [ref=f1e881]:
+                - generic [ref=f1e882]:
+                  - img "Free shipping OEM factory laptop 15 .6&#34; Windows 10 Intel N3450 /6GB+64GB SSD Quad Core slim MAX Support 1TB/2TB Disk" [ref=f1e884]
+                  - generic: Admitad
+                - generic [ref=f1e886]:
+                  - heading "Free shipping OEM factory laptop 15 .6&#34; Windows 10 Intel N3450 /6GB+64GB SSD Quad Core slim MAX Support 1TB/2TB Disk" [level=3] [ref=f1e887]
+                  - paragraph [ref=f1e888]: General • Admitad
+                  - generic [ref=f1e890]: ‏٢٢٣٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e892]: In Stock
+                - generic [ref=f1e893]:
+                  - generic [ref=f1e894]:
+                    - link "Shop Now" [ref=f1e895] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60802743851&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60802743851%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e900] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60802743851#compare-prices
+                  - paragraph [ref=f1e903]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e905] [cursor=pointer]
+              - article [ref=f1e909]:
+                - generic [ref=f1e910]:
+                  - img "HP PROBOOK 640 G5 14\" Windows 11 PRO Laptop i5 8th Gen 8GB RAM 256GB SSD NICE!" [ref=f1e912]
+                  - generic: eBay
+                - generic [ref=f1e914]:
+                  - heading "HP PROBOOK 640 G5 14\" Windows 11 PRO Laptop i5 8th Gen 8GB RAM 256GB SSD NICE!" [level=3] [ref=f1e915]
+                  - paragraph [ref=f1e916]: Used • eBay
+                  - generic [ref=f1e918]: ‏١٥٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e920]: In Stock
+                - generic [ref=f1e921]:
+                  - generic [ref=f1e922]:
+                    - link "Shop Now" [ref=f1e923] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C336755308094%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F336755308094%3F_skw%3Dlaptop%26hash%3Ditem4e682e363e%253Ag%253AQmYAAeSwwatp4T3L%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGZusJH9dE5bhBoOdmBwERQ5G3%252BW2T7A8HITuDslpj53d8g%252FVOUCAx4Yi2%252Bp7ww%252ByvqLqgmmGMQ5CwAT%252FFk0yGl0Iti69r1F0YUQhfX0yq3a9XsNmaSmVG2cveKA9EyVdR0311wliFKBuh9JWHG%252Fcx1fmrKPz7muSCN1Y5%252FbkwIoNEhHMnzmCzdGc61GZRI1d6SfDzDAoqSev9xx153h2zagKB5Us8x1ays3nu8mtnNLhblsJ6XFec3Me4t8reofR4lhWOO8e1Vg2PEqkmYS0wKO%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e928] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C336755308094%7C0#compare-prices
+                  - paragraph [ref=f1e931]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e933] [cursor=pointer]
+              - article [ref=f1e937]:
+                - generic [ref=f1e938]:
+                  - img "Wholesale Hot selling China Cheap laptop 15.6 Inch Apollo N3450 Dual Core 6GB Ram with 64GB Rom Laptop Computer Netbook UMPC" [ref=f1e940]
+                  - generic: Admitad
+                - generic [ref=f1e942]:
+                  - heading "Wholesale Hot selling China Cheap laptop 15.6 Inch Apollo N3450 Dual Core 6GB Ram with 64GB Rom Laptop Computer Netbook UMPC" [level=3] [ref=f1e943]
+                  - paragraph [ref=f1e944]: General • Admitad
+                  - generic [ref=f1e946]: ‏٢٢٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e948]: In Stock
+                - generic [ref=f1e949]:
+                  - generic [ref=f1e950]:
+                    - link "Shop Now" [ref=f1e951] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60825810530&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60825810530%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e956] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60825810530#compare-prices
+                  - paragraph [ref=f1e959]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e961] [cursor=pointer]
+              - article [ref=f1e965]:
+                - generic [ref=f1e966]:
+                  - img "Dell Latitude 3390 Touchscreen 13.3\" Laptop Core i5 8GB RAM 256GB SSD Win 11" [ref=f1e968]
+                  - generic: eBay
+                - generic [ref=f1e970]:
+                  - heading "Dell Latitude 3390 Touchscreen 13.3\" Laptop Core i5 8GB RAM 256GB SSD Win 11" [level=3] [ref=f1e971]
+                  - paragraph [ref=f1e972]: Good - Refurbished • eBay
+                  - generic [ref=f1e974]: ‏١٧٤٫١٨ ج.م.‏
+                  - paragraph [ref=f1e976]: In Stock
+                - generic [ref=f1e977]:
+                  - generic [ref=f1e978]:
+                    - link "Shop Now" [ref=f1e979] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C264840566038%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F264840566038%3F_skw%3Dlaptop%26hash%3Ditem3da9ba5516%253Ag%253A4M8AAeSwi-ZpC%257E2B%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGZgW%252B7HRDgqwqBEbwe9cJulnQSrVJCT2jtBn0lInJxCcFZUfP60X%252FvfLHAq5h73%252F7LH%252FXT5RKBGxXmSfUbsJeJvZeQ%252Bc51zs6RKDaEgZZHCW5TCKS1SdqMCd%252BqDg71QmHOpQEmRkulDY8hl%252FzSwnEYzhBb6sSqcm%252FNU%252Fn2kdua6VQE%252B9%252FWj6icImziwk%252FXS5c6ZPrJGoJbmvFD1%252BVGVARrwU5vvDgb%252FpePIltBuPeVma7ivLJUPzdwp7EFQa8XXhGPWAlDqmDT%252FWQmbUx2TOX9N%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e984] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C264840566038%7C0#compare-prices
+                  - paragraph [ref=f1e987]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e989] [cursor=pointer]
+              - article [ref=f1e993]:
+                - generic [ref=f1e994]:
+                  - img "Wholesales Supply Laptop 15.6 Inch HD Slim Laptop Computer Quad Core 8GB 128GB Laptop Notebook Computer" [ref=f1e996]
+                  - generic: Admitad
+                - generic [ref=f1e998]:
+                  - heading "Wholesales Supply Laptop 15.6 Inch HD Slim Laptop Computer Quad Core 8GB 128GB Laptop Notebook Computer" [level=3] [ref=f1e999]
+                  - paragraph [ref=f1e1000]: General • Admitad
+                  - generic [ref=f1e1002]: ‏٢٣٢٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1004]: In Stock
+                - generic [ref=f1e1005]:
+                  - generic [ref=f1e1006]:
+                    - link "Shop Now" [ref=f1e1007] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62290666008&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62290666008%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1012] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62290666008#compare-prices
+                  - paragraph [ref=f1e1015]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1017] [cursor=pointer]
+              - article [ref=f1e1021]:
+                - generic [ref=f1e1022]:
+                  - img "Dell Latitude 5420 Touch Laptop Intel Core i5-1145G7@2.6GHz 16GB RAM 256G w/AC" [ref=f1e1024]
+                  - generic: eBay
+                - generic [ref=f1e1026]:
+                  - heading "Dell Latitude 5420 Touch Laptop Intel Core i5-1145G7@2.6GHz 16GB RAM 256G w/AC" [level=3] [ref=f1e1027]
+                  - paragraph [ref=f1e1028]: Used • eBay
+                  - generic [ref=f1e1030]: ‏١٧٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e1032]: In Stock
+                - generic [ref=f1e1033]:
+                  - generic [ref=f1e1034]:
+                    - link "Shop Now" [ref=f1e1035] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C327355204483%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F327355204483%3F_skw%3Dlaptop%26hash%3Ditem4c37e40383%253Ag%253AhbAAAeSw0Bhqpadt%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1040] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C327355204483%7C0#compare-prices
+                  - paragraph [ref=f1e1043]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1045] [cursor=pointer]
+              - article [ref=f1e1049]:
+                - generic [ref=f1e1050]:
+                  - img "2 in 1 portable CQA1403Y 2019 best selling for christmas notebooks laptop computer computers laptops and desktops" [ref=f1e1052]
+                  - generic: Admitad
+                - generic [ref=f1e1054]:
+                  - heading "2 in 1 portable CQA1403Y 2019 best selling for christmas notebooks laptop computer computers laptops and desktops" [level=3] [ref=f1e1055]
+                  - paragraph [ref=f1e1056]: General • Admitad
+                  - generic [ref=f1e1058]: ‏٢٥٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1060]: In Stock
+                - generic [ref=f1e1061]:
+                  - generic [ref=f1e1062]:
+                    - link "Shop Now" [ref=f1e1063] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62256067462&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62256067462%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1068] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62256067462#compare-prices
+                  - paragraph [ref=f1e1071]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1073] [cursor=pointer]
+              - article [ref=f1e1077]:
+                - generic [ref=f1e1078]:
+                  - img "Dell Latitude 5420 14\" Touch Laptop i5-1145G7 16GB RAM 256GB SSD Windows 11 Pro" [ref=f1e1080]
+                  - generic: eBay
+                - generic [ref=f1e1082]:
+                  - heading "Dell Latitude 5420 14\" Touch Laptop i5-1145G7 16GB RAM 256GB SSD Windows 11 Pro" [level=3] [ref=f1e1083]
+                  - paragraph [ref=f1e1084]: Used • eBay
+                  - generic [ref=f1e1086]: ‏١٨٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1088]: In Stock
+                - generic [ref=f1e1089]:
+                  - generic [ref=f1e1090]:
+                    - link "Shop Now" [ref=f1e1091] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C306609317978%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F306609317978%3F_skw%3Dlaptop%26hash%3Ditem476356e85a%253Ag%253Ai64AAeSwh9JogXSn%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1096] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C306609317978%7C0#compare-prices
+                  - paragraph [ref=f1e1099]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1101] [cursor=pointer]
+              - article [ref=f1e1105]:
+                - generic [ref=f1e1106]:
+                  - img "15.6 inch laptop intel i7 i5 i3 Win10 build in intel notebook computer" [ref=f1e1108]
+                  - generic: Admitad
+                - generic [ref=f1e1110]:
+                  - heading "15.6 inch laptop intel i7 i5 i3 Win10 build in intel notebook computer" [level=3] [ref=f1e1111]
+                  - paragraph [ref=f1e1112]: General • Admitad
+                  - generic [ref=f1e1114]: ‏٢٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1116]: In Stock
+                - generic [ref=f1e1117]:
+                  - generic [ref=f1e1118]:
+                    - link "Shop Now" [ref=f1e1119] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62214122922&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62214122922%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1124] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62214122922#compare-prices
+                  - paragraph [ref=f1e1127]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1129] [cursor=pointer]
+              - article [ref=f1e1133]:
+                - generic [ref=f1e1134]:
+                  - img "Dell Latitude 7420 14\" Laptop i5-1145G7 2.6GHz 16GB DDR4 256GB NVMe W11 TOUCH" [ref=f1e1136]
+                  - generic: eBay
+                - generic [ref=f1e1138]:
+                  - heading "Dell Latitude 7420 14\" Laptop i5-1145G7 2.6GHz 16GB DDR4 256GB NVMe W11 TOUCH" [level=3] [ref=f1e1139]
+                  - paragraph [ref=f1e1140]: Used • eBay
+                  - generic [ref=f1e1142]: ‏١٨٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e1144]: In Stock
+                - generic [ref=f1e1145]:
+                  - generic [ref=f1e1146]:
+                    - link "Shop Now" [ref=f1e1147] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C397167474682%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F397167474682%3F_skw%3Dlaptop%26hash%3Ditem5c7906b7fa%253Ag%253ACVgAAeSwNyto8qDw%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1152] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C397167474682%7C0#compare-prices
+                  - paragraph [ref=f1e1155]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1157] [cursor=pointer]
+              - article [ref=f1e1161]:
+                - generic [ref=f1e1162]:
+                  - img "Free Shipping 15.6 inch Intel i3 5005U 8GB 256GB SSD Laptop Prices in Germany" [ref=f1e1164]
+                  - generic: Admitad
+                - generic [ref=f1e1166]:
+                  - heading "Free Shipping 15.6 inch Intel i3 5005U 8GB 256GB SSD Laptop Prices in Germany" [level=3] [ref=f1e1167]
+                  - paragraph [ref=f1e1168]: General • Admitad
+                  - generic [ref=f1e1170]: ‏٣٢٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1172]: In Stock
+                - generic [ref=f1e1173]:
+                  - generic [ref=f1e1174]:
+                    - link "Shop Now" [ref=f1e1175] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62304312388&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62304312388%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1180] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62304312388#compare-prices
+                  - paragraph [ref=f1e1183]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1185] [cursor=pointer]
+              - article [ref=f1e1189]:
+                - generic [ref=f1e1190]:
+                  - img "Dell Latitude 14\" Laptop Intel Core i3 16GB RAM 128GB SSD Windows 11 Pro WiFi" [ref=f1e1192]
+                  - generic: eBay
+                - generic [ref=f1e1194]:
+                  - heading "Dell Latitude 14\" Laptop Intel Core i3 16GB RAM 128GB SSD Windows 11 Pro WiFi" [level=3] [ref=f1e1195]
+                  - paragraph [ref=f1e1196]: Good - Refurbished • eBay
+                  - generic [ref=f1e1198]: ‏٢٠٤٫٠٥ ج.م.‏
+                  - paragraph [ref=f1e1200]: In Stock
+                - generic [ref=f1e1201]:
+                  - generic [ref=f1e1202]:
+                    - link "Shop Now" [ref=f1e1203] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C264987527030%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F264987527030%3F_skw%3Dlaptop%26hash%3Ditem3db27cc776%253Ag%253A3AkAAeSw4Z1qsdbP%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1208] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C264987527030%7C0#compare-prices
+                  - paragraph [ref=f1e1211]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1213] [cursor=pointer]
+              - article [ref=f1e1217]:
+                - generic [ref=f1e1218]:
+                  - img "Competitive Price 14 inch Core i7 laptop" [ref=f1e1220]
+                  - generic: Admitad
+                - generic [ref=f1e1222]:
+                  - heading "Competitive Price 14 inch Core i7 laptop" [level=3] [ref=f1e1223]
+                  - paragraph [ref=f1e1224]: General • Admitad
+                  - generic [ref=f1e1226]: ‏٣٦٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1228]: In Stock
+                - generic [ref=f1e1229]:
+                  - generic [ref=f1e1230]:
+                    - link "Shop Now" [ref=f1e1231] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62208885706&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62208885706%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1236] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62208885706#compare-prices
+                  - paragraph [ref=f1e1239]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1241] [cursor=pointer]
+              - article [ref=f1e1245]:
+                - generic [ref=f1e1246]:
+                  - img "Dell Latitude 7430 14.0\" CORE i5-1245U @ 4.40GHz 16GB RAM 256GB SSD LAPTOP." [ref=f1e1248]
+                  - generic: eBay
+                - generic [ref=f1e1250]:
+                  - heading "Dell Latitude 7430 14.0\" CORE i5-1245U @ 4.40GHz 16GB RAM 256GB SSD LAPTOP." [level=3] [ref=f1e1251]
+                  - paragraph [ref=f1e1252]: Used • eBay
+                  - generic [ref=f1e1254]: ‏٢١٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1256]: In Stock
+                - generic [ref=f1e1257]:
+                  - generic [ref=f1e1258]:
+                    - link "Shop Now" [ref=f1e1259] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C286847692650%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F286847692650%3F_skw%3Dlaptop%26hash%3Ditem42c9746f6a%253Ag%253A3IYAAeSwlJBo1btZ%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGa58zH56O5G8ocEKQMIJpTOJ4%252BoShTHnQC%252FzyMHQTQC2ktZS5RqC8daslmCbyNA83S3H8K4inEF688vJYLe4ff25w%252BNRtm1HpJa0Cj0MaHvlj%252BKBeCULLMpXpWs%252B%252BKaacbrWSeIn%252BCLejiaUQyQCeCZwlUrP7yvohGzYJU3x2Jp52ajy3H6sxGnfjBFYgzFVa%252B9k62nnHdWA5xxeLaSyHsAEpRTWYn8uqCA%252F%252Bx3lY7Jpq6X0T8Mr3LZU%252FXp%252BREPicO8ewJ6fvVGsOjeBSCLtSho%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1264] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C286847692650%7C0#compare-prices
+                  - paragraph [ref=f1e1267]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1269] [cursor=pointer]
+              - article [ref=f1e1273]:
+                - generic [ref=f1e1274]:
+                  - img "New 15.6 inch laptop intel i7 i5 i3 Win10 build in intel laptop computer core i3-5005U 8GB 16GB RAM Notebook computer" [ref=f1e1276]
+                  - generic: Admitad
+                - generic [ref=f1e1278]:
+                  - heading "New 15.6 inch laptop intel i7 i5 i3 Win10 build in intel laptop computer core i3-5005U 8GB 16GB RAM Notebook computer" [level=3] [ref=f1e1279]
+                  - paragraph [ref=f1e1280]: General • Admitad
+                  - generic [ref=f1e1282]: ‏٤٢٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1284]: In Stock
+                - generic [ref=f1e1285]:
+                  - generic [ref=f1e1286]:
+                    - link "Shop Now" [ref=f1e1287] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62175331832&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62175331832%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1292] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62175331832#compare-prices
+                  - paragraph [ref=f1e1295]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1297] [cursor=pointer]
+              - article [ref=f1e1301]:
+                - generic [ref=f1e1302]:
+                  - img "Toshiba Dynabook 14\" Gaming Laptop PC Computer i7 11th Gen 512GB SSD 16GB RAM" [ref=f1e1304]
+                  - generic: eBay
+                - generic [ref=f1e1306]:
+                  - heading "Toshiba Dynabook 14\" Gaming Laptop PC Computer i7 11th Gen 512GB SSD 16GB RAM" [level=3] [ref=f1e1307]
+                  - paragraph [ref=f1e1308]: Used • eBay
+                  - generic [ref=f1e1310]: ‏٢٢٢٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e1312]: In Stock
+                - generic [ref=f1e1313]:
+                  - generic [ref=f1e1314]:
+                    - link "Shop Now" [ref=f1e1315] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C237074235123%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F237074235123%3F_skw%3Dlaptop%26hash%3Ditem3732b9bef3%253Ag%253AgtgAAeSwSHJqMEfB%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGbGh9EEn%252FS%252FNK4nX1C7m5ZJk2vwCppg%252BVMlYAU%252FDm8FU8dBQ3OUPlSIPmzQawZW4VOrTDDmjWqDUcWtI0OwANzetDmuT3CHyZojvFBvL9CMhBuryS%252BW%252BYOyv6IDyQg0sBitkAE8HojHgJ5la%252Fj5jbCkoadDK%252F4AKx7AvaN7vqjDo9tRozmTLFaDu2aJ0arDZ%252BasM0VrXO%252B%252F87uvJeUEUTjUvKWW7JkyuTa8449MdZ3vWWDaCKrOfzfvIZuMmX3Ztbx%252BjoVHO2gN2mcaGoj%252FbHWp%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1320] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C237074235123%7C0#compare-prices
+                  - paragraph [ref=f1e1323]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1325] [cursor=pointer]
+              - article [ref=f1e1329]:
+                - generic [ref=f1e1330]:
+                  - img "2019 RTX 2080 gaming laptop MSI GT75 17.3" [ref=f1e1332]
+                  - generic: Admitad
+                - generic [ref=f1e1334]:
+                  - heading "2019 RTX 2080 gaming laptop MSI GT75 17.3" [level=3] [ref=f1e1335]
+                  - paragraph [ref=f1e1336]: General • Admitad
+                  - generic [ref=f1e1338]: ‏١٬٢٨٥٫٥٧ ج.م.‏
+                  - paragraph [ref=f1e1340]: In Stock
+                - generic [ref=f1e1341]:
+                  - generic [ref=f1e1342]:
+                    - link "Shop Now" [ref=f1e1343] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62412295921&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62412295921%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1348] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62412295921#compare-prices
+                  - paragraph [ref=f1e1351]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1353] [cursor=pointer]
+              - article [ref=f1e1357]:
+                - generic [ref=f1e1358]:
+                  - img "Lenovo ThinkPad Business Laptop 14\" Intel i5 16GB RAM 256GB SSD Win 11 WiFi HDMI" [ref=f1e1360]
+                  - generic: eBay
+                - generic [ref=f1e1362]:
+                  - heading "Lenovo ThinkPad Business Laptop 14\" Intel i5 16GB RAM 256GB SSD Win 11 WiFi HDMI" [level=3] [ref=f1e1363]
+                  - paragraph [ref=f1e1364]: Good - Refurbished • eBay
+                  - generic [ref=f1e1366]: ‏٢٢٤٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e1368]: In Stock
+                - generic [ref=f1e1369]:
+                  - generic [ref=f1e1370]:
+                    - link "Shop Now" [ref=f1e1371] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C254640934467%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F254640934467%3F_skw%3Dlaptop%26hash%3Ditem3b49c84e43%253Ag%253AAqoAAeSwaHNqsxvF%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1376] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C254640934467%7C0#compare-prices
+                  - paragraph [ref=f1e1379]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1381] [cursor=pointer]
+              - article [ref=f1e1385]:
+                - generic [ref=f1e1386]:
+                  - img "BRAND NEW Lenovos YOGA 920 2-in-1 Laptop - Intel Core i7-8550U, 13.9-Inch UHD Touch, 512GB SSD, 8GB,Win10" [ref=f1e1388]
+                  - generic: Admitad
+                - generic [ref=f1e1390]:
+                  - heading "BRAND NEW Lenovos YOGA 920 2-in-1 Laptop - Intel Core i7-8550U, 13.9-Inch UHD Touch, 512GB SSD, 8GB,Win10" [level=3] [ref=f1e1391]
+                  - paragraph [ref=f1e1392]: General • Admitad
+                  - generic [ref=f1e1394]: ‏١٬٢٨٥٫٥٧ ج.م.‏
+                  - paragraph [ref=f1e1396]: In Stock
+                - generic [ref=f1e1397]:
+                  - generic [ref=f1e1398]:
+                    - link "Shop Now" [ref=f1e1399] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62412305505&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62412305505%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e1404] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62412305505#compare-prices
+                  - paragraph [ref=f1e1407]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1409] [cursor=pointer]
+              - article [ref=f1e1413]:
+                - generic [ref=f1e1414]:
+                  - img "Dell Latitude 7420 14\" Touchscreen 2n1 Laptop Core i5 8GB RAM 256GB SSD Win 11" [ref=f1e1416]
+                  - generic: eBay
+                - generic [ref=f1e1418]:
+                  - heading "Dell Latitude 7420 14\" Touchscreen 2n1 Laptop Core i5 8GB RAM 256GB SSD Win 11" [level=3] [ref=f1e1419]
+                  - paragraph [ref=f1e1420]: Good - Refurbished • eBay
+                  - generic [ref=f1e1422]: ‏٢٦٤٫٨٣ ج.م.‏
+                  - paragraph [ref=f1e1424]: In Stock
+                - generic [ref=f1e1425]:
+                  - generic [ref=f1e1426]:
+                    - link "Shop Now" [ref=f1e1427] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C286119892331%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F286119892331%3F_skw%3Dlaptop%26hash%3Ditem429e13156b%253Ag%253ACGUAAeSwjXxqs11K%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1432] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C286119892331%7C0#compare-prices
+                  - paragraph [ref=f1e1435]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1437] [cursor=pointer]
+              - article [ref=f1e1441]:
+                - generic [ref=f1e1442]:
+                  - img "Dynabook Portege X40 14\" FHD Laptop Intel Core i5 16GB RAM 256GB SSD Windows 11" [ref=f1e1444]
+                  - generic: eBay
+                - generic [ref=f1e1446]:
+                  - heading "Dynabook Portege X40 14\" FHD Laptop Intel Core i5 16GB RAM 256GB SSD Windows 11" [level=3] [ref=f1e1447]
+                  - paragraph [ref=f1e1448]: Excellent - Refurbished • eBay
+                  - generic [ref=f1e1450]: ‏٢٧١٫٥٦ ج.م.‏
+                  - paragraph [ref=f1e1452]: In Stock
+                - generic [ref=f1e1453]:
+                  - generic [ref=f1e1454]:
+                    - link "Shop Now" [ref=f1e1455] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C286304993550%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F286304993550%3F_skw%3Dlaptop%26hash%3Ditem42a91b810e%253Ag%253AgkAAAeSwVsxqmQGn%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGanr%252FBR6OSFSB7QU%252FiSLfZcGlY%252B2qMzTBS7j%252Bc4HCtna3sVTUpuihOMcLMtVj51xpddxt3fzbLrDz65gY6WbV12Jpx84yFhcGdFiRj1nPwi0jSGpd3JL4hSlEfPlvoM9ookp7YqFL2%252Fll6r3kagQRt9tGuH1wulaQ1hBkUl7XVH2I%252B1K5qkn5RcP7j474mnoWppRyO51VjWBgXVkS9Ip3IExSf5zUd%252F282mk6408b%252F99WHyCe3OLeKYD%252B1a%252FRsv4ZNKvcJjUIN6CDLX2gAZFSpO%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1460] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C286304993550%7C0#compare-prices
+                  - paragraph [ref=f1e1463]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1465] [cursor=pointer]
+              - article [ref=f1e1469]:
+                - generic [ref=f1e1470]:
+                  - img "HP EliteBook X360 Touchscreen Laptop 13.3” Core i7 8GB RAM 256GB SSD Win 11 Pro" [ref=f1e1472]
+                  - generic: eBay
+                - generic [ref=f1e1474]:
+                  - heading "HP EliteBook X360 Touchscreen Laptop 13.3” Core i7 8GB RAM 256GB SSD Win 11 Pro" [level=3] [ref=f1e1475]
+                  - paragraph [ref=f1e1476]: Good - Refurbished • eBay
+                  - generic [ref=f1e1478]: ‏٢٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e1480]: In Stock
+                - generic [ref=f1e1481]:
+                  - generic [ref=f1e1482]:
+                    - link "Shop Now" [ref=f1e1483] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257504466531%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257504466531%3F_skw%3Dlaptop%26hash%3Ditem3bf4765663%253Ag%253ATQcAAeSwnTpqtMI%257E%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1488] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257504466531%7C0#compare-prices
+                  - paragraph [ref=f1e1491]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1493] [cursor=pointer]
+              - article [ref=f1e1497]:
+                - generic [ref=f1e1498]:
+                  - img "Dell Latitude Laptop Light Gaming PC Core i7 16GB RAM 512GB SSD Windows 11 Pro" [ref=f1e1500]
+                  - generic: eBay
+                - generic [ref=f1e1502]:
+                  - heading "Dell Latitude Laptop Light Gaming PC Core i7 16GB RAM 512GB SSD Windows 11 Pro" [level=3] [ref=f1e1503]
+                  - paragraph [ref=f1e1504]: Good - Refurbished • eBay
+                  - generic [ref=f1e1506]: ‏٢٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f1e1508]: In Stock
+                - generic [ref=f1e1509]:
+                  - generic [ref=f1e1510]:
+                    - link "Shop Now" [ref=f1e1511] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C264714553889%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F264714553889%3F_skw%3Dlaptop%26hash%3Ditem3da2378a21%253Ag%253Al2YAAeSw7cVqoLS3%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e1516] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C264714553889%7C0#compare-prices
+                  - paragraph [ref=f1e1519]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1521] [cursor=pointer]
+            - button "Load More" [ref=f1e1526] [cursor=pointer]
+    - contentinfo [ref=f1e1527]:
+      - generic [ref=f1e1528]:
+        - generic [ref=f1e1529]:
+          - text: ZORINO
+          - paragraph [ref=f1e1530]: AI-powered deal discovery
+        - navigation "Company" [ref=f1e1531]:
+          - heading "Company" [level=3] [ref=f1e1532]
+          - list [ref=f1e1533]:
+            - listitem [ref=f1e1534]:
+              - link "About Us" [ref=f1e1535] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f1e1536]:
+              - link "Contact" [ref=f1e1537] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f1e1538]:
+              - link "FAQ" [ref=f1e1539] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f1e1540]:
+              - link "Blog" [ref=f1e1541] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f1e1542]:
+          - heading "Legal" [level=3] [ref=f1e1543]
+          - list [ref=f1e1544]:
+            - listitem [ref=f1e1545]:
+              - link "Imprint" [ref=f1e1546] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f1e1547]:
+              - link "Privacy" [ref=f1e1548] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f1e1549]:
+              - link "Terms" [ref=f1e1550] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f1e1551]:
+              - link "Cookies" [ref=f1e1552] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f1e1553]:
+              - link "Affiliate" [ref=f1e1554] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f1e1555]:
+              - link "DMCA" [ref=f1e1556] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f1e1557]:
+              - link "Accessibility" [ref=f1e1558] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f1e1559]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f1e1560]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f1e1561] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f1e1562]

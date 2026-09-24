@@ -1,0 +1,75 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e1334]:
+    - banner [ref=f3e1335]:
+      - generic [ref=f3e1336]:
+        - link [ref=f3e1337] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f3e1338]
+        - button "Menu" [ref=f3e1339] [cursor=pointer]
+        - generic [ref=f3e1341]:
+          - link "Search" [ref=f3e1342] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f3e1347] [cursor=pointer]:
+            - generic [ref=f3e1348]: Dark
+            - generic [ref=f3e1352]: Light
+          - button "Language, country, and currency" [ref=f3e1362] [cursor=pointer]:
+            - generic [ref=f3e1366]: EN · EGP
+          - link "Wishlist" [ref=f3e1369] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f3e1373] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f3e1377] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f3e1383]: Hello, User
+    - main [ref=f3e1384]:
+      - generic "Loading" [ref=f3e1387]
+    - contentinfo [ref=f3e1398]:
+      - generic [ref=f3e1399]:
+        - generic [ref=f3e1400]:
+          - text: ZORINO
+          - paragraph [ref=f3e1401]: AI-powered deal discovery
+        - navigation "Company" [ref=f3e1402]:
+          - heading "Company" [level=3] [ref=f3e1403]
+          - list [ref=f3e1404]:
+            - listitem [ref=f3e1405]:
+              - link "About Us" [ref=f3e1406] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f3e1407]:
+              - link "Contact" [ref=f3e1408] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f3e1409]:
+              - link "FAQ" [ref=f3e1410] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f3e1411]:
+              - link "Blog" [ref=f3e1412] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f3e1413]:
+          - heading "Legal" [level=3] [ref=f3e1414]
+          - list [ref=f3e1415]:
+            - listitem [ref=f3e1416]:
+              - link "Imprint" [ref=f3e1417] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f3e1418]:
+              - link "Privacy" [ref=f3e1419] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f3e1420]:
+              - link "Terms" [ref=f3e1421] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f3e1422]:
+              - link "Cookies" [ref=f3e1423] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f3e1424]:
+              - link "Affiliate" [ref=f3e1425] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f3e1426]:
+              - link "DMCA" [ref=f3e1427] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f3e1428]:
+              - link "Accessibility" [ref=f3e1429] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f3e1430]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f3e1431]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f3e1432] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f3e1333]

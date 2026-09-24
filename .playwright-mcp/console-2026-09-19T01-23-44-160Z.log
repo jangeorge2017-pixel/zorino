@@ -1,0 +1,35 @@
+[     770ms] [LOG] %c
+▲
+
+    ____                               _ __
+   / __ \________  ____ _____ ___     (_) /_
+  / / / / ___/ _ \/ __ `/ __ `__ \   / / __/
+ / /_/ / /  /  __/ /_/ / / / / / /  / / /__
+/_____/_/   \___/\__,_/_/ /_/ /_/  /_/\__( )
+   _____ __    _          _ __           |/
+  / ___// /_  (_)___     (_) /_
+  \__ \/ __ \/ / __ \   / / __/
+ ___/ / / / / / /_/ /  / / /_
+/____/_/ /_/_/ .___/  /_/\__/
+            /_/
+  
+
+Hello!
+
+- Open Source https://vercel.com/oss
+- Careers https://vercel.com/careers
+- Status https://www.vercel-status.com
+
+ font-family: "Geist Mono", monospace; white-space: pre; line-height: 1; @ https://vercel.com/_next/static/immutable/chunks/21fepoxpv7fr_.js:78
+[    1372ms] [WARNING] [GSI_LOGGER]: Your client application uses one of the Google One Tap prompt UI status methods that may stop functioning when FedCM becomes mandatory. Refer to the migration guide to update your code accordingly and opt-in to FedCM to test your changes. Learn more: https://developers.google.com/identity/gsi/web/guides/fedcm-migration?s=dc#display_moment and https://developers.google.com/identity/gsi/web/guides/fedcm-migration?s=dc#skipped_moment @ https://accounts.google.com/gsi/client:86
+[    1382ms] [ERROR] Not signed in with the identity provider. @ https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fzorino-q1v1w4m25-zorino.vercel.app%252F%253Fsearch%253Dlaptop%26nonce%3Da686ce0177dc737bd11c0822364823861124367457ec12eaa2053d58d52c7d1f:0
+[    1573ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://vercel.com/api/jwt:0
+[    1620ms] [WARNING] Deprecated API for given entry type. @ https://vercel.com/_next/static/immutable/chunks/3-sz5-pf21v5l.js:18
+[    4909ms] [WARNING] The resource https://vercel.com/_next/static/immutable/chunks/00mhwhhbtjfmf.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fzorino-q1v1w4m25-zorino.vercel.app%252F%253Fsearch%253Dlaptop%26nonce%3Da686ce0177dc737bd11c0822364823861124367457ec12eaa2053d58d52c7d1f:0
+[    4910ms] [WARNING] The resource https://vercel.com/_next/static/immutable/chunks/1oqrys_hl1v9v.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fzorino-q1v1w4m25-zorino.vercel.app%252F%253Fsearch%253Dlaptop%26nonce%3Da686ce0177dc737bd11c0822364823861124367457ec12eaa2053d58d52c7d1f:0
+[    4910ms] [WARNING] The resource https://vercel.com/_next/static/immutable/chunks/3flhcz7cw314y.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fzorino-q1v1w4m25-zorino.vercel.app%252F%253Fsearch%253Dlaptop%26nonce%3Da686ce0177dc737bd11c0822364823861124367457ec12eaa2053d58d52c7d1f:0
+[   12852ms] [ERROR] [GSI_LOGGER]: FedCM get() rejects with NetworkError: Error retrieving a token. @ https://vercel.com/_next/static/immutable/chunks/372fd428u486w.js:8
+[   12933ms] [ERROR] Failed to load resource: the server responded with a status of 429 () @ https://o205439.ingest.sentry.io/api/1323670/envelope/?sentry_key=d00780d432ac4ccf882f60dd02062e14&sentry_version=7&sentry_client=sentry.javascript.browser%2F7.111.0:0
+[   15996ms] [WARNING] The resource https://vercel.com/_next/static/immutable/chunks/00mhwhhbtjfmf.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fzorino-q1v1w4m25-zorino.vercel.app%252F%253Fsearch%253Dlaptop%26nonce%3Da686ce0177dc737bd11c0822364823861124367457ec12eaa2053d58d52c7d1f:0
+[   15996ms] [WARNING] The resource https://vercel.com/_next/static/immutable/chunks/1oqrys_hl1v9v.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fzorino-q1v1w4m25-zorino.vercel.app%252F%253Fsearch%253Dlaptop%26nonce%3Da686ce0177dc737bd11c0822364823861124367457ec12eaa2053d58d52c7d1f:0
+[   15996ms] [WARNING] The resource https://vercel.com/_next/static/immutable/chunks/3flhcz7cw314y.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Fzorino-q1v1w4m25-zorino.vercel.app%252F%253Fsearch%253Dlaptop%26nonce%3Da686ce0177dc737bd11c0822364823861124367457ec12eaa2053d58d52c7d1f:0

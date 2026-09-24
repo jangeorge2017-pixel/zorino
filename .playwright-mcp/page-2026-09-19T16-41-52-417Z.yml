@@ -1,0 +1,376 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e3]:
+    - banner [ref=f3e4]:
+      - generic [ref=f3e5]:
+        - link [ref=f3e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f3e7]
+        - button "Menu" [ref=f3e8] [cursor=pointer]
+        - generic [ref=f3e10]:
+          - link "Search" [ref=f3e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f3e16] [cursor=pointer]:
+            - generic [ref=f3e17]: Dark
+            - generic [ref=f3e21]: Light
+          - button "Language, country, and currency" [ref=f3e31] [cursor=pointer]:
+            - generic [ref=f3e35]: EN · EGP
+          - link "Wishlist" [ref=f3e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f3e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f3e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f3e52]: Hello, User
+    - main [ref=f3e53]:
+      - generic [ref=f3e55]:
+        - region [ref=f3e56]:
+          - link "Categories" [ref=f3e57] [cursor=pointer]:
+            - /url: /categories
+          - generic [ref=f3e60]:
+            - generic [ref=f3e61]:
+              - generic [aria-hidden] [ref=f3e62]: 📦
+              - generic [ref=f3e63]:
+                - paragraph [ref=f3e64]: Category spotlight
+                - heading "Audio" [level=1] [ref=f3e65]
+                - paragraph [ref=f3e66]: Live deals for Audio across all stores.
+            - generic [ref=f3e67]:
+              - generic [ref=f3e69]:
+                - strong [ref=f3e70]: "15"
+                - generic [ref=f3e71]: Products tracked
+              - generic [ref=f3e73]:
+                - strong [ref=f3e74]: Live
+                - generic [ref=f3e75]: From active providers
+            - link [ref=f3e76] [cursor=pointer]:
+              - /url: /search
+              - button "Search in Audio" [ref=f3e77]
+        - generic [ref=f3e79]:
+          - generic [ref=f3e80]:
+            - generic [ref=f3e81]: Sort By
+            - combobox [ref=f3e82] [cursor=pointer]:
+              - option "Highest Discount" [selected]
+              - 'option "Price: Low to High"'
+              - 'option "Price: High to Low"'
+              - option "Rating"
+          - link [ref=f3e84] [cursor=pointer]:
+            - /url: /deals
+            - button "View Trending Deals" [ref=f3e85]
+          - link [ref=f3e87] [cursor=pointer]:
+            - /url: /compare
+            - button "Compare Prices" [ref=f3e88]
+        - generic [ref=f3e89]:
+          - article [ref=f3e90]:
+            - generic [ref=f3e91]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e93]
+              - generic: CJdropshipping
+            - generic [ref=f3e95]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e96]
+              - paragraph [ref=f3e97]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e99]: ‏٤٫٩٨ ج.م.‏
+              - paragraph [ref=f3e101]: In Stock
+            - generic [ref=f3e102]:
+              - generic [ref=f3e103]:
+                - link "Shop Now" [ref=f3e104] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099790257344245762&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099790257344245762.html&source=search
+                - link "Compare Prices" [ref=f3e109] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099790257344245762#compare-prices
+              - paragraph [ref=f3e112]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e114] [cursor=pointer]
+          - article [ref=f3e118]:
+            - generic [ref=f3e119]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e121]
+              - generic: CJdropshipping
+            - generic [ref=f3e123]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e124]
+              - paragraph [ref=f3e125]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e127]: ‏٤٫٩٨ ج.م.‏
+              - paragraph [ref=f3e129]: In Stock
+            - generic [ref=f3e130]:
+              - generic [ref=f3e131]:
+                - link "Shop Now" [ref=f3e132] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099790314634244098&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099790314634244098.html&source=search
+                - link "Compare Prices" [ref=f3e137] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099790314634244098#compare-prices
+              - paragraph [ref=f3e140]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e142] [cursor=pointer]
+          - article [ref=f3e146]:
+            - generic [ref=f3e147]:
+              - img "Berlin Sound M72 Sleep Headphones Noise Reduction Sleep In Ear Soundproofing Non-Pressure Ear Invisible Zero Sense Bluetooth Headphones" [ref=f3e149]
+              - generic: CJdropshipping
+            - generic [ref=f3e151]:
+              - heading "Berlin Sound M72 Sleep Headphones Noise Reduction Sleep In Ear Soundproofing Non-Pressure Ear Invisible Zero Sense Bluetooth Headphones" [level=3] [ref=f3e152]
+              - paragraph [ref=f3e153]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e155]: ‏٥٫٥٨ ج.م.‏
+              - paragraph [ref=f3e157]: In Stock
+            - generic [ref=f3e158]:
+              - generic [ref=f3e159]:
+                - link "Shop Now" [ref=f3e160] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099788406571700226&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fberlin-sound-m72-sleep-headphones-noise-reduction-sleep-in-e-p-2099788406571700226.html&source=search
+                - link "Compare Prices" [ref=f3e165] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099788406571700226#compare-prices
+              - paragraph [ref=f3e168]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e170] [cursor=pointer]
+          - article [ref=f3e174]:
+            - generic [ref=f3e175]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e177]
+              - generic: CJdropshipping
+            - generic [ref=f3e179]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e180]
+              - paragraph [ref=f3e181]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e183]: ‏٥٫٧٣ ج.م.‏
+              - paragraph [ref=f3e185]: In Stock
+            - generic [ref=f3e186]:
+              - generic [ref=f3e187]:
+                - link "Shop Now" [ref=f3e188] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099790276235390977&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099790276235390977.html&source=search
+                - link "Compare Prices" [ref=f3e193] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099790276235390977#compare-prices
+              - paragraph [ref=f3e196]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e198] [cursor=pointer]
+          - article [ref=f3e202]:
+            - generic [ref=f3e203]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e205]
+              - generic: CJdropshipping
+            - generic [ref=f3e207]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e208]
+              - paragraph [ref=f3e209]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e211]: ‏٥٫٧٣ ج.م.‏
+              - paragraph [ref=f3e213]: In Stock
+            - generic [ref=f3e214]:
+              - generic [ref=f3e215]:
+                - link "Shop Now" [ref=f3e216] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099405650953207809&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099405650953207809.html&source=search
+                - link "Compare Prices" [ref=f3e221] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099405650953207809#compare-prices
+              - paragraph [ref=f3e224]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e226] [cursor=pointer]
+          - article [ref=f3e230]:
+            - generic [ref=f3e231]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e233]
+              - generic: CJdropshipping
+            - generic [ref=f3e235]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e236]
+              - paragraph [ref=f3e237]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e239]: ‏٥٫٨٠ ج.م.‏
+              - paragraph [ref=f3e241]: In Stock
+            - generic [ref=f3e242]:
+              - generic [ref=f3e243]:
+                - link "Shop Now" [ref=f3e244] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099790201329315842&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099790201329315842.html&source=search
+                - link "Compare Prices" [ref=f3e249] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099790201329315842#compare-prices
+              - paragraph [ref=f3e252]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e254] [cursor=pointer]
+          - article [ref=f3e258]:
+            - generic [ref=f3e259]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e261]
+              - generic: CJdropshipping
+            - generic [ref=f3e263]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e264]
+              - paragraph [ref=f3e265]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e267]: ‏٥٫٨٧ ج.م.‏
+              - paragraph [ref=f3e269]: In Stock
+            - generic [ref=f3e270]:
+              - generic [ref=f3e271]:
+                - link "Shop Now" [ref=f3e272] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099788679687999489&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099788679687999489.html&source=search
+                - link "Compare Prices" [ref=f3e277] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099788679687999489#compare-prices
+              - paragraph [ref=f3e280]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e282] [cursor=pointer]
+          - article [ref=f3e286]:
+            - generic [ref=f3e287]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e289]
+              - generic: CJdropshipping
+            - generic [ref=f3e291]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e292]
+              - paragraph [ref=f3e293]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e295]: ‏٥٫٩٥ ج.م.‏
+              - paragraph [ref=f3e297]: In Stock
+            - generic [ref=f3e298]:
+              - generic [ref=f3e299]:
+                - link "Shop Now" [ref=f3e300] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099788486525874178&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099788486525874178.html&source=search
+                - link "Compare Prices" [ref=f3e305] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099788486525874178#compare-prices
+              - paragraph [ref=f3e308]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e310] [cursor=pointer]
+          - article [ref=f3e314]:
+            - generic [ref=f3e315]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e317]
+              - generic: CJdropshipping
+            - generic [ref=f3e319]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e320]
+              - paragraph [ref=f3e321]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e323]: ‏٦٫٠٢ ج.م.‏
+              - paragraph [ref=f3e325]: In Stock
+            - generic [ref=f3e326]:
+              - generic [ref=f3e327]:
+                - link "Shop Now" [ref=f3e328] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099788533057884161&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099788533057884161.html&source=search
+                - link "Compare Prices" [ref=f3e333] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099788533057884161#compare-prices
+              - paragraph [ref=f3e336]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e338] [cursor=pointer]
+          - article [ref=f3e342]:
+            - generic [ref=f3e343]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e345]
+              - generic: CJdropshipping
+            - generic [ref=f3e347]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e348]
+              - paragraph [ref=f3e349]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e351]: ‏٦٫١٠ ج.م.‏
+              - paragraph [ref=f3e353]: In Stock
+            - generic [ref=f3e354]:
+              - generic [ref=f3e355]:
+                - link "Shop Now" [ref=f3e356] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099790296007340033&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099790296007340033.html&source=search
+                - link "Compare Prices" [ref=f3e361] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099790296007340033#compare-prices
+              - paragraph [ref=f3e364]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e366] [cursor=pointer]
+          - article [ref=f3e370]:
+            - generic [ref=f3e371]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e373]
+              - generic: CJdropshipping
+            - generic [ref=f3e375]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e376]
+              - paragraph [ref=f3e377]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e379]: ‏٦٫١٠ ج.م.‏
+              - paragraph [ref=f3e381]: In Stock
+            - generic [ref=f3e382]:
+              - generic [ref=f3e383]:
+                - link "Shop Now" [ref=f3e384] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099788700315586562&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099788700315586562.html&source=search
+                - link "Compare Prices" [ref=f3e389] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099788700315586562#compare-prices
+              - paragraph [ref=f3e392]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e394] [cursor=pointer]
+          - article [ref=f3e398]:
+            - generic [ref=f3e399]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e401]
+              - generic: CJdropshipping
+            - generic [ref=f3e403]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e404]
+              - paragraph [ref=f3e405]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e407]: ‏٦٫١٧ ج.م.‏
+              - paragraph [ref=f3e409]: In Stock
+            - generic [ref=f3e410]:
+              - generic [ref=f3e411]:
+                - link "Shop Now" [ref=f3e412] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099405454996275201&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099405454996275201.html&source=search
+                - link "Compare Prices" [ref=f3e417] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099405454996275201#compare-prices
+              - paragraph [ref=f3e420]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e422] [cursor=pointer]
+          - article [ref=f3e426]:
+            - generic [ref=f3e427]:
+              - img "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [ref=f3e429]
+              - generic: CJdropshipping
+            - generic [ref=f3e431]:
+              - heading "Cross Border Explosion M127 Long Range Hanging Earphone Private Model High Color Value Low Latency Wireless Bluetooth Headphones Wholesale" [level=3] [ref=f3e432]
+              - paragraph [ref=f3e433]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e435]: ‏٦٫٣٢ ج.م.‏
+              - paragraph [ref=f3e437]: In Stock
+            - generic [ref=f3e438]:
+              - generic [ref=f3e439]:
+                - link "Shop Now" [ref=f3e440] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099405435345281025&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fcross-border-explosion-m127-long-range-hanging-earphone-priv-p-2099405435345281025.html&source=search
+                - link "Compare Prices" [ref=f3e445] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099405435345281025#compare-prices
+              - paragraph [ref=f3e448]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e450] [cursor=pointer]
+          - article [ref=f3e454]:
+            - generic [ref=f3e455]:
+              - img "KP-113 Best-selling Wireless Bluetooth Ear-hook Headphones High-quality Audio Low Latency For Music Gaming Factory Direct In Stock" [ref=f3e457]
+              - generic: CJdropshipping
+            - generic [ref=f3e459]:
+              - heading "KP-113 Best-selling Wireless Bluetooth Ear-hook Headphones High-quality Audio Low Latency For Music Gaming Factory Direct In Stock" [level=3] [ref=f3e460]
+              - paragraph [ref=f3e461]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e463]: ‏٦٫٤٤ ج.م.‏
+              - paragraph [ref=f3e465]: In Stock
+            - generic [ref=f3e466]:
+              - generic [ref=f3e467]:
+                - link "Shop Now" [ref=f3e468] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2099318719472959489&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fkp-113-best-selling-wireless-bluetooth-ear-hook-headphones-h-p-2099318719472959489.html&source=search
+                - link "Compare Prices" [ref=f3e473] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2099318719472959489#compare-prices
+              - paragraph [ref=f3e476]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e478] [cursor=pointer]
+          - article [ref=f3e482]:
+            - generic [ref=f3e483]:
+              - img "New Wireless Noise-canceling In-ear Bluetooth Headphones" [ref=f3e485]
+              - generic: CJdropshipping
+            - generic [ref=f3e487]:
+              - heading "New Wireless Noise-canceling In-ear Bluetooth Headphones" [level=3] [ref=f3e488]
+              - paragraph [ref=f3e489]: Earphones & Headphones • CJdropshipping
+              - generic [ref=f3e491]: ‏٦٫٦٠ ج.م.‏
+              - paragraph [ref=f3e493]: In Stock
+            - generic [ref=f3e494]:
+              - generic [ref=f3e495]:
+                - link "Shop Now" [ref=f3e496] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=cjdropshipping-2609140152521603300&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fnew-wireless-noise-canceling-in-ear-bluetooth-headphones-p-2609140152521603300.html&source=search
+                - link "Compare Prices" [ref=f3e501] [cursor=pointer]:
+                  - /url: /product/cjdropshipping-2609140152521603300#compare-prices
+              - paragraph [ref=f3e504]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f3e506] [cursor=pointer]
+        - region [ref=f3e510]:
+          - generic [ref=f3e511]:
+            - heading "Keep exploring Audio" [level=2] [ref=f3e512]
+            - paragraph [ref=f3e513]: Compare top products in this category and unlock coupon codes from partner stores.
+            - generic [ref=f3e514]:
+              - link [ref=f3e515] [cursor=pointer]:
+                - /url: /search
+                - button "Search Products" [ref=f3e516]
+              - link [ref=f3e517] [cursor=pointer]:
+                - /url: /categories
+                - button "All Categories" [ref=f3e518]
+    - contentinfo [ref=f3e519]:
+      - generic [ref=f3e520]:
+        - generic [ref=f3e521]:
+          - text: ZORINO
+          - paragraph [ref=f3e522]: AI-powered deal discovery
+        - navigation "Company" [ref=f3e523]:
+          - heading "Company" [level=3] [ref=f3e524]
+          - list [ref=f3e525]:
+            - listitem [ref=f3e526]:
+              - link "About Us" [ref=f3e527] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f3e528]:
+              - link "Contact" [ref=f3e529] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f3e530]:
+              - link "FAQ" [ref=f3e531] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f3e532]:
+              - link "Blog" [ref=f3e533] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f3e534]:
+          - heading "Legal" [level=3] [ref=f3e535]
+          - list [ref=f3e536]:
+            - listitem [ref=f3e537]:
+              - link "Imprint" [ref=f3e538] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f3e539]:
+              - link "Privacy" [ref=f3e540] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f3e541]:
+              - link "Terms" [ref=f3e542] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f3e543]:
+              - link "Cookies" [ref=f3e544] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f3e545]:
+              - link "Affiliate" [ref=f3e546] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f3e547]:
+              - link "DMCA" [ref=f3e548] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f3e549]:
+              - link "Accessibility" [ref=f3e550] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f3e551]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f3e552]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f3e553] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f3e554]

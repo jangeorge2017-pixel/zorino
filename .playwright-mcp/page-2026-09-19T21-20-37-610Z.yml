@@ -1,0 +1,1080 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e3]:
+    - banner [ref=f4e4]:
+      - generic [ref=f4e5]:
+        - link [ref=f4e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f4e7]
+        - button "Menu" [ref=f4e8] [cursor=pointer]
+        - generic [ref=f4e10]:
+          - link "Search" [ref=f4e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f4e16] [cursor=pointer]:
+            - generic [ref=f4e17]: Dark
+            - generic [ref=f4e21]: Light
+          - button "Language, country, and currency" [ref=f4e31] [cursor=pointer]:
+            - generic [ref=f4e35]: EN · EGP
+          - link "Wishlist" [ref=f4e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f4e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f4e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f4e52]: Hello, User
+    - main [ref=f4e53]:
+      - generic [ref=f4e54]:
+        - generic [ref=f4e57]:
+          - heading "Search Results" [level=1] [ref=f4e58]
+          - paragraph [ref=f4e59]: Showing results for "laptop"
+        - generic [ref=f4e60]:
+          - complementary [ref=f4e61]:
+            - generic [ref=f4e62]:
+              - heading "Filters" [level=2] [ref=f4e63]
+              - button "Clear" [ref=f4e66] [cursor=pointer]
+            - generic [ref=f4e67]:
+              - generic [ref=f4e68]:
+                - generic [ref=f4e69]: Search for products, brands or categories...
+                - textbox "Search for products, brands or categories..." [ref=f4e70]: laptop
+              - generic [ref=f4e71]:
+                - generic [ref=f4e72]: Categories
+                - combobox [ref=f4e73] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "Good - Refurbished"
+                  - option "General"
+                  - option "Laptops"
+                  - option "Furniture"
+                  - option "Used"
+                  - option "5-inch Display"
+                  - option "Industrial & Business"
+                  - option "Dinnerware"
+                  - option "Excellent - Refurbished"
+                  - option "Office & School Supplies"
+                  - option "New"
+                  - option "Very Good - Refurbished"
+                  - option "Certified - Refurbished"
+                  - option "Open box"
+                  - option "Home Appliances"
+                  - option "Luggage & Bags"
+                  - option "Phones & Telecommunications Accessories"
+              - generic [ref=f4e74]:
+                - generic [ref=f4e75]: Stores
+                - combobox [ref=f4e76] [cursor=pointer]:
+                  - option "All Stores" [selected]
+                  - option "eBay"
+                  - option "Admitad"
+                  - option "CJdropshipping"
+                  - option "AliExpress"
+              - generic [ref=f4e77]:
+                - generic [ref=f4e78]: Price Range
+                - generic [ref=f4e79]:
+                  - spinbutton "Min Price" [ref=f4e81]
+                  - spinbutton "Max Price" [ref=f4e83]
+              - generic [ref=f4e84]:
+                - generic [ref=f4e85]: Rating
+                - combobox [ref=f4e86] [cursor=pointer]:
+                  - option "All Ratings" [selected]
+                  - option "4+ Stars"
+                  - option "3+ Stars"
+                  - option "2+ Stars"
+              - generic [ref=f4e87] [cursor=pointer]:
+                - checkbox "In Stock Only" [ref=f4e88]
+                - generic [ref=f4e89]: In Stock Only
+              - button "Filter" [ref=f4e90] [cursor=pointer]
+          - generic [ref=f4e91]:
+            - generic [ref=f4e92]:
+              - generic [ref=f4e93]: 50 of 200 results
+              - combobox [ref=f4e95] [cursor=pointer]:
+                - option "Relevance" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Rating"
+            - generic [ref=f4e96]:
+              - article [ref=f4e97]:
+                - generic [ref=f4e98]:
+                  - img "Dell Precision Laptop 15.6” FHD Core i7 16GB RAM 512GB SSD Windows 11 Pro NVIDIA" [ref=f4e100]
+                  - generic: eBay
+                - generic [ref=f4e102]:
+                  - heading "Dell Precision Laptop 15.6” FHD Core i7 16GB RAM 512GB SSD Windows 11 Pro NVIDIA" [level=3] [ref=f4e103]
+                  - paragraph [ref=f4e104]: Good - Refurbished • eBay
+                  - generic [ref=f4e106]: ‏٣٧٢٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e108]: In Stock
+                - generic [ref=f4e109]:
+                  - generic [ref=f4e110]:
+                    - link "Shop Now" [ref=f4e111] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257136599363%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257136599363%3F_skw%3Dlaptop%26hash%3Ditem3bde892143%253Ag%253AMxAAAeSwquFqq5xC%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGZUDwL7P8E9t9lsjXa1UvwYW5J7joiVEyb1Q%252FxvPO9YUkNVA5qEWi9gimn5%252Fz4R48E6ynOM8d8EG8OQeGgTgF9mZD5uCWH00WiBFi5z1NjRGoT2Blgo1AgfrvdG6zmrgSBQGrWMOjE1vvtdxomM9e6dWOHncAETzszPQrblfPybzoMPDOQT0WtCe8n6mnh%252B%252Fn1nCzUskHdmNIEuYu5Y86Xw4Hju%252B%252Fi6oWxGGH9%252BBrtRfvf05ieMkOUX8Bq79UZyyadpkHJCjO1%252BXtzVWb92VqTc%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e116] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257136599363%7C0#compare-prices
+                  - paragraph [ref=f4e119]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e121] [cursor=pointer]
+              - article [ref=f4e125]:
+                - generic [ref=f4e126]:
+                  - img "Wholesale Netbook computer 15.6 inch OEM laptop i7-6700H gaming laptop nvidia gtx 1060 geforce 8g high quality gaming in stock" [ref=f4e128]
+                  - generic: Admitad
+                - generic [ref=f4e130]:
+                  - heading "Wholesale Netbook computer 15.6 inch OEM laptop i7-6700H gaming laptop nvidia gtx 1060 geforce 8g high quality gaming in stock" [level=3] [ref=f4e131]
+                  - paragraph [ref=f4e132]: General • Admitad
+                  - generic [ref=f4e134]: ‏٦٩٣٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e136]: In Stock
+                - generic [ref=f4e137]:
+                  - generic [ref=f4e138]:
+                    - link "Shop Now" [ref=f4e139] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62428080732&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62428080732%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e144] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62428080732#compare-prices
+                  - paragraph [ref=f4e147]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e149] [cursor=pointer]
+              - article [ref=f4e153]:
+                - generic [ref=f4e154]:
+                  - img "Laptop" [ref=f4e156]
+                  - generic: CJdropshipping
+                - generic [ref=f4e158]:
+                  - heading "Laptop" [level=3] [ref=f4e159]
+                  - paragraph [ref=f4e160]: Laptops • CJdropshipping
+                  - generic [ref=f4e162]: ‏١٥٤٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e164]: In Stock
+                - generic [ref=f4e165]:
+                  - generic [ref=f4e166]:
+                    - link "Shop Now" [ref=f4e167] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2095035097375150082&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Flaptop-p-2095035097375150082.html&source=search
+                    - link "Compare Prices" [ref=f4e172] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2095035097375150082#compare-prices
+                  - paragraph [ref=f4e175]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e177] [cursor=pointer]
+              - article [ref=f4e181]:
+                - generic [ref=f4e182]:
+                  - img "Drafting Desk with Tilt-Adjustable Surface 0–60 Degrees Height Range 69.5–92.5 cm Retractable Side Shelf Laptop Platform Dual Fa" [ref=f4e184]
+                  - generic:
+                    - generic [ref=f4e185]: AliExpress
+                    - generic [ref=f4e186]: "-58%"
+                - generic [ref=f4e187]:
+                  - heading "Drafting Desk with Tilt-Adjustable Surface 0–60 Degrees Height Range 69.5–92.5 cm Retractable Side Shelf Laptop Platform Dual Fa" [level=3] [ref=f4e188]
+                  - paragraph [ref=f4e189]: Furniture • AliExpress
+                  - generic [ref=f4e191]:
+                    - generic [ref=f4e192]: ‏١١٥٫٦٩ ج.م.‏
+                    - generic [ref=f4e193]: ‏٢٧٥٫٤٥ ج.م.‏
+                  - paragraph [ref=f4e194]: In Stock
+                - generic [ref=f4e195]:
+                  - generic [ref=f4e196]:
+                    - link "Shop Now" [ref=f4e197] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812874072383&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812874072383.html%3Fpdp_npi%3D6%2540dis%2521USD%2521275.45%2521115.69%2521%2521%25211835.09%2521770.74%2521%25402151fd2c17898528306888938e111a%252112000060148403175%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f4e202] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812874072383#compare-prices
+                  - paragraph [ref=f4e205]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e207] [cursor=pointer]
+              - article [ref=f4e211]:
+                - generic [ref=f4e212]:
+                  - img "Victus by HP Gaming Laptop, Intel Core i5 12th Gen, NVIDIA RTX 2050, 8GB/512GB" [ref=f4e214]
+                  - generic: eBay
+                - generic [ref=f4e216]:
+                  - heading "Victus by HP Gaming Laptop, Intel Core i5 12th Gen, NVIDIA RTX 2050, 8GB/512GB" [level=3] [ref=f4e217]
+                  - paragraph [ref=f4e218]: Used • eBay
+                  - generic [ref=f4e220]: ‏٤٩٨٫٥٠ ج.م.‏
+                  - paragraph [ref=f4e222]: In Stock
+                - generic [ref=f4e223]:
+                  - generic [ref=f4e224]:
+                    - link "Shop Now" [ref=f4e225] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C158310726846%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F158310726846%3F_skw%3Dlaptop%26hash%3Ditem24dc0dfcbe%253Ag%253ACx8AAeSw4ptqrvYh%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e230] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C158310726846%7C0#compare-prices
+                  - paragraph [ref=f4e233]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e235] [cursor=pointer]
+              - article [ref=f4e239]:
+                - generic [ref=f4e240]:
+                  - img "Xiaomi Notebook Pro 15.6'' Intel Core i7-8550U 16GB+256GB MX150 2GB GDDR5 Xiaomi Laptop" [ref=f4e242]
+                  - generic: Admitad
+                - generic [ref=f4e244]:
+                  - heading "Xiaomi Notebook Pro 15.6'' Intel Core i7-8550U 16GB+256GB MX150 2GB GDDR5 Xiaomi Laptop" [level=3] [ref=f4e245]
+                  - paragraph [ref=f4e246]: General • Admitad
+                  - generic [ref=f4e248]: ‏١٬٠٣٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e250]: In Stock
+                - generic [ref=f4e251]:
+                  - generic [ref=f4e252]:
+                    - link "Shop Now" [ref=f4e253] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62092505153&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62092505153%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e258] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62092505153#compare-prices
+                  - paragraph [ref=f4e261]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e263] [cursor=pointer]
+              - article [ref=f4e267]:
+                - generic [ref=f4e268]:
+                  - img "2 Pcs 3 Port USB 3.0 Hub Portable High Speed Splitter Box For PC Notebook Laptop" [ref=f4e270]
+                  - generic: CJdropshipping
+                - generic [ref=f4e272]:
+                  - heading "2 Pcs 3 Port USB 3.0 Hub Portable High Speed Splitter Box For PC Notebook Laptop" [level=3] [ref=f4e273]
+                  - paragraph [ref=f4e274]: 5-inch Display • CJdropshipping
+                  - generic [ref=f4e276]: ‏٩٫١٢ ج.م.‏
+                  - paragraph [ref=f4e278]: In Stock
+                - generic [ref=f4e279]:
+                  - generic [ref=f4e280]:
+                    - link "Shop Now" [ref=f4e281] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2097538724614742017&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2F2-pcs-3-port-usb-3-0-hub-portable-high-speed-splitter-box-fo-p-2097538724614742017.html&source=search
+                    - link "Compare Prices" [ref=f4e286] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2097538724614742017#compare-prices
+                  - paragraph [ref=f4e289]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e291] [cursor=pointer]
+              - article [ref=f4e295]:
+                - generic [ref=f4e296]:
+                  - img "13 14 Inch PC Dual Screen LCD Computer 3 Display Portable Foldable Laptop Monitor Extender Triple Screen Office Gaming Monitor" [ref=f4e298]
+                  - generic: AliExpress
+                - generic [ref=f4e300]:
+                  - heading "13 14 Inch PC Dual Screen LCD Computer 3 Display Portable Foldable Laptop Monitor Extender Triple Screen Office Gaming Monitor" [level=3] [ref=f4e301]
+                  - paragraph [ref=f4e302]: Industrial & Business • AliExpress
+                  - generic [ref=f4e304]: ‏٣٨٠٫٩٣ ج.م.‏
+                  - paragraph [ref=f4e306]: In Stock
+                - generic [ref=f4e307]:
+                  - generic [ref=f4e308]:
+                    - link "Shop Now" [ref=f4e309] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812930856409&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812930856409.html%3Fpdp_npi%3D6%2540dis%2521USD%2521380.93%2521380.93%2521%2521%25212537.85%25212537.85%2521%25402141149b17898528306915468e0f42%252112000060284029962%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f4e314] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812930856409#compare-prices
+                  - paragraph [ref=f4e317]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e319] [cursor=pointer]
+              - article [ref=f4e323]:
+                - generic [ref=f4e324]:
+                  - img "Laptop Dell Latitude 7480 14\" Intel Core i5-6300" [ref=f4e326]
+                  - generic: eBay
+                - generic [ref=f4e328]:
+                  - heading "Laptop Dell Latitude 7480 14\" Intel Core i5-6300" [level=3] [ref=f4e329]
+                  - paragraph [ref=f4e330]: Used • eBay
+                  - generic [ref=f4e332]: ‏١٦٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f4e334]: In Stock
+                - generic [ref=f4e335]:
+                  - generic [ref=f4e336]:
+                    - link "Shop Now" [ref=f4e337] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C366679414302%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F366679414302%3F_skw%3Dlaptop%26hash%3Ditem555fcbd61e%253Ag%253AMKAAAeSwo-lqrvnt%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e342] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C366679414302%7C0#compare-prices
+                  - paragraph [ref=f4e345]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e347] [cursor=pointer]
+              - article [ref=f4e351]:
+                - generic [ref=f4e352]:
+                  - img "original HUAWEI MateBook X Pro 2019 Laptop 13.9 inch Windows 10 Intel Core i7-8550U Quad Core 16GB RAM 512GB SSD" [ref=f4e354]
+                  - generic: Admitad
+                - generic [ref=f4e356]:
+                  - heading "original HUAWEI MateBook X Pro 2019 Laptop 13.9 inch Windows 10 Intel Core i7-8550U Quad Core 16GB RAM 512GB SSD" [level=3] [ref=f4e357]
+                  - paragraph [ref=f4e358]: General • Admitad
+                  - generic [ref=f4e360]: ‏١٬١٧٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e362]: In Stock
+                - generic [ref=f4e363]:
+                  - generic [ref=f4e364]:
+                    - link "Shop Now" [ref=f4e365] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62449051998&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62449051998%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e370] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62449051998#compare-prices
+                  - paragraph [ref=f4e373]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e375] [cursor=pointer]
+              - article [ref=f4e379]:
+                - generic [ref=f4e380]:
+                  - img "Adjustable C-Shaped Sofa Side End Table Coffee Laptop Table Living Room Bedroom" [ref=f4e382]
+                  - generic: CJdropshipping
+                - generic [ref=f4e384]:
+                  - heading "Adjustable C-Shaped Sofa Side End Table Coffee Laptop Table Living Room Bedroom" [level=3] [ref=f4e385]
+                  - paragraph [ref=f4e386]: Furniture • CJdropshipping
+                  - generic [ref=f4e388]: ‏١٣٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e390]: In Stock
+                - generic [ref=f4e391]:
+                  - generic [ref=f4e392]:
+                    - link "Shop Now" [ref=f4e393] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100514226006900737&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fadjustable-c-shaped-sofa-side-end-table-coffee-laptop-table--p-2100514226006900737.html&source=search
+                    - link "Compare Prices" [ref=f4e398] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100514226006900737#compare-prices
+                  - paragraph [ref=f4e401]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e403] [cursor=pointer]
+              - article [ref=f4e407]:
+                - generic [ref=f4e408]:
+                  - img "HP Windows 11 Pro 14\" Touch Laptop PC i5 11th Gen, 16GB RAM, 256GB NVMe SSD" [ref=f4e410]
+                  - generic:
+                    - generic [ref=f4e411]: eBay
+                    - generic [ref=f4e412]: "-80%"
+                - generic [ref=f4e413]:
+                  - heading "HP Windows 11 Pro 14\" Touch Laptop PC i5 11th Gen, 16GB RAM, 256GB NVMe SSD" [level=3] [ref=f4e414]
+                  - paragraph [ref=f4e415]: Good - Refurbished • eBay
+                  - generic [ref=f4e417]:
+                    - generic [ref=f4e418]: ‏٢٩٩٫٠٠ ج.م.‏
+                    - generic [ref=f4e419]: ‏١٬٤٩٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e420]: In Stock
+                - generic [ref=f4e421]:
+                  - generic [ref=f4e422]:
+                    - link "Shop Now" [ref=f4e423] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C298275079459%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F298275079459%3F_skw%3Dlaptop%26hash%3Ditem4572948523%253Ag%253AAR8AAeSwSmdqpg6w%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e428] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C298275079459%7C0#compare-prices
+                  - paragraph [ref=f4e431]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e433] [cursor=pointer]
+              - article [ref=f4e437]:
+                - generic [ref=f4e438]:
+                  - img "Laptop Portable Aux Outdoor Wireless Speaker" [ref=f4e440]
+                  - generic: Admitad
+                - generic [ref=f4e442]:
+                  - heading "Laptop Portable Aux Outdoor Wireless Speaker" [level=3] [ref=f4e443]
+                  - paragraph [ref=f4e444]: General • Admitad
+                  - generic [ref=f4e446]: ‏٩٫٧٧ ج.م.‏
+                  - paragraph [ref=f4e448]: In Stock
+                - generic [ref=f4e449]:
+                  - generic [ref=f4e450]:
+                    - link "Shop Now" [ref=f4e451] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62251862577&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62251862577%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e456] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62251862577#compare-prices
+                  - paragraph [ref=f4e459]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e461] [cursor=pointer]
+              - article [ref=f4e465]:
+                - generic [ref=f4e466]:
+                  - img "C-Shaped Flip Sofa Side End Table Coffee Laptop Table Living Room Bedroom" [ref=f4e468]
+                  - generic: CJdropshipping
+                - generic [ref=f4e470]:
+                  - heading "C-Shaped Flip Sofa Side End Table Coffee Laptop Table Living Room Bedroom" [level=3] [ref=f4e471]
+                  - paragraph [ref=f4e472]: Furniture • CJdropshipping
+                  - generic [ref=f4e474]: ‏١٤٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e476]: In Stock
+                - generic [ref=f4e477]:
+                  - generic [ref=f4e478]:
+                    - link "Shop Now" [ref=f4e479] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100515358673960962&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fc-shaped-flip-sofa-side-end-table-coffee-laptop-table-living-p-2100515358673960962.html&source=search
+                    - link "Compare Prices" [ref=f4e484] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100515358673960962#compare-prices
+                  - paragraph [ref=f4e487]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e489] [cursor=pointer]
+              - article [ref=f4e493]:
+                - generic [ref=f4e494]:
+                  - img "HP Windows 11 Pro 14\" Laptop PC i5 11th Gen, up to 32GB RAM, 2TB NVMe SSD" [ref=f4e496]
+                  - generic:
+                    - generic [ref=f4e497]: eBay
+                    - generic [ref=f4e498]: "-80%"
+                - generic [ref=f4e499]:
+                  - heading "HP Windows 11 Pro 14\" Laptop PC i5 11th Gen, up to 32GB RAM, 2TB NVMe SSD" [level=3] [ref=f4e500]
+                  - paragraph [ref=f4e501]: Good - Refurbished • eBay
+                  - generic [ref=f4e503]:
+                    - generic [ref=f4e504]: ‏٣٦٢٫٠٠ ج.م.‏
+                    - generic [ref=f4e505]: ‏١٬٨١٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e506]: In Stock
+                - generic [ref=f4e507]:
+                  - generic [ref=f4e508]:
+                    - link "Shop Now" [ref=f4e509] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C298220737822%7C595235303667&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F298220737822%3F_skw%3Dlaptop%26hash%3Ditem456f57551e%253Ag%253A0h4AAeSw64Vqqh1x%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e514] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C298220737822%7C595235303667#compare-prices
+                  - paragraph [ref=f4e517]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e519] [cursor=pointer]
+              - article [ref=f4e523]:
+                - generic [ref=f4e524]:
+                  - img "CHUWI CoreBook X Laptop-Tastaturfolie - Deutsch" [ref=f4e526]
+                  - generic:
+                    - generic [ref=f4e527]: Admitad
+                    - generic [ref=f4e528]: "-32%"
+                - generic [ref=f4e529]:
+                  - heading "CHUWI CoreBook X Laptop-Tastaturfolie - Deutsch" [level=3] [ref=f4e530]
+                  - paragraph [ref=f4e531]: General • Admitad
+                  - generic [ref=f4e533]:
+                    - generic [ref=f4e534]: ‏١٤٫٩٩ ج.م.‏
+                    - generic [ref=f4e535]: ‏٢٢٫٢٠ ج.م.‏
+                  - paragraph [ref=f4e536]: In Stock
+                - generic [ref=f4e537]:
+                  - generic [ref=f4e538]:
+                    - link "Shop Now" [ref=f4e539] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-15467-530609&store=admitad&to=https%3A%2F%2Fbywiola.com%2Fg%2F78tuvzaw8k32ef59cc790267b86f6e%2F%3Ff_id%3D19719%26ulp%3Dhttps%253A%252F%252Fwww.geekbuying.com%252Fitem%252FCHUWI-CoreBook-X-Laptop-Keyboard-Film-German-530609.html%253FCurrency%253DEUR%2523googtrans%252Fen%252Fde&source=search
+                    - link "Compare Prices" [ref=f4e544] [cursor=pointer]:
+                      - /url: /product/admitad-15467-530609#compare-prices
+                  - paragraph [ref=f4e547]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e549] [cursor=pointer]
+              - article [ref=f4e553]:
+                - generic [ref=f4e554]:
+                  - img "Portable Wheels Mobile Table Laptop Desk Adjustable Height Overbed Sofa Side" [ref=f4e556]
+                  - generic: CJdropshipping
+                - generic [ref=f4e558]:
+                  - heading "Portable Wheels Mobile Table Laptop Desk Adjustable Height Overbed Sofa Side" [level=3] [ref=f4e559]
+                  - paragraph [ref=f4e560]: Dinnerware • CJdropshipping
+                  - generic [ref=f4e562]: ‏٣٢٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e564]: In Stock
+                - generic [ref=f4e565]:
+                  - generic [ref=f4e566]:
+                    - link "Shop Now" [ref=f4e567] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2096174176282636290&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fportable-wheels-mobile-table-laptop-desk-adjustable-height-o-p-2096174176282636290.html&source=search
+                    - link "Compare Prices" [ref=f4e572] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2096174176282636290#compare-prices
+                  - paragraph [ref=f4e575]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e577] [cursor=pointer]
+              - article [ref=f4e581]:
+                - generic [ref=f4e582]:
+                  - img "Dell Latitude 7320 13.3\" Touch Laptop i7-1185G7 16GB 512GB SSD Win 11 Pro" [ref=f4e584]
+                  - generic:
+                    - generic [ref=f4e585]: eBay
+                    - generic [ref=f4e586]: "-77%"
+                - generic [ref=f4e587]:
+                  - heading "Dell Latitude 7320 13.3\" Touch Laptop i7-1185G7 16GB 512GB SSD Win 11 Pro" [level=3] [ref=f4e588]
+                  - paragraph [ref=f4e589]: Excellent - Refurbished • eBay
+                  - generic [ref=f4e591]:
+                    - generic [ref=f4e592]: ‏٣٢٩٫٩٩ ج.م.‏
+                    - generic [ref=f4e593]: ‏١٬٤٦٦٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e594]: In Stock
+                - generic [ref=f4e595]:
+                  - generic [ref=f4e596]:
+                    - link "Shop Now" [ref=f4e597] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C366671278385%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F366671278385%3F_skw%3Dlaptop%26hash%3Ditem555f4fb131%253Ag%253AHI4AAeSwl9hqqbKb%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e602] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C366671278385%7C0#compare-prices
+                  - paragraph [ref=f4e605]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e607] [cursor=pointer]
+              - article [ref=f4e611]:
+                - generic [ref=f4e612]:
+                  - img "CHUWI CoreBook X Laptop-Tastaturfolie - Französisch" [ref=f4e614]
+                  - generic:
+                    - generic [ref=f4e615]: Admitad
+                    - generic [ref=f4e616]: "-32%"
+                - generic [ref=f4e617]:
+                  - heading "CHUWI CoreBook X Laptop-Tastaturfolie - Französisch" [level=3] [ref=f4e618]
+                  - paragraph [ref=f4e619]: General • Admitad
+                  - generic [ref=f4e621]:
+                    - generic [ref=f4e622]: ‏١٤٫٩٩ ج.م.‏
+                    - generic [ref=f4e623]: ‏٢٢٫٢٠ ج.م.‏
+                  - paragraph [ref=f4e624]: In Stock
+                - generic [ref=f4e625]:
+                  - generic [ref=f4e626]:
+                    - link "Shop Now" [ref=f4e627] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-15467-530608&store=admitad&to=https%3A%2F%2Fbywiola.com%2Fg%2F78tuvzaw8k32ef59cc790267b86f6e%2F%3Ff_id%3D19719%26ulp%3Dhttps%253A%252F%252Fwww.geekbuying.com%252Fitem%252FCHUWI-CoreBook-X-Laptop-Keyboard-Film-French-530608.html%253FCurrency%253DEUR%2523googtrans%252Fen%252Fde&source=search
+                    - link "Compare Prices" [ref=f4e632] [cursor=pointer]:
+                      - /url: /product/admitad-15467-530608#compare-prices
+                  - paragraph [ref=f4e635]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e637] [cursor=pointer]
+              - article [ref=f4e641]:
+                - generic [ref=f4e642]:
+                  - img "Foldable Tray Table Portable Sofa TV Tray 6 Heights 3 Angles Laptop Desk Adjustable Eating Dinner Coffee for Bed Dorm Home" [ref=f4e644]
+                  - generic: CJdropshipping
+                - generic [ref=f4e646]:
+                  - heading "Foldable Tray Table Portable Sofa TV Tray 6 Heights 3 Angles Laptop Desk Adjustable Eating Dinner Coffee for Bed Dorm Home" [level=3] [ref=f4e647]
+                  - paragraph [ref=f4e648]: Office & School Supplies • CJdropshipping
+                  - generic [ref=f4e650]: ‏٣٤٫٣١ ج.م.‏
+                  - paragraph [ref=f4e652]: In Stock
+                - generic [ref=f4e653]:
+                  - generic [ref=f4e654]:
+                    - link "Shop Now" [ref=f4e655] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100423362048020481&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Ffoldable-tray-table-portable-sofa-tv-tray-6-heights-3-angles-p-2100423362048020481.html&source=search
+                    - link "Compare Prices" [ref=f4e660] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100423362048020481#compare-prices
+                  - paragraph [ref=f4e663]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e665] [cursor=pointer]
+              - article [ref=f4e669]:
+                - generic [ref=f4e670]:
+                  - img "SGIN 15.6\" IPS Laptop Intel N5100 16GB RAM 1TB SSD Win11 Pro Wi-Fi 6 Office 365" [ref=f4e672]
+                  - generic:
+                    - generic [ref=f4e673]: eBay
+                    - generic [ref=f4e674]: "-75%"
+                - generic [ref=f4e675]:
+                  - heading "SGIN 15.6\" IPS Laptop Intel N5100 16GB RAM 1TB SSD Win11 Pro Wi-Fi 6 Office 365" [level=3] [ref=f4e676]
+                  - paragraph [ref=f4e677]: New • eBay
+                  - generic [ref=f4e679]:
+                    - generic [ref=f4e680]: ‏٣٢٩٫٩٩ ج.م.‏
+                    - generic [ref=f4e681]: ‏١٬٣١٩٫٩٦ ج.م.‏
+                  - paragraph [ref=f4e682]: In Stock
+                - generic [ref=f4e683]:
+                  - generic [ref=f4e684]:
+                    - link "Shop Now" [ref=f4e685] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C128046824462%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F128046824462%3F_skw%3Dlaptop%26hash%3Ditem1dd02f7c0e%253Ag%253AeloAAeSwi55qj8ZI%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGbHGrTRkbuLJNDVvhO7BxjDDmWrkFTx2hvRprVE%252FYuropTz2dqXx4ZkxSHFfNJbScxkL5crxcI6XPvUmDwfpJbMqX0goqUQvOExWQgfvIrVgEhboJzQ4wnKVqtKzChgSoyEQijY6aSghdzsLfopo5OnfcPUoFJjY1nsS8EKnu2qphjKrsMfgiV6o%252FOPWzAVqWkYoD41GhmdxnP1wTy%252FecUw34Hz2Cq%252F7jOUZpiRaXu3cGWT38gwsL9RyCKB5D2SPbED%252FqKBNhWGL%252BJ2z0jUpCLW%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e690] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C128046824462%7C0#compare-prices
+                  - paragraph [ref=f4e693]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e695] [cursor=pointer]
+              - article [ref=f4e699]:
+                - generic [ref=f4e700]:
+                  - img "CHUWI CoreBook X Laptop-Tastaturfolie - Italienisch" [ref=f4e702]
+                  - generic:
+                    - generic [ref=f4e703]: Admitad
+                    - generic [ref=f4e704]: "-32%"
+                - generic [ref=f4e705]:
+                  - heading "CHUWI CoreBook X Laptop-Tastaturfolie - Italienisch" [level=3] [ref=f4e706]
+                  - paragraph [ref=f4e707]: General • Admitad
+                  - generic [ref=f4e709]:
+                    - generic [ref=f4e710]: ‏١٤٫٩٩ ج.م.‏
+                    - generic [ref=f4e711]: ‏٢٢٫٢٠ ج.م.‏
+                  - paragraph [ref=f4e712]: In Stock
+                - generic [ref=f4e713]:
+                  - generic [ref=f4e714]:
+                    - link "Shop Now" [ref=f4e715] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-15467-530610&store=admitad&to=https%3A%2F%2Fbywiola.com%2Fg%2F78tuvzaw8k32ef59cc790267b86f6e%2F%3Ff_id%3D19719%26ulp%3Dhttps%253A%252F%252Fwww.geekbuying.com%252Fitem%252FCHUWI-CoreBook-X-Laptop-Keyboard-Film-Italian-530610.html%253FCurrency%253DEUR%2523googtrans%252Fen%252Fde&source=search
+                    - link "Compare Prices" [ref=f4e720] [cursor=pointer]:
+                      - /url: /product/admitad-15467-530610#compare-prices
+                  - paragraph [ref=f4e723]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e725] [cursor=pointer]
+              - article [ref=f4e729]:
+                - generic [ref=f4e730]:
+                  - img "Fibogollo 2 Pack Bamboo Bed Tray Table With Folding Legs,Breakfast Trays,Serving Tray For Food And Snack,Laptop Trays For Working Natural" [ref=f4e732]
+                  - generic: CJdropshipping
+                - generic [ref=f4e734]:
+                  - heading "Fibogollo 2 Pack Bamboo Bed Tray Table With Folding Legs,Breakfast Trays,Serving Tray For Food And Snack,Laptop Trays For Working Natural" [level=3] [ref=f4e735]
+                  - paragraph [ref=f4e736]: Dinnerware • CJdropshipping
+                  - generic [ref=f4e738]: ‏٤٨٫٩٩ ج.م.‏
+                  - paragraph [ref=f4e740]: In Stock
+                - generic [ref=f4e741]:
+                  - generic [ref=f4e742]:
+                    - link "Shop Now" [ref=f4e743] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2099942571767255041&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Ffibogollo-2-pack-bamboo-bed-tray-table-with-folding-legs-bre-p-2099942571767255041.html&source=search
+                    - link "Compare Prices" [ref=f4e748] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2099942571767255041#compare-prices
+                  - paragraph [ref=f4e751]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e753] [cursor=pointer]
+              - article [ref=f4e757]:
+                - generic [ref=f4e758]:
+                  - img "NEW SGIN 18.5\" Laptop Intel N5095 Windows 11 PRO 16GB RAM 1TB SSD RJ45 USB-C" [ref=f4e760]
+                  - generic:
+                    - generic [ref=f4e761]: eBay
+                    - generic [ref=f4e762]: "-75%"
+                - generic [ref=f4e763]:
+                  - heading "NEW SGIN 18.5\" Laptop Intel N5095 Windows 11 PRO 16GB RAM 1TB SSD RJ45 USB-C" [level=3] [ref=f4e764]
+                  - paragraph [ref=f4e765]: New • eBay
+                  - generic [ref=f4e767]:
+                    - generic [ref=f4e768]: ‏٤٤٥٫٩٩ ج.م.‏
+                    - generic [ref=f4e769]: ‏١٬٧٨٣٫٩٦ ج.م.‏
+                  - paragraph [ref=f4e770]: In Stock
+                - generic [ref=f4e771]:
+                  - generic [ref=f4e772]:
+                    - link "Shop Now" [ref=f4e773] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C128046833557%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F128046833557%3F_skw%3Dlaptop%26hash%3Ditem1dd02f9f95%253Ag%253AopQAAeSwS8tqj8fn%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGYqY9%252B%252FA%252BW9z9J2zd1exa0jdmrFkmwQwGLIS8ZIxc2debJg4E3tUjzKgvuOZDm1A4gqMG6EHDRatNurvxiorRL%252BaZ84ggxsGYaLJnVZxOSjc6Sg1L9hYZ4xl0ZHEaWG6Oov6uPL8BhvDa2bkn3QpKgMp%252FYr7Yb2WR5EX9m%252FS09qfPKT6xNzdevjXEgY8k4zM9eLGY%252F4Z6v8tbWnUydnk6GACUHgL6uyLytrtKgy3kCOEwqeTK8pJyO%252FjU0xE%252FtMX1h7xUdxYC9fcqwYM1i%252BsJ9o%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e778] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C128046833557%7C0#compare-prices
+                  - paragraph [ref=f4e781]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e783] [cursor=pointer]
+              - article [ref=f4e787]:
+                - generic [ref=f4e788]:
+                  - img "CHUWI CoreBook X Laptop-Tastaturfolie - Spanisch" [ref=f4e790]
+                  - generic:
+                    - generic [ref=f4e791]: Admitad
+                    - generic [ref=f4e792]: "-32%"
+                - generic [ref=f4e793]:
+                  - heading "CHUWI CoreBook X Laptop-Tastaturfolie - Spanisch" [level=3] [ref=f4e794]
+                  - paragraph [ref=f4e795]: General • Admitad
+                  - generic [ref=f4e797]:
+                    - generic [ref=f4e798]: ‏١٤٫٩٩ ج.م.‏
+                    - generic [ref=f4e799]: ‏٢٢٫٢٠ ج.م.‏
+                  - paragraph [ref=f4e800]: In Stock
+                - generic [ref=f4e801]:
+                  - generic [ref=f4e802]:
+                    - link "Shop Now" [ref=f4e803] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-15467-530611&store=admitad&to=https%3A%2F%2Fbywiola.com%2Fg%2F78tuvzaw8k32ef59cc790267b86f6e%2F%3Ff_id%3D19719%26ulp%3Dhttps%253A%252F%252Fwww.geekbuying.com%252Fitem%252FCHUWI-CoreBook-X-Laptop-Keyboard-Film-Spanish-530611.html%253FCurrency%253DEUR%2523googtrans%252Fen%252Fde&source=search
+                    - link "Compare Prices" [ref=f4e808] [cursor=pointer]:
+                      - /url: /product/admitad-15467-530611#compare-prices
+                  - paragraph [ref=f4e811]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e813] [cursor=pointer]
+              - article [ref=f4e817]:
+                - generic [ref=f4e818]:
+                  - img "Adjustable Bamboo Laptop Bed Tray with Storage Drawer, 4 Tilt Angles 9\"-11.5\" Height Foldable Lap Desk Ventilation Holes Anti-Fall Baffle for Bed Sofa Picnic Brown" [ref=f4e820]
+                  - generic: CJdropshipping
+                - generic [ref=f4e822]:
+                  - heading "Adjustable Bamboo Laptop Bed Tray with Storage Drawer, 4 Tilt Angles 9\"-11.5\" Height Foldable Lap Desk Ventilation Holes Anti-Fall Baffle for Bed Sofa Picnic Brown" [level=3] [ref=f4e823]
+                  - paragraph [ref=f4e824]: Furniture • CJdropshipping
+                  - generic [ref=f4e826]: ‏٥٢٫٩٦ ج.م.‏
+                  - paragraph [ref=f4e828]: In Stock
+                - generic [ref=f4e829]:
+                  - generic [ref=f4e830]:
+                    - link "Shop Now" [ref=f4e831] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2096920990139572226&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fadjustable-bamboo-laptop-bed-tray-with-storage-drawer-4-tilt-p-2096920990139572226.html&source=search
+                    - link "Compare Prices" [ref=f4e836] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2096920990139572226#compare-prices
+                  - paragraph [ref=f4e839]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e841] [cursor=pointer]
+              - article [ref=f4e845]:
+                - generic [ref=f4e846]:
+                  - img "HP EliteBook x360 1040 G7 14\" Touch Laptop i7-10610U 16GB 512GB SSD Win 11 Pro" [ref=f4e848]
+                  - generic:
+                    - generic [ref=f4e849]: eBay
+                    - generic [ref=f4e850]: "-67%"
+                - generic [ref=f4e851]:
+                  - heading "HP EliteBook x360 1040 G7 14\" Touch Laptop i7-10610U 16GB 512GB SSD Win 11 Pro" [level=3] [ref=f4e852]
+                  - paragraph [ref=f4e853]: Very Good - Refurbished • eBay
+                  - generic [ref=f4e855]:
+                    - generic [ref=f4e856]: ‏٣٩٩٫٩٩ ج.م.‏
+                    - generic [ref=f4e857]: ‏١٬١٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e858]: In Stock
+                - generic [ref=f4e859]:
+                  - generic [ref=f4e860]:
+                    - link "Shop Now" [ref=f4e861] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C366671276675%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F366671276675%3F_skw%3Dlaptop%26hash%3Ditem555f4faa83%253Ag%253AKLEAAeSwYdBqqbIL%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e866] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C366671276675%7C0#compare-prices
+                  - paragraph [ref=f4e869]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e871] [cursor=pointer]
+              - article [ref=f4e875]:
+                - generic [ref=f4e876]:
+                  - img "CHUWI Magnetische Tastatur für Hi10 Max Laptop" [ref=f4e878]
+                  - generic:
+                    - generic [ref=f4e879]: Admitad
+                    - generic [ref=f4e880]: "-20%"
+                - generic [ref=f4e881]:
+                  - heading "CHUWI Magnetische Tastatur für Hi10 Max Laptop" [level=3] [ref=f4e882]
+                  - paragraph [ref=f4e883]: General • Admitad
+                  - generic [ref=f4e885]:
+                    - generic [ref=f4e886]: ‏٤٩٫٩٩ ج.م.‏
+                    - generic [ref=f4e887]: ‏٦٢٫٣٢ ج.م.‏
+                  - paragraph [ref=f4e888]: In Stock
+                - generic [ref=f4e889]:
+                  - generic [ref=f4e890]:
+                    - link "Shop Now" [ref=f4e891] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-15467-528445&store=admitad&to=https%3A%2F%2Fbywiola.com%2Fg%2F78tuvzaw8k32ef59cc790267b86f6e%2F%3Ff_id%3D19719%26ulp%3Dhttps%253A%252F%252Fwww.geekbuying.com%252Fitem%252FCHUWI-Magnetic-Keyboard-for-Hi10-Max-Laptop-528445.html%253FCurrency%253DEUR%2523googtrans%252Fen%252Fde&source=search
+                    - link "Compare Prices" [ref=f4e896] [cursor=pointer]:
+                      - /url: /product/admitad-15467-528445#compare-prices
+                  - paragraph [ref=f4e899]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e901] [cursor=pointer]
+              - article [ref=f4e905]:
+                - generic [ref=f4e906]:
+                  - img "Adjustable Laptop Desk Cart, 24.5'-36' Height & Tilt Angle Mobile Workstation with Lockable Wheels, Natural" [ref=f4e908]
+                  - generic: CJdropshipping
+                - generic [ref=f4e910]:
+                  - heading "Adjustable Laptop Desk Cart, 24.5'-36' Height & Tilt Angle Mobile Workstation with Lockable Wheels, Natural" [level=3] [ref=f4e911]
+                  - paragraph [ref=f4e912]: Office & School Supplies • CJdropshipping
+                  - generic [ref=f4e914]: ‏٥٣٫٧٩ ج.م.‏
+                  - paragraph [ref=f4e916]: In Stock
+                - generic [ref=f4e917]:
+                  - generic [ref=f4e918]:
+                    - link "Shop Now" [ref=f4e919] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2097191301196046338&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fadjustable-laptop-desk-cart-24-5-36-height-tilt-angle-mobile-p-2097191301196046338.html&source=search
+                    - link "Compare Prices" [ref=f4e924] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2097191301196046338#compare-prices
+                  - paragraph [ref=f4e927]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e929] [cursor=pointer]
+              - article [ref=f4e933]:
+                - generic [ref=f4e934]:
+                  - img "CHUWI Gemibook X 15.6\" Windows 11 Laptop PC Intel N5100 4GB RAM 128G SSD 2.7Ghz" [ref=f4e936]
+                  - generic:
+                    - generic [ref=f4e937]: eBay
+                    - generic [ref=f4e938]: "-54%"
+                - generic [ref=f4e939]:
+                  - heading "CHUWI Gemibook X 15.6\" Windows 11 Laptop PC Intel N5100 4GB RAM 128G SSD 2.7Ghz" [level=3] [ref=f4e940]
+                  - paragraph [ref=f4e941]: New • eBay
+                  - generic [ref=f4e943]:
+                    - generic [ref=f4e944]: ‏١٧٩٫٤٠ ج.م.‏
+                    - generic [ref=f4e945]: ‏٣٨٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f4e946]: In Stock
+                - generic [ref=f4e947]:
+                  - generic [ref=f4e948]:
+                    - link "Shop Now" [ref=f4e949] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C336692909236%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F336692909236%3F_skw%3Dlaptop%26hash%3Ditem4e647614b4%253Ag%253AWF8AAeSw1uFqWgIs%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGa8SkJGn9da%252BlRlNxHB92405UgQwFAhyLQolzQVuLzoE%252FEjgUj576RkYAxTo4S3zeqc5mFZyM3kOt9IiZilAIerhYUeo0HXfa6qwYILlrl4vIL1atpmNe4ZnUJQCsvgSoO5RkZx8V7NHBC2fuKSyZPZwBrJCWibzLFwCg6ePUi1A2ecMBdUaG5DUwLVXcEwVVcoePEbaxA7s1Btt24hMoxQHfaq38yCAzV7hgha5jGJnlapNBVK6eLDJ%252FKGwLY6UT3%252FjtVk7mHvtEQKrZfyQWiv%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e954] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C336692909236%7C0#compare-prices
+                  - paragraph [ref=f4e957]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e959] [cursor=pointer]
+              - article [ref=f4e963]:
+                - generic [ref=f4e964]:
+                  - img "men laptop 5 shaving wholesale price import stainless steel razor blade" [ref=f4e966]
+                  - generic: Admitad
+                - generic [ref=f4e968]:
+                  - heading "men laptop 5 shaving wholesale price import stainless steel razor blade" [level=3] [ref=f4e969]
+                  - paragraph [ref=f4e970]: General • Admitad
+                  - generic [ref=f4e972]: ‏٠٫٧٧ ج.م.‏
+                  - paragraph [ref=f4e974]: In Stock
+                - generic [ref=f4e975]:
+                  - generic [ref=f4e976]:
+                    - link "Shop Now" [ref=f4e977] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62232004842&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62232004842%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e982] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62232004842#compare-prices
+                  - paragraph [ref=f4e985]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e987] [cursor=pointer]
+              - article [ref=f4e991]:
+                - generic [ref=f4e992]:
+                  - img "Adjustable TV Tray Table, 360 Swivel C-Shaped End Table That Slides Under Couch, Sofa, Bed, Recliner Chair, Small Side Table Desk For Laptop, Food Eating, Living Room, Bedroom, Small Spaces" [ref=f4e994]
+                  - generic: CJdropshipping
+                - generic [ref=f4e996]:
+                  - heading "Adjustable TV Tray Table, 360 Swivel C-Shaped End Table That Slides Under Couch, Sofa, Bed, Recliner Chair, Small Side Table Desk For Laptop, Food Eating, Living Room, Bedroom, Small Spaces" [level=3] [ref=f4e997]
+                  - paragraph [ref=f4e998]: Dinnerware • CJdropshipping
+                  - generic [ref=f4e1000]: ‏٦٥٫٩٩ ج.م.‏
+                  - paragraph [ref=f4e1002]: In Stock
+                - generic [ref=f4e1003]:
+                  - generic [ref=f4e1004]:
+                    - link "Shop Now" [ref=f4e1005] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2099965309771739138&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fadjustable-tv-tray-table-360-swivel-c-shaped-end-table-that--p-2099965309771739138.html&source=search
+                    - link "Compare Prices" [ref=f4e1010] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2099965309771739138#compare-prices
+                  - paragraph [ref=f4e1013]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1015] [cursor=pointer]
+              - article [ref=f4e1019]:
+                - generic [ref=f4e1020]:
+                  - img "Acer Aspire 16 16\" Laptop Core Ultra 5 226V S2 16GB RAM 1TB SSD Arc Refurbished" [ref=f4e1022]
+                  - generic:
+                    - generic [ref=f4e1023]: eBay
+                    - generic [ref=f4e1024]: "-52%"
+                - generic [ref=f4e1025]:
+                  - heading "Acer Aspire 16 16\" Laptop Core Ultra 5 226V S2 16GB RAM 1TB SSD Arc Refurbished" [level=3] [ref=f4e1026]
+                  - paragraph [ref=f4e1027]: Certified - Refurbished • eBay
+                  - generic [ref=f4e1029]:
+                    - generic [ref=f4e1030]: ‏٥٠٦٫٨٣ ج.م.‏
+                    - generic [ref=f4e1031]: ‏١٬٠٤٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f4e1032]: In Stock
+                - generic [ref=f4e1033]:
+                  - generic [ref=f4e1034]:
+                    - link "Shop Now" [ref=f4e1035] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257503592006%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257503592006%3F_skw%3Dlaptop%26hash%3Ditem3bf468fe46%253Ag%253Aj84AAeSwwlRqOW9e%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1040] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257503592006%7C0#compare-prices
+                  - paragraph [ref=f4e1043]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1045] [cursor=pointer]
+              - article [ref=f4e1049]:
+                - generic [ref=f4e1050]:
+                  - img "Quality New USB Optical Computer Gaming Mouse For PC Laptop" [ref=f4e1052]
+                  - generic: Admitad
+                - generic [ref=f4e1054]:
+                  - heading "Quality New USB Optical Computer Gaming Mouse For PC Laptop" [level=3] [ref=f4e1055]
+                  - paragraph [ref=f4e1056]: General • Admitad
+                  - generic [ref=f4e1058]: ‏١٫٨٠ ج.م.‏
+                  - paragraph [ref=f4e1060]: In Stock
+                - generic [ref=f4e1061]:
+                  - generic [ref=f4e1062]:
+                    - link "Shop Now" [ref=f4e1063] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60718849000&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60718849000%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1068] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60718849000#compare-prices
+                  - paragraph [ref=f4e1071]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1073] [cursor=pointer]
+              - article [ref=f4e1077]:
+                - generic [ref=f4e1078]:
+                  - img "Thin & Lightweight Lenovo T450 Laptop Windows 11 i5 2.3ghz 8gb 250gb DVDRW" [ref=f4e1080]
+                  - generic:
+                    - generic [ref=f4e1081]: eBay
+                    - generic [ref=f4e1082]: "-50%"
+                - generic [ref=f4e1083]:
+                  - heading "Thin & Lightweight Lenovo T450 Laptop Windows 11 i5 2.3ghz 8gb 250gb DVDRW" [level=3] [ref=f4e1084]
+                  - paragraph [ref=f4e1085]: Used • eBay
+                  - generic [ref=f4e1087]:
+                    - generic [ref=f4e1088]: ‏١٢٩٫٩٩ ج.م.‏
+                    - generic [ref=f4e1089]: ‏٢٥٩٫٩٨ ج.م.‏
+                  - paragraph [ref=f4e1090]: In Stock
+                - generic [ref=f4e1091]:
+                  - generic [ref=f4e1092]:
+                    - link "Shop Now" [ref=f4e1093] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C395329991271%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F395329991271%3F_skw%3Dlaptop%26hash%3Ditem5c0b80f267%253Ag%253A1GIAAeSw%257EwRqd7CB%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGYvPyIYg89tv507Qas%252FQABnM482X5j6T%252F2FaUf7EsysQJ9ZDXH1Wwb%252FqDjlrb%252BWYtlaSCiZ3X4Cyyvw4%252BKEU55dnLtVsC9n9TT8ZAxlRRFBPWIRv2zMZeojeyiuQ9XaJiMpV0Kbrgr%252BaXmma8oiCBB%252BNFr4%252BbVrLyytJVoDPi8Pq9aXkeLeEQttIlnvmv365FPur6KiZhPIYlQ2h42rkIssjDLoCFe9zLBEFBJeMlukRurqQPODPfJnRQWu5SosGHrdVRI2a3pz2jr0EPI8rXTo%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1098] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C395329991271%7C0#compare-prices
+                  - paragraph [ref=f4e1101]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1103] [cursor=pointer]
+              - article [ref=f4e1107]:
+                - generic [ref=f4e1108]:
+                  - img "Factory price rechargeable flat bt3.0 personalized wireless mouse for computer pc notebook laptop" [ref=f4e1110]
+                  - generic: Admitad
+                - generic [ref=f4e1112]:
+                  - heading "Factory price rechargeable flat bt3.0 personalized wireless mouse for computer pc notebook laptop" [level=3] [ref=f4e1113]
+                  - paragraph [ref=f4e1114]: General • Admitad
+                  - generic [ref=f4e1116]: ‏٢٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e1118]: In Stock
+                - generic [ref=f4e1119]:
+                  - generic [ref=f4e1120]:
+                    - link "Shop Now" [ref=f4e1121] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60760813024&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60760813024%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1126] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60760813024#compare-prices
+                  - paragraph [ref=f4e1129]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1131] [cursor=pointer]
+              - article [ref=f4e1135]:
+                - generic [ref=f4e1136]:
+                  - img "New 15.6\" Windows 11 Laptop, Intel Celeron N5095 8GB RAM 512GB SSD, Business" [ref=f4e1138]
+                  - generic:
+                    - generic [ref=f4e1139]: eBay
+                    - generic [ref=f4e1140]: "-50%"
+                - generic [ref=f4e1141]:
+                  - heading "New 15.6\" Windows 11 Laptop, Intel Celeron N5095 8GB RAM 512GB SSD, Business" [level=3] [ref=f4e1142]
+                  - paragraph [ref=f4e1143]: New • eBay
+                  - generic [ref=f4e1145]:
+                    - generic [ref=f4e1146]: ‏٢٠٩٫٠٠ ج.م.‏
+                    - generic [ref=f4e1147]: ‏٤١٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e1148]: In Stock
+                - generic [ref=f4e1149]:
+                  - generic [ref=f4e1150]:
+                    - link "Shop Now" [ref=f4e1151] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C800076699302%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F800076699302%3F_skw%3Dlaptop%26hash%3Ditemba484996a6%253Ag%253AS%257EoAAeSwPN5qFlpx%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1156] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C800076699302%7C0#compare-prices
+                  - paragraph [ref=f4e1159]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1161] [cursor=pointer]
+              - article [ref=f4e1165]:
+                - generic [ref=f4e1166]:
+                  - img "Big size shaped computer notebook laptop colourful OEM custom brand 2.4G gaming wireless optical 5D bluetooth mouse for gamer" [ref=f4e1168]
+                  - generic: Admitad
+                - generic [ref=f4e1170]:
+                  - heading "Big size shaped computer notebook laptop colourful OEM custom brand 2.4G gaming wireless optical 5D bluetooth mouse for gamer" [level=3] [ref=f4e1171]
+                  - paragraph [ref=f4e1172]: General • Admitad
+                  - generic [ref=f4e1174]: ‏٢٫٨٩ ج.م.‏
+                  - paragraph [ref=f4e1176]: In Stock
+                - generic [ref=f4e1177]:
+                  - generic [ref=f4e1178]:
+                    - link "Shop Now" [ref=f4e1179] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-1345365390&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D1345365390%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1184] [cursor=pointer]:
+                      - /url: /product/admitad-20881-1345365390#compare-prices
+                  - paragraph [ref=f4e1187]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1189] [cursor=pointer]
+              - article [ref=f4e1193]:
+                - generic [ref=f4e1194]:
+                  - img "15.6 inch Laptop 16GB+512GB Windows 11 Computers WiFi Bluetooth 1920*1080 LP" [ref=f4e1196]
+                  - generic:
+                    - generic [ref=f4e1197]: eBay
+                    - generic [ref=f4e1198]: "-50%"
+                - generic [ref=f4e1199]:
+                  - heading "15.6 inch Laptop 16GB+512GB Windows 11 Computers WiFi Bluetooth 1920*1080 LP" [level=3] [ref=f4e1200]
+                  - paragraph [ref=f4e1201]: New • eBay
+                  - generic [ref=f4e1203]:
+                    - generic [ref=f4e1204]: ‏٢١٩٫٩٩ ج.م.‏
+                    - generic [ref=f4e1205]: ‏٤٣٩٫٩٨ ج.م.‏
+                  - paragraph [ref=f4e1206]: In Stock
+                - generic [ref=f4e1207]:
+                  - generic [ref=f4e1208]:
+                    - link "Shop Now" [ref=f4e1209] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C800452935052%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F800452935052%3F_skw%3Dlaptop%26hash%3Ditemba5eb67d8c%253Ag%253AspsAAeSwe4RqcDxn%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1214] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C800452935052%7C0#compare-prices
+                  - paragraph [ref=f4e1217]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1219] [cursor=pointer]
+              - article [ref=f4e1223]:
+                - generic [ref=f4e1224]:
+                  - img "Made in China xergur gaming mouse, SS500 wired mouse with LED Light for computer, laptop" [ref=f4e1226]
+                  - generic: Admitad
+                - generic [ref=f4e1228]:
+                  - heading "Made in China xergur gaming mouse, SS500 wired mouse with LED Light for computer, laptop" [level=3] [ref=f4e1229]
+                  - paragraph [ref=f4e1230]: General • Admitad
+                  - generic [ref=f4e1232]: ‏٤٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e1234]: In Stock
+                - generic [ref=f4e1235]:
+                  - generic [ref=f4e1236]:
+                    - link "Shop Now" [ref=f4e1237] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62429083376&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62429083376%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1242] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62429083376#compare-prices
+                  - paragraph [ref=f4e1245]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1247] [cursor=pointer]
+              - article [ref=f4e1251]:
+                - generic [ref=f4e1252]:
+                  - img "15.6 inch Laptop 16GB+512GB Windows 11 Computers Support WiFi, Bluetooth USB-C" [ref=f4e1254]
+                  - generic:
+                    - generic [ref=f4e1255]: eBay
+                    - generic [ref=f4e1256]: "-50%"
+                - generic [ref=f4e1257]:
+                  - heading "15.6 inch Laptop 16GB+512GB Windows 11 Computers Support WiFi, Bluetooth USB-C" [level=3] [ref=f4e1258]
+                  - paragraph [ref=f4e1259]: New • eBay
+                  - generic [ref=f4e1261]:
+                    - generic [ref=f4e1262]: ‏٢٢٩٫٠٠ ج.م.‏
+                    - generic [ref=f4e1263]: ‏٤٥٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e1264]: In Stock
+                - generic [ref=f4e1265]:
+                  - generic [ref=f4e1266]:
+                    - link "Shop Now" [ref=f4e1267] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C406692634547%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F406692634547%3F_skw%3Dlaptop%26hash%3Ditem5eb0c51fb3%253Ag%253Afs8AAeSwwC5pgxGC%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1272] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C406692634547%7C0#compare-prices
+                  - paragraph [ref=f4e1275]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1277] [cursor=pointer]
+              - article [ref=f4e1281]:
+                - generic [ref=f4e1282]:
+                  - img "Full Featured Premium Laptop Remote Control USB 2.1 Speakers System Kisonli" [ref=f4e1284]
+                  - generic: Admitad
+                - generic [ref=f4e1286]:
+                  - heading "Full Featured Premium Laptop Remote Control USB 2.1 Speakers System Kisonli" [level=3] [ref=f4e1287]
+                  - paragraph [ref=f4e1288]: General • Admitad
+                  - generic [ref=f4e1290]: ‏٩٫٥٠ ج.م.‏
+                  - paragraph [ref=f4e1292]: In Stock
+                - generic [ref=f4e1293]:
+                  - generic [ref=f4e1294]:
+                    - link "Shop Now" [ref=f4e1295] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62131306044&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62131306044%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1300] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62131306044#compare-prices
+                  - paragraph [ref=f4e1303]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1305] [cursor=pointer]
+              - article [ref=f4e1309]:
+                - generic [ref=f4e1310]:
+                  - img "15.6 inch Laptop 16GB+512GB Windows 11 Computers WiFi Bluetooth 1920*1080 LP" [ref=f4e1312]
+                  - generic:
+                    - generic [ref=f4e1313]: eBay
+                    - generic [ref=f4e1314]: "-50%"
+                - generic [ref=f4e1315]:
+                  - heading "15.6 inch Laptop 16GB+512GB Windows 11 Computers WiFi Bluetooth 1920*1080 LP" [level=3] [ref=f4e1316]
+                  - paragraph [ref=f4e1317]: New • eBay
+                  - generic [ref=f4e1319]:
+                    - generic [ref=f4e1320]: ‏٢٢٩٫٩٩ ج.م.‏
+                    - generic [ref=f4e1321]: ‏٤٥٩٫٩٨ ج.م.‏
+                  - paragraph [ref=f4e1322]: In Stock
+                - generic [ref=f4e1323]:
+                  - generic [ref=f4e1324]:
+                    - link "Shop Now" [ref=f4e1325] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C389917513456%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F389917513456%3F_skw%3Dlaptop%26hash%3Ditem5ac8e516f0%253Ag%253AxuUAAeSw7LFp5vWm%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1330] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C389917513456%7C0#compare-prices
+                  - paragraph [ref=f4e1333]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1335] [cursor=pointer]
+              - article [ref=f4e1339]:
+                - generic [ref=f4e1340]:
+                  - img "V5.0 Stereo Speaking Laptop Speaker Aux Hifi Stereo Portable Speaker Wireless" [ref=f4e1342]
+                  - generic: Admitad
+                - generic [ref=f4e1344]:
+                  - heading "V5.0 Stereo Speaking Laptop Speaker Aux Hifi Stereo Portable Speaker Wireless" [level=3] [ref=f4e1345]
+                  - paragraph [ref=f4e1346]: General • Admitad
+                  - generic [ref=f4e1348]: ‏٩٫٧٧ ج.م.‏
+                  - paragraph [ref=f4e1350]: In Stock
+                - generic [ref=f4e1351]:
+                  - generic [ref=f4e1352]:
+                    - link "Shop Now" [ref=f4e1353] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62249812861&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62249812861%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1358] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62249812861#compare-prices
+                  - paragraph [ref=f4e1361]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1363] [cursor=pointer]
+              - article [ref=f4e1367]:
+                - generic [ref=f4e1368]:
+                  - img "2026 Laptop Computer 15.6\" 4-Core Intel CPU 16GB RAM 512GB Storage Office Win11" [ref=f4e1370]
+                  - generic:
+                    - generic [ref=f4e1371]: eBay
+                    - generic [ref=f4e1372]: "-50%"
+                - generic [ref=f4e1373]:
+                  - heading "2026 Laptop Computer 15.6\" 4-Core Intel CPU 16GB RAM 512GB Storage Office Win11" [level=3] [ref=f4e1374]
+                  - paragraph [ref=f4e1375]: New • eBay
+                  - generic [ref=f4e1377]:
+                    - generic [ref=f4e1378]: ‏٢٣٠٫٠٠ ج.م.‏
+                    - generic [ref=f4e1379]: ‏٤٦٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e1380]: In Stock
+                - generic [ref=f4e1381]:
+                  - generic [ref=f4e1382]:
+                    - link "Shop Now" [ref=f4e1383] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C206497023739%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F206497023739%3F_skw%3Dlaptop%26hash%3Ditem30142e86fb%253Ag%253ABiQAAeSw6qlqgoMv%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1388] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C206497023739%7C0#compare-prices
+                  - paragraph [ref=f4e1391]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1393] [cursor=pointer]
+              - article [ref=f4e1397]:
+                - generic [ref=f4e1398]:
+                  - img "High performance DDR3 4gb/8gb UDIMM 1600/1333MHz computer ram price laptop ram 4gb" [ref=f4e1400]
+                  - generic: Admitad
+                - generic [ref=f4e1402]:
+                  - heading "High performance DDR3 4gb/8gb UDIMM 1600/1333MHz computer ram price laptop ram 4gb" [level=3] [ref=f4e1403]
+                  - paragraph [ref=f4e1404]: General • Admitad
+                  - generic [ref=f4e1406]: ‏١٢٫٣٥ ج.م.‏
+                  - paragraph [ref=f4e1408]: In Stock
+                - generic [ref=f4e1409]:
+                  - generic [ref=f4e1410]:
+                    - link "Shop Now" [ref=f4e1411] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62347293682&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62347293682%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1416] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62347293682#compare-prices
+                  - paragraph [ref=f4e1419]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1421] [cursor=pointer]
+              - article [ref=f4e1425]:
+                - generic [ref=f4e1426]:
+                  - img "ASUS Zenbook A14 14\" WUXGA Snapdragon X X1-26-100 16GB RAM 512GB SSD W11H Laptop" [ref=f4e1428]
+                  - generic:
+                    - generic [ref=f4e1429]: eBay
+                    - generic [ref=f4e1430]: "-49%"
+                - generic [ref=f4e1431]:
+                  - heading "ASUS Zenbook A14 14\" WUXGA Snapdragon X X1-26-100 16GB RAM 512GB SSD W11H Laptop" [level=3] [ref=f4e1432]
+                  - paragraph [ref=f4e1433]: Very Good - Refurbished • eBay
+                  - generic [ref=f4e1435]:
+                    - generic [ref=f4e1436]: ‏٥٦٠٫٠٠ ج.م.‏
+                    - generic [ref=f4e1437]: ‏١٬٠٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=f4e1438]: In Stock
+                - generic [ref=f4e1439]:
+                  - generic [ref=f4e1440]:
+                    - link "Shop Now" [ref=f4e1441] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C168224689294%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F168224689294%3F_skw%3Dlaptop%26hash%3Ditem272af90c8e%253Ag%253ANIsAAeSwyCpqrhKQ%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1446] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C168224689294%7C0#compare-prices
+                  - paragraph [ref=f4e1449]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1451] [cursor=pointer]
+              - article [ref=f4e1455]:
+                - generic [ref=f4e1456]:
+                  - img "25 Degree Anti SPY Removable Laptop Privacy Screen Filter for Macbook 13.3 inch" [ref=f4e1458]
+                  - generic: Admitad
+                - generic [ref=f4e1460]:
+                  - heading "25 Degree Anti SPY Removable Laptop Privacy Screen Filter for Macbook 13.3 inch" [level=3] [ref=f4e1461]
+                  - paragraph [ref=f4e1462]: General • Admitad
+                  - generic [ref=f4e1464]: ‏١٢٫٩٩ ج.م.‏
+                  - paragraph [ref=f4e1466]: In Stock
+                - generic [ref=f4e1467]:
+                  - generic [ref=f4e1468]:
+                    - link "Shop Now" [ref=f4e1469] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62367226190&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62367226190%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1474] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62367226190#compare-prices
+                  - paragraph [ref=f4e1477]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1479] [cursor=pointer]
+              - article [ref=f4e1483]:
+                - generic [ref=f4e1484]:
+                  - img "2025 15.6'' Laptop Computer Intel Quad-Core Processors 16GB RAM+512GB SSD US" [ref=f4e1486]
+                  - generic:
+                    - generic [ref=f4e1487]: eBay
+                    - generic [ref=f4e1488]: "-48%"
+                - generic [ref=f4e1489]:
+                  - heading "2025 15.6'' Laptop Computer Intel Quad-Core Processors 16GB RAM+512GB SSD US" [level=3] [ref=f4e1490]
+                  - paragraph [ref=f4e1491]: New • eBay
+                  - generic [ref=f4e1493]:
+                    - generic [ref=f4e1494]: ‏٢٣٨٫١٦ ج.م.‏
+                    - generic [ref=f4e1495]: ‏٤٥٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f4e1496]: In Stock
+                - generic [ref=f4e1497]:
+                  - generic [ref=f4e1498]:
+                    - link "Shop Now" [ref=f4e1499] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C376153491230%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F376153491230%3F_skw%3Dlaptop%26hash%3Ditem57947ec71e%253Ag%253AVQYAAeSwVE9pCugU%26amdata%3Denc%253AAQALAAAA4ACCtXRWQnOEpyOqnQQ8KGYt9DZRtAq9ofgRC%252BMy4lZr3uORwM4WghcKCENEfk9QIr%252BXOhmBcJmcJGvCh0t0BU5%252BL6HQFtow25uukND0iso4WRaDpPVHJET06CcAsPBgddoqe6iiE33ceB3RZWll50rpr21xUWXCxFBFdw%252Fo6PmBF3mxXfTofuqEeNpn0L4%252F%252Bsd42vWJnjF17FCpUH1yqjt%252FoMOnySr9aOY3esddJAkIJu19SDdsgo9VKGAMtp0eniy3OHi6VNiT8ETCmLm8Vh%252BPGy7StJeOCQxtpVZAC1ko%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f4e1504] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C376153491230%7C0#compare-prices
+                  - paragraph [ref=f4e1507]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1509] [cursor=pointer]
+              - article [ref=f4e1513]:
+                - generic [ref=f4e1514]:
+                  - img "Slim used pulled laptop hard drive 500gb 2.5 inch 5400rpm hdd sata hard disk" [ref=f4e1516]
+                  - generic: Admitad
+                - generic [ref=f4e1518]:
+                  - heading "Slim used pulled laptop hard drive 500gb 2.5 inch 5400rpm hdd sata hard disk" [level=3] [ref=f4e1519]
+                  - paragraph [ref=f4e1520]: General • Admitad
+                  - generic [ref=f4e1522]: ‏١٧٫٨٥ ج.م.‏
+                  - paragraph [ref=f4e1524]: In Stock
+                - generic [ref=f4e1525]:
+                  - generic [ref=f4e1526]:
+                    - link "Shop Now" [ref=f4e1527] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62358840443&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62358840443%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f4e1532] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62358840443#compare-prices
+                  - paragraph [ref=f4e1535]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f4e1537] [cursor=pointer]
+            - button "Load More" [ref=f4e1542] [cursor=pointer]
+    - contentinfo [ref=f4e1543]:
+      - generic [ref=f4e1544]:
+        - generic [ref=f4e1545]:
+          - text: ZORINO
+          - paragraph [ref=f4e1546]: AI-powered deal discovery
+        - navigation "Company" [ref=f4e1547]:
+          - heading "Company" [level=3] [ref=f4e1548]
+          - list [ref=f4e1549]:
+            - listitem [ref=f4e1550]:
+              - link "About Us" [ref=f4e1551] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f4e1552]:
+              - link "Contact" [ref=f4e1553] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f4e1554]:
+              - link "FAQ" [ref=f4e1555] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f4e1556]:
+              - link "Blog" [ref=f4e1557] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f4e1558]:
+          - heading "Legal" [level=3] [ref=f4e1559]
+          - list [ref=f4e1560]:
+            - listitem [ref=f4e1561]:
+              - link "Imprint" [ref=f4e1562] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f4e1563]:
+              - link "Privacy" [ref=f4e1564] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f4e1565]:
+              - link "Terms" [ref=f4e1566] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f4e1567]:
+              - link "Cookies" [ref=f4e1568] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f4e1569]:
+              - link "Affiliate" [ref=f4e1570] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f4e1571]:
+              - link "DMCA" [ref=f4e1572] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f4e1573]:
+              - link "Accessibility" [ref=f4e1574] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f4e1575]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f4e1576]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f4e1577] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f4e1578]

@@ -1,0 +1,1023 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=e7]
+        - button "Menu" [ref=e8] [cursor=pointer]
+        - generic [ref=e10]:
+          - link "Search" [ref=e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=e16] [cursor=pointer]:
+            - generic [ref=e17]: Dark
+            - generic [ref=e21]: Light
+          - button "Language, country, and currency" [ref=e31] [cursor=pointer]:
+            - generic [ref=e35]: EN · EGP
+          - link "Wishlist" [ref=e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=e52]: Hello, User
+    - main [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e57]:
+          - heading "Search Results" [level=1] [ref=e58]
+          - paragraph [ref=e59]: Showing results for "HONOR 10 Lite"
+        - generic [ref=e60]:
+          - complementary [ref=e61]:
+            - generic [ref=e62]:
+              - heading "Filters" [level=2] [ref=e63]
+              - button "Clear" [ref=e66] [cursor=pointer]
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - generic [ref=e69]: Search for products, brands or categories...
+                - textbox "Search for products, brands or categories..." [ref=e70]: HONOR 10 Lite
+              - generic [ref=e71]:
+                - generic [ref=e72]: Categories
+                - combobox [ref=e73] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "Phones & Telecommunications"
+                  - option "General"
+                  - option "Home Office Storage"
+                  - option "Women's Short-Sleeved Shirts"
+                  - option "Decorative Flowers & Wreaths"
+                  - option "Scarves & Wraps"
+                  - option "Evening Dresses"
+                  - option "phones"
+                  - option "Housings"
+                  - option "Chargers"
+                  - option "Men Sports Watches"
+                  - option "Watch Accessories"
+                  - option "Power Tools"
+                  - option "Other Replacement Parts"
+                  - option "Wearable Devices"
+                  - option "Action & Toy Figures"
+                  - option "Kitchen Storage"
+                  - option "Storage Bags & Cases & Boxes"
+              - generic [ref=e74]:
+                - generic [ref=e75]: Stores
+                - combobox [ref=e76] [cursor=pointer]:
+                  - option "All Stores" [selected]
+                  - option "AliExpress"
+                  - option "Alibaba WW"
+                  - option "CJdropshipping"
+              - generic [ref=e77]:
+                - generic [ref=e78]: Price Range
+                - generic [ref=e79]:
+                  - spinbutton "Min Price" [ref=e81]
+                  - spinbutton "Max Price" [ref=e83]
+              - generic [ref=e84]:
+                - generic [ref=e85]: Rating
+                - combobox [ref=e86] [cursor=pointer]:
+                  - option "All Ratings" [selected]
+                  - option "4+ Stars"
+                  - option "3+ Stars"
+                  - option "2+ Stars"
+              - generic [ref=e87] [cursor=pointer]:
+                - checkbox "In Stock Only" [ref=e88]
+                - generic [ref=e89]: In Stock Only
+              - button "Filter" [ref=e90] [cursor=pointer]
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]: 50 of 69 results
+              - combobox [ref=e95] [cursor=pointer]:
+                - option "Relevance" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Rating"
+            - generic [ref=e96]:
+              - article [ref=e97]:
+                - generic [ref=e98]:
+                  - img "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [ref=e100]
+                  - generic:
+                    - generic [ref=e101]: AliExpress
+                    - generic [ref=e102]: "-55%"
+                - generic [ref=e103]:
+                  - heading "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [level=3] [ref=e104]
+                  - paragraph [ref=e105]: Phones & Telecommunications • AliExpress
+                  - generic [ref=e107]:
+                    - generic [ref=e108]: ‏٧٤٫٥٠ ج.م.‏
+                    - generic [ref=e109]: ‏١٦٥٫٥٦ ج.م.‏
+                  - paragraph [ref=e110]: In Stock
+                - generic [ref=e111]:
+                  - generic [ref=e112]:
+                    - link "Shop Now" [ref=e113] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812554314983&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812554314983.html%3Fpdp_npi%3D6%2540dis%2521USD%2521165.56%252174.50%2521%2521%25211103.02%2521496.36%2521%25402151fd2c17897833088521296e1017%252112000059243640091%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e118] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812554314983#compare-prices
+                  - paragraph [ref=e121]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e123] [cursor=pointer]
+              - article [ref=e127]:
+                - generic [ref=e128]:
+                  - img "Honor 10 Lite Smartphone Android 9 HiSilicon Kirin 710 4GB RAM 64GB ROM 13MP Camera Google Play" [ref=e130]
+                  - generic:
+                    - generic [ref=e131]: AliExpress
+                    - generic [ref=e132]: "-14%"
+                - generic [ref=e133]:
+                  - heading "Honor 10 Lite Smartphone Android 9 HiSilicon Kirin 710 4GB RAM 64GB ROM 13MP Camera Google Play" [level=3] [ref=e134]
+                  - paragraph [ref=e135]: Phones & Telecommunications • AliExpress
+                  - generic [ref=e137]:
+                    - generic [ref=e138]: ‏٧٠٫٥٢ ج.م.‏
+                    - generic [ref=e139]: ‏٨٢٫٠٠ ج.م.‏
+                  - paragraph [ref=e140]: In Stock
+                - generic [ref=e141]:
+                  - generic [ref=e142]:
+                    - link "Shop Now" [ref=e143] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812562513327&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812562513327.html%3Fpdp_npi%3D6%2540dis%2521USD%252182.00%252170.52%2521%2521%252182.00%252170.52%2521%25402151fd2c17897833088521296e1017%252112000059209593969%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e148] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812562513327#compare-prices
+                  - paragraph [ref=e151]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e153] [cursor=pointer]
+              - article [ref=e157]:
+                - generic [ref=e158]:
+                  - img "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [ref=e160]
+                  - generic:
+                    - generic [ref=e161]: AliExpress
+                    - generic [ref=e162]: "-55%"
+                - generic [ref=e163]:
+                  - heading "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [level=3] [ref=e164]
+                  - paragraph [ref=e165]: Phones & Telecommunications • AliExpress
+                  - generic [ref=e166]: 5 (2 sold)
+                  - generic [ref=e170]:
+                    - generic [ref=e171]: ‏٧٥٫٩٠ ج.م.‏
+                    - generic [ref=e172]: ‏١٦٨٫٦٨ ج.م.‏
+                  - paragraph [ref=e173]: In Stock
+                - generic [ref=e174]:
+                  - generic [ref=e175]:
+                    - link "Shop Now" [ref=e176] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812554314964&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812554314964.html%3Fpdp_npi%3D6%2540dis%2521USD%2521168.68%252175.90%2521%2521%25211123.81%2521505.71%2521%25400b8ded7b17897833088546687e0d1b%252112000059243644035%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e181] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812554314964#compare-prices
+                  - paragraph [ref=e184]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e186] [cursor=pointer]
+              - article [ref=e190]:
+                - generic [ref=e191]:
+                  - img "HONOR 8X Smartphone Global firmware CPU Haisi Qilin 710 6.5-inch rear camera 20MP fingerprint recognition used phone" [ref=e193]
+                  - generic:
+                    - generic [ref=e194]: AliExpress
+                    - generic [ref=e195]: "-37%"
+                - generic [ref=e196]:
+                  - heading "HONOR 8X Smartphone Global firmware CPU Haisi Qilin 710 6.5-inch rear camera 20MP fingerprint recognition used phone" [level=3] [ref=e197]
+                  - paragraph [ref=e198]: Phones & Telecommunications • AliExpress
+                  - generic [ref=e199]: 4.5 (518 sold)
+                  - generic [ref=e203]:
+                    - generic [ref=e204]: ‏٦١٫٣٣ ج.م.‏
+                    - generic [ref=e205]: ‏٩٨٫٠٢ ج.م.‏
+                  - paragraph [ref=e206]: In Stock
+                - generic [ref=e207]:
+                  - generic [ref=e208]:
+                    - link "Shop Now" [ref=e209] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256806909906451&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256806909906451.html%3Fpdp_npi%3D6%2540dis%2521USD%252198.02%252161.33%2521%2521%2521653.01%2521408.54%2521%25402151fd2c17897833088521296e1017%252112000039402590512%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e214] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256806909906451#compare-prices
+                  - paragraph [ref=e217]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e219] [cursor=pointer]
+              - article [ref=e223]:
+                - generic [ref=e224]:
+                  - img "Wholesale Global version Original Xiaomi Amazfit Bip color screen Water proof bip lite smart watch" [ref=e226]
+                  - generic: Admitad
+                - generic [ref=e228]:
+                  - heading "Wholesale Global version Original Xiaomi Amazfit Bip color screen Water proof bip lite smart watch" [level=3] [ref=e229]
+                  - paragraph [ref=e230]: General • Admitad
+                  - generic [ref=e232]: ‏٥٣٫٠٠ ج.م.‏
+                  - paragraph [ref=e234]: In Stock
+                - generic [ref=e235]:
+                  - generic [ref=e236]:
+                    - link "Shop Now" [ref=e237] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62260289390&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62260289390%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e242] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62260289390#compare-prices
+                  - paragraph [ref=e245]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e247] [cursor=pointer]
+              - article [ref=e251]:
+                - generic [ref=e252]:
+                  - img "HONOR 20i smartphone 4G Global Firmware Haisi Qilin 710 6.21 inch front camera 32MP ultra-wide-angle used phone" [ref=e254]
+                  - generic:
+                    - generic [ref=e255]: AliExpress
+                    - generic [ref=e256]: "-57%"
+                - generic [ref=e257]:
+                  - heading "HONOR 20i smartphone 4G Global Firmware Haisi Qilin 710 6.21 inch front camera 32MP ultra-wide-angle used phone" [level=3] [ref=e258]
+                  - paragraph [ref=e259]: Phones & Telecommunications • AliExpress
+                  - generic [ref=e260]: 4 (2 sold)
+                  - generic [ref=e264]:
+                    - generic [ref=e265]: ‏٧٤٫٥٤ ج.م.‏
+                    - generic [ref=e266]: ‏١٧٤٫٠٩ ج.م.‏
+                  - paragraph [ref=e267]: In Stock
+                - generic [ref=e268]:
+                  - generic [ref=e269]:
+                    - link "Shop Now" [ref=e270] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812560891395&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812560891395.html%3Fpdp_npi%3D6%2540dis%2521USD%2521174.09%252174.54%2521%2521%25211159.80%2521496.59%2521%25402151fd2c17897833088521296e1017%252112000059243390839%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e275] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812560891395#compare-prices
+                  - paragraph [ref=e278]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e280] [cursor=pointer]
+              - article [ref=e284]:
+                - generic [ref=e285]:
+                  - img "Huami AMAZFIT Bip Lite Version Smart Watch International version original xiaomi international Version AMAZFIT" [ref=e287]
+                  - generic: Admitad
+                - generic [ref=e289]:
+                  - heading "Huami AMAZFIT Bip Lite Version Smart Watch International version original xiaomi international Version AMAZFIT" [level=3] [ref=e290]
+                  - paragraph [ref=e291]: General • Admitad
+                  - generic [ref=e293]: ‏٥٣٫٠٠ ج.م.‏
+                  - paragraph [ref=e295]: In Stock
+                - generic [ref=e296]:
+                  - generic [ref=e297]:
+                    - link "Shop Now" [ref=e298] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60767140422&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60767140422%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e303] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60767140422#compare-prices
+                  - paragraph [ref=e306]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e308] [cursor=pointer]
+              - article [ref=e312]:
+                - generic [ref=e313]:
+                  - img "HONOR 20 Smartphone 4G Global firmware 48MP wide-angle quad camera Kirin 980 6.26-inch Magic UI 2.1.0 good condition used phone" [ref=e315]
+                  - generic:
+                    - generic [ref=e316]: AliExpress
+                    - generic [ref=e317]: "-58%"
+                - generic [ref=e318]:
+                  - heading "HONOR 20 Smartphone 4G Global firmware 48MP wide-angle quad camera Kirin 980 6.26-inch Magic UI 2.1.0 good condition used phone" [level=3] [ref=e319]
+                  - paragraph [ref=e320]: Phones & Telecommunications • AliExpress
+                  - generic [ref=e322]:
+                    - generic [ref=e323]: ‏٩٨٫٧٨ ج.م.‏
+                    - generic [ref=e324]: ‏٢٣٥٫٩٥ ج.م.‏
+                  - paragraph [ref=e325]: In Stock
+                - generic [ref=e326]:
+                  - generic [ref=e327]:
+                    - link "Shop Now" [ref=e328] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812554374782&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812554374782.html%3Fpdp_npi%3D6%2540dis%2521USD%2521235.95%252198.78%2521%2521%25211571.94%2521658.07%2521%25402151fd2c17897833088521296e1017%252112000059205437652%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e333] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812554374782#compare-prices
+                  - paragraph [ref=e336]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e338] [cursor=pointer]
+              - article [ref=e342]:
+                - generic [ref=e343]:
+                  - img "Original Huawei Honor S1 5ATM Waterproof Fitness Tracker Smart Watch for iPhone x 256gb" [ref=e345]
+                  - generic: Admitad
+                - generic [ref=e347]:
+                  - heading "Original Huawei Honor S1 5ATM Waterproof Fitness Tracker Smart Watch for iPhone x 256gb" [level=3] [ref=e348]
+                  - paragraph [ref=e349]: General • Admitad
+                  - generic [ref=e351]: ‏٨٦٫٨٠ ج.م.‏
+                  - paragraph [ref=e353]: In Stock
+                - generic [ref=e354]:
+                  - generic [ref=e355]:
+                    - link "Shop Now" [ref=e356] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60765015710&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60765015710%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e361] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60765015710#compare-prices
+                  - paragraph [ref=e364]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e366] [cursor=pointer]
+              - article [ref=e370]:
+                - generic [ref=e371]:
+                  - img "Honor 8X 4G LTE Unlocked Mobile Phone Global ROM Google Play 6.5\" Full Screen Kirin 710 Dual Camera Fingerprint used phone" [ref=e373]
+                  - generic:
+                    - generic [ref=e374]: AliExpress
+                    - generic [ref=e375]: "-53%"
+                - generic [ref=e376]:
+                  - heading "Honor 8X 4G LTE Unlocked Mobile Phone Global ROM Google Play 6.5\" Full Screen Kirin 710 Dual Camera Fingerprint used phone" [level=3] [ref=e377]
+                  - paragraph [ref=e378]: Phones & Telecommunications • AliExpress
+                  - generic [ref=e380]:
+                    - generic [ref=e381]: ‏٧٧٫١٢ ج.م.‏
+                    - generic [ref=e382]: ‏١٦٤٫٠٨ ج.م.‏
+                  - paragraph [ref=e383]: In Stock
+                - generic [ref=e384]:
+                  - generic [ref=e385]:
+                    - link "Shop Now" [ref=e386] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812577758496&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812577758496.html%3Fpdp_npi%3D6%2540dis%2521USD%2521164.08%252177.12%2521%2521%25211093.14%2521513.78%2521%25402102f1cd17897833088447395e0cec%252112000059275265619%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e391] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812577758496#compare-prices
+                  - paragraph [ref=e394]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e396] [cursor=pointer]
+              - article [ref=e400]:
+                - generic [ref=e401]:
+                  - img "Global Version Xiaomi Mi A2 Lite 4GB 64GB Mobile Phone Snapdragon 625 Octa Core" [ref=e403]
+                  - generic: Admitad
+                - generic [ref=e405]:
+                  - heading "Global Version Xiaomi Mi A2 Lite 4GB 64GB Mobile Phone Snapdragon 625 Octa Core" [level=3] [ref=e406]
+                  - paragraph [ref=e407]: General • Admitad
+                  - generic [ref=e409]: ‏١١٩٫٠٠ ج.م.‏
+                  - paragraph [ref=e411]: In Stock
+                - generic [ref=e412]:
+                  - generic [ref=e413]:
+                    - link "Shop Now" [ref=e414] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62398660812&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62398660812%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e419] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62398660812#compare-prices
+                  - paragraph [ref=e422]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e424] [cursor=pointer]
+              - article [ref=e428]:
+                - generic [ref=e429]:
+                  - img "huawei honor 9i phones mobile android smartphone 5.8 inch Display 4G+64G or 128G Android 8.0 Fast Face Unlock" [ref=e431]
+                  - generic: Admitad
+                - generic [ref=e433]:
+                  - heading "huawei honor 9i phones mobile android smartphone 5.8 inch Display 4G+64G or 128G Android 8.0 Fast Face Unlock" [level=3] [ref=e434]
+                  - paragraph [ref=e435]: General • Admitad
+                  - generic [ref=e437]: ‏٢٠٥٫٠٠ ج.م.‏
+                  - paragraph [ref=e439]: In Stock
+                - generic [ref=e440]:
+                  - generic [ref=e441]:
+                    - link "Shop Now" [ref=e442] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62279157836&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62279157836%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e447] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62279157836#compare-prices
+                  - paragraph [ref=e450]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e452] [cursor=pointer]
+              - article [ref=e456]:
+                - generic [ref=e457]:
+                  - img "Honor Harvest Home Decoration Resin Crafts" [ref=e459]
+                  - generic: CJdropshipping
+                - generic [ref=e461]:
+                  - heading "Honor Harvest Home Decoration Resin Crafts" [level=3] [ref=e462]
+                  - paragraph [ref=e463]: Home Office Storage • CJdropshipping
+                  - generic [ref=e465]: ‏٦٫٢٣ ج.م.‏
+                  - paragraph [ref=e467]: In Stock
+                - generic [ref=e468]:
+                  - generic [ref=e469]:
+                    - link "Shop Now" [ref=e470] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1465949129271283712&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fhonor-harvest-home-decoration-resin-crafts-p-1465949129271283712.html&source=search
+                    - link "Compare Prices" [ref=e475] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1465949129271283712#compare-prices
+                  - paragraph [ref=e478]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e480] [cursor=pointer]
+              - article [ref=e484]:
+                - generic [ref=e485]:
+                  - img "Medal Of Honor PC EA App CD Key" [ref=e487]
+                  - generic: Admitad
+                - generic [ref=e489]:
+                  - heading "Medal Of Honor PC EA App CD Key" [level=3] [ref=e490]
+                  - paragraph [ref=e491]: General • Admitad
+                  - generic [ref=e493]: ‏٥٫٥٠ ج.م.‏
+                  - paragraph [ref=e495]: In Stock
+                - generic [ref=e496]:
+                  - generic [ref=e497]:
+                    - link "Shop Now" [ref=e498] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-24298-1001&store=admitad&to=https%3A%2F%2Fficca2021.com%2Fg%2Fai7w5urbci32ef59cc7973f469699a%2F%3Ff_id%3D26758%26ulp%3Dhttps%253A%252F%252Fwww.kinguin.net%252Fcategory%252F1001%252Fmedal-of-honor-pc-ea-app-cd-key%253Fnosalesbooster%253D1%2526currency%253DEUR%2526gs%253Dtrue%2526countryCode%253DDE&source=search
+                    - link "Compare Prices" [ref=e503] [cursor=pointer]:
+                      - /url: /product/admitad-24298-1001#compare-prices
+                  - paragraph [ref=e506]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e508] [cursor=pointer]
+              - article [ref=e512]:
+                - generic [ref=e513]:
+                  - img "Bride Tribe Tshirt Maid Of Honor Bachelorette Party Tee" [ref=e515]
+                  - generic: CJdropshipping
+                - generic [ref=e517]:
+                  - heading "Bride Tribe Tshirt Maid Of Honor Bachelorette Party Tee" [level=3] [ref=e518]
+                  - paragraph [ref=e519]: Women's Short-Sleeved Shirts • CJdropshipping
+                  - generic [ref=e521]: ‏٤٫١٧ ج.م.‏
+                  - paragraph [ref=e523]: In Stock
+                - generic [ref=e524]:
+                  - generic [ref=e525]:
+                    - link "Shop Now" [ref=e526] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1372754466964639744&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fbride-tribe-tshirt-maid-of-honor-bachelorette-party-tee-p-1372754466964639744.html&source=search
+                    - link "Compare Prices" [ref=e531] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1372754466964639744#compare-prices
+                  - paragraph [ref=e534]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e536] [cursor=pointer]
+              - article [ref=e540]:
+                - generic [ref=e541]:
+                  - img "used phone for Huawei honor 7C original refurbished" [ref=e543]
+                  - generic: Admitad
+                - generic [ref=e545]:
+                  - heading "used phone for Huawei honor 7C original refurbished" [level=3] [ref=e546]
+                  - paragraph [ref=e547]: General • Admitad
+                  - generic [ref=e549]: ‏١١٦٫٦٠ ج.م.‏
+                  - paragraph [ref=e551]: In Stock
+                - generic [ref=e552]:
+                  - generic [ref=e553]:
+                    - link "Shop Now" [ref=e554] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62078904599&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62078904599%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e559] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62078904599#compare-prices
+                  - paragraph [ref=e562]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e564] [cursor=pointer]
+              - article [ref=e568]:
+                - generic [ref=e569]:
+                  - img "New Greek Religious Goddess Hope Honor Harvest Home Decorations" [ref=e571]
+                  - generic: CJdropshipping
+                - generic [ref=e573]:
+                  - heading "New Greek Religious Goddess Hope Honor Harvest Home Decorations" [level=3] [ref=e574]
+                  - paragraph [ref=e575]: Decorative Flowers & Wreaths • CJdropshipping
+                  - generic [ref=e577]: ‏٤٫٢٣ ج.م.‏
+                  - paragraph [ref=e579]: In Stock
+                - generic [ref=e580]:
+                  - generic [ref=e581]:
+                    - link "Shop Now" [ref=e582] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1486512905775091712&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fnew-greek-religious-goddess-hope-honor-harvest-home-decorati-p-1486512905775091712.html&source=search
+                    - link "Compare Prices" [ref=e587] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1486512905775091712#compare-prices
+                  - paragraph [ref=e590]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e592] [cursor=pointer]
+              - article [ref=e596]:
+                - generic [ref=e597]:
+                  - img "0.3mm 9H for Huawei Screen Protector Full Glue Full size Tempered Glass Cover for Honor 9 lite/10 lite/20 lite" [ref=e599]
+                  - generic: Admitad
+                - generic [ref=e601]:
+                  - heading "0.3mm 9H for Huawei Screen Protector Full Glue Full size Tempered Glass Cover for Honor 9 lite/10 lite/20 lite" [level=3] [ref=e602]
+                  - paragraph [ref=e603]: General • Admitad
+                  - generic [ref=e605]: ‏٠٫٢٧ ج.م.‏
+                  - paragraph [ref=e607]: In Stock
+                - generic [ref=e608]:
+                  - generic [ref=e609]:
+                    - link "Shop Now" [ref=e610] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60734588125&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60734588125%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e615] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60734588125#compare-prices
+                  - paragraph [ref=e618]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e620] [cursor=pointer]
+              - article [ref=e624]:
+                - generic [ref=e625]:
+                  - img "The Goddess Hopes To Harvest Home Furnishings With Honor" [ref=e627]
+                  - generic: CJdropshipping
+                - generic [ref=e629]:
+                  - heading "The Goddess Hopes To Harvest Home Furnishings With Honor" [level=3] [ref=e630]
+                  - paragraph [ref=e631]: Home Office Storage • CJdropshipping
+                  - generic [ref=e633]: ‏٤٫٨٢ ج.م.‏
+                  - paragraph [ref=e635]: In Stock
+                - generic [ref=e636]:
+                  - generic [ref=e637]:
+                    - link "Shop Now" [ref=e638] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1452514122582331392&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fthe-goddess-hopes-to-harvest-home-furnishings-with-honor-p-1452514122582331392.html&source=search
+                    - link "Compare Prices" [ref=e643] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1452514122582331392#compare-prices
+                  - paragraph [ref=e646]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e648] [cursor=pointer]
+              - article [ref=e652]:
+                - generic [ref=e653]:
+                  - img "Kpop Novelty Magnetic Adsorption Tempered Glass Android Phone Case for Samsung Galaxy S20 Note 10 Pro W20 5G S10 Lite A71 A01 J8" [ref=e655]
+                  - generic: Admitad
+                - generic [ref=e657]:
+                  - heading "Kpop Novelty Magnetic Adsorption Tempered Glass Android Phone Case for Samsung Galaxy S20 Note 10 Pro W20 5G S10 Lite A71 A01 J8" [level=3] [ref=e658]
+                  - paragraph [ref=e659]: General • Admitad
+                  - generic [ref=e661]: ‏١٫٤٨ ج.م.‏
+                  - paragraph [ref=e663]: In Stock
+                - generic [ref=e664]:
+                  - generic [ref=e665]:
+                    - link "Shop Now" [ref=e666] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62176406970&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62176406970%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e671] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62176406970#compare-prices
+                  - paragraph [ref=e674]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e676] [cursor=pointer]
+              - article [ref=e680]:
+                - generic [ref=e681]:
+                  - img "Graduation Lei Graduation Ribbon Leis Graduation Kukui Nut Leis Purple And Gold Braided Lei Honor Cord Class Of College Gift Congrats Grad Party Supplies Clearance" [ref=e683]
+                  - generic: CJdropshipping
+                - generic [ref=e685]:
+                  - heading "Graduation Lei Graduation Ribbon Leis Graduation Kukui Nut Leis Purple And Gold Braided Lei Honor Cord Class Of College Gift Congrats Grad Party Supplies Clearance" [level=3] [ref=e686]
+                  - paragraph [ref=e687]: Scarves & Wraps • CJdropshipping
+                  - generic [ref=e689]: ‏١٢٫٥٨ ج.م.‏
+                  - paragraph [ref=e691]: In Stock
+                - generic [ref=e692]:
+                  - generic [ref=e693]:
+                    - link "Shop Now" [ref=e694] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1983744201266487298&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fgraduation-lei-graduation-ribbon-leis-graduation-kukui-nut-l-p-1983744201266487298.html&source=search
+                    - link "Compare Prices" [ref=e699] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1983744201266487298#compare-prices
+                  - paragraph [ref=e702]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e704] [cursor=pointer]
+              - article [ref=e708]:
+                - generic [ref=e709]:
+                  - img "9D Full Glue Screen Tempered Glass Protector Film For Xiaomi Redmi Note 8 Pro Mi 8 Lite K20 Pro Redmi 7A CC9SE" [ref=e711]
+                  - generic: Admitad
+                - generic [ref=e713]:
+                  - heading "9D Full Glue Screen Tempered Glass Protector Film For Xiaomi Redmi Note 8 Pro Mi 8 Lite K20 Pro Redmi 7A CC9SE" [level=3] [ref=e714]
+                  - paragraph [ref=e715]: General • Admitad
+                  - generic [ref=e717]: ‏٠٫١٨ ج.م.‏
+                  - paragraph [ref=e719]: In Stock
+                - generic [ref=e720]:
+                  - generic [ref=e721]:
+                    - link "Shop Now" [ref=e722] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62092526877&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62092526877%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e727] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62092526877#compare-prices
+                  - paragraph [ref=e730]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e732] [cursor=pointer]
+              - article [ref=e736]:
+                - generic [ref=e737]:
+                  - img "Evening Dress Host Banquet Maid Of Honor Long Sleeves" [ref=e739]
+                  - generic: CJdropshipping
+                - generic [ref=e741]:
+                  - heading "Evening Dress Host Banquet Maid Of Honor Long Sleeves" [level=3] [ref=e742]
+                  - paragraph [ref=e743]: Evening Dresses • CJdropshipping
+                  - generic [ref=e745]: ‏١٩٫٣٥ ج.م.‏
+                  - paragraph [ref=e747]: In Stock
+                - generic [ref=e748]:
+                  - generic [ref=e749]:
+                    - link "Shop Now" [ref=e750] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1640942227486683136&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fevening-dress-host-banquet-maid-of-honor-long-sleeves-p-1640942227486683136.html&source=search
+                    - link "Compare Prices" [ref=e755] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1640942227486683136#compare-prices
+                  - paragraph [ref=e758]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e760] [cursor=pointer]
+              - article [ref=e764]:
+                - generic [ref=e765]:
+                  - img "New products ultra thin mobile phone Shock proof clear smartphone Transparent tpu cover Case For Samsung note 10 phone cases" [ref=e767]
+                  - generic: Alibaba WW
+                - generic [ref=e769]:
+                  - heading "New products ultra thin mobile phone Shock proof clear smartphone Transparent tpu cover Case For Samsung note 10 phone cases" [level=3] [ref=e770]
+                  - paragraph [ref=e771]: phones • Alibaba WW
+                  - generic [ref=e773]: ‏٠٫٥٥ ج.م.‏
+                  - paragraph [ref=e775]: In Stock
+                - generic [ref=e776]:
+                  - generic [ref=e777]:
+                    - link "Shop Now" [ref=e778] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-044d47ff-c12e-4770-aa14-c70be84a6d6f&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62156450824%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e783] [cursor=pointer]:
+                      - /url: /product/db-044d47ff-c12e-4770-aa14-c70be84a6d6f#compare-prices
+                  - paragraph [ref=e786]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e788] [cursor=pointer]
+              - article [ref=e792]:
+                - generic [ref=e793]:
+                  - img "3Pcs Hydrogel Film Screen Protector For Huawei P30 Pro P20 P10 P50 P Smart Z Mate 20 Honor 10 Lite 9 9X 8X Protective Film" [ref=e795]
+                  - generic: CJdropshipping
+                - generic [ref=e797]:
+                  - heading "3Pcs Hydrogel Film Screen Protector For Huawei P30 Pro P20 P10 P50 P Smart Z Mate 20 Honor 10 Lite 9 9X 8X Protective Film" [level=3] [ref=e798]
+                  - paragraph [ref=e799]: Housings • CJdropshipping
+                  - generic [ref=e801]: ‏٠٫٤١ ج.م.‏
+                  - paragraph [ref=e803]: In Stock
+                - generic [ref=e804]:
+                  - generic [ref=e805]:
+                    - link "Shop Now" [ref=e806] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1384748371008425984&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2F3pcs-hydrogel-film-screen-protector-for-huawei-p30-pro-p20-p-p-1384748371008425984.html&source=search
+                    - link "Compare Prices" [ref=e811] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1384748371008425984#compare-prices
+                  - paragraph [ref=e814]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e816] [cursor=pointer]
+              - article [ref=e820]:
+                - generic [ref=e821]:
+                  - img "High clear printed cute cat shockproof phone case for iPhone 11 7 8 XS soft TPU silicon cover for HUAWEI p9 lite case" [ref=e823]
+                  - generic: Admitad
+                - generic [ref=e825]:
+                  - heading "High clear printed cute cat shockproof phone case for iPhone 11 7 8 XS soft TPU silicon cover for HUAWEI p9 lite case" [level=3] [ref=e826]
+                  - paragraph [ref=e827]: General • Admitad
+                  - generic [ref=e829]: ‏٠٫٩٠ ج.م.‏
+                  - paragraph [ref=e831]: In Stock
+                - generic [ref=e832]:
+                  - generic [ref=e833]:
+                    - link "Shop Now" [ref=e834] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62285419658&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62285419658%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e839] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62285419658#compare-prices
+                  - paragraph [ref=e842]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e844] [cursor=pointer]
+              - article [ref=e848]:
+                - generic [ref=e849]:
+                  - img "2 In 1 Charging Audio Cover Case for Huawei P30 P20 Pro Mate 10 20 Lite Honor 20 10 9 8x P Smart Y9 Coque Cover Accessories" [ref=e851]
+                  - generic: CJdropshipping
+                - generic [ref=e853]:
+                  - heading "2 In 1 Charging Audio Cover Case for Huawei P30 P20 Pro Mate 10 20 Lite Honor 20 10 9 8x P Smart Y9 Coque Cover Accessories" [level=3] [ref=e854]
+                  - paragraph [ref=e855]: Chargers • CJdropshipping
+                  - generic [ref=e857]: ‏٣٫٤٧ ج.م.‏
+                  - paragraph [ref=e859]: In Stock
+                - generic [ref=e860]:
+                  - generic [ref=e861]:
+                    - link "Shop Now" [ref=e862] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1390607940888694784&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2F2-in-1-charging-audio-cover-case-for-huawei-p30-p20-pro-mate-p-1390607940888694784.html&source=search
+                    - link "Compare Prices" [ref=e867] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1390607940888694784#compare-prices
+                  - paragraph [ref=e870]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e872] [cursor=pointer]
+              - article [ref=e876]:
+                - generic [ref=e877]:
+                  - img "Kaliou Tripod Mount Mobile Phone Clip Holder Tablet Holder ipads Clip for iPads mini Pro 10.5 air 2 XiaomiHuawei SamsungS" [ref=e879]
+                  - generic: Alibaba WW
+                - generic [ref=e881]:
+                  - heading "Kaliou Tripod Mount Mobile Phone Clip Holder Tablet Holder ipads Clip for iPads mini Pro 10.5 air 2 XiaomiHuawei SamsungS" [level=3] [ref=e882]
+                  - paragraph [ref=e883]: phones • Alibaba WW
+                  - generic [ref=e885]: ‏٠٫٩٩ ج.م.‏
+                  - paragraph [ref=e887]: In Stock
+                - generic [ref=e888]:
+                  - generic [ref=e889]:
+                    - link "Shop Now" [ref=e890] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-8b58c32b-5146-40bb-b2c1-e1a24009db71&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60836294333%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e895] [cursor=pointer]:
+                      - /url: /product/db-8b58c32b-5146-40bb-b2c1-e1a24009db71#compare-prices
+                  - paragraph [ref=e898]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e900] [cursor=pointer]
+              - article [ref=e904]:
+                - generic [ref=e905]:
+                  - img "Tablet Case For Huawei MediaPad T5 M5 10.1 M6 inch Silica gel Case for MatePad Honor V6" [ref=e907]
+                  - generic: CJdropshipping
+                - generic [ref=e909]:
+                  - heading "Tablet Case For Huawei MediaPad T5 M5 10.1 M6 inch Silica gel Case for MatePad Honor V6" [level=3] [ref=e910]
+                  - paragraph [ref=e911]: Home Office Storage • CJdropshipping
+                  - generic [ref=e913]: ‏٣٫٧٢ ج.م.‏
+                  - paragraph [ref=e915]: In Stock
+                - generic [ref=e916]:
+                  - generic [ref=e917]:
+                    - link "Shop Now" [ref=e918] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1385100902205100032&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Ftablet-case-for-huawei-mediapad-t5-m5-10-1-m6-inch-silica-ge-p-1385100902205100032.html&source=search
+                    - link "Compare Prices" [ref=e923] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1385100902205100032#compare-prices
+                  - paragraph [ref=e926]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e928] [cursor=pointer]
+              - article [ref=e932]:
+                - generic [ref=e933]:
+                  - img "For Samsung Galaxy Tab S6 Lite 2024 TPU Tablet Case(Frosted Black)" [ref=e935]
+                  - generic: Admitad
+                - generic [ref=e937]:
+                  - heading "For Samsung Galaxy Tab S6 Lite 2024 TPU Tablet Case(Frosted Black)" [level=3] [ref=e938]
+                  - paragraph [ref=e939]: General • Admitad
+                  - generic [ref=e941]: ‏١٫١٦ ج.م.‏
+                  - paragraph [ref=e943]: In Stock
+                - generic [ref=e944]:
+                  - generic [ref=e945]:
+                    - link "Shop Now" [ref=e946] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-18428-3177771&store=admitad&to=https%3A%2F%2Fdorinebeaumont.com%2Fg%2F7npkd4cs1i32ef59cc79869a299fda%2F%3Ff_id%3D15768%26ulp%3Dhttps%253A%252F%252Fwww.sunsky-online.com%252Fv%252F3177771&source=search
+                    - link "Compare Prices" [ref=e951] [cursor=pointer]:
+                      - /url: /product/admitad-18428-3177771#compare-prices
+                  - paragraph [ref=e954]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e956] [cursor=pointer]
+              - article [ref=e960]:
+                - generic [ref=e961]:
+                  - img "Huawei 46mm Version Watch GT GT2 Active Honor Magic Universal Official Strap" [ref=e963]
+                  - generic: CJdropshipping
+                - generic [ref=e965]:
+                  - heading "Huawei 46mm Version Watch GT GT2 Active Honor Magic Universal Official Strap" [level=3] [ref=e966]
+                  - paragraph [ref=e967]: Men Sports Watches • CJdropshipping
+                  - generic [ref=e969]: ‏١٫٢١ ج.م.‏
+                  - paragraph [ref=e971]: In Stock
+                - generic [ref=e972]:
+                  - generic [ref=e973]:
+                    - link "Shop Now" [ref=e974] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1356893055394910208&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fhuawei-46mm-version-watch-gt-gt2-active-honor-magic-universa-p-1356893055394910208.html&source=search
+                    - link "Compare Prices" [ref=e979] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1356893055394910208#compare-prices
+                  - paragraph [ref=e982]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e984] [cursor=pointer]
+              - article [ref=e988]:
+                - generic [ref=e989]:
+                  - img "Good Hand Feel Liquid Silicone Rubber Mobail Phone Case with Logo for Samsung Galaxy Note 10 Note10+ 5G M40 S10 S10+ A10s A90 A9" [ref=e991]
+                  - generic: Admitad
+                - generic [ref=e993]:
+                  - heading "Good Hand Feel Liquid Silicone Rubber Mobail Phone Case with Logo for Samsung Galaxy Note 10 Note10+ 5G M40 S10 S10+ A10s A90 A9" [level=3] [ref=e994]
+                  - paragraph [ref=e995]: General • Admitad
+                  - generic [ref=e997]: ‏١٫٣٥ ج.م.‏
+                  - paragraph [ref=e999]: In Stock
+                - generic [ref=e1000]:
+                  - generic [ref=e1001]:
+                    - link "Shop Now" [ref=e1002] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62264445893&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62264445893%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1007] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62264445893#compare-prices
+                  - paragraph [ref=e1010]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1012] [cursor=pointer]
+              - article [ref=e1016]:
+                - generic [ref=e1017]:
+                  - img "Suitable for Honor Band 6 Silicone Strap Huawei Honor" [ref=e1019]
+                  - generic: CJdropshipping
+                - generic [ref=e1021]:
+                  - heading "Suitable for Honor Band 6 Silicone Strap Huawei Honor" [level=3] [ref=e1022]
+                  - paragraph [ref=e1023]: Men Sports Watches • CJdropshipping
+                  - generic [ref=e1025]: ‏١٫٢٢ ج.م.‏
+                  - paragraph [ref=e1027]: In Stock
+                - generic [ref=e1028]:
+                  - generic [ref=e1029]:
+                    - link "Shop Now" [ref=e1030] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1383426022262837248&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fsuitable-for-honor-band-6-silicone-strap-huawei-honor-p-1383426022262837248.html&source=search
+                    - link "Compare Prices" [ref=e1035] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1383426022262837248#compare-prices
+                  - paragraph [ref=e1038]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1040] [cursor=pointer]
+              - article [ref=e1044]:
+                - generic [ref=e1045]:
+                  - img "For Xiaomi Mi Note 10 Pro Note10 CC9 Pro 9E Redmi 8 8A Note 8T 8 Pro Clear Case Matte Transparent Clear Phone Case" [ref=e1047]
+                  - generic: Alibaba WW
+                - generic [ref=e1049]:
+                  - heading "For Xiaomi Mi Note 10 Pro Note10 CC9 Pro 9E Redmi 8 8A Note 8T 8 Pro Clear Case Matte Transparent Clear Phone Case" [level=3] [ref=e1050]
+                  - paragraph [ref=e1051]: phones • Alibaba WW
+                  - generic [ref=e1053]: ‏١٫٣٥ ج.م.‏
+                  - paragraph [ref=e1055]: In Stock
+                - generic [ref=e1056]:
+                  - generic [ref=e1057]:
+                    - link "Shop Now" [ref=e1058] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-7208ca3d-7024-4468-86dc-532329560f1e&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62381896945%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1063] [cursor=pointer]:
+                      - /url: /product/db-7208ca3d-7024-4468-86dc-532329560f1e#compare-prices
+                  - paragraph [ref=e1066]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1068] [cursor=pointer]
+              - article [ref=e1072]:
+                - generic [ref=e1073]:
+                  - img "Suitable For Honor Watch ES Huawei Watch Fit Charger Huawei Children's Watch 4X Magnetic Charging Cable Holder" [ref=e1075]
+                  - generic: CJdropshipping
+                - generic [ref=e1077]:
+                  - heading "Suitable For Honor Watch ES Huawei Watch Fit Charger Huawei Children's Watch 4X Magnetic Charging Cable Holder" [level=3] [ref=e1078]
+                  - paragraph [ref=e1079]: Chargers • CJdropshipping
+                  - generic [ref=e1081]: ‏١٫٥٩ ج.م.‏
+                  - paragraph [ref=e1083]: In Stock
+                - generic [ref=e1084]:
+                  - generic [ref=e1085]:
+                    - link "Shop Now" [ref=e1086] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1412295415084224512&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fsuitable-for-honor-watch-es-huawei-watch-fit-charger-huawei--p-1412295415084224512.html&source=search
+                    - link "Compare Prices" [ref=e1091] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1412295415084224512#compare-prices
+                  - paragraph [ref=e1094]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1096] [cursor=pointer]
+              - article [ref=e1100]:
+                - generic [ref=e1101]:
+                  - img "Luxury Tempered Glass Phone Case Cover For Xiaomi Mi 8 Mi A2 Lite A1 Mi8 9 Redmi 6 Pro 5 Plus Note 6 7 Pro 7 5 Pocophone F1" [ref=e1103]
+                  - generic: Admitad
+                - generic [ref=e1105]:
+                  - heading "Luxury Tempered Glass Phone Case Cover For Xiaomi Mi 8 Mi A2 Lite A1 Mi8 9 Redmi 6 Pro 5 Plus Note 6 7 Pro 7 5 Pocophone F1" [level=3] [ref=e1106]
+                  - paragraph [ref=e1107]: General • Admitad
+                  - generic [ref=e1109]: ‏١٫٣٨ ج.م.‏
+                  - paragraph [ref=e1111]: In Stock
+                - generic [ref=e1112]:
+                  - generic [ref=e1113]:
+                    - link "Shop Now" [ref=e1114] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62130237855&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62130237855%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1119] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62130237855#compare-prices
+                  - paragraph [ref=e1122]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1124] [cursor=pointer]
+              - article [ref=e1128]:
+                - generic [ref=e1129]:
+                  - img "Applicable To Honor V9 Phone Case Drop-resistant All-covered Silicone Soft Edge DUK-AL20 Matte" [ref=e1131]
+                  - generic: CJdropshipping
+                - generic [ref=e1133]:
+                  - heading "Applicable To Honor V9 Phone Case Drop-resistant All-covered Silicone Soft Edge DUK-AL20 Matte" [level=3] [ref=e1134]
+                  - paragraph [ref=e1135]: Home Office Storage • CJdropshipping
+                  - generic [ref=e1137]: ‏٢٫٣١ ج.م.‏
+                  - paragraph [ref=e1139]: In Stock
+                - generic [ref=e1140]:
+                  - generic [ref=e1141]:
+                    - link "Shop Now" [ref=e1142] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-1513076811855572992&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fapplicable-to-honor-v9-phone-case-drop-resistant-all-covered-p-1513076811855572992.html&source=search
+                    - link "Compare Prices" [ref=e1147] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-1513076811855572992#compare-prices
+                  - paragraph [ref=e1150]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1152] [cursor=pointer]
+              - article [ref=e1156]:
+                - generic [ref=e1157]:
+                  - img "Mobile Cover Supplier Clear Magnetic Tempered Glass Phone Case Pouch for Huawei Mate 30 Pro 5G Enjoy 10s Plus P20 Lite 20 X P30" [ref=e1159]
+                  - generic: Admitad
+                - generic [ref=e1161]:
+                  - heading "Mobile Cover Supplier Clear Magnetic Tempered Glass Phone Case Pouch for Huawei Mate 30 Pro 5G Enjoy 10s Plus P20 Lite 20 X P30" [level=3] [ref=e1162]
+                  - paragraph [ref=e1163]: General • Admitad
+                  - generic [ref=e1165]: ‏١٫٤٨ ج.م.‏
+                  - paragraph [ref=e1167]: In Stock
+                - generic [ref=e1168]:
+                  - generic [ref=e1169]:
+                    - link "Shop Now" [ref=e1170] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62444851756&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62444851756%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1175] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62444851756#compare-prices
+                  - paragraph [ref=e1178]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1180] [cursor=pointer]
+              - article [ref=e1184]:
+                - generic [ref=e1185]:
+                  - img "Watch Silicone Strap With Built In PC Case Fashionable Adjustable Wristband For Honor 4 Wine Red" [ref=e1187]
+                  - generic: CJdropshipping
+                - generic [ref=e1189]:
+                  - heading "Watch Silicone Strap With Built In PC Case Fashionable Adjustable Wristband For Honor 4 Wine Red" [level=3] [ref=e1190]
+                  - paragraph [ref=e1191]: Watch Accessories • CJdropshipping
+                  - generic [ref=e1193]: ‏١١٫٢٩ ج.م.‏
+                  - paragraph [ref=e1195]: In Stock
+                - generic [ref=e1196]:
+                  - generic [ref=e1197]:
+                    - link "Shop Now" [ref=e1198] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2059155584049590273&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fwatch-silicone-strap-with-built-in-pc-case-fashionable-adjus-p-2059155584049590273.html&source=search
+                    - link "Compare Prices" [ref=e1203] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2059155584049590273#compare-prices
+                  - paragraph [ref=e1206]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1208] [cursor=pointer]
+              - article [ref=e1212]:
+                - generic [ref=e1213]:
+                  - img "Wholesale Anti-shock 9H 3D 5D Curved Tempered Glass for Samsung Note 10 plus Screen Protector mobile phone Tempered Glass" [ref=e1215]
+                  - generic: Alibaba WW
+                - generic [ref=e1217]:
+                  - heading "Wholesale Anti-shock 9H 3D 5D Curved Tempered Glass for Samsung Note 10 plus Screen Protector mobile phone Tempered Glass" [level=3] [ref=e1218]
+                  - paragraph [ref=e1219]: phones • Alibaba WW
+                  - generic [ref=e1221]: ‏١٫٥٠ ج.م.‏
+                  - paragraph [ref=e1223]: In Stock
+                - generic [ref=e1224]:
+                  - generic [ref=e1225]:
+                    - link "Shop Now" [ref=e1226] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-a296ac9f-1231-4a57-923e-30fbc4fffb23&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62184758735%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1231] [cursor=pointer]:
+                      - /url: /product/db-a296ac9f-1231-4a57-923e-30fbc4fffb23#compare-prices
+                  - paragraph [ref=e1234]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1236] [cursor=pointer]
+              - article [ref=e1240]:
+                - generic [ref=e1241]:
+                  - img "Watch Silicone Strap With Built In PC Case Fashionable Adjustable Wristband For Honor 4 Gray" [ref=e1243]
+                  - generic: CJdropshipping
+                - generic [ref=e1245]:
+                  - heading "Watch Silicone Strap With Built In PC Case Fashionable Adjustable Wristband For Honor 4 Gray" [level=3] [ref=e1246]
+                  - paragraph [ref=e1247]: Watch Accessories • CJdropshipping
+                  - generic [ref=e1249]: ‏١١٫٢٩ ج.م.‏
+                  - paragraph [ref=e1251]: In Stock
+                - generic [ref=e1252]:
+                  - generic [ref=e1253]:
+                    - link "Shop Now" [ref=e1254] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2059155468754145281&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fwatch-silicone-strap-with-built-in-pc-case-fashionable-adjus-p-2059155468754145281.html&source=search
+                    - link "Compare Prices" [ref=e1259] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2059155468754145281#compare-prices
+                  - paragraph [ref=e1262]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1264] [cursor=pointer]
+              - article [ref=e1268]:
+                - generic [ref=e1269]:
+                  - img "For OnePlus Nord CE 3 Lite Stitching Embossed Leather Phone Case(Red)" [ref=e1271]
+                  - generic: Admitad
+                - generic [ref=e1273]:
+                  - heading "For OnePlus Nord CE 3 Lite Stitching Embossed Leather Phone Case(Red)" [level=3] [ref=e1274]
+                  - paragraph [ref=e1275]: General • Admitad
+                  - generic [ref=e1277]: ‏١٫٥٧ ج.م.‏
+                  - paragraph [ref=e1279]: In Stock
+                - generic [ref=e1280]:
+                  - generic [ref=e1281]:
+                    - link "Shop Now" [ref=e1282] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-18428-2827000&store=admitad&to=https%3A%2F%2Fdorinebeaumont.com%2Fg%2F7npkd4cs1i32ef59cc79869a299fda%2F%3Ff_id%3D15768%26ulp%3Dhttps%253A%252F%252Fwww.sunsky-online.com%252Fv%252F2827000&source=search
+                    - link "Compare Prices" [ref=e1287] [cursor=pointer]:
+                      - /url: /product/admitad-18428-2827000#compare-prices
+                  - paragraph [ref=e1290]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1292] [cursor=pointer]
+              - article [ref=e1296]:
+                - generic [ref=e1297]:
+                  - img "13.78FT Christmas Snow Globe String Light Battery Powered 10 LED Bulbs Indoor Christmas Lights with Pine Needles Snowflakes Berries" [ref=e1299]
+                  - generic: CJdropshipping
+                - generic [ref=e1301]:
+                  - heading "13.78FT Christmas Snow Globe String Light Battery Powered 10 LED Bulbs Indoor Christmas Lights with Pine Needles Snowflakes Berries" [level=3] [ref=e1302]
+                  - paragraph [ref=e1303]: Decorative Flowers & Wreaths • CJdropshipping
+                  - generic [ref=e1305]: ‏١٨٫٥٥ ج.م.‏
+                  - paragraph [ref=e1307]: In Stock
+                - generic [ref=e1308]:
+                  - generic [ref=e1309]:
+                    - link "Shop Now" [ref=e1310] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100557712342298625&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2F13-78ft-christmas-snow-globe-string-light-battery-powered-10-p-2100557712342298625.html&source=search
+                    - link "Compare Prices" [ref=e1315] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100557712342298625#compare-prices
+                  - paragraph [ref=e1318]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1320] [cursor=pointer]
+              - article [ref=e1324]:
+                - generic [ref=e1325]:
+                  - img "Ultimate Flip Lens Electroplate PC Phone Case Back Cover for Xiaomi Mi A3 CC9 CC9e 9T Redmi 8 K20 Pro 7A Note 7 Y3 7S 9 SE Lite" [ref=e1327]
+                  - generic: Admitad
+                - generic [ref=e1329]:
+                  - heading "Ultimate Flip Lens Electroplate PC Phone Case Back Cover for Xiaomi Mi A3 CC9 CC9e 9T Redmi 8 K20 Pro 7A Note 7 Y3 7S 9 SE Lite" [level=3] [ref=e1330]
+                  - paragraph [ref=e1331]: General • Admitad
+                  - generic [ref=e1333]: ‏١٫٦٠ ج.م.‏
+                  - paragraph [ref=e1335]: In Stock
+                - generic [ref=e1336]:
+                  - generic [ref=e1337]:
+                    - link "Shop Now" [ref=e1338] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62320068672&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62320068672%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1343] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62320068672#compare-prices
+                  - paragraph [ref=e1346]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1348] [cursor=pointer]
+              - article [ref=e1352]:
+                - generic [ref=e1353]:
+                  - img "10 Ports USB Charging Station Hub 50W USB Wall Charger Fast Charging Power Adapter for Phone Tablet" [ref=e1355]
+                  - generic: CJdropshipping
+                - generic [ref=e1357]:
+                  - heading "10 Ports USB Charging Station Hub 50W USB Wall Charger Fast Charging Power Adapter for Phone Tablet" [level=3] [ref=e1358]
+                  - paragraph [ref=e1359]: Power Tools • CJdropshipping
+                  - generic [ref=e1361]: ‏٢٨٫٢٢ ج.م.‏
+                  - paragraph [ref=e1363]: In Stock
+                - generic [ref=e1364]:
+                  - generic [ref=e1365]:
+                    - link "Shop Now" [ref=e1366] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100534999435358210&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2F10-ports-usb-charging-station-hub-50w-usb-wall-charger-fast--p-2100534999435358210.html&source=search
+                    - link "Compare Prices" [ref=e1371] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100534999435358210#compare-prices
+                  - paragraph [ref=e1374]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1376] [cursor=pointer]
+              - article [ref=e1380]:
+                - generic [ref=e1381]:
+                  - img "GKK phone case for Samsung Note 10,original Gkk mobilephone accessories" [ref=e1383]
+                  - generic: Alibaba WW
+                - generic [ref=e1385]:
+                  - heading "GKK phone case for Samsung Note 10,original Gkk mobilephone accessories" [level=3] [ref=e1386]
+                  - paragraph [ref=e1387]: phones • Alibaba WW
+                  - generic [ref=e1389]: ‏١٫٦٥ ج.م.‏
+                  - paragraph [ref=e1391]: In Stock
+                - generic [ref=e1392]:
+                  - generic [ref=e1393]:
+                    - link "Shop Now" [ref=e1394] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-9d095acf-41a9-4ff2-8d85-c3da8c09b190&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62272857819%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1399] [cursor=pointer]:
+                      - /url: /product/db-9d095acf-41a9-4ff2-8d85-c3da8c09b190#compare-prices
+                  - paragraph [ref=e1402]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1404] [cursor=pointer]
+              - article [ref=e1408]:
+                - generic [ref=e1409]:
+                  - img "4x6in Car LED Headlights Vehicle Rectangular Headlamp with H4 Socket H4-to-3Pins Adapter with High Low Beam White Light IP68 Waterproof for 10-80V SUV Truck Sedan Car Motorcycle GPCT5330" [ref=e1411]
+                  - generic: CJdropshipping
+                - generic [ref=e1413]:
+                  - heading "4x6in Car LED Headlights Vehicle Rectangular Headlamp with H4 Socket H4-to-3Pins Adapter with High Low Beam White Light IP68 Waterproof for 10-80V SUV Truck Sedan Car Motorcycle GPCT5330" [level=3] [ref=e1414]
+                  - paragraph [ref=e1415]: Other Replacement Parts • CJdropshipping
+                  - generic [ref=e1417]: ‏٢٨٫٦٢ ج.م.‏
+                  - paragraph [ref=e1419]: In Stock
+                - generic [ref=e1420]:
+                  - generic [ref=e1421]:
+                    - link "Shop Now" [ref=e1422] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100551695931977729&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2F4x6in-car-led-headlights-vehicle-rectangular-headlamp-with-h-p-2100551695931977729.html&source=search
+                    - link "Compare Prices" [ref=e1427] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100551695931977729#compare-prices
+                  - paragraph [ref=e1430]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1432] [cursor=pointer]
+              - article [ref=e1436]:
+                - generic [ref=e1437]:
+                  - img "For Xiaomi Mi CC9 CC9E A3 9 Lite 5 6 5X A1 6X A2 8 SE 9 Mix 2 2s 3 Play Pocophone F1 9T Pro Flip Case Phone Leather Cover Cases" [ref=e1439]
+                  - generic: Admitad
+                - generic [ref=e1441]:
+                  - heading "For Xiaomi Mi CC9 CC9E A3 9 Lite 5 6 5X A1 6X A2 8 SE 9 Mix 2 2s 3 Play Pocophone F1 9T Pro Flip Case Phone Leather Cover Cases" [level=3] [ref=e1442]
+                  - paragraph [ref=e1443]: General • Admitad
+                  - generic [ref=e1445]: ‏١٫٧٠ ج.م.‏
+                  - paragraph [ref=e1447]: In Stock
+                - generic [ref=e1448]:
+                  - generic [ref=e1449]:
+                    - link "Shop Now" [ref=e1450] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62421734616&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62421734616%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1455] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62421734616#compare-prices
+                  - paragraph [ref=e1458]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1460] [cursor=pointer]
+              - article [ref=e1464]:
+                - generic [ref=e1465]:
+                  - img "Size7/8/9/10 Options -- 1Pc Smart Ring Health Tracker Fitness/Sleep/Stress/HRV Tracker with Charging Case Magnetic Charging Cable for Women & Men Compatible with iOS & Android 7-Day Battery Life" [ref=e1467]
+                  - generic: CJdropshipping
+                - generic [ref=e1469]:
+                  - heading "Size7/8/9/10 Options -- 1Pc Smart Ring Health Tracker Fitness/Sleep/Stress/HRV Tracker with Charging Case Magnetic Charging Cable for Women & Men Compatible with iOS & Android 7-Day Battery Life" [level=3] [ref=e1470]
+                  - paragraph [ref=e1471]: Wearable Devices • CJdropshipping
+                  - generic [ref=e1473]: ‏٣٨٫٣١ ج.م.‏
+                  - paragraph [ref=e1475]: In Stock
+                - generic [ref=e1476]:
+                  - generic [ref=e1477]:
+                    - link "Shop Now" [ref=e1478] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100542867190493185&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fsize7-8-9-10-options-1pc-smart-ring-health-tracker-fitness-s-p-2100542867190493185.html&source=search
+                    - link "Compare Prices" [ref=e1483] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100542867190493185#compare-prices
+                  - paragraph [ref=e1486]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1488] [cursor=pointer]
+              - article [ref=e1492]:
+                - generic [ref=e1493]:
+                  - img "Luxury Mirror View Flip Phone Case for Xiaomi mi 9 A2 8 Lite A1 6X 5X Flip Standing Case for Redmi 7 Note 7 6 Pro 5 Plus 6A 4 4X" [ref=e1495]
+                  - generic: Admitad
+                - generic [ref=e1497]:
+                  - heading "Luxury Mirror View Flip Phone Case for Xiaomi mi 9 A2 8 Lite A1 6X 5X Flip Standing Case for Redmi 7 Note 7 6 Pro 5 Plus 6A 4 4X" [level=3] [ref=e1498]
+                  - paragraph [ref=e1499]: General • Admitad
+                  - generic [ref=e1501]: ‏١٫٩٥ ج.م.‏
+                  - paragraph [ref=e1503]: In Stock
+                - generic [ref=e1504]:
+                  - generic [ref=e1505]:
+                    - link "Shop Now" [ref=e1506] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62409196964&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62409196964%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1511] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62409196964#compare-prices
+                  - paragraph [ref=e1514]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1516] [cursor=pointer]
+            - button "Load More" [ref=e1521] [cursor=pointer]
+    - contentinfo [ref=e1522]:
+      - generic [ref=e1523]:
+        - generic [ref=e1524]:
+          - text: ZORINO
+          - paragraph [ref=e1525]: AI-powered deal discovery
+        - navigation "Company" [ref=e1526]:
+          - heading "Company" [level=3] [ref=e1527]
+          - list [ref=e1528]:
+            - listitem [ref=e1529]:
+              - link "About Us" [ref=e1530] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e1531]:
+              - link "Contact" [ref=e1532] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e1533]:
+              - link "FAQ" [ref=e1534] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=e1535]:
+              - link "Blog" [ref=e1536] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=e1537]:
+          - heading "Legal" [level=3] [ref=e1538]
+          - list [ref=e1539]:
+            - listitem [ref=e1540]:
+              - link "Imprint" [ref=e1541] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=e1542]:
+              - link "Privacy" [ref=e1543] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e1544]:
+              - link "Terms" [ref=e1545] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e1546]:
+              - link "Cookies" [ref=e1547] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=e1548]:
+              - link "Affiliate" [ref=e1549] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=e1550]:
+              - link "DMCA" [ref=e1551] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=e1552]:
+              - link "Accessibility" [ref=e1553] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=e1554]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=e1555]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=e1556] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=e1557]

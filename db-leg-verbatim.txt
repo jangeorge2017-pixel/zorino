@@ -1,0 +1,278 @@
+VERBATIM DUMP of F:\zorino_backup\tests\unit\search\db-leg-pagination-contract.test.ts
+LINES=273
+---START---
+1x7c1x7c/**
+2x7c2x7c * DB-leg paging contract regression.
+3x7c3x7c *
+4x7c4x7c * The homepage Products counter regression (tests/unit/integration/
+5x7c5x7c * homepage-products-counter.test.ts) already proves the real exported
+6x7c6x7c * `getRealCatalogProductCount` reports the EXACT Supabase count (417) instead
+7x7c7x7c * of a 200-capped display pool. This file pins the same truthfulness for the
+8x7c8x7c * DB *legs* the Search page's "load more" pager drives:
+9x7c9x7c *
+10x7c10x7c *   1. `countSearchResultsFromDatabase` returns the exact catalog count (417),
+11x7c11x7c *      not the 200-window pool size.
+12x7c12x7c *   2. `getSearchResultsFromDatabasePaged` serves any page the pager asks for,
+13x7c13x7c *      including pages entirely past offset 200 (deep reachability), with a
+14x7c14x7c *      truthful `total` of 417.
+15x7c15x7c *   3. Page boundaries are contiguous and non-overlapping: a page split at the
+16x7c16x7c *      200 seam shares no product_id with the following page between window
+17x7c17x7c *      edges, and no row is skipped.
+18x7c18x7c *   4. No single provider monopolizes later pages: a deep page really past the
+19x7c19x7c *      200-window still mixes providers (round-robin source -> no monopoly).
+20x7c20x7c *
+21x7c21x7c * Same seam discipline as the passing homepage counter suite: drive the REAL
+22x7c22x7c * exported DB legs with the REAL test-only anon-client seam
+23x7c23x7c * `setSupabaseAnonClientForTests` - no module mocking. Vitest is configured
+24x7c24x7c * single-fork (+resetRealCatalogProductCountForTests after each).
+25x7c25x7c */
+26x7c26x7cimport { afterEach, describe, expect, it } from "vitest";
+27x7c27x7c
+28x7c28x7cimport {
+29x7c29x7c  countSearchResultsFromDatabase,
+30x7c30x7c  getSearchResultsFromDatabasePaged,
+31x7c31x7c  resetRealCatalogProductCountForTests,
+32x7c32x7c  setSupabaseAnonClientForTests,
+33x7c33x7c} from "@/lib/integration/database-catalog";
+34x7c34x7c
+35x7c35x7ctype DbRow = {
+36x7c36x7c  product_id: string;
+37x7c37x7c  product_name: string;
+38x7c38x7c  image_url: string;
+39x7c39x7c  discount_percent: number;
+40x7c40x7c  lowest_price: number;
+41x7c41x7c  original_price: number;
+42x7c42x7c  store_name: string;
+43x7c43x7c  provider: string;
+44x7c44x7c  country_code: string;
+45x7c45x7c  currency: string;
+46x7c46x7c};
+47x7c47x7c
+48x7c48x7cconst PROVIDERS = ["aliexpress", "ebay", "admitad", "cjdropshipping"];
+49x7c49x7c
+50x7c50x7c/** 417 deterministic catalog rows; discount desc, round-robin providers. */
+51x7c51x7cfunction makeDbRows(count = 417): DbRow[] {
+52x7c52x7c  return Array.from({ length: count }, (_, i) => ({
+53x7c53x7c    product_id: `db-${String(i).padStart(4, "0")}`,
+54x7c54x7c    product_name: `Wireless Earbuds Pro ${String(i).padStart(4, "0")}`,
+55x7c55x7c    image_url: `https://img.example/earbuds-${i}.jpg`,
+56x7c56x7c    discount_percent: Math.max(0, 84 - Math.floor(i / 3)),
+57x7c57x7c    lowest_price: Number((14.99 + i * 0.3).toFixed(2)),
+58x7c58x7c    original_price: Number((79.99 + i * 0.3).toFixed(2)),
+59x7c59x7c    store_name: `Store ${PROVIDERS[i % PROVIDERS.length]}`,
+60x7c60x7c    provider: PROVIDERS[i % PROVIDERS.length],
+61x7c61x7c    country_code: "US",
+62x7c62x7c    currency: "USD",
+63x7c63x7c  }));
+64x7c64x7c}
+65x7c65x7c
+66x7c66x7c/**
+67x7c67x7c * Realistic NON-UNIFORM catalog inventory (eBay-dominant, like the production
+68x7c68x7c * distribution). Providers hold their TRUE share of the matching universe —
+69x7c69x7c * there is NO equal 25% allocation and NO per-provider quota. The few rare
+70x7c70x7c * providers (Admitad=2, AliExpress=4) must stay fully reachable through
+71x7c71x7c * pagination regardless of eBay's dominance.
+72x7c72x7c *
+73x7c73x7c *   eBay 388 + CJdropshipping 23 + AliExpress 4 + Admitad 2 = 417 candidates.
+74x7c74x7c *
+75x7c75x7c * Seed picks the provider order deterministically (mulberry32 — identical
+76x7c76x7c * across platforms and Node versions), so the test never depends on runtime
+77x7c77x7c * randomness and still reproduces the exact same deep-page drift every run.
+78x7c78x7c */
+79x7c79x7cfunction mulberry32(seed: number): () => number {
+80x7c80x7c  let a = seed >>> 0;
+81x7c81x7c  return () => {
+82x7c82x7c    a |= 0;
+83x7c83x7c    a = (a + 0x6d2b79f5) | 0;
+84x7c84x7c    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+85x7c85x7c    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+86x7c86x7c    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+87x7c87x7c  };
+88x7c88x7c}
+89x7c89x7c
+90x7c90x7cfunction seededShuffle<T>(items: T[], seed: number): T[] {
+91x7c91x7c  const rnd = mulberry32(seed);
+92x7c92x7c  const out = [...items];
+93x7c93x7c  for (let i = out.length - 1; i > 0; i--) {
+94x7c94x7c    const j = Math.floor(rnd() * (i + 1));
+95x7c95x7c    [out[i], out[j]] = [out[j], out[i]];
+96x7c96x7c  }
+97x7c97x7c  return out;
+98x7c98x7c}
+99x7c99x7c
+100x7c100x7c/** 417 deterministic rows whose provider mix is intentionally NON-UNIFORM. */
+101x7c101x7cfunction makeNonUniformDbRows(count = 417): DbRow[] {
+102x7c102x7c  const weights: Array<[string, number]> = [
+103x7c103x7c    ["ebay", 388],
+104x7c104x7c    ["cjdropshipping", 23],
+105x7c105x7c    ["aliexpress", 4],
+106x7c106x7c    ["admitad", 2],
+107x7c107x7c  ];
+108x7c108x7c  const totalWeight = weights.reduce((s, [, w]) => s + w, 0);
+109x7c109x7c  if (totalWeight !== count) {
+110x7c110x7c    throw new Error(`non-uniform weights must sum to ${count}`);
+111x7c111x7c  }
+112x7c112x7c  const providerPool: string[] = [];
+113x7c113x7c  for (const [provider, w] of weights) {
+114x7c114x7c    for (let k = 0; k < w; k++) providerPool.push(provider);
+115x7c115x7c  }
+116x7c116x7c  const providers = seededShuffle(providerPool, 0x5eed_417);
+117x7c117x7c  const rows = makeDbRows(count);
+118x7c118x7c  return rows.map((row, i) => ({ ...row, provider: providers[i] }));
+119x7c119x7c}
+120x7c120x7c
+121x7c121x7c  return [...rows].sort(
+122x7c122x7c    (a, b) =>
+123x7c123x7c      b.discount_percent - a.discount_percent ||
+124x7c124x7c      a.product_name.localeCompare(b.product_name) ||
+125x7c125x7c      a.product_id.localeCompare(b.product_id),
+126x7c126x7c  );
+127x7c127x7c}
+128x7c128x7c
+129x7c129x7c/**
+130x7c130x7c * Fake supabase anon client:
+131x7c131x7c *  - count leg (head): `.from("lowest_prices_today").select(_,{head:true})
+132x7c132x7c *    .or().eq().eq().not().neq()` -> thenable `{ count, error }`.
+133x7c133x7c *  - paged leg: `.from("lowest_prices_today").select().or().eq().eq().not()
+134x7c134x7c *    .neq().order().order().order().range(from,to)` -> Promise
+135x7c135x7c *    `{ data, count, error }` with count = exact total (not window-capped).
+136x7c136x7c *  - products leg: `.from("products").select().in("id", ids)` -> Promise
+137x7c137x7c *    `{ data, error }`.
+138x7c138x7c */
+139x7c139x7cfunction buildFakeSupabase(rows: DbRow[]): () => unknown {
+140x7c140x7c  const ordered = serverOrdered(rows);
+141x7c141x7c  const total = rows.length;
+142x7c142x7c
+143x7c143x7c  const dbChain = {
+144x7c144x7c    select: () => dbChain,
+145x7c145x7c    or: () => dbChain,
+146x7c146x7c    eq: () => dbChain,
+147x7c147x7c    not: () => dbChain,
+148x7c148x7c    neq: () => dbChain,
+149x7c149x7c    order: () => dbChain,
+150x7c150x7c    range: (from: number, to: number) =>
+151x7c151x7c      Promise.resolve({
+152x7c152x7c        data: ordered.slice(from, to + 1),
+153x7c153x7c        count: total,
+154x7c154x7c        error: null,
+155x7c155x7c      }),
+156x7c156x7c    then: (resolve: (v: unknown) => unknown) =>
+157x7c157x7c      Promise.resolve({ count: total, error: null }).then(resolve),
+158x7c158x7c  };
+159x7c159x7c
+160x7c160x7c  return () => ({
+161x7c161x7c    from: (table: string): unknown =>
+162x7c162x7c      table === "products"
+163x7c163x7c        ? {
+164x7c164x7c            select: () => ({
+165x7c165x7c              in: (_col: string, ids: string[]) =>
+166x7c166x7c                Promise.resolve({
+167x7c167x7c                  data: ordered
+168x7c168x7c                    .filter((r) => ids.includes(r.product_id))
+169x7c169x7c                    .map((r) => ({ id: r.product_id, category_slug: "audio" })),
+170x7c170x7c                  error: null,
+171x7c171x7c                }),
+172x7c172x7c            }),
+173x7c173x7c          }
+174x7c174x7c        : dbChain,
+175x7c175x7c  });
+176x7c176x7c}
+177x7c177x7c
+178x7c178x7cafterEach(() => {
+179x7c179x7c  resetRealCatalogProductCountForTests();
+180x7c180x7c});
+181x7c181x7c
+182x7c182x7cdescribe("DB-leg Search paging contract", () => {
+183x7c183x7c  it("counts the exact catalog, not the 200-window pool", async () => {
+184x7c184x7c    setSupabaseAnonClientForTests(buildFakeSupabase(makeDbRows(417)) as never);
+185x7c185x7c
+186x7c186x7c    const count = await countSearchResultsFromDatabase("wireless earbuds");
+187x7c187x7c    expect(count).toBe(417);
+188x7c188x7c    expect(count).toBeGreaterThan(200);
+189x7c189x7c  });
+190x7c190x7c
+191x7c191x7c  it("reaches pages deep past the 200-window with a truthful total", async () => {
+192x7c192x7c    setSupabaseAnonClientForTests(buildFakeSupabase(makeDbRows(417)) as never);
+193x7c193x7c
+194x7c194x7c    const deep = await getSearchResultsFromDatabasePaged(
+195x7c195x7c      "wireless earbuds",
+196x7c196x7c      340,
+197x7c197x7c      30,
+198x7c198x7c    );
+199x7c199x7c
+200x7c200x7c    expect(deep.total).toBe(417);
+201x7c201x7c    expect(deep.total).toBeGreaterThan(200);
+202x7c202x7c    expect(deep.items).toHaveLength(30);
+203x7c203x7c    expect(deep.items[0]).toBeDefined();
+204x7c204x7c  });
+205x7c205x7c
+206x7c206x7c  it("keeps pages contiguous - no duplicate and no gap at the 200 seam", async () => {
+207x7c207x7c    setSupabaseAnonClientForTests(buildFakeSupabase(makeDbRows(417)) as never);
+208x7c208x7c
+209x7c209x7c    const before = await getSearchResultsFromDatabasePaged(
+210x7c210x7c      "wireless earbuds",
+211x7c211x7c      190,
+212x7c212x7c      40,
+213x7c213x7c    );
+214x7c214x7c    const after = await getSearchResultsFromDatabasePaged(
+215x7c215x7c      "wireless earbuds",
+216x7c216x7c      230,
+217x7c217x7c      40,
+218x7c218x7c    );
+219x7c219x7c
+220x7c220x7c    const beforeIds = before.items.map((m: any) => m.id);
+221x7c221x7c    const afterIds = after.items.map((m: any) => m.id);
+222x7c222x7c
+223x7c223x7c    const overlap = beforeIds.filter((id) => afterIds.includes(id));
+224x7c224x7c    expect(overlap).toHaveLength(0);
+225x7c225x7c    expect(new Set(beforeIds).size).toBe(40);
+226x7c226x7c    expect(new Set(afterIds).size).toBe(40);
+227x7c227x7c    expect(before.total).toBe(417);
+228x7c228x7c    expect(after.total).toBe(417);
+229x7c229x7c  });
+230x7c230x7c
+231x7c231x7c  it("never lets a single provider monopolize the deep pages", async () => {
+232x7c232x7c    setSupabaseAnonClientForTests(buildFakeSupabase(makeDbRows(417)) as never);
+233x7c233x7c
+234x7c234x7c    const early = await getSearchResultsFromDatabasePaged(
+235x7c235x7c      "wireless earbuds",
+236x7c236x7c      0,
+237x7c237x7c      60,
+238x7c238x7c    );
+239x7c239x7c    const deep = await getSearchResultsFromDatabasePaged(
+240x7c240x7c      "wireless earbuds",
+241x7c241x7c      320,
+242x7c242x7c      60,
+243x7c243x7c    );
+244x7c244x7c
+245x7c245x7c    // DB-leg provider identity = the resolved marketplace slug (`storeSlug`,
+246x7c246x7c    // emitted by `resolveMarketplaceId` in `rowToSearchResultItem`); `store` is
+247x7c247x7c    // the display merchant. No `provider`/`providerName` field exists.
+248x7c248x7c    const providersOf = (items: unknown[]) =>
+249x7c249x7c      new Set(
+250x7c250x7c        items.map((m: any) => m.storeSlug ?? m.store ?? m.provider).filter(Boolean),
+251x7c251x7c      );
+252x7c252x7c
+253x7c253x7c    const earlySet = providersOf(early.items);
+254x7c254x7c    const deepSet = providersOf(deep.items);
+255x7c255x7c
+256x7c256x7c    expect(deep.items.length).toBe(60);
+257x7c257x7c    expect(deepSet.size).toBeGreaterThan(1);
+258x7c258x7c    expect(earlySet.size).toBeGreaterThan(1);
+259x7c259x7c
+260x7c260x7c    // Round-robin source means no one provider controls > 60% of a deep page.
+261x7c261x7c    const deepByProvider = deep.items.reduce(
+262x7c262x7c      (acc: Record<string, number>, m: any) => {
+263x7c263x7c        const p = m.storeSlug ?? m.store ?? m.provider;
+264x7c264x7c        acc[p] = (acc[p] ?? 0) + 1;
+265x7c265x7c        return acc;
+266x7c266x7c      },
+267x7c267x7c      {},
+268x7c268x7c    );
+269x7c269x7c    for (const p of Object.keys(deepByProvider)) {
+270x7c270x7c      expect(deepByProvider[p]).toBeLessThanOrEqual(36);
+271x7c271x7c    }
+272x7c272x7c  });
+273x7c273x7c});
+---END---
+

@@ -355,6 +355,18 @@ export function assembleProductionSearchResults(
     if (accessories.length) accessoryQueues.set(providerId, accessories);
   }
 
+  console.log(
+    `[search-assembly] query="${query}" tier_split maxPerProvider=${maxPerProvider} primary=[${[
+      ...primaryQueues.entries(),
+    ]
+      .map(([id, l]) => `${id}:${l.length}`)
+      .join(",")}] secondary=[${[...secondaryDeviceQueues.entries()]
+      .map(([id, l]) => `${id}:${l.length}`)
+      .join(",")}] accessories=[${[...accessoryQueues.entries()]
+      .map(([id, l]) => `${id}:${l.length}`)
+      .join(",")}]`,
+  );
+
   if (
     primaryQueues.size === 0 &&
     secondaryDeviceQueues.size === 0 &&

@@ -1,0 +1,1197 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=e7]
+        - button "Menu" [ref=e8] [cursor=pointer]
+        - generic [ref=e10]:
+          - link "Search" [ref=e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=e16] [cursor=pointer]:
+            - generic [ref=e17]: Dark
+            - generic [ref=e21]: Light
+          - button "Language, country, and currency" [ref=e31] [cursor=pointer]:
+            - generic [ref=e35]: EN · EGP
+          - link "Wishlist" [ref=e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=e52]: Hello, User
+    - main [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e57]:
+          - heading "Search Results" [level=1] [ref=e58]
+          - paragraph [ref=e59]: Showing results for "samsung galaxy s24"
+        - generic [ref=e60]:
+          - complementary [ref=e61]:
+            - generic [ref=e62]:
+              - heading "Filters" [level=2] [ref=e63]
+              - button "Clear" [ref=e66] [cursor=pointer]
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - generic [ref=e69]: Search for products, brands or categories...
+                - textbox "Search for products, brands or categories..." [ref=e70]: samsung galaxy s24
+              - generic [ref=e71]:
+                - generic [ref=e72]: Categories
+                - combobox [ref=e73] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "Used"
+                  - option "Excellent - Refurbished"
+                  - option "Good - Refurbished"
+                  - option "Very Good - Refurbished"
+                  - option "Open box"
+                  - option "New"
+                  - option "Phones & Telecommunications"
+                  - option "General"
+                  - option "Furniture"
+                  - option "Men's Clothing"
+                  - option "Nail Gel"
+                  - option "Phones & Telecommunications Accessories"
+                  - option "Rings"
+                  - option "Sports Accessories"
+                  - option "Bracelets & Bangles"
+                  - option "5-inch Display"
+                  - option "Leather Cases"
+                  - option "Television"
+                  - option "Charger"
+                  - option "Chargers"
+                  - option "Flip Cases"
+                  - option "Other Maintenance Products"
+              - generic [ref=e74]:
+                - generic [ref=e75]: Stores
+                - combobox [ref=e76] [cursor=pointer]:
+                  - option "All Stores" [selected]
+                  - option "eBay"
+                  - option "AliExpress"
+                  - option "Admitad"
+                  - option "CJdropshipping"
+              - generic [ref=e77]:
+                - generic [ref=e78]: Price Range
+                - generic [ref=e79]:
+                  - spinbutton "Min Price" [ref=e81]
+                  - spinbutton "Max Price" [ref=e83]
+              - generic [ref=e84]:
+                - generic [ref=e85]: Rating
+                - combobox [ref=e86] [cursor=pointer]:
+                  - option "All Ratings" [selected]
+                  - option "4+ Stars"
+                  - option "3+ Stars"
+                  - option "2+ Stars"
+              - generic [ref=e87] [cursor=pointer]:
+                - checkbox "In Stock Only" [ref=e88]
+                - generic [ref=e89]: In Stock Only
+              - button "Filter" [ref=e90] [cursor=pointer]
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]: 50 of 200 results
+              - combobox [ref=e95] [cursor=pointer]:
+                - option "Relevance" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Rating"
+            - generic [ref=e96]:
+              - article [ref=e97]:
+                - generic [ref=e98]:
+                  - img "Samsung Galaxy S24+ 256GB Black - Unlocked AT&T T-Mobile Verizon GSM 7642757" [ref=e100]
+                  - generic:
+                    - generic [ref=e101]: eBay
+                    - generic [ref=e102]: "-68%"
+                - generic [ref=e103]:
+                  - heading "Samsung Galaxy S24+ 256GB Black - Unlocked AT&T T-Mobile Verizon GSM 7642757" [level=3] [ref=e104]
+                  - paragraph [ref=e105]: Used • eBay
+                  - generic [ref=e107]:
+                    - generic [ref=e108]: ‏٣١٨٫٠٠ ج.م.‏
+                    - generic [ref=e109]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e110]: In Stock
+                - generic [ref=e111]:
+                  - generic [ref=e112]:
+                    - link "Shop Now" [ref=e113] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C407227260211%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F407227260211%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem5ed0a2dd33%253Ag%253AAvQAAeSwE4dqrWpa%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e118] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C407227260211%7C0#compare-prices
+                  - paragraph [ref=e121]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e123] [cursor=pointer]
+              - article [ref=e127]:
+                - generic [ref=e128]:
+                  - img "Samsung Galaxy S24 SM-S921U 128GB Onyx Black Unlocked Excellent Condition" [ref=e130]
+                  - generic:
+                    - generic [ref=e131]: eBay
+                    - generic [ref=e132]: "-67%"
+                - generic [ref=e133]:
+                  - heading "Samsung Galaxy S24 SM-S921U 128GB Onyx Black Unlocked Excellent Condition" [level=3] [ref=e134]
+                  - paragraph [ref=e135]: Excellent - Refurbished • eBay
+                  - generic [ref=e137]:
+                    - generic [ref=e138]: ‏٣٣٠٫٠٤ ج.م.‏
+                    - generic [ref=e139]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e140]: In Stock
+                - generic [ref=e141]:
+                  - generic [ref=e142]:
+                    - link "Shop Now" [ref=e143] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127848062564%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127848062564%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dc4569e64%253Ag%253AOdUAAeSwjapp-ikI%26amdata%3Denc%253AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGb50yp2S5%252FNkbj1uJge43it4kvKmEi1m3evdiMrZs%252B6WyYZt%252F9ax2rqF%252FOGhyTLkYV3ueJMjfB8l8KDFjGR1CV07UTDEY4IUByDphoKcUyiHN53cveSshV6KmpU%252F3mun88C2nxCL7R6ykV6lXhzyQozs4a3IWquAIQevW770Amu%252FWEGffaejWRcg0oqw6osXPGxndiknxz55Zc1e0h%252FzL7qMlY8NEe4y2RHYmHWMppjue4HaZ0u681tvDziWh4ck8%252Br8a59ge%252F2tkXIQDefu67nEI3Ch1abXoXavtHjkFOWSg%253D%253D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e148] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127848062564%7C0#compare-prices
+                  - paragraph [ref=e151]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e153] [cursor=pointer]
+              - article [ref=e157]:
+                - generic [ref=e158]:
+                  - img "Samsung Galaxy S24 - 128GB (AT&T) - Cobalt Violet" [ref=e160]
+                  - generic:
+                    - generic [ref=e161]: eBay
+                    - generic [ref=e162]: "-64%"
+                - generic [ref=e163]:
+                  - heading "Samsung Galaxy S24 - 128GB (AT&T) - Cobalt Violet" [level=3] [ref=e164]
+                  - paragraph [ref=e165]: Good - Refurbished • eBay
+                  - generic [ref=e167]:
+                    - generic [ref=e168]: ‏٢٨٥٫٩٨ ج.م.‏
+                    - generic [ref=e169]: ‏٧٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e170]: In Stock
+                - generic [ref=e171]:
+                  - generic [ref=e172]:
+                    - link "Shop Now" [ref=e173] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C366573172708%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F366573172708%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem555976b7e4%253Ag%253AdjwAAeSws%257ERqobJ3%26amdata%3Denc%253AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGZ%252FN03euwkuwD3k5e7mOI1aDJ8Vo702tnyOz4JS8iMxwwCbaIsBlFaF8LooDWC%252BFTVbTPrBeMWXB5V7LshID8CgUXumJKkJl6H3poMcTb37Zk98TCddkrye18%252BEbqnLi%252BzTFYmVdd2H3l%252FYlZpPviMc5MiyHP7viNtcYGyxmufGhiGcU3QF%252FrQX%252BAY%252Ba0LDgtA1j2xpkwPPXYaMrCMVnkwqEclWbcw3ZucfMtwy9UxmJVspdLgIlGCIbkblZ2kA0FHu4HW16CQtDofB7ypIoOFLwXVYynjEx0ItbqyQB2QigQ%253D%253D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e178] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C366573172708%7C0#compare-prices
+                  - paragraph [ref=e181]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e183] [cursor=pointer]
+              - article [ref=e187]:
+                - generic [ref=e188]:
+                  - img "Samsung Galaxy S24+ 256GB S926U Unlocked - Good" [ref=e190]
+                  - generic:
+                    - generic [ref=e191]: eBay
+                    - generic [ref=e192]: "-64%"
+                - generic [ref=e193]:
+                  - heading "Samsung Galaxy S24+ 256GB S926U Unlocked - Good" [level=3] [ref=e194]
+                  - paragraph [ref=e195]: Good - Refurbished • eBay
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: ‏٣٥٧٫٣٩ ج.م.‏
+                    - generic [ref=e199]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e200]: In Stock
+                - generic [ref=e201]:
+                  - generic [ref=e202]:
+                    - link "Shop Now" [ref=e203] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256914441614%7C557478284019&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256914441614%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bd14b458e%253Ag%253ADMQAAeSwNPJqrFuC%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e208] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256914441614%7C557478284019#compare-prices
+                  - paragraph [ref=e211]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e213] [cursor=pointer]
+              - article [ref=e217]:
+                - generic [ref=e218]:
+                  - img "Samsung Galaxy S24+ 512GB S926U Unlocked - Good" [ref=e220]
+                  - generic:
+                    - generic [ref=e221]: eBay
+                    - generic [ref=e222]: "-64%"
+                - generic [ref=e223]:
+                  - heading "Samsung Galaxy S24+ 512GB S926U Unlocked - Good" [level=3] [ref=e224]
+                  - paragraph [ref=e225]: Good - Refurbished • eBay
+                  - generic [ref=e227]:
+                    - generic [ref=e228]: ‏٤٠٠٫٢٩ ج.م.‏
+                    - generic [ref=e229]: ‏١٬١١٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e230]: In Stock
+                - generic [ref=e231]:
+                  - generic [ref=e232]:
+                    - link "Shop Now" [ref=e233] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257169528820%7C557807697276&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257169528820%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3be07f97f4%253Ag%253A%257E9cAAeSwVXhqrVzN%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e238] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257169528820%7C557807697276#compare-prices
+                  - paragraph [ref=e241]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e243] [cursor=pointer]
+              - article [ref=e247]:
+                - generic [ref=e248]:
+                  - img "Samsung Galaxy S24 Ultra 1TB S928U Unlocked - Good" [ref=e250]
+                  - generic:
+                    - generic [ref=e251]: eBay
+                    - generic [ref=e252]: "-64%"
+                - generic [ref=e253]:
+                  - heading "Samsung Galaxy S24 Ultra 1TB S928U Unlocked - Good" [level=3] [ref=e254]
+                  - paragraph [ref=e255]: Good - Refurbished • eBay
+                  - generic [ref=e257]:
+                    - generic [ref=e258]: ‏٥٩٥٫٦٩ ج.م.‏
+                    - generic [ref=e259]: ‏١٬٦٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e260]: In Stock
+                - generic [ref=e261]:
+                  - generic [ref=e262]:
+                    - link "Shop Now" [ref=e263] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256678728634%7C557016777751&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256678728634%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bc33e93ba%253Ag%253APkIAAeSw2lNqqWBN%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e268] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256678728634%7C557016777751#compare-prices
+                  - paragraph [ref=e271]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e273] [cursor=pointer]
+              - article [ref=e277]:
+                - generic [ref=e278]:
+                  - img "Samsung Galaxy S24 128GB S921U Unlocked - Good" [ref=e280]
+                  - generic:
+                    - generic [ref=e281]: eBay
+                    - generic [ref=e282]: "-63%"
+                - generic [ref=e283]:
+                  - heading "Samsung Galaxy S24 128GB S921U Unlocked - Good" [level=3] [ref=e284]
+                  - paragraph [ref=e285]: Good - Refurbished • eBay
+                  - generic [ref=e287]:
+                    - generic [ref=e288]: ‏٢٩٥٫٤٩ ج.م.‏
+                    - generic [ref=e289]: ‏٧٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e290]: In Stock
+                - generic [ref=e291]:
+                  - generic [ref=e292]:
+                    - link "Shop Now" [ref=e293] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256763827585%7C557219098306&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256763827585%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bc8511581%253Ag%253AIcQAAeSwE01qrFxe%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e298] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256763827585%7C557219098306#compare-prices
+                  - paragraph [ref=e301]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e303] [cursor=pointer]
+              - article [ref=e307]:
+                - generic [ref=e308]:
+                  - img "Samsung Galaxy S24 256GB Black - Unlocked AT&T T-Mobile Verizon GSM 7644672" [ref=e310]
+                  - generic:
+                    - generic [ref=e311]: eBay
+                    - generic [ref=e312]: "-63%"
+                - generic [ref=e313]:
+                  - heading "Samsung Galaxy S24 256GB Black - Unlocked AT&T T-Mobile Verizon GSM 7644672" [level=3] [ref=e314]
+                  - paragraph [ref=e315]: Used • eBay
+                  - generic [ref=e317]:
+                    - generic [ref=e318]: ‏٣١٧٫٠٠ ج.م.‏
+                    - generic [ref=e319]: ‏٨٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e320]: In Stock
+                - generic [ref=e321]:
+                  - generic [ref=e322]:
+                    - link "Shop Now" [ref=e323] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C298686252298%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F298686252298%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem458b16850a%253Ag%253AwVkAAeSwQR5qrWox%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e328] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C298686252298%7C0#compare-prices
+                  - paragraph [ref=e331]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e333] [cursor=pointer]
+              - article [ref=e337]:
+                - generic [ref=e338]:
+                  - img "Samsung Galaxy S24 256GB Purple - Unlocked AT&T T-Mobile Verizon GSM 7645812" [ref=e340]
+                  - generic:
+                    - generic [ref=e341]: eBay
+                    - generic [ref=e342]: "-63%"
+                - generic [ref=e343]:
+                  - heading "Samsung Galaxy S24 256GB Purple - Unlocked AT&T T-Mobile Verizon GSM 7645812" [level=3] [ref=e344]
+                  - paragraph [ref=e345]: Used • eBay
+                  - generic [ref=e347]:
+                    - generic [ref=e348]: ‏٣١٧٫٠٠ ج.م.‏
+                    - generic [ref=e349]: ‏٨٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e350]: In Stock
+                - generic [ref=e351]:
+                  - generic [ref=e352]:
+                    - link "Shop Now" [ref=e353] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C377506357880%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F377506357880%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem57e521e278%253Ag%253AvIYAAeSwn35qrWto%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e358] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C377506357880%7C0#compare-prices
+                  - paragraph [ref=e361]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e363] [cursor=pointer]
+              - article [ref=e367]:
+                - generic [ref=e368]:
+                  - img "Samsung Galaxy S24+ SM-S926U 256GB Marble Gray Unlocked Good" [ref=e370]
+                  - generic:
+                    - generic [ref=e371]: eBay
+                    - generic [ref=e372]: "-63%"
+                - generic [ref=e373]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 256GB Marble Gray Unlocked Good" [level=3] [ref=e374]
+                  - paragraph [ref=e375]: Good - Refurbished • eBay
+                  - generic [ref=e377]:
+                    - generic [ref=e378]: ‏٣٧٢٫٢٤ ج.م.‏
+                    - generic [ref=e379]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e380]: In Stock
+                - generic [ref=e381]:
+                  - generic [ref=e382]:
+                    - link "Shop Now" [ref=e383] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127863576633%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127863576633%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dc5435839%253Ag%253An3sAAeSw44JqBRB%257E%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e388] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127863576633%7C0#compare-prices
+                  - paragraph [ref=e391]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e393] [cursor=pointer]
+              - article [ref=e397]:
+                - generic [ref=e398]:
+                  - img "Samsung Galaxy S24+ 256GB Onyx Black Unlocked Good" [ref=e400]
+                  - generic:
+                    - generic [ref=e401]: eBay
+                    - generic [ref=e402]: "-63%"
+                - generic [ref=e403]:
+                  - heading "Samsung Galaxy S24+ 256GB Onyx Black Unlocked Good" [level=3] [ref=e404]
+                  - paragraph [ref=e405]: Good - Refurbished • eBay
+                  - generic [ref=e407]:
+                    - generic [ref=e408]: ‏٣٧٢٫٧٨ ج.م.‏
+                    - generic [ref=e409]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e410]: In Stock
+                - generic [ref=e411]:
+                  - generic [ref=e412]:
+                    - link "Shop Now" [ref=e413] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127846118485%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127846118485%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dc438f455%253Ag%253AvLkAAeSwHUxp-Mdp%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e418] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127846118485%7C0#compare-prices
+                  - paragraph [ref=e421]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e423] [cursor=pointer]
+              - article [ref=e427]:
+                - generic [ref=e428]:
+                  - img "Samsung Galaxy S24 Ultra 512GB S928U Unlocked - Good" [ref=e430]
+                  - generic:
+                    - generic [ref=e431]: eBay
+                    - generic [ref=e432]: "-63%"
+                - generic [ref=e433]:
+                  - heading "Samsung Galaxy S24 Ultra 512GB S928U Unlocked - Good" [level=3] [ref=e434]
+                  - paragraph [ref=e435]: Good - Refurbished • eBay
+                  - generic [ref=e437]:
+                    - generic [ref=e438]: ‏٥٢٤٫١٩ ج.م.‏
+                    - generic [ref=e439]: ‏١٬٤١٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e440]: In Stock
+                - generic [ref=e441]:
+                  - generic [ref=e442]:
+                    - link "Shop Now" [ref=e443] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256652847329%7C556952370923&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256652847329%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bc1b3a8e1%253Ag%253Ap34AAeSwJMFqrFud%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e448] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256652847329%7C556952370923#compare-prices
+                  - paragraph [ref=e451]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e453] [cursor=pointer]
+              - article [ref=e457]:
+                - generic [ref=e458]:
+                  - img "Samsung Galaxy S24 128GB SM-S921 Unlocked Very Good Condition All Colors" [ref=e460]
+                  - generic:
+                    - generic [ref=e461]: eBay
+                    - generic [ref=e462]: "-62%"
+                - generic [ref=e463]:
+                  - heading "Samsung Galaxy S24 128GB SM-S921 Unlocked Very Good Condition All Colors" [level=3] [ref=e464]
+                  - paragraph [ref=e465]: Very Good - Refurbished • eBay
+                  - generic [ref=e467]:
+                    - generic [ref=e468]: ‏٣٠١٫٦٥ ج.م.‏
+                    - generic [ref=e469]: ‏٧٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=e470]: In Stock
+                - generic [ref=e471]:
+                  - generic [ref=e472]:
+                    - link "Shop Now" [ref=e473] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127943725543%7C429129577875&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127943725543%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dca0a51e7%253Ag%253AKw8AAeSwd2NqPvTy%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e478] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127943725543%7C429129577875#compare-prices
+                  - paragraph [ref=e481]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e483] [cursor=pointer]
+              - article [ref=e487]:
+                - generic [ref=e488]:
+                  - img "Samsung Galaxy S24+ SM-S926U 256GB Cobalt Violet Unlocked Very Good" [ref=e490]
+                  - generic:
+                    - generic [ref=e491]: eBay
+                    - generic [ref=e492]: "-62%"
+                - generic [ref=e493]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 256GB Cobalt Violet Unlocked Very Good" [level=3] [ref=e494]
+                  - paragraph [ref=e495]: Very Good - Refurbished • eBay
+                  - generic [ref=e497]:
+                    - generic [ref=e498]: ‏٣٨٣٫٠٦ ج.م.‏
+                    - generic [ref=e499]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e500]: In Stock
+                - generic [ref=e501]:
+                  - generic [ref=e502]:
+                    - link "Shop Now" [ref=e503] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127948279512%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127948279512%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dca4fced8%253Ag%253Aq4QAAeSwzOhqZ-Ta%26amdata%3Denc%253AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGY7ATsy3ajQd%252BnqrPschBCgNhV69AVOVBej2lq8YQxch2Xch90MTV9EhKEtW5yV8x8GX%252BOu9c3qZipMUQ8%252BaJW19gtwyGd0VWc7AQ906Y1RuIxsiPgXGEETWplQ%252BJ52odpUlun54x600%252FUhiAZkBVF%252FU0je9VXWirZqRtOW5%252BmEufamuH9MyRu%252F6S3MC5DINXgs5yJ5T%252F0B%252BYnTEBuZrIzCj8nlJA57Z39UxBQoItaBXLK2z5EuNSO8W41pk4IUYqzc4jAZ3OaEPlL1yshExRla7CPafxEoke7sAUFlfOYvoA%253D%253D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e508] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127948279512%7C0#compare-prices
+                  - paragraph [ref=e511]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e513] [cursor=pointer]
+              - article [ref=e517]:
+                - generic [ref=e518]:
+                  - img "Samsung Galaxy S24 Ultra 256GB S928U Unlocked - Good" [ref=e520]
+                  - generic:
+                    - generic [ref=e521]: eBay
+                    - generic [ref=e522]: "-62%"
+                - generic [ref=e523]:
+                  - heading "Samsung Galaxy S24 Ultra 256GB S928U Unlocked - Good" [level=3] [ref=e524]
+                  - paragraph [ref=e525]: Good - Refurbished • eBay
+                  - generic [ref=e527]:
+                    - generic [ref=e528]: ‏٥٠٠٫٣٩ ج.م.‏
+                    - generic [ref=e529]: ‏١٬٢٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e530]: In Stock
+                - generic [ref=e531]:
+                  - generic [ref=e532]:
+                    - link "Shop Now" [ref=e533] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256628617125%7C557473583241&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256628617125%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bc041efa5%253Ag%253A%257EGkAAeSw7fFqra%257Ei%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e538] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256628617125%7C557473583241#compare-prices
+                  - paragraph [ref=e541]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e543] [cursor=pointer]
+              - article [ref=e547]:
+                - generic [ref=e548]:
+                  - img "Samsung Galaxy S24 128GB S921U Unlocked - Very Good" [ref=e550]
+                  - generic:
+                    - generic [ref=e551]: eBay
+                    - generic [ref=e552]: "-61%"
+                - generic [ref=e553]:
+                  - heading "Samsung Galaxy S24 128GB S921U Unlocked - Very Good" [level=3] [ref=e554]
+                  - paragraph [ref=e555]: Very Good - Refurbished • eBay
+                  - generic [ref=e557]:
+                    - generic [ref=e558]: ‏٣١٤٫٤٩ ج.م.‏
+                    - generic [ref=e559]: ‏٧٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e560]: In Stock
+                - generic [ref=e561]:
+                  - generic [ref=e562]:
+                    - link "Shop Now" [ref=e563] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256611130330%7C556877226289&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256611130330%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bbf371bda%253Ag%253A2f0AAeSwuvJqraDN%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e568] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256611130330%7C556877226289#compare-prices
+                  - paragraph [ref=e571]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e573] [cursor=pointer]
+              - article [ref=e577]:
+                - generic [ref=e578]:
+                  - img "Samsung Galaxy S24 256GB Yellow Factory Unlocked AT&T T-Mobile Verizon 7645770" [ref=e580]
+                  - generic:
+                    - generic [ref=e581]: eBay
+                    - generic [ref=e582]: "-61%"
+                - generic [ref=e583]:
+                  - heading "Samsung Galaxy S24 256GB Yellow Factory Unlocked AT&T T-Mobile Verizon 7645770" [level=3] [ref=e584]
+                  - paragraph [ref=e585]: Used • eBay
+                  - generic [ref=e587]:
+                    - generic [ref=e588]: ‏٣٣٨٫٠٠ ج.م.‏
+                    - generic [ref=e589]: ‏٨٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e590]: In Stock
+                - generic [ref=e591]:
+                  - generic [ref=e592]:
+                    - link "Shop Now" [ref=e593] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C407227268073%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F407227268073%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem5ed0a2fbe9%253Ag%253AyucAAeSwIIxqrWu9%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e598] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C407227268073%7C0#compare-prices
+                  - paragraph [ref=e601]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e603] [cursor=pointer]
+              - article [ref=e607]:
+                - generic [ref=e608]:
+                  - img "Samsung Galaxy S24+ 256GB S926U Unlocked - Very Good" [ref=e610]
+                  - generic:
+                    - generic [ref=e611]: eBay
+                    - generic [ref=e612]: "-61%"
+                - generic [ref=e613]:
+                  - heading "Samsung Galaxy S24+ 256GB S926U Unlocked - Very Good" [level=3] [ref=e614]
+                  - paragraph [ref=e615]: Very Good - Refurbished • eBay
+                  - generic [ref=e617]:
+                    - generic [ref=e618]: ‏٣٩٠٫٧٩ ج.م.‏
+                    - generic [ref=e619]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e620]: In Stock
+                - generic [ref=e621]:
+                  - generic [ref=e622]:
+                    - link "Shop Now" [ref=e623] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256626329653%7C556902026640&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256626329653%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bc01f0835%253Ag%253AdzEAAeSwqrhqqWA9%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e628] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256626329653%7C556902026640#compare-prices
+                  - paragraph [ref=e631]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e633] [cursor=pointer]
+              - article [ref=e637]:
+                - generic [ref=e638]:
+                  - img "Samsung Galaxy S24+ SM-S926U 256GB Amber Yellow Unlocked Very Good" [ref=e640]
+                  - generic:
+                    - generic [ref=e641]: eBay
+                    - generic [ref=e642]: "-61%"
+                - generic [ref=e643]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 256GB Amber Yellow Unlocked Very Good" [level=3] [ref=e644]
+                  - paragraph [ref=e645]: Very Good - Refurbished • eBay
+                  - generic [ref=e647]:
+                    - generic [ref=e648]: ‏٣٩٠٫٨٨ ج.م.‏
+                    - generic [ref=e649]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e650]: In Stock
+                - generic [ref=e651]:
+                  - generic [ref=e652]:
+                    - link "Shop Now" [ref=e653] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127948284769%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127948284769%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dca4fe361%253Ag%253AzVcAAeSwVNZqQsIY%26amdata%3Denc%253AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGbs4avd49AXDF7m80WHOGO5yQ0mA4qvCcG4OTyq5KIND5%252FrUvMHaQEcxXQDb2X3lMEwyETKIofUr6bCYJIhqNRgXLIOKUonX9omNUZaHIImGOrRlrFmIlYtuVMa%252FyZBn5EYxPgozCk3cpHCClAOn81FxmL4EftgRMIjNC--QKeWHDNx9nnGy%252BU1qW%252FHekAGDg4eHyluin99HYip12XgPDsNzYAXjW%252Baoxf1Rhmo%252BEOoScmsehss4GI2BJYYTp8vYXu0OTJXTUHr16ZsnjqR8CG9DIM%252B%252Fma7lXGr%252BBSq7JpTsg%253D%253D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e658] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127948284769%7C0#compare-prices
+                  - paragraph [ref=e661]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e663] [cursor=pointer]
+              - article [ref=e667]:
+                - generic [ref=e668]:
+                  - img "Samsung Galaxy S24+ 512GB S926U Unlocked - Very Good" [ref=e670]
+                  - generic:
+                    - generic [ref=e671]: eBay
+                    - generic [ref=e672]: "-61%"
+                - generic [ref=e673]:
+                  - heading "Samsung Galaxy S24+ 512GB S926U Unlocked - Very Good" [level=3] [ref=e674]
+                  - paragraph [ref=e675]: Very Good - Refurbished • eBay
+                  - generic [ref=e677]:
+                    - generic [ref=e678]: ‏٤٣٨٫٣٩ ج.م.‏
+                    - generic [ref=e679]: ‏١٬١١٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e680]: In Stock
+                - generic [ref=e681]:
+                  - generic [ref=e682]:
+                    - link "Shop Now" [ref=e683] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256939541850%7C557528700375&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256939541850%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bd2ca455a%253Ag%253AAjQAAeSwFVVqqWA5%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e688] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256939541850%7C557528700375#compare-prices
+                  - paragraph [ref=e691]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e693] [cursor=pointer]
+              - article [ref=e697]:
+                - generic [ref=e698]:
+                  - img "Samsung Galaxy S24+ 256GB S926U Unlocked - Excellent" [ref=e700]
+                  - generic:
+                    - generic [ref=e701]: eBay
+                    - generic [ref=e702]: "-60%"
+                - generic [ref=e703]:
+                  - heading "Samsung Galaxy S24+ 256GB S926U Unlocked - Excellent" [level=3] [ref=e704]
+                  - paragraph [ref=e705]: Excellent - Refurbished • eBay
+                  - generic [ref=e707]:
+                    - generic [ref=e708]: ‏٤٠٠٫٢٩ ج.م.‏
+                    - generic [ref=e709]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e710]: In Stock
+                - generic [ref=e711]:
+                  - generic [ref=e712]:
+                    - link "Shop Now" [ref=e713] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256602372474%7C556862384676&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256602372474%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bbeb1797a%253Ag%253AAvwAAeSwahRqrdoJ%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e718] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256602372474%7C556862384676#compare-prices
+                  - paragraph [ref=e721]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e723] [cursor=pointer]
+              - article [ref=e727]:
+                - generic [ref=e728]:
+                  - img "Samsung Galaxy S24 128GB S921U Unlocked - Excellent" [ref=e730]
+                  - generic:
+                    - generic [ref=e731]: eBay
+                    - generic [ref=e732]: "-59%"
+                - generic [ref=e733]:
+                  - heading "Samsung Galaxy S24 128GB S921U Unlocked - Excellent" [level=3] [ref=e734]
+                  - paragraph [ref=e735]: Excellent - Refurbished • eBay
+                  - generic [ref=e737]:
+                    - generic [ref=e738]: ‏٣٢٤٫٠٩ ج.م.‏
+                    - generic [ref=e739]: ‏٧٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e740]: In Stock
+                - generic [ref=e741]:
+                  - generic [ref=e742]:
+                    - link "Shop Now" [ref=e743] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256496745168%7C556686873481&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256496745168%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bb865bad0%253Ag%253AxLMAAeSwShxqq10F%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e748] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256496745168%7C556686873481#compare-prices
+                  - paragraph [ref=e751]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e753] [cursor=pointer]
+              - article [ref=e757]:
+                - generic [ref=e758]:
+                  - img "Samsung Galaxy S24+ 512GB S926U Unlocked - Excellent" [ref=e760]
+                  - generic:
+                    - generic [ref=e761]: eBay
+                    - generic [ref=e762]: "-59%"
+                - generic [ref=e763]:
+                  - heading "Samsung Galaxy S24+ 512GB S926U Unlocked - Excellent" [level=3] [ref=e764]
+                  - paragraph [ref=e765]: Excellent - Refurbished • eBay
+                  - generic [ref=e767]:
+                    - generic [ref=e768]: ‏٤٥٧٫٤٩ ج.م.‏
+                    - generic [ref=e769]: ‏١٬١١٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e770]: In Stock
+                - generic [ref=e771]:
+                  - generic [ref=e772]:
+                    - link "Shop Now" [ref=e773] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256626329703%7C556902178019&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256626329703%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bc01f0867%253Ag%253AXasAAeSwgQFqqb1E%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e778] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256626329703%7C556902178019#compare-prices
+                  - paragraph [ref=e781]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e783] [cursor=pointer]
+              - article [ref=e787]:
+                - generic [ref=e788]:
+                  - img "Samsung Galaxy S24 Ultra 256GB SM-S928U Unlocked Very Good Condition All Colors" [ref=e790]
+                  - generic:
+                    - generic [ref=e791]: eBay
+                    - generic [ref=e792]: "-58%"
+                - generic [ref=e793]:
+                  - heading "Samsung Galaxy S24 Ultra 256GB SM-S928U Unlocked Very Good Condition All Colors" [level=3] [ref=e794]
+                  - paragraph [ref=e795]: Very Good - Refurbished • eBay
+                  - generic [ref=e797]:
+                    - generic [ref=e798]: ‏٥٤٦٫١٧ ج.م.‏
+                    - generic [ref=e799]: ‏١٬٢٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=e800]: In Stock
+                - generic [ref=e801]:
+                  - generic [ref=e802]:
+                    - link "Shop Now" [ref=e803] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127943730019%7C429129345609&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127943730019%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dca0a6363%253Ag%253Adr0AAeSwmOFqPvaC%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e808] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127943730019%7C429129345609#compare-prices
+                  - paragraph [ref=e811]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e813] [cursor=pointer]
+              - article [ref=e817]:
+                - generic [ref=e818]:
+                  - img "Samsung Galaxy S24 Ultra 1TB S928U Unlocked - Excellent" [ref=e820]
+                  - generic:
+                    - generic [ref=e821]: eBay
+                    - generic [ref=e822]: "-58%"
+                - generic [ref=e823]:
+                  - heading "Samsung Galaxy S24 Ultra 1TB S928U Unlocked - Excellent" [level=3] [ref=e824]
+                  - paragraph [ref=e825]: Excellent - Refurbished • eBay
+                  - generic [ref=e827]:
+                    - generic [ref=e828]: ‏٧٠٠٫٤٩ ج.م.‏
+                    - generic [ref=e829]: ‏١٬٦٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e830]: In Stock
+                - generic [ref=e831]:
+                  - generic [ref=e832]:
+                    - link "Shop Now" [ref=e833] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256754169541%7C557292522532&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256754169541%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bc7bdb6c5%253Ag%253AvegAAeSwS2xqrFzy%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e838] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256754169541%7C557292522532#compare-prices
+                  - paragraph [ref=e841]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e843] [cursor=pointer]
+              - article [ref=e847]:
+                - generic [ref=e848]:
+                  - img "Samsung Galaxy S24 FE 128GB (T-Mobile) - Mint" [ref=e850]
+                  - generic:
+                    - generic [ref=e851]: eBay
+                    - generic [ref=e852]: "-57%"
+                - generic [ref=e853]:
+                  - heading "Samsung Galaxy S24 FE 128GB (T-Mobile) - Mint" [level=3] [ref=e854]
+                  - paragraph [ref=e855]: Good - Refurbished • eBay
+                  - generic [ref=e857]:
+                    - generic [ref=e858]: ‏٢٧٩٫٩٨ ج.م.‏
+                    - generic [ref=e859]: ‏٦٤٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e860]: In Stock
+                - generic [ref=e861]:
+                  - generic [ref=e862]:
+                    - link "Shop Now" [ref=e863] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C366558886427%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F366558886427%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem55589cba1b%253Ag%253Adx8AAeSwNdtqobJt%26amdata%3Denc%253AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGZJDyU%252Bzh6jSOQXRDZOPXRBJDlyxILQaHUxr4SP86xDCbYYNZGUNxOWudMMxhtI%252FxYgpX5YRF%252B6faUvmujiOmuxjuAUzoyUzzVUGr1gr%252BVgWQPIYZVW3iH9CR9TQOL91282XSm9v5NG3grdO5nm4igo6v5PWduX4oOuzNF1EtzTO5VIn3gZLj9I9Ps9d0hPJj9l%252BXrQXJaRCbjOkVnatU6sKGw%252FxTHB7hcZGBfTs00JHtvLPXF%252B%252F4nX%252FO1SaR7tNFF8UmDDvsR%252FyH3xP%252BJgbnEtR0DoQUSGFy585%252F20bjN7eA%253D%253D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e868] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C366558886427%7C0#compare-prices
+                  - paragraph [ref=e871]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e873] [cursor=pointer]
+              - article [ref=e877]:
+                - generic [ref=e878]:
+                  - img "Samsung Galaxy s24 Ultra 512 GB Titianium Gray Unlocked" [ref=e880]
+                  - generic:
+                    - generic [ref=e881]: eBay
+                    - generic [ref=e882]: "-57%"
+                - generic [ref=e883]:
+                  - heading "Samsung Galaxy s24 Ultra 512 GB Titianium Gray Unlocked" [level=3] [ref=e884]
+                  - paragraph [ref=e885]: Excellent - Refurbished • eBay
+                  - generic [ref=e887]:
+                    - generic [ref=e888]: ‏٦٠٤٫٨٦ ج.م.‏
+                    - generic [ref=e889]: ‏١٬٤١٩٫٠٠ ج.م.‏
+                  - paragraph [ref=e890]: In Stock
+                - generic [ref=e891]:
+                  - generic [ref=e892]:
+                    - link "Shop Now" [ref=e893] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127651507609%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127651507609%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1db89f6d99%253Ag%253AaxcAAeSw%257EZdpoN6Y%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e898] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127651507609%7C0#compare-prices
+                  - paragraph [ref=e901]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e903] [cursor=pointer]
+              - article [ref=e907]:
+                - generic [ref=e908]:
+                  - img "Samsung Galaxy S24 FE 128GB S721U Unlocked - Good" [ref=e910]
+                  - generic:
+                    - generic [ref=e911]: eBay
+                    - generic [ref=e912]: "-56%"
+                - generic [ref=e913]:
+                  - heading "Samsung Galaxy S24 FE 128GB S721U Unlocked - Good" [level=3] [ref=e914]
+                  - paragraph [ref=e915]: Good - Refurbished • eBay
+                  - generic [ref=e917]:
+                    - generic [ref=e918]: ‏٢٨٥٫٨٩ ج.م.‏
+                    - generic [ref=e919]: ‏٦٤٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e920]: In Stock
+                - generic [ref=e921]:
+                  - generic [ref=e922]:
+                    - link "Shop Now" [ref=e923] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257031013330%7C557670265349&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257031013330%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bd83e03d2%253Ag%253AqucAAeSwDaxqraBl%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e928] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257031013330%7C557670265349#compare-prices
+                  - paragraph [ref=e931]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e933] [cursor=pointer]
+              - article [ref=e937]:
+                - generic [ref=e938]:
+                  - img "Samsung Galaxy S24 SM-S921U 128GB Onyx Black Unlocked Excellent Condition" [ref=e940]
+                  - generic:
+                    - generic [ref=e941]: eBay
+                    - generic [ref=e942]: "-56%"
+                - generic [ref=e943]:
+                  - heading "Samsung Galaxy S24 SM-S921U 128GB Onyx Black Unlocked Excellent Condition" [level=3] [ref=e944]
+                  - paragraph [ref=e945]: Excellent - Refurbished • eBay
+                  - generic [ref=e947]:
+                    - generic [ref=e948]: ‏٣٤٨٫٨٦ ج.م.‏
+                    - generic [ref=e949]: ‏٧٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e950]: In Stock
+                - generic [ref=e951]:
+                  - generic [ref=e952]:
+                    - link "Shop Now" [ref=e953] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127709124123%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127709124123%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dbc0e961b%253Ag%253AHacAAeSwYYxpojj3%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e958] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127709124123%7C0#compare-prices
+                  - paragraph [ref=e961]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e963] [cursor=pointer]
+              - article [ref=e967]:
+                - generic [ref=e968]:
+                  - img "Samsung Galaxy S24 Ultra 256GB S928U Unlocked - Excellent" [ref=e970]
+                  - generic:
+                    - generic [ref=e971]: eBay
+                    - generic [ref=e972]: "-56%"
+                - generic [ref=e973]:
+                  - heading "Samsung Galaxy S24 Ultra 256GB S928U Unlocked - Excellent" [level=3] [ref=e974]
+                  - paragraph [ref=e975]: Excellent - Refurbished • eBay
+                  - generic [ref=e977]:
+                    - generic [ref=e978]: ‏٥٧١٫٧٩ ج.م.‏
+                    - generic [ref=e979]: ‏١٬٢٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e980]: In Stock
+                - generic [ref=e981]:
+                  - generic [ref=e982]:
+                    - link "Shop Now" [ref=e983] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256601270287%7C556860537910&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256601270287%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bbea0a80f%253Ag%253AviEAAeSwKZ9qqwkD%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e988] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256601270287%7C556860537910#compare-prices
+                  - paragraph [ref=e991]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e993] [cursor=pointer]
+              - article [ref=e997]:
+                - generic [ref=e998]:
+                  - img "Samsung Galaxy S24 Ultra 512GB S928U Unlocked - Excellent" [ref=e1000]
+                  - generic:
+                    - generic [ref=e1001]: eBay
+                    - generic [ref=e1002]: "-56%"
+                - generic [ref=e1003]:
+                  - heading "Samsung Galaxy S24 Ultra 512GB S928U Unlocked - Excellent" [level=3] [ref=e1004]
+                  - paragraph [ref=e1005]: Excellent - Refurbished • eBay
+                  - generic [ref=e1007]:
+                    - generic [ref=e1008]: ‏٦١٩٫٤٩ ج.م.‏
+                    - generic [ref=e1009]: ‏١٬٤١٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1010]: In Stock
+                - generic [ref=e1011]:
+                  - generic [ref=e1012]:
+                    - link "Shop Now" [ref=e1013] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256754180033%7C557307741953&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256754180033%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bc7bddfc1%253Ag%253A%257EjkAAeSwYntqqs2L%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1018] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256754180033%7C557307741953#compare-prices
+                  - paragraph [ref=e1021]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1023] [cursor=pointer]
+              - article [ref=e1027]:
+                - generic [ref=e1028]:
+                  - img "Samsung Galaxy S24 256GB Unlocked AT&T T-Mobile Verizon Very Good Condition" [ref=e1030]
+                  - generic:
+                    - generic [ref=e1031]: eBay
+                    - generic [ref=e1032]: "-55%"
+                - generic [ref=e1033]:
+                  - heading "Samsung Galaxy S24 256GB Unlocked AT&T T-Mobile Verizon Very Good Condition" [level=3] [ref=e1034]
+                  - paragraph [ref=e1035]: Very Good - Refurbished • eBay
+                  - generic [ref=e1037]:
+                    - generic [ref=e1038]: ‏٣٨٢٫٩٥ ج.م.‏
+                    - generic [ref=e1039]: ‏٨٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1040]: In Stock
+                - generic [ref=e1041]:
+                  - generic [ref=e1042]:
+                    - link "Shop Now" [ref=e1043] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C306212965051%7C605791705691&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F306212965051%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem474bb70abb%253Ag%253A4o8AAeSwl-RqKYfq%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1048] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C306212965051%7C605791705691#compare-prices
+                  - paragraph [ref=e1051]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1053] [cursor=pointer]
+              - article [ref=e1057]:
+                - generic [ref=e1058]:
+                  - img "SAMSUNG Galaxy S24 Ultra 5G US Version 1TB - Unlocked - Excellent" [ref=e1060]
+                  - generic:
+                    - generic [ref=e1061]: eBay
+                    - generic [ref=e1062]: "-54%"
+                - generic [ref=e1063]:
+                  - heading "SAMSUNG Galaxy S24 Ultra 5G US Version 1TB - Unlocked - Excellent" [level=3] [ref=e1064]
+                  - paragraph [ref=e1065]: Excellent - Refurbished • eBay
+                  - generic [ref=e1067]:
+                    - generic [ref=e1068]: ‏٧٦٧٫٩٩ ج.م.‏
+                    - generic [ref=e1069]: ‏١٬٦٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1070]: In Stock
+                - generic [ref=e1071]:
+                  - generic [ref=e1072]:
+                    - link "Shop Now" [ref=e1073] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C157328122981%7C458822811650&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F157328122981%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem24a17ca465%253Ag%253AJSwAAeSwXhxoystD%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1078] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C157328122981%7C458822811650#compare-prices
+                  - paragraph [ref=e1081]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1083] [cursor=pointer]
+              - article [ref=e1087]:
+                - generic [ref=e1088]:
+                  - img "Samsung Galaxy S24 FE 128GB S721U Unlocked - Very Good" [ref=e1090]
+                  - generic:
+                    - generic [ref=e1091]: eBay
+                    - generic [ref=e1092]: "-52%"
+                - generic [ref=e1093]:
+                  - heading "Samsung Galaxy S24 FE 128GB S721U Unlocked - Very Good" [level=3] [ref=e1094]
+                  - paragraph [ref=e1095]: Very Good - Refurbished • eBay
+                  - generic [ref=e1097]:
+                    - generic [ref=e1098]: ‏٣٠٩٫٧٩ ج.م.‏
+                    - generic [ref=e1099]: ‏٦٤٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1100]: In Stock
+                - generic [ref=e1101]:
+                  - generic [ref=e1102]:
+                    - link "Shop Now" [ref=e1103] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C256914432146%7C557477942343&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F256914432146%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bd14b2092%253Ag%253AnfQAAeSwJMFqraBm%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1108] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C256914432146%7C557477942343#compare-prices
+                  - paragraph [ref=e1111]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1113] [cursor=pointer]
+              - article [ref=e1117]:
+                - generic [ref=e1118]:
+                  - img "Samsung Galaxy S24 128GB S921U Unlocked - Open Box" [ref=e1120]
+                  - generic:
+                    - generic [ref=e1121]: eBay
+                    - generic [ref=e1122]: "-52%"
+                - generic [ref=e1123]:
+                  - heading "Samsung Galaxy S24 128GB S921U Unlocked - Open Box" [level=3] [ref=e1124]
+                  - paragraph [ref=e1125]: Open box • eBay
+                  - generic [ref=e1127]:
+                    - generic [ref=e1128]: ‏٣٨٤٫٨٩ ج.م.‏
+                    - generic [ref=e1129]: ‏٧٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1130]: In Stock
+                - generic [ref=e1131]:
+                  - generic [ref=e1132]:
+                    - link "Shop Now" [ref=e1133] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257131323344%7C557780948317&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257131323344%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bde389fd0%253Ag%253AWSQAAeSwPKNqqaDQ%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1138] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257131323344%7C557780948317#compare-prices
+                  - paragraph [ref=e1141]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1143] [cursor=pointer]
+              - article [ref=e1147]:
+                - generic [ref=e1148]:
+                  - img "Samsung Galaxy S24 256GB Unlocked AT&T T-Mobile Verizon GSM 100% batt! 7645058" [ref=e1150]
+                  - generic:
+                    - generic [ref=e1151]: eBay
+                    - generic [ref=e1152]: "-50%"
+                - generic [ref=e1153]:
+                  - heading "Samsung Galaxy S24 256GB Unlocked AT&T T-Mobile Verizon GSM 100% batt! 7645058" [level=3] [ref=e1154]
+                  - paragraph [ref=e1155]: Open box • eBay
+                  - generic [ref=e1157]:
+                    - generic [ref=e1158]: ‏٤٢٩٫٠٠ ج.م.‏
+                    - generic [ref=e1159]: ‏٨٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1160]: In Stock
+                - generic [ref=e1161]:
+                  - generic [ref=e1162]:
+                    - link "Shop Now" [ref=e1163] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C407219128709%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F407219128709%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem5ed026c985%253Ag%253AIYQAAeSwICxqqY3a%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1168] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C407219128709%7C0#compare-prices
+                  - paragraph [ref=e1171]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1173] [cursor=pointer]
+              - article [ref=e1177]:
+                - generic [ref=e1178]:
+                  - img "Samsung Galaxy S24 256GB Yellow Factory Unlocked AT&T T-Mobile Verizon 7644169" [ref=e1180]
+                  - generic:
+                    - generic [ref=e1181]: eBay
+                    - generic [ref=e1182]: "-50%"
+                - generic [ref=e1183]:
+                  - heading "Samsung Galaxy S24 256GB Yellow Factory Unlocked AT&T T-Mobile Verizon 7644169" [level=3] [ref=e1184]
+                  - paragraph [ref=e1185]: Open box • eBay
+                  - generic [ref=e1187]:
+                    - generic [ref=e1188]: ‏٤٣٢٫٠٠ ج.م.‏
+                    - generic [ref=e1189]: ‏٨٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1190]: In Stock
+                - generic [ref=e1191]:
+                  - generic [ref=e1192]:
+                    - link "Shop Now" [ref=e1193] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C298681872722%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F298681872722%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem458ad3b152%253Ag%253Af8MAAeSwzkdqpPtA%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1198] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C298681872722%7C0#compare-prices
+                  - paragraph [ref=e1201]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1203] [cursor=pointer]
+              - article [ref=e1207]:
+                - generic [ref=e1208]:
+                  - img "Samsung Galaxy S24 256GB Yellow Factory Unlocked AT&T T-Mobile Verizon 7645906" [ref=e1210]
+                  - generic:
+                    - generic [ref=e1211]: eBay
+                    - generic [ref=e1212]: "-49%"
+                - generic [ref=e1213]:
+                  - heading "Samsung Galaxy S24 256GB Yellow Factory Unlocked AT&T T-Mobile Verizon 7645906" [level=3] [ref=e1214]
+                  - paragraph [ref=e1215]: Open box • eBay
+                  - generic [ref=e1217]:
+                    - generic [ref=e1218]: ‏٤٣٧٫٠٠ ج.م.‏
+                    - generic [ref=e1219]: ‏٨٥٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1220]: In Stock
+                - generic [ref=e1221]:
+                  - generic [ref=e1222]:
+                    - link "Shop Now" [ref=e1223] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C377507824866%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F377507824866%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem57e53844e2%253Ag%253AQJAAAeSwQotqoYtZ%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1228] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C377507824866%7C0#compare-prices
+                  - paragraph [ref=e1231]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1233] [cursor=pointer]
+              - article [ref=e1237]:
+                - generic [ref=e1238]:
+                  - img "Samsung Galaxy S24 SM-S921U - 256GB - Black (Verizon) Please Read" [ref=e1240]
+                  - generic:
+                    - generic [ref=e1241]: eBay
+                    - generic [ref=e1242]: "-34%"
+                - generic [ref=e1243]:
+                  - heading "Samsung Galaxy S24 SM-S921U - 256GB - Black (Verizon) Please Read" [level=3] [ref=e1244]
+                  - paragraph [ref=e1245]: Used • eBay
+                  - generic [ref=e1247]:
+                    - generic [ref=e1248]: ‏١٩٩٫٠٠ ج.م.‏
+                    - generic [ref=e1249]: ‏٣٠١٫٠٠ ج.م.‏
+                  - paragraph [ref=e1250]: In Stock
+                - generic [ref=e1251]:
+                  - generic [ref=e1252]:
+                    - link "Shop Now" [ref=e1253] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C168698837293%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F168698837293%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem27473bf92d%253Ag%253AzncAAeSwAMdqrb1T%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1258] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C168698837293%7C0#compare-prices
+                  - paragraph [ref=e1261]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1263] [cursor=pointer]
+              - article [ref=e1267]:
+                - generic [ref=e1268]:
+                  - img "Samsung Galaxy S24+ SM-S926U 512GB Onyx Black Unlocked W101036" [ref=e1270]
+                  - generic:
+                    - generic [ref=e1271]: eBay
+                    - generic [ref=e1272]: "-32%"
+                - generic [ref=e1273]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 512GB Onyx Black Unlocked W101036" [level=3] [ref=e1274]
+                  - paragraph [ref=e1275]: Used • eBay
+                  - generic [ref=e1277]:
+                    - generic [ref=e1278]: ‏٢٥٩٫٧٥ ج.م.‏
+                    - generic [ref=e1279]: ‏٣٧٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1280]: In Stock
+                - generic [ref=e1281]:
+                  - generic [ref=e1282]:
+                    - link "Shop Now" [ref=e1283] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257702440082%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257702440082%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3c00432c92%253Ag%253AjAsAAeSwz0JqjfpQ%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1288] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257702440082%7C0#compare-prices
+                  - paragraph [ref=e1291]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1293] [cursor=pointer]
+              - article [ref=e1297]:
+                - generic [ref=e1298]:
+                  - img "Samsung Galaxy S24 256GB SM-S9210 Gold Unlocked Smartphone *Chinese Model* READ" [ref=e1300]
+                  - generic:
+                    - generic [ref=e1301]: eBay
+                    - generic [ref=e1302]: "-30%"
+                - generic [ref=e1303]:
+                  - heading "Samsung Galaxy S24 256GB SM-S9210 Gold Unlocked Smartphone *Chinese Model* READ" [level=3] [ref=e1304]
+                  - paragraph [ref=e1305]: Used • eBay
+                  - generic [ref=e1307]:
+                    - generic [ref=e1308]: ‏٢٧٩٫٩٩ ج.م.‏
+                    - generic [ref=e1309]: ‏٣٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1310]: In Stock
+                - generic [ref=e1311]:
+                  - generic [ref=e1312]:
+                    - link "Shop Now" [ref=e1313] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C178437195872%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F178437195872%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem298baf8860%253Ag%253AxfYAAeSwv9NqjJRG%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1318] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C178437195872%7C0#compare-prices
+                  - paragraph [ref=e1321]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1323] [cursor=pointer]
+              - article [ref=e1327]:
+                - generic [ref=e1328]:
+                  - img "Samsung Galaxy S24+ SM-S926U1 256GB All Colors Unlocked Very Good" [ref=e1330]
+                  - generic:
+                    - generic [ref=e1331]: eBay
+                    - generic [ref=e1332]: "-26%"
+                - generic [ref=e1333]:
+                  - heading "Samsung Galaxy S24+ SM-S926U1 256GB All Colors Unlocked Very Good" [level=3] [ref=e1334]
+                  - paragraph [ref=e1335]: Very Good - Refurbished • eBay
+                  - generic [ref=e1337]:
+                    - generic [ref=e1338]: ‏٧٤٤٫٢٧ ج.م.‏
+                    - generic [ref=e1339]: ‏٩٩٩٫٩٩ ج.م.‏
+                  - paragraph [ref=e1340]: In Stock
+                - generic [ref=e1341]:
+                  - generic [ref=e1342]:
+                    - link "Shop Now" [ref=e1343] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C128016018716%7C429220364104&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F128016018716%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem1dce596d1c%253Ag%253AZrUAAeSwgGdqdlaw%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1348] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C128016018716%7C429220364104#compare-prices
+                  - paragraph [ref=e1351]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1353] [cursor=pointer]
+              - article [ref=e1357]:
+                - generic [ref=e1358]:
+                  - img "Samsung Galaxy S24 SM-S921U 128GB Cobalt Violet Unlocked W096191" [ref=e1360]
+                  - generic:
+                    - generic [ref=e1361]: eBay
+                    - generic [ref=e1362]: "-24%"
+                - generic [ref=e1363]:
+                  - heading "Samsung Galaxy S24 SM-S921U 128GB Cobalt Violet Unlocked W096191" [level=3] [ref=e1364]
+                  - paragraph [ref=e1365]: Used • eBay
+                  - generic [ref=e1367]:
+                    - generic [ref=e1368]: ‏٢٢٤٫١٢ ج.م.‏
+                    - generic [ref=e1369]: ‏٢٩٣٫٩٩ ج.م.‏
+                  - paragraph [ref=e1370]: In Stock
+                - generic [ref=e1371]:
+                  - generic [ref=e1372]:
+                    - link "Shop Now" [ref=e1373] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C287453024243%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F287453024243%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem42ed890ff3%253Ag%253Az8EAAeSwkB5qUVL0%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1378] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C287453024243%7C0#compare-prices
+                  - paragraph [ref=e1381]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1383] [cursor=pointer]
+              - article [ref=e1387]:
+                - generic [ref=e1388]:
+                  - img "Samsung Galaxy S24+ 256GB Black SM-S926U (T-Mobile) Android Smartphone CF0254" [ref=e1390]
+                  - generic:
+                    - generic [ref=e1391]: eBay
+                    - generic [ref=e1392]: "-21%"
+                - generic [ref=e1393]:
+                  - heading "Samsung Galaxy S24+ 256GB Black SM-S926U (T-Mobile) Android Smartphone CF0254" [level=3] [ref=e1394]
+                  - paragraph [ref=e1395]: Used • eBay
+                  - generic [ref=e1397]:
+                    - generic [ref=e1398]: ‏٢٨٩٫٠٨ ج.م.‏
+                    - generic [ref=e1399]: ‏٣٦٧٫٤٥ ج.م.‏
+                  - paragraph [ref=e1400]: In Stock
+                - generic [ref=e1401]:
+                  - generic [ref=e1402]:
+                    - link "Shop Now" [ref=e1403] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C278321068519%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F278321068519%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem40cd3a79e7%253Ag%253A%257Em8AAeSw1KtqdQVD%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1408] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C278321068519%7C0#compare-prices
+                  - paragraph [ref=e1411]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1413] [cursor=pointer]
+              - article [ref=e1417]:
+                - generic [ref=e1418]:
+                  - img "Samsung Galaxy S24+ SM-S926U 256GB Cobalt Violet Unlocked W095455" [ref=e1420]
+                  - generic:
+                    - generic [ref=e1421]: eBay
+                    - generic [ref=e1422]: "-20%"
+                - generic [ref=e1423]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 256GB Cobalt Violet Unlocked W095455" [level=3] [ref=e1424]
+                  - paragraph [ref=e1425]: Used • eBay
+                  - generic [ref=e1427]:
+                    - generic [ref=e1428]: ‏٢٥٥٫٨٥ ج.م.‏
+                    - generic [ref=e1429]: ‏٣٢٠٫٥٠ ج.م.‏
+                  - paragraph [ref=e1430]: In Stock
+                - generic [ref=e1431]:
+                  - generic [ref=e1432]:
+                    - link "Shop Now" [ref=e1433] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C287435837280%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F287435837280%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem42ec82cf60%253Ag%253A9aAAAeSwKIVqR9LS%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1438] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C287435837280%7C0#compare-prices
+                  - paragraph [ref=e1441]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1443] [cursor=pointer]
+              - article [ref=e1447]:
+                - generic [ref=e1448]:
+                  - img "Samsung Galaxy S24+ SM-S926U 256GB Cobalt Violet Unlocked W095197" [ref=e1450]
+                  - generic:
+                    - generic [ref=e1451]: eBay
+                    - generic [ref=e1452]: "-20%"
+                - generic [ref=e1453]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 256GB Cobalt Violet Unlocked W095197" [level=3] [ref=e1454]
+                  - paragraph [ref=e1455]: Used • eBay
+                  - generic [ref=e1457]:
+                    - generic [ref=e1458]: ‏٢٥٥٫٨٥ ج.م.‏
+                    - generic [ref=e1459]: ‏٣٢٠٫٥٠ ج.م.‏
+                  - paragraph [ref=e1460]: In Stock
+                - generic [ref=e1461]:
+                  - generic [ref=e1462]:
+                    - link "Shop Now" [ref=e1463] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257599225852%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257599225852%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bfa1c3ffc%253Ag%253AaigAAeSw%257EUhqRYk1%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1468] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257599225852%7C0#compare-prices
+                  - paragraph [ref=e1471]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1473] [cursor=pointer]
+              - article [ref=e1477]:
+                - generic [ref=e1478]:
+                  - img "Samsung Galaxy S24 128GB SM-S921U (T-Mobile) Black (E-0161)" [ref=e1480]
+                  - generic:
+                    - generic [ref=e1481]: eBay
+                    - generic [ref=e1482]: "-20%"
+                - generic [ref=e1483]:
+                  - heading "Samsung Galaxy S24 128GB SM-S921U (T-Mobile) Black (E-0161)" [level=3] [ref=e1484]
+                  - paragraph [ref=e1485]: Used • eBay
+                  - generic [ref=e1487]:
+                    - generic [ref=e1488]: ‏٢٥٩٫٩٦ ج.م.‏
+                    - generic [ref=e1489]: ‏٣٢٤٫٩٥ ج.م.‏
+                  - paragraph [ref=e1490]: In Stock
+                - generic [ref=e1491]:
+                  - generic [ref=e1492]:
+                    - link "Shop Now" [ref=e1493] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C158250520761%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F158250520761%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem24d87750b9%253Ag%253A2h0AAeSwD%257E1qmEuD%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1498] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C158250520761%7C0#compare-prices
+                  - paragraph [ref=e1501]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1503] [cursor=pointer]
+              - article [ref=e1507]:
+                - generic [ref=e1508]:
+                  - img "Samsung Galaxy S24+ SM-S926U 256GB Onyx Black Unlocked W099051" [ref=e1510]
+                  - generic:
+                    - generic [ref=e1511]: eBay
+                    - generic [ref=e1512]: "-19%"
+                - generic [ref=e1513]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 256GB Onyx Black Unlocked W099051" [level=3] [ref=e1514]
+                  - paragraph [ref=e1515]: Used • eBay
+                  - generic [ref=e1517]:
+                    - generic [ref=e1518]: ‏٢٥٥٫٨٥ ج.م.‏
+                    - generic [ref=e1519]: ‏٣١٧٫٥٠ ج.م.‏
+                  - paragraph [ref=e1520]: In Stock
+                - generic [ref=e1521]:
+                  - generic [ref=e1522]:
+                    - link "Shop Now" [ref=e1523] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257675082935%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257675082935%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bfea1bcb7%253Ag%253ATxEAAeSwvLhqe6CL%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1528] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257675082935%7C0#compare-prices
+                  - paragraph [ref=e1531]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1533] [cursor=pointer]
+              - article [ref=e1537]:
+                - generic [ref=e1538]:
+                  - img "Samsung Galaxy S24+ SM-S926U 256GB Onyx Black Unlocked W096224" [ref=e1540]
+                  - generic:
+                    - generic [ref=e1541]: eBay
+                    - generic [ref=e1542]: "-19%"
+                - generic [ref=e1543]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 256GB Onyx Black Unlocked W096224" [level=3] [ref=e1544]
+                  - paragraph [ref=e1545]: Used • eBay
+                  - generic [ref=e1547]:
+                    - generic [ref=e1548]: ‏٢٥٥٫٨٥ ج.م.‏
+                    - generic [ref=e1549]: ‏٣١٧٫٥٠ ج.م.‏
+                  - paragraph [ref=e1550]: In Stock
+                - generic [ref=e1551]:
+                  - generic [ref=e1552]:
+                    - link "Shop Now" [ref=e1553] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257619429449%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257619429449%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3bfb508849%253Ag%253AwPIAAeSwe4RqVOiz%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1558] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257619429449%7C0#compare-prices
+                  - paragraph [ref=e1561]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1563] [cursor=pointer]
+              - article [ref=e1567]:
+                - generic [ref=e1568]:
+                  - img "Samsung Galaxy S24+ SM-S926U 512GB Cobalt Violet T-Mobile Unlocked W100828" [ref=e1570]
+                  - generic:
+                    - generic [ref=e1571]: eBay
+                    - generic [ref=e1572]: "-17%"
+                - generic [ref=e1573]:
+                  - heading "Samsung Galaxy S24+ SM-S926U 512GB Cobalt Violet T-Mobile Unlocked W100828" [level=3] [ref=e1574]
+                  - paragraph [ref=e1575]: Used • eBay
+                  - generic [ref=e1577]:
+                    - generic [ref=e1578]: ‏٢٥٩٫٧٥ ج.م.‏
+                    - generic [ref=e1579]: ‏٣١١٫٤١ ج.م.‏
+                  - paragraph [ref=e1580]: In Stock
+                - generic [ref=e1581]:
+                  - generic [ref=e1582]:
+                    - link "Shop Now" [ref=e1583] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257700241190%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257700241190%3F_skw%3Dsamsung%2Bgalaxy%2Bs24%26hash%3Ditem3c00219f26%253Ag%253AKN0AAeSwgW9qjKOO%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1588] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257700241190%7C0#compare-prices
+                  - paragraph [ref=e1591]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1593] [cursor=pointer]
+            - button "Load More" [ref=e1598] [cursor=pointer]
+    - contentinfo [ref=e1599]:
+      - generic [ref=e1600]:
+        - generic [ref=e1601]:
+          - text: ZORINO
+          - paragraph [ref=e1602]: AI-powered deal discovery
+        - navigation "Company" [ref=e1603]:
+          - heading "Company" [level=3] [ref=e1604]
+          - list [ref=e1605]:
+            - listitem [ref=e1606]:
+              - link "About Us" [ref=e1607] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e1608]:
+              - link "Contact" [ref=e1609] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e1610]:
+              - link "FAQ" [ref=e1611] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=e1612]:
+              - link "Blog" [ref=e1613] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=e1614]:
+          - heading "Legal" [level=3] [ref=e1615]
+          - list [ref=e1616]:
+            - listitem [ref=e1617]:
+              - link "Imprint" [ref=e1618] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=e1619]:
+              - link "Privacy" [ref=e1620] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e1621]:
+              - link "Terms" [ref=e1622] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e1623]:
+              - link "Cookies" [ref=e1624] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=e1625]:
+              - link "Affiliate" [ref=e1626] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=e1627]:
+              - link "DMCA" [ref=e1628] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=e1629]:
+              - link "Accessibility" [ref=e1630] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=e1631]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=e1632]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=e1633] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=e1634]

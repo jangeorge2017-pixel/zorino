@@ -1,0 +1,34 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mF:/zorino_backup[39m
+
+ [32mΓ£ô[39m tests/unit/search/db-inventory-reachability.test.ts[2m > [22mbuildWordBoundaryOrFilter ΓÇö PostgREST-valid operator[2m > [22muses imatch (case-insensitive regex), never the invalid iregex[32m 3[2mms[22m[39m
+ [32mΓ£ô[39m tests/unit/search/db-inventory-reachability.test.ts[2m > [22mbuildWordBoundaryOrFilter ΓÇö PostgREST-valid operator[2m > [22manchors each token as a whole word with \mΓÇª\M[32m 1[2mms[22m[39m
+ [32mΓ£ô[39m tests/unit/search/db-inventory-reachability.test.ts[2m > [22mbuildWordBoundaryOrFilter ΓÇö PostgREST-valid operator[2m > [22mescapes regex metacharacters in tokens[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m tests/unit/search/db-inventory-reachability.test.ts[2m > [22minterleaveLiveAndDbResults ΓÇö DB inventory stays reachable at the cap[2m > [22mreserves canonical cadence from slot 0 ΓÇö a live fill saturating the cap cannot unbudget the DB slots[32m 8[2mms[22m[39m
+ [31m├ù[39m tests/unit/search/db-inventory-reachability.test.ts[2m > [22minterleaveLiveAndDbResults ΓÇö DB inventory stays reachable at the cap[2m > [22mholds the cadence seam from slot 0 even for a short live block (Bug 4 guard preserved)[32m 12[2mms[22m[39m
+[31m   ΓåÆ Cannot mix BigInt and other types, use explicit conversions[39m
+ [32mΓ£ô[39m tests/unit/search/db-inventory-reachability.test.ts[2m > [22minterleaveLiveAndDbResults ΓÇö DB inventory stays reachable at the cap[2m > [22mdrains DB rows when there is no live result at all[32m 2[2mms[22m[39m
+ [32mΓ£ô[39m tests/unit/search/db-inventory-reachability.test.ts[2m > [22minterleaveLiveAndDbResults ΓÇö DB inventory stays reachable at the cap[2m > [22mreturns an empty pool for a non-positive cap[32m 0[2mms[22m[39m
+ [32mΓ£ô[39m tests/unit/search/db-inventory-reachability.test.ts[2m > [22minterleaveLiveAndDbResults ΓÇö DB inventory stays reachable at the cap[2m > [22mnever emits more DB rows than are supplied[32m 1[2mms[22m[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 1 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/unit/search/db-inventory-reachability.test.ts > interleaveLiveAndDbResults ΓÇö DB inventory stays reachable at the cap > holds the cadence seam from slot 0 even for a short live block (Bug 4 guard preserved)
+TypeError: Cannot mix BigInt and other types, use explicit conversions
+ Γ¥» interleaveLiveAndDbResults lib/search/engine.ts:90:42
+     88|   // to the supplement. This is a pure cadence decision and is completΓÇª
+     89|   // independent of how many live rows each provider returned.
+     90|   const dbSlotCount = Math.min(Math.ceil(capped / dbEvery), db.length);
+       |                                          ^
+     91|   const takenByDb = new Array<boolean>(capped).fill(false);
+     92|   let di = 0;
+ Γ¥» tests/unit/search/db-inventory-reachability.test.ts:93:19
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/1]ΓÄ»
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 22:55:07
+[2m   Duration [22m 5.95s[2m (transform 2.91s, setup 0ms, collect 4.46s, tests 30ms, environment 1ms, prepare 705ms)[22m
+

@@ -1,0 +1,379 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mF:/zorino_backup[39m
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mdownloads ALL candidate feeds concurrently (peak concurrency == feed count)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mdownloads ALL candidate feeds concurrently (peak concurrency == feed count)
+[22m[39m[admitad-config] Discovered 4 merchant programs: Merchant 1, Merchant 2, Merchant 3, Merchant 4
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mdownloads ALL candidate feeds concurrently (peak concurrency == feed count)
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+[admitad] fetching feed "Merchant 2" from URL (budget 300)...
+[admitad] fetching feed "Merchant 3" from URL (budget 300)...
+[admitad] fetching feed "Merchant 4" from URL (budget 300)...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mdownloads ALL candidate feeds concurrently (peak concurrency == feed count)
+[22m[39m[admitad] feed "Merchant 1": 1 products
+[admitad] feed "Merchant 2": 1 products
+[admitad] feed "Merchant 3": 1 products
+[admitad] feed "Merchant 4": 1 products
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mcompletes within the wall-clock deadline even when one feed stalls forever
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mcompletes within the wall-clock deadline even when one feed stalls forever
+[22m[39m[admitad-config] Discovered 3 merchant programs: Merchant 1, Merchant 2, Merchant 3
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mcompletes within the wall-clock deadline even when one feed stalls forever
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+[admitad] fetching feed "Merchant 2" from URL (budget 300)...
+[admitad] fetching feed "Merchant 3" from URL (budget 300)...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mcompletes within the wall-clock deadline even when one feed stalls forever
+[22m[39m[admitad] feed "Merchant 1": 1 products
+[admitad] feed "Merchant 2": 1 products
+
+stderr | tests/unit/providers/fix11-feed-parallel.test.ts > Fix 11: parallel multi-feed fan-out (no more serial ~N downloads) > completes within the wall-clock deadline even when one feed stalls forever
+[admitad] feed "Merchant 3" fetch failed: Admitad feed "Merchant 3" exceeded 120ms budget
+
+[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mrespects the caller deadline when per-feed timeout is larger
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mrespects the caller deadline when per-feed timeout is larger
+[22m[39m[admitad-config] Discovered 2 merchant programs: Merchant 1, Merchant 2
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mrespects the caller deadline when per-feed timeout is larger
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+[admitad] fetching feed "Merchant 2" from URL (budget 300)...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mrespects the caller deadline when per-feed timeout is larger
+[22m[39m[admitad] feed "Merchant 1": 1 products
+[admitad] feed "Merchant 2": 1 products
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mpreserves feed order in results (later feeds resolving first stay ordered)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mpreserves feed order in results (later feeds resolving first stay ordered)
+[22m[39m[admitad-config] Discovered 3 merchant programs: Merchant 1, Merchant 2, Merchant 3
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mpreserves feed order in results (later feeds resolving first stay ordered)
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+[admitad] fetching feed "Merchant 2" from URL (budget 300)...
+[admitad] fetching feed "Merchant 3" from URL (budget 300)...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mpreserves feed order in results (later feeds resolving first stay ordered)
+[22m[39m[admitad] feed "Merchant 2": 1 products
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mpreserves feed order in results (later feeds resolving first stay ordered)
+[22m[39m[admitad] feed "Merchant 3": 1 products
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mpreserves feed order in results (later feeds resolving first stay ordered)
+[22m[39m[admitad] feed "Merchant 1": 1 products
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mskips a failed feed and still returns all healthy feeds (failure isolation)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mskips a failed feed and still returns all healthy feeds (failure isolation)
+[22m[39m[admitad-config] Discovered 3 merchant programs: Merchant 1, Merchant 2, Merchant 3
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mskips a failed feed and still returns all healthy feeds (failure isolation)
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+[admitad] fetching feed "Merchant 2" from URL (budget 300)...
+[admitad] fetching feed "Merchant 3" from URL (budget 300)...
+
+stderr | tests/unit/providers/fix11-feed-parallel.test.ts > Fix 11: parallel multi-feed fan-out (no more serial ~N downloads) > skips a failed feed and still returns all healthy feeds (failure isolation)
+[admitad] feed "Merchant 2" fetch failed: feed 500
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mskips a failed feed and still returns all healthy feeds (failure isolation)
+[22m[39m[admitad] feed "Merchant 1": 1 products
+[admitad] feed "Merchant 3": 1 products
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mserves subsequent calls from the feed cache without re-downloading
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mserves subsequent calls from the feed cache without re-downloading
+[22m[39m[admitad-config] Discovered 2 merchant programs: Merchant 1, Merchant 2
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mserves subsequent calls from the feed cache without re-downloading
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+[admitad] fetching feed "Merchant 2" from URL (budget 300)...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mserves subsequent calls from the feed cache without re-downloading
+[22m[39m[admitad] feed "Merchant 1": 1 products
+[admitad] feed "Merchant 2": 1 products
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mhonors maxFeeds slicing and caps each feed at maxProductsPerFeed
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mhonors maxFeeds slicing and caps each feed at maxProductsPerFeed
+[22m[39m[admitad-config] Discovered 5 merchant programs: Merchant 1, Merchant 2, Merchant 3, Merchant 4, Merchant 5
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mhonors maxFeeds slicing and caps each feed at maxProductsPerFeed
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 4)...
+[admitad] fetching feed "Merchant 2" from URL (budget 4)...
+[admitad] fetching feed "Merchant 3" from URL (budget 4)...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mhonors maxFeeds slicing and caps each feed at maxProductsPerFeed
+[22m[39m[admitad] feed "Merchant 1": 10 products
+[admitad] feed "Merchant 2": 10 products
+[admitad] feed "Merchant 3": 10 products
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mempty feed list returns empty (no downloads, never fabricates)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: parallel multi-feed fan-out (no more serial ~N downloads)[2m > [22m[2mempty feed list returns empty (no downloads, never fabricates)
+[22m[39m[admitad-config] Discovery returned no usable merchant feeds ΓÇö keeping last known feeds
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: Admitad search connector settles within the fan-out deadline[2m > [22m[2mcalls fetchAdmitadFeedProducts with a deadline under the engine budget
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: Admitad search connector settles within the fan-out deadline[2m > [22m[2mcalls fetchAdmitadFeedProducts with a deadline under the engine budget
+[22m[39m[admitad-config] Discovered 2 merchant programs: Merchant 1, Merchant 2
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: Admitad search connector settles within the fan-out deadline[2m > [22m[2mcalls fetchAdmitadFeedProducts with a deadline under the engine budget
+[22m[39m[admitad] search "mouse": 0 feeds, 0 listings ( from ingested rows)
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: Admitad search connector settles within the fan-out deadline[2m > [22m[2mreturns real feed products through the standard normalization
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: Admitad search connector settles within the fan-out deadline[2m > [22m[2mreturns real feed products through the standard normalization
+[22m[39m[admitad-config] Discovered 2 merchant programs: Merchant 1, Merchant 2
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: Admitad search connector settles within the fan-out deadline[2m > [22m[2mreturns real feed products through the standard normalization
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+[admitad] fetching feed "Merchant 2" from URL (budget 300)...
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: Admitad search connector settles within the fan-out deadline[2m > [22m[2mreturns real feed products through the standard normalization
+[22m[39m[admitad] feed "Merchant 1": 2 products
+[admitad] feed "Merchant 2": 2 products
+
+[90mstdout[2m | tests/unit/providers/fix11-feed-parallel.test.ts[2m > [22m[2mFix 11: Admitad search connector settles within the fan-out deadline[2m > [22m[2mreturns real feed products through the standard normalization
+[22m[39m[admitad] search "mouse": 2 feeds, 4 listings ( from ingested rows)
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: known feeds are served immediately; discovery refreshes in the background[2m > [22m[2mrequest path returns known feeds WITHOUT waiting for the new discovery promise
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: known feeds are served immediately; discovery refreshes in the background[2m > [22m[2mrequest path returns known feeds WITHOUT waiting for the new discovery promise
+[22m[39m[admitad-config] Discovered 1 merchant programs: Alibaba
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: known feeds are served immediately; discovery refreshes in the background[2m > [22m[2mrequest path returns known feeds WITHOUT waiting for the new discovery promise
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: known feeds are served immediately; discovery refreshes in the background[2m > [22m[2mrequest path returns known feeds WITHOUT waiting for the new discovery promise
+[22m[39m[admitad-config] Discovered 2 merchant programs: Alibaba, DHgate
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: known feeds are served immediately; discovery refreshes in the background[2m > [22m[2mwithin the refresh TTL, reads do NOT start any new discovery (no churn)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: known feeds are served immediately; discovery refreshes in the background[2m > [22m[2mwithin the refresh TTL, reads do NOT start any new discovery (no churn)
+[22m[39m[admitad-config] Discovered 1 merchant programs: Alibaba
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: Fix 9 dedup + hard deadline remain intact[2m > [22m[2mconcurrent cold callers still share ONE in-flight discovery (Fix 9 dedup)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: Fix 9 dedup + hard deadline remain intact[2m > [22m[2mconcurrent cold callers still share ONE in-flight discovery (Fix 9 dedup)
+[22m[39m[admitad-config] Discovered 1 merchant programs: Alibaba
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: Fix 9 dedup + hard deadline remain intact[2m > [22m[2ma hanging discovery (cold start) cannot exceed the hard deadline
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+stderr | tests/unit/providers/fix10-admitad-overlap.test.ts > Fix 10: Fix 9 dedup + hard deadline remain intact > a hanging discovery (cold start) cannot exceed the hard deadline
+[admitad-config] Failed to initialize multi-merchant discovery: DOMException [AbortError]: Admitad discovery aborted
+    at new DOMException (node:internal/per_context/domexception:76:18)
+    at AbortSignal.onAbort (F:\zorino_backup\lib\integrations\admitad\config.ts:135:14)
+    at AbortSignal.[nodejs.internal.kHybridDispatch] (node:internal/event_target:843:20)
+    at AbortSignal.dispatchEvent (node:internal/event_target:776:26)
+    at runAbort (node:internal/abort_controller:547:10)
+    at abortSignal (node:internal/abort_controller:518:3)
+    at AbortController.abort (node:internal/abort_controller:566:5)
+    at Timeout._onTimeout (F:\zorino_backup\lib\integrations\admitad\config.ts:204:22)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7)
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: cold-start / failure behavior is preserved[2m > [22m[2mno usable feeds keeps the safe cold-start behavior (empty, no retry loop)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: cold-start / failure behavior is preserved[2m > [22m[2mno usable feeds keeps the safe cold-start behavior (empty, no retry loop)
+[22m[39m[admitad-config] Discovery returned no usable merchant feeds ΓÇö keeping last known feeds
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: cold-start / failure behavior is preserved[2m > [22m[2ma failing discovery never fabricates result feeds and settles empty
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+stderr | tests/unit/providers/fix10-admitad-overlap.test.ts > Fix 10: cold-start / failure behavior is preserved > a failing discovery never fabricates result feeds and settles empty
+[admitad-config] Failed to initialize multi-merchant discovery: Error: admitad discovery boom
+    at F:\zorino_backup\tests\unit\providers\fix10-admitad-overlap.test.ts:228:13
+    at executeDiscoveryRun (F:\zorino_backup\lib\integrations\admitad\config.ts:217:7)
+    at startDiscoveryRun (F:\zorino_backup\lib\integrations\admitad\config.ts:245:15)
+    at getAllAdmitadFeeds (F:\zorino_backup\lib\integrations\admitad\config.ts:286:11)
+    at F:\zorino_backup\tests\unit\providers\fix10-admitad-overlap.test.ts:230:18
+    at file:///F:/zorino_backup/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///F:/zorino_backup/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///F:/zorino_backup/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///F:/zorino_backup/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: cold-start / failure behavior is preserved[2m > [22m[2msuccessful discovery maps to identical feed semantics (provider output unchanged)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: cold-start / failure behavior is preserved[2m > [22m[2msuccessful discovery maps to identical feed semantics (provider output unchanged)
+[22m[39m[admitad-config] Discovered 2 merchant programs: DHgate, Alibaba
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: deterministic local timing evidence (overlap vs serial)[2m > [22m[2mBEFORE-equivalent ΓÇö cold start (no known feeds): request path waits for the discovery run
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+stderr | tests/unit/providers/fix10-admitad-overlap.test.ts > Fix 10: deterministic local timing evidence (overlap vs serial) > BEFORE-equivalent ΓÇö cold start (no known feeds): request path waits for the discovery run
+[admitad-config] Failed to initialize multi-merchant discovery: DOMException [AbortError]: Admitad discovery aborted
+    at new DOMException (node:internal/per_context/domexception:76:18)
+    at AbortSignal.onAbort (F:\zorino_backup\lib\integrations\admitad\config.ts:135:14)
+    at AbortSignal.[nodejs.internal.kHybridDispatch] (node:internal/event_target:843:20)
+    at AbortSignal.dispatchEvent (node:internal/event_target:776:26)
+    at runAbort (node:internal/abort_controller:547:10)
+    at abortSignal (node:internal/abort_controller:518:3)
+    at AbortController.abort (node:internal/abort_controller:566:5)
+    at Timeout._onTimeout (F:\zorino_backup\lib\integrations\admitad\config.ts:204:22)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7)
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: deterministic local timing evidence (overlap vs serial)[2m > [22m[2mAFTER ΓÇö warm start (known feeds): request path returns while discovery refresh is still pending
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: deterministic local timing evidence (overlap vs serial)[2m > [22m[2mAFTER ΓÇö warm start (known feeds): request path returns while discovery refresh is still pending
+[22m[39m[admitad-config] Discovered 1 merchant programs: Alibaba
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: deterministic local timing evidence (overlap vs serial)[2m > [22m[2mAFTER ΓÇö warm start (known feeds): request path returns while discovery refresh is still pending
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix10-admitad-overlap.test.ts[2m > [22m[2mFix 10: deterministic local timing evidence (overlap vs serial)[2m > [22m[2mAFTER ΓÇö warm start (known feeds): request path returns while discovery refresh is still pending
+[22m[39m[admitad-config] Discovered 1 merchant programs: Alibaba
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: concurrent callers share ONE in-flight discovery run[2m > [22m[2m8 concurrent initialize() calls execute discovery exactly once
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: concurrent callers share ONE in-flight discovery run[2m > [22m[2m8 concurrent initialize() calls execute discovery exactly once
+[22m[39m[admitad-config] Discovery returned no usable merchant feeds ΓÇö keeping last known feeds
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: concurrent callers share ONE in-flight discovery run[2m > [22m[2mgetAllAdmitadFeeds() concurrent callers share one discovery + result
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: concurrent callers share ONE in-flight discovery run[2m > [22m[2mgetAllAdmitadFeeds() concurrent callers share one discovery + result
+[22m[39m[admitad-config] Discovered 1 merchant programs: Alibaba
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: concurrent callers share ONE in-flight discovery run[2m > [22m[2mafter settling, a later request waits for a fresh discovery only when state resets
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: concurrent callers share ONE in-flight discovery run[2m > [22m[2mafter settling, a later request waits for a fresh discovery only when state resets
+[22m[39m[admitad-config] Discovered 1 merchant programs: Alibaba
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: concurrent callers share ONE in-flight discovery run[2m > [22m[2mafter settling, a later request waits for a fresh discovery only when state resets
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: concurrent callers share ONE in-flight discovery run[2m > [22m[2mafter settling, a later request waits for a fresh discovery only when state resets
+[22m[39m[admitad-config] Discovered 1 merchant programs: Alibaba
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: output + fallback semantics are preserved[2m > [22m[2mmaps discovered merchants to feeds with identical fields (Alibaba first)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: output + fallback semantics are preserved[2m > [22m[2mmaps discovered merchants to feeds with identical fields (Alibaba first)
+[22m[39m[admitad-config] Discovered 3 merchant programs: DHgate, Alibaba, Sunsky
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: output + fallback semantics are preserved[2m > [22m[2mfailure preserves the empty/fallback behavior and never throws
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+stderr | tests/unit/providers/fix9-admitad-discovery.test.ts > Fix 9: output + fallback semantics are preserved > failure preserves the empty/fallback behavior and never throws
+[admitad-config] Failed to initialize multi-merchant discovery: Error: admitad api boom
+    at F:\zorino_backup\tests\unit\providers\fix9-admitad-discovery.test.ts:207:13
+    at executeDiscoveryRun (F:\zorino_backup\lib\integrations\admitad\config.ts:217:7)
+    at startDiscoveryRun (F:\zorino_backup\lib\integrations\admitad\config.ts:245:15)
+    at initializeMultiMerchantDiscovery (F:\zorino_backup\lib\integrations\admitad\config.ts:274:9)
+    at F:\zorino_backup\tests\unit\providers\fix9-admitad-discovery.test.ts:210:18
+    at file:///F:/zorino_backup/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///F:/zorino_backup/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///F:/zorino_backup/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///F:/zorino_backup/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: output + fallback semantics are preserved[2m > [22m[2mempty programs produce an empty feed list (no false feeds)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: output + fallback semantics are preserved[2m > [22m[2mempty programs produce an empty feed list (no false feeds)
+[22m[39m[admitad-config] Discovery returned no usable merchant feeds ΓÇö keeping last known feeds
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: abort / deadline bounds discovery[2m > [22m[2mwhen discovery honors the abort signal it terminates safely
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+stderr | tests/unit/providers/fix9-admitad-discovery.test.ts > Fix 9: abort / deadline bounds discovery > when discovery honors the abort signal it terminates safely
+[admitad-config] Failed to initialize multi-merchant discovery: DOMException [AbortError]: Admitad discovery aborted
+    at new DOMException (node:internal/per_context/domexception:76:18)
+    at AbortSignal.onAbort (F:\zorino_backup\lib\integrations\admitad\config.ts:135:14)
+    at AbortSignal.[nodejs.internal.kHybridDispatch] (node:internal/event_target:843:20)
+    at AbortSignal.dispatchEvent (node:internal/event_target:776:26)
+    at runAbort (node:internal/abort_controller:547:10)
+    at abortSignal (node:internal/abort_controller:518:3)
+    at AbortController.abort (node:internal/abort_controller:566:5)
+    at Timeout._onTimeout (F:\zorino_backup\lib\integrations\admitad\config.ts:204:22)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7)
+
+[90mstdout[2m | tests/unit/providers/fix9-admitad-discovery.test.ts[2m > [22m[2mFix 9: abort / deadline bounds discovery[2m > [22m[2ma hanging discovery cannot exceed the configured deadline
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+stderr | tests/unit/providers/fix9-admitad-discovery.test.ts > Fix 9: abort / deadline bounds discovery > a hanging discovery cannot exceed the configured deadline
+[admitad-config] Failed to initialize multi-merchant discovery: DOMException [AbortError]: Admitad discovery aborted
+    at new DOMException (node:internal/per_context/domexception:76:18)
+    at AbortSignal.onAbort (F:\zorino_backup\lib\integrations\admitad\config.ts:135:14)
+    at AbortSignal.[nodejs.internal.kHybridDispatch] (node:internal/event_target:843:20)
+    at AbortSignal.dispatchEvent (node:internal/event_target:776:26)
+    at runAbort (node:internal/abort_controller:547:10)
+    at abortSignal (node:internal/abort_controller:518:3)
+    at AbortController.abort (node:internal/abort_controller:566:5)
+    at Timeout._onTimeout (F:\zorino_backup\lib\integrations\admitad\config.ts:204:22)
+    at listOnTimeout (node:internal/timers:605:17)
+    at processTimers (node:internal/timers:541:7)
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mexcludes waterproof/professional products from a 'macbook pro' search
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mexcludes waterproof/professional products from a 'macbook pro' search
+[22m[39m[admitad-config] Discovered 1 merchant programs: Merchant 1
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mexcludes waterproof/professional products from a 'macbook pro' search
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mexcludes waterproof/professional products from a 'macbook pro' search
+[22m[39m[admitad] feed "Merchant 1": 3 products
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mexcludes waterproof/professional products from a 'macbook pro' search
+[22m[39m[admitad] search "macbook pro": 1 feeds, 1 listings ( from ingested rows)
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mstill returns real MacBook offers (genuine matches preserved)
+[22m[39m[admitad-config] Initializing multi-merchant discovery...
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mstill returns real MacBook offers (genuine matches preserved)
+[22m[39m[admitad-config] Discovered 1 merchant programs: Merchant 1
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mstill returns real MacBook offers (genuine matches preserved)
+[22m[39m[admitad] fetching feed "Merchant 1" from URL (budget 300)...
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mstill returns real MacBook offers (genuine matches preserved)
+[22m[39m[admitad] feed "Merchant 1": 2 products
+
+[90mstdout[2m | tests/unit/integration/search-relevance-regression.test.ts[2m > [22m[2mBug 3: Admitad connector matches query words by whole word, not substring[2m > [22m[2mstill returns real MacBook offers (genuine matches preserved)
+[22m[39m[admitad] search "macbook pro": 1 feeds, 2 listings ( from ingested rows)
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[90mstdout[2m | tests/unit/integration/affiliate-ingestion.test.ts[2m > [22m[2mprocessSource ΓÇö engine-level behavior[2m > [22m[2mroutes extraction by detected FORMAT, never by provider id
+[22m[39m[ingestion] admitad: 1 URLs ΓåÆ 0 products, 1 destination-only
+
+[90mstdout[2m | tests/unit/integration/affiliate-ingestion.test.ts[2m > [22m[2mprocessSource ΓÇö engine-level behavior[2m > [22m[2mbuilt-in ASIN extraction cannot fire on another network's resolved URL
+[22m[39m[ingestion] admitad: 1 URLs ΓåÆ 0 products, 1 destination-only
+
+[90mstdout[2m | tests/unit/integration/affiliate-ingestion.test.ts[2m > [22m[2mprocessSource ΓÇö engine-level behavior[2m > [22m[2ma missing affiliate URL is recorded as destination-only, never a product
+[22m[39m[ingestion] admitad: 1 URLs ΓåÆ 0 products, 1 destination-only
+
+[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m[33m[39m[32m┬╖[39m
+
+[2m Test Files [22m [1m[32m37 passed[39m[22m[90m (37)[39m
+[2m      Tests [22m [1m[32m627 passed[39m[22m[90m (627)[39m
+[2m   Start at [22m 15:08:59
+[2m   Duration [22m 13.01s[2m (transform 5.08s, setup 0ms, collect 8.12s, tests 3.00s, environment 0ms, prepare 532ms)[22m
+

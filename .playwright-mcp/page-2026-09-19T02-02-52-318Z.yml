@@ -1,0 +1,270 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - banner [ref=f1e4]:
+      - generic [ref=f1e5]:
+        - link [ref=f1e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f1e7]
+        - button "Menu" [ref=f1e8] [cursor=pointer]
+        - generic [ref=f1e10]:
+          - link "Search" [ref=f1e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f1e16] [cursor=pointer]:
+            - generic [ref=f1e17]: Dark
+            - generic [ref=f1e21]: Light
+          - button "Language, country, and currency" [ref=f1e31] [cursor=pointer]:
+            - generic [ref=f1e35]: EN · EGP
+          - link "Wishlist" [ref=f1e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f1e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f1e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f1e52]: Hello, User
+    - main [ref=f1e53]:
+      - generic [ref=f1e55]:
+        - region [ref=f1e56]:
+          - link "Categories" [ref=f1e57] [cursor=pointer]:
+            - /url: /categories
+          - generic [ref=f1e60]:
+            - generic [ref=f1e61]:
+              - generic [aria-hidden] [ref=f1e62]: 📱
+              - generic [ref=f1e63]:
+                - paragraph [ref=f1e64]: Category spotlight
+                - heading "Phones" [level=1] [ref=f1e65]
+                - paragraph [ref=f1e66]: Live deals for Phones across all stores.
+            - generic [ref=f1e67]:
+              - generic [ref=f1e69]:
+                - strong [ref=f1e70]: "7"
+                - generic [ref=f1e71]: Products tracked
+              - generic [ref=f1e73]:
+                - strong [ref=f1e74]: Live
+                - generic [ref=f1e75]: From active providers
+            - link [ref=f1e76] [cursor=pointer]:
+              - /url: /search
+              - button "Search in Phones" [ref=f1e77]
+        - generic [ref=f1e79]:
+          - generic [ref=f1e80]:
+            - generic [ref=f1e81]: Sort By
+            - combobox [ref=f1e82] [cursor=pointer]:
+              - option "Highest Discount" [selected]
+              - 'option "Price: Low to High"'
+              - 'option "Price: High to Low"'
+              - option "Rating"
+          - link [ref=f1e84] [cursor=pointer]:
+            - /url: /deals
+            - button "View Trending Deals" [ref=f1e85]
+          - link [ref=f1e87] [cursor=pointer]:
+            - /url: /compare
+            - button "Compare Prices" [ref=f1e88]
+        - generic [ref=f1e89]:
+          - article [ref=f1e90]:
+            - generic [ref=f1e91]:
+              - img "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [ref=f1e93]
+              - generic:
+                - generic [ref=f1e94]: AliExpress
+                - generic [ref=f1e95]: "-55%"
+            - generic [ref=f1e96]:
+              - heading "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [level=3] [ref=f1e97]
+              - paragraph [ref=f1e98]: Phones & Telecommunications • AliExpress
+              - generic [ref=f1e99]: 5 (2 sold)
+              - generic [ref=f1e103]:
+                - generic [ref=f1e104]: ‏٧٥٫٩٠ ج.م.‏
+                - generic [ref=f1e105]: ‏١٦٨٫٦٨ ج.م.‏
+              - paragraph [ref=f1e106]: In Stock
+            - generic [ref=f1e107]:
+              - generic [ref=f1e108]:
+                - link "Shop Now" [ref=f1e109] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=aliexpress-3256812554314964&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812554314964.html%3Fpdp_npi%3D6%2540dis%2521USD%2521168.68%252175.90%2521%2521%25211123.81%2521505.71%2521%25402151fd3a17897833688847037e0dc9%252112000059243644035%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                - link "Compare Prices" [ref=f1e114] [cursor=pointer]:
+                  - /url: /product/aliexpress-3256812554314964#compare-prices
+              - paragraph [ref=f1e117]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f1e119] [cursor=pointer]
+          - article [ref=f1e123]:
+            - generic [ref=f1e124]:
+              - img "Refurbished Samsung Galaxy A20e Smart Android Phone 5.8-inch 720x1560 Global Edition 2SIM NFC Samsung Phone Original Unlocking" [ref=f1e126]
+              - generic:
+                - generic [ref=f1e127]: AliExpress
+                - generic [ref=f1e128]: "-55%"
+            - generic [ref=f1e129]:
+              - heading "Refurbished Samsung Galaxy A20e Smart Android Phone 5.8-inch 720x1560 Global Edition 2SIM NFC Samsung Phone Original Unlocking" [level=3] [ref=f1e130]
+              - paragraph [ref=f1e131]: Phones & Telecommunications • AliExpress
+              - generic [ref=f1e132]: 5 (1 sold)
+              - generic [ref=f1e136]:
+                - generic [ref=f1e137]: ‏١٠٧٫٥٣ ج.م.‏
+                - generic [ref=f1e138]: ‏٢٣٨٫٩٥ ج.م.‏
+              - paragraph [ref=f1e139]: In Stock
+            - generic [ref=f1e140]:
+              - generic [ref=f1e141]:
+                - link "Shop Now" [ref=f1e142] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=aliexpress-3256811762031730&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811762031730.html%3Fpdp_npi%3D6%2540dis%2521USD%2521238.95%2521107.53%2521%2521%25211591.93%2521716.37%2521%25402151fd3a17897833688602766e0c5e%252112000057111080045%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                - link "Compare Prices" [ref=f1e147] [cursor=pointer]:
+                  - /url: /product/aliexpress-3256811762031730#compare-prices
+              - paragraph [ref=f1e150]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f1e152] [cursor=pointer]
+          - article [ref=f1e156]:
+            - generic [ref=f1e157]:
+              - img "Honor 8X 4G LTE Unlocked Mobile Phone Global ROM Google Play 6.5\" Full Screen Kirin 710 Dual Camera Fingerprint used phone" [ref=f1e159]
+              - generic:
+                - generic [ref=f1e160]: AliExpress
+                - generic [ref=f1e161]: "-53%"
+            - generic [ref=f1e162]:
+              - heading "Honor 8X 4G LTE Unlocked Mobile Phone Global ROM Google Play 6.5\" Full Screen Kirin 710 Dual Camera Fingerprint used phone" [level=3] [ref=f1e163]
+              - paragraph [ref=f1e164]: Phones & Telecommunications • AliExpress
+              - generic [ref=f1e166]:
+                - generic [ref=f1e167]: ‏٧٧٫١٢ ج.م.‏
+                - generic [ref=f1e168]: ‏١٦٤٫٠٨ ج.م.‏
+              - paragraph [ref=f1e169]: In Stock
+            - generic [ref=f1e170]:
+              - generic [ref=f1e171]:
+                - link "Shop Now" [ref=f1e172] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=aliexpress-3256812577758496&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812577758496.html%3Fpdp_npi%3D6%2540dis%2521USD%2521164.08%252177.12%2521%2521%25211093.14%2521513.78%2521%25402151fd3a17897833688847037e0dc9%252112000059275265619%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                - link "Compare Prices" [ref=f1e177] [cursor=pointer]:
+                  - /url: /product/aliexpress-3256812577758496#compare-prices
+              - paragraph [ref=f1e180]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f1e182] [cursor=pointer]
+          - article [ref=f1e186]:
+            - generic [ref=f1e187]:
+              - img "Samsung Galaxy S22+ 5G Network Unlocked Mobile Phone Daily Gaming Business Smartphone 6.6 Inch Screen Snapdragon Chip NFC" [ref=f1e189]
+              - generic:
+                - generic [ref=f1e190]: AliExpress
+                - generic [ref=f1e191]: "-33%"
+            - generic [ref=f1e192]:
+              - heading "Samsung Galaxy S22+ 5G Network Unlocked Mobile Phone Daily Gaming Business Smartphone 6.6 Inch Screen Snapdragon Chip NFC" [level=3] [ref=f1e193]
+              - paragraph [ref=f1e194]: Phones & Telecommunications • AliExpress
+              - generic [ref=f1e196]:
+                - generic [ref=f1e197]: ‏٢٨٦٫١٠ ج.م.‏
+                - generic [ref=f1e198]: ‏٤٢٧٫٠٢ ج.م.‏
+              - paragraph [ref=f1e199]: In Stock
+            - generic [ref=f1e200]:
+              - generic [ref=f1e201]:
+                - link "Shop Now" [ref=f1e202] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=aliexpress-3256812250741165&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812250741165.html%3Fpdp_npi%3D6%2540dis%2521USD%2521427.02%2521286.10%2521%2521%25212844.88%25211906.07%2521%25402151fd3a17897833688847037e0dc9%252112000059730611512%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                - link "Compare Prices" [ref=f1e207] [cursor=pointer]:
+                  - /url: /product/aliexpress-3256812250741165#compare-prices
+              - paragraph [ref=f1e210]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f1e212] [cursor=pointer]
+          - article [ref=f1e216]:
+            - generic [ref=f1e217]:
+              - img "Apple iPhone 14 5G Network Unlocked Smartphone 6.1\" Super Retina OLED 6GB RAM 128/256GB ROM Face ID+NFC Original Screen Phone" [ref=f1e219]
+              - generic:
+                - generic [ref=f1e220]: AliExpress
+                - generic [ref=f1e221]: "-30%"
+            - generic [ref=f1e222]:
+              - heading "Apple iPhone 14 5G Network Unlocked Smartphone 6.1\" Super Retina OLED 6GB RAM 128/256GB ROM Face ID+NFC Original Screen Phone" [level=3] [ref=f1e223]
+              - paragraph [ref=f1e224]: Phones & Telecommunications • AliExpress
+              - generic [ref=f1e226]:
+                - generic [ref=f1e227]: ‏٤٨٠٫٩٨ ج.م.‏
+                - generic [ref=f1e228]: ‏٦٨٧٫١١ ج.م.‏
+              - paragraph [ref=f1e229]: In Stock
+            - generic [ref=f1e230]:
+              - generic [ref=f1e231]:
+                - link "Shop Now" [ref=f1e232] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=aliexpress-3256812266099644&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812266099644.html%3Fpdp_npi%3D6%2540dis%2521USD%2521687.11%2521480.98%2521%2521%25214577.67%25213204.37%2521%25402151fd3a17897833688847037e0dc9%252112000058426402224%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                - link "Compare Prices" [ref=f1e237] [cursor=pointer]:
+                  - /url: /product/aliexpress-3256812266099644#compare-prices
+              - paragraph [ref=f1e240]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f1e242] [cursor=pointer]
+          - article [ref=f1e246]:
+            - generic [ref=f1e247]:
+              - img "Apple iPhone 15 Pro Max 5G Network Unlocked Smartphone 6.7 \"Supports Face ID NFC Original Screen Refurbished Mobile Phone" [ref=f1e249]
+              - generic:
+                - generic [ref=f1e250]: AliExpress
+                - generic [ref=f1e251]: "-30%"
+            - generic [ref=f1e252]:
+              - heading "Apple iPhone 15 Pro Max 5G Network Unlocked Smartphone 6.7 \"Supports Face ID NFC Original Screen Refurbished Mobile Phone" [level=3] [ref=f1e253]
+              - paragraph [ref=f1e254]: Phones & Telecommunications • AliExpress
+              - generic [ref=f1e256]:
+                - generic [ref=f1e257]: ‏٩٣٨٫٦٢ ج.م.‏
+                - generic [ref=f1e258]: ‏١٬٣٤٠٫٨٨ ج.م.‏
+              - paragraph [ref=f1e259]: In Stock
+            - generic [ref=f1e260]:
+              - generic [ref=f1e261]:
+                - link "Shop Now" [ref=f1e262] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=aliexpress-3256812266514130&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812266514130.html%3Fpdp_npi%3D6%2540dis%2521USD%25211340.88%2521938.62%2521%2521%25218933.24%25216253.27%2521%25402151fd3a17897833688847037e0dc9%252112000058427312453%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                - link "Compare Prices" [ref=f1e267] [cursor=pointer]:
+                  - /url: /product/aliexpress-3256812266514130#compare-prices
+              - paragraph [ref=f1e270]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f1e272] [cursor=pointer]
+          - article [ref=f1e276]:
+            - generic [ref=f1e277]:
+              - img "Samsung Galaxy J5 J500F 5.0\" 16GB ROM 4G LTE Network Unlocked Smartphone | Android Refurbished Mobile Phone" [ref=f1e279]
+              - generic:
+                - generic [ref=f1e280]: AliExpress
+                - generic [ref=f1e281]: "-28%"
+            - generic [ref=f1e282]:
+              - heading "Samsung Galaxy J5 J500F 5.0\" 16GB ROM 4G LTE Network Unlocked Smartphone | Android Refurbished Mobile Phone" [level=3] [ref=f1e283]
+              - paragraph [ref=f1e284]: Phones & Telecommunications • AliExpress
+              - generic [ref=f1e286]:
+                - generic [ref=f1e287]: ‏٧١٫٧٥ ج.م.‏
+                - generic [ref=f1e288]: ‏٩٩٫٦٥ ج.م.‏
+              - paragraph [ref=f1e289]: In Stock
+            - generic [ref=f1e290]:
+              - generic [ref=f1e291]:
+                - link "Shop Now" [ref=f1e292] [cursor=pointer]:
+                  - /url: /api/affiliate/go?productId=aliexpress-3256812463020336&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812463020336.html%3Fpdp_npi%3D6%2540dis%2521USD%252199.65%252171.75%2521%2521%2521663.88%2521477.99%2521%25402151fd3a17897833688847037e0dc9%252112000058976650672%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                - link "Compare Prices" [ref=f1e297] [cursor=pointer]:
+                  - /url: /product/aliexpress-3256812463020336#compare-prices
+              - paragraph [ref=f1e300]: ZORINO earns commissions on qualifying purchases.
+            - button "Add to Wishlist" [ref=f1e302] [cursor=pointer]
+        - region [ref=f1e306]:
+          - generic [ref=f1e307]:
+            - heading "Keep exploring Phones" [level=2] [ref=f1e308]
+            - paragraph [ref=f1e309]: Compare top products in this category and unlock coupon codes from partner stores.
+            - generic [ref=f1e310]:
+              - link [ref=f1e311] [cursor=pointer]:
+                - /url: /search
+                - button "Search Products" [ref=f1e312]
+              - link [ref=f1e313] [cursor=pointer]:
+                - /url: /categories
+                - button "All Categories" [ref=f1e314]
+    - contentinfo [ref=f1e315]:
+      - generic [ref=f1e316]:
+        - generic [ref=f1e317]:
+          - text: ZORINO
+          - paragraph [ref=f1e318]: AI-powered deal discovery
+        - navigation "Company" [ref=f1e319]:
+          - heading "Company" [level=3] [ref=f1e320]
+          - list [ref=f1e321]:
+            - listitem [ref=f1e322]:
+              - link "About Us" [ref=f1e323] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f1e324]:
+              - link "Contact" [ref=f1e325] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f1e326]:
+              - link "FAQ" [ref=f1e327] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f1e328]:
+              - link "Blog" [ref=f1e329] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f1e330]:
+          - heading "Legal" [level=3] [ref=f1e331]
+          - list [ref=f1e332]:
+            - listitem [ref=f1e333]:
+              - link "Imprint" [ref=f1e334] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f1e335]:
+              - link "Privacy" [ref=f1e336] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f1e337]:
+              - link "Terms" [ref=f1e338] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f1e339]:
+              - link "Cookies" [ref=f1e340] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f1e341]:
+              - link "Affiliate" [ref=f1e342] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f1e343]:
+              - link "DMCA" [ref=f1e344] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f1e345]:
+              - link "Accessibility" [ref=f1e346] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f1e347]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f1e348]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f1e349] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f1e350]

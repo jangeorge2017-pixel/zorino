@@ -1,0 +1,869 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Zorino" [ref=e7]
+        - navigation "Primary" [ref=e8]:
+          - link "Deals" [ref=e9] [cursor=pointer]:
+            - /url: /deals
+          - link "Coupons" [ref=e10] [cursor=pointer]:
+            - /url: /coupons
+          - link "Compare" [ref=e11] [cursor=pointer]:
+            - /url: /compare
+          - link "Categories" [ref=e12] [cursor=pointer]:
+            - /url: /categories
+          - link "Stores" [ref=e13] [cursor=pointer]:
+            - /url: /stores
+          - link "Blog" [ref=e14] [cursor=pointer]:
+            - /url: /blog
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - link "Search" [ref=e18] [cursor=pointer]:
+              - /url: /search
+            - generic [ref=e22]:
+              - button "Theme" [ref=e24] [cursor=pointer]:
+                - generic [ref=e25]: Dark
+                - generic [ref=e29]: Light
+              - button "Language, country, and currency" [ref=e39] [cursor=pointer]
+              - link [ref=e45] [cursor=pointer]:
+                - /url: /wishlist
+              - link "Notifications" [ref=e48] [cursor=pointer]:
+                - /url: /notifications
+          - link "Sign In" [ref=e52] [cursor=pointer]:
+            - /url: /auth/login
+            - generic [ref=e53]:
+              - strong [ref=e54]: Hello, User
+              - generic [ref=e55]: Premium
+    - generic [ref=e58]:
+      - generic [ref=e59]:
+        - region "Hero" [ref=e60]:
+          - generic [ref=e62]:
+            - heading "Find Better Deals Faster" [level=1] [ref=e63]: Find BetterDeals Faster
+            - paragraph [ref=e64]: Compare prices across trusted partner stores and discover the best deals in seconds.
+            - generic [ref=e65]:
+              - article [ref=e66]:
+                - paragraph [ref=e67]: "4"
+                - paragraph [ref=e74]: Stores
+              - article [ref=e75]:
+                - paragraph [ref=e76]: 69K+
+                - paragraph [ref=e83]: Products
+              - article [ref=e84]:
+                - paragraph [ref=e85]: "0"
+                - paragraph [ref=e91]: Coupons
+              - article [ref=e92]:
+                - paragraph [ref=e93]: Real-time
+                - paragraph [ref=e99]: Price Tracking
+              - article [ref=e100]:
+                - generic [ref=e101]: "-83%"
+                - generic:
+                  - generic: ‏٥٫٠٠ ج.م.‏
+                  - generic: ‏٢٩٫٩٥ ج.م.‏
+              - article [ref=e103]:
+                - generic [ref=e104]: "-80%"
+                - generic:
+                  - generic: ‏٢٢٤٫٠٠ ج.م.‏
+                  - generic: ‏١٬١٢٠٫٠٠ ج.م.‏
+        - generic [ref=e107]:
+          - search [ref=e110]:
+            - searchbox "Search products, brands, categories..." [ref=e114]
+            - button "Smart Search" [ref=e115] [cursor=pointer]
+            - button "Search" [ref=e119] [cursor=pointer]
+          - navigation "Categories" [ref=e121]:
+            - generic [ref=e122]:
+              - link "Phones" [ref=e123] [cursor=pointer]:
+                - /url: /categories/phones
+              - link "Laptops" [ref=e128] [cursor=pointer]:
+                - /url: /categories/laptops
+              - link "Gaming" [ref=e133] [cursor=pointer]:
+                - /url: /categories/gaming
+              - link "TVs" [ref=e138] [cursor=pointer]:
+                - /url: /categories/tvs
+              - link "Home" [ref=e144] [cursor=pointer]:
+                - /url: /categories/home
+              - link "Wearables" [ref=e150] [cursor=pointer]:
+                - /url: /categories/wearables
+              - link "Fashion" [ref=e158] [cursor=pointer]:
+                - /url: /categories/fashion
+              - link "Electronics" [ref=e163] [cursor=pointer]:
+                - /url: /categories/electronics
+              - link "Audio" [ref=e172] [cursor=pointer]:
+                - /url: /categories/audio
+              - link "Beauty" [ref=e177] [cursor=pointer]:
+                - /url: /categories/beauty
+              - link "Sports" [ref=e183] [cursor=pointer]:
+                - /url: /categories/sports
+      - navigation "Quick section navigation" [ref=e194]:
+        - generic [ref=e195]:
+          - generic [ref=e196]:
+            - button "Trending Deals" [ref=e197] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e198]: 🔥
+            - button "Coupons" [ref=e200] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e201]: 🎟️
+            - button "Coupon Brands" [ref=e203] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e204]: 🎟️
+            - button "Flash Deals" [ref=e206] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e207]: ⚡
+            - button "Price Drops" [ref=e209] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e210]: 📉
+            - button "New Arrivals" [ref=e212] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e213]: 🆕
+            - button "Top Rated" [ref=e215] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e216]: ⭐
+            - button "Editor's Picks" [ref=e218] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e219]: ❤️
+            - button "Stores" [ref=e221] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e222]: 🏪
+            - link "Blog" [ref=e224] [cursor=pointer]:
+              - /url: /blog
+              - generic [aria-hidden] [ref=e225]: 📰
+          - button "Show more sections" [ref=e227] [cursor=pointer]
+      - region "Home content" [ref=e230]:
+        - region "Trending deals and coupons" [ref=e232]:
+          - region [ref=e233]:
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - generic [ref=e241]:
+                  - heading "Trending Deals" [level=2] [ref=e242]
+                  - paragraph [ref=e243]: Hot picks shoppers are grabbing right now
+                - generic [ref=e244]:
+                  - link "View All Deals" [ref=e245] [cursor=pointer]:
+                    - /url: /deals
+                  - generic [ref=e249]:
+                    - generic [ref=e250]: Filter by Store
+                    - combobox "Filter by Store" [ref=e251] [cursor=pointer]:
+                      - option "All Deals" [selected]
+                      - option "Admitad"
+                      - option "Alibaba WW"
+                      - option "AliExpress"
+                      - option "eBay"
+                      - option "Glasseslit WW"
+                      - option "Sunsky-online WW"
+                  - generic [ref=e252]:
+                    - generic [ref=e253]: Sort by
+                    - combobox "Sort by" [ref=e254] [cursor=pointer]:
+                      - option "Biggest Discount" [selected]
+                      - option "Most Popular"
+                      - option "Newest"
+                      - option "Lowest Price"
+              - tablist "Filter trending deals" [ref=e257]:
+                - tab "All Deals" [selected] [ref=e258] [cursor=pointer]
+                - tab "Trending" [ref=e259] [cursor=pointer]
+                - tab "Hot" [ref=e260] [cursor=pointer]
+                - tab "Best Value" [ref=e261] [cursor=pointer]
+            - generic [ref=e262]:
+              - button "Previous deals" [disabled] [ref=e263]
+              - generic [ref=e266]:
+                - generic [ref=e267]:
+                  - article [ref=e270]:
+                    - generic [ref=e271]:
+                      - img "200732 Cateye Eyeglasses" [ref=e273]
+                      - generic:
+                        - generic [ref=e274]: Glasseslit WW
+                        - generic [ref=e275]: "-83%"
+                      - generic: Featured
+                    - generic [ref=e277]:
+                      - heading "200732 Cateye Eyeglasses" [level=3] [ref=e278]
+                      - paragraph [ref=e279]: Glasseslit WW
+                      - generic [ref=e281]:
+                        - generic [ref=e282]: ‏٥٫٠٠ ج.م.‏
+                        - generic [ref=e283]: ‏٢٩٫٩٥ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e284]
+                    - generic [ref=e285]:
+                      - generic [ref=e286]:
+                        - link "Shop Now" [ref=e287] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=db-7e3cb91d-a62f-4265-bd5f-4e485fd359cb&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252F200732-bluish_green-200732&source=search
+                        - link "Compare Prices" [ref=e292] [cursor=pointer]:
+                          - /url: /product/db-7e3cb91d-a62f-4265-bd5f-4e485fd359cb#compare-prices
+                      - paragraph [ref=e295]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e297] [cursor=pointer]
+                  - article [ref=e303]:
+                    - generic [ref=e304]:
+                      - img "Claudie Titanium Rectangle Eyeglasses" [ref=e306]
+                      - generic:
+                        - generic [ref=e307]: Glasseslit WW
+                        - generic [ref=e308]: "-82%"
+                      - generic: Featured
+                    - generic [ref=e310]:
+                      - heading "Claudie Titanium Rectangle Eyeglasses" [level=3] [ref=e311]
+                      - paragraph [ref=e312]: Glasseslit WW
+                      - generic [ref=e314]:
+                        - generic [ref=e315]: ‏٧٫٠٠ ج.م.‏
+                        - generic [ref=e316]: ‏٣٩٫٩٥ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e317]
+                    - generic [ref=e318]:
+                      - generic [ref=e319]:
+                        - link "Shop Now" [ref=e320] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=db-f981ba4c-900f-4d07-98ba-5b2186c46c15&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252Fclaudie-silver-100143&source=search
+                        - link "Compare Prices" [ref=e325] [cursor=pointer]:
+                          - /url: /product/db-f981ba4c-900f-4d07-98ba-5b2186c46c15#compare-prices
+                      - paragraph [ref=e328]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e330] [cursor=pointer]
+                  - article [ref=e336]:
+                    - generic [ref=e337]:
+                      - img "HP Windows 11 Pro 14\" Laptop PC i5 11th Gen, up to 32GB RAM, 2TB NVMe SSD" [ref=e339]
+                      - generic:
+                        - generic [ref=e340]: eBay
+                        - generic [ref=e341]: "-80%"
+                      - generic: Featured
+                    - generic [ref=e343]:
+                      - heading "HP Windows 11 Pro 14\" Laptop PC i5 11th Gen, up to 32GB RAM, 2TB NVMe SSD" [level=3] [ref=e344]
+                      - paragraph [ref=e345]: eBay
+                      - generic [ref=e347]:
+                        - generic [ref=e348]: ‏٢٢٤٫٠٠ ج.م.‏
+                        - generic [ref=e349]: ‏١٬١٢٠٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e350]
+                    - generic [ref=e351]:
+                      - generic [ref=e352]:
+                        - link "Shop Now" [ref=e353] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=ebay-v1%7C298220737822%7C595235303663&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F298220737822%3F_skw%3Dlaptop%26hash%3Ditem456f57551e%253Ag%253A0h4AAeSw64Vqqh1x%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                        - link "Compare Prices" [ref=e358] [cursor=pointer]:
+                          - /url: /product/ebay-v1%7C298220737822%7C595235303663#compare-prices
+                      - paragraph [ref=e361]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e363] [cursor=pointer]
+                  - article [ref=e369]:
+                    - generic [ref=e370]:
+                      - 'img "RV Backup Camera Wireless Easy Install: Plug & Play for Furrion Pre-Wired RVs - 7″ HD Touch Key Monitor, 1080P DVR, 4-Channel Sp" [ref=e372]'
+                      - generic:
+                        - generic [ref=e373]: AliExpress
+                        - generic [ref=e374]: "-76%"
+                      - generic: Featured
+                    - generic [ref=e376]:
+                      - 'heading "RV Backup Camera Wireless Easy Install: Plug & Play for Furrion Pre-Wired RVs - 7″ HD Touch Key Monitor, 1080P DVR, 4-Channel Sp" [level=3] [ref=e377]'
+                      - paragraph [ref=e378]: AliExpress
+                      - generic [ref=e380]:
+                        - generic [ref=e381]: ‏١٤٧٫٢٧ ج.م.‏
+                        - generic [ref=e382]: ‏٦١٣٫٦٣ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e383]
+                    - generic [ref=e384]:
+                      - generic [ref=e385]:
+                        - link "Shop Now" [ref=e386] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=aliexpress-3256812538505823&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812538505823.html%3Fpdp_npi%3D6%2540dis%2521USD%2521613.63%2521147.27%2521%2521%25214101.83%2521984.44%2521%25402141149b17902612241071110e1008%252112000059172062120%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                        - link "Compare Prices" [ref=e391] [cursor=pointer]:
+                          - /url: /product/aliexpress-3256812538505823#compare-prices
+                      - paragraph [ref=e394]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e396] [cursor=pointer]
+                  - article [ref=e402]:
+                    - generic [ref=e403]:
+                      - img "Acer PM161Q Abmiuuzx 15.6\" Portable Monitor 1920x1080 IPS 5ms 60Hz Refurbished" [ref=e405]
+                      - generic:
+                        - generic [ref=e406]: eBay
+                        - generic [ref=e407]: "-71%"
+                      - generic: Featured
+                    - generic [ref=e409]:
+                      - heading "Acer PM161Q Abmiuuzx 15.6\" Portable Monitor 1920x1080 IPS 5ms 60Hz Refurbished" [level=3] [ref=e410]
+                      - paragraph [ref=e411]: eBay
+                      - generic [ref=e413]:
+                        - generic [ref=e414]: ‏٣٩٫٩٩ ج.م.‏
+                        - generic [ref=e415]: ‏١٣٩٫٩٩ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e416]
+                    - generic [ref=e417]:
+                      - generic [ref=e418]:
+                        - link "Shop Now" [ref=e419] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=ebay-v1%7C267229717756%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F267229717756%3F_skw%3Dmonitor%26hash%3Ditem3e3821e4fc%253Ag%253AADwAAeSwV71pYXjz%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                        - link "Compare Prices" [ref=e424] [cursor=pointer]:
+                          - /url: /product/ebay-v1%7C267229717756%7C0#compare-prices
+                      - paragraph [ref=e427]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e429] [cursor=pointer]
+                  - article [ref=e435]:
+                    - generic [ref=e436]:
+                      - img "KTC H27S17 gebogener Gaming-Monitor 27 Zoll 2560x1440 QHD 165Hz" [ref=e438]
+                      - generic:
+                        - generic [ref=e439]: Admitad
+                        - generic [ref=e440]: "-52%"
+                      - generic: Featured
+                    - generic [ref=e442]:
+                      - heading "KTC H27S17 gebogener Gaming-Monitor 27 Zoll 2560x1440 QHD 165Hz" [level=3] [ref=e443]
+                      - paragraph [ref=e444]: Admitad
+                      - generic [ref=e446]:
+                        - generic [ref=e447]: ‏١٤٩٫٩٩ ج.م.‏
+                        - generic [ref=e448]: ‏٣١٢٫٣٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e449]
+                    - generic [ref=e450]:
+                      - generic [ref=e451]:
+                        - link "Shop Now" [ref=e452] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=admitad-15467-517385&store=admitad&to=https%3A%2F%2Fbywiola.com%2Fg%2F78tuvzaw8k32ef59cc790267b86f6e%2F%3Ff_id%3D19719%26ulp%3Dhttps%253A%252F%252Fwww.geekbuying.com%252Fitem%252FKTC-H27S17-Curved-Gaming-Monitor-27-inch-2560x1440-QHD-180Hz-517385.html%253FCurrency%253DEUR%2523googtrans%252Fen%252Fde&source=search
+                        - link "Compare Prices" [ref=e457] [cursor=pointer]:
+                          - /url: /product/admitad-15467-517385#compare-prices
+                      - paragraph [ref=e460]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e462] [cursor=pointer]
+                  - article [ref=e468]:
+                    - generic [ref=e469]:
+                      - img "2020 new arrivals new vr amusement park virtual reality theme park one-stop vr business solution vr amusement park" [ref=e471]
+                      - generic: Alibaba WW
+                    - generic [ref=e473]:
+                      - heading "2020 new arrivals new vr amusement park virtual reality theme park one-stop vr business solution vr amusement park" [level=3] [ref=e474]
+                      - paragraph [ref=e475]: Alibaba WW
+                      - generic [ref=e477]: ‏٨٠٬٠٠٠٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e479]
+                    - generic [ref=e480]:
+                      - generic [ref=e481]:
+                        - link "Shop Now" [ref=e482] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=db-c5b792d9-a2f4-4197-b5ae-9ddc834655d8&store=alibaba-ww&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60842729807%26i%3D5%26f_id%3D50001&source=search
+                        - link "Compare Prices" [ref=e487] [cursor=pointer]:
+                          - /url: /product/db-c5b792d9-a2f4-4197-b5ae-9ddc834655d8#compare-prices
+                      - paragraph [ref=e490]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e492] [cursor=pointer]
+                  - article [ref=e498]:
+                    - generic [ref=e499]:
+                      - img "For Huawei Nova 15 Pro Original LCD Screen with Digitizer Full Assembly" [ref=e501]
+                      - generic: Sunsky-online WW
+                    - generic [ref=e503]:
+                      - heading "For Huawei Nova 15 Pro Original LCD Screen with Digitizer Full Assembly" [level=3] [ref=e504]
+                      - paragraph [ref=e505]: Sunsky-online WW
+                      - generic [ref=e507]: ‏١٠٨٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e509]
+                    - generic [ref=e510]:
+                      - generic [ref=e511]:
+                        - link "Shop Now" [ref=e512] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=db-4f2f75c0-ef0d-49db-969a-b483380e9f0f&store=sunsky-online-ww&to=https%3A%2F%2Fdorinebeaumont.com%2Fg%2F7npkd4cs1i32ef59cc79869a299fda%2F%3Ff_id%3D15767%26ulp%3Dhttps%253A%252F%252Fwww.sunsky-online.com%252Fv%252F4391691&source=search
+                        - link "Compare Prices" [ref=e517] [cursor=pointer]:
+                          - /url: /product/db-4f2f75c0-ef0d-49db-969a-b483380e9f0f#compare-prices
+                      - paragraph [ref=e520]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e522] [cursor=pointer]
+                - button "Next deals" [ref=e526] [cursor=pointer]
+          - region [ref=e529]:
+            - generic [ref=e531]:
+              - heading "Top Coupons" [level=2] [ref=e537]
+              - link "View All Coupons" [ref=e539] [cursor=pointer]:
+                - /url: /coupons
+            - paragraph [ref=e544]: No coupons available right now.
+      - region "Featured products" [ref=e545]:
+        - generic [ref=e546]:
+          - region [ref=e547]:
+            - generic [ref=e549]:
+              - generic [ref=e554]:
+                - heading "Flash Deals" [level=2] [ref=e555]
+                - paragraph [ref=e556]: Limited-time offers ending soon — grab them before they expire
+              - link "View All Deals" [ref=e558] [cursor=pointer]:
+                - /url: /deals
+            - generic [ref=e562]:
+              - article [ref=e564]:
+                - generic [ref=e565]:
+                  - img "Bella Cateye Eyeglasses" [ref=e567]
+                  - generic:
+                    - generic [ref=e568]: Glasseslit WW
+                    - generic [ref=e569]: "-82%"
+                  - generic: Featured
+                - generic [ref=e571]:
+                  - heading "Bella Cateye Eyeglasses" [level=3] [ref=e572]
+                  - paragraph [ref=e573]: Glasseslit WW
+                  - generic [ref=e575]:
+                    - generic [ref=e576]: ‏٧٫٠٠ ج.م.‏
+                    - generic [ref=e577]: ‏٣٩٫٩٥ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e578]
+                - generic [ref=e579]:
+                  - generic [ref=e580]:
+                    - link "Shop Now" [ref=e581] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-e915005f-2783-43ab-a873-b963f3131777&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252Fbella-cameo_brown-200353&source=search
+                    - link "Compare Prices" [ref=e586] [cursor=pointer]:
+                      - /url: /product/db-e915005f-2783-43ab-a873-b963f3131777#compare-prices
+                  - paragraph [ref=e588]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e590] [cursor=pointer]
+              - article [ref=e595]:
+                - generic [ref=e596]:
+                  - img "Security Camera Monitor Screen, 22 Inch 1080P Thin LED PC Monitor with HDMI VGA Built in Speaker Compatible with CCTV Security D" [ref=e598]
+                  - generic:
+                    - generic [ref=e599]: AliExpress
+                    - generic [ref=e600]: "-76%"
+                  - generic: Featured
+                - generic [ref=e602]:
+                  - heading "Security Camera Monitor Screen, 22 Inch 1080P Thin LED PC Monitor with HDMI VGA Built in Speaker Compatible with CCTV Security D" [level=3] [ref=e603]
+                  - paragraph [ref=e604]: AliExpress
+                  - generic [ref=e606]:
+                    - generic [ref=e607]: ‏١٥٢٫٠٨ ج.م.‏
+                    - generic [ref=e608]: ‏٦٣٣٫٦٥ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e609]
+                - generic [ref=e610]:
+                  - generic [ref=e611]:
+                    - link "Shop Now" [ref=e612] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812539197924&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812539197924.html%3Fpdp_npi%3D6%2540dis%2521USD%2521633.65%2521152.08%2521%2521%25214235.60%25211016.54%2521%25402141149b17902612241071110e1008%252112000059138347052%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e617] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812539197924#compare-prices
+                  - paragraph [ref=e619]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e621] [cursor=pointer]
+              - article [ref=e626]:
+                - generic [ref=e627]:
+                  - img "Acer PM161Q 15.6in Portable Monitor 1920x1080 250Nit 60Hz 5ms Refurbished" [ref=e629]
+                  - generic:
+                    - generic [ref=e630]: eBay
+                    - generic [ref=e631]: "-69%"
+                  - generic: Featured
+                - generic [ref=e633]:
+                  - heading "Acer PM161Q 15.6in Portable Monitor 1920x1080 250Nit 60Hz 5ms Refurbished" [level=3] [ref=e634]
+                  - paragraph [ref=e635]: eBay
+                  - generic [ref=e637]:
+                    - generic [ref=e638]: ‏٤٢٫٩٢ ج.م.‏
+                    - generic [ref=e639]: ‏١٣٩٫٩٩ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e640]
+                - generic [ref=e641]:
+                  - generic [ref=e642]:
+                    - link "Shop Now" [ref=e643] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C267228772305%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F267228772305%3F_skw%3Dmonitor%26hash%3Ditem3e381377d1%253Ag%253AwaIAAeSw-M9pYXjK%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e648] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C267228772305%7C0#compare-prices
+                  - paragraph [ref=e650]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e652] [cursor=pointer]
+              - article [ref=e657]:
+                - generic [ref=e658]:
+                  - img "3ft/6ft/10ft wholesale price mobile phone usb data charger cable for iphone 6 6 plus 7 8 X Xr Xs max" [ref=e660]
+                  - generic: Admitad
+                - generic [ref=e662]:
+                  - heading "3ft/6ft/10ft wholesale price mobile phone usb data charger cable for iphone 6 6 plus 7 8 X Xr Xs max" [level=3] [ref=e663]
+                  - paragraph [ref=e664]: Admitad
+                  - generic [ref=e666]: ‏٠٫٠٨ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e668]
+                - generic [ref=e669]:
+                  - generic [ref=e670]:
+                    - link "Shop Now" [ref=e671] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62147007178&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62147007178%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e676] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62147007178#compare-prices
+                  - paragraph [ref=e678]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e680] [cursor=pointer]
+          - region [ref=e684]:
+            - generic [ref=e686]:
+              - generic [ref=e692]:
+                - heading "Price Drops" [level=2] [ref=e693]
+                - paragraph [ref=e694]: Biggest recent price cuts across every store on Zorino
+              - link "View All Deals" [ref=e696] [cursor=pointer]:
+                - /url: /deals
+            - generic [ref=e700]:
+              - article [ref=e702]:
+                - generic [ref=e703]:
+                  - img "Barrie Oval Browline Eyeglasses" [ref=e705]
+                  - generic:
+                    - generic [ref=e706]: Glasseslit WW
+                    - generic [ref=e707]: "-81%"
+                  - generic: Featured
+                - generic [ref=e709]:
+                  - heading "Barrie Oval Browline Eyeglasses" [level=3] [ref=e710]
+                  - paragraph [ref=e711]: Glasseslit WW
+                  - generic [ref=e713]:
+                    - generic [ref=e714]: ‏٧٫٠٠ ج.م.‏
+                    - generic [ref=e715]: ‏٣٥٫٩٥ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e716]
+                - generic [ref=e717]:
+                  - generic [ref=e718]:
+                    - link "Shop Now" [ref=e719] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-62e23cba-d6ce-4ba3-a92e-ed6689b6bc19&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252Fbarrie-tortoiseshell-j00390&source=search
+                    - link "Compare Prices" [ref=e724] [cursor=pointer]:
+                      - /url: /product/db-62e23cba-d6ce-4ba3-a92e-ed6689b6bc19#compare-prices
+                  - paragraph [ref=e726]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e728] [cursor=pointer]
+              - article [ref=e733]:
+                - generic [ref=e734]:
+                  - img "X5 Magnetic Solar Wireless Backup Camera with 5\" HD Monitor, 1-Min Zero-Install for RV Truck Trailer, 320ft Signal Range, 15000m" [ref=e736]
+                  - generic:
+                    - generic [ref=e737]: AliExpress
+                    - generic [ref=e738]: "-76%"
+                  - generic: Featured
+                - generic [ref=e740]:
+                  - heading "X5 Magnetic Solar Wireless Backup Camera with 5\" HD Monitor, 1-Min Zero-Install for RV Truck Trailer, 320ft Signal Range, 15000m" [level=3] [ref=e741]
+                  - paragraph [ref=e742]: AliExpress
+                  - generic [ref=e744]:
+                    - generic [ref=e745]: ‏١٥٣٫٦٨ ج.م.‏
+                    - generic [ref=e746]: ‏٦٤٠٫٣٢ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e747]
+                - generic [ref=e748]:
+                  - generic [ref=e749]:
+                    - link "Shop Now" [ref=e750] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812532648253&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812532648253.html%3Fpdp_npi%3D6%2540dis%2521USD%2521640.32%2521153.68%2521%2521%25214280.19%25211027.25%2521%25402141149b17902612241071110e1008%252112000059172364964%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e755] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812532648253#compare-prices
+                  - paragraph [ref=e757]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e759] [cursor=pointer]
+              - article [ref=e764]:
+                - generic [ref=e765]:
+                  - img "Onn 100140681 22 Inch 1920x1080 HDMI VGA 60hz 6.5ms HD LCD Monitor" [ref=e767]
+                  - generic:
+                    - generic [ref=e768]: eBay
+                    - generic [ref=e769]: "-64%"
+                  - generic: Featured
+                - generic [ref=e771]:
+                  - heading "Onn 100140681 22 Inch 1920x1080 HDMI VGA 60hz 6.5ms HD LCD Monitor" [level=3] [ref=e772]
+                  - paragraph [ref=e773]: eBay
+                  - generic [ref=e775]:
+                    - generic [ref=e776]: ‏٣٦٫٠٠ ج.م.‏
+                    - generic [ref=e777]: ‏٩٩٫٠٠ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e778]
+                - generic [ref=e779]:
+                  - generic [ref=e780]:
+                    - link "Shop Now" [ref=e781] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127367493247%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127367493247%3F_skw%3Dmonitor%26hash%3Ditem1da7b1b67f%253Ag%253AFE4AAeSwGatqhV6S%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e786] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127367493247%7C0#compare-prices
+                  - paragraph [ref=e788]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e790] [cursor=pointer]
+              - article [ref=e795]:
+                - generic [ref=e796]:
+                  - img "Anstice Browline Oval Eyeglasses" [ref=e798]
+                  - generic:
+                    - generic [ref=e799]: Glasseslit WW
+                    - generic [ref=e800]: "-81%"
+                  - generic: Featured
+                - generic [ref=e802]:
+                  - heading "Anstice Browline Oval Eyeglasses" [level=3] [ref=e803]
+                  - paragraph [ref=e804]: Glasseslit WW
+                  - generic [ref=e806]:
+                    - generic [ref=e807]: ‏٧٫٠٠ ج.م.‏
+                    - generic [ref=e808]: ‏٣٥٫٩٥ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e809]
+                - generic [ref=e810]:
+                  - generic [ref=e811]:
+                    - link "Shop Now" [ref=e812] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-7a69cf97-0701-492f-bf72-65a1a3390f51&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252Fanstice-tortoiseshell-b01182&source=search
+                    - link "Compare Prices" [ref=e817] [cursor=pointer]:
+                      - /url: /product/db-7a69cf97-0701-492f-bf72-65a1a3390f51#compare-prices
+                  - paragraph [ref=e819]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e821] [cursor=pointer]
+          - region [ref=e825]:
+            - generic [ref=e827]:
+              - generic [ref=e833]:
+                - heading "New Arrivals" [level=2] [ref=e834]
+                - paragraph [ref=e835]: Fresh products just landed in the marketplace
+              - link "View All Products" [ref=e837] [cursor=pointer]:
+                - /url: /products
+            - generic [ref=e841]:
+              - article [ref=e843]:
+                - generic [ref=e844]:
+                  - img "Apple iPhone XR A1984 (Fully Unlocked) 256GB White - Refurbished Excellent Condition" [ref=e846]
+                  - generic:
+                    - generic [ref=e847]: AliExpress
+                    - generic [ref=e848]: "-69%"
+                  - generic: Featured
+                - generic [ref=e850]:
+                  - heading "Apple iPhone XR A1984 (Fully Unlocked) 256GB White - Refurbished Excellent Condition" [level=3] [ref=e851]
+                  - paragraph [ref=e852]: AliExpress
+                  - generic [ref=e854]:
+                    - generic [ref=e855]: ‏٢٣١٫٦٣ ج.م.‏
+                    - generic [ref=e856]: ‏٧٤٧٫٢٠ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e857]
+                - generic [ref=e858]:
+                  - generic [ref=e859]:
+                    - link "Shop Now" [ref=e860] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812587956461&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812587956461.html%3Fpdp_npi%3D6%2540dis%2521USD%2521747.20%2521231.63%2521%2521%2521747.20%2521231.63%2521%25402141315917902612241167850e10ed%252112000059297703586%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e865] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812587956461#compare-prices
+                  - paragraph [ref=e867]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e869] [cursor=pointer]
+              - article [ref=e874]:
+                - generic [ref=e875]:
+                  - img "Wholesale US EU UK Wall Adapter Mobile Cell Phone Charger Charging Station Fast Usb Portable Charger For Apple iphone 11 Charger" [ref=e877]
+                  - generic: Admitad
+                - generic [ref=e879]:
+                  - heading "Wholesale US EU UK Wall Adapter Mobile Cell Phone Charger Charging Station Fast Usb Portable Charger For Apple iphone 11 Charger" [level=3] [ref=e880]
+                  - paragraph [ref=e881]: Admitad
+                  - generic [ref=e883]: ‏٠٫١٦ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e885]
+                - generic [ref=e886]:
+                  - generic [ref=e887]:
+                    - link "Shop Now" [ref=e888] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-edb63d5f-3c6f-44ec-90db-e81585e934b6&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62356728422%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e893] [cursor=pointer]:
+                      - /url: /product/db-edb63d5f-3c6f-44ec-90db-e81585e934b6#compare-prices
+                  - paragraph [ref=e895]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e897] [cursor=pointer]
+              - article [ref=e902]:
+                - generic [ref=e903]:
+                  - img "15.6 inch Laptop 16GB+512GB Windows 11 Computers WiFi Bluetooth 1920*1080 LP" [ref=e905]
+                  - generic:
+                    - generic [ref=e906]: eBay
+                    - generic [ref=e907]: "-50%"
+                  - generic: Featured
+                - generic [ref=e909]:
+                  - heading "15.6 inch Laptop 16GB+512GB Windows 11 Computers WiFi Bluetooth 1920*1080 LP" [level=3] [ref=e910]
+                  - paragraph [ref=e911]: eBay
+                  - generic [ref=e913]:
+                    - generic [ref=e914]: ‏٢٢٩٫٩٩ ج.م.‏
+                    - generic [ref=e915]: ‏٤٥٩٫٩٨ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e916]
+                - generic [ref=e917]:
+                  - generic [ref=e918]:
+                    - link "Shop Now" [ref=e919] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C389917513456%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F389917513456%3F_skw%3Dlaptop%26hash%3Ditem5ac8e516f0%253Ag%253AxuUAAeSw7LFp5vWm%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e924] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C389917513456%7C0#compare-prices
+                  - paragraph [ref=e926]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e928] [cursor=pointer]
+              - article [ref=e933]:
+                - generic [ref=e934]:
+                  - img "200615 Round Eyeglasses" [ref=e936]
+                  - generic:
+                    - generic [ref=e937]: Glasseslit WW
+                    - generic [ref=e938]: "-81%"
+                  - generic: Featured
+                - generic [ref=e940]:
+                  - heading "200615 Round Eyeglasses" [level=3] [ref=e941]
+                  - paragraph [ref=e942]: Glasseslit WW
+                  - generic [ref=e944]:
+                    - generic [ref=e945]: ‏٥٫٠٠ ج.م.‏
+                    - generic [ref=e946]: ‏٢٥٫٩٥ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e947]
+                - generic [ref=e948]:
+                  - generic [ref=e949]:
+                    - link "Shop Now" [ref=e950] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-e581b073-0476-4dec-940f-5c019c1da650&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252F200615-clear_and_pink-200615&source=search
+                    - link "Compare Prices" [ref=e955] [cursor=pointer]:
+                      - /url: /product/db-e581b073-0476-4dec-940f-5c019c1da650#compare-prices
+                  - paragraph [ref=e957]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e959] [cursor=pointer]
+          - region [ref=e963]:
+            - generic [ref=e965]:
+              - generic [ref=e970]:
+                - heading "Top Rated" [level=2] [ref=e971]
+                - paragraph [ref=e972]: Highest-rated picks shoppers love right now
+              - link "View All Products" [ref=e974] [cursor=pointer]:
+                - /url: /products
+            - generic [ref=e978]:
+              - article [ref=e980]:
+                - generic [ref=e981]:
+                  - img "Porter Tanker 622-19842 Soft Nylon Backpack Men Large Capacity Laptop Hiking Business Travel School Bag Sport Anti-theft Daypack" [ref=e983]
+                  - generic:
+                    - generic [ref=e984]: AliExpress
+                    - generic [ref=e985]: "-54%"
+                  - generic: Featured
+                - generic [ref=e987]:
+                  - heading "Porter Tanker 622-19842 Soft Nylon Backpack Men Large Capacity Laptop Hiking Business Travel School Bag Sport Anti-theft Daypack" [level=3] [ref=e988]
+                  - paragraph [ref=e989]: AliExpress
+                  - generic [ref=e990]: 5 (42)
+                  - generic [ref=e994]:
+                    - generic [ref=e995]: ‏١٧٢٫٨٨ ج.م.‏
+                    - generic [ref=e996]: ‏٣٧٥٫٨٣ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e997]
+                - generic [ref=e998]:
+                  - generic [ref=e999]:
+                    - link "Shop Now" [ref=e1000] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812654161365&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812654161365.html%3Fpdp_npi%3D6%2540dis%2521USD%2521375.83%2521172.88%2521%2521%25212512.23%25211155.63%2521%25400b8ded7b17902612241277576e0dc2%252112000059458189123%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e1005] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812654161365#compare-prices
+                  - paragraph [ref=e1007]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1009] [cursor=pointer]
+              - article [ref=e1014]:
+                - generic [ref=e1015]:
+                  - img "Bestsuit 2.5D 0.33mm Tempered Glass Screen Protector For iPhone Xs XR Xs Max" [ref=e1017]
+                  - generic: Admitad
+                - generic [ref=e1019]:
+                  - heading "Bestsuit 2.5D 0.33mm Tempered Glass Screen Protector For iPhone Xs XR Xs Max" [level=3] [ref=e1020]
+                  - paragraph [ref=e1021]: Admitad
+                  - generic [ref=e1023]: ‏٠٫٢٠ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e1025]
+                - generic [ref=e1026]:
+                  - generic [ref=e1027]:
+                    - link "Shop Now" [ref=e1028] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-687c8f05-2256-463f-b0ed-052d85a8c21b&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62048448141%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1033] [cursor=pointer]:
+                      - /url: /product/db-687c8f05-2256-463f-b0ed-052d85a8c21b#compare-prices
+                  - paragraph [ref=e1035]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1037] [cursor=pointer]
+              - article [ref=e1042]:
+                - generic [ref=e1043]:
+                  - img "Acer Aspire 16 16\" Laptop Core Ultra 5 226V S2 16GB RAM 1TB SSD Arc Refurbished" [ref=e1045]
+                  - generic:
+                    - generic [ref=e1046]: eBay
+                    - generic [ref=e1047]: "-50%"
+                  - generic: Featured
+                - generic [ref=e1049]:
+                  - heading "Acer Aspire 16 16\" Laptop Core Ultra 5 226V S2 16GB RAM 1TB SSD Arc Refurbished" [level=3] [ref=e1050]
+                  - paragraph [ref=e1051]: eBay
+                  - generic [ref=e1053]:
+                    - generic [ref=e1054]: ‏٥١٩٫٩٩ ج.م.‏
+                    - generic [ref=e1055]: ‏١٬٠٤٩٫٩٩ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e1056]
+                - generic [ref=e1057]:
+                  - generic [ref=e1058]:
+                    - link "Shop Now" [ref=e1059] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257503592006%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257503592006%3F_skw%3Dlaptop%26hash%3Ditem3bf468fe46%253Ag%253Aj84AAeSwwlRqOW9e%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1064] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257503592006%7C0#compare-prices
+                  - paragraph [ref=e1066]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1068] [cursor=pointer]
+              - article [ref=e1073]:
+                - generic [ref=e1074]:
+                  - img "200617 Cateye Sunglasses" [ref=e1076]
+                  - generic:
+                    - generic [ref=e1077]: Glasseslit WW
+                    - generic [ref=e1078]: "-81%"
+                  - generic: Featured
+                - generic [ref=e1080]:
+                  - heading "200617 Cateye Sunglasses" [level=3] [ref=e1081]
+                  - paragraph [ref=e1082]: Glasseslit WW
+                  - generic [ref=e1084]:
+                    - generic [ref=e1085]: ‏٥٫٠٠ ج.م.‏
+                    - generic [ref=e1086]: ‏٢٥٫٩٥ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e1087]
+                - generic [ref=e1088]:
+                  - generic [ref=e1089]:
+                    - link "Shop Now" [ref=e1090] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-c6604ea0-01b0-4391-bda6-76d605c79ca1&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252F200617-red-200617&source=search
+                    - link "Compare Prices" [ref=e1095] [cursor=pointer]:
+                      - /url: /product/db-c6604ea0-01b0-4391-bda6-76d605c79ca1#compare-prices
+                  - paragraph [ref=e1097]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1099] [cursor=pointer]
+          - region [ref=e1103]:
+            - generic [ref=e1105]:
+              - generic [ref=e1110]:
+                - heading "Editor's Picks" [level=2] [ref=e1111]
+                - paragraph [ref=e1112]: Curated favorites from the Zorino team
+              - link "View All Products" [ref=e1114] [cursor=pointer]:
+                - /url: /products
+            - generic [ref=e1118]:
+              - article [ref=e1120]:
+                - generic [ref=e1121]:
+                  - img "5/50Pcs Mini Cable Organizer Silicone USB Cable Winder Management Clips for Mouse Keyboard Earphone Headset Wire Holders" [ref=e1123]
+                  - generic:
+                    - generic [ref=e1124]: AliExpress
+                    - generic [ref=e1125]: "-50%"
+                  - generic: Featured
+                - generic [ref=e1127]:
+                  - heading "5/50Pcs Mini Cable Organizer Silicone USB Cable Winder Management Clips for Mouse Keyboard Earphone Headset Wire Holders" [level=3] [ref=e1128]
+                  - paragraph [ref=e1129]: AliExpress
+                  - generic [ref=e1130]: 5 (42)
+                  - generic [ref=e1134]:
+                    - generic [ref=e1135]: ‏٠٫٩٣ ج.م.‏
+                    - generic [ref=e1136]: ‏١٫٨٥ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e1137]
+                - generic [ref=e1138]:
+                  - generic [ref=e1139]:
+                    - link "Shop Now" [ref=e1140] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812056776750&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812056776750.html%3Fpdp_npi%3D6%2540dis%2521USD%25211.85%25210.93%2521%2521%252112.34%25216.17%2521%25400b8ded7b17902612241428463e0d9f%252112000057865316678%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=e1145] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812056776750#compare-prices
+                  - paragraph [ref=e1147]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1149] [cursor=pointer]
+              - article [ref=e1154]:
+                - generic [ref=e1155]:
+                  - img "Hot sell 0.33mm full cover full glue 10D screen protector for iphone 11" [ref=e1157]
+                  - generic: Admitad
+                - generic [ref=e1159]:
+                  - heading "Hot sell 0.33mm full cover full glue 10D screen protector for iphone 11" [level=3] [ref=e1160]
+                  - paragraph [ref=e1161]: Admitad
+                  - generic [ref=e1163]: ‏٠٫٢٢ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e1165]
+                - generic [ref=e1166]:
+                  - generic [ref=e1167]:
+                    - link "Shop Now" [ref=e1168] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62320025439&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62320025439%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=e1173] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62320025439#compare-prices
+                  - paragraph [ref=e1175]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1177] [cursor=pointer]
+              - article [ref=e1182]:
+                - generic [ref=e1183]:
+                  - img "Acer Aspire 14\" AI Copilot+PC Laptop Core Ultra 5 226V Gen 4 ARC 16GB 1TB Refurb" [ref=e1185]
+                  - generic:
+                    - generic [ref=e1186]: eBay
+                    - generic [ref=e1187]: "-47%"
+                  - generic: Featured
+                - generic [ref=e1189]:
+                  - heading "Acer Aspire 14\" AI Copilot+PC Laptop Core Ultra 5 226V Gen 4 ARC 16GB 1TB Refurb" [level=3] [ref=e1190]
+                  - paragraph [ref=e1191]: eBay
+                  - generic [ref=e1193]:
+                    - generic [ref=e1194]: ‏٤٢٧٫٤١ ج.م.‏
+                    - generic [ref=e1195]: ‏٧٩٩٫٩٩ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e1196]
+                - generic [ref=e1197]:
+                  - generic [ref=e1198]:
+                    - link "Shop Now" [ref=e1199] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257213743386%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257213743386%3F_skw%3Dlaptop%26hash%3Ditem3be322411a%253Ag%253AlF8AAeSwF9hpZ9iF%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=e1204] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257213743386%7C0#compare-prices
+                  - paragraph [ref=e1206]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1208] [cursor=pointer]
+              - article [ref=e1213]:
+                - generic [ref=e1214]:
+                  - img "200727 Aviator Eyeglasses" [ref=e1216]
+                  - generic:
+                    - generic [ref=e1217]: Glasseslit WW
+                    - generic [ref=e1218]: "-81%"
+                  - generic: Featured
+                - generic [ref=e1220]:
+                  - heading "200727 Aviator Eyeglasses" [level=3] [ref=e1221]
+                  - paragraph [ref=e1222]: Glasseslit WW
+                  - generic [ref=e1224]:
+                    - generic [ref=e1225]: ‏٥٫٠٠ ج.م.‏
+                    - generic [ref=e1226]: ‏٢٥٫٩٥ ج.م.‏
+                  - paragraph [aria-hidden] [ref=e1227]
+                - generic [ref=e1228]:
+                  - generic [ref=e1229]:
+                    - link "Shop Now" [ref=e1230] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-4bfd59a4-a581-4c36-9c2e-edf28c88d361&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252F200727-tortoiseshell-200727&source=search
+                    - link "Compare Prices" [ref=e1235] [cursor=pointer]:
+                      - /url: /product/db-4bfd59a4-a581-4c36-9c2e-edf28c88d361#compare-prices
+                  - paragraph [ref=e1237]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=e1239] [cursor=pointer]
+      - region "Call to action" [ref=e1243]:
+        - region [ref=e1244]:
+          - generic [ref=e1245]:
+            - generic [ref=e1246]:
+              - paragraph [ref=e1247]: Start saving today
+              - heading "Your smartest way to shop online" [level=2] [ref=e1251]
+              - paragraph [ref=e1252]: Compare prices across marketplaces, unlock verified coupon codes, and catch flash deals before they disappear.
+            - generic [ref=e1253]:
+              - link "Explore Deals" [ref=e1254] [cursor=pointer]:
+                - /url: /deals
+              - link "Compare Prices" [ref=e1257] [cursor=pointer]:
+                - /url: /compare
+              - link "Get Coupons" [ref=e1262] [cursor=pointer]:
+                - /url: /coupons
+      - generic [ref=e1266]:
+        - generic [ref=e1267]:
+          - generic [ref=e1268]:
+            - heading "Featured Stores" [level=2] [ref=e1269]
+            - link "View all stores" [ref=e1270] [cursor=pointer]:
+              - /url: /stores
+          - generic [ref=e1271]:
+            - link [ref=e1272] [cursor=pointer]:
+              - /url: /stores/aliexpress
+              - img "AliExpress" [ref=e1273]
+            - link [ref=e1274] [cursor=pointer]:
+              - /url: /stores/ebay
+              - img "eBay" [ref=e1275]
+            - link [ref=e1276] [cursor=pointer]:
+              - /url: /stores/admitad
+              - img "Admitad" [ref=e1277]
+            - link [ref=e1278] [cursor=pointer]:
+              - /url: /stores/cjdropshipping
+              - img "CJdropshipping" [ref=e1279]
+        - generic [ref=e1280]:
+          - generic [ref=e1281]:
+            - heading "Newsletter" [level=2] [ref=e1282]
+            - paragraph [ref=e1286]: Get weekly deal alerts, price drops, and exclusive coupon codes delivered to your inbox.
+          - generic [ref=e1287]:
+            - textbox "Enter your email" [ref=e1288]
+            - button "Subscribe" [ref=e1289] [cursor=pointer]
+        - generic [ref=e1293]:
+          - generic [ref=e1294]:
+            - generic [ref=e1295]:
+              - strong [ref=e1300]: "4"
+              - generic [ref=e1301]: Stores
+            - generic [ref=e1302]:
+              - strong [ref=e1307]: 69K+
+              - generic [ref=e1308]: Products
+            - generic [ref=e1309]:
+              - strong [ref=e1313]: "0"
+              - generic [ref=e1314]: Coupons
+            - generic [ref=e1315]:
+              - strong [ref=e1321]: "0"
+              - generic [ref=e1322]: Happy Users
+          - paragraph [ref=e1323]:
+            - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+            - link "Learn more" [ref=e1324] [cursor=pointer]:
+              - /url: /affiliate-disclosure
+        - navigation "Legal" [ref=e1325]:
+          - link "Imprint" [ref=e1326] [cursor=pointer]:
+            - /url: /imprint
+          - link "About" [ref=e1327] [cursor=pointer]:
+            - /url: /about
+          - link "Privacy" [ref=e1328] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e1329] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies" [ref=e1330] [cursor=pointer]:
+            - /url: /cookies
+          - link "Affiliate" [ref=e1331] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+          - link "Contact" [ref=e1332] [cursor=pointer]:
+            - /url: /contact
+  - alert [ref=e1333]

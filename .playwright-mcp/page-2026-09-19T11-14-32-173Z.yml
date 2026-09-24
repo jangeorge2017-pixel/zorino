@@ -1,0 +1,744 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - banner [ref=f1e4]:
+      - generic [ref=f1e5]:
+        - link [ref=f1e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f1e7]
+        - button "Menu" [ref=f1e8] [cursor=pointer]
+        - generic [ref=f1e10]:
+          - link "Search" [ref=f1e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f1e16] [cursor=pointer]:
+            - generic [ref=f1e17]: Dark
+            - generic [ref=f1e21]: Light
+          - button "Language, country, and currency" [ref=f1e31] [cursor=pointer]:
+            - generic [ref=f1e35]: EN · EGP
+          - link "Wishlist" [ref=f1e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f1e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f1e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f1e52]: Hello, User
+    - main [ref=f1e53]:
+      - generic [ref=f1e54]:
+        - generic [ref=f1e57]:
+          - heading "Search Results" [level=1] [ref=f1e58]
+          - paragraph [ref=f1e59]: Showing results for "Honor 10 Lite Smartphone Android 9 HiSilicon Kirin 710 4GB RAM 64GB ROM"
+        - generic [ref=f1e60]:
+          - complementary [ref=f1e61]:
+            - generic [ref=f1e62]:
+              - heading "Filters" [level=2] [ref=f1e63]
+              - button "Clear" [ref=f1e66] [cursor=pointer]
+            - generic [ref=f1e67]:
+              - generic [ref=f1e68]:
+                - generic [ref=f1e69]: Search for products, brands or categories...
+                - textbox "Search for products, brands or categories..." [ref=f1e70]: Honor 10 Lite Smartphone Android 9 HiSilicon Kirin 710 4GB RAM 64GB ROM
+              - generic [ref=f1e71]:
+                - generic [ref=f1e72]: Categories
+                - combobox [ref=f1e73] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "Phones & Telecommunications"
+                  - option "phones"
+                  - option "tvs"
+                  - option "General"
+                  - option "Power Tools"
+                  - option "Other Replacement Parts"
+                  - option "Action & Toy Figures"
+                  - option "Kitchen Storage"
+              - generic [ref=f1e74]:
+                - generic [ref=f1e75]: Stores
+                - combobox [ref=f1e76] [cursor=pointer]:
+                  - option "All Stores" [selected]
+                  - option "AliExpress"
+                  - option "Admitad"
+                  - option "CJdropshipping"
+              - generic [ref=f1e77]:
+                - generic [ref=f1e78]: Price Range
+                - generic [ref=f1e79]:
+                  - spinbutton "Min Price" [ref=f1e81]
+                  - spinbutton "Max Price" [ref=f1e83]
+              - generic [ref=f1e84]:
+                - generic [ref=f1e85]: Rating
+                - combobox [ref=f1e86] [cursor=pointer]:
+                  - option "All Ratings" [selected]
+                  - option "4+ Stars"
+                  - option "3+ Stars"
+                  - option "2+ Stars"
+              - generic [ref=f1e87] [cursor=pointer]:
+                - checkbox "In Stock Only" [ref=f1e88]
+                - generic [ref=f1e89]: In Stock Only
+              - button "Filter" [ref=f1e90] [cursor=pointer]
+          - generic [ref=f1e91]:
+            - generic [ref=f1e92]:
+              - generic [ref=f1e93]: 34 of 34 results
+              - combobox [ref=f1e95] [cursor=pointer]:
+                - option "Relevance" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Rating"
+            - generic [ref=f1e96]:
+              - article [ref=f1e97]:
+                - generic [ref=f1e98]:
+                  - img "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [ref=f1e100]
+                  - generic:
+                    - generic [ref=f1e101]: AliExpress
+                    - generic [ref=f1e102]: "-55%"
+                - generic [ref=f1e103]:
+                  - heading "HONOR 10 Lite smartphone Global firmware 6.21-inch CPU HiSilicon Qilin 710 EMUI 9.0.1 used phone" [level=3] [ref=f1e104]
+                  - paragraph [ref=f1e105]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e106]: 5 (2 sold)
+                  - generic [ref=f1e110]:
+                    - generic [ref=f1e111]: ‏٧٥٫٩٠ ج.م.‏
+                    - generic [ref=f1e112]: ‏١٦٨٫٦٨ ج.م.‏
+                  - paragraph [ref=f1e113]: In Stock
+                - generic [ref=f1e114]:
+                  - generic [ref=f1e115]:
+                    - link "Shop Now" [ref=f1e116] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812554314964&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812554314964.html%3Fpdp_npi%3D6%2540dis%2521USD%2521168.68%252175.90%2521%2521%25211123.81%2521505.71%2521%25402141149b17898164639166768e0f00%252112000059243644035%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e121] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812554314964#compare-prices
+                  - paragraph [ref=f1e124]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e126] [cursor=pointer]
+              - article [ref=f1e130]:
+                - generic [ref=f1e131]:
+                  - img "Realme Q 4GB RAM 64GB ROM 6.3'' Phone Snapdragon 712AIE Octa Core 48MP Quad Camera Smartphone OPPO VOOC 20W Fast Charger" [ref=f1e133]
+                  - generic: Alibaba WW
+                - generic [ref=f1e135]:
+                  - heading "Realme Q 4GB RAM 64GB ROM 6.3'' Phone Snapdragon 712AIE Octa Core 48MP Quad Camera Smartphone OPPO VOOC 20W Fast Charger" [level=3] [ref=f1e136]
+                  - paragraph [ref=f1e137]: phones • Alibaba WW
+                  - generic [ref=f1e139]: ‏١٥٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e141]: In Stock
+                - generic [ref=f1e142]:
+                  - generic [ref=f1e143]:
+                    - link "Shop Now" [ref=f1e144] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-de047010-3043-407f-9311-0f3eea616d41&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62333693515%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e149] [cursor=pointer]:
+                      - /url: /product/db-de047010-3043-407f-9311-0f3eea616d41#compare-prices
+                  - paragraph [ref=f1e152]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e154] [cursor=pointer]
+              - article [ref=f1e158]:
+                - generic [ref=f1e159]:
+                  - img "Honor 8X 4G LTE Unlocked Mobile Phone Global ROM Google Play 6.5\" Full Screen Kirin 710 Dual Camera Fingerprint used phone" [ref=f1e161]
+                  - generic:
+                    - generic [ref=f1e162]: AliExpress
+                    - generic [ref=f1e163]: "-53%"
+                - generic [ref=f1e164]:
+                  - heading "Honor 8X 4G LTE Unlocked Mobile Phone Global ROM Google Play 6.5\" Full Screen Kirin 710 Dual Camera Fingerprint used phone" [level=3] [ref=f1e165]
+                  - paragraph [ref=f1e166]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e168]:
+                    - generic [ref=f1e169]: ‏٧٧٫١٢ ج.م.‏
+                    - generic [ref=f1e170]: ‏١٦٤٫٠٨ ج.م.‏
+                  - paragraph [ref=f1e171]: In Stock
+                - generic [ref=f1e172]:
+                  - generic [ref=f1e173]:
+                    - link "Shop Now" [ref=f1e174] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812577758496&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812577758496.html%3Fpdp_npi%3D6%2540dis%2521USD%2521164.08%252177.12%2521%2521%25211093.14%2521513.78%2521%25402141149b17898164639166768e0f00%252112000059275265619%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e179] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812577758496#compare-prices
+                  - paragraph [ref=f1e182]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e184] [cursor=pointer]
+              - article [ref=f1e188]:
+                - generic [ref=f1e189]:
+                  - img "Vivo Z3 Mobile Phone 6.3inch Water Drop Screen 4GB/6GB+64GB/128GB Snapdragon670/710 Octa-core Android 8.1 Dual Camera Smartphone" [ref=f1e191]
+                  - generic: Alibaba WW
+                - generic [ref=f1e193]:
+                  - heading "Vivo Z3 Mobile Phone 6.3inch Water Drop Screen 4GB/6GB+64GB/128GB Snapdragon670/710 Octa-core Android 8.1 Dual Camera Smartphone" [level=3] [ref=f1e194]
+                  - paragraph [ref=f1e195]: phones • Alibaba WW
+                  - generic [ref=f1e197]: ‏١٩٤٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e199]: In Stock
+                - generic [ref=f1e200]:
+                  - generic [ref=f1e201]:
+                    - link "Shop Now" [ref=f1e202] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-4ed7e14e-b5da-4254-99d4-c328fe385ce2&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62235139984%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e207] [cursor=pointer]:
+                      - /url: /product/db-4ed7e14e-b5da-4254-99d4-c328fe385ce2#compare-prices
+                  - paragraph [ref=f1e210]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e212] [cursor=pointer]
+              - article [ref=f1e216]:
+                - generic [ref=f1e217]:
+                  - img "Apple iPhone 14 5G Network Unlocked Smartphone 6.1\" Super Retina OLED 6GB RAM 128/256GB ROM Face ID+NFC Original Screen Phone" [ref=f1e219]
+                  - generic:
+                    - generic [ref=f1e220]: AliExpress
+                    - generic [ref=f1e221]: "-30%"
+                - generic [ref=f1e222]:
+                  - heading "Apple iPhone 14 5G Network Unlocked Smartphone 6.1\" Super Retina OLED 6GB RAM 128/256GB ROM Face ID+NFC Original Screen Phone" [level=3] [ref=f1e223]
+                  - paragraph [ref=f1e224]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e226]:
+                    - generic [ref=f1e227]: ‏٤٨٠٫٩٨ ج.م.‏
+                    - generic [ref=f1e228]: ‏٦٨٧٫١١ ج.م.‏
+                  - paragraph [ref=f1e229]: In Stock
+                - generic [ref=f1e230]:
+                  - generic [ref=f1e231]:
+                    - link "Shop Now" [ref=f1e232] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812266099644&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812266099644.html%3Fpdp_npi%3D6%2540dis%2521USD%2521687.11%2521480.98%2521%2521%25214577.67%25213204.37%2521%25402141149b17898164639166768e0f00%252112000058426402224%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e237] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812266099644#compare-prices
+                  - paragraph [ref=f1e240]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e242] [cursor=pointer]
+              - article [ref=f1e246]:
+                - generic [ref=f1e247]:
+                  - img "X88 PRO TV Box Android 9.0 4GB RAM 64GB Google Voice Assistant RK3318 Quad core Wifi Youtube 4K set top box silver gold red H96" [ref=f1e249]
+                  - generic: Alibaba WW
+                - generic [ref=f1e251]:
+                  - heading "X88 PRO TV Box Android 9.0 4GB RAM 64GB Google Voice Assistant RK3318 Quad core Wifi Youtube 4K set top box silver gold red H96" [level=3] [ref=f1e252]
+                  - paragraph [ref=f1e253]: tvs • Alibaba WW
+                  - generic [ref=f1e255]: ‏٤٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e257]: In Stock
+                - generic [ref=f1e258]:
+                  - generic [ref=f1e259]:
+                    - link "Shop Now" [ref=f1e260] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-65149063-13c4-49e2-b140-761ce3cdf08b&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62017030872%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e265] [cursor=pointer]:
+                      - /url: /product/db-65149063-13c4-49e2-b140-761ce3cdf08b#compare-prices
+                  - paragraph [ref=f1e268]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e270] [cursor=pointer]
+              - article [ref=f1e274]:
+                - generic [ref=f1e275]:
+                  - img "Samsung Galaxy J5 J500F 5.0\" 16GB ROM 4G LTE Network Unlocked Smartphone | Android Refurbished Mobile Phone" [ref=f1e277]
+                  - generic:
+                    - generic [ref=f1e278]: AliExpress
+                    - generic [ref=f1e279]: "-28%"
+                - generic [ref=f1e280]:
+                  - heading "Samsung Galaxy J5 J500F 5.0\" 16GB ROM 4G LTE Network Unlocked Smartphone | Android Refurbished Mobile Phone" [level=3] [ref=f1e281]
+                  - paragraph [ref=f1e282]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e284]:
+                    - generic [ref=f1e285]: ‏٧١٫٧٥ ج.م.‏
+                    - generic [ref=f1e286]: ‏٩٩٫٦٥ ج.م.‏
+                  - paragraph [ref=f1e287]: In Stock
+                - generic [ref=f1e288]:
+                  - generic [ref=f1e289]:
+                    - link "Shop Now" [ref=f1e290] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812463020336&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812463020336.html%3Fpdp_npi%3D6%2540dis%2521USD%252199.65%252171.75%2521%2521%2521663.88%2521477.99%2521%25400b8ded7b17898164639263606e0e87%252112000058976650672%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e295] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812463020336#compare-prices
+                  - paragraph [ref=f1e298]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e300] [cursor=pointer]
+              - article [ref=f1e304]:
+                - generic [ref=f1e305]:
+                  - img "Original Oppo Realme X 4G LTE Mobile Phone Snapdragon 710 Android 9.0 6.53&#34; 2340X1080 8GB RAM 128GB ROM 48.0MP Fingerprint" [ref=f1e307]
+                  - generic: Alibaba WW
+                - generic [ref=f1e309]:
+                  - heading "Original Oppo Realme X 4G LTE Mobile Phone Snapdragon 710 Android 9.0 6.53&#34; 2340X1080 8GB RAM 128GB ROM 48.0MP Fingerprint" [level=3] [ref=f1e310]
+                  - paragraph [ref=f1e311]: phones • Alibaba WW
+                  - generic [ref=f1e313]: ‏٢٧٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e315]: In Stock
+                - generic [ref=f1e316]:
+                  - generic [ref=f1e317]:
+                    - link "Shop Now" [ref=f1e318] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-c26d5451-9fca-40f3-94f2-f8b73155fc88&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62231976212%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e323] [cursor=pointer]:
+                      - /url: /product/db-c26d5451-9fca-40f3-94f2-f8b73155fc88#compare-prices
+                  - paragraph [ref=f1e326]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e328] [cursor=pointer]
+              - article [ref=f1e332]:
+                - generic [ref=f1e333]:
+                  - img "Samsung Galaxy S22+ 5G Network Unlocked Mobile Phone Daily Gaming Business Smartphone 6.6 Inch Screen Snapdragon Chip NFC" [ref=f1e335]
+                  - generic:
+                    - generic [ref=f1e336]: AliExpress
+                    - generic [ref=f1e337]: "-33%"
+                - generic [ref=f1e338]:
+                  - heading "Samsung Galaxy S22+ 5G Network Unlocked Mobile Phone Daily Gaming Business Smartphone 6.6 Inch Screen Snapdragon Chip NFC" [level=3] [ref=f1e339]
+                  - paragraph [ref=f1e340]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e342]:
+                    - generic [ref=f1e343]: ‏٢٨٦٫١٠ ج.م.‏
+                    - generic [ref=f1e344]: ‏٤٢٧٫٠٢ ج.م.‏
+                  - paragraph [ref=f1e345]: In Stock
+                - generic [ref=f1e346]:
+                  - generic [ref=f1e347]:
+                    - link "Shop Now" [ref=f1e348] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812250741165&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812250741165.html%3Fpdp_npi%3D6%2540dis%2521USD%2521427.02%2521286.10%2521%2521%25212844.88%25211906.07%2521%25402141149b17898164639166768e0f00%252112000059730611512%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e353] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812250741165#compare-prices
+                  - paragraph [ref=f1e356]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e358] [cursor=pointer]
+              - article [ref=f1e362]:
+                - generic [ref=f1e363]:
+                  - img "2019 Original Factory Android 9.0 Google Certified TV BOX Ram 2GB ROM 16GB with Voice Control Dual Wifi Android TV BOX" [ref=f1e365]
+                  - generic: Alibaba WW
+                - generic [ref=f1e367]:
+                  - heading "2019 Original Factory Android 9.0 Google Certified TV BOX Ram 2GB ROM 16GB with Voice Control Dual Wifi Android TV BOX" [level=3] [ref=f1e368]
+                  - paragraph [ref=f1e369]: tvs • Alibaba WW
+                  - generic [ref=f1e371]: ‏٢٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e373]: In Stock
+                - generic [ref=f1e374]:
+                  - generic [ref=f1e375]:
+                    - link "Shop Now" [ref=f1e376] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-a3a73656-6edb-4ba3-8510-c41bc6673550&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62151230745%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e381] [cursor=pointer]:
+                      - /url: /product/db-a3a73656-6edb-4ba3-8510-c41bc6673550#compare-prices
+                  - paragraph [ref=f1e384]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e386] [cursor=pointer]
+              - article [ref=f1e390]:
+                - generic [ref=f1e391]:
+                  - img "Apple iPhone 15 Pro Max 5G Network Unlocked Smartphone 6.7 \"Supports Face ID NFC Original Screen Refurbished Mobile Phone" [ref=f1e393]
+                  - generic:
+                    - generic [ref=f1e394]: AliExpress
+                    - generic [ref=f1e395]: "-30%"
+                - generic [ref=f1e396]:
+                  - heading "Apple iPhone 15 Pro Max 5G Network Unlocked Smartphone 6.7 \"Supports Face ID NFC Original Screen Refurbished Mobile Phone" [level=3] [ref=f1e397]
+                  - paragraph [ref=f1e398]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e400]:
+                    - generic [ref=f1e401]: ‏٩٣٨٫٦٢ ج.م.‏
+                    - generic [ref=f1e402]: ‏١٬٣٤٠٫٨٨ ج.م.‏
+                  - paragraph [ref=f1e403]: In Stock
+                - generic [ref=f1e404]:
+                  - generic [ref=f1e405]:
+                    - link "Shop Now" [ref=f1e406] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812266514130&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812266514130.html%3Fpdp_npi%3D6%2540dis%2521USD%25211340.88%2521938.62%2521%2521%25218933.24%25216253.27%2521%25402141149b17898164639166768e0f00%252112000058427312453%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e411] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812266514130#compare-prices
+                  - paragraph [ref=f1e414]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e416] [cursor=pointer]
+              - article [ref=f1e420]:
+                - generic [ref=f1e421]:
+                  - img "Global Version Xiaomi Mi A2 Lite 4GB 64GB Mobile Phone Snapdragon 625 Octa Core" [ref=f1e423]
+                  - generic: Admitad
+                - generic [ref=f1e425]:
+                  - heading "Global Version Xiaomi Mi A2 Lite 4GB 64GB Mobile Phone Snapdragon 625 Octa Core" [level=3] [ref=f1e426]
+                  - paragraph [ref=f1e427]: General • Admitad
+                  - generic [ref=f1e429]: ‏١١٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e431]: In Stock
+                - generic [ref=f1e432]:
+                  - generic [ref=f1e433]:
+                    - link "Shop Now" [ref=f1e434] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62398660812&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62398660812%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e439] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62398660812#compare-prices
+                  - paragraph [ref=f1e442]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e444] [cursor=pointer]
+              - article [ref=f1e448]:
+                - generic [ref=f1e449]:
+                  - img "Global Firmware Xiaomi Redmi Note 13 Pro 5G Smartphone 128GB/256GB ROM Snapdragon 7s Gen 2 67W Turbo Used Phones no charger" [ref=f1e451]
+                  - generic:
+                    - generic [ref=f1e452]: AliExpress
+                    - generic [ref=f1e453]: "-14%"
+                - generic [ref=f1e454]:
+                  - heading "Global Firmware Xiaomi Redmi Note 13 Pro 5G Smartphone 128GB/256GB ROM Snapdragon 7s Gen 2 67W Turbo Used Phones no charger" [level=3] [ref=f1e455]
+                  - paragraph [ref=f1e456]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e457]: 5 (1 sold)
+                  - generic [ref=f1e461]:
+                    - generic [ref=f1e462]: ‏١٩١٫٧٨ ج.م.‏
+                    - generic [ref=f1e463]: ‏٢٢٣٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e464]: In Stock
+                - generic [ref=f1e465]:
+                  - generic [ref=f1e466]:
+                    - link "Shop Now" [ref=f1e467] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812535975914&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812535975914.html%3Fpdp_npi%3D6%2540dis%2521USD%2521223.00%2521191.78%2521%2521%2521223.00%2521191.78%2521%25402141149b17898164639166768e0f00%252112000059130279854%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e472] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812535975914#compare-prices
+                  - paragraph [ref=f1e475]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e477] [cursor=pointer]
+              - article [ref=f1e481]:
+                - generic [ref=f1e482]:
+                  - img "huawei honor 9i phones mobile android smartphone 5.8 inch Display 4G+64G or 128G Android 8.0 Fast Face Unlock" [ref=f1e484]
+                  - generic: Alibaba WW
+                - generic [ref=f1e486]:
+                  - heading "huawei honor 9i phones mobile android smartphone 5.8 inch Display 4G+64G or 128G Android 8.0 Fast Face Unlock" [level=3] [ref=f1e487]
+                  - paragraph [ref=f1e488]: tvs • Alibaba WW
+                  - generic [ref=f1e490]: ‏٢٠٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e492]: In Stock
+                - generic [ref=f1e493]:
+                  - generic [ref=f1e494]:
+                    - link "Shop Now" [ref=f1e495] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-bbc364c5-e54d-4922-bf4b-465fae0c0e7e&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62279157836%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e500] [cursor=pointer]:
+                      - /url: /product/db-bbc364c5-e54d-4922-bf4b-465fae0c0e7e#compare-prices
+                  - paragraph [ref=f1e503]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e505] [cursor=pointer]
+              - article [ref=f1e509]:
+                - generic [ref=f1e510]:
+                  - img "Refurbished Samsung Galaxy A20e Smart Android Phone 5.8-inch 720x1560 Global Edition 2SIM NFC Samsung Phone Original Unlocking" [ref=f1e512]
+                  - generic:
+                    - generic [ref=f1e513]: AliExpress
+                    - generic [ref=f1e514]: "-55%"
+                - generic [ref=f1e515]:
+                  - heading "Refurbished Samsung Galaxy A20e Smart Android Phone 5.8-inch 720x1560 Global Edition 2SIM NFC Samsung Phone Original Unlocking" [level=3] [ref=f1e516]
+                  - paragraph [ref=f1e517]: Phones & Telecommunications • AliExpress
+                  - generic [ref=f1e518]: 5 (1 sold)
+                  - generic [ref=f1e522]:
+                    - generic [ref=f1e523]: ‏١٠٧٫٥٣ ج.م.‏
+                    - generic [ref=f1e524]: ‏٢٣٨٫٩٥ ج.م.‏
+                  - paragraph [ref=f1e525]: In Stock
+                - generic [ref=f1e526]:
+                  - generic [ref=f1e527]:
+                    - link "Shop Now" [ref=f1e528] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811762031730&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811762031730.html%3Fpdp_npi%3D6%2540dis%2521USD%2521238.95%2521107.53%2521%2521%25211591.93%2521716.37%2521%25402141149b17898164639166768e0f00%252112000057111080045%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f1e533] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811762031730#compare-prices
+                  - paragraph [ref=f1e536]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e538] [cursor=pointer]
+              - article [ref=f1e542]:
+                - generic [ref=f1e543]:
+                  - img "New Oneplus 7 Pro 6.67 inch 8GB RAM 256GB ROM Snapdragon 855 Dual Camera 20MP+16MP Android Smart Phone" [ref=f1e545]
+                  - generic: Alibaba WW
+                - generic [ref=f1e547]:
+                  - heading "New Oneplus 7 Pro 6.67 inch 8GB RAM 256GB ROM Snapdragon 855 Dual Camera 20MP+16MP Android Smart Phone" [level=3] [ref=f1e548]
+                  - paragraph [ref=f1e549]: phones • Alibaba WW
+                  - generic [ref=f1e551]: ‏٦٨٤٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e553]: In Stock
+                - generic [ref=f1e554]:
+                  - generic [ref=f1e555]:
+                    - link "Shop Now" [ref=f1e556] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-6430bb09-9284-4cf4-92d5-fc5269d0062e&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62239332261%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e561] [cursor=pointer]:
+                      - /url: /product/db-6430bb09-9284-4cf4-92d5-fc5269d0062e#compare-prices
+                  - paragraph [ref=f1e564]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e566] [cursor=pointer]
+              - article [ref=f1e570]:
+                - generic [ref=f1e571]:
+                  - img "Original for Vivo IQOO 3 5G Mobile Phone Snapdragon 865 Android 6.44&#34; 2400x1080 12GB RAM 256GB ROM UFS 3.1 55W Super Charger" [ref=f1e573]
+                  - generic: Admitad
+                - generic [ref=f1e575]:
+                  - heading "Original for Vivo IQOO 3 5G Mobile Phone Snapdragon 865 Android 6.44&#34; 2400x1080 12GB RAM 256GB ROM UFS 3.1 55W Super Charger" [level=3] [ref=f1e576]
+                  - paragraph [ref=f1e577]: General • Admitad
+                  - generic [ref=f1e579]: ‏٧١٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e581]: In Stock
+                - generic [ref=f1e582]:
+                  - generic [ref=f1e583]:
+                    - link "Shop Now" [ref=f1e584] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62487804427&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62487804427%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e589] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62487804427#compare-prices
+                  - paragraph [ref=f1e592]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e594] [cursor=pointer]
+              - article [ref=f1e598]:
+                - generic [ref=f1e599]:
+                  - img "For Nokia Lumia 830 Unlocked mobile phone 5.0&#34; touch screen 1GB RAM 16GB ROM Quad Core 10MP WIFI GPS cell phone" [ref=f1e601]
+                  - generic: Alibaba WW
+                - generic [ref=f1e603]:
+                  - heading "For Nokia Lumia 830 Unlocked mobile phone 5.0&#34; touch screen 1GB RAM 16GB ROM Quad Core 10MP WIFI GPS cell phone" [level=3] [ref=f1e604]
+                  - paragraph [ref=f1e605]: phones • Alibaba WW
+                  - generic [ref=f1e607]: ‏٥٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e609]: In Stock
+                - generic [ref=f1e610]:
+                  - generic [ref=f1e611]:
+                    - link "Shop Now" [ref=f1e612] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-604d904d-2efb-4bcb-bf5d-7e71279f3e70&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62425982833%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e617] [cursor=pointer]:
+                      - /url: /product/db-604d904d-2efb-4bcb-bf5d-7e71279f3e70#compare-prices
+                  - paragraph [ref=f1e620]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e622] [cursor=pointer]
+              - article [ref=f1e626]:
+                - generic [ref=f1e627]:
+                  - img "Global Version xiaomi redmi note 8T phone 6.3 inch 4GB 64GB Snapdragon 665 48MP Quad cameras smart phone" [ref=f1e629]
+                  - generic: Alibaba WW
+                - generic [ref=f1e631]:
+                  - heading "Global Version xiaomi redmi note 8T phone 6.3 inch 4GB 64GB Snapdragon 665 48MP Quad cameras smart phone" [level=3] [ref=f1e632]
+                  - paragraph [ref=f1e633]: phones • Alibaba WW
+                  - generic [ref=f1e635]: ‏١٥٢٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e637]: In Stock
+                - generic [ref=f1e638]:
+                  - generic [ref=f1e639]:
+                    - link "Shop Now" [ref=f1e640] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-b9f9eaa6-2fb4-4510-93c6-e30db033608e&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62450095489%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e645] [cursor=pointer]:
+                      - /url: /product/db-b9f9eaa6-2fb4-4510-93c6-e30db033608e#compare-prices
+                  - paragraph [ref=f1e648]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e650] [cursor=pointer]
+              - article [ref=f1e654]:
+                - generic [ref=f1e655]:
+                  - img "Hot Sale Original Global Official Version Xiaomi Redmi Note 8 48MP Quad AI Back Cameras Unlocked Cell Phone Android Smartphone" [ref=f1e657]
+                  - generic: Alibaba WW
+                - generic [ref=f1e659]:
+                  - heading "Hot Sale Original Global Official Version Xiaomi Redmi Note 8 48MP Quad AI Back Cameras Unlocked Cell Phone Android Smartphone" [level=3] [ref=f1e660]
+                  - paragraph [ref=f1e661]: phones • Alibaba WW
+                  - generic [ref=f1e663]: ‏١٦٢٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e665]: In Stock
+                - generic [ref=f1e666]:
+                  - generic [ref=f1e667]:
+                    - link "Shop Now" [ref=f1e668] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-60534ece-475d-4577-8fed-9c3023501bab&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62390309087%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e673] [cursor=pointer]:
+                      - /url: /product/db-60534ece-475d-4577-8fed-9c3023501bab#compare-prices
+                  - paragraph [ref=f1e676]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e678] [cursor=pointer]
+              - article [ref=f1e682]:
+                - generic [ref=f1e683]:
+                  - img "Original New Product Xiaomi Redmi Note 8 Pro Mobile Phone 64MP Camera 6GB 128GB 6.53 inch Waterdrop Android Smartphone" [ref=f1e685]
+                  - generic: Admitad
+                - generic [ref=f1e687]:
+                  - heading "Original New Product Xiaomi Redmi Note 8 Pro Mobile Phone 64MP Camera 6GB 128GB 6.53 inch Waterdrop Android Smartphone" [level=3] [ref=f1e688]
+                  - paragraph [ref=f1e689]: General • Admitad
+                  - generic [ref=f1e691]: ‏٢٤٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e693]: In Stock
+                - generic [ref=f1e694]:
+                  - generic [ref=f1e695]:
+                    - link "Shop Now" [ref=f1e696] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62290672926&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62290672926%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e701] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62290672926#compare-prices
+                  - paragraph [ref=f1e704]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e706] [cursor=pointer]
+              - article [ref=f1e710]:
+                - generic [ref=f1e711]:
+                  - img "Original Global Version Xiaomi Mi 9T Redmi K20 Smartphone 6+64GB 6.39&#34; 48MP Triple Camera NFC Mobile Phone" [ref=f1e713]
+                  - generic: Admitad
+                - generic [ref=f1e715]:
+                  - heading "Original Global Version Xiaomi Mi 9T Redmi K20 Smartphone 6+64GB 6.39&#34; 48MP Triple Camera NFC Mobile Phone" [level=3] [ref=f1e716]
+                  - paragraph [ref=f1e717]: General • Admitad
+                  - generic [ref=f1e719]: ‏٢٨٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e721]: In Stock
+                - generic [ref=f1e722]:
+                  - generic [ref=f1e723]:
+                    - link "Shop Now" [ref=f1e724] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62374555825&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62374555825%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e729] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62374555825#compare-prices
+                  - paragraph [ref=f1e732]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e734] [cursor=pointer]
+              - article [ref=f1e738]:
+                - generic [ref=f1e739]:
+                  - img "Global ROM OnePlus 7T 8GB 128GB Smartphone Snapdragon 855 Plus Octa Core 90Hz AMOLED Screen 48MP Triple Cameras UFS 3.0 NFC" [ref=f1e741]
+                  - generic: Alibaba WW
+                - generic [ref=f1e743]:
+                  - heading "Global ROM OnePlus 7T 8GB 128GB Smartphone Snapdragon 855 Plus Octa Core 90Hz AMOLED Screen 48MP Triple Cameras UFS 3.0 NFC" [level=3] [ref=f1e744]
+                  - paragraph [ref=f1e745]: phones • Alibaba WW
+                  - generic [ref=f1e747]: ‏٤٥٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e749]: In Stock
+                - generic [ref=f1e750]:
+                  - generic [ref=f1e751]:
+                    - link "Shop Now" [ref=f1e752] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-fefd539d-4512-4a00-80b5-3bcc0dc9172e&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62352571958%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e757] [cursor=pointer]:
+                      - /url: /product/db-fefd539d-4512-4a00-80b5-3bcc0dc9172e#compare-prices
+                  - paragraph [ref=f1e760]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e762] [cursor=pointer]
+              - article [ref=f1e766]:
+                - generic [ref=f1e767]:
+                  - img "Arrival Oppo Reno Ace Gundam 4G LTE Mobile Phone Snapdragon 855 Plus 90HZ display AMOLED 8G RAM 256G ROM 65W Super VOOC" [ref=f1e769]
+                  - generic: Alibaba WW
+                - generic [ref=f1e771]:
+                  - heading "Arrival Oppo Reno Ace Gundam 4G LTE Mobile Phone Snapdragon 855 Plus 90HZ display AMOLED 8G RAM 256G ROM 65W Super VOOC" [level=3] [ref=f1e772]
+                  - paragraph [ref=f1e773]: phones • Alibaba WW
+                  - generic [ref=f1e775]: ‏٥٢٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e777]: In Stock
+                - generic [ref=f1e778]:
+                  - generic [ref=f1e779]:
+                    - link "Shop Now" [ref=f1e780] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-dc53e58d-68cc-46e7-808c-59c175e58e49&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62391358264%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e785] [cursor=pointer]:
+                      - /url: /product/db-dc53e58d-68cc-46e7-808c-59c175e58e49#compare-prices
+                  - paragraph [ref=f1e788]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e790] [cursor=pointer]
+              - article [ref=f1e794]:
+                - generic [ref=f1e795]:
+                  - img "chinese version Original Xiaomi MI 9 PRO 5G mobiles 6.39 inch, Android 9.0,MIUI 11 2340*1080 FHD mi9 pro 5G smartphone" [ref=f1e797]
+                  - generic: Admitad
+                - generic [ref=f1e799]:
+                  - heading "chinese version Original Xiaomi MI 9 PRO 5G mobiles 6.39 inch, Android 9.0,MIUI 11 2340*1080 FHD mi9 pro 5G smartphone" [level=3] [ref=f1e800]
+                  - paragraph [ref=f1e801]: General • Admitad
+                  - generic [ref=f1e803]: ‏٧٦٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e805]: In Stock
+                - generic [ref=f1e806]:
+                  - generic [ref=f1e807]:
+                    - link "Shop Now" [ref=f1e808] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62328408784&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62328408784%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e813] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62328408784#compare-prices
+                  - paragraph [ref=f1e816]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e818] [cursor=pointer]
+              - article [ref=f1e822]:
+                - generic [ref=f1e823]:
+                  - img "real-time heart rate monitoring rose gold bracelet watch smart smartwatch for samsung android smart watch xiomi mobile phone" [ref=f1e825]
+                  - generic: Admitad
+                - generic [ref=f1e827]:
+                  - heading "real-time heart rate monitoring rose gold bracelet watch smart smartwatch for samsung android smart watch xiomi mobile phone" [level=3] [ref=f1e828]
+                  - paragraph [ref=f1e829]: General • Admitad
+                  - generic [ref=f1e831]: ‏٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e833]: In Stock
+                - generic [ref=f1e834]:
+                  - generic [ref=f1e835]:
+                    - link "Shop Now" [ref=f1e836] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60836289716&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60836289716%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e841] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60836289716#compare-prices
+                  - paragraph [ref=f1e844]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e846] [cursor=pointer]
+              - article [ref=f1e850]:
+                - generic [ref=f1e851]:
+                  - img "X360 smartwatch Android 7.1 4G GPS WIFI heart rate monitor sleep monitor bluetooth smart watch for xiaomi huawei samsung iphone" [ref=f1e853]
+                  - generic: Admitad
+                - generic [ref=f1e855]:
+                  - heading "X360 smartwatch Android 7.1 4G GPS WIFI heart rate monitor sleep monitor bluetooth smart watch for xiaomi huawei samsung iphone" [level=3] [ref=f1e856]
+                  - paragraph [ref=f1e857]: General • Admitad
+                  - generic [ref=f1e859]: ‏١٠٢٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e861]: In Stock
+                - generic [ref=f1e862]:
+                  - generic [ref=f1e863]:
+                    - link "Shop Now" [ref=f1e864] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62278087941&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62278087941%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e869] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62278087941#compare-prices
+                  - paragraph [ref=f1e872]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e874] [cursor=pointer]
+              - article [ref=f1e878]:
+                - generic [ref=f1e879]:
+                  - img "Original Global Xiaomi Mi 9 Snapdragon 855 Octa Core 6+128GB 6.39&#34; AMOLED Display Smartphone 48MP Triple Cameras Mobile Phone" [ref=f1e881]
+                  - generic: Admitad
+                - generic [ref=f1e883]:
+                  - heading "Original Global Xiaomi Mi 9 Snapdragon 855 Octa Core 6+128GB 6.39&#34; AMOLED Display Smartphone 48MP Triple Cameras Mobile Phone" [level=3] [ref=f1e884]
+                  - paragraph [ref=f1e885]: General • Admitad
+                  - generic [ref=f1e887]: ‏٣٤٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e889]: In Stock
+                - generic [ref=f1e890]:
+                  - generic [ref=f1e891]:
+                    - link "Shop Now" [ref=f1e892] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62380846219&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62380846219%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e897] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62380846219#compare-prices
+                  - paragraph [ref=f1e900]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e902] [cursor=pointer]
+              - article [ref=f1e906]:
+                - generic [ref=f1e907]:
+                  - img "New Arrival Xiaomi mi 9 mobile phone Smartphone 4G mi9 Phone 4g 128GB" [ref=f1e909]
+                  - generic: Admitad
+                - generic [ref=f1e911]:
+                  - heading "New Arrival Xiaomi mi 9 mobile phone Smartphone 4G mi9 Phone 4g 128GB" [level=3] [ref=f1e912]
+                  - paragraph [ref=f1e913]: General • Admitad
+                  - generic [ref=f1e915]: ‏٣٩٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e917]: In Stock
+                - generic [ref=f1e918]:
+                  - generic [ref=f1e919]:
+                    - link "Shop Now" [ref=f1e920] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62015940335&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62015940335%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e925] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62015940335#compare-prices
+                  - paragraph [ref=f1e928]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e930] [cursor=pointer]
+              - article [ref=f1e934]:
+                - generic [ref=f1e935]:
+                  - img "Original HuaWei P30 Pro 8+128/256GB Triple Back Cameras Face ID Screen Fingerprint Id 6.47&#34; smartphone cell phone mobilephone" [ref=f1e937]
+                  - generic: Admitad
+                - generic [ref=f1e939]:
+                  - heading "Original HuaWei P30 Pro 8+128/256GB Triple Back Cameras Face ID Screen Fingerprint Id 6.47&#34; smartphone cell phone mobilephone" [level=3] [ref=f1e940]
+                  - paragraph [ref=f1e941]: General • Admitad
+                  - generic [ref=f1e943]: ‏٦٧٧٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e945]: In Stock
+                - generic [ref=f1e946]:
+                  - generic [ref=f1e947]:
+                    - link "Shop Now" [ref=f1e948] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62416500103&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62416500103%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e953] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62416500103#compare-prices
+                  - paragraph [ref=f1e956]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e958] [cursor=pointer]
+              - article [ref=f1e962]:
+                - generic [ref=f1e963]:
+                  - img "10 Ports USB Charging Station Hub 50W USB Wall Charger Fast Charging Power Adapter for Phone Tablet" [ref=f1e965]
+                  - generic: CJdropshipping
+                - generic [ref=f1e967]:
+                  - heading "10 Ports USB Charging Station Hub 50W USB Wall Charger Fast Charging Power Adapter for Phone Tablet" [level=3] [ref=f1e968]
+                  - paragraph [ref=f1e969]: Power Tools • CJdropshipping
+                  - generic [ref=f1e971]: ‏٢٨٫٢٢ ج.م.‏
+                  - paragraph [ref=f1e973]: In Stock
+                - generic [ref=f1e974]:
+                  - generic [ref=f1e975]:
+                    - link "Shop Now" [ref=f1e976] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100534999435358210&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2F10-ports-usb-charging-station-hub-50w-usb-wall-charger-fast--p-2100534999435358210.html&source=search
+                    - link "Compare Prices" [ref=f1e981] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100534999435358210#compare-prices
+                  - paragraph [ref=f1e984]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e986] [cursor=pointer]
+              - article [ref=f1e990]:
+                - generic [ref=f1e991]:
+                  - img "4x6in Car LED Headlights Vehicle Rectangular Headlamp with H4 Socket H4-to-3Pins Adapter with High Low Beam White Light IP68 Waterproof for 10-80V SUV Truck Sedan Car Motorcycle GPCT5330" [ref=f1e993]
+                  - generic: CJdropshipping
+                - generic [ref=f1e995]:
+                  - heading "4x6in Car LED Headlights Vehicle Rectangular Headlamp with H4 Socket H4-to-3Pins Adapter with High Low Beam White Light IP68 Waterproof for 10-80V SUV Truck Sedan Car Motorcycle GPCT5330" [level=3] [ref=f1e996]
+                  - paragraph [ref=f1e997]: Other Replacement Parts • CJdropshipping
+                  - generic [ref=f1e999]: ‏٢٨٫٦٢ ج.م.‏
+                  - paragraph [ref=f1e1001]: In Stock
+                - generic [ref=f1e1002]:
+                  - generic [ref=f1e1003]:
+                    - link "Shop Now" [ref=f1e1004] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100551695931977729&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2F4x6in-car-led-headlights-vehicle-rectangular-headlamp-with-h-p-2100551695931977729.html&source=search
+                    - link "Compare Prices" [ref=f1e1009] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100551695931977729#compare-prices
+                  - paragraph [ref=f1e1012]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1014] [cursor=pointer]
+              - article [ref=f1e1018]:
+                - generic [ref=f1e1019]:
+                  - img "Kids Digital Camera with Flip Lens Children Video Camcorder Christmas Toy Birthday Gifts with Tripod 2.4in Screen 32G MMC Card for 3-10 Year Old Boys Girls" [ref=f1e1021]
+                  - generic: CJdropshipping
+                - generic [ref=f1e1023]:
+                  - heading "Kids Digital Camera with Flip Lens Children Video Camcorder Christmas Toy Birthday Gifts with Tripod 2.4in Screen 32G MMC Card for 3-10 Year Old Boys Girls" [level=3] [ref=f1e1024]
+                  - paragraph [ref=f1e1025]: Action & Toy Figures • CJdropshipping
+                  - generic [ref=f1e1027]: ‏٣٨٫٩٢ ج.م.‏
+                  - paragraph [ref=f1e1029]: In Stock
+                - generic [ref=f1e1030]:
+                  - generic [ref=f1e1031]:
+                    - link "Shop Now" [ref=f1e1032] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100534281303404545&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Fkids-digital-camera-with-flip-lens-children-video-camcorder--p-2100534281303404545.html&source=search
+                    - link "Compare Prices" [ref=f1e1037] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100534281303404545#compare-prices
+                  - paragraph [ref=f1e1040]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1042] [cursor=pointer]
+              - article [ref=f1e1046]:
+                - generic [ref=f1e1047]:
+                  - img "Outdoor BBQ Griddle Caddy Organizer, Multi-Size Storage Baskets & 10 Hanging Hooks, Wind Resistant Paper Towel Holder, Heavy-Duty Rustproof Rack for Camping Picnic" [ref=f1e1049]
+                  - generic: CJdropshipping
+                - generic [ref=f1e1051]:
+                  - heading "Outdoor BBQ Griddle Caddy Organizer, Multi-Size Storage Baskets & 10 Hanging Hooks, Wind Resistant Paper Towel Holder, Heavy-Duty Rustproof Rack for Camping Picnic" [level=3] [ref=f1e1052]
+                  - paragraph [ref=f1e1053]: Kitchen Storage • CJdropshipping
+                  - generic [ref=f1e1055]: ‏٤١٫٥٨ ج.م.‏
+                  - paragraph [ref=f1e1057]: In Stock
+                - generic [ref=f1e1058]:
+                  - generic [ref=f1e1059]:
+                    - link "Shop Now" [ref=f1e1060] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=cjdropshipping-2100406758362959874&store=cjdropshipping&to=https%3A%2F%2Fcjdropshipping.com%2Fproduct%2Foutdoor-bbq-griddle-caddy-organizer-multi-size-storage-baske-p-2100406758362959874.html&source=search
+                    - link "Compare Prices" [ref=f1e1065] [cursor=pointer]:
+                      - /url: /product/cjdropshipping-2100406758362959874#compare-prices
+                  - paragraph [ref=f1e1068]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e1070] [cursor=pointer]
+    - contentinfo [ref=f1e1074]:
+      - generic [ref=f1e1075]:
+        - generic [ref=f1e1076]:
+          - text: ZORINO
+          - paragraph [ref=f1e1077]: AI-powered deal discovery
+        - navigation "Company" [ref=f1e1078]:
+          - heading "Company" [level=3] [ref=f1e1079]
+          - list [ref=f1e1080]:
+            - listitem [ref=f1e1081]:
+              - link "About Us" [ref=f1e1082] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f1e1083]:
+              - link "Contact" [ref=f1e1084] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f1e1085]:
+              - link "FAQ" [ref=f1e1086] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f1e1087]:
+              - link "Blog" [ref=f1e1088] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f1e1089]:
+          - heading "Legal" [level=3] [ref=f1e1090]
+          - list [ref=f1e1091]:
+            - listitem [ref=f1e1092]:
+              - link "Imprint" [ref=f1e1093] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f1e1094]:
+              - link "Privacy" [ref=f1e1095] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f1e1096]:
+              - link "Terms" [ref=f1e1097] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f1e1098]:
+              - link "Cookies" [ref=f1e1099] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f1e1100]:
+              - link "Affiliate" [ref=f1e1101] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f1e1102]:
+              - link "DMCA" [ref=f1e1103] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f1e1104]:
+              - link "Accessibility" [ref=f1e1105] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f1e1106]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f1e1107]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f1e1108] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f1e1109]
