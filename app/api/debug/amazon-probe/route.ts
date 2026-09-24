@@ -12,7 +12,7 @@ import {
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
 import { amazonSearchConnector } from "@/lib/search/connectors/amazon";
 
-const TEMP_TOKEN = "d0a5e2f7-debug-raw-9c41";
+const TEMP_TOKEN = process.env.AMAZON_PROBE_TOKEN ?? "8aa3a74f7256276bef09d0971d31284ef5b0";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
