@@ -130,7 +130,7 @@ export async function GET(request: Request) {
   })();
 
   try {
-    const scraperProduct = await fetchAmazonProductScraper("B0BN6RVLQJ", "amazon-storefront");
+    const scraperProduct = await fetchAmazonProductScraper("B0CMSYHFCF", "amazon-storefront");
     results.scraperProduct = scraperProduct
       ? { ok: true, title: scraperProduct.title, price: scraperProduct.price, inStock: scraperProduct.inStock }
       : { ok: false, reason: "null/empty" };
