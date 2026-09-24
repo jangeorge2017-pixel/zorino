@@ -174,11 +174,13 @@ describe("production pool — no single marketplace can crowd out genuine invent
     expect(exactModelPerProviderCeiling(10)).toBe(50);
   });
 
-  it("keeps the genuine devices of other providers reachable when one provider has far more exact matches", () => {
+it("caps each source to its strict equal share so a volume leader can no longer crowd the pool", () => {
     // eBay genuinely holds 200 exact iPhone 15 devices; AliExpress holds 10
     // exact + 30 same-family siblings; the imported catalog holds 20 more.
-    // Without a leading-phase ceiling, eBay's exact block alone fills the whole
-    // 200-slot pool and the ali siblings + imported devices are unreachable.
+    // New hard per-source cap (Requirement 1): with 3 active sources and a
+    // 200-slot pool each source contributes at most ceil(200/3) = 67, so eBay
+    // can no longer fill 140/200 slots and crowd out the peers' genuine
+    // inventory in the leading window.
     const results = assembleProductionSearchResults(
       [
         ...exactEbay(200),
@@ -190,7 +192,7 @@ describe("production pool — no single marketplace can crowd out genuine invent
       200,
     );
 
-    expect(results).toHaveLength(200);
+    expect(results).toHaveLength(127);
 
     const stores = new Set(results.map((r) => r.storeSlug));
     expect(stores).toEqual(new Set(["ebay", "aliexpress", "admitad"]));
@@ -199,20 +201,34 @@ describe("production pool — no single marketplace can crowd out genuine invent
     expect(results.some((r) => /iPhone 14/.test(r.name))).toBe(true);
     expect(results.some((r) => r.storeSlug === "admitad")).toBe(true);
 
-    // Retention, not just reachability: no genuine listing was dropped.
-    // eBay's exact block is capped to 60% of the pool (100) and its overage
-    // refills the tail (40); AliExpress keeps its 10 exact + 30 siblings;
-    // the imported catalog keeps all 20 rows.
-    expect(results.filter((r) => r.storeSlug === "ebay")).toHaveLength(140);
+    // Strict equal share: eBay capped at 67, AliExpress keeps all 40, the
+    // imported catalog all 20 — no single source's volume dominates.
+    expect(results.filter((r) => r.storeSlug === "ebay")).toHaveLength(67);
     expect(results.filter((r) => r.storeSlug === "aliexpress")).toHaveLength(40);
     expect(results.filter((r) => r.storeSlug === "admitad")).toHaveLength(20);
 
-    // Relevance is preserved: the whole leading block (every provider's capped
-    // exact/model share) precedes the first sibling/imported device.
+    // Relevance is preserved: the whole leading block (every provider's exact
+    // matches) precedes the first sibling/imported device.
     const firstSibling = results.findIndex((r) => /iPhone 14/.test(r.name));
-    expect(firstSibling).toBeGreaterThanOrEqual(110);
+    expect(firstSibling).toBeGreaterThanOrEqual(77);
     for (let i = 0; i < firstSibling; i++) {
       expect(results[i]!.name).toContain("iPhone 15");
+    }
+  });
+
+  it("interleaves sources 1-1-1 (strict alternation) while peers still have stock", () => {
+    const results = assembleProductionSearchResults(
+      [...exactEbay(4), ...exactAli(4)],
+      QUERY,
+      8,
+    );
+
+    const sequence = results.map((r) => r.storeSlug);
+    expect(sequence).toHaveLength(8);
+    // Strict round-robin: no source may appear twice consecutively while the
+    // peer still has stock → mandatory alternation ebay/aliexpress.
+    for (let i = 0; i < sequence.length - 1; i++) {
+      expect(sequence[i]).not.toBe(sequence[i + 1]);
     }
   });
 
@@ -223,8 +239,72 @@ describe("production pool — no single marketplace can crowd out genuine invent
       200,
     );
 
+    // n = 1 active source → equal share = the whole pool, so a lone provider
+    // is never trimmed and fills every slot with its real inventory.
     expect(results).toHaveLength(200);
     expect(results.every((r) => r.storeSlug === "ebay")).toBe(true);
     expect(results.every((r) => /iPhone 15/.test(r.name))).toBe(true);
+  });
+});
+
+describe("production search assembly — universal price sort (Requirement 3)", () => {
+  const QUERY = "iphone 15 pro";
+
+  function priced(
+    providerId: RawProviderListing["providerId"],
+    n: number,
+    price: number,
+    titleOverride?: string,
+  ): RawProviderListing {
+    return rawListing({
+      providerId,
+      externalId: `${providerId}-${n}`,
+      title: titleOverride ?? `Apple iPhone 15 Pro ${n}GB Unlocked GSM ${providerId}`,
+      price,
+      originalPrice: Math.round(price * 1.2),
+      discount: 0,
+    });
+  }
+
+  it("merges every source and sorts strictly by ascending price, regardless of marketplace", () => {
+    const results = assembleProductionSearchResults(
+      [
+        priced("ebay", 1, 1200),
+        priced("ebay", 2, 1100),
+        priced("aliexpress", 1, 1050),
+        priced("admitad", 1, 1000),
+        priced("aliexpress", 2, 1350),
+      ],
+      QUERY,
+      10,
+      { sortBy: "price" },
+    );
+
+    expect(results.map((r) => r.price)).toEqual([1000, 1050, 1100, 1200, 1350]);
+    // Cheapest offer leads — even though it belongs to a "smaller" source, and
+    // eBay's two devices are NOT kept together in a block.
+    expect(results[0]!.storeSlug).toBe("admitad");
+    expect(results.map((r) => r.storeSlug)).toEqual([
+      "admitad",
+      "aliexpress",
+      "ebay",
+      "ebay",
+      "aliexpress",
+    ]);
+  });
+
+  it("caps the price-sorted list to the limit", () => {
+    const results = assembleProductionSearchResults(
+      [
+        priced("ebay", 1, 1200),
+        priced("ebay", 2, 1100),
+        priced("aliexpress", 1, 1050),
+        priced("admitad", 1, 1000),
+      ],
+      QUERY,
+      2,
+      { sortBy: "price" },
+    );
+    expect(results.map((r) => r.price)).toEqual([1000, 1050]);
   });
 });

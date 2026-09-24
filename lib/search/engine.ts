@@ -20,6 +20,7 @@ import type {
   RawProviderListing,
   SearchEngineResult,
   SearchProviderId,
+  SearchSortMode,
 } from "@/lib/search/types";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
@@ -257,7 +258,7 @@ export function setSearchPoolForTests(
   query: string,
   items: ReadonlyArray<SearchResultItem>,
 ): void {
-  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt`;
+  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance`;
   fairSearchCache.set(cacheKey, {
     items: items as SearchResultItem[],
     expiresAt: Date.now() + 60_000,
@@ -455,12 +456,20 @@ async function fetchProvidersInParallel(
           seenListingKeys.add(key);
           return true;
         });
-        allRaw.push(...merged);
-        recordProviderRun(result.providerId, merged.length);
+        // Requirement 1 — fetching limit per source: a single source may never
+        // push more than MAX_LISTINGS_PER_SOURCE raw listings into the pool per
+        // search query, so slow/lean peers (AliExpress, Admitad) are never
+        // drowned out by a high-volume source's paginated tail.
+        const cappedMerged = merged.slice(
+          0,
+          SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE,
+        );
+        allRaw.push(...cappedMerged);
+        recordProviderRun(result.providerId, cappedMerged.length);
         providerStats.push({
           providerId: result.providerId,
-          fetched: merged.length,
-          normalized: merged.length,
+          fetched: cappedMerged.length,
+          normalized: cappedMerged.length,
           durationMs:
             result.durationMs > 0 ? result.durationMs : Date.now() - started,
         });
@@ -489,18 +498,19 @@ async function fetchProvidersInParallel(
 export async function searchProducts(
   query: string,
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT,
-  options?: { optimizeForDeviceIntent?: boolean }
+  options?: { optimizeForDeviceIntent?: boolean; sortBy?: SearchSortMode },
 ): Promise<SearchResultItem[]> {
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
   const trimmed = query.trim();
   if (!trimmed) return [];
 
   const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
-  // Separate cache namespaces per mode so an optimized /search pool can never
-  // be served to (or evict) the legacy homepage/Compare pool for the same query.
+  const sortBy: SearchSortMode = options?.sortBy ?? "relevance";
+  // Separate cache namespaces per mode + sort so a price-sorted pool can never
+  // be served to (or evict) the relevance pool for the same query.
   const cacheKey = `prod-v20-device-pool:${trimmed.toLowerCase()}:${capped}${
     optimizeForDeviceIntent ? ":device-opt" : ""
-  }`;
+  }:sort:${sortBy}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -599,6 +609,7 @@ export async function searchProducts(
     [...allRaw, ...dbAsRaw],
     trimmed,
     capped,
+    { sortBy },
   );
 
   // Restore original imported-row identity so Compare Prices / PDP / affiliate
@@ -622,9 +633,10 @@ export async function searchProducts(
   // DB-leg exclusion are all computed from the unchanged pool, so pagination
   // semantics are untouched. Homepage / Compare Prices never pass the flag,
   // so their pools stay byte-identical.
-  const composed = optimizeForDeviceIntent
-    ? composeSearchPageOne(mixed, trimmed)
-    : mixed;
+  const composed =
+    optimizeForDeviceIntent && sortBy !== "price"
+      ? composeSearchPageOne(mixed, trimmed)
+      : mixed;
   fairSearchCache.set(cacheKey, {
     items: composed,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
@@ -745,7 +757,7 @@ export async function searchProductsPaged(
   query: string,
   offset: number,
   limit: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
-  options?: { optimizeForDeviceIntent?: boolean }
+  options?: { optimizeForDeviceIntent?: boolean; sortBy?: SearchSortMode }
 ): Promise<SearchPageResult> {
   const trimmed = query.trim();
   if (!trimmed) {

@@ -14,7 +14,7 @@
  */
 
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
-import type { NormalizedSearchListing, RawProviderListing } from "@/lib/search/types";
+import type { NormalizedSearchListing, RawProviderListing, SearchSortMode } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import { searchProducts } from "@/lib/search/engine";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
@@ -108,6 +108,7 @@ export function assembleCanonicalSearchPool(input: {
   activeProviders: readonly string[];
   query: string;
   limit: number;
+  sortBy?: SearchSortMode;
 }): {
   items: SearchResultItem[];
   rejectedCount: number;
@@ -131,7 +132,9 @@ export function assembleCanonicalSearchPool(input: {
     for (const code of rejection.codes) rejectedByCode[code] = (rejectedByCode[code] ?? 0) + 1;
   }
 
-  const live = assembleProductionSearchResults(canonical.accepted, trimmed, capped);
+  const live = assembleProductionSearchResults(canonical.accepted, trimmed, capped, {
+    ...(input.sortBy ? { sortBy: input.sortBy } : {}),
+  });
 
   const activeDb = input.dbItems.filter((item) => activeProviderSet.has(item.storeSlug));
   const dedupedDb: SearchResultItem[] = [];
@@ -146,6 +149,22 @@ export function assembleCanonicalSearchPool(input: {
     }
   }
   for (const item of live) seen.add(item.id);
+
+  // Universal price mode: the balanced-DB + live interleave below would destroy
+  // a pure lowest-price order, so in price mode the DB leg is merged and
+  // price-sorted together with the live pool instead.
+  if (input.sortBy === "price") {
+    const priceSorted = [...live, ...dedupedDb].sort(
+      (a, b) => a.price - b.price || a.reviewCount - b.reviewCount || a.rating - b.rating,
+    );
+    return {
+      items: priceSorted.slice(0, capped),
+      rejectedCount: canonical.rejected.length,
+      rejectedByCode,
+      acceptedCount: canonical.accepted.length,
+      productsFormed: canonical.products.length,
+    };
+  }
 
   const balancedDb = balanceFlatMarketplaceList(
     dedupedDb,
@@ -174,26 +193,33 @@ export function assembleCanonicalSearchPool(input: {
 export async function canonicalSearchProducts(
   query: string,
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT,
+  sortBy?: SearchSortMode,
 ): Promise<SearchResultItem[]> {
   if (!isSurfaceEnabled(SURFACE)) {
-    return searchProducts(query, limit, { optimizeForDeviceIntent: true });
+    return searchProducts(query, limit, { optimizeForDeviceIntent: true, sortBy });
   }
 
   const trimmed = query.trim();
   if (!trimmed) return [];
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
 
-  const cacheKey = `canonical-search:${trimmed.toLowerCase()}:${capped}`;
+  const sort = sortBy ?? "relevance";
+  const cacheKey = `canonical-search:${trimmed.toLowerCase()}:${capped}:sort:${sort}`;
   const cached = canSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.items.slice(0, capped);
 
   try {
     const inputs = await fetchCanonicalInputs(trimmed, capped);
-    const pooled = assembleCanonicalSearchPool({ ...inputs, query: trimmed, limit: capped });
+    const pooled = assembleCanonicalSearchPool({
+      ...inputs,
+      query: trimmed,
+      limit: capped,
+      sortBy: sort,
+    });
     canSearchCache.set(cacheKey, { items: pooled.items, expiresAt: Date.now() + CACHE_TTL_MS });
     return pooled.items;
   } catch {
-    return searchProducts(trimmed, capped, { optimizeForDeviceIntent: true });
+    return searchProducts(trimmed, capped, { optimizeForDeviceIntent: true, sortBy: sort });
   }
 }
 
@@ -201,8 +227,9 @@ export async function canonicalSearchProducts(
 export async function searchProductsSurface(
   query: string,
   limit?: number,
+  sortBy?: SearchSortMode,
 ): Promise<SearchResultItem[]> {
-  return canonicalSearchProducts(query, limit);
+  return canonicalSearchProducts(query, limit, sortBy);
 }
 
 import {
@@ -228,10 +255,14 @@ export async function searchResultsPagedSurface(
   query: string,
   offset: number,
   limit: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+  sortBy?: SearchSortMode,
 ): Promise<SearchPageResult> {
   if (!isSurfaceEnabled(SURFACE)) {
     const { searchProductsPaged } = await import("@/lib/search/engine");
-    return searchProductsPaged(query, offset, limit, { optimizeForDeviceIntent: true });
+    return searchProductsPaged(query, offset, limit, {
+      optimizeForDeviceIntent: true,
+      sortBy,
+    });
   }
   const trimmed = query.trim();
   if (!trimmed) {
@@ -246,7 +277,11 @@ export async function searchResultsPagedSurface(
   // resolves 0 so the pool length keeps the historical in-window behaviour.
   const dbModule = import("@/lib/integration/database-catalog");
   const [pool, dbCountP] = await Promise.all([
-    canonicalSearchProducts(trimmed, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT),
+    canonicalSearchProducts(
+      trimmed,
+      SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
+      sortBy,
+    ),
     dbModule.then((m) =>
       m.countSearchResultsFromDatabase(trimmed, {
         timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
