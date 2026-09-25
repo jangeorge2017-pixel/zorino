@@ -10,6 +10,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  toDisplayCurrency,
   toEgpDisplayCurrency,
   DISPLAY_CURRENCY,
 } from "@/lib/search/display-currency";
@@ -99,6 +100,40 @@ describe("toEgpDisplayCurrency (pure helper)", () => {
   });
 });
 
+describe("toDisplayCurrency (active-currency generalized seam)", () => {
+  it("target USD converts an EGP row to USD and stamps USD", () => {
+    // 20,000 EGP ≈ $412.4 (static pivot 48.5). US visitor sees the real number.
+    const out = toDisplayCurrency(
+      [item({ id: "egp-in-usd", price: 20000, originalPrice: 25000, currency: "EGP" })],
+      "USD",
+    );
+    expect(out[0]!.price).toBeCloseTo(412.37, 1);
+    expect(out[0]!.originalPrice).toBeCloseTo(515.46, 1);
+    expect(out[0]!.currency).toBe("USD");
+  });
+
+  it("target USD leaves a USD row untouched, and passes unsupported rows through", () => {
+    const usd = item({ id: "usd-in", price: 849, currency: "USD" });
+    const uah = item({ id: "uah-in", price: 34879, currency: "UAH" });
+    const out = toDisplayCurrency([usd, uah], "USD");
+    expect(out[0]).toBe(usd);
+    expect(out[1]).toBe(uah);
+  });
+
+  it("target EGP (legacy) equals toEgpDisplayCurrency exactly", () => {
+    const src = item({ id: "x", price: 849, originalPrice: 999 });
+    expect(toDisplayCurrency([src], "EGP")).toEqual(toEgpDisplayCurrency([src]));
+  });
+
+  it("target USD is identity on a plain US-catalog row (missing currency = USD)", () => {
+    const src = item({ id: "no-cur", price: 100 });
+    const out = toDisplayCurrency([src], "USD");
+    expect(out[0]!.price).toBe(100);
+    expect(out[0]!.originalPrice).toBe(src.originalPrice);
+    expect(out[0]!.currency).toBe("USD");
+  });
+});
+
 describe("search landing seams emit EGP prices (gate ON)", () => {
   beforeEach(() => {
     setCanonicalEnabledForTests(true);
@@ -156,5 +191,39 @@ describe("search landing seams emit EGP prices (gate ON)", () => {
     expect(page.items[0]!.currency).toBe("EGP");
     expect(page.items[0]!.price).toBe(15000);
     expect(page.items[0]!.originalPrice).toBe(17000);
+  });
+
+  it("searchProductsSurface emits USD when an active USD currency is passed", async () => {
+    setCanonicalSearchFetcherForTests(async () => ({
+      liveListings: [],
+      dbItems: [
+        item({ id: "us-1", name: "Apple iPhone 15 Pro Max 256GB", price: 849, originalPrice: 999, storeSlug: "admitad" }),
+        item({ id: "eg-1", name: "iPhone 15 Dual SIM", price: 40000, currency: "EGP", storeSlug: "aliexpress" }),
+      ],
+      activeProviders: ["admitad", "aliexpress"],
+    }));
+    const items = await searchProductsSurface("iphone 15 pro usd mode", 10, undefined, "USD");
+    expect(items.length).toBe(2);
+    // USD row untouched; the EGP row is converted to USD and stamped. The
+    // canonical pool regenerates ids from the product, so key by name.
+    const us = items.find((i) => i.name === "Apple iPhone 15 Pro Max 256GB")!;
+    const eg = items.find((i) => i.name === "iPhone 15 Dual SIM")!;
+    expect(us.price).toBe(849);
+    expect(us.currency).toBe("USD");
+    expect(eg.price).toBeCloseTo(40000 / 48.5, 1);
+    expect(eg.currency).toBe("USD");
+  });
+
+  it("paged surface emits USD when an active USD currency is passed", async () => {
+    setCanonicalSearchFetcherForTests(async () => ({
+      liveListings: [],
+      dbItems: [
+        item({ id: "us-in", name: "Apple iPhone 15 Pro Max 256GB", price: 849, storeSlug: "admitad" }),
+      ],
+      activeProviders: ["admitad"],
+    }));
+    const page = await searchResultsPagedSurface("iphone 15 pro us", 0, 1, undefined, "USD");
+    expect(page.items[0]!.currency).toBe("USD");
+    expect(page.items[0]!.price).toBe(849);
   });
 });

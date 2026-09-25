@@ -4,6 +4,7 @@ import {
   DEVICE_PRICE_FLOOR_USD,
   HANDSET_PRICE_FLOOR_USD,
   belowDevicePriceFloor,
+  devicePriceFloorInActiveCurrency,
   devicePriceFloorUsd,
   enforceStrictDevicePool,
   hasAccessoryTerm,
@@ -286,6 +287,46 @@ describe("accessory-exclusion / strict device-pool guard", () => {
         passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 120, "iphone 15 pro max", "UAH"),
       ).toBe(false);
     });
+
+    it("expresses the floor in the visitor's ACTIVE currency (EGP mode)", () => {
+      // USD floor $150 → ≈7500 EGP (static pivot 48.5): 150 * 48.5 = 7275.
+      // Both sides are now compared in the number the EGP visitor sees.
+      expect(devicePriceFloorInActiveCurrency("iphone 15 pro max", "EGP")).toBe(7275);
+      expect(devicePriceFloorInActiveCurrency("iphone 15 pro max", "USD")).toBe(150);
+      expect(devicePriceFloorInActiveCurrency("wireless earbuds", "EGP")).toBe(4850);
+      expect(devicePriceFloorInActiveCurrency("wireless earbuds", "USD")).toBe(100);
+    });
+
+    it("normalises an EGP-priced row into the ACTIVE currency before the floor", () => {
+      // 48,484 EGP ≈ $999 — a genuine US-equivalent price, passes in EGP mode.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 48484, "iphone 15 pro max", "EGP", "EGP")).toBe(true);
+      // 1,000 EGP ≈ $20.6 — below the ≈7500 EGP floor, must drop in EGP mode.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 1000, "iphone 15 pro max", "EGP", "EGP")).toBe(false);
+      // Same row in USD mode: 1,000 EGP is ≈ $20.6 < $150 — still drops.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 1000, "iphone 15 pro max", "EGP", "USD")).toBe(false);
+    });
+
+    it("is outcome-equivalent to the USD pivot but never compares raw digits cross-currency", () => {
+      // 8,000 EGP ≈ $164.9 — above the $150 floor, below a (wrong) 8k-vs-USD
+      // reading would also pass; the guard converts EGP→ACTIVE like-for-like.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 8000, "iphone 15 pro max", "EGP", "EGP")).toBe(true);
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 8000, "iphone 15 pro max", "EGP", "USD")).toBe(true);
+      // USD-priced row seen by an EGP visitor: $120 < $150 and < 7275 EGP.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 120, "iphone 15 pro max", "USD", "EGP")).toBe(false);
+      // $899 > both floors — keeps in either active currency.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 899, "iphone 15 pro max", "USD", "EGP")).toBe(true);
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 899, "iphone 15 pro max", "USD", "USD")).toBe(true);
+    });
+
+    it("uses the active floor for the unsupported-currency raw fallback", () => {
+      // A UAH row compared against the EGP visitor's ≈7500 floor: the raw 4000
+      // is under it, so the row drops with the ACTIVE floor — never a USD one.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 4000, "iphone 15 pro max", "UAH", "EGP")).toBe(false);
+      // 40,000 raw (UAH) clears the EGP floor — keeps.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 40000, "iphone 15 pro max", "UAH", "EGP")).toBe(true);
+      // Same 4000 raw against the USD floor is above $150 → keeps in USD mode.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 4000, "iphone 15 pro max", "UAH", "USD")).toBe(true);
+    });
   });
 
   describe("must-contain brand rule", () => {
@@ -295,6 +336,39 @@ describe("accessory-exclusion / strict device-pool guard", () => {
       // The exact bug: a Samsung device on an "iPhone" query is unrelated
       // sponsored inventory, never a match.
       expect(passesStrictDeviceGuard("Samsung Galaxy S25 Ultra 512GB", 899, "iphone 15 pro max")).toBe(false);
+    });
+
+    it("drops BRANDLESS cross-family Apple titles on an iphone query (leak fix)", () => {
+      // The old combined rule accepted any of iphone|ipad|macbook tokens, so an
+      // "iPhone" query accepted a bare "iPad Pro" or "MacBook Air" (no Apple/
+      // iPhone brand anywhere). Each family is now its own hard rule: an iPhone
+      // query requires iPhone/Apple (ايفون) — a brandless other-family title
+      // drops, while a title that genuinely carries the Apple/iPhone brand
+      // still passes per the must-contain "iPhone or Apple" contract.
+      expect(passesStrictDeviceGuard("iPad Pro 12.9", 999, "iphone 15 pro max")).toBe(false);
+      expect(passesStrictDeviceGuard("MacBook Air M3", 999, "iphone 15 pro max")).toBe(false);
+      expect(passesStrictDeviceGuard("ايباد برو 12.9", 999, "iphone 15 pro max")).toBe(false);
+      expect(passesStrictDeviceGuard("ماك بوك اير", 999, "iphone 15 pro max")).toBe(false);
+      // Cross-family titles that DO carry the Apple brand are not unrelated
+      // sponsored inventory — they keep the must-contain contract.
+      expect(passesStrictDeviceGuard("Apple iPad Pro 11 M4", 899, "iphone 15 pro max")).toBe(true);
+      expect(passesStrictDeviceGuard("Apple MacBook Air M3", 999, "iphone 15 pro max")).toBe(true);
+      // ...while the genuine iPhone still passes on the same query.
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 899, "iphone 15 pro max")).toBe(true);
+    });
+
+    it("drops brandless other-family titles on an ipad query (strict per-family)", () => {
+      expect(passesStrictDeviceGuard("iPhone 15 Pro 128GB", 799, "ipad pro")).toBe(false);
+      expect(passesStrictDeviceGuard("MacBook Air M3", 999, "ipad pro")).toBe(false);
+      expect(passesStrictDeviceGuard("ايفون 15 برو", 799, "ipad pro")).toBe(false);
+      expect(passesStrictDeviceGuard("Apple iPad Pro 11 M4", 899, "ipad pro")).toBe(true);
+    });
+
+    it("drops brandless other-family titles on a macbook query (strict per-family)", () => {
+      expect(passesStrictDeviceGuard("iPhone 15 Pro 128GB", 799, "macbook air")).toBe(false);
+      expect(passesStrictDeviceGuard("iPad Pro 12.9", 999, "macbook air")).toBe(false);
+      expect(passesStrictDeviceGuard("ايفون 15 برو", 799, "macbook air")).toBe(false);
+      expect(passesStrictDeviceGuard("Apple MacBook Air M3", 999, "macbook air")).toBe(true);
     });
 
     it("keeps titles that carry any required brand alias (Latin, case-insensitive)", () => {

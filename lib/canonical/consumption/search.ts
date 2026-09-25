@@ -16,7 +16,11 @@
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { NormalizedSearchListing, RawProviderListing, SearchSortMode } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
-import { toEgpDisplayCurrency } from "@/lib/search/display-currency";
+import type { CurrencyCode } from "@/lib/international/config";
+import {
+  toDisplayCurrency,
+  DISPLAY_CURRENCY,
+} from "@/lib/search/display-currency";
 import { searchProducts } from "@/lib/search/engine";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
@@ -115,6 +119,7 @@ export function assembleCanonicalSearchPool(input: {
   query: string;
   limit: number;
   sortBy?: SearchSortMode;
+  activeCurrency?: CurrencyCode;
 }): {
   items: SearchResultItem[];
   rejectedCount: number;
@@ -124,6 +129,7 @@ export function assembleCanonicalSearchPool(input: {
 } {
   const trimmed = input.query.trim();
   const capped = Math.min(input.limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
+  const activeCurrency: CurrencyCode = input.activeCurrency ?? "USD";
   if (!trimmed || capped <= 0) {
     return { items: [], rejectedCount: 0, rejectedByCode: {}, acceptedCount: 0, productsFormed: 0 };
   }
@@ -138,11 +144,11 @@ export function assembleCanonicalSearchPool(input: {
   // queries are untouched here.
   const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
   const rawLive = deviceIntent
-    ? enforceStrictDevicePool(input.liveListings, trimmed)
+    ? enforceStrictDevicePool(input.liveListings, trimmed, activeCurrency)
     : input.liveListings;
   const strictDbItems = deviceIntent
     ? input.dbItems.filter((item) =>
-        passesStrictDeviceGuard(item.name, item.price, trimmed, item.currency),
+        passesStrictDeviceGuard(item.name, item.price, trimmed, item.currency, activeCurrency),
       )
     : input.dbItems;
   const ranked = rankRawListings(rawLive as NormalizedSearchListing[], trimmed);
@@ -180,7 +186,7 @@ export function assembleCanonicalSearchPool(input: {
     const priceSorted = [...live, ...dedupedDb].sort(
       (a, b) => a.price - b.price || a.reviewCount - b.reviewCount || a.rating - b.rating,
     );
-    const guarded = enforceConditionDiversity<SearchResultItem>(
+    const priceGuarded = enforceConditionDiversity<SearchResultItem>(
       priceSorted.slice(0, capped),
       {
         windowSize: SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
@@ -189,8 +195,16 @@ export function assembleCanonicalSearchPool(input: {
         conditionOf: (item) => classifyListingCondition(item.name, item.condition),
       },
     );
+    // The hard 60% single-source viewport cap applies in price mode too: a
+    // marketplace with the cheapest inventory cannot monopolize a full page
+    // window while any peer provider is present (pure permutation — totals
+    // and hasMore untouched, price order preserved within the kept run).
+    const priceCapped = enforceViewportSingleSourceCap<SearchResultItem>(
+      priceGuarded,
+      (item) => item.storeSlug || item.store,
+    );
     return {
-      items: guarded,
+      items: priceCapped,
       rejectedCount: canonical.rejected.length,
       rejectedByCode,
       acceptedCount: canonical.accepted.length,
@@ -251,9 +265,18 @@ export async function canonicalSearchProducts(
   query: string,
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT,
   sortBy?: SearchSortMode,
+  activeCurrency?: CurrencyCode,
 ): Promise<SearchResultItem[]> {
+  const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   if (!isSurfaceEnabled(SURFACE)) {
-    return searchProducts(query, limit, { optimizeForDeviceIntent: true, sortBy });
+    // Gate-off delegation stays byte-identical to the legacy call shape: only
+    // inject the currency when the caller actually provides one (undefined
+    // keeps the engine's classic USD default and the exact legacy option set).
+    return searchProducts(query, limit, {
+      optimizeForDeviceIntent: true,
+      sortBy,
+      ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
+    });
   }
 
   const trimmed = query.trim();
@@ -261,7 +284,7 @@ export async function canonicalSearchProducts(
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
 
   const sort = sortBy ?? "relevance";
-  const cacheKey = `canonical-search:${trimmed.toLowerCase()}:${capped}:sort:${sort}`;
+  const cacheKey = `canonical-search:${trimmed.toLowerCase()}:${capped}:sort:${sort}:cur:${guardCurrency}`;
   const cached = canSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.items.slice(0, capped);
 
@@ -272,11 +295,16 @@ export async function canonicalSearchProducts(
       query: trimmed,
       limit: capped,
       sortBy: sort,
+      activeCurrency: guardCurrency,
     });
     canSearchCache.set(cacheKey, { items: pooled.items, expiresAt: Date.now() + CACHE_TTL_MS });
     return pooled.items;
   } catch {
-    return searchProducts(trimmed, capped, { optimizeForDeviceIntent: true, sortBy: sort });
+    return searchProducts(trimmed, capped, {
+      optimizeForDeviceIntent: true,
+      sortBy: sort,
+      ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
+    });
   }
 }
 
@@ -285,12 +313,19 @@ export async function searchProductsSurface(
   query: string,
   limit?: number,
   sortBy?: SearchSortMode,
+  activeCurrency?: CurrencyCode,
 ): Promise<SearchResultItem[]> {
-  const items = await canonicalSearchProducts(query, limit, sortBy);
-  // Display seam: convert source currency to EGP so formatPrice() (which is
-  // called WITHOUT fromCurrency) renders the real EGP number, not raw USD
-  // digits with an EGP label. Engine/pool math keeps the raw source currency.
-  return toEgpDisplayCurrency(items);
+  // Guard math defaults to USD (classic engine behavior); DISPLAY honors the
+  // visitor's active currency, falling back to the EGP legacy when no currency
+  // context is supplied (homepage/compare/category callers pass none today).
+  const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
+  const displayCurrency: CurrencyCode = activeCurrency ?? DISPLAY_CURRENCY;
+  const items = await canonicalSearchProducts(query, limit, sortBy, guardCurrency);
+  // Display seam: convert source currency to the visitor's ACTIVE currency so
+  // formatPrice() (which is called WITHOUT fromCurrency) renders the real
+  // number, not raw digits wearing a mismatched label. Engine/pool math keeps
+  // the raw source currency.
+  return toDisplayCurrency(items, displayCurrency);
 }
 
 import {
@@ -317,14 +352,18 @@ export async function searchResultsPagedSurface(
   offset: number,
   limit: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
   sortBy?: SearchSortMode,
+  activeCurrency?: CurrencyCode,
 ): Promise<SearchPageResult> {
+  const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
+  const displayCurrency: CurrencyCode = activeCurrency ?? DISPLAY_CURRENCY;
   if (!isSurfaceEnabled(SURFACE)) {
     const { searchProductsPaged } = await import("@/lib/search/engine");
     const page = await searchProductsPaged(query, offset, limit, {
       optimizeForDeviceIntent: true,
       sortBy,
+      ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
     });
-    return { ...page, items: toEgpDisplayCurrency(page.items) };
+    return { ...page, items: toDisplayCurrency(page.items, displayCurrency) };
   }
   const trimmed = query.trim();
   if (!trimmed) {
@@ -343,6 +382,7 @@ export async function searchResultsPagedSurface(
       trimmed,
       SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
       sortBy,
+      guardCurrency,
     ),
     dbModule.then((m) =>
       m.countSearchResultsFromDatabase(trimmed, {
@@ -359,7 +399,7 @@ export async function searchResultsPagedSurface(
     const page = sliceSearchPage(pool, safeOffset, safeLimit);
     return {
       ...page,
-      items: toEgpDisplayCurrency(page.items),
+      items: toDisplayCurrency(page.items, displayCurrency),
       total,
       hasMore: safeOffset + safeLimit < total,
     };
@@ -387,10 +427,20 @@ export async function searchResultsPagedSurface(
 
   // Strict device guard on the DB tail: the canonical pool already filters its
   // `dbItems` leg, but the beyond-pool DB leg is fetched fresh here and would
-  // otherwise re-import accessory/junk rows on a device query.
+  // otherwise re-import accessory/junk rows on a device query. Passes the DB
+  // row's real currency AND the visitor's active currency so the floor never
+  // judges raw EGP digits against a USD baseline.
   const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
   const tailItems = deviceIntent
-    ? dbPage.items.filter((item) => passesStrictDeviceGuard(item.name, item.price, trimmed))
+    ? dbPage.items.filter((item) =>
+        passesStrictDeviceGuard(
+          item.name,
+          item.price,
+          trimmed,
+          item.currency,
+          guardCurrency,
+        ),
+      )
     : dbPage.items;
 
   // Prefer the truthful DB count; if only the paged leg succeeded, trust its
@@ -401,7 +451,7 @@ export async function searchResultsPagedSurface(
   const items = [...selection.poolHead, ...tailItems];
 
   return {
-    items: toEgpDisplayCurrency(items),
+    items: toDisplayCurrency(items, displayCurrency),
     total: finalTotal,
     offset: safeOffset,
     limit: safeLimit,
