@@ -16,6 +16,7 @@
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { NormalizedSearchListing, RawProviderListing, SearchSortMode } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
+import { toEgpDisplayCurrency } from "@/lib/search/display-currency";
 import { searchProducts } from "@/lib/search/engine";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
@@ -275,7 +276,11 @@ export async function searchProductsSurface(
   limit?: number,
   sortBy?: SearchSortMode,
 ): Promise<SearchResultItem[]> {
-  return canonicalSearchProducts(query, limit, sortBy);
+  const items = await canonicalSearchProducts(query, limit, sortBy);
+  // Display seam: convert source currency to EGP so formatPrice() (which is
+  // called WITHOUT fromCurrency) renders the real EGP number, not raw USD
+  // digits with an EGP label. Engine/pool math keeps the raw source currency.
+  return toEgpDisplayCurrency(items);
 }
 
 import {
@@ -305,10 +310,11 @@ export async function searchResultsPagedSurface(
 ): Promise<SearchPageResult> {
   if (!isSurfaceEnabled(SURFACE)) {
     const { searchProductsPaged } = await import("@/lib/search/engine");
-    return searchProductsPaged(query, offset, limit, {
+    const page = await searchProductsPaged(query, offset, limit, {
       optimizeForDeviceIntent: true,
       sortBy,
     });
+    return { ...page, items: toEgpDisplayCurrency(page.items) };
   }
   const trimmed = query.trim();
   if (!trimmed) {
@@ -343,6 +349,7 @@ export async function searchResultsPagedSurface(
     const page = sliceSearchPage(pool, safeOffset, safeLimit);
     return {
       ...page,
+      items: toEgpDisplayCurrency(page.items),
       total,
       hasMore: safeOffset + safeLimit < total,
     };
@@ -384,7 +391,7 @@ export async function searchResultsPagedSurface(
   const items = [...selection.poolHead, ...tailItems];
 
   return {
-    items,
+    items: toEgpDisplayCurrency(items),
     total: finalTotal,
     offset: safeOffset,
     limit: safeLimit,
