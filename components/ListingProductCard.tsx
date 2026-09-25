@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Star } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
@@ -8,6 +8,11 @@ import WishlistButton from "@/components/WishlistButton";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
+import type { Locale } from "@/i18n/config";
+import {
+  toArabicNumerals,
+  toLatinNumerals,
+} from "@/lib/international/arabic-numerals";
 
 export type ListingProductCardData = {
   id: string;
@@ -57,7 +62,9 @@ export default function ListingProductCard({
 }: ListingProductCardProps) {
   const tCommon = useTranslations("common");
   const tProduct = useTranslations("product");
+  const locale = useLocale() as Locale;
   const { formatPrice } = useIntlPreferences();
+  const toCardNumerals = locale === "ar" ? toArabicNumerals : toLatinNumerals;
 
   const discount =
     product.discount ??
@@ -89,7 +96,9 @@ export default function ListingProductCard({
           </span>
         ) : null}
         {discount > 0 ? (
-          <span className="deal-discount product-card-badge">-{discount}%</span>
+          <span className="deal-discount product-card-badge">
+            {toCardNumerals(`-${discount}%`)}
+          </span>
         ) : null}
       </>
     ) : null;
@@ -143,9 +152,11 @@ export default function ListingProductCard({
         </div>
 
         <div className="deal-pricing">
-          <span className="deal-price">{formatPrice(product.price)}</span>
+          <span className="deal-price">{toCardNumerals(formatPrice(product.price))}</span>
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="deal-original">{formatPrice(product.originalPrice)}</span>
+            <span className="deal-original">
+              {toCardNumerals(formatPrice(product.originalPrice))}
+            </span>
           )}
         </div>
 
