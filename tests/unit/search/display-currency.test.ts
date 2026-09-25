@@ -84,6 +84,14 @@ describe("toEgpDisplayCurrency (pure helper)", () => {
     expect(out.name).toBe(src.name);
   });
 
+  it("passes rows through untouched when currency is explicitly unsupported (e.g. UAH)", () => {
+    const src = item({ id: "uah", price: 34879, originalPrice: 38200, currency: "UAH" });
+    const out = toEgpDisplayCurrency([src]);
+    expect(out[0]).toBe(src);
+    expect(out[0]!.price).toBe(34879);
+    expect(out[0]!.currency).toBe("UAH");
+  });
+
   it("handles originalPrice 0 without NaN", () => {
     const out = toEgpDisplayCurrency([item({ id: "zero", price: 50, originalPrice: 0 })]);
     expect(out[0]!.originalPrice).toBe(0);
