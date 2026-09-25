@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   ACCESSORY_EXCLUSION_TERMS,
   DEVICE_PRICE_FLOOR_USD,
-  IPHONE_PRICE_FLOOR_USD,
+  HANDSET_PRICE_FLOOR_USD,
   belowDevicePriceFloor,
   devicePriceFloorUsd,
   enforceStrictDevicePool,
   hasAccessoryTerm,
+  hasHandsetAccessoryTerm,
+  isHandsetQuery,
   looksLikeGenuineDevice,
   passesStrictDeviceGuard,
 } from "@/lib/search/accessory-exclusion";
@@ -45,6 +47,14 @@ describe("accessory-exclusion / strict device-pool guard", () => {
       }
     });
 
+    it("flags earphone/headphone via the handset-only matcher, not the base set", () => {
+      expect(hasAccessoryTerm("Wireless earphones for Samsung")).toBe(false);
+      expect(hasAccessoryTerm("Noise cancelling headphones for iPhone")).toBe(false);
+      expect(hasHandsetAccessoryTerm("Wireless earphones for Samsung")).toBe(true);
+      expect(hasHandsetAccessoryTerm("Noise cancelling headphones for iPhone")).toBe(true);
+      expect(hasHandsetAccessoryTerm("Silicone Cases for iPhone 15")).toBe(true); // base terms still fire
+    });
+
     it("is case-insensitive and word-boundary safe", () => {
       expect(hasAccessoryTerm("TEMPERED GLASS Samsung S24")).toBe(true);
       expect(hasAccessoryTerm("Galaxy S24 CASE")).toBe(true);
@@ -62,32 +72,72 @@ describe("accessory-exclusion / strict device-pool guard", () => {
     });
   });
 
+  describe("isHandsetQuery", () => {
+    it("classifies phone-family queries as handsets", () => {
+      expect(isHandsetQuery("iphone 15 pro max")).toBe(true);
+      expect(isHandsetQuery("samsung galaxy s24")).toBe(true);
+      expect(isHandsetQuery("google pixel 8")).toBe(true);
+    });
+
+    it("keeps non-handset device queries off the handset floor", () => {
+      expect(isHandsetQuery("wireless earbuds")).toBe(false);
+      expect(isHandsetQuery("airpods pro")).toBe(false);
+      expect(isHandsetQuery("ipad air")).toBe(false);
+      expect(isHandsetQuery("macbook air m3")).toBe(false);
+    });
+
+    it("still classifies a phone-family accessory query as a handset family", () => {
+      // The CALLER decides device-intent scope; isHandsetQuery only reports the
+      // product family (a "case" query is phone family but never routed through
+      // the guard because its intent is accessory).
+      expect(isHandsetQuery("iphone 15 case")).toBe(true);
+    });
+  });
+
   describe("passesStrictDeviceGuard", () => {
-    it("rejects accessory rows and below-floor non-device rows", () => {
+    it("rejects accessory rows on handset queries (incl. earphone/headphone)", () => {
       expect(passesStrictDeviceGuard("Tpu Phone Case For iPhone X", 0.32, "iphone 15 pro max")).toBe(false);
       expect(passesStrictDeviceGuard("Tempered Glass Screen Protector For iPhone", 3, "iphone 15 pro max")).toBe(false);
       expect(passesStrictDeviceGuard("Fluffy Phone Cases Covers iPhone", 15, "iphone 15 pro max")).toBe(false);
-      expect(passesStrictDeviceGuard("Wireless Mini Speaker", 29, "samsung galaxy s24")).toBe(false);
+      expect(passesStrictDeviceGuard("Wireless Earphones for Samsung", 39, "samsung galaxy s24")).toBe(false);
+      expect(passesStrictDeviceGuard("Noise Cancelling Headphones for iPhone", 199, "iphone 15 pro max")).toBe(false);
     });
 
-    it("keeps genuine devices and above-floor rows", () => {
+    it("keeps genuine devices above the absolute handset floor", () => {
       expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 1200, "iphone 15 pro max")).toBe(true);
-      expect(passesStrictDeviceGuard("Refurbished iPhone 12 - 128GB Factory Unlocked", 167, "iphone 15 pro")).toBe(true); // genuine below floor
+      expect(passesStrictDeviceGuard("Refurbished iPhone 12 - 128GB Factory Unlocked", 167, "iphone 15 pro")).toBe(true); // above the absolute $150 floor
       expect(passesStrictDeviceGuard("Samsung Galaxy S24 256GB", 899, "samsung galaxy s24")).toBe(true);
+    });
+
+    it("hard-drops a genuine-looking device below the absolute $150 handset floor (no genuine-carve-out)", () => {
+      expect(passesStrictDeviceGuard("Apple iPhone 12 64GB Factory Unlocked", 8, "iphone 15 pro max")).toBe(false);
+      expect(passesStrictDeviceGuard("Samsung Galaxy S24 128GB", 2, "samsung galaxy s24")).toBe(false);
+      expect(passesStrictDeviceGuard("Google Pixel 8 Pro", 89, "google pixel 8")).toBe(false);
+    });
+
+    it("keeps genuine sub-$150 audio devices on non-handset queries (real earbuds are legitimate)", () => {
+      expect(passesStrictDeviceGuard("Wireless Earbuds Pro Bluetooth", 24.99, "wireless earbuds")).toBe(true);
+      expect(passesStrictDeviceGuard("Sony WH-1000XM5 Wireless Headphones", 129, "sony headphones")).toBe(true);
+      expect(passesStrictDeviceGuard("Apple AirPods Pro 2", 89, "airpods pro")).toBe(true);
     });
   });
 
   describe("devicePriceFloorUsd / belowDevicePriceFloor", () => {
-    it("applies the $100 base floor to generic device queries", () => {
-      expect(devicePriceFloorUsd("samsung galaxy s24")).toBe(DEVICE_PRICE_FLOOR_USD);
-      expect(belowDevicePriceFloor(99.99, "samsung galaxy s24")).toBe(true);
-      expect(belowDevicePriceFloor(100, "samsung galaxy s24")).toBe(false);
+    it("applies the $150 absolute floor to handset queries", () => {
+      expect(devicePriceFloorUsd("iphone 15 pro max")).toBe(HANDSET_PRICE_FLOOR_USD);
+      expect(devicePriceFloorUsd("samsung galaxy s24")).toBe(HANDSET_PRICE_FLOOR_USD);
+      expect(devicePriceFloorUsd("google pixel 8")).toBe(HANDSET_PRICE_FLOOR_USD);
+      expect(belowDevicePriceFloor(149.99, "samsung galaxy s24")).toBe(true);
+      expect(belowDevicePriceFloor(150, "samsung galaxy s24")).toBe(false);
+      expect(belowDevicePriceFloor(149.99, "iphone 15 pro max")).toBe(true);
+      expect(belowDevicePriceFloor(150, "iphone 15 pro")).toBe(false);
     });
 
-    it("applies the $200 floor to iPhone-named queries", () => {
-      expect(devicePriceFloorUsd("iphone 15 pro max")).toBe(IPHONE_PRICE_FLOOR_USD);
-      expect(belowDevicePriceFloor(199.99, "iphone 15 pro max")).toBe(true);
-      expect(belowDevicePriceFloor(200, "iphone 15 pro")).toBe(false);
+    it("keeps the $100 floor for non-handset device queries", () => {
+      expect(devicePriceFloorUsd("wireless earbuds")).toBe(DEVICE_PRICE_FLOOR_USD);
+      expect(devicePriceFloorUsd("ipad air")).toBe(DEVICE_PRICE_FLOOR_USD);
+      expect(belowDevicePriceFloor(99.99, "wireless earbuds")).toBe(true);
+      expect(belowDevicePriceFloor(100, "wireless earbuds")).toBe(false);
     });
   });
 
@@ -109,6 +159,7 @@ describe("accessory-exclusion / strict device-pool guard", () => {
   describe("enforceStrictDevicePool", () => {
     const genuine = { title: "Apple iPhone 15 Pro Max 256GB Unlocked", price: 999 };
     const cheapRefurb = { title: "Apple iPhone 12 128GB Factory Unlocked", price: 167 };
+    const belowFloorGenuine = { title: "Google Pixel 8 Pro 128GB", price: 89 };
     const cheapNonDevice = { title: "Wireless Mini Speaker Bluetooth", price: 29 };
     const glass = { title: "Tempered Glass Screen Protector for iPhone 15 Pro", price: 26 };
     const case_ = { title: "Silicone Case for Samsung Galaxy S24", price: 259 };
@@ -125,9 +176,20 @@ describe("accessory-exclusion / strict device-pool guard", () => {
       ]);
     });
 
-    it("keeps a genuine device below the floor (Bug1/Bug4 relevance)", () => {
-      const kept = enforceStrictDevicePool([cheapRefurb], "iphone 15 pro");
-      expect(kept).toEqual([cheapRefurb]);
+    it("drops a genuine-looking device below the absolute $150 handset floor", () => {
+      const kept = enforceStrictDevicePool([belowFloorGenuine], "google pixel 8");
+      expect(kept).toEqual([]);
+    });
+
+    it("keeps genuine sub-$150 earbuds on a non-handset device query", () => {
+      const kept = enforceStrictDevicePool(
+        [
+          { title: "Wireless Earbuds Pro Bluetooth 5.3", price: 24.99 },
+          { title: "Silicone Case for Samsung", price: 12 },
+        ],
+        "wireless earbuds",
+      );
+      expect(kept.map((l) => l.title)).toEqual(["Wireless Earbuds Pro Bluetooth 5.3"]);
     });
 
     it("is a pure filter — scope (device-intent only) lives with the caller", () => {

@@ -442,7 +442,22 @@ describe("assembleCanonicalSearchPool", () => {
       limit: 10,
     });
     expect(pool.items.some((i) => i.id === "db-cable")).toBe(false);
-    expect(pool.items.some((i) => i.id === "db-device")).toBe(true); // genuine below floor preserved
+    expect(pool.items.some((i) => i.id === "db-device")).toBe(true); // above the absolute $150 floor
+  });
+
+  it("hard-drops genuine-looking DB rows below the $150 floor", () => {
+    const pool = assembleCanonicalSearchPool({
+      liveListings: [genuineIphoneListing()],
+      dbItems: [
+        searchItem("db-cheap-device", { name: "Apple iPhone 12 64GB Factory Unlocked", price: 8, storeSlug: "aliexpress" }),
+        searchItem("db-cheap-pixel", { name: "Google Pixel 8 Pro 128GB", price: 89, storeSlug: "aliexpress" }),
+      ],
+      activeProviders: ["aliexpress"],
+      query: "iphone 15 pro max",
+      limit: 10,
+    });
+    expect(pool.items.some((i) => i.id === "db-cheap-device")).toBe(false);
+    expect(pool.items.some((i) => i.id === "db-cheap-pixel")).toBe(false);
   });
 });
 

@@ -18,9 +18,11 @@
  *     re-rank, no accessories behind devices, no accessory fallback. A device
  *     query surfaces only real physical devices that survive the strict pool
  *     guard (`enforceStrictDevicePool`).
- *   - Genuine devices from ALL providers lead every page (never displaced, and
- *     a recognised genuine device passes the price floor at any price — the
- *     Bug1/Bug4 relevance freeze).
+ *   - Genuine devices from ALL providers lead every page (never displaced).
+ *     ABSOLUTE PRICE FLOOR: any row under $150 USD is hard-dropped on a device
+ *     query — title, brand and provider notwithstanding (a real handset cannot
+ *     cost $2 or $8). Test fixtures use prices ≥ $150 so the floor does not
+ *     mask the assertion under test.
  *   - Accessory-intent queries ("iphone 15 case") and the default (homepage /
  *     Compare Prices) path are untouched — no `optimizeForDeviceIntent` means
  *     byte-identical legacy behaviour.
@@ -46,7 +48,7 @@ function rawListing(overrides: Partial<RawProviderListing>): RawProviderListing 
     externalId: "x",
     title: "listing",
     imageUrl: "https://x.example.com/img.jpg",
-    price: 100,
+    price: 499,
     originalPrice: 120,
     discount: 0,
     currency: "USD",
@@ -67,7 +69,7 @@ function dbItem(overrides: Partial<SearchResultItem> & { name: string }): Search
     id: overrides.id ?? `db-${overrides.name}`,
     imageSrc: "https://x.example.com/img.jpg",
     emoji: "📦",
-    price: 100,
+    price: 499,
     originalPrice: 120,
     discount: 0,
     store: "Admitad",
