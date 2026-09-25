@@ -1,12 +1,12 @@
 /**
  * Strict accessory exclusion + device price floor for genuine-device queries.
  *
- * On a device query ("iphone 15 pro max", "samsung galaxy s24") the user wants
- * the physical handset — never a $2.59 silicone case, a $0.26 tempered glass,
- * a charging cable, a VR headset, or a cardboard dummy that merely names the
- * phone to ride its search traffic. Accessory-saturated first pages on
- * AliExpress / Admitad / Amazon routinely bury the genuine device behind such
- * rows.
+ * On a handset query ("iphone 15 pro max", "samsung galaxy s24", "pixel 8") the
+ * user wants the physical phone — never a $2.59 silicone case, a $0.26 tempered
+ * glass, a charging cable, a VR headset, a pair of headphones, or a cardboard
+ * dummy that merely names the phone to ride its search traffic.
+ * Accessory-saturated first pages on AliExpress / Admitad / Amazon routinely
+ * bury the genuine device behind such rows.
  *
  * This module is the single, provider-neutral, deterministic enforcement point.
  * All predicates are pure so they unit-test trivially.
@@ -14,23 +14,30 @@
  * - STRICT term drop: a title containing ANY accessory word loses the row
  *   immediately — even when the same string ALSO names the genuine device
  *   ("Tempered Glass for iPhone 15 Pro" is a glass product, never a phone).
- *   No re-rank, no "push behind", no fallback. Gone.
- * - Price floor: a row below the query's floor leaves the pool UNLESS it is a
- *   recognised genuine device. A genuine refurbished handset may legally be
- *   cheap (Bug1/Bug4 freeze that a genuine device leads at ANY price) — but a
- *   "$26 silicone case" and "$0.26 tempered glass" never pass. iPhone queries
- *   use a $200 USD floor ([1] a real iPhone cannot sit below $200 today),
- *   other device queries $100 USD.
- * - The passport that beats the price floor is "recognised genuine device":
- *   a device-family signal present AND no accessory term. That is precisely
- *   what a device search must lead with.
+ *   No re-rank, no "push behind", no fallback. Gone. Singular, plural and
+ *   compound forms (case/cases, cover/covers, dummy/dummies, earphones,
+ *   headphones) all match. On a HANDSET (phone-family) query the accessory set
+ *   additionally includes earphone/headphone — those are accessories to a
+ *   phone; on an audio-family query ("airpods", "wireless earbuds") they are
+ *   the genuine product and are NOT dropped.
+ * - ABSOLUTE handset price floor: on a HANDSET query ANY row under $150 USD is
+ *   hard-dropped before sorting or pagination — regardless of title, brand or
+ *   provider ("a real phone cannot cost $2 or $8"). There is NO
+ *   "genuine-device-below-floor" exemption: the floor is absolute, so an
+ *   underpriced listing can never ride a genuine-looking title back in.
+ *   Non-handset device queries ("wireless earbuds", "airpods pro", "ipad air",
+ *   "macbook air m3") keep the prior floor with a recognised-device exemption,
+ *   because genuine sub-$150 audio/tablet/laptop gear is legitimate
+ *   inventory — a $25 earbud is a real product, a $25 phone is not.
  * - DEVICE-INTENT ONLY: accessories are what the USER asked for on an
  *   accessory-intent query ("iphone 15 case") and on homepage/category/compare
  *   pools. Scope lives with the caller; this module never filters those.
  *   (Strict accessory queries are handled in `query-intent`, not here.)
  */
 
-/** Words that disqualify a row from a device-intent pool. Sorted, lowercase. */
+import { detectProductFamily } from "@/lib/search/query-intent";
+
+/** Words that disqualify a row from ANY device-intent pool. Sorted, lowercase. */
 export const ACCESSORY_EXCLUSION_TERMS: readonly string[] = [
   "box only",
   "bracket",
@@ -57,6 +64,12 @@ export const ACCESSORY_EXCLUSION_TERMS: readonly string[] = [
   "vr",
 ];
 
+/** Extra words that disqualify a row ONLY on a handset (phone-family) query. */
+export const HANDSET_ACCESSORY_EXTRA_TERMS: readonly string[] = [
+  "earphone",
+  "headphone",
+];
+
 const ESCAPE_RE = /[.*+?^${}()|[\]\\]/g;
 
 /**
@@ -77,15 +90,36 @@ function termPattern(term: string): string {
   return `(?:\\b(?:${variants.join("|")})\\b)`;
 }
 
-/** Single word-boundary regex over every accessory term. Case-insensitive. */
+/** Single word-boundary regex over every base accessory term. Case-insensitive. */
 const ACCESSORY_TERM_RE = new RegExp(
   ACCESSORY_EXCLUSION_TERMS.map(termPattern).join("|"),
   "i",
 );
 
-/** True when the title carries any strict accessory word. Pure. */
+/** Word-boundary regex over the handset-only extra terms (earphone/headphone). */
+const HANDSET_EXTRA_TERM_RE = new RegExp(
+  HANDSET_ACCESSORY_EXTRA_TERMS.map(termPattern).join("|"),
+  "i",
+);
+
+/** True when the title carries any base accessory word. Pure. */
 export function hasAccessoryTerm(title: string): boolean {
   return ACCESSORY_TERM_RE.test(title);
+}
+
+/** True when the title carries any base OR handset-only accessory word. Pure. */
+export function hasHandsetAccessoryTerm(title: string): boolean {
+  return ACCESSORY_TERM_RE.test(title) || HANDSET_EXTRA_TERM_RE.test(title);
+}
+
+/**
+ * True when the query is a HANDSET (phone-family) search. Handsets are the
+ * target of the ABSOLUTE $150 floor and the expanded earphone/headphone
+ * accessory set. Purely lexically derived from the same family classifier the
+ * engine already trusts.
+ */
+export function isHandsetQuery(query: string): boolean {
+  return detectProductFamily(query) === "phone";
 }
 
 /** Device-family words that mark a row as the physical device itself. */
@@ -104,22 +138,30 @@ const DEVICE_FAMILY_SIGNALS: ReadonlyArray<{
 /**
  * True when the title names a recognised device-family AND carries no
  * accessory word — i.e. it is plausibly the physical device itself, never a
- * renamed accessory. Pure.
+ * renamed accessory. Pure. Exempts a genuine device from the base floor on
+ * NON-handset device queries only; the handset floor is absolute.
  */
 export function looksLikeGenuineDevice(title: string): boolean {
   if (hasAccessoryTerm(title)) return false;
   return DEVICE_FAMILY_SIGNALS.some(({ re }) => re.test(title));
 }
 
-/** USD floor for non-iPhone device queries. */
+/**
+ * Absolute USD floor for HAND (phone-family) queries — a real phone cannot
+ * cost $2 or $8, so anything below $150 is dropped with no exemption.
+ */
+export const HANDSET_PRICE_FLOOR_USD = 150;
+/** USD floor for NON-handset device queries (audio/tablet/laptop/…). */
 export const DEVICE_PRICE_FLOOR_USD = 100;
-/** USD floor for iPhone-named queries — a real iPhone cannot cost less. */
-export const IPHONE_PRICE_FLOOR_USD = 200;
-const IPHONE_RE = /\biphone\b/i;
 
-/** USD price floor for a device query ("iphone 15 pro" = 200, else 100). */
+/**
+ * USD price floor for a query: handset (phone-family) queries use the absolute
+ * $150 floor; every other device query keeps the $100 floor.
+ */
 export function devicePriceFloorUsd(query: string): number {
-  return IPHONE_RE.test(query) ? IPHONE_PRICE_FLOOR_USD : DEVICE_PRICE_FLOOR_USD;
+  return isHandsetQuery(query)
+    ? HANDSET_PRICE_FLOOR_USD
+    : DEVICE_PRICE_FLOOR_USD;
 }
 
 /** True when the price sits below the device floor for this query. */
@@ -129,26 +171,39 @@ export function belowDevicePriceFloor(priceUsd: number, query: string): boolean 
 
 /**
  * Pure row-level strict guard: a row survives a device-intent pool only when it
- * (a) carries no accessory word and (b) is either at/above the query's price
- * floor or itself a recognised genuine device. Single source of truth used by
- * both the live raw pool and every DB-supplement leg (pool and paged tail).
+ * (a) carries no accessory word and (b) clears the price floor. Single source
+ * of truth used by both the live raw pool and every DB-supplement leg (pool
+ * and paged tail).
+ *
+ * - HANDSET query: accessory terms include earphone/headphone; the $150 floor
+ *   is ABSOLUTE — a genuine-looking title does NOT pass under it.
+ * - NON-handset device query: base accessory terms only; a row below the $100
+ *   floor survives only when it is itself a recognised genuine device (genuine
+ *   sub-$150 earbuds/tablets/laptops are legitimate inventory).
  */
 export function passesStrictDeviceGuard(
   title: string,
   price: number,
   query: string,
 ): boolean {
-  if (hasAccessoryTerm(title)) return false;
-  if (price < devicePriceFloorUsd(query) && !looksLikeGenuineDevice(title)) {
+  const handset = isHandsetQuery(query);
+  if (handset ? hasHandsetAccessoryTerm(title) : hasAccessoryTerm(title)) {
     return false;
   }
-  return true;
+  if (handset) {
+    // ABSOLUTE handset floor — no genuine-below-floor carve-out.
+    return price >= HANDSET_PRICE_FLOOR_USD;
+  }
+  // Non-handset device query: below the base floor only a recognised genuine
+  // device survives (a $25 wireless earbud is a real product).
+  if (price >= DEVICE_PRICE_FLOOR_USD) return true;
+  return looksLikeGenuineDevice(title);
 }
 
 /**
  * Apply the strict device guard to a raw pool: drop accessory rows absolutely,
- * then drop price-below-floor rows UNLESS they are themselves genuine devices.
- * Pure — never mutates the input.
+ * then drop below-floor rows (handset floor is absolute; non-handset floor
+ * exempts recognised genuine devices). Pure — never mutates the input.
  */
 export function enforceStrictDevicePool<
   T extends { title: string; price: number },
