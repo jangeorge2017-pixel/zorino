@@ -379,11 +379,14 @@ export function looksLikeAsin(query: string): boolean {
   return /^[A-Z0-9]{6,12}$/.test(t) && /[A-Z]/.test(t);
 }
 
-/** Significant tokens from the user query (lowercased). */
+/** Significant tokens from the user query (lowercased). Arabic script is
+ * preserved so Arabic handset/device queries ("آيفون 15 برو ماكس") keep real
+ * tokens instead of collapsing to English digits alone — a digit-only token
+ * set previously classified Arabic device queries as generic "category". */
 export function queryTokens(query: string): string[] {
   return query
     .toLowerCase()
-    .replace(/[^a-z0-9\s.+-]/g, " ")
+    .replace(/[^a-z0-9\u0621-\u064A\u0660-\u0669\s.+-]/g, " ")
     .split(/\s+/)
     .map((t) => t.trim())
     .filter((t) => t.length >= 2);
@@ -400,12 +403,116 @@ export function titleContainsWord(hay: string, token: string): boolean {
   return new RegExp(`(^|[^a-z0-9])${esc}($|[^a-z0-9])`, "i").test(hay);
 }
 
+/* --------------------------------------------------------------------------
+ * Arabic (RTL) matching helpers.
+ *
+ * `\b` in JS regexes is ASCII-only, so the English word-boundary patterns
+ * never match Arabic text. Arabic also has no case and uses attached
+ * prefixes/suffixes (the definite article ال, plural/suffix forms), so Arabic
+ * matching normalises each side, strips the definite article from word starts,
+ * then matches a term bounded by non-Arabic-letter/non-digit neighbours.
+ * ------------------------------------------------------------------------ */
+
+export const ARABIC_LETTER_CLASS = "\\u0621-\\u064A\\u0660-\\u0669";
+
+/** Normalise Arabic orthography variants: hamza forms, ya/tanh marbuta. */
+export function normalizeArabic(text: string): string {
+  return text
+    .replace(/[\u064B-\u0652\u0640]/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه")
+    .replace(/(^|\s)ال(?=[\u0621-\u064A])/g, "$1")
+    .toLowerCase();
+}
+
+function escapeRegex(raw: string): string {
+  return raw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * True when `term` appears in `hay` as a whole Arabic word (or phrase),
+ * bounded by start/end or any non-Arabic-letter/non-digit neighbour. Homes
+ * orthographic variants ("آيفون" / "إيفون" / "أيفون" → "ايفون", "٪38" etc.)
+ * via normalizeArabic. Pure.
+ */
+export function hasArabicTerm(hay: string, term: string): boolean {
+  if (!term) return false;
+  const norm = normalizeArabic(hay);
+  const esc = escapeRegex(normalizeArabic(term));
+  if (!esc) return false;
+  const notLetter = `[^${ARABIC_LETTER_CLASS}A-Za-z0-9]`;
+  return new RegExp(
+    `(?:^|${notLetter})${esc}(?:$|${notLetter})`,
+    "i",
+  ).test(norm);
+}
+
+/**
+ * Core Arabic accessory vocabulary (cases, glass, chargers, cables, holders,
+ * dummies…). Shared by the query-accessory answer ("جراب ايفون" = the user
+ * WANTS a case) and the strict device-guard title drop ("جراب شفاف ايفون" is a
+ * case product, never a phone). "سماعة/سماعات" (ear/head-phones) deliberately
+ * live OUT of this base list — on an audio query they are the genuine product;
+ * they are handled as handset-only accessory words in accessory-exclusion.
+ */
+export const ARABIC_ACCESSORY_TERMS: readonly string[] = [
+  "جراب",
+  "كفر",
+  "غلاف",
+  "حافظه",
+  "حمايه",
+  "حمايه شاشه",
+  "واقي",
+  "زجاج",
+  "زجاج مقوي",
+  "شاحن",
+  "شواحن",
+  "سلك",
+  "اسلاك",
+  "كابل",
+  "كابلات",
+  "حامل",
+  "حوامل",
+  "ستاند",
+  "دميه",
+  "فلم",
+  "ستكر",
+  "لاصق",
+];
+
+/**
+ * Arabic family words that pin a DEVICE intent on a bare single-token query —
+ * mirrored from DEVICE_FAMILY_RE's English set (a lone "ايفون" must behave
+ * like a lone "iphone": a device, so the strict handset guard engages).
+ * Brand names (سامسونج, شاومي, هواوي…) are deliberately absent: a lone "سامسونج"
+ * is a brand search, exactly like a lone "samsung" in English.
+ */
+export const ARABIC_DEVICE_FAMILY_PINS: readonly string[] = [
+  "ايفون",
+  "ايباد",
+  "تابلت",
+  "لابتوب",
+  "ماك بوك",
+  "سماعه",
+  "سماعات",
+  "ايربودز",
+  "بلايستيشن",
+  "اكسبوكس",
+];
+
+/** True when the Arabic query names a concrete device family on its own. */
+export function pinsArabicDeviceFamily(query: string): boolean {
+  return ARABIC_DEVICE_FAMILY_PINS.some((term) => hasArabicTerm(query, term));
+}
+
 /** True when the user query explicitly asks for an accessory. */
 export function queryWantsAccessory(query: string): boolean {
   const phrase = query.trim().toLowerCase();
   return (
     ACCESSORY_TERMS.some((term) => phrase.includes(term)) ||
-    REPAIR_AND_PARTS_TERMS.some((term) => phrase.includes(term))
+    REPAIR_AND_PARTS_TERMS.some((term) => phrase.includes(term)) ||
+    ARABIC_ACCESSORY_TERMS.some((term) => hasArabicTerm(phrase, term))
   );
 }
 
@@ -693,7 +800,8 @@ function isAccessoryDominantTitle(hay: string): boolean {
     if (hay.includes(term)) return true;
   }
 
-  return ACCESSORY_TERMS.some((term) => hay.includes(term));
+  return ACCESSORY_TERMS.some((term) => hay.includes(term)) ||
+    ARABIC_ACCESSORY_TERMS.some((term) => hasArabicTerm(hay, term));
 }
 
 /**
@@ -899,6 +1007,11 @@ export function isAccessoryListing(title: string, query: string): boolean {
     if (hay.includes(term)) return true;
   }
 
+  // Arabic accessory titles ("جراب ايفون 15", "زجاج مقوي سامسونج") are never
+  // the genuine device; without this an Arabic accessory could rank as a device
+  // on an Arabic handset query.
+  if (ARABIC_ACCESSORY_TERMS.some((term) => hasArabicTerm(hay, term))) return true;
+
   return false;
 }
 
@@ -908,7 +1021,10 @@ export function isAccessoryListing(title: string, query: string): boolean {
  * analyzeSearchListing's family guard to keep unrelated devices/skins out.
  */
 export function queryPinsDeviceFamily(query: string): boolean {
-  return DEVICE_FAMILY_RE.test(query.toLowerCase());
+  return (
+    DEVICE_FAMILY_RE.test(query.toLowerCase()) ||
+    pinsArabicDeviceFamily(query)
+  );
 }
 
 /**

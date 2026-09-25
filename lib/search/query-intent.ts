@@ -19,6 +19,8 @@ import {
   queryPinsDeviceFamily,
   queryTokens,
   queryWantsAccessory,
+  normalizeArabic,
+  hasArabicTerm,
 } from "@/lib/search/relevance";
 
 export type ProductFamily =
@@ -112,15 +114,83 @@ const EBAY_US_CATEGORY_BY_FAMILY: Partial<Record<ProductFamily, string>> = {
   console: "1249",
 };
 
+/**
+ * Arabic family signal words, same precedence order as FAMILY_SIGNALS
+ * (highest-signal family first: TV before tablet before laptop before console
+ * before smartwatch before camera before audio, phone last). English word
+ * boundaries are ASCII-only, so Arabic family detection uses hasArabicTerm
+ * (whole-Arabic-word matching, hamza/teh-marbuta/ya normalised) instead of \b.
+ * Terms are stored in normalised form (ا for hamzas, ي for ya, ه for teh
+ * marbuta).
+ */
+export const ARABIC_FAMILY_SIGNALS: ReadonlyArray<{
+  family: ProductFamily;
+  terms: readonly string[];
+}> = [
+  { family: "tv-monitor", terms: ["تلفزيون", "تلفاز"] },
+  { family: "tablet", terms: ["ايباد", "تابلت", "تابلتات"] },
+  {
+    family: "laptop",
+    terms: ["لابتوب", "لابتوبات", "نوت بوك", "كمبيوتر محمول"],
+  },
+  {
+    family: "console",
+    terms: ["بلايستيشن", "بلاي ستيشن", "اكسبوكس", "اكس بوكس", "نينتندو"],
+  },
+  {
+    family: "smartwatch",
+    terms: ["ساعه ذكيه", "ساعات ذكيه", "ساعه ابل", "جالكسي واتش"],
+  },
+  { family: "camera", terms: ["كاميرا", "كاميرات", "كاميرا رقميه"] },
+  {
+    family: "audio",
+    terms: ["ايربودز", "سماعات", "سماعه", "هيدفون"],
+  },
+  {
+    family: "phone",
+    terms: [
+      "ايفون",
+      "هاتف",
+      "جوال",
+      "موبايل",
+      "سامسونج",
+      "جالاكسي",
+      "جالكسي",
+      "بيكسل",
+      "هواوي",
+      "شاومي",
+      "ريدمي",
+      "بوكو",
+      "هونر",
+      "اوبو",
+      "فيفو",
+      "ريلمي",
+      "نوكيا",
+      "ون بلس",
+    ],
+  },
+];
+
 /** Bare brand tokens that name no product by themselves. */
 const BRAND_ONLY_RE =
   /^(apple|samsung|sony|xiaomi|redmi|poco|google|pixel|oneplus|huawei|honor|oppo|vivo|realme|motorola|nokia|nvidia|geforce|asus|acer|lenovo|dell|hp|msi)$/i;
+
+/**
+ * Bare Arabic brand tokens that name no product by themselves. Mirrors the
+ * English list so a lone "سامسونج"/"شاومي" is a brand search (NOT a device) —
+ * the strict guard only ever engages for genuine device intent.
+ */
+const ARABIC_BRAND_ONLY_RE =
+  /^(سامسونج|شاومي|هواوي|بيكسل|ريدمي|بوكو|ون بلس|اوبو|فيفو|ريلمي|نوكيا|هونر|انفنيكس|تكنو)$/;
 
 /** Generic (non-provider) product family of a raw query. */
 export function detectProductFamily(query: string): ProductFamily {
   if (!query.trim()) return "unknown";
   for (const { family, re } of FAMILY_SIGNALS) {
     if (re.test(query)) return family;
+  }
+  for (const { family, terms } of ARABIC_FAMILY_SIGNALS) {
+    if (terms.some((term) => hasArabicTerm(query, term))) return family;
   }
   return "unknown";
 }
@@ -151,7 +221,10 @@ export function analyzeSearchQueryIntent(query: string): SearchQueryIntent {
   } else if (family !== "unknown") {
     if (pinsDeviceFamily || tokens.length >= 2) {
       kind = "device";
-    } else if (BRAND_ONLY_RE.test(trimmed)) {
+    } else if (
+      BRAND_ONLY_RE.test(trimmed) ||
+      ARABIC_BRAND_ONLY_RE.test(normalizeArabic(trimmed))
+    ) {
       kind = "brand";
     } else {
       kind = "category";

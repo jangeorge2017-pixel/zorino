@@ -35,7 +35,8 @@
  *   (Strict accessory queries are handled in `query-intent`, not here.)
  */
 
-import { detectProductFamily } from "@/lib/search/query-intent";
+import { detectProductFamily, ARABIC_FAMILY_SIGNALS } from "@/lib/search/query-intent";
+import { hasArabicTerm, ARABIC_ACCESSORY_TERMS } from "@/lib/search/relevance";
 
 /** Words that disqualify a row from ANY device-intent pool. Sorted, lowercase. */
 export const ACCESSORY_EXCLUSION_TERMS: readonly string[] = [
@@ -69,6 +70,13 @@ export const HANDSET_ACCESSORY_EXTRA_TERMS: readonly string[] = [
   "earphone",
   "headphone",
 ];
+
+/**
+ * Arabic extra words that disqualify a row ONLY on a handset query — the
+ * Arabic ear/head-phone words ("سماعة", "سماعات"). Stored in normalised form
+ * (teh marbuta as ه) and matched via whole-Arabic-word boundaries.
+ */
+export const ARABIC_HANDSET_EXTRA_TERMS: readonly string[] = ["سماعه", "سماعات"];
 
 const ESCAPE_RE = /[.*+?^${}()|[\]\\]/g;
 
@@ -104,12 +112,19 @@ const HANDSET_EXTRA_TERM_RE = new RegExp(
 
 /** True when the title carries any base accessory word. Pure. */
 export function hasAccessoryTerm(title: string): boolean {
-  return ACCESSORY_TERM_RE.test(title);
+  return (
+    ACCESSORY_TERM_RE.test(title) ||
+    ARABIC_ACCESSORY_TERMS.some((term) => hasArabicTerm(title, term))
+  );
 }
 
 /** True when the title carries any base OR handset-only accessory word. Pure. */
 export function hasHandsetAccessoryTerm(title: string): boolean {
-  return ACCESSORY_TERM_RE.test(title) || HANDSET_EXTRA_TERM_RE.test(title);
+  return (
+    hasAccessoryTerm(title) ||
+    HANDSET_EXTRA_TERM_RE.test(title) ||
+    ARABIC_HANDSET_EXTRA_TERMS.some((term) => hasArabicTerm(title, term))
+  );
 }
 
 /**
@@ -143,7 +158,12 @@ const DEVICE_FAMILY_SIGNALS: ReadonlyArray<{
  */
 export function looksLikeGenuineDevice(title: string): boolean {
   if (hasAccessoryTerm(title)) return false;
-  return DEVICE_FAMILY_SIGNALS.some(({ re }) => re.test(title));
+  return (
+    DEVICE_FAMILY_SIGNALS.some(({ re }) => re.test(title)) ||
+    ARABIC_FAMILY_SIGNALS.some(({ terms }) =>
+      terms.some((term) => hasArabicTerm(title, term)),
+    )
+  );
 }
 
 /**
