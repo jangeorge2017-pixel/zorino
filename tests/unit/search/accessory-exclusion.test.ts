@@ -11,6 +11,7 @@ import {
   isHandsetQuery,
   looksLikeGenuineDevice,
   passesStrictDeviceGuard,
+  priceInUsd,
 } from "@/lib/search/accessory-exclusion";
 
 describe("accessory-exclusion / strict device-pool guard", () => {
@@ -203,7 +204,7 @@ describe("accessory-exclusion / strict device-pool guard", () => {
     it("drops cheap non-genuine items under the floor", () => {
       const kept = enforceStrictDevicePool(
         [cheapNonDevice, genuine],
-        "samsung galaxy s24",
+        "iphone 15 pro max",
       );
       expect(kept.map((l) => l.title)).toEqual([genuine.title]);
     });
@@ -232,6 +233,101 @@ describe("accessory-exclusion / strict device-pool guard", () => {
         "iphone 15 pro max",
       );
       expect(kept.map((l) => l.title)).toEqual([genuine.title]);
+    });
+  });
+
+  describe("priceInUsd / currency-aware handset floor", () => {
+    it("normalises a row's own currency to USD before the floor", () => {
+      // 48,484 EGP ≈ $999 (real iPhone) — keeps.
+      expect(priceInUsd(48484, "EGP")).toBe(999.67);
+      // 1,000 EGP ≈ $20.6 — stays below the $150 floor and must drop.
+      expect(priceInUsd(1000, "EGP")).toBe(20.62);
+      expect(priceInUsd(48484, "EGP")! >= HANDSET_PRICE_FLOOR_USD).toBe(true);
+      expect(priceInUsd(1000, "EGP")! < HANDSET_PRICE_FLOOR_USD).toBe(true);
+    });
+
+    it("returns raw price for USD and missing currency", () => {
+      expect(priceInUsd(849, "USD")).toBe(849);
+      expect(priceInUsd(849)).toBe(849);
+      expect(priceInUsd(849, "usd")).toBe(849);
+    });
+
+    it("returns null for an explicit unsupported currency (UAH)", () => {
+      expect(priceInUsd(72000, "UAH")).toBeNull();
+    });
+
+    it("converts every supported currency through the USD pivot", () => {
+      expect(priceInUsd(920, "EUR")).toBe(1000);
+      expect(priceInUsd(790, "GBP")).toBe(1000);
+      expect(priceInUsd(3670, "AED")).toBe(1000);
+      expect(priceInUsd(1360, "CAD")).toBe(1000);
+    });
+
+    it("drops a raw-EGP-priced handset that only looks cheap as a raw digit", () => {
+      // 1,000 EGP ≈ $20.6 < $150 — a genuine-looking iPhone title must still drop
+      // with a concrete EGP price (the Amazon-EG seam bug this guardrail fixes).
+      expect(
+        passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 1000, "iphone 15 pro max", "EGP"),
+      ).toBe(false);
+      // 8,000 EGP ≈ $164.9 ≥ $150 — genuine EGP-priced handset survives.
+      expect(
+        passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 8000, "iphone 15 pro max", "EGP"),
+      ).toBe(true);
+    });
+
+    it("keeps genuine UAH-priced handsets via the raw-price fallback", () => {
+      // Explicit unsupported currency → raw numeric comparison (pre-currency
+      // behaviour) so a genuine Admitad UAH handset is never dropped.
+      expect(
+        passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 25999, "iphone 15 pro max", "UAH"),
+      ).toBe(true);
+      // Raw fallback still floors cheap rows the same way it always has.
+      expect(
+        passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 120, "iphone 15 pro max", "UAH"),
+      ).toBe(false);
+    });
+  });
+
+  describe("must-contain brand rule", () => {
+    it("hard-drops non-brand titles on a branded device query", () => {
+      expect(passesStrictDeviceGuard("Wireless Bluetooth Speaker", 2099, "iphone 15 pro max")).toBe(false);
+      expect(passesStrictDeviceGuard("Electric Scooter 350W", 299, "iphone 15 pro max")).toBe(false);
+      // The exact bug: a Samsung device on an "iPhone" query is unrelated
+      // sponsored inventory, never a match.
+      expect(passesStrictDeviceGuard("Samsung Galaxy S25 Ultra 512GB", 899, "iphone 15 pro max")).toBe(false);
+    });
+
+    it("keeps titles that carry any required brand alias (Latin, case-insensitive)", () => {
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 899, "iphone 15 pro max")).toBe(true);
+      expect(passesStrictDeviceGuard("iPhone 15 Pro 128GB", 799, "iphone")).toBe(true);
+      expect(passesStrictDeviceGuard("Smartphone Dual SIM 5G", 299, "smartphone")).toBe(true);
+    });
+
+    it("covers every branded family", () => {
+      expect(passesStrictDeviceGuard("Apple iPad Pro 11 M4", 899, "ipad pro")).toBe(true);
+      expect(passesStrictDeviceGuard("Logitech Keyboard", 89, "ipad pro")).toBe(false);
+      expect(passesStrictDeviceGuard("Apple MacBook Air M3", 999, "macbook air")).toBe(true);
+      expect(passesStrictDeviceGuard("Samsung Galaxy S24 Ultra", 899, "samsung galaxy s24")).toBe(true);
+      expect(passesStrictDeviceGuard("Xiaomi 14 Pro", 499, "xiaomi 14")).toBe(true);
+      expect(passesStrictDeviceGuard("Redmi Note 13", 199, "xiaomi redmi")).toBe(true);
+      expect(passesStrictDeviceGuard("Google Pixel 9 Pro", 799, "pixel 9")).toBe(true);
+      expect(passesStrictDeviceGuard("OnePlus 12 256GB", 599, "oneplus 12")).toBe(true);
+      expect(passesStrictDeviceGuard("Sony PlayStation 5 Console", 449, "ps5")).toBe(true);
+      expect(passesStrictDeviceGuard("NVIDIA GeForce RTX 5090", 1999, "rtx 5090")).toBe(true);
+    });
+
+    it("matches Arabic aliases both ways (Latin query ↔ Arabic title and reverse)", () => {
+      expect(passesStrictDeviceGuard("ايفون 15 برو ماكس 256 جيجا هاتف", 849, "iphone 15 pro max")).toBe(true);
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB", 849, "ايفون 15 برو ماكس")).toBe(true);
+      expect(passesStrictDeviceGuard("سامسونج جالكسي S24 الترا", 750, "سامسونج جالكسي")).toBe(true);
+      expect(passesStrictDeviceGuard("Samsung Galaxy S24 Ultra", 750, "سامسونج جالكسي")).toBe(true);
+      expect(passesStrictDeviceGuard("شاومي 13 برو", 450, "شاومي 13")).toBe(true);
+    });
+
+    it("leaves unbranded device queries untouched", () => {
+      expect(passesStrictDeviceGuard("Wireless Earbuds Pro", 29, "wireless earbuds")).toBe(true);
+      expect(passesStrictDeviceGuard("Wireless Noise Cancelling Headphones Over Ear", 129, "bluetooth headphones")).toBe(true);
+      expect(passesStrictDeviceGuard("Any Random Product", 899, "smartphone")).toBe(true);
     });
   });
 });

@@ -116,7 +116,7 @@ describe("search landing seams emit EGP prices (gate ON)", () => {
       liveListings: [],
       dbItems: [
         item({ id: "db-1", name: "Apple iPhone 15 Pro Max 256GB", price: 849, originalPrice: 999, storeSlug: "admitad" }),
-        item({ id: "db-2", name: "Samsung Galaxy S25 Ultra 512GB", price: 1120, originalPrice: 1248, storeSlug: "admitad" }),
+        item({ id: "db-2", name: "Apple iPhone 15 Pro 256GB", price: 1120, originalPrice: 1248, storeSlug: "admitad" }),
       ],
       activeProviders: ["admitad"],
     }));

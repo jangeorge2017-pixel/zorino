@@ -18,7 +18,10 @@ import {
   FAMILY_RETRIEVAL_KEYWORDS,
 } from "@/lib/search/query-intent";
 import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
-import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
+import {
+  assembleProductionSearchResults,
+  enforceViewportSingleSourceCap,
+} from "@/lib/search/production-pipeline";
 import { composeSearchPageOne } from "@/lib/search/page-one";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
 import type {
@@ -700,8 +703,21 @@ export async function searchProducts(
     conditionOf: (item) => classifyListingCondition(item.name, item.condition),
   });
 
+  // Per-viewport single-source cap (anti-monopoly): while any peer provider is
+  // present, no single source may hold more than 60% of a full page's seats —
+  // surplus rows are relocated to the pool tail, so totals, hasMore and page
+  // membership are untouched (pure permutation). The strict 1-1-1 balancer and
+  // the condition-diversity guardrail already ran above; this is the final
+  // absolute ceiling for a relevance-sorted page. Price mode keeps its strict
+  // lowest-price order (its own 12-slot diversity window already applies).
+  const viewportCapped =
+    sortBy !== "price"
+      ? enforceViewportSingleSourceCap<SearchResultItem>(guarded, (item) => item.storeSlug || item.store)
+      : guarded;
+
   const mixedHead = guarded.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const composedHead = composed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
+  const cappedHead = viewportCapped.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const summarize = (items: SearchResultItem[]): string =>
     [...new Set(items.map((i) => i.storeSlug || i.store))]
       .map(
@@ -712,14 +728,15 @@ export async function searchProducts(
   console.log(
     `[search-seam] query="${trimmed}" device_only=${optimizeForDeviceIntent} sort=${sortBy} ` +
       `pool_mix=[${summarize(mixedHead)}] composed_mix=[${summarize(composedHead)}] ` +
-      `pooled_len=${mixed.length} composed_len=${composed.length} guarded_len=${guarded.length}`,
+      `capped_mix=[${summarize(cappedHead)}] ` +
+      `pooled_len=${mixed.length} composed_len=${composed.length} guarded_len=${guarded.length} capped_len=${viewportCapped.length}`,
   );
   fairSearchCache.set(cacheKey, {
-    items: guarded,
+    items: viewportCapped,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
   });
 
-  return guarded;
+  return viewportCapped;
 }
 
 /** One page of search results (offset/limit view over a cached, balanced pool). */
@@ -918,7 +935,7 @@ export async function searchProductsPaged(
     options?.optimizeForDeviceIntent === true &&
     analyzeSearchQueryIntent(trimmed).kind === "device";
   const tailItems = deviceIntent
-    ? dbPage.items.filter((item) => passesStrictDeviceGuard(item.name, item.price, trimmed))
+    ? dbPage.items.filter((item) => passesStrictDeviceGuard(item.name, item.price, trimmed, item.currency))
     : dbPage.items;
 
   // Prefer the truthful DB count; if only the paged leg succeeded, trust its

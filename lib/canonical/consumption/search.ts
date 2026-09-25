@@ -25,7 +25,7 @@ import {
   classifyListingCondition,
   enforceConditionDiversity,
 } from "@/lib/search/condition-diversity";
-import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
+import { assembleProductionSearchResults, enforceViewportSingleSourceCap } from "@/lib/search/production-pipeline";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { getActiveProductionProviders } from "@/lib/integration/provider-config";
 import { getActiveProviderAdapters } from "@/lib/providers/adapter-registry";
@@ -142,7 +142,7 @@ export function assembleCanonicalSearchPool(input: {
     : input.liveListings;
   const strictDbItems = deviceIntent
     ? input.dbItems.filter((item) =>
-        passesStrictDeviceGuard(item.name, item.price, trimmed),
+        passesStrictDeviceGuard(item.name, item.price, trimmed, item.currency),
       )
     : input.dbItems;
   const ranked = rankRawListings(rawLive as NormalizedSearchListing[], trimmed);
@@ -228,8 +228,18 @@ export function assembleCanonicalSearchPool(input: {
     conditionOf: (item) => classifyListingCondition(item.name, item.condition),
   });
 
+  // Per-viewport single-source cap (mirrors engine.ts): no single source may
+  // hold more than 60% of a full page's seats while any peer provider is
+  // present; surplus rows relocate to the pool tail (pure permutation). This
+  // path is the non-price relevance branch (the price branch already returned
+  // above), so the cap always applies — price mode keeps its strict order.
+  const items = enforceViewportSingleSourceCap<SearchResultItem>(
+    guarded,
+    (item) => item.storeSlug || item.store,
+  );
+
   return {
-    items: guarded,
+    items,
     rejectedCount: canonical.rejected.length,
     rejectedByCode,
     acceptedCount: canonical.accepted.length,
