@@ -146,9 +146,12 @@ describe("Arabic device guardrails: accessory term matching", () => {
 describe("Arabic device guardrails: strict guard", () => {
   const Q = "ايفون 15 برو ماكس"; // Arabic handset query
 
-  it("passes genuine Arabic handsets above the $150 floor", () => {
+  it("passes genuine Arabic handsets above the $150 floor; drops cross-brand rows", () => {
     expect(passesStrictDeviceGuard("ايفون 15 برو ماكس 256 جيجا هاتف", 849, Q)).toBe(true);
-    expect(passesStrictDeviceGuard("سامسونج جالكسي S24 الترا", 750, Q)).toBe(true);
+    // Must-contain brand rule: a Samsung S24 is unrelated inventory on an
+    // "ايفون" query and is hard-dropped regardless of price.
+    expect(passesStrictDeviceGuard("سامسونج جالكسي S24 الترا", 750, Q)).toBe(false);
+    expect(passesStrictDeviceGuard("سامسونج جالكسي S24 الترا", 750, "سامسونج جالكسي")).toBe(true);
   });
 
   it("hard-drops Arabic accessories regardless of price", () => {

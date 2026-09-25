@@ -597,6 +597,127 @@ export function requiredBrandsForQuery(query: string): string[] | null {
   return null;
 }
 
+/**
+ * Strict brand-containment rule for a device query. When a query names a
+ * concrete branded family ("iPhone", "Samsung Galaxy", "Pixel", "ايفون") the
+ * search is brand-constrained: every result across ALL providers must carry at
+ * least one of the family's branded names (Latin or Arabic aliases) or it is
+ * unrelated sponsored inventory — a Bluetooth speaker, a scooter, a Samsung S25
+ * on an "iPhone" query — and has no business on the page.
+ *
+ * Returns `null` when the query pins NO brand (unbranded queries like
+ * "wireless earbuds" are untouched). `tokens` are the Latin brand names,
+ * `arabic` the Arabic aliases; a title passes when it matches ANY entry from
+ * EITHER list (word-bounded, case-insensitive for Latin).
+ */
+export type RequiredBrandTokens = {
+  readonly tokens: readonly string[];
+  readonly arabic: readonly string[];
+};
+
+/** Brand families (Arabic search keys → allowed Latin + Arabic aliases). */
+export const ARABIC_BRAND_MUST_CONTAIN: ReadonlyArray<{
+  readonly keys: readonly string[];
+  readonly tokens: readonly string[];
+  readonly arabic: readonly string[];
+}> = [
+  {
+    keys: ["ايفون"],
+    tokens: ["apple", "iphone"],
+    arabic: ["ايفون"],
+  },
+  {
+    keys: ["ايباد"],
+    tokens: ["apple", "ipad"],
+    arabic: ["ايباد"],
+  },
+  {
+    keys: ["ماك بوك", "ماك"],
+    tokens: ["apple", "macbook"],
+    arabic: ["ماك بوك"],
+  },
+  {
+    keys: ["سامسونج", "جالكسي", "جالاكسي", "جالكسى"],
+    tokens: ["samsung", "galaxy"],
+    arabic: ["سامسونج", "جالكسي", "جالاكسي", "جالكسى"],
+  },
+  {
+    keys: ["شاومي"],
+    tokens: ["xiaomi", "redmi", "poco"],
+    arabic: ["شاومي"],
+  },
+  {
+    keys: ["بلايستيشن", "بلاي ستيشن"],
+    tokens: ["sony", "playstation", "ps5"],
+    arabic: ["بلايستيشن", "بلاي ستيشن"],
+  },
+];
+
+/**
+ * Brand families the query hard-constrains, or `null` when the query names no
+ * brand. Arabic queries are matched first (whole-Arabic-word, orthography-
+ * normalised); Latin queries via word-boundary regex. Pure.
+ */
+export function requiredBrandTokensForQuery(
+  query: string
+): RequiredBrandTokens | null {
+  const q = query.trim();
+  if (!q) return null;
+
+  for (const rule of ARABIC_BRAND_MUST_CONTAIN) {
+    if (rule.keys.some((term) => hasArabicTerm(q, term))) {
+      return { tokens: rule.tokens, arabic: rule.arabic };
+    }
+  }
+
+  const lq = q.toLowerCase();
+
+  if (/\b(iphone|ipad|macbook)\b/.test(lq)) {
+    return {
+      tokens: ["apple", "iphone", "ipad", "macbook"],
+      arabic: ["ايفون", "ايباد", "ماك بوك"],
+    };
+  }
+  if (/\b(galaxy|samsung|fold|flip)\b/.test(lq)) {
+    return {
+      tokens: ["samsung", "galaxy"],
+      arabic: ["سامسونج", "جالكسي", "جالاكسي", "جالكسى"],
+    };
+  }
+  if (/\b(xiaomi|redmi|poco)\b/.test(lq)) {
+    return { tokens: ["xiaomi", "redmi", "poco"], arabic: ["شاومي"] };
+  }
+  if (/\b(pixel|google)\b/.test(lq)) {
+    return { tokens: ["google", "pixel"], arabic: [] };
+  }
+  if (/\b(oneplus|one plus)\b/.test(lq)) {
+    return { tokens: ["oneplus", "one plus"], arabic: [] };
+  }
+  if (/\b(ps5|playstation)\b/.test(lq)) {
+    return {
+      tokens: ["sony", "playstation", "ps5"],
+      arabic: ["بلايستيشن", "بلاي ستيشن"],
+    };
+  }
+  if (/\brtx\b/.test(lq)) {
+    return { tokens: ["nvidia", "geforce", "rtx"], arabic: [] };
+  }
+
+  return null;
+}
+
+/**
+ * True when the title carries at least one branded family name required by the
+ * query (Latin via word-boundary `titleContainsWord`, Arabic via whole-word
+ * `hasArabicTerm`). Queries that pin no brand always pass. Pure.
+ */
+export function titleMeetsRequiredBrand(title: string, query: string): boolean {
+  const req = requiredBrandTokensForQuery(query);
+  if (!req) return true;
+  if (req.tokens.some((token) => titleContainsWord(title, token))) return true;
+  return req.arabic.some((term) => hasArabicTerm(title, term));
+}
+
 function brandMatchesQuery(hay: string, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (/\biphone\b/.test(q) && /\b(iphone|apple)\b/.test(hay)) return true;

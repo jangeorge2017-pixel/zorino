@@ -225,6 +225,66 @@ export function diversifyTopViewport<T extends DiversityEnforceable>(
 }
 
 /**
+ * Max share of a full page viewport a single source may hold. Complements the
+ * equal-share round-robin balancer: even when a provider genuinely holds most
+ * matches, no single source may take more than 60% of a page's seats while any
+ * peer provider is present.
+ */
+export const VIEWPORT_SINGLE_SOURCE_MAX_SHARE = 0.6;
+
+/**
+ * Pure per-viewport single-source cap (anti-monopoly guardrail).
+ *
+ * For EVERY full `windowSize`-slot window of the pool (a page's viewport), when
+ * at least two distinct providers are present, no single source may hold more
+ * than `Math.floor(windowSize * maxShare)` seats inside that window; the
+ * surplus rows (their later positions within the window) are relocated to the
+ * pool tail. A genuinely lone-provider window — and a partial final window —
+ * passes through untouched, so real stock is never discarded.
+ *
+ * The result is a PURE PERMUTATION of `items` (same membership, no drops,
+ * relative order preserved within each kept run), so pool total / hasMore /
+ * zero-duplicate semantics computed from the pool are untouched and the
+ * surplus stays reachable on later pages. Deterministic and market-agnostic —
+ * never a provider id, never a quota.
+ */
+export function enforceViewportSingleSourceCap<T>(
+  items: readonly T[],
+  providerOf: (item: T) => string,
+  windowSize = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+  maxShare = VIEWPORT_SINGLE_SOURCE_MAX_SHARE,
+): T[] {
+  const win = Math.max(1, Math.floor(windowSize));
+  if (win <= 1 || items.length === 0) return [...items];
+  const perWindowCap = Math.floor(win * maxShare);
+
+  const out: T[] = [];
+  const deferred: T[] = [];
+
+  for (let start = 0; start < items.length; start += win) {
+    const window = items.slice(start, start + win);
+    // Partial tail window, or a window with a single provider, stays untouched.
+    if (window.length < win || new Set(window.map(providerOf)).size < 2) {
+      out.push(...window);
+      continue;
+    }
+    const counts = new Map<string, number>();
+    for (const item of window) {
+      const provider = providerOf(item);
+      const taken = counts.get(provider) ?? 0;
+      if (taken < perWindowCap) {
+        counts.set(provider, taken + 1);
+        out.push(item);
+      } else {
+        deferred.push(item);
+      }
+    }
+  }
+
+  return [...out, ...deferred];
+}
+
+/**
  * Universal price sort (Requirement 3): merge EVERY source's ranked inventory
  * into one array, then sort strictly by price (lowest → highest) regardless of
  * which marketplace a product belongs to. Relevance survives only as a
