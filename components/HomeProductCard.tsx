@@ -1,5 +1,6 @@
 "use client";
 
+import PriceText from "@/components/international/PriceText";
 import { useLocale, useTranslations } from "next-intl";
 import { Truck } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
@@ -11,12 +12,8 @@ import PriceAlertButton from "@/components/PriceAlertButton";
 import ShareButton from "@/components/ShareButton";
 import ProductDynamicBadge from "@/components/ProductDynamicBadge";
 import PriceSparkline from "@/components/PriceSparkline";
-import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { Locale } from "@/i18n/config";
-import {
-  toArabicNumerals,
-  toLatinNumerals,
-} from "@/lib/international/arabic-numerals";
+import { toArabicNumerals } from "@/lib/international/arabic-numerals";
 import {
   resolveDynamicBadge,
   type DynamicBadgeType,
@@ -101,8 +98,7 @@ export default function HomeProductCard({
 }: HomeProductCardProps) {
   const tCommon = useTranslations("common");
   const locale = useLocale() as Locale;
-  const { formatPrice } = useIntlPreferences();
-  const toCardNumerals = locale === "ar" ? toArabicNumerals : toLatinNumerals;
+  const toCardNumerals = (s: string) => (locale === "ar" ? toArabicNumerals(s) : s);
   const initial = storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
   const showOriginal = originalPrice !== undefined && originalPrice > price;
   const savingsAmount = showOriginal ? originalPrice! - price : 0;
@@ -181,16 +177,14 @@ export default function HomeProductCard({
 
         <div className="home-product-pricing-block">
           <div className="deal-pricing">
-            <span className="deal-price">{toCardNumerals(formatPrice(price))}</span>
+            <PriceText amount={price} className="deal-price" />
             {showOriginal ? (
-              <span className="deal-original">
-                {toCardNumerals(formatPrice(originalPrice!))}
-              </span>
+              <PriceText amount={originalPrice!} className="deal-original" />
             ) : null}
           </div>
           {!referenceDealCard && savingsAmount > 0 ? (
             <p className="home-product-savings">
-              {tCommon("save")} {toCardNumerals(formatPrice(savingsAmount))}
+              {tCommon("save")} <PriceText amount={savingsAmount} />
             </p>
           ) : null}
         </div>
