@@ -93,24 +93,24 @@ describe("extractCurrencySymbol", () => {
 });
 
 describe("toArabicPriceParts", () => {
-  it("drops piastres/cents for whole amounts (3-rule hotfix)", () => {
+  it("forces the amount to a whole integer (no piastres ever render)", () => {
+    expect(toArabicPriceParts(35402.58, "EGP")).toEqual({
+      number: "٣٥،٤٠٣",
+      symbol: "ج.م.",
+    });
     expect(toArabicPriceParts(94200, "EGP")).toEqual({
       number: "٩٤،٢٠٠",
       symbol: "ج.م.",
     });
-    expect(toArabicPriceParts(54700, "EGP")).toEqual({
+    expect(toArabicPriceParts(54700.0, "EGP")).toEqual({
       number: "٥٤،٧٠٠",
       symbol: "ج.م.",
     });
   });
 
-  it("keeps two decimals and the Arabic ٫ for fractional amounts", () => {
-    expect(toArabicPriceParts(31353.8, "EGP")).toEqual({
-      number: "٣١،٣٥٣٫٨٠",
-      symbol: "ج.م.",
-    });
-    expect(toArabicPriceParts(27063.0, "EGP")).toEqual({
-      number: "٢٧،٠٦٣",
+  it("uses a standard thousands comma before Arabic conversion", () => {
+    expect(toArabicPriceParts(35402, "EGP")).toEqual({
+      number: "٣٥،٤٠٢",
       symbol: "ج.م.",
     });
   });
@@ -124,7 +124,7 @@ describe("toArabicPriceParts", () => {
 
   it("handles non-EGP currencies", () => {
     expect(toArabicPriceParts(41.5, "USD")).toEqual({
-      number: "٤١٫٥٠",
+      number: "٤٢",
       symbol: "US$",
     });
   });

@@ -6,9 +6,3 @@ html,body{margin:0!important;padding:0!important;background:#0B0E17!important;ba
 [class*="card"]:not(button):not(a):not([type="button"]):not([type="submit"]):not([class*="badge"]):not([class*="discount"]):not([class*="price"]):not([class*="was"]):not([class*="media"]){background:#15192B!important;box-shadow:0 4px 20px rgba(0,0,0,0.3)!important}
 [class*="compare"] button{background:linear-gradient(135deg,#8B5CF6,#6366F1)!important;color:white!important}
 [class*="code"]{background:#1A1F35!important;border:1px dashed #4A5568!important;color:#8B5CF6!important}
-/* AR price display — digits and currency symbol are independent inline-flex
-   items so the bidi algorithm can NEVER reorder them (dir="ltr" on the numeral
-   run pins ٣٥،٤٠٢ to left-to-right regardless of the surrounding RTL flow). */
-.price-text{display:inline-flex;flex-direction:row-reverse;align-items:baseline;gap:4px;white-space:nowrap}
-.price-amount{direction:ltr;unicode-bidi:isolate;white-space:nowrap}
-.price-currency{direction:rtl;unicode-bidi:isolate;white-space:nowrap}
