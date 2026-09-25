@@ -888,6 +888,17 @@ export async function searchProductsPaged(
   // The balanced pool and the exact DB count race together so the truthful
   // total never adds latency to the pool fetch. Count resolves 0 on timeout /
   // failure / empty DB → pool.length keeps the historical in-window behaviour.
+  // On a DEVICE query the count resolves the guard-passing universe instead of
+  // the raw 120K accessory-inclusive match count, so `total`/`hasMore` describe
+  // the reachable genuine-device sequence (see database-catalog device legs).
+  const deviceIntent =
+    options?.optimizeForDeviceIntent === true &&
+    analyzeSearchQueryIntent(trimmed).kind === "device";
+  const searchCurrency = options?.activeCurrency ?? "USD";
+  const deviceLeg = deviceIntent
+    ? { query: trimmed, activeCurrency: searchCurrency }
+    : undefined;
+
   const dbModule = import("@/lib/integration/database-catalog");
   const [pool, dbCountP] = await Promise.all([
     searchProducts(
@@ -898,6 +909,7 @@ export async function searchProductsPaged(
     dbModule.then((m) =>
       m.countSearchResultsFromDatabase(trimmed, {
         timeoutMs: providerFetchTimeoutMs,
+        ...(deviceLeg ? { device: deviceLeg } : {}),
       }),
     ),
   ]);
@@ -947,16 +959,19 @@ export async function searchProductsPaged(
       trimmed,
       selection.tailStart,
       selection.tailCount,
-      { timeoutMs: providerFetchTimeoutMs, excludeProductIds: selection.excludeProductIds },
+      {
+        timeoutMs: providerFetchTimeoutMs,
+        excludeProductIds: selection.excludeProductIds,
+        ...(deviceLeg ? { device: deviceLeg } : {}),
+      },
     ),
   );
 
   // Strict device guard on the DB tail too: `searchProducts` already filters
   // the pool's `dbAsRaw` leg, but the beyond-pool DB leg is fetched fresh here
-  // and would otherwise re-import accessory/junk rows on a device query.
-  const deviceIntent =
-    options?.optimizeForDeviceIntent === true &&
-    analyzeSearchQueryIntent(trimmed).kind === "device";
+  // and would otherwise re-import accessory/junk rows on a device query. The
+  // device legs already guard their deep window, so this stays an idempotent
+  // last-line filter for the non-device tail.
   const tailItems = deviceIntent
     ? dbPage.items.filter((item) =>
         passesStrictDeviceGuard(
@@ -964,7 +979,7 @@ export async function searchProductsPaged(
           item.price,
           trimmed,
           item.currency,
-          options?.activeCurrency ?? "USD",
+          searchCurrency,
         ),
       )
     : dbPage.items;

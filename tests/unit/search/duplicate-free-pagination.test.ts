@@ -49,6 +49,7 @@ import {
   setCanonicalEnabledForTests,
 } from "@/lib/canonical/feature";
 import {
+  resetDeviceSearchCountCacheForTests,
   resetRealCatalogProductCountForTests,
   setSupabaseAnonClientForTests,
 } from "@/lib/integration/database-catalog";
@@ -271,6 +272,7 @@ describe("resolvePooledPageSelection — one deterministic universe", () => {
 
 afterEach(() => {
   resetRealCatalogProductCountForTests();
+  resetDeviceSearchCountCacheForTests();
   clearSearchPoolForTests();
   resetSurfaceFlagsForTests();
   resetCanonicalFlagForTests();

@@ -26,6 +26,15 @@ import {
   buildWordBoundaryOrFilter,
   escapeRegexToken,
 } from "@/lib/integration/word-match-filter";
+import type { CurrencyCode } from "@/lib/international/config";
+import {
+  ACCESSORY_TERM_RE,
+  HANDSET_EXTRA_TERM_RE,
+  HANDSET_PRICE_FLOOR_USD,
+  isHandsetQuery,
+  passesStrictDeviceGuard,
+} from "@/lib/search/accessory-exclusion";
+import { requiredBrandTokensForQuery } from "@/lib/search/relevance";
 import {
   CATALOG_COUNT_FRESHNESS_MS,
   getCatalogCount,
@@ -926,10 +935,154 @@ async function loadSearchResultsFromDatabase(
 }
 
 /**
+ * Deep window the DEVICE-intent DB tail legs walk. Staying well under the
+ * Supabase 1000-row fetch cap, the device legs pull the SQL-guard-prefiltered
+ * universe once and re-apply the in-memory strict device guard + relevance
+ * ranking in JS, so pages past the pool slice a genuine device sequence instead
+ * of a discount-ordered window that is often saturated with accessories.
+ */
+export const DEVICE_TAIL_DEEP_WINDOW = 600;
+
+/** Device-intent DB leg options. `query` may differ from the surface query. */
+export type DeviceDbLegOptions = {
+  query: string;
+  activeCurrency?: CurrencyCode;
+};
+
+const DEVICE_SEARCH_COUNT_CACHE_TTL_MS = 5 * 60_000;
+const deviceSearchCountCache = new Map<string, { count: number; expiresAt: number }>();
+
+/** Test hook — clears the device-count cache between tests. */
+export function resetDeviceSearchCountCacheForTests(): void {
+  deviceSearchCountCache.clear();
+}
+
+/**
+ * SQL pre-filters that mirror the strict device guard ONCE at the index, so the
+ * deep window a device tail leg fetches is not exhausted by accessory rows.
+ * Base accessory terms always apply; handset queries add earphone/headphone and
+ * the ABSOLUTE $150 price floor (DB rows are always USD — a live EGP row never
+ * reaches this leg). A query that pins a concrete brand gets a must-contain OR
+ * filter (Latin tokens) matching `titleMeetsRequiredBrand`.
+ */
+function deviceGuardSqlQueryContext(device: DeviceDbLegOptions): {
+  excludeImatch: Array<{ regex: RegExp }>;
+  brandOr: string | null;
+  floor: number | null;
+} {
+  const handset = isHandsetQuery(device.query);
+  const excludeImatch: Array<{ regex: RegExp }> = [{ regex: ACCESSORY_TERM_RE }];
+  if (handset) excludeImatch.push({ regex: HANDSET_EXTRA_TERM_RE });
+
+  const req = requiredBrandTokensForQuery(device.query);
+  const brandOr = req?.tokens.length
+    ? req.tokens
+        .map((token) => `product_name.imatch.\\m${escapeRegexToken(token)}\\M`)
+        .join(",")
+    : null;
+
+  return {
+    excludeImatch,
+    brandOr,
+    floor: handset ? HANDSET_PRICE_FLOOR_USD : null,
+  };
+}
+
+/**
+ * DEVICE-intent exact count: the number of rows that survive the SQL guard
+ * pre-filter AND the in-memory strict device guard inside the first
+ * `DEVICE_TAIL_DEEP_WINDOW` rows — the SAME universe the device paged leg
+ * serves, so in-window `total` and the beyond-pool leg agree and `hasMore`
+ * renders the next genuine-device pages instead of mysteriously emptying.
+ *
+ * Successful (>0) counts are cached TTL 5 min so the 8s count race can never
+ * flap `total` between a real match count and the pool length. A 0 (timeout /
+ * empty / error) result is never cached — a transient dead datastore must
+ * recover on the next request.
+ */
+async function loadDeviceSearchCountFromDatabase(
+  device: DeviceDbLegOptions,
+): Promise<number> {
+  const cacheKey = `device:${device.query.trim().toLowerCase()}`;
+  const cached = deviceSearchCountCache.get(cacheKey);
+  if (cached && Date.now() < cached.expiresAt) return cached.count;
+
+  const supabase = supabaseClientFactoryForTests
+    ? supabaseClientFactoryForTests()
+    : createSupabaseAnonClient();
+  if (!supabase) return 0;
+
+  const words = device.query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 1);
+  if (words.length === 0) return 0;
+
+  const orFilter = buildWordBoundaryOrFilter(words);
+  const ctx = deviceGuardSqlQueryContext(device);
+
+  const selected = db(supabase)
+    .from("lowest_prices_today")
+    .select(
+      "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
+    )
+    .or(orFilter)
+    .eq("country_code", "US")
+    .eq("currency", "USD")
+    .not("image_url", "is", null)
+    .neq("image_url", "");
+  for (const { regex } of ctx.excludeImatch) {
+    selected.not("product_name", "imatch", regex.source);
+  }
+  if (ctx.brandOr) selected.or(ctx.brandOr);
+  if (ctx.floor !== null) selected.gte("lowest_price", ctx.floor);
+
+  const { data, error } = await selected
+    .order("discount_percent", { ascending: false })
+    .order("product_name", { ascending: true })
+    .order("id", { ascending: true })
+    .range(0, DEVICE_TAIL_DEEP_WINDOW - 1);
+
+  if (error || !data?.length) return 0;
+
+  const activeCurrency: CurrencyCode = device.activeCurrency ?? "USD";
+  let count = 0;
+  for (const row of data as LowestPriceRow[]) {
+    if (
+      row.product_name &&
+      row.image_url &&
+      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+      passesStrictDeviceGuard(
+        row.product_name,
+        Number(row.lowest_price),
+        device.query,
+        row.currency,
+        activeCurrency,
+      )
+    ) {
+      count++;
+    }
+  }
+
+  if (count > 0) {
+    deviceSearchCountCache.set(cacheKey, {
+      count,
+      expiresAt: Date.now() + DEVICE_SEARCH_COUNT_CACHE_TTL_MS,
+    });
+  }
+  return count;
+}
+
+/**
  * Exact match count for a search query against `lowest_prices_today`, using the
  * SAME word-boundary OR filter + US/USD + image filters as
  * `getSearchResultsFromDatabase` so `total`/`hasMore` on the pager reflect the
  * complete matching catalog (120K+ rows), not the 200-item display pool.
+ *
+ * `options?.device` switches the count to the device-intent universe: the SQL
+ * guard pre-filter + in-memory strict device guard over the deep window, so a
+ * handset query reports a truthful handset-reachable total instead of the raw
+ * 120K accessory-inclusive match count.
  *
  * `options?.timeoutMs` mirrors the early-resolve-empty seam of
  * `getSearchResultsFromDatabase`: a slow/failed count resolves 0 so the pager
@@ -937,8 +1090,29 @@ async function loadSearchResultsFromDatabase(
  */
 export async function countSearchResultsFromDatabase(
   query: string,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number; device?: DeviceDbLegOptions },
 ): Promise<number> {
+  if (options?.device) {
+    const device = options.device;
+    const deadline = options.timeoutMs;
+    if (!deadline || deadline <= 0) {
+      return loadDeviceSearchCountFromDatabase(device);
+    }
+    return new Promise<number>((resolve) => {
+      const timer = setTimeout(() => resolve(0), deadline);
+      loadDeviceSearchCountFromDatabase(device).then(
+        (count) => {
+          clearTimeout(timer);
+          resolve(count);
+        },
+        () => {
+          clearTimeout(timer);
+          resolve(0);
+        },
+      );
+    });
+  }
+
   const deadline = options?.timeoutMs;
   if (!deadline || deadline <= 0) return loadSearchResultsCountFromDatabase(query);
 
@@ -1009,7 +1183,11 @@ export async function getSearchResultsFromDatabasePaged(
   query: string,
   offset: number,
   limit: number,
-  options?: { timeoutMs?: number; excludeProductIds?: readonly string[] },
+  options?: {
+    timeoutMs?: number;
+    excludeProductIds?: readonly string[];
+    device?: DeviceDbLegOptions;
+  },
 ): Promise<{ items: SearchResultItem[]; total: number }> {
   const deadline = options?.timeoutMs;
   if (!deadline || deadline <= 0) {
@@ -1018,6 +1196,7 @@ export async function getSearchResultsFromDatabasePaged(
       offset,
       limit,
       options?.excludeProductIds,
+      options?.device,
     );
   }
 
@@ -1028,6 +1207,7 @@ export async function getSearchResultsFromDatabasePaged(
       offset,
       limit,
       options?.excludeProductIds,
+      options?.device,
     ).then(
       (page) => {
         clearTimeout(timer);
@@ -1046,6 +1226,7 @@ async function loadSearchResultsFromDatabasePaged(
   offset: number,
   limit: number,
   excludeProductIds?: readonly string[],
+  device?: DeviceDbLegOptions,
 ): Promise<{ items: SearchResultItem[]; total: number }> {
   const supabase = supabaseClientFactoryForTests
     ? supabaseClientFactoryForTests()
@@ -1072,11 +1253,15 @@ async function loadSearchResultsFromDatabasePaged(
       )
     : [];
 
+  const deviceContext = device ? deviceGuardSqlQueryContext(device) : null;
+
   const selected = db(supabase)
     .from("lowest_prices_today")
     .select(
       "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
-      { count: "exact" },
+      // Device legs rank + filter after the deep fetch, so they never ask
+      // PostgREST for an exact head count.
+      deviceContext ? undefined : { count: "exact" },
     )
     .or(orFilter)
     .eq("country_code", "US")
@@ -1084,17 +1269,95 @@ async function loadSearchResultsFromDatabasePaged(
     .not("image_url", "is", null)
     .neq("image_url", "");
 
+  if (deviceContext) {
+    for (const { regex } of deviceContext.excludeImatch) {
+      selected.not("product_name", "imatch", regex.source);
+    }
+    if (deviceContext.brandOr) selected.or(deviceContext.brandOr);
+    if (deviceContext.floor !== null) {
+      selected.gte("lowest_price", deviceContext.floor);
+    }
+  }
+
   if (exclusion.length > 0) {
     selected.not("product_id", "in", `(${exclusion.join(",")})`);
   }
 
-  const { data, count, error } = await selected
+  const ordered = selected
     // Deterministic catalog order: deepest discount first, then a stable
     // tiebreak so every page boundary resolves to the same rows.
     .order("discount_percent", { ascending: false })
     .order("product_name", { ascending: true })
-    .order("id", { ascending: true })
-    .range(safeOffset, safeOffset + safeLimit - 1);
+    .order("id", { ascending: true });
+
+  // DEVICE leg: fetch the deep window (kept well under Supabase's 1000-row
+  // cap), re-apply the strict device guard in JS so accessory/junk rows the
+  // SQL pre-filter cannot catch (Arabic terms, exotic word forms) can never
+  // enter a page, rank by query-word overlap, then slice at the offset.
+  // `total` is the length of that guard-passing sequence — the SAME count the
+  // device count leg reports — so pages past the pool render the next batch of
+  // genuine devices with a truthful `hasMore` instead of emptying.
+  if (deviceContext) {
+    const { data: deepData, error: deepError } = await ordered.range(
+      0,
+      DEVICE_TAIL_DEEP_WINDOW - 1,
+    );
+    if (deepError || !deepData?.length) return { items: [], total: 0 };
+
+    const activeCurrency: CurrencyCode = device?.activeCurrency ?? "USD";
+    const guardRows = (deepData as LowestPriceRow[]).filter(
+      (row) =>
+        row.product_name &&
+        row.image_url &&
+        normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+        passesStrictDeviceGuard(
+          row.product_name,
+          Number(row.lowest_price),
+          device!.query,
+          row.currency,
+          activeCurrency,
+        ),
+    );
+
+    const productIds = guardRows.map((r) => r.product_id);
+    const { data: productRows } = await db(supabase)
+      .from("products")
+      .select("id, category_slug")
+      .in("id", productIds);
+
+    const categoryMap = new Map<string, string | null>();
+    for (const p of productRows ?? []) {
+      categoryMap.set(p.id, p.category_slug);
+    }
+
+    const results = guardRows.map((row) => {
+      row.category_slug = categoryMap.get(row.product_id) ?? null;
+      return rowToSearchResultItem(row);
+    });
+
+    // Same word-overlap relevance ranking as the legacy supplement leg, applied
+    // across the WHOLE deep window so the device sequence is relevance-ordered.
+    const queryWords = words;
+    results.sort((a, b) => {
+      const aLower = a.name.toLowerCase();
+      const bLower = b.name.toLowerCase();
+      const aMatches = queryWords.filter((w) => wordInTitle(aLower, w)).length;
+      const bMatches = queryWords.filter((w) => wordInTitle(bLower, w)).length;
+      if (aMatches !== bMatches) return bMatches - aMatches;
+      return b.discount - a.discount || a.price - b.price;
+    });
+
+    const start = Math.min(results.length, safeOffset);
+    return {
+      items: results.slice(start, start + safeLimit),
+      total: results.length,
+    };
+  }
+
+  const { data, count, error } = await ordered.range(
+    safeOffset,
+    safeOffset + safeLimit - 1,
+  );
 
   const total = typeof count === "number" ? count : 0;
   if (error || !data?.length) return { items: [], total };

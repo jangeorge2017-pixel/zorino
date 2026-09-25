@@ -163,35 +163,34 @@ async function fetchEgProductsByAsins(asins: string[]): Promise<Map<string, EGRa
   return results;
 }
 
-export const amazonEgSearchConnector: SearchConnector = {
-  id: "amazon-eg",
-  name: "Amazon Egypt",
+const AMAZON_EG_CACHE_TTL_MS = 10 * 60_000;
+const AMAZON_EG_CACHE_STALE_MS = 60 * 60_000;
+const amazonEgSearchCache = new Map<
+  string,
+  { items: RawProviderListing[]; fetchedAt: number }
+>();
 
-  async isAvailable(): Promise<boolean> {
-    // A REAL Amazon Egypt data source (Creators API credentials OR the local
-    // open-source storefront scraper, which needs no keys) makes the store
-    // available. Without either there is no genuine amazon.eg product data, so
-    // the connector must not report as operational.
-    //
-    // Phase 5 decision (AMAZON-EG IS INDIRECT): this is the LATENT DIRECT path
-    // (seed ASINs / query → Creators API getItems / storefront scraper). It
-    // must NOT activate merely because credentials are later added — it
-    // requires the explicit AMAZON_DIRECT_ENABLE=1 architecture opt-in. The
-    // approved indirect path (affiliate URL → host-guarded ASIN → ingestion)
-    // does not use this connector.
-    //
-    // Phase 6 (current): Oxylabs subscription retired (401). The local
-    // storefront scraper (fetchAmazonSearchScraper on amazon.eg) is the
-    // production source — additive, no credentials required.
-    return isAmazonDirectEnabled() && (isAmazonConfigured() || isAmazonScraperAvailable());
-  },
+/** Test hook — clears the amazon-eg search cache between tests. */
+export function resetAmazonEgSearchCacheForTests(): void {
+  amazonEgSearchCache.clear();
+}
 
-  async search(
-    query: string,
-    _options?: ConnectorSearchOptions
-  ): Promise<RawProviderListing[]> {
-    const trimmed = query.trim().toLowerCase();
-    if (!trimmed) return [];
+function cloneListings(
+  listings: readonly RawProviderListing[],
+): RawProviderListing[] {
+  return listings.map((listing) => ({ ...listing }));
+}
+
+/**
+ * Live fetch — no cache. Public `search` owns the cache layer so rows persist
+ * between requests instead of disappearing when a scrape transiently empties.
+ */
+async function fetchAmazonEgSearch(
+  query: string,
+  _options?: ConnectorSearchOptions,
+): Promise<RawProviderListing[]> {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return [];
 
     // Additive local scraper source: real amazon.eg keyword search results.
     // Feeds the SAME "amazon-eg" store mapping and does not replace the
@@ -271,5 +270,66 @@ export const amazonEgSearchConnector: SearchConnector = {
     }
 
     return results;
+  }
+
+export const amazonEgSearchConnector: SearchConnector = {
+  id: "amazon-eg",
+  name: "Amazon Egypt",
+
+  async isAvailable(): Promise<boolean> {
+    // A REAL Amazon Egypt data source (Creators API credentials OR the local
+    // open-source storefront scraper, which needs no keys) makes the store
+    // available. Without either there is no genuine amazon.eg product data, so
+    // the connector must not report as operational.
+    //
+    // Phase 5 decision (AMAZON-EG IS INDIRECT): this is the LATENT DIRECT path
+    // (seed ASINs / query → Creators API getItems / storefront scraper). It
+    // must NOT activate merely because credentials are later added — it
+    // requires the explicit AMAZON_DIRECT_ENABLE=1 architecture opt-in. The
+    // approved indirect path (affiliate URL → host-guarded ASIN → ingestion)
+    // does not use this connector.
+    //
+    // Phase 6 (current): Oxylabs subscription retired (401). The local
+    // storefront scraper (fetchAmazonSearchScraper on amazon.eg) is the
+    // production source — additive, no credentials required.
+    return isAmazonDirectEnabled() && (isAmazonConfigured() || isAmazonScraperAvailable());
+  },
+
+  async search(
+    query: string,
+    options?: ConnectorSearchOptions,
+  ): Promise<RawProviderListing[]> {
+    const trimmed = query.trim().toLowerCase();
+    if (!trimmed) return [];
+
+    // Fresh-cache hit: serve the previous non-empty result without a network
+    // hop — a transient scraper empty/failure must never erase rows between
+    // calls (page 1 ↔ page 2 flakiness).
+    const cacheKey = trimmed;
+    const cached = amazonEgSearchCache.get(cacheKey);
+    const now = Date.now();
+    if (cached && now - cached.fetchedAt <= AMAZON_EG_CACHE_TTL_MS) {
+      return cloneListings(cached.items);
+    }
+
+    const fresh = await fetchAmazonEgSearch(trimmed, options);
+
+    // Only genuinely non-empty scrapes are cached — a live empty result must
+    // never pin "no products" onto a query.
+    if (fresh.length > 0) {
+      amazonEgSearchCache.set(cacheKey, {
+        items: cloneListings(fresh),
+        fetchedAt: now,
+      });
+      return fresh;
+    }
+
+    // Stale-while-revalidate: when the live scrape came up empty, keep the last
+    // real result up to 60 min so the row set stays stable across requests.
+    if (cached && now - cached.fetchedAt <= AMAZON_EG_CACHE_STALE_MS) {
+      return cloneListings(cached.items);
+    }
+
+    return [];
   },
 };
