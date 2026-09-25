@@ -376,6 +376,14 @@ export async function searchResultsPagedSurface(
 
   // Canonical pool + exact DB count race together; a slow/failed count
   // resolves 0 so the pool length keeps the historical in-window behaviour.
+  // On a DEVICE query the count resolves the guard-passing universe instead of
+  // the raw 120K accessory-inclusive match count (database-catalog device legs),
+  // so `total`/`hasMore` describe the reachable genuine-device sequence.
+  const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
+  const deviceLeg = deviceIntent
+    ? { query: trimmed, activeCurrency: guardCurrency }
+    : undefined;
+
   const dbModule = import("@/lib/integration/database-catalog");
   const [pool, dbCountP] = await Promise.all([
     canonicalSearchProducts(
@@ -387,6 +395,7 @@ export async function searchResultsPagedSurface(
     dbModule.then((m) =>
       m.countSearchResultsFromDatabase(trimmed, {
         timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+        ...(deviceLeg ? { device: deviceLeg } : {}),
       }),
     ),
   ]);
@@ -421,16 +430,17 @@ export async function searchResultsPagedSurface(
       {
         timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
         excludeProductIds: selection.excludeProductIds,
+        ...(deviceLeg ? { device: deviceLeg } : {}),
       },
     ),
   );
 
   // Strict device guard on the DB tail: the canonical pool already filters its
   // `dbItems` leg, but the beyond-pool DB leg is fetched fresh here and would
-  // otherwise re-import accessory/junk rows on a device query. Passes the DB
-  // row's real currency AND the visitor's active currency so the floor never
-  // judges raw EGP digits against a USD baseline.
-  const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
+  // otherwise re-import accessory/junk rows on a device query. The device legs
+  // already guard their deep window, so this stays an idempotent last-line
+  // filter. Passes the DB row's real currency AND the visitor's active currency
+  // so the floor never judges raw EGP digits against a USD baseline.
   const tailItems = deviceIntent
     ? dbPage.items.filter((item) =>
         passesStrictDeviceGuard(

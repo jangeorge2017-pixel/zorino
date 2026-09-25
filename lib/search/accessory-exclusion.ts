@@ -119,13 +119,13 @@ function termPattern(term: string): string {
 }
 
 /** Single word-boundary regex over every base accessory term. Case-insensitive. */
-const ACCESSORY_TERM_RE = new RegExp(
+export const ACCESSORY_TERM_RE = new RegExp(
   ACCESSORY_EXCLUSION_TERMS.map(termPattern).join("|"),
   "i",
 );
 
 /** Word-boundary regex over the handset-only extra terms (earphone/headphone). */
-const HANDSET_EXTRA_TERM_RE = new RegExp(
+export const HANDSET_EXTRA_TERM_RE = new RegExp(
   HANDSET_ACCESSORY_EXTRA_TERMS.map(termPattern).join("|"),
   "i",
 );

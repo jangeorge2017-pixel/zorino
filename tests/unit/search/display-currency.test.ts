@@ -19,6 +19,7 @@ import {
   searchResultsPagedSurface,
   setCanonicalSearchFetcherForTests,
 } from "@/lib/canonical/consumption/search";
+import { resetDeviceSearchCountCacheForTests } from "@/lib/integration/database-catalog";
 import {
   setSurfaceEnabledForTests,
   resetSurfaceFlagsForTests,
@@ -143,6 +144,7 @@ describe("search landing seams emit EGP prices (gate ON)", () => {
   afterEach(() => {
     resetSurfaceFlagsForTests();
     resetCanonicalFlagForTests();
+    resetDeviceSearchCountCacheForTests();
     setCanonicalSearchFetcherForTests(null);
   });
 
