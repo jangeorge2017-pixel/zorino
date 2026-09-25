@@ -7,12 +7,9 @@ import ProductCardActions from "@/components/ProductCardActions";
 import WishlistButton from "@/components/WishlistButton";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
-import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { Locale } from "@/i18n/config";
-import {
-  toArabicNumerals,
-  toLatinNumerals,
-} from "@/lib/international/arabic-numerals";
+import PriceText from "@/components/international/PriceText";
+import { toArabicNumerals } from "@/lib/international/arabic-numerals";
 
 export type ListingProductCardData = {
   id: string;
@@ -63,8 +60,7 @@ export default function ListingProductCard({
   const tCommon = useTranslations("common");
   const tProduct = useTranslations("product");
   const locale = useLocale() as Locale;
-  const { formatPrice } = useIntlPreferences();
-  const toCardNumerals = locale === "ar" ? toArabicNumerals : toLatinNumerals;
+  const toCardNumerals = (s: string) => (locale === "ar" ? toArabicNumerals(s) : s);
 
   const discount =
     product.discount ??
@@ -152,11 +148,12 @@ export default function ListingProductCard({
         </div>
 
         <div className="deal-pricing">
-          <span className="deal-price">{toCardNumerals(formatPrice(product.price))}</span>
+          <PriceText amount={product.price} className="deal-price" />
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="deal-original">
-              {toCardNumerals(formatPrice(product.originalPrice))}
-            </span>
+            <PriceText
+              amount={product.originalPrice}
+              className="deal-original"
+            />
           )}
         </div>
 
