@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Truck } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
@@ -12,6 +12,11 @@ import ShareButton from "@/components/ShareButton";
 import ProductDynamicBadge from "@/components/ProductDynamicBadge";
 import PriceSparkline from "@/components/PriceSparkline";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
+import type { Locale } from "@/i18n/config";
+import {
+  toArabicNumerals,
+  toLatinNumerals,
+} from "@/lib/international/arabic-numerals";
 import {
   resolveDynamicBadge,
   type DynamicBadgeType,
@@ -95,7 +100,9 @@ export default function HomeProductCard({
   referenceDealCard = false,
 }: HomeProductCardProps) {
   const tCommon = useTranslations("common");
+  const locale = useLocale() as Locale;
   const { formatPrice } = useIntlPreferences();
+  const toCardNumerals = locale === "ar" ? toArabicNumerals : toLatinNumerals;
   const initial = storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
   const showOriginal = originalPrice !== undefined && originalPrice > price;
   const savingsAmount = showOriginal ? originalPrice! - price : 0;
@@ -119,13 +126,17 @@ export default function HomeProductCard({
         badges={
           referenceDealCard ? (
             discount > 0 ? (
-              <span className="home-product-discount-pill">-{discount}%</span>
+              <span className="home-product-discount-pill">
+                {toCardNumerals(`-${discount}%`)}
+              </span>
             ) : null
           ) : (
             <>
               <ProductDynamicBadge type={badgeType} />
               {discount > 0 ? (
-                <span className="home-product-discount-pill">-{discount}%</span>
+                <span className="home-product-discount-pill">
+                  {toCardNumerals(`-${discount}%`)}
+                </span>
               ) : null}
             </>
           )
@@ -170,14 +181,16 @@ export default function HomeProductCard({
 
         <div className="home-product-pricing-block">
           <div className="deal-pricing">
-            <span className="deal-price">{formatPrice(price)}</span>
+            <span className="deal-price">{toCardNumerals(formatPrice(price))}</span>
             {showOriginal ? (
-              <span className="deal-original">{formatPrice(originalPrice!)}</span>
+              <span className="deal-original">
+                {toCardNumerals(formatPrice(originalPrice!))}
+              </span>
             ) : null}
           </div>
           {!referenceDealCard && savingsAmount > 0 ? (
             <p className="home-product-savings">
-              {tCommon("save")} {formatPrice(savingsAmount)}
+              {tCommon("save")} {toCardNumerals(formatPrice(savingsAmount))}
             </p>
           ) : null}
         </div>
