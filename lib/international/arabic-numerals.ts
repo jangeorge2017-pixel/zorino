@@ -80,25 +80,22 @@ export type ArabicPriceParts = {
 /**
  * Split a numeric amount into a bidi-safe Arabic-Indic `number` run and a
  * separate currency `symbol` run. The symbol is kept strictly OUTSIDE the
- * digit pool so the bidi algorithm can never reorder `ج.م.` inside the price
- * (the AR visual-bug this fixes: digits scrambled into a "million"-looking
- * run because a weak `.`+RLM mixture sat in the same run as the symbol).
+ * digit pool so the bidi algorithm can never reorder `ج.م.` inside the price.
  *
- * Whole amounts drop the piastres/cents via Math.round semantics
- * (`94,200.00` -> `٩٤،٢٠٠`); fractional amounts keep up to `maxDecimals`
- * digits (`31,353.8` -> `٣١،٣٥٣٫٨٠`).
+ * The amount is always forced to a whole integer with Math.round() and the
+ * whole number is formatted with a standard thousands comma before being
+ * converted to Arabic-Indic numerals:
+ *   35402.58 -> ٣٥،٤٠٣
+ *   94200    -> ٩٤،٢٠٠
  */
 export function toArabicPriceParts(
   amount: number,
   currencyCode: string,
-  maxDecimals = 2,
 ): ArabicPriceParts {
-  const isWhole = Math.abs(Math.round(amount) - amount) < 1e-9;
-  const decimals = isWhole ? 0 : maxDecimals;
+  const whole = Math.round(amount);
   const latin = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(amount);
+    maximumFractionDigits: 0,
+  }).format(whole);
   return {
     number: toArabicNumerals(latin),
     symbol: extractCurrencySymbol(currencyCode),
