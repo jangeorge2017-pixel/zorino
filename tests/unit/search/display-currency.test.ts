@@ -226,4 +226,39 @@ describe("search landing seams emit EGP prices (gate ON)", () => {
     expect(page.items[0]!.currency).toBe("USD");
     expect(page.items[0]!.price).toBe(849);
   });
+
+  it("live amazon-eg EGP row converts to USD instead of leaking raw EGP digits", async () => {
+    // Regression: live-listings cards used to DROP the currency field, so an
+    // EGP-priced Amazon Egypt row was treated as a US-catalog USD row and its
+    // raw EGP number (94,330) was stamped "USD". The listing mappers must
+    // preserve `currency` so the display seam converts to the active currency.
+    setCanonicalSearchFetcherForTests(async () => ({
+      liveListings: [
+        {
+          providerId: "amazon-eg",
+          externalId: "B0EGPRO",
+          title: "Apple iPhone 17 Pro Max (256 GB) - Silver with Face ID | Tax Paid",
+          imageUrl: "https://img.example.com/amazon-eg-1.jpg",
+          price: 94330,
+          originalPrice: 94330,
+          discount: 0,
+          currency: "EGP",
+          storeName: "Amazon Egypt",
+          category: "Mobile Phones",
+          rating: 4.6,
+          reviewCount: 321,
+          inStock: true,
+          productUrl: "https://www.amazon.eg/dp/B0EGPRO",
+          affiliateUrl: "https://www.amazon.eg/dp/B0EGPRO?tag=zorinoeg-21",
+        },
+      ],
+      dbItems: [],
+      activeProviders: ["amazon-eg"],
+    }));
+    const items = await searchProductsSurface("iphone 17 pro max usd", 10, undefined, "USD");
+    expect(items.length).toBe(1);
+    expect(items[0]!.price).toBeCloseTo(94330 / 48.5, 1);
+    expect(items[0]!.currency).toBe("USD");
+    expect(items[0]!.store).toBe("Amazon Egypt");
+  });
 });
