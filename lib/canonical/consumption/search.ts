@@ -18,7 +18,7 @@ import type { NormalizedSearchListing, RawProviderListing, SearchSortMode } from
 import type { SearchResultItem } from "@/lib/data/homepage";
 import { searchProducts } from "@/lib/search/engine";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
-import { enforceStrictDevicePool } from "@/lib/search/accessory-exclusion";
+import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
 import { rankRawListings } from "@/lib/search/ranking";
 import {
   classifyListingCondition,
@@ -129,13 +129,21 @@ export function assembleCanonicalSearchPool(input: {
 
   // Strict genuine-device pool guard (mirrors engine.ts): on a DEVICE-intent
   // query drop accessory rows absolutely and price-floor the rest unless the
-  // row is itself a recognised genuine device. Cache key is per
+  // row is itself a recognised genuine device. Applies to BOTH live listings
+  // and the DB-supplement leg (the legacy engine seam covers the db-as-raw
+  // pool; here the same rule hits `dbItems` so a device query can never be
+  // repopulated with imported cases/glass/junk). Cache key is per
   // (query,capped,sort) where raw pool content is stable; accessory-intent
-  // queries and the DB-supplement leg are untouched here.
+  // queries are untouched here.
   const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
   const rawLive = deviceIntent
     ? enforceStrictDevicePool(input.liveListings, trimmed)
     : input.liveListings;
+  const strictDbItems = deviceIntent
+    ? input.dbItems.filter((item) =>
+        passesStrictDeviceGuard(item.name, item.price, trimmed),
+      )
+    : input.dbItems;
   const ranked = rankRawListings(rawLive as NormalizedSearchListing[], trimmed);
   const canonical = canonicalizeSearchListings(ranked);
 
@@ -150,7 +158,7 @@ export function assembleCanonicalSearchPool(input: {
     ...(input.sortBy ? { sortBy: input.sortBy } : {}),
   });
 
-  const activeDb = input.dbItems.filter((item) => activeProviderSet.has(item.storeSlug));
+  const activeDb = strictDbItems.filter((item) => activeProviderSet.has(item.storeSlug));
   const dedupedDb: SearchResultItem[] = [];
   for (const dbItem of activeDb) {
     if (seen.has(dbItem.id)) continue;
@@ -360,12 +368,20 @@ export async function searchResultsPagedSurface(
     ),
   );
 
+  // Strict device guard on the DB tail: the canonical pool already filters its
+  // `dbItems` leg, but the beyond-pool DB leg is fetched fresh here and would
+  // otherwise re-import accessory/junk rows on a device query.
+  const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
+  const tailItems = deviceIntent
+    ? dbPage.items.filter((item) => passesStrictDeviceGuard(item.name, item.price, trimmed))
+    : dbPage.items;
+
   // Prefer the truthful DB count; if only the paged leg succeeded, trust its
   // exact count; otherwise the pool length keeps the historical behaviour.
   const finalTotal =
     total > 0 ? total : dbPage.total > 0 ? dbPage.total : pool.length;
 
-  const items = [...selection.poolHead, ...dbPage.items];
+  const items = [...selection.poolHead, ...tailItems];
 
   return {
     items,

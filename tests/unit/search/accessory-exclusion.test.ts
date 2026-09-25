@@ -8,6 +8,7 @@ import {
   enforceStrictDevicePool,
   hasAccessoryTerm,
   looksLikeGenuineDevice,
+  passesStrictDeviceGuard,
 } from "@/lib/search/accessory-exclusion";
 
 describe("accessory-exclusion / strict device-pool guard", () => {
@@ -18,18 +19,61 @@ describe("accessory-exclusion / strict device-pool guard", () => {
       }
     });
 
+    it("flags plural forms of every term (s / es / ies)", () => {
+      const plurals = [
+        "Silicone cases for iPhone 15",
+        "Phone Covers Samsung",
+        "Tempered glass screen protectors",
+        "Fast chargers 20W",
+        "Braided cables USB-C",
+        "Calligraphy straps for Apple Watch",
+        "Camera lenses for iPhone 15 Pro",
+        "UV screen films for S24",
+        "Magnetic phone holders",
+        "Car mounts for iPhone",
+        "Aluminum stands for tablet",
+        "Wall brackets for TV",
+        "Phone docks charging",
+        "Plastic cradles for watch",
+        "Styluses for iPad",
+        "VR headsets for phone",
+        "Display dummies iPhone",
+        "Reading glasses for phone users",
+      ];
+      for (const title of plurals) {
+        expect(hasAccessoryTerm(title)).toBe(true);
+      }
+    });
+
     it("is case-insensitive and word-boundary safe", () => {
       expect(hasAccessoryTerm("TEMPERED GLASS Samsung S24")).toBe(true);
       expect(hasAccessoryTerm("Galaxy S24 CASE")).toBe(true);
       expect(hasAccessoryTerm("iphone case")).toBe(true);
       // "case" must not match "Casetify", "lens" inside "cleans" etc.
       expect(hasAccessoryTerm("Casetify Bayside Samsung case")).toBe(true); // "case" is present regardless
+      expect(hasAccessoryTerm("Casetify Bayside Samsung")).toBe(false);
+      expect(hasAccessoryTerm("iPhone casing replacement")).toBe(false); // "casings" not an accessory signal
     });
 
     it("does not fire on genuine device wording", () => {
       expect(hasAccessoryTerm("Apple iPhone 15 Pro Max 256GB Unlocked")).toBe(false);
       expect(hasAccessoryTerm("Samsung Galaxy S24 Ultra 5G 512GB")).toBe(false);
       expect(hasAccessoryTerm("iPhone 15 Pro Dual SIM")).toBe(false);
+    });
+  });
+
+  describe("passesStrictDeviceGuard", () => {
+    it("rejects accessory rows and below-floor non-device rows", () => {
+      expect(passesStrictDeviceGuard("Tpu Phone Case For iPhone X", 0.32, "iphone 15 pro max")).toBe(false);
+      expect(passesStrictDeviceGuard("Tempered Glass Screen Protector For iPhone", 3, "iphone 15 pro max")).toBe(false);
+      expect(passesStrictDeviceGuard("Fluffy Phone Cases Covers iPhone", 15, "iphone 15 pro max")).toBe(false);
+      expect(passesStrictDeviceGuard("Wireless Mini Speaker", 29, "samsung galaxy s24")).toBe(false);
+    });
+
+    it("keeps genuine devices and above-floor rows", () => {
+      expect(passesStrictDeviceGuard("Apple iPhone 15 Pro Max 256GB Unlocked", 1200, "iphone 15 pro max")).toBe(true);
+      expect(passesStrictDeviceGuard("Refurbished iPhone 12 - 128GB Factory Unlocked", 167, "iphone 15 pro")).toBe(true); // genuine below floor
+      expect(passesStrictDeviceGuard("Samsung Galaxy S24 256GB", 899, "samsung galaxy s24")).toBe(true);
     });
   });
 
@@ -98,6 +142,32 @@ describe("accessory-exclusion / strict device-pool guard", () => {
       const kept = enforceStrictDevicePool(
         [cheapNonDevice, genuine],
         "samsung galaxy s24",
+      );
+      expect(kept.map((l) => l.title)).toEqual([genuine.title]);
+    });
+
+    it("drops plural-form accessory titles (live leak: Fluffy Phone Cases)", () => {
+      const kept = enforceStrictDevicePool(
+        [
+          genuine,
+          { title: "Cute Rabbit Design Fluffy Phone Cases for iPhone", price: 15 },
+          { title: "Nice Covers for Samsung Phone", price: 9 },
+        ],
+        "iphone 15 pro max",
+      );
+      expect(kept.map((l) => l.title)).toEqual([genuine.title]);
+    });
+
+    it("drops accessory DB-supplement rows (Alibaba WW leak) by name+price", () => {
+      const kept = enforceStrictDevicePool(
+        [
+          genuine,
+          { title: "1.5MM Solid Color Soft Matte Tpu Phone Case For Iphone X", price: 0.32 },
+          { title: "0.3MM 2.5D Tempered Glass Screen Protector For iPhone X/Xs", price: 3 },
+          { title: "15 Grids Side Open Jewelry Organizer Storage Box", price: 0.25 },
+          { title: "High Waist Leggings Women", price: 1.15 },
+        ],
+        "iphone 15 pro max",
       );
       expect(kept.map((l) => l.title)).toEqual([genuine.title]);
     });

@@ -59,11 +59,27 @@ export const ACCESSORY_EXCLUSION_TERMS: readonly string[] = [
 
 const ESCAPE_RE = /[.*+?^${}()|[\]\\]/g;
 
+/**
+ * Build the word-boundary pattern for one accessory term, including its common
+ * plural forms: plain +s, +es (glass→glasses, case→cases), and y→ies
+ * (dummy→dummies). Phrases ("box only", "s pen") match exactly. This is what
+ * makes "Fluffy Phone Cases" and "Nice Covers" die like their singular forms.
+ */
+function termPattern(term: string): string {
+  if (/\s/.test(term)) return `(?:\\b${term.replace(ESCAPE_RE, "\\$&")}\\b)`;
+  const base = term.replace(ESCAPE_RE, "\\$&");
+  const variants = [base, `${base}s`];
+  // Sibilant endings pluralize with +es: glass→glasses, lens→lenses, box→boxes.
+  if (/[szx]$/i.test(base)) variants.push(`${base}es`);
+  if (base.endsWith("y") && !/[aeiou]y$/i.test(base)) {
+    variants.push(`${base.slice(0, -1)}ies`);
+  }
+  return `(?:\\b(?:${variants.join("|")})\\b)`;
+}
+
 /** Single word-boundary regex over every accessory term. Case-insensitive. */
 const ACCESSORY_TERM_RE = new RegExp(
-  ACCESSORY_EXCLUSION_TERMS.map((term) =>
-    term.replace(ESCAPE_RE, "\\$&"),
-  ).map((pattern) => `(?:\\b${pattern}\\b)`).join("|"),
+  ACCESSORY_EXCLUSION_TERMS.map(termPattern).join("|"),
   "i",
 );
 
@@ -112,6 +128,24 @@ export function belowDevicePriceFloor(priceUsd: number, query: string): boolean 
 }
 
 /**
+ * Pure row-level strict guard: a row survives a device-intent pool only when it
+ * (a) carries no accessory word and (b) is either at/above the query's price
+ * floor or itself a recognised genuine device. Single source of truth used by
+ * both the live raw pool and every DB-supplement leg (pool and paged tail).
+ */
+export function passesStrictDeviceGuard(
+  title: string,
+  price: number,
+  query: string,
+): boolean {
+  if (hasAccessoryTerm(title)) return false;
+  if (price < devicePriceFloorUsd(query) && !looksLikeGenuineDevice(title)) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Apply the strict device guard to a raw pool: drop accessory rows absolutely,
  * then drop price-below-floor rows UNLESS they are themselves genuine devices.
  * Pure — never mutates the input.
@@ -119,12 +153,7 @@ export function belowDevicePriceFloor(priceUsd: number, query: string): boolean 
 export function enforceStrictDevicePool<
   T extends { title: string; price: number },
 >(listings: readonly T[], query: string): T[] {
-  const floor = devicePriceFloorUsd(query);
-  return listings.filter((listing) => {
-    if (hasAccessoryTerm(listing.title)) return false;
-    if (listing.price < floor && !looksLikeGenuineDevice(listing.title)) {
-      return false;
-    }
-    return true;
-  });
+  return listings.filter((listing) =>
+    passesStrictDeviceGuard(listing.title, listing.price, query),
+  );
 }

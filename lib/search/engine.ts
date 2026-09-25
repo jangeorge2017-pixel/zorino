@@ -17,7 +17,7 @@ import {
   analyzeSearchQueryIntent,
   FAMILY_RETRIEVAL_KEYWORDS,
 } from "@/lib/search/query-intent";
-import { enforceStrictDevicePool } from "@/lib/search/accessory-exclusion";
+import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { composeSearchPageOne } from "@/lib/search/page-one";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
@@ -911,12 +911,22 @@ export async function searchProductsPaged(
     ),
   );
 
+  // Strict device guard on the DB tail too: `searchProducts` already filters
+  // the pool's `dbAsRaw` leg, but the beyond-pool DB leg is fetched fresh here
+  // and would otherwise re-import accessory/junk rows on a device query.
+  const deviceIntent =
+    options?.optimizeForDeviceIntent === true &&
+    analyzeSearchQueryIntent(trimmed).kind === "device";
+  const tailItems = deviceIntent
+    ? dbPage.items.filter((item) => passesStrictDeviceGuard(item.name, item.price, trimmed))
+    : dbPage.items;
+
   // Prefer the truthful DB count; if only the paged leg succeeded, trust its
   // exact count; otherwise the pool length keeps the historical behaviour.
   const finalTotal =
     total > 0 ? total : dbPage.total > 0 ? dbPage.total : pool.length;
 
-  const items = [...selection.poolHead, ...dbPage.items];
+  const items = [...selection.poolHead, ...tailItems];
 
   return {
     items,
