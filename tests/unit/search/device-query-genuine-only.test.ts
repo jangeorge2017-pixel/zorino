@@ -12,15 +12,18 @@
  * Contract:
  *   - Device-intent queries assemble ONE pool from every provider (live +
  *     imported) through the device-first production pipeline.
- *   - Genuine devices from ALL providers lead every page (never displaced by
- *     accessories, live or imported).
- *   - Relevant accessories from the remaining providers balance behind the
- *     devices, so a query is never eBay-only just because only eBay has the
- *     exact device — other providers still surface their real inventory.
- *   - The legacy accessory backfill still applies when no genuine device
- *     exists anywhere, and accessory-intent queries are untouched.
- *   - The default (homepage / Compare Prices) path is untouched — no
- *     `optimizeForDeviceIntent` means byte-identical legacy behaviour.
+ *   - STRICT ACCESSORY EXCLUSION (newer directive): any row whose title carries
+ *     an accessory word (case, cover, glass, protector, holder, mount, ...) is
+ *     dropped immediately — even when the same title names the device. No
+ *     re-rank, no accessories behind devices, no accessory fallback. A device
+ *     query surfaces only real physical devices that survive the strict pool
+ *     guard (`enforceStrictDevicePool`).
+ *   - Genuine devices from ALL providers lead every page (never displaced, and
+ *     a recognised genuine device passes the price floor at any price — the
+ *     Bug1/Bug4 relevance freeze).
+ *   - Accessory-intent queries ("iphone 15 case") and the default (homepage /
+ *     Compare Prices) path are untouched — no `optimizeForDeviceIntent` means
+ *     byte-identical legacy behaviour.
  *
  * Suite runs isolate:false + singleFork:true, so it uses live-binding spies
  * (`vi.spyOn(module, "fn")`) rather than per-module `vi.mock`.
@@ -138,7 +141,7 @@ afterEach(() => {
 });
 
 describe("device-intent multi-provider assembly", () => {
-  it("lists every genuine device ahead of accessories from every provider", async () => {
+  it("lists only genuine devices — every accessory is dropped from a device query", async () => {
     const q = deviceQuery();
     const ebay = adapter("ebay", [
       device("ebay", 1, `Apple ${q} 256GB Unlocked Smartphone`),
@@ -155,15 +158,15 @@ describe("device-intent multi-provider assembly", () => {
 
     const items = await searchProducts(q, 50, { optimizeForDeviceIntent: true });
 
-    // Every source contributes: not eBay-only, accessories never displace a device.
-    expect(items.length).toBe(5);
+    // Strict accessory exclusion: case / cover / glass rows never survive a
+    // device query, live or imported. Only the two genuine handsets remain.
+    expect(items.length).toBe(2);
     expect(items[0]!.storeSlug).toBe("ebay");
     expect(items[1]!.storeSlug).toBe("ebay");
-    expect(items.some((i) => i.storeSlug === "aliexpress")).toBe(true);
-    expect(items.some((i) => i.storeSlug === "admitad" && /Case/.test(i.name))).toBe(true);
+    expect(items.some((i) => /Case|Cover|Glass|Protector/i.test(i.name))).toBe(false);
   });
 
-  it("never lets an accessory displace a genuine device — imported devices lead too", async () => {
+  it("drops every accessory completely — imported genuine devices lead", async () => {
     const q = deviceQuery();
     const ali = adapter("aliexpress", [
       accessory("aliexpress", 1, `Car Mount Holder for ${q}`),
@@ -176,15 +179,14 @@ describe("device-intent multi-provider assembly", () => {
 
     const items = await searchProducts(q, 50, { optimizeForDeviceIntent: true });
 
-    // The imported genuine device leads; the live and imported accessories
-    // balance behind it rather than disappearing (or standing above it).
+    // The imported genuine device is the ONLY survivor: the live car-mount
+    // holder and the imported silicone case are dropped, not pushed behind.
+    expect(items.length).toBe(1);
     expect(items[0]!.id).toBe("db-genuine-1");
-    expect(items.length).toBe(3);
-    expect(items.some((i) => i.id === "db-acc-1")).toBe(true);
-    expect(items.some((i) => i.storeSlug === "aliexpress")).toBe(true);
+    expect(items.some((i) => /Case|Holder|Mount/i.test(i.name))).toBe(false);
   });
 
-  it("falls back to accessories when no genuine device exists anywhere", async () => {
+  it("returns nothing when a device query has only accessories (no fallback)", async () => {
     const q = deviceQuery();
     const ali = adapter("aliexpress", [
       accessory("aliexpress", 1, `Silicone Case for ${q}`),
@@ -195,8 +197,8 @@ describe("device-intent multi-provider assembly", () => {
 
     const items = await searchProducts(q, 50, { optimizeForDeviceIntent: true });
 
-    expect(items.length).toBe(2);
-    expect(items.every((i) => i.storeSlug === "aliexpress")).toBe(true);
+    // Strict directive: never backfill accessories onto a device query.
+    expect(items.length).toBe(0);
   });
 
   it("retrieves device-intent searches deeper than the legacy default", async () => {
@@ -274,11 +276,12 @@ describe("device-intent multi-provider assembly", () => {
     expect(aliSearch).toHaveBeenCalledTimes(2);
     expect(aliSearch.mock.calls[0]?.[0]).toBe(q);
     expect(aliSearch.mock.calls[1]?.[0]).toBe("phone");
-    // Genuine device leads ahead of the exact-query accessories it saturates.
-    expect(items.length).toBe(3);
+    // Strict exclusion drops the exact-query accessories; the family-leg
+    // genuine device is the only survivor and it leads.
+    expect(items.length).toBe(1);
     expect(items[0]!.storeSlug).toBe("aliexpress");
     expect(items[0]!.name).toContain(q);
-    expect(items.some((i) => /Case|Protector/i.test(i.name))).toBe(true);
+    expect(items.some((i) => /Case|Protector/i.test(i.name))).toBe(false);
   });
 });
 

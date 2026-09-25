@@ -18,6 +18,7 @@ import type { NormalizedSearchListing, RawProviderListing, SearchSortMode } from
 import type { SearchResultItem } from "@/lib/data/homepage";
 import { searchProducts } from "@/lib/search/engine";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
+import { enforceStrictDevicePool } from "@/lib/search/accessory-exclusion";
 import { rankRawListings } from "@/lib/search/ranking";
 import {
   classifyListingCondition,
@@ -126,7 +127,16 @@ export function assembleCanonicalSearchPool(input: {
     return { items: [], rejectedCount: 0, rejectedByCode: {}, acceptedCount: 0, productsFormed: 0 };
   }
 
-  const ranked = rankRawListings(input.liveListings as NormalizedSearchListing[], trimmed);
+  // Strict genuine-device pool guard (mirrors engine.ts): on a DEVICE-intent
+  // query drop accessory rows absolutely and price-floor the rest unless the
+  // row is itself a recognised genuine device. Cache key is per
+  // (query,capped,sort) where raw pool content is stable; accessory-intent
+  // queries and the DB-supplement leg are untouched here.
+  const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
+  const rawLive = deviceIntent
+    ? enforceStrictDevicePool(input.liveListings, trimmed)
+    : input.liveListings;
+  const ranked = rankRawListings(rawLive as NormalizedSearchListing[], trimmed);
   const canonical = canonicalizeSearchListings(ranked);
 
   const activeProviderSet = new Set(input.activeProviders);
