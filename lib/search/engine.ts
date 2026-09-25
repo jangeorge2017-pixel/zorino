@@ -32,6 +32,7 @@ import type {
 } from "@/lib/search/types";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
+import type { CurrencyCode } from "@/lib/international/config";
 
 export type GlobalSearchOptions = {
   limit?: number;
@@ -47,6 +48,13 @@ export type GlobalSearchOptions = {
    * other engine caller leave it unset and keep the legacy behaviour.
    */
   optimizeForDeviceIntent?: boolean;
+  /**
+   * The visitor's ACTIVE display currency. The strict device guard compares a
+   * row's price AND the query's floor in this currency (e.g. $150 → ≈7500 EGP)
+   * so a raw EGP number is never judged against a USD baseline. Default "USD"
+   * keeps classic behavior for callers that do not model a regional currency.
+   */
+  activeCurrency?: CurrencyCode;
 };
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
@@ -265,8 +273,9 @@ export function setProviderFetchTimeoutForTests(ms?: number): void {
 export function setSearchPoolForTests(
   query: string,
   items: ReadonlyArray<SearchResultItem>,
+  activeCurrency: CurrencyCode = "USD",
 ): void {
-  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance`;
+  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}`;
   fairSearchCache.set(cacheKey, {
     items: items as SearchResultItem[],
     expiresAt: Date.now() + 60_000,
@@ -522,7 +531,11 @@ async function fetchProvidersInParallel(
 export async function searchProducts(
   query: string,
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT,
-  options?: { optimizeForDeviceIntent?: boolean; sortBy?: SearchSortMode },
+  options?: {
+    optimizeForDeviceIntent?: boolean;
+    sortBy?: SearchSortMode;
+    activeCurrency?: CurrencyCode;
+  },
 ): Promise<SearchResultItem[]> {
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
   const trimmed = query.trim();
@@ -530,11 +543,15 @@ export async function searchProducts(
 
   const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
   const sortBy: SearchSortMode = options?.sortBy ?? "relevance";
+  const activeCurrency: CurrencyCode = options?.activeCurrency ?? "USD";
   // Separate cache namespaces per mode + sort so a price-sorted pool can never
-  // be served to (or evict) the relevance pool for the same query.
+  // be served to (or evict) the relevance pool for the same query. The ACTIVE
+  // currency is part of the key too: the strict device floor lives in the
+  // visitor's currency (US$150 vs ≈7500 EGP), so a USD-mode pool never serves
+  // an EGP-mode visitor who may legitimately hold different inventory.
   const cacheKey = `prod-v20-device-pool:${trimmed.toLowerCase()}:${capped}${
     optimizeForDeviceIntent ? ":device-opt" : ""
-  }:sort:${sortBy}`;
+  }:sort:${sortBy}:cur:${activeCurrency}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -646,7 +663,7 @@ export async function searchProducts(
   // queries ("iphone 15 case") are NOT filtered here — scope stays with the
   // device-intent caller.
   const rawPoolForDeviceIntent = deviceIntent
-    ? enforceStrictDevicePool([...allRaw, ...dbAsRaw], trimmed)
+    ? enforceStrictDevicePool([...allRaw, ...dbAsRaw], trimmed, activeCurrency)
     : [...allRaw, ...dbAsRaw];
   const assembled = assembleProductionSearchResults(
     rawPoolForDeviceIntent,
@@ -708,12 +725,14 @@ export async function searchProducts(
   // surplus rows are relocated to the pool tail, so totals, hasMore and page
   // membership are untouched (pure permutation). The strict 1-1-1 balancer and
   // the condition-diversity guardrail already ran above; this is the final
-  // absolute ceiling for a relevance-sorted page. Price mode keeps its strict
-  // lowest-price order (its own 12-slot diversity window already applies).
-  const viewportCapped =
-    sortBy !== "price"
-      ? enforceViewportSingleSourceCap<SearchResultItem>(guarded, (item) => item.storeSlug || item.store)
-      : guarded;
+  // absolute ceiling for a page in EVERY sort mode. Price mode keeps its own
+  // 12-slot diversity window (diversifyTopViewport) AND the hard 60% viewport
+  // cap — a marketplace that genuinely holds the cheapest inventory can never
+  // monopolize more than 60% of a page window.
+  const viewportCapped = enforceViewportSingleSourceCap<SearchResultItem>(
+    guarded,
+    (item) => item.storeSlug || item.store,
+  );
 
   const mixedHead = guarded.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const composedHead = composed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
@@ -851,7 +870,11 @@ export async function searchProductsPaged(
   query: string,
   offset: number,
   limit: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
-  options?: { optimizeForDeviceIntent?: boolean; sortBy?: SearchSortMode }
+  options?: {
+    optimizeForDeviceIntent?: boolean;
+    sortBy?: SearchSortMode;
+    activeCurrency?: CurrencyCode;
+  }
 ): Promise<SearchPageResult> {
   const trimmed = query.trim();
   if (!trimmed) {
@@ -935,7 +958,15 @@ export async function searchProductsPaged(
     options?.optimizeForDeviceIntent === true &&
     analyzeSearchQueryIntent(trimmed).kind === "device";
   const tailItems = deviceIntent
-    ? dbPage.items.filter((item) => passesStrictDeviceGuard(item.name, item.price, trimmed, item.currency))
+    ? dbPage.items.filter((item) =>
+        passesStrictDeviceGuard(
+          item.name,
+          item.price,
+          trimmed,
+          item.currency,
+          options?.activeCurrency ?? "USD",
+        ),
+      )
     : dbPage.items;
 
   // Prefer the truthful DB count; if only the paged leg succeeded, trust its

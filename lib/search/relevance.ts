@@ -672,11 +672,21 @@ export function requiredBrandTokensForQuery(
 
   const lq = q.toLowerCase();
 
-  if (/\b(iphone|ipad|macbook)\b/.test(lq)) {
-    return {
-      tokens: ["apple", "iphone", "ipad", "macbook"],
-      arabic: ["ايفون", "ايباد", "ماك بوك"],
-    };
+  // STRICT per-family must-contain: an "iphone" query requires iPhone/Apple in
+  // every result — a title carrying only "ipad" / "macbook" (or the Arabic
+  // ايباد / ماك بوك aliases) is a DIFFERENT family, unrelated sponsored
+  // inventory on this query, and must drop. The old single combined rule
+  // returned ["apple","iphone","ipad","macbook"] for ANY of the three family
+  // words, so an "iphone" query accepted an "Apple iPad Pro" or a "MacBook
+  // Air" that merely shared the brand. Each family is now its own hard rule.
+  if (/\biphone\b/.test(lq)) {
+    return { tokens: ["apple", "iphone"], arabic: ["ايفون"] };
+  }
+  if (/\bipad\b/.test(lq)) {
+    return { tokens: ["apple", "ipad"], arabic: ["ايباد"] };
+  }
+  if (/\bmacbook\b/.test(lq)) {
+    return { tokens: ["apple", "macbook"], arabic: ["ماك بوك"] };
   }
   if (/\b(galaxy|samsung|fold|flip)\b/.test(lq)) {
     return {

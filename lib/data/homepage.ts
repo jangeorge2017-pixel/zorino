@@ -17,7 +17,7 @@ import {
 } from "@/lib/zorino-home/featured-coupon-brands";
 import { withFallbackCategories } from "@/lib/zorino-home/presentation";
 import { INTL_COOKIE_CURRENCY } from "@/lib/international/cookies";
-import { isSupportedCurrency } from "@/lib/international/config";
+import { isSupportedCurrency, type CurrencyCode } from "@/lib/international/config";
 import { formatCurrency as formatCurrencyValue } from "@/lib/international/format";
 import type { ListingCondition } from "@/lib/search/types";
 import type {
@@ -361,12 +361,13 @@ export type SearchResultItem = {
 export async function getSearchResults(
   query: string,
   sort?: "relevance" | "price",
+  activeCurrency?: CurrencyCode,
 ): Promise<SearchResultItem[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
   const { searchProductsSurface } = await import("@/lib/canonical/consumption/search");
-  return searchProductsSurface(trimmed, undefined, sort);
+  return searchProductsSurface(trimmed, undefined, sort, activeCurrency);
 }
 
 /** Paged search results for the /search page "Load more" flow. */
@@ -375,9 +376,10 @@ export async function getSearchResultsPage(
   offset: number,
   limit: number,
   sort?: "relevance" | "price",
+  activeCurrency?: CurrencyCode,
 ) {
   const { searchResultsPagedSurface } = await import("@/lib/canonical/consumption/search");
-  return searchResultsPagedSurface(query, offset, limit, sort);
+  return searchResultsPagedSurface(query, offset, limit, sort, activeCurrency);
 }
 
 /** Filter options for search page — derived from live search results across all active providers. */

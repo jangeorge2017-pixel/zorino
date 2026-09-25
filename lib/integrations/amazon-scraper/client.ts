@@ -255,8 +255,15 @@ function parseSearchResultBlock(html: string, marketplace: AmazonScraperMarketpl
   const cleanTitle = decodeEntities(title);
   if (!cleanTitle) return null;
 
-  // Skip paid placements — only organic, real products.
+  // Skip paid placements — only organic, real products. Title-prefix alone is
+  // too weak: Amazon renders sponsored ads with "Sponsored"/"Ad" in various
+  // spots (puis-sponsored-label-text, sp-sponsored-result containers). Match
+  // ALL known markers so sponsored inventory can never leak into the device
+  // guard's must-contain pool and masquerade as a real result.
   if (/^Sponsored Ad\b/i.test(cleanTitle)) return null;
+  if (/puis-sponsored-label-text/i.test(html)) return null;
+  if (/data-component-type="sp-sponsored-result"/i.test(html)) return null;
+  if (/<div[^>]*class="[^"]*\bsponsored-badge/i.test(html)) return null;
 
   const imageUrl = html.match(/class="s-image"[^>]*src="([^"]+)"/)?.[1] ?? "";
 

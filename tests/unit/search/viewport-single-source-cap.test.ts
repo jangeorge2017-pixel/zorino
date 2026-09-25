@@ -57,6 +57,27 @@ describe("enforceViewportSingleSourceCap", () => {
     expect(ids(out.slice(90))).toEqual(ids(pool.slice(80, 90))); // e60..e69 deferred
   });
 
+  it("applies identically to a pool derived from PRICE mode (cap is sort-agnostic)", () => {
+    // Mirrors the window-2 cap case in the sibling test, framed as the pool a
+    // price-sorted search would feed in: page 1 is 35 ebay + 15 aliexpress —
+    // ebay (35) exceeds the 60% cap (30) → 5 surplus deferred to the tail,
+    // nothing dropped, everything still reachable.
+    const pool: Row[] = [];
+    for (let i = 0; i < 35; i++) pool.push({ id: `e${i}`, p: "ebay" });
+    for (let i = 0; i < 15; i++) pool.push({ id: `a${i}`, p: "aliexpress" });
+
+    const out = enforceViewportSingleSourceCap(pool, (r) => r.p);
+
+    expect(out).toHaveLength(pool.length);
+    expect(new Set(ids(out))).toEqual(new Set(ids(pool)));
+    // The five surplus ebay seats (e30..e34) are deferred to the tail.
+    expect(ids(out.slice(45))).toEqual(["e30", "e31", "e32", "e33", "e34"]);
+    expect(ids(out.slice(0, 45))).toEqual([
+      ...ids(pool.slice(0, 30)), // 30 ebay kept
+      ...ids(pool.slice(35)), // 15 aliexpress kept
+    ]);
+  });
+
   it("leaves a lone-provider window untouched (genuine volume never trimmed)", () => {
     const pool: Row[] = [];
     for (let i = 0; i < 50; i++) pool.push({ id: `e${i}`, p: "ebay" });

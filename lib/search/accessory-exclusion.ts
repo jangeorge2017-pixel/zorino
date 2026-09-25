@@ -26,18 +26,23 @@
  *   branded family names (Latin or Arabic aliases, e.g. iPhone/Apple vs
  *   ايفون) is unrelated sponsored inventory (a Bluetooth speaker, a scooter, a
  *   Samsung phone on an "iPhone" query) and is hard-dropped before the floor.
- * - CURRENCY-AWARE ABSOLUTE handset price floor: on a HANDSET query ANY row
- *   under $150 USD is hard-dropped before sorting or pagination — regardless
- *   of title, brand or provider ("a real phone cannot cost $2 or $8"). The
- *   row's price is NORMALISED from its own currency into USD first, so an
+ * - CURRENCY-AWARE ABSOLUTE device price floor: on a HANDSET query ANY row
+ *   under the $150 USD floor is hard-dropped before sorting or pagination —
+ *   regardless of title, brand or provider ("a real phone cannot cost $2 or
+ *   $8"). The row's price is NORMALISED from its own currency FIRST, so an
  *   Amazon Egypt row priced in EGP is never compared as a raw USD digit
- *   (48,400 EGP ≈ $998, but 1,000 EGP ≈ $20.6 < $150 and must drop). There is
- *   NO "genuine-device-below-floor" exemption: the floor is absolute, so an
- *   underpriced listing can never ride a genuine-looking title back in.
- *   Non-handset device queries ("wireless earbuds", "airpods pro", "ipad air",
- *   "macbook air m3") keep the prior floor with a recognised-device exemption,
- *   because genuine sub-$150 audio/tablet/laptop gear is legitimate
- *   inventory — a $25 earbud is a real product, a $25 phone is not.
+ *   (48,400 EGP ≈ $998, but 1,000 EGP ≈ $20.6 < $150 and must drop). The
+ *   floor itself is expressed in the VISITOR'S ACTIVE currency (the default,
+ *   NO active currency passed, is USD): the caller passes the visitor's
+ *   currency (e.g. "EGP" → ≈7500 EGP floor) so price AND floor are compared
+ *   like-for-like in the number the visitor actually sees — never raw EGP
+ *   digits judged against a USD baseline. There is NO "genuine-device-below-
+ *   floor" exemption: the floor is absolute, so an underpriced listing can
+ *   never ride a genuine-looking title back in. Non-handset device queries
+ *   ("wireless earbuds", "airpods pro", "ipad air", "macbook air m3") keep
+ *   the prior floor with a recognised-device exemption, because genuine
+ *   sub-$150 audio/tablet/laptop gear is legitimate inventory — a $25 earbud
+ *   is a real product, a $25 phone is not.
  * - DEVICE-INTENT ONLY: accessories are what the USER asked for on an
  *   accessory-intent query ("iphone 15 case") and on homepage/category/compare
  *   pools. Scope lives with the caller; this module never filters those.
@@ -50,7 +55,7 @@ import {
   ARABIC_ACCESSORY_TERMS,
   titleMeetsRequiredBrand,
 } from "@/lib/search/relevance";
-import { isSupportedCurrency } from "@/lib/international/config";
+import { isSupportedCurrency, type CurrencyCode } from "@/lib/international/config";
 import { convertAmount } from "@/lib/international/exchange-rates";
 
 /** Words that disqualify a row from ANY device-intent pool. Sorted, lowercase. */
@@ -199,7 +204,9 @@ export function devicePriceFloorUsd(query: string): number {
     : DEVICE_PRICE_FLOOR_USD;
 }
 
-/** True when the price sits below the device floor for this query. */
+/**
+ * True when the price sits below the device floor for this query.
+ */
 export function belowDevicePriceFloor(priceUsd: number, query: string): boolean {
   return priceUsd < devicePriceFloorUsd(query);
 }
@@ -224,17 +231,54 @@ export function priceInUsd(
 }
 
 /**
+ * Compare a row's price against the query's device floor in the VISITOR'S
+ * ACTIVE currency — every number on the page lives in that currency, so a
+ * floor that silently compares "raw EGP digits against a USD baseline" would
+ * misjudge cheap EGP inventory. The row price is normalised from its own
+ * currency into `activeCurrency` (static USD pivot, so the outcome is
+ * numerically identical to the USD-normalised guard — the difference is that
+ * BOTH sides are expressed in the currency the visitor actually sees).
+ *
+ * Returns `null` for a row currency we cannot convert (e.g. UAH): the guard
+ * then falls back to the raw numeric price compared against the ACTIVE floor,
+ * never a foreign baseline. Pure.
+ */
+export function priceInActiveCurrency(
+  price: number,
+  currency: string | undefined,
+  activeCurrency: CurrencyCode,
+): number | null {
+  if (!currency || currency.toUpperCase() === activeCurrency) return price;
+  if (!isSupportedCurrency(currency)) return null;
+  return convertAmount(price, currency, activeCurrency);
+}
+
+/**
+ * The handset/device floor expressed in the visitor's ACTIVE currency
+ * (e.g. $150 → ≈7500 EGP). Derived from the USD floor via the static USD
+ * pivot. Pure.
+ */
+export function devicePriceFloorInActiveCurrency(
+  query: string,
+  activeCurrency: CurrencyCode,
+): number {
+  return convertAmount(devicePriceFloorUsd(query), "USD", activeCurrency);
+}
+
+/**
  * Pure row-level strict guard: a row survives a device-intent pool only when it
  * (a) carries no accessory word, (b) — on a brand-named device query — carries
  * at least one required brand-family name (must-contain), and (c) clears the
- * price floor (normalised to USD from the row's own currency). Single source
- * of truth used by both the live raw pool and every DB-supplement leg (pool
- * and paged tail).
+ * price floor (price AND floor both normalised to the visitor's ACTIVE
+ * currency — never raw EGP digits judged against a USD baseline; default "USD"
+ * keeps the classic behavior for callers that do not pass a currency).
+ * Single source of truth used by both the live raw pool and every DB-supplement
+ * leg (pool and paged tail).
  *
- * - HANDSET query: accessory terms include earphone/headphone; the $150 floor
- *   is ABSOLUTE — a genuine-looking title does NOT pass under it.
- * - NON-handset device query: base accessory terms only; a row below the $100
- *   floor survives only when it is itself a recognised genuine device (genuine
+ * - HANDSET query: accessory terms include earphone/headphone; the floor is
+ *   ABSOLUTE — a genuine-looking title does NOT pass under it.
+ * - NON-handset device query: base accessory terms only; a row below the floor
+ *   survives only when it is itself a recognised genuine device (genuine
  *   sub-$150 earbuds/tablets/laptops are legitimate inventory).
  * - Brand-named query: a title with none of the family's branded names is
  *   unrelated inventory and drops BEFORE the floor ("Samsung S25" on an
@@ -245,6 +289,7 @@ export function passesStrictDeviceGuard(
   price: number,
   query: string,
   currency?: string,
+  activeCurrency: CurrencyCode = "USD",
 ): boolean {
   const handset = isHandsetQuery(query);
   if (handset ? hasHandsetAccessoryTerm(title) : hasAccessoryTerm(title)) {
@@ -253,14 +298,17 @@ export function passesStrictDeviceGuard(
   if (!titleMeetsRequiredBrand(title, query)) {
     return false;
   }
-  const priceUsd = priceInUsd(price, currency);
+  const priceActive = priceInActiveCurrency(price, currency, activeCurrency);
+  const floorActive = devicePriceFloorInActiveCurrency(query, activeCurrency);
   if (handset) {
-    // ABSOLUTE handset floor — no genuine-below-floor carve-out.
-    return (priceUsd ?? price) >= HANDSET_PRICE_FLOOR_USD;
+    // ABSOLUTE handset floor — no genuine-below-floor carve-out. The raw
+    // fallback (unsupported row currency, e.g. UAH) is compared against the
+    // ACTIVE floor, never a foreign baseline.
+    return (priceActive ?? price) >= floorActive;
   }
-  // Non-handset device query: below the base floor only a recognised genuine
+  // Non-handset device query: below the floor only a recognised genuine
   // device survives (a $25 wireless earbud is a real product).
-  if ((priceUsd ?? price) >= DEVICE_PRICE_FLOOR_USD) return true;
+  if ((priceActive ?? price) >= floorActive) return true;
   return looksLikeGenuineDevice(title);
 }
 
@@ -272,8 +320,14 @@ export function passesStrictDeviceGuard(
  */
 export function enforceStrictDevicePool<
   T extends { title: string; price: number; currency?: string },
->(listings: readonly T[], query: string): T[] {
+>(listings: readonly T[], query: string, activeCurrency: CurrencyCode = "USD"): T[] {
   return listings.filter((listing) =>
-    passesStrictDeviceGuard(listing.title, listing.price, query, listing.currency),
+    passesStrictDeviceGuard(
+      listing.title,
+      listing.price,
+      query,
+      listing.currency,
+      activeCurrency,
+    ),
   );
 }

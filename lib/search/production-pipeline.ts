@@ -251,8 +251,8 @@ export const VIEWPORT_SINGLE_SOURCE_MAX_SHARE = 0.6;
 export function enforceViewportSingleSourceCap<T>(
   items: readonly T[],
   providerOf: (item: T) => string,
-  windowSize = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
-  maxShare = VIEWPORT_SINGLE_SOURCE_MAX_SHARE,
+  windowSize: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
+  maxShare: number = VIEWPORT_SINGLE_SOURCE_MAX_SHARE,
 ): T[] {
   const win = Math.max(1, Math.floor(windowSize));
   if (win <= 1 || items.length === 0) return [...items];
