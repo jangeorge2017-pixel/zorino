@@ -114,6 +114,17 @@ const ebayListing = () =>
     storeSlug: "ebay",
   });
 
+const genuineIphoneListing = () =>
+  listing({
+    id: "ap-1",
+    providerId: "aliexpress",
+    externalId: "ap-iphone-1",
+    title: "Apple iPhone 15 Pro Max 256GB Unlocked",
+    price: 1200,
+    storeName: "AliExpress",
+    storeSlug: "aliexpress",
+  });
+
 function searchItem(id: string, over: Partial<SearchResultItem> = {}): SearchResultItem {
   return {
     id,
@@ -399,6 +410,39 @@ describe("assembleCanonicalSearchPool", () => {
       limit: 10,
     });
     expect(pool.items.every((i) => i.id !== "db-dup")).toBe(true);
+  });
+
+  it("strict-drops accessory DB-supplement rows on a device query", () => {
+    const pool = assembleCanonicalSearchPool({
+      liveListings: [genuineIphoneListing()],
+      dbItems: [
+        searchItem("db-case", { name: "1.5MM Solid Color Tpu Phone Case For Iphone X", price: 0.32, storeSlug: "aliexpress" }),
+        searchItem("db-glass", { name: "Tempered Glass Screen Protector For iPhone", price: 3, storeSlug: "aliexpress" }),
+        searchItem("db-plural", { name: "Cute Fluffy Phone Cases Covers iPhone", price: 15, storeSlug: "aliexpress" }),
+      ],
+      activeProviders: ["aliexpress"],
+      query: "iphone 15 pro max",
+      limit: 10,
+    });
+    expect(pool.items.some((i) => i.name === "Apple iPhone 15 Pro Max 256GB Unlocked")).toBe(true); // live genuine device kept
+    expect(pool.items.some((i) => i.id.endsWith("db-case"))).toBe(false);
+    expect(pool.items.some((i) => i.id === "db-glass")).toBe(false);
+    expect(pool.items.some((i) => i.id === "db-plural")).toBe(false);
+  });
+
+  it("price-floors below-floor non-device DB rows on a device query", () => {
+    const pool = assembleCanonicalSearchPool({
+      liveListings: [genuineIphoneListing()],
+      dbItems: [
+        searchItem("db-cable", { name: "15 Grids Side Open Jewelry Organizer Storage Box", price: 0.25, storeSlug: "aliexpress" }),
+        searchItem("db-device", { name: "Apple iPhone 12 128GB Factory Unlocked", price: 167, storeSlug: "aliexpress" }),
+      ],
+      activeProviders: ["aliexpress"],
+      query: "iphone 15 pro max",
+      limit: 10,
+    });
+    expect(pool.items.some((i) => i.id === "db-cable")).toBe(false);
+    expect(pool.items.some((i) => i.id === "db-device")).toBe(true); // genuine below floor preserved
   });
 });
 
