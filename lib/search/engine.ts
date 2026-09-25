@@ -17,6 +17,7 @@ import {
   analyzeSearchQueryIntent,
   FAMILY_RETRIEVAL_KEYWORDS,
 } from "@/lib/search/query-intent";
+import { enforceStrictDevicePool } from "@/lib/search/accessory-exclusion";
 import { assembleProductionSearchResults } from "@/lib/search/production-pipeline";
 import { composeSearchPageOne } from "@/lib/search/page-one";
 import { unifiedToSearchResultItem } from "@/lib/search/price-comparison";
@@ -625,8 +626,27 @@ export async function searchProducts(
     });
   }
 
+  // Strict genuine-device pool guard: on a DEVICE-intent search the user asked
+  // for the physical handset — never a $2.59 silicone case, a $0.26 tempered
+  // glass, a charging cable, a VR headset, or a cardboard dummy that merely
+  // names the phone to ride its search traffic. Accessory-saturated first pages
+  // on AliExpress / Admitad / Amazon routinely bury the genuine device behind
+  // such rowsikuha. The raw pool (live listings + DB supplement) passes through
+  // the STRICT provider-neutral guard BEFORE production assembly — a title with
+  // any accessory word is dropped immediately (even when it also names the
+  // device: "Tempered Glass for iPhone 15 Pro" is a glass product, never a
+  // phone), and a row below the query's price floor leaves unless it is itself
+  // a recognised genuine device (iPhone queries floor at $200, others $100 — a
+  // genuine refurbished iPhone can legitimately be cheap and must still lead,
+  // preserving the Bug1/Bug4 relevance contract). Devices are never price-
+  // excluded, ever. Homepage / category / compare pools and accessory-intent
+  // queries ("iphone 15 case") are NOT filtered here — scope stays with the
+  // device-intent caller.
+  const rawPoolForDeviceIntent = deviceIntent
+    ? enforceStrictDevicePool([...allRaw, ...dbAsRaw], trimmed)
+    : [...allRaw, ...dbAsRaw];
   const assembled = assembleProductionSearchResults(
-    [...allRaw, ...dbAsRaw],
+    rawPoolForDeviceIntent,
     trimmed,
     capped,
     { sortBy },
