@@ -26,16 +26,21 @@
 -- to the normalized surface / FTS without code that fails on older schemas:
 -- every object here is additive. No data is rewritten in place.
 
--- unaccent folds Latin diacritics (é→e) so query and title surface agree.
+-- Required extensions (both idempotent). unaccent folds Latin diacritics (é→e)
+-- so query and title surfaces agree; pg_trgm backs the trigram index below.
 CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- Canonical SQL mirror of lib/search/text-normalization.ts `normalizeText`.
 -- IMMUTABLE + PARALLEL SAFE so it can feed STORED generated columns.
+-- search_path includes `extensions` so unaccent() resolves whether the extension
+-- was installed in `public` or in Supabase's `extensions` schema.
 CREATE OR REPLACE FUNCTION zorino_normalize_title(p_title text)
 RETURNS text
 LANGUAGE sql
 IMMUTABLE
 PARALLEL SAFE
+SET search_path = public, extensions
 AS $function$
   SELECT btrim(
     regexp_replace(
