@@ -23,8 +23,9 @@ import {
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
-  buildWordBoundaryOrFilter,
+  buildNormalizedSearchOrFilter,
   escapeRegexToken,
+  querySearchTokens,
 } from "@/lib/integration/word-match-filter";
 import type { CurrencyCode } from "@/lib/international/config";
 import {
@@ -866,19 +867,19 @@ async function loadSearchResultsFromDatabase(
     : createSupabaseAnonClient();
   if (!supabase) return [];
 
-  // Word-level OR matching: "nike shoes" → product_name ~* '\mnike\M' OR
-  // '\mshoes\M'. Word-boundary regex (not ILIKE '%w%') stops short tokens from
-  // matching inside unrelated words ("pro" ⊂ "waterproof"/"professional";
-  // "15" ⊂ "x15-box"), which previously flooded the pool with irrelevant rows.
+  // Canonical-token OR matching: "nike shoes" → product_name ~* '\m(nike)\M' OR
+  // '\m(shoes)\M' over NORMALIZED tokens — noise-stripped ("new", "original",
+  // "free shipping", "للبيع"), Arabic-orthography-folded ("آيفون" → ايفون →
+  // matches آيفون/أيفون/إيفون rows), English plural-expanded ("case" → cases).
+  // Word-boundary regex (not ILIKE '%w%') stops short tokens from matching
+  // inside unrelated words ("pro" ⊂ "waterproof"/"professional"; "15" ⊂
+  // "x15-box"), which previously flooded the pool with irrelevant rows.
   // Word overlap scoring happens post-query.
-  const words = query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((w) => w.length > 1);
+  const words = querySearchTokens(query);
 
   if (words.length === 0) return [];
 
-  const orFilter = buildWordBoundaryOrFilter(words);
+  const orFilter = buildNormalizedSearchOrFilter(query);
 
   const { data, error } = await db(supabase)
     .from("lowest_prices_today")
@@ -1012,13 +1013,10 @@ async function loadDeviceSearchCountFromDatabase(
     : createSupabaseAnonClient();
   if (!supabase) return 0;
 
-  const words = device.query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((w) => w.length > 1);
+  const words = querySearchTokens(device.query);
   if (words.length === 0) return 0;
 
-  const orFilter = buildWordBoundaryOrFilter(words);
+  const orFilter = buildNormalizedSearchOrFilter(device.query);
   const ctx = deviceGuardSqlQueryContext(device);
 
   const selected = db(supabase)
@@ -1137,13 +1135,10 @@ async function loadSearchResultsCountFromDatabase(query: string): Promise<number
     : createSupabaseAnonClient();
   if (!supabase) return 0;
 
-  const words = query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((w) => w.length > 1);
+  const words = querySearchTokens(query);
   if (words.length === 0) return 0;
 
-  const orFilter = buildWordBoundaryOrFilter(words);
+  const orFilter = buildNormalizedSearchOrFilter(query);
 
   const { count, error } = await db(supabase)
     .from("lowest_prices_today")
@@ -1233,13 +1228,10 @@ async function loadSearchResultsFromDatabasePaged(
     : createSupabaseAnonClient();
   if (!supabase) return { items: [], total: 0 };
 
-  const words = query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((w) => w.length > 1);
+  const words = querySearchTokens(query);
   if (words.length === 0) return { items: [], total: 0 };
 
-  const orFilter = buildWordBoundaryOrFilter(words);
+  const orFilter = buildNormalizedSearchOrFilter(query);
 
   const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
   const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 1;

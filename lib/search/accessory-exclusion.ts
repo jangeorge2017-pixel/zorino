@@ -53,36 +53,81 @@ import { detectProductFamily, ARABIC_FAMILY_SIGNALS } from "@/lib/search/query-i
 import {
   hasArabicTerm,
   ARABIC_ACCESSORY_TERMS,
+  isRepairOrPartsListing,
   titleMeetsRequiredBrand,
 } from "@/lib/search/relevance";
+import { cleanSearchableText } from "@/lib/search/text-normalization";
 import { isSupportedCurrency, type CurrencyCode } from "@/lib/international/config";
 import { convertAmount } from "@/lib/international/exchange-rates";
 
 /** Words that disqualify a row from ANY device-intent pool. Sorted, lowercase. */
 export const ACCESSORY_EXCLUSION_TERMS: readonly string[] = [
+  "3 axis",
+  "3-axis",
+  "armband",
+  "back cover",
   "box only",
   "bracket",
+  "bumper",
   "cable",
+  "card holder",
   "case",
   "charger",
+  "charging pad",
+  "clear case",
   "cover",
   "cradle",
   "dock",
   "dummy",
   "film",
+  "flip cover",
+  "game controller",
+  "gamepad",
+  "gimbal",
   "glass",
   "graffiti",
+  "grip",
   "headset",
   "holder",
+  "holster",
   "housing",
+  "hydrogel film",
+  "kickstand",
+  "lanyard",
   "lens",
+  "mag safe case",
+  "magsafe case",
   "mount",
+  "mouse pad",
+  "mousepad",
+  "phone case",
+  "pop socket",
+  "popsocket",
+  "power bank",
+  "powerbank",
+  "privacy screen",
   "protector",
+  "ring grip",
+  "ring light",
   "s pen",
+  "screen guard",
+  "screen protector",
+  "screen shield",
+  "selfie stick",
+  "sim card tray",
+  "sim tray",
+  "sleeve",
   "stand",
+  "stabilizer",
+  "stabiliser",
   "strap",
   "stylus",
+  "tempered glass",
+  "tripod",
+  "uv glass",
   "vr",
+  "wallet case",
+  "wrist strap",
 ];
 
 /** Extra words that disqualify a row ONLY on a handset (phone-family) query. */
@@ -103,19 +148,28 @@ const ESCAPE_RE = /[.*+?^${}()|[\]\\]/g;
 /**
  * Build the word-boundary pattern for one accessory term, including its common
  * plural forms: plain +s, +es (glass→glasses, case→cases), and y→ies
- * (dummy→dummies). Phrases ("box only", "s pen") match exactly. This is what
- * makes "Fluffy Phone Cases" and "Nice Covers" die like their singular forms.
+ * (dummy→dummies). Phrases ("box only", "s pen") match exactly AND pluralise the
+ * LAST word too ("power bank"/"power banks", "game controller"/"game
+ * controllers"). This is what makes "Fluffy Phone Cases" and "Nice Covers" die
+ * like their singular forms.
  */
 function termPattern(term: string): string {
-  if (/\s/.test(term)) return `(?:\\b${term.replace(ESCAPE_RE, "\\$&")}\\b)`;
-  const base = term.replace(ESCAPE_RE, "\\$&");
-  const variants = [base, `${base}s`];
-  // Sibilant endings pluralize with +es: glass→glasses, lens→lenses, box→boxes.
-  if (/[szx]$/i.test(base)) variants.push(`${base}es`);
-  if (base.endsWith("y") && !/[aeiou]y$/i.test(base)) {
-    variants.push(`${base.slice(0, -1)}ies`);
+  const variantsFor = (token: string): string[] => {
+    const base = token.replace(ESCAPE_RE, "\\$&");
+    const forms = [base, `${base}s`];
+    // Sibilant endings pluralize with +es: glass→glasses, lens→lenses, box→boxes.
+    if (/[szx]$/i.test(base)) forms.push(`${base}es`);
+    if (base.endsWith("y") && !/[aeiou]y$/i.test(base)) {
+      forms.push(`${base.slice(0, -1)}ies`);
+    }
+    return forms;
+  };
+  if (!/\s/.test(term)) {
+    return `(?:\\b(?:${variantsFor(term).join("|")})\\b)`;
   }
-  return `(?:\\b(?:${variants.join("|")})\\b)`;
+  const tokens = term.split(/\s+/).map((t) => t.replace(ESCAPE_RE, "\\$&"));
+  const prefix = tokens.slice(0, -1);
+  return `(?:\\b${prefix.concat(`(?:${variantsFor(tokens[tokens.length - 1]).join("|")})`).join(" ")}\\b)`;
 }
 
 /** Single word-boundary regex over every base accessory term. Case-insensitive. */
@@ -130,20 +184,33 @@ export const HANDSET_EXTRA_TERM_RE = new RegExp(
   "i",
 );
 
+/**
+ * Normalised view of a title for accessory detection: NFC, Latin + Arabic fold,
+ * Arabic/Persian digits → ASCII, dash variants → spaces, e-commerce noise words
+ * ("new", "original", "شحن مجاني") stripped, whitespace collapsed. Every
+ * predicate below runs against this surface so "Tempered-Glass-for-iPhone",
+ * "PRO-CASE" and "شاشه-بروتكتور" behave exactly like their clean spellings.
+ */
+function accessorySurface(title: string): string {
+  return cleanSearchableText(title);
+}
+
 /** True when the title carries any base accessory word. Pure. */
 export function hasAccessoryTerm(title: string): boolean {
+  const t = accessorySurface(title);
   return (
-    ACCESSORY_TERM_RE.test(title) ||
-    ARABIC_ACCESSORY_TERMS.some((term) => hasArabicTerm(title, term))
+    ACCESSORY_TERM_RE.test(t) ||
+    ARABIC_ACCESSORY_TERMS.some((term) => hasArabicTerm(t, term))
   );
 }
 
 /** True when the title carries any base OR handset-only accessory word. Pure. */
 export function hasHandsetAccessoryTerm(title: string): boolean {
+  const t = accessorySurface(title);
   return (
-    hasAccessoryTerm(title) ||
-    HANDSET_EXTRA_TERM_RE.test(title) ||
-    ARABIC_HANDSET_EXTRA_TERMS.some((term) => hasArabicTerm(title, term))
+    hasAccessoryTerm(t) ||
+    HANDSET_EXTRA_TERM_RE.test(t) ||
+    ARABIC_HANDSET_EXTRA_TERMS.some((term) => hasArabicTerm(t, term))
   );
 }
 
@@ -177,11 +244,12 @@ const DEVICE_FAMILY_SIGNALS: ReadonlyArray<{
  * NON-handset device queries only; the handset floor is absolute.
  */
 export function looksLikeGenuineDevice(title: string): boolean {
-  if (hasAccessoryTerm(title)) return false;
+  const t = accessorySurface(title);
+  if (hasAccessoryTerm(t)) return false;
   return (
-    DEVICE_FAMILY_SIGNALS.some(({ re }) => re.test(title)) ||
+    DEVICE_FAMILY_SIGNALS.some(({ re }) => re.test(t)) ||
     ARABIC_FAMILY_SIGNALS.some(({ terms }) =>
-      terms.some((term) => hasArabicTerm(title, term)),
+      terms.some((term) => hasArabicTerm(t, term)),
     )
   );
 }
@@ -292,6 +360,13 @@ export function passesStrictDeviceGuard(
   activeCurrency: CurrencyCode = "USD",
 ): boolean {
   const handset = isHandsetQuery(query);
+  // Repair tools / spare parts are never the physical device on a device query:
+  // "… Repair Tool For iPhone XS Max", "NAND programmer", "logic board", "LCD
+  // assembly". Runs BEFORE the brand must-contain rule so a repair kit that
+  // rattles off every phone name it works on cannot ride the brand rule back in.
+  if (isRepairOrPartsListing(title.toLowerCase())) {
+    return false;
+  }
   if (handset ? hasHandsetAccessoryTerm(title) : hasAccessoryTerm(title)) {
     return false;
   }

@@ -538,7 +538,7 @@ function isScreenPartOrDisplay(title: string): boolean {
   );
 }
 
-function isRepairOrPartsListing(hay: string): boolean {
+export function isRepairOrPartsListing(hay: string): boolean {
   if (REPAIR_AND_PARTS_TERMS.some((term) => hay.includes(term))) return true;
   if (isScreenPartOrDisplay(hay)) return true;
   // Replacement batteries sold by mAh / Samsung part codes.

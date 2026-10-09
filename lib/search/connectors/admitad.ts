@@ -8,7 +8,7 @@ import {
 import { normalizeAdmitadRaw } from "@/lib/search/normalization";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import { fetchAdmitadFeedProducts } from "@/lib/integrations/admitad/feed-fetcher";
-import { buildWordBoundaryOrFilter } from "@/lib/integration/word-match-filter";
+import { buildNormalizedSearchOrFilter, querySearchTokens } from "@/lib/integration/word-match-filter";
 
 const MAX_RESULTS_FROM_FEED = 200;
 
@@ -57,10 +57,10 @@ async function searchIngestedRows(
     const supabase = createSupabaseAnonClient();
     if (!supabase) return [];
 
-    const words = query.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
+    const words = querySearchTokens(query);
     if (words.length === 0) return [];
 
-    const orFilter = buildWordBoundaryOrFilter(words);
+    const orFilter = buildNormalizedSearchOrFilter(query);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from("lowest_prices_today")
