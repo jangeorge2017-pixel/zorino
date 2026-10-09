@@ -22,6 +22,7 @@ import {
   normalizeArabic,
   hasArabicTerm,
 } from "@/lib/search/relevance";
+import { cleanSearchableText } from "@/lib/search/text-normalization";
 
 export type ProductFamily =
   | "phone"
@@ -183,14 +184,29 @@ const BRAND_ONLY_RE =
 const ARABIC_BRAND_ONLY_RE =
   /^(سامسونج|شاومي|هواوي|بيكسل|ريدمي|بوكو|ون بلس|اوبو|فيفو|ريلمي|نوكيا|هونر|انفنيكس|تكنو)$/;
 
+/**
+ * Noise-aware parsing surface for a raw query: NFC, Latin + Arabic fold,
+ * Arabic/Persian digits → ASCII, dash variants → spaces, e-commerce noise words
+ * removed ("new", "original", "best price", "شحن مجاني", "جديد"), whitespace
+ * collapsed. Family/brand classification runs on THIS surface so marketplace
+ * spam clutter never shifts a product's family or brand ("new galaxy s24" is a
+ * phone search with the exact same intent as "galaxy s24"). Public intent
+ * fields (kind/family/skills) are computed from it; the untouched raw string
+ * still feeds `queryTokens` and the connector queries.
+ */
+function intentSurface(query: string): string {
+  return cleanSearchableText(query);
+}
+
 /** Generic (non-provider) product family of a raw query. */
 export function detectProductFamily(query: string): ProductFamily {
-  if (!query.trim()) return "unknown";
+  const surface = intentSurface(query).trim();
+  if (!surface) return "unknown";
   for (const { family, re } of FAMILY_SIGNALS) {
-    if (re.test(query)) return family;
+    if (re.test(surface)) return family;
   }
   for (const { family, terms } of ARABIC_FAMILY_SIGNALS) {
-    if (terms.some((term) => hasArabicTerm(query, term))) return family;
+    if (terms.some((term) => hasArabicTerm(surface, term))) return family;
   }
   return "unknown";
 }
@@ -214,6 +230,7 @@ export function analyzeSearchQueryIntent(query: string): SearchQueryIntent {
   const pinsDeviceFamily = queryPinsDeviceFamily(trimmed);
   const family = detectProductFamily(trimmed);
   const tokens = queryTokens(trimmed);
+  const surface = intentSurface(trimmed);
 
   let kind: QueryIntentKind = "generic";
   if (wantsAccessory) {
@@ -221,10 +238,7 @@ export function analyzeSearchQueryIntent(query: string): SearchQueryIntent {
   } else if (family !== "unknown") {
     if (pinsDeviceFamily || tokens.length >= 2) {
       kind = "device";
-    } else if (
-      BRAND_ONLY_RE.test(trimmed) ||
-      ARABIC_BRAND_ONLY_RE.test(normalizeArabic(trimmed))
-    ) {
+    } else if (BRAND_ONLY_RE.test(surface) || ARABIC_BRAND_ONLY_RE.test(normalizeArabic(surface))) {
       kind = "brand";
     } else {
       kind = "category";

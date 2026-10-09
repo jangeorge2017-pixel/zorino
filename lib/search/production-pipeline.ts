@@ -7,6 +7,7 @@ import {
 import { listingToSearchResultItem } from "@/lib/search/price-comparison";
 import { balanceMarketplaceQueues } from "@/lib/search/marketplace-balance";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
+import { normalizeTitleKey, titleSimilarity } from "@/lib/marketplace-engine/utils";
 import type {
   NormalizedSearchListing,
   RawProviderListing,
@@ -78,7 +79,14 @@ function splitProviderQueues(
 
 /**
  * Search-card dedupe:
- * - Drop exact same listing (provider + external id) only
+ * - Drop exact same listing (provider + external id)
+ * - Drop strong near-duplicate copies from the SAME provider (a feed/offer that
+ *   surfaced the identical product twice under different ids — e.g. Admitad
+ *   catalogs the same handset under several offer ids). Same-provider
+ *   duplicates are detected by an identical structured cluster signature
+ *   ([Brand]+[Model]+[Storage]) OR high title similarity. Storage is
+ *   variant-strict in the signature: "…256GB" and "…512GB" are separate
+ *   devices and both surface.
  * - Keep cross-marketplace offers for price comparison
  */
 function isSearchCardDuplicate(
@@ -88,7 +96,9 @@ function isSearchCardDuplicate(
   return accepted.some(
     (existing) =>
       existing.providerId === candidate.providerId &&
-      existing.externalId === candidate.externalId,
+      (existing.externalId === candidate.externalId ||
+        titleSimilarity(existing.title, candidate.title) >=
+          SEARCH_ENGINE_DEFAULTS.DUPLICATE_STRONG_THRESHOLD),
   );
 }
 
@@ -96,7 +106,24 @@ function dedupeQueue(
   queue: NormalizedSearchListing[],
   accepted: NormalizedSearchListing[],
 ): NormalizedSearchListing[] {
-  return queue.filter((candidate) => !isSearchCardDuplicate(accepted, candidate));
+  // Collapse verbatim-repeat titles WITHIN the queue first (a feed that catalogs
+  // the same handset under several offer ids repeats the identical title text).
+  // Normalized-title equality — NOT the loose similarity threshold — is the
+  // within-queue bar: distinct storage/color variants ("S24 Ultra 256GB" vs
+  // "…512GB") share high title similarity but are genuinely separate devices
+  // that must both surface. An identical structured cluster signature
+  // ([Brand]+[Model]+[Storage]) also collapses ("iPhone 15 Pro 256GB New" vs
+  // "iPhone 15 Pro 256GB Original" are the same offer).
+  const seenKeys = new Set<string>();
+  const intraDeduped: NormalizedSearchListing[] = [];
+  for (const candidate of queue) {
+    const key = normalizeTitleKey(candidate.title);
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    intraDeduped.push(candidate);
+  }
+  // Then drop anything that duplicates an already-accepted card.
+  return intraDeduped.filter((candidate) => !isSearchCardDuplicate(accepted, candidate));
 }
 
 /**

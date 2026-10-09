@@ -75,11 +75,31 @@ export type RawProviderListing = {
   affiliateUrl?: string;
   /** Real country code for this listing when the source provides one. */
   countryCode?: string;
-  /**
-   * Listing condition class ("new" | "refurbished" | "used"). Absent → treated
+  /** Listing condition class ("new" | "refurbished" | "used"). Absent → treated
    * as "new" by the diversity guardrail unless derivable from the title.
    */
   condition?: ListingCondition;
+  /**
+   * Universal product identifiers a connector can attach (ASIN, MPN, EAN, UPC,
+   * GTIN, ISBN). Strict clustering (lib/search/cluster.ts) prefers a shared
+   * identifier over any title-derived signature — same identifier ⇒ same
+   * product, and offers group for comparison instead of fragmenting.
+   */
+  identifiers?: ProductUniversalIdentifiers;
+};
+
+/**
+ * Universal identifier fields a provider connector can attach to a listing.
+ * Mirrors the identifier-first tier of the clustering engine: when two offers
+ * share ANY identifier the pair is the same product, period.
+ */
+export type ProductUniversalIdentifiers = {
+  asin?: string;
+  mpn?: string;
+  ean?: string;
+  upc?: string;
+  gtin?: string;
+  isbn?: string;
 };
 
 /** Provider-agnostic normalized listing used by ranking and deduplication. */

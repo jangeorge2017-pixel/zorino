@@ -579,6 +579,37 @@ describe("cross-provider assembly — genuine devices lead, no padding", () => {
     expect(results.some((r) => r.storeSlug === "cjdropshipping")).toBe(false);
   });
 
+  it("drops strong near-duplicate titles from the SAME provider, kept across providers (regression)", () => {
+    const sameHandset = (providerId: SearchProviderId, n: number) =>
+      rawListing({
+        providerId,
+        externalId: `${providerId}-handset-${n}`,
+        title: `A++ Grade Refurbished Samsung Galaxy S24 Ultra 5G 512GB Unlocked Smartphone`,
+      });
+
+    // Admitad catalogs the same handset under several offer ids (near-identical
+    // title text); eBay carries the same handset as a legitimately separate
+    // offer for price comparison.
+    const raw = [
+      sameHandset("admitad", 1),
+      sameHandset("admitad", 2),
+      sameHandset("admitad", 3),
+      rawListing({
+        providerId: "ebay",
+        externalId: "ebay-handset-1",
+        title: `A++ Grade Refurbished Samsung Galaxy S24 Ultra 5G 512GB Unlocked Smartphone`,
+      }),
+    ];
+
+    const results = assembleProductionSearchResults(raw, QUERY, 20);
+    const admitadCount = results.filter((r) => r.storeSlug === "admitad").length;
+    const ebayCount = results.filter((r) => r.storeSlug === "ebay").length;
+
+    expect(admitadCount).toBe(1);
+    expect(ebayCount).toBe(1);
+    expect(results).toHaveLength(2);
+  });
+
   it("still surfaces accessories when a query genuinely has no devices", () => {
     const results = assembleProductionSearchResults([accessory(0), accessory(1)], QUERY, 10);
     expect(results.length).toBe(2);

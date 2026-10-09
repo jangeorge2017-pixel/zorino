@@ -403,5 +403,39 @@ describe("accessory-exclusion / strict device-pool guard", () => {
       expect(passesStrictDeviceGuard("Wireless Noise Cancelling Headphones Over Ear", 129, "bluetooth headphones")).toBe(true);
       expect(passesStrictDeviceGuard("Any Random Product", 899, "smartphone")).toBe(true);
     });
+
+    it("drops the live DJI gimbal row on an iphone query (regression)", () => {
+      // Real DB-stored Admitad row (title truncated at ~100 chars, so the word
+      // "gimbal" never appears — only "3 Axis"/"3-Axis" and the DJI OSMO brand).
+      expect(
+        passesStrictDeviceGuard(
+          "3 Axis with integrated Camera, Attachable to Smartphone, Android (USB-C), iPhone IN STOCK DJI OSMO Pocket Smallest 3-Axis Handhe",
+          674,
+          "iphone",
+        ),
+      ).toBe(false);
+    });
+
+    it("drops a NAND / repair-tool listing on an iphone query (regression)", () => {
+      expect(
+        passesStrictDeviceGuard(
+          "JC Pro1000S NAND Programmer Error Repair Tool For iPhone XS Max",
+          859.99,
+          "iphone",
+        ),
+      ).toBe(false);
+    });
+
+    it("drops handheld stabiliser/tripod variants even with truncated titles", () => {
+      expect(passesStrictDeviceGuard("Mini 3-Axis Handheld Stabilizer Gimbal for iPhone", 89, "iphone")).toBe(false);
+      expect(passesStrictDeviceGuard("Smartphone Gimbal Tripod Stand Pocket 3-Axis", 64, "iphone 15")).toBe(false);
+      expect(passesStrictDeviceGuard("Osmo Pocket 3 Axis with integrated Camera", 674, "iphone")).toBe(false);
+    });
+
+    it("keeps genuine refurbished handsets that merely name iPhone families (regression)", () => {
+      expect(passesStrictDeviceGuard("Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7", 188, "iphone")).toBe(true);
+      expect(passesStrictDeviceGuard("2019 Hottest Thin Black 128GB A Grade 98% New Recycled Phones For Iphone XR", 589, "iphone")).toBe(true);
+      expect(passesStrictDeviceGuard("A Grade unlocked Mobile Phone xr xs for Iphone X mobile phone first-hand supply new media mobile phone smartphone", 399, "iphone")).toBe(true);
+    });
   });
 });
