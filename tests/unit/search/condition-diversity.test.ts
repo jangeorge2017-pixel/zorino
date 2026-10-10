@@ -1,11 +1,11 @@
 /**
- * Unit tests — condition-diversity guardrail (anti-eBay-monopoly).
+ * Unit tests — condition-diversity guardrail (anti-monopoly).
  *
- * Covers the four behaviors the aggregation-layer diversity rules require:
+ * Covers the three behaviors the aggregation-layer diversity rules require:
  *  1. classification of a listing's condition (provider vocabulary + title);
- *  2. the hard 40%-per-source Refurbished/Used cap per page window;
- *  3. the thin-peer fallback that tightens the DOMINANT source to 5 seats/page;
- *  4. the New-first relevance grouping (Amazon/AliExpress global stock top)
+ *  2. the hard 40%-per-source Refurbished/Used cap per page window, applied
+ *     UNIFORMLY to every source (no dominant-source tightening);
+ *  3. the New-first relevance grouping (Amazon/AliExpress global stock top)
  *     and the lone-provider underfill guard.
  */
 import { describe, expect, it } from "vitest";
@@ -14,7 +14,6 @@ import {
   classifyListingCondition,
   enforceConditionDiversity,
   isNonNewCondition,
-  REFURB_DOMINANT_SOURCE_PAGE_SEATS,
   REFURB_PER_SOURCE_WINDOW_SHARE,
 } from "@/lib/search/condition-diversity";
 import type { ListingCondition } from "@/lib/search/types";
@@ -76,16 +75,16 @@ describe("isNonNewCondition", () => {
 });
 
 describe("refurb per-source window constants", () => {
-  it("export the documented 40% share and 5-seat dominant caps", () => {
+  it("exports the documented 40% uniform share cap", () => {
     expect(REFURB_PER_SOURCE_WINDOW_SHARE).toBe(0.4);
-    expect(REFURB_DOMINANT_SOURCE_PAGE_SEATS).toBe(5);
   });
 });
 
-describe("enforceConditionDiversity — dominant source thin-peer fallback", () => {
+describe("enforceConditionDiversity — 40% cap applies uniformly (no dominant tightening)", () => {
   // eBay holds 90 Refurbished/Used items; every peer holds New-only inventory.
-  // Relevance grouping (`newFirst`) surfaces New global stock first and the
-  // dominant source drops to ≤5 Refurbished/Used seats per page window.
+  // Relevance grouping (`newFirst`) surfaces New global stock first; eBay is
+  // capped at the SAME 40% (20 of a 50-slot window) as any other source — it is
+  // no longer tightened to 5, but it still cannot own the whole page.
   const pool: Row[] = [
     ...rows("ebay", "refurbished", 90, "Apple iPhone 15 (Renewed)"),
     ...rows("ebay", "new", 10, "Apple iPhone 15 New"),
@@ -94,7 +93,7 @@ describe("enforceConditionDiversity — dominant source thin-peer fallback", () 
     ...rows("admitad", "new", 40, "Apple iPhone 15 Device"),
   ];
 
-  it("keeps every New item leading and trims the dominant source's refurb tail", () => {
+  it("keeps every New item leading and caps the refurb tail at the uniform 40%", () => {
     const out = enforceConditionDiversity(pool, {
       windowSize: 50,
       newFirst: true,
@@ -113,28 +112,26 @@ describe("enforceConditionDiversity — dominant source thin-peer fallback", () 
     // The whole New block is preserved (every new row survives).
     expect(out.filter((r) => r.condition === "new")).toHaveLength(130);
 
-    // Dominant source holds at most 5 Refurbished/Used items per 50-slot
-    // window (pool of 180+ → floor(win size) seats).
+    // eBay (the deep used-phone pool) now surfaces the full uniform 40% cap —
+    // ceil(40% × 50) = 20 Refurbished/Used seats — instead of the old 5-seat
+    // dominant tightening.
     let ebayRefurbRun = 0;
-    const counts: number[] = [];
     for (const r of out) {
       if (r.providerId === "ebay" && r.condition !== "new") {
         ebayRefurbRun += 1;
       } else {
         ebayRefurbRun = 0;
       }
-      // exactly one dominance-cap window is visible in this pool
-      expect(ebayRefurbRun).toBeLessThanOrEqual(5);
-      void counts;
+      expect(ebayRefurbRun).toBeLessThanOrEqual(20);
     }
-    expect(out.filter((r) => r.providerId === "ebay" && r.condition !== "new").length).toBeLessThanOrEqual(10);
+    expect(out.filter((r) => r.providerId === "ebay" && r.condition !== "new")).toHaveLength(20);
   });
 });
 
-describe("enforceConditionDiversity — 40% per-source window cap (non-dominant)", () => {
+describe("enforceConditionDiversity — 40% per-source window cap (shared inventory)", () => {
   it("caps two peer sources to ceil(40% × 50) = 20 seats each per window", () => {
-    // Two sources share the refurb inventory equally — neither dominates, so
-    // each gets the 40% cap (20 seats) instead of the dominant 5-seat cap.
+    // Two sources share the refurb inventory equally — each gets the uniform
+    // 40% cap (20 seats).
     const WIN = 50;
     const pool: Row[] = [
       ...rows("ebay", "used", 30, "Apple iPhone X Used"),
@@ -181,10 +178,11 @@ describe("enforceConditionDiversity — price mode preserves order", () => {
       conditionOf,
     });
 
-    // Dominant? eBay used (40) > amazon refurb (12) + 0 → dominant → 5 seats.
-    // Peers hold stock, so the underfill guard must NOT relax the 5-seat cap.
+    // Uniform 40% cap: eBay used (40) is trimmed to the flat cap of
+    // ceil(40% × 50) = 20 seats (no dominant-source tightening below it).
+    // Peers hold stock, so the underfill guard must NOT relax the cap.
     const ebay = out.filter((r) => r.providerId === "ebay").length;
-    expect(ebay).toBeLessThanOrEqual(5);
+    expect(ebay).toBe(20);
 
     // Relative order of the KEPT items is the input order (cheapest-first
     // price order is untouched by the guardrail).

@@ -9,11 +9,18 @@ import { getProviderSearchCapabilities } from "@/lib/search/provider-capabilitie
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { loadEbayCredentials } from "@/services/ebay/credentials";
 
-/** eBay Browse API max pages per search (50 × 6 = 300 listings). */
-const EBAY_MAX_PAGES = 6;
+/** eBay Browse API max pages per search (50 × 10 = 500 listings). */
+const EBAY_MAX_PAGES = 10;
 
 /** Pages fetched concurrently once a device-intent search opts in. */
-const EBAY_OPTIMIZED_PAGE_BATCH = 2;
+const EBAY_OPTIMIZED_PAGE_BATCH = 3;
+
+/**
+ * When a category-narrowed device fetch yields fewer than this many listings,
+ * also run a plain keyword fetch and merge it in (deduped) so a narrow/gappy
+ * category can never starve genuine volume from the page.
+ */
+const EBAY_SPARSE_CATEGORY_THRESHOLD = 20;
 
 /**
  * eBay is the flakiest active provider: under the parallel provider fan-out it
@@ -139,17 +146,33 @@ async function fetchAndNormalize(
     return attempt(undefined);
   }
 
+  let listings: RawProviderListing[] = [];
   try {
-    const listings = await attempt(strategy.categoryIds);
-    if (listings.length > 0) return listings;
+    listings = await attempt(strategy.categoryIds);
   } catch {
-    // Fall through to the uncategorized fetch below.
+    listings = [];
   }
 
-  // A category-narrowed Browse request can fail or return nothing (transient
-  // 4xx, or an outdated/unsupported category id). Degrade to a plain keyword
-  // search rather than dropping eBay for this query entirely.
-  return attempt(undefined);
+  // Merge categorized + uncategorized when the narrowed category returns
+  // very sparse results, to avoid starving genuine device listings on a
+  // narrow query.
+  if (listings.length < EBAY_SPARSE_CATEGORY_THRESHOLD) {
+    try {
+      const fallback = await attempt(undefined);
+      const merged = [...listings];
+      const seen = new Set(listings.map((l) => l.externalId));
+      for (const l of fallback) {
+        if (!seen.has(l.externalId)) {
+          seen.add(l.externalId);
+          merged.push(l);
+        }
+      }
+      return merged;
+    } catch {
+      // fall back to categorized results
+    }
+  }
+  return listings;
 }
 
 /**

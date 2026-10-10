@@ -38,9 +38,12 @@ export const SEARCH_ENGINE_DEFAULTS = {
   /**
    * Strict cap on raw listings a SINGLE source may contribute per search query
    * (requirement: fetching limit per source). Applied after parallel fetch +
-   * dedupe so no single provider's volume can flood the ranking pool.
+   * dedupe so no single provider's volume can flood the ranking pool. Raised
+   * from 50 → 80 to widen the search surface (deep used-phone marketplaces can
+   * contribute their genuine volume) while the marketplace balancer and the
+   * 40% viewport caps still prevent a single source from owning a page.
    */
-  MAX_LISTINGS_PER_SOURCE: 50,
+  MAX_LISTINGS_PER_SOURCE: 80,
   /** Minimum raw listings to collect before stopping pagination. */
   MIN_FETCH_COUNT: 100,
   /** Target pool size for ranking depth. */
