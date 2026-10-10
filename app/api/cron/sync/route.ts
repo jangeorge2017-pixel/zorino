@@ -22,6 +22,12 @@ import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
  */
 export const maxDuration = 60;
 
+// The sync_jobs step runs capped multi-minute import jobs. Without a bound it
+// eats the whole 60s window (two 20s-capped jobs already starved every other
+// step in live runs). Cap its deadline so the dedicated provider schedulers
+// and phase-1 imports below always get a share of the budget.
+const SYNC_STEP_BUDGET_MS = 20_000;
+
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();
@@ -39,7 +45,9 @@ export async function GET(request: Request) {
   try {
     // ── 1. Due store-sync jobs, deadline-bounded ──────────────────────────
     try {
-      const sync = await executeScheduledSync({ deadlineAt: budget.deadlineAt });
+      const sync = await executeScheduledSync({
+        deadlineAt: Math.min(budget.deadlineAt, Date.now() + SYNC_STEP_BUDGET_MS),
+      });
       results.sync = sync.error
         ? { error: sync.error, results: sync.data }
         : {

@@ -49,6 +49,11 @@ const ADMITAD_CRON_MAX_PRODUCTS_PER_FEED = Number(
 );
 const ADMITAD_CRON_DEADLINE_CAP_MS = 45_000;
 
+// The sync_jobs step runs capped multi-minute import jobs. Without a bound it
+// eats the whole 60s window and starves the provider schedulers above it. Cap
+// its deadline so the dedicated provider/import steps always get a share.
+const SYNC_STEP_BUDGET_MS = 20_000;
+
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();
@@ -334,7 +339,9 @@ export async function GET(request: Request) {
       results.sync = { skipped: true, reason: "budget-exhausted" };
     } else {
       try {
-        const sync = await executeScheduledSync({ deadlineAt: budget.deadlineAt });
+        const sync = await executeScheduledSync({
+          deadlineAt: Math.min(budget.deadlineAt, Date.now() + SYNC_STEP_BUDGET_MS),
+        });
         results.sync = sync.error
           ? { error: sync.error, results: sync.data }
           : {

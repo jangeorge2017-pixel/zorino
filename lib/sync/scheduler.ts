@@ -189,14 +189,15 @@ export async function runDueSyncJobs(
 
   // Failure-aware ordering: a provider whose most recent runs failed (e.g. an
   // API key revoked or a permanently disabled account) must NOT keep winning
-  // the oldest-due race and burning the shared budget every invocation. Order
-  // healthy jobs first, and defer chronic failures with an extended backoff so
-  // the working providers (AliExpress/eBay/Amazon) get the full window.
+  // the oldest-due race and burning the shared budget every invocation. Chronic
+  // failures are skipped FIRST (they're cheap — just an extended backoff write)
+  // so the working providers (AliExpress/eBay/Amazon) get the full window. The
+  // skip is cheap and cannot defer them onto the deadline-break path.
   const isBackedOff = (job: DueSyncJob) =>
     (failureStreaks.get(job.storeId) ?? 0) >= SYNC_FAILURE_BACKOFF_THRESHOLD;
   const orderedJobs = [
-    ...jobs.filter((job) => !isBackedOff(job)),
     ...jobs.filter((job) => isBackedOff(job)),
+    ...jobs.filter((job) => !isBackedOff(job)),
   ];
 
   // A single job must never consume the whole remaining window: a "full"
