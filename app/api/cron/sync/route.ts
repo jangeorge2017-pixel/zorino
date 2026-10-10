@@ -67,13 +67,18 @@ export async function GET(request: Request) {
       results.aliexpress = { skipped: true, reason: "budget-exhausted" };
     } else {
       try {
-        // Resumable micro-batch sweep with its own wall-clock deadline + a hard
-        // cap so the AliExpress step can never wedge or 504 this invocation.
+        // Resumable micro-batch sweep. Deadline is derived from the remaining
+        // budget with headroom so the scheduler always finishes (and persists
+        // its cursor) before the hard cap can fire — never caps mid-kind.
+        const aliexpressDeadlineMs = Math.max(
+          8_000,
+          Math.min(budget.remainingMs() - 8_000, 20_000),
+        );
         const { value: aliexpress, timedOut } = await withBudgetCap(
           budget,
-          25_000,
+          aliexpressDeadlineMs + 5_000,
           "aliexpress-scheduled-sync",
-          runAliExpressScheduledSync({ deadlineMs: 20_000 }),
+          runAliExpressScheduledSync({ deadlineMs: aliexpressDeadlineMs }),
         );
         results.aliexpress = timedOut
           ? { timedOut: true }
