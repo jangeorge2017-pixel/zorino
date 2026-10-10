@@ -340,6 +340,7 @@ export async function GET(request: Request) {
           : {
               jobsRun: sync.data.length,
               deferred: sync.deferred ?? 0,
+              backedOff: sync.backedOff ?? 0,
               sweptStaleRuns: sync.sweptStaleRuns ?? 0,
               timedOut: sync.timedOut ?? 0,
               skipped: sync.skipped ?? 0,
