@@ -697,7 +697,19 @@ async function runAdmitadIngestionLocked(
   const allItems: NormalizedCatalogItem[] = [];
   const seenOfferIds = new Set<string>();
 
-  const feedsToFetch = candidateFeeds.slice(0, maxFeeds);
+  // Rotate the feed window across runs so the whole discovered merchant
+  // catalog is swept over time instead of re-ingesting the same first N feeds
+  // every day. The persisted cursor (migration 028) advances after each run;
+  // when absent it degrades to a deterministic day-of-year offset.
+  const { readAdmitadFeedCursor, advanceAdmitadFeedCursor, rotateFeeds } =
+    await import("./feed-rotation");
+  const feedOffset = await readAdmitadFeedCursor();
+  const feedsToFetch = rotateFeeds(candidateFeeds, feedOffset, maxFeeds);
+  console.log(
+    `[admitad-ingest] feed rotation offset=${feedOffset} of ${candidateFeeds.length} → fetching ${feedsToFetch.length} feed(s): ${feedsToFetch
+      .map((f) => f.feedName)
+      .join(", ")}`,
+  );
 
   for (let fi = 0; fi < feedsToFetch.length; fi++) {
     const candidate = feedsToFetch[fi];
@@ -749,6 +761,12 @@ async function runAdmitadIngestionLocked(
   }
 
   console.log(`[admitad-ingest] Total unique products: ${result.totalProducts}`);
+
+  // Advance the rotation cursor by the window we just attempted so the NEXT
+  // run covers the following merchants. Best-effort; never blocks the save.
+  if (!dryRun) {
+    await advanceAdmitadFeedCursor(feedsToFetch.length);
+  }
 
   // 5. Save to database
   if (dryRun) {

@@ -9,6 +9,10 @@ import {
   upsertExternalPrice,
   upsertExternalProduct,
 } from "@/lib/sync/import/repository";
+import {
+  bridgeImportedProductsToLowestPrices,
+  type BridgedProduct,
+} from "@/lib/sync/import/lowest-prices-bridge";
 import { getConnectorForIntegration } from "@/lib/sync/connectors";
 import { isImportProviderId } from "@/lib/sync/providers";
 import type { ImportProviderId } from "@/lib/sync/providers/types";
@@ -34,6 +38,7 @@ export async function importProductsFromProvider(
   const products = await connector.fetchProducts(ctx);
   result.itemsFetched += products.length;
 
+  const bridged: BridgedProduct[] = [];
   for (const product of products) {
     try {
       let externalRowId: string | null = null;
@@ -58,12 +63,17 @@ export async function importProductsFromProvider(
         await mergeExternalImagesToCatalog(supabase, product, productId);
       }
 
+      bridged.push({ product, productId });
+
       if (created) result.itemsCreated += 1;
       else if (!skipped) result.itemsUpdated += 1;
     } catch {
       result.itemsFailed += 1;
     }
   }
+
+  // Surface freshly-imported inventory in the Search DB leg (lowest_prices_today).
+  await bridgeImportedProductsToLowestPrices(supabase, ctx, provider, bridged);
 
   const { refreshUniversalCatalogAggregates } = await import("@/services/marketplace-engine");
   await refreshUniversalCatalogAggregates({ limit: 200 });
@@ -101,6 +111,7 @@ export async function importPricesFromProvider(
     result.itemsFetched += products.length;
   }
 
+  const bridged: BridgedProduct[] = [];
   for (const product of products) {
     try {
       let externalRowId: string | null = null;
@@ -120,11 +131,15 @@ export async function importPricesFromProvider(
         await upsertExternalPrice(supabase, provider, ctx.storeId, product, externalRowId, productId);
       }
       await mergeExternalPriceToCatalog(supabase, ctx, provider, product, productId);
+      bridged.push({ product, productId });
       result.itemsUpdated += 1;
     } catch {
       result.itemsFailed += 1;
     }
   }
+
+  // Surface freshly-imported / re-priced inventory in the Search DB leg.
+  await bridgeImportedProductsToLowestPrices(supabase, ctx, provider, bridged);
 }
 
 export async function importDealsFromProvider(
