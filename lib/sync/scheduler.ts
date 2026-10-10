@@ -32,7 +32,7 @@ export interface DueSyncJob {
 /** Returns sync jobs that are due to run (next_run_at <= now or never run). */
 export async function getDueSyncJobs(): Promise<DueSyncJob[]> {
   const supabase = createSupabaseServiceClient();
-  if (!supabase) return getDefaultMockJobs();
+  if (!supabase) return process.env.NODE_ENV === "production" ? [] : getDefaultMockJobs();
 
   const now = new Date().toISOString();
   const { data, error } = await supabase
@@ -44,7 +44,13 @@ export async function getDueSyncJobs(): Promise<DueSyncJob[]> {
     // cannot permanently starve the others across invocations.
     .order("next_run_at", { ascending: true, nullsFirst: true });
 
-  if (error || !data?.length) return getDefaultMockJobs();
+  if (error || !data?.length) {
+    // Mock "due" jobs are a local-dev convenience. In production, fabricating
+    // them makes every cron invent phantom work (and burn budget / starve the
+    // real providers) whenever the sync_jobs schedule has nothing due.
+    if (process.env.NODE_ENV === "production") return [];
+    return getDefaultMockJobs();
+  }
 
   return ((data ?? []) as SyncJobWithStore[])
     .filter((row) => row.stores)
