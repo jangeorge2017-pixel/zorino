@@ -233,16 +233,26 @@ export async function GET(request: Request) {
         results.aliexpress = budgetSkipped();
       } else {
         try {
+          // The scheduled sync is now a resumable micro-batch sweep: it reads
+          // the persisted cursor, processes ~20-item chunks until the deadline,
+          // persists the next cursor, and returns fast. The hard cap stays as a
+          // safety net against an overrun chunk.
           const { value: aliexpress, timedOut } = await capped(
             "aliexpress-scheduled-sync",
             20_000,
-            runAliExpressScheduledSync(),
+            runAliExpressScheduledSync({ deadlineMs: 15_000 }),
           );
           results.aliexpress = timedOut
             ? { timedOut: true }
             : aliexpress!.skipped
               ? { skipped: true }
-              : { jobsRun: aliexpress!.results.length, results: aliexpress!.results, error: aliexpress!.error };
+              : {
+                  jobsRun: aliexpress!.results.length,
+                  results: aliexpress!.results,
+                  error: aliexpress!.error,
+                  done: aliexpress!.done,
+                  resumedKind: aliexpress!.resumedKind,
+                };
         } catch (err) {
           results.aliexpress = { error: err instanceof Error ? err.message : String(err) };
         }

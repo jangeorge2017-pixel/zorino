@@ -11,9 +11,15 @@
  * Fidelity:
  *  - Only REAL imported payloads are written (nothing is synthesized).
  *  - The table is the LOWEST offer per product: an existing cheaper row is
- *    never overwritten by a pricier one.
+ *    never overwritten by a pricier one, and an equal-priced row with the same
+ *    image is left untouched (fewer write locks, faster bulk upserts).
  *  - Rows without a usable image/price are skipped.
  *  - Best-effort: a bridge failure never fails the import run.
+ *
+ * Bulk-write strategy (micro-batch ingestion):
+ *  - One batched read of existing rows for ALL candidates (500 at a time),
+ *    then ONE batched upsert of only the rows that actually need writing
+ *    (500 at a time) — minimal round trips and minimal lock contention.
  */
 
 import type { SupabaseDb } from "@/lib/supabase/config";
@@ -34,6 +40,28 @@ export type BridgedProduct = {
   product: ExternalProduct;
   productId: string;
 };
+
+/** Batch size for the existing-price read; keeps the query under param limits. */
+const EXISTING_READ_BATCH = 500;
+
+/** Batch size for the bulk upsert (one transaction per batch, minimal locks). */
+const UPSERT_BATCH = 500;
+
+/**
+ * Pure decision: should an incoming candidate row be SKIPPED because an equal
+ * or better offer already exists? `null` existing price means "no row yet".
+ * Exported for unit-testing the never-raise + skip-identical-upsert contract.
+ */
+export function shouldSkipBridgeWrite(
+  existing: { price: number; imageUrl: string } | null,
+  newPrice: number,
+  newImage: string,
+): boolean {
+  if (!existing) return false;
+  if (newPrice > existing.price + 0.001) return true;
+  if (newPrice >= existing.price - 0.001 && newImage === existing.imageUrl) return true;
+  return false;
+}
 
 function computeDiscountPercent(price: number, originalPrice: number | null): number {
   if (!originalPrice || originalPrice <= price || price <= 0) return 0;
@@ -84,19 +112,27 @@ export async function bridgeImportedProductsToLowestPrices(
   }
   if (candidates.size === 0) return 0;
 
-  // Read existing lowest prices so a cheaper row is never raised.
-  const existingPrices = new Map<string, number>();
+  // Read existing lowest prices (one batched pass) so a cheaper row is never
+  // raised and an identical row is never rewritten.
+  const existingPrices = new Map<string, { price: number; imageUrl: string }>();
   const ids = [...candidates.keys()];
-  for (let i = 0; i < ids.length; i += 150) {
+  for (let i = 0; i < ids.length; i += EXISTING_READ_BATCH) {
     try {
       const { data } = await db(supabase)
         .from("lowest_prices_today")
-        .select("product_id, lowest_price")
+        .select("product_id, lowest_price, image_url")
         .eq("country_code", "US")
         .eq("currency", "USD")
-        .in("product_id", ids.slice(i, i + 150));
-      for (const row of (data ?? []) as { product_id: string; lowest_price: number }[]) {
-        existingPrices.set(row.product_id, Number(row.lowest_price));
+        .in("product_id", ids.slice(i, i + EXISTING_READ_BATCH));
+      for (const row of (data ?? []) as {
+        product_id: string;
+        lowest_price: number;
+        image_url: string | null;
+      }[]) {
+        existingPrices.set(row.product_id, {
+          price: Number(row.lowest_price),
+          imageUrl: row.image_url ?? "",
+        });
       }
     } catch {
       // best-effort read
@@ -109,10 +145,10 @@ export async function bridgeImportedProductsToLowestPrices(
 
   for (const { product, productId } of candidates.values()) {
     if (!productId) continue;
-    const existing = existingPrices.get(productId);
-    if (existing !== undefined && product.price > existing + 0.001) continue;
-
+    const existing = existingPrices.get(productId) ?? null;
     const image = normalizeProductImageUrl(product.imageUrl);
+    if (shouldSkipBridgeWrite(existing, product.price, image)) continue;
+
     const originalPrice =
       product.originalPrice && product.originalPrice > product.price
         ? product.originalPrice
@@ -142,8 +178,8 @@ export async function bridgeImportedProductsToLowestPrices(
   }
 
   let written = 0;
-  for (let i = 0; i < rows.length; i += 200) {
-    const batch = rows.slice(i, i + 200);
+  for (let i = 0; i < rows.length; i += UPSERT_BATCH) {
+    const batch = rows.slice(i, i + UPSERT_BATCH);
     try {
       const { error } = await db(supabase)
         .from("lowest_prices_today")

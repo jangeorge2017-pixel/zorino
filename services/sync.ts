@@ -117,7 +117,14 @@ export async function triggerPhase1Imports(): Promise<ServiceResult<SyncRunResul
   const results: SyncRunResult[] = [];
   type ImportStore = { id: string; slug: string; integration_type: string };
   for (const store of (stores ?? []) as ImportStore[]) {
-    if (store.integration_type === "aliexpress" && !isAliExpressConfigured()) {
+    // AliExpress runs through the resumable chunked scheduler (its sweep is
+    // too heavy for a single serverless invocation and must resume across
+    // crons). Everything else keeps the full sync job.
+    if (store.integration_type === "aliexpress") {
+      const { runAliExpressScheduledSync } = await import("@/services/aliexpress");
+      if (!isAliExpressConfigured()) continue;
+      const ali = await runAliExpressScheduledSync({ deadlineMs: 18_000 });
+      results.push(...ali.results);
       continue;
     }
     if (store.integration_type === "ebay" && !isEbayConfigured()) {

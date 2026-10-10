@@ -5,11 +5,29 @@ import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { logImportEvent } from "@/services/aliexpress/monitoring";
 import { loadAliExpressCredentials } from "@/services/aliexpress/credentials";
+import {
+  importImagesChunked,
+  importPricesChunked,
+  importProductsChunked,
+  type ChunkedImportOutcome,
+} from "@/lib/sync/import/pipeline";
+import {
+  ALIEXPRESS_CHUNK_RESULT_COUNT,
+  readAliExpressImportCursor,
+  startIdsCursor,
+  startSweepCursor,
+  type AliExpressCursorKind,
+  type AliExpressImportCursor,
+  writeAliExpressImportCursor,
+} from "@/lib/integrations/aliexpress/import-cursor";
 
 type AliExpressStore = {
   id: string;
   slug: string;
 };
+
+/** Same scale as a single cron /api/cron/refresh AliExpress step. */
+const DEFAULT_SCHEDULED_DEADLINE_MS = 25_000;
 
 async function getAliExpressStore(): Promise<AliExpressStore | null> {
   const supabase = createSupabaseServiceClient();
@@ -88,10 +106,101 @@ export async function runAliExpressSync(
   }
 }
 
-export async function runAliExpressScheduledSync(): Promise<{
+type ChunkedKindOutcome = {
+  result: SyncRunResult;
+  pending: boolean;
+  error?: string;
+};
+
+/**
+ * Run ONE AliExpress kind as a resumable micro-batch within the shared
+ * deadline. Reads the persisted cursor, processes up to the deadline, persists
+ * the next cursor, and reports whether the kind still has pending work.
+ */
+async function runAliExpressChunkedKind(
+  store: AliExpressStore,
+  kind: AliExpressCursorKind,
+  deadlineAt: number,
+): Promise<ChunkedKindOutcome> {
+  const supabase = createSupabaseServiceClient();
+  const jobType = kind === "prices" ? "prices" : kind;
+  const result: SyncRunResult = {
+    jobType,
+    status: "running",
+    itemsFetched: 0,
+    itemsCreated: 0,
+    itemsUpdated: 0,
+    itemsFailed: 0,
+  };
+
+  const ctx = {
+    storeId: store.id,
+    storeSlug: store.slug,
+    integrationType: "aliexpress" as const,
+    countryCode: "US",
+    currency: "USD",
+    connectorId: "aliexpress" as const,
+  };
+
+  const nextStart =
+    kind === "prices" ? (): AliExpressImportCursor => startIdsCursor() : startSweepCursor;
+
+  try {
+    if (!supabase) {
+      result.status = "failed";
+      result.errorMessage = "Supabase not configured";
+      return { result, pending: false, error: "Supabase not configured" };
+    }
+
+    const cursor = await readAliExpressImportCursor(kind);
+    const startedAt = Date.now();
+
+    let outcome: ChunkedImportOutcome | undefined;
+    if (kind === "products") {
+      outcome = await importProductsChunked(supabase, ctx, result, { cursor, deadlineAt });
+    } else if (kind === "prices") {
+      outcome = await importPricesChunked(supabase, ctx, result, {
+        cursor,
+        deadlineAt,
+        batchSize: ALIEXPRESS_CHUNK_RESULT_COUNT,
+      });
+    } else {
+      outcome = await importImagesChunked(supabase, ctx, result, { cursor, deadlineAt });
+    }
+
+    // Persist the resume pointer: the next chunk when time ran out, or the
+    // start of a fresh sweep when the kind fully completed this run.
+    const nextCursor = outcome.done ? nextStart() : outcome.nextCursor;
+    if (nextCursor) {
+      await writeAliExpressImportCursor(kind, nextCursor);
+    }
+
+    result.status = result.itemsFailed > 0 ? "failed" : "completed";
+    result.metadata = {
+      done: outcome.done,
+      processed: outcome.processed,
+      cursor: nextCursor,
+      chunkTookMs: Date.now() - startedAt,
+    };
+
+    return { result, pending: !outcome.done };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "AliExpress chunked sync failed";
+    result.status = "failed";
+    result.errorMessage = message;
+    await logImportEvent({ jobType: kind, level: "error", message });
+    return { result, pending: true, error: message };
+  }
+}
+
+export async function runAliExpressScheduledSync(options?: {
+  deadlineMs?: number;
+}): Promise<{
   skipped: boolean;
   results: SyncRunResult[];
   error?: string;
+  done?: boolean;
+  resumedKind?: string;
 }> {
   await loadAliExpressCredentials();
 
@@ -101,19 +210,61 @@ export async function runAliExpressScheduledSync(): Promise<{
       level: "info",
       message: "AliExpress scheduled sync skipped — credentials not configured",
     });
-    return { skipped: true, results: [] };
+    return { skipped: true, results: [], done: true };
   }
 
-  const kinds: AliExpressSyncJobKind[] = ["products", "prices", "stock", "images"];
+  const store = await getAliExpressStore();
+  if (!store) {
+    const message = "AliExpress store record not found.";
+    await logImportEvent({ jobType: "scheduled", level: "error", message });
+    return { skipped: true, results: [], error: message, done: true };
+  }
+
+  const deadlineMs = Number(options?.deadlineMs) > 0
+    ? Number(options?.deadlineMs)
+    : DEFAULT_SCHEDULED_DEADLINE_MS;
+  const deadlineAt = Date.now() + deadlineMs;
+
+  const kinds: AliExpressCursorKind[] = ["products", "prices", "images"];
   const results: SyncRunResult[] = [];
+  let pendingKind: string | undefined;
+  let allDone = true;
 
   for (const kind of kinds) {
-    const { ok, result, error } = await runAliExpressSync(kind);
-    if (result) results.push(result);
-    if (!ok && error) {
-      return { skipped: false, results, error };
+    if (Date.now() >= deadlineAt) {
+      pendingKind = kind;
+      allDone = false;
+      break;
+    }
+
+    const outcome = await runAliExpressChunkedKind(store, kind, deadlineAt);
+    results.push(outcome.result);
+
+    if (outcome.error) {
+      await logImportEvent({
+        jobType: kind,
+        level: "error",
+        message: outcome.error,
+      });
+      // A hard failure stops the run so the error surfaces; the persisted
+      // cursor still lets the next invocation resume this kind.
+      pendingKind = kind;
+      allDone = false;
+      break;
+    }
+
+    if (outcome.pending) {
+      pendingKind = kind;
+      allDone = false;
+      break;
     }
   }
 
-  return { skipped: false, results };
+  return {
+    skipped: false,
+    results,
+    done: allDone,
+    resumedKind: pendingKind,
+    error: results.some((r) => r.status === "failed") ? "AliExpress scheduled sync had failures" : undefined,
+  };
 }
