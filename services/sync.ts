@@ -16,6 +16,7 @@ export async function executeScheduledSync(options?: {
     sweptStaleRuns?: number;
     timedOut?: number;
     skipped?: number;
+    backedOff?: number;
   }
 > {
   try {
@@ -29,6 +30,7 @@ export async function executeScheduledSync(options?: {
       sweptStaleRuns: outcome.sweptStaleRuns,
       timedOut: outcome.timedOut,
       skipped: outcome.skipped,
+      backedOff: outcome.backedOff,
     };
   } catch (err) {
     return {
@@ -38,6 +40,7 @@ export async function executeScheduledSync(options?: {
       sweptStaleRuns: 0,
       timedOut: 0,
       skipped: 0,
+      backedOff: 0,
     };
   }
 }

@@ -113,6 +113,55 @@ export interface RunDueSyncJobsOptions {
   deadlineAt?: number;
 }
 
+const SYNC_FAILURE_BACKOFF_THRESHOLD = Number(
+  process.env.SYNC_FAILURE_BACKOFF_THRESHOLD ?? 1,
+);
+const SYNC_FAILURE_BACKOFF_BASE_MINUTES = Number(
+  process.env.SYNC_FAILURE_BACKOFF_MINUTES ?? 180,
+);
+const SYNC_FAILURE_BACKOFF_MAX_MINUTES = 24 * 60;
+
+/**
+ * Pure consecutive-failure streak computation.
+ *
+ * `rows` MUST be ordered most-recent-first. For each store, count the run of
+ * consecutive `failed` runs from the top until the first non-failed run closes
+ * the streak. A store absent from the result has no known failures.
+ */
+export function computeFailureStreaks(
+  rows: readonly { store_id: string | null; status: string }[],
+): Map<string, number> {
+  const streaks = new Map<string, number>();
+  const closed = new Set<string>();
+  for (const row of rows) {
+    if (!row.store_id || closed.has(row.store_id)) continue;
+    if (row.status === "failed") {
+      streaks.set(row.store_id, (streaks.get(row.store_id) ?? 0) + 1);
+    } else {
+      closed.add(row.store_id);
+    }
+  }
+  return streaks;
+}
+
+/** Most-recent consecutive failed run streak per store (from sync_runs). */
+export async function getRecentFailureStreaks(
+  lookback = 200,
+): Promise<Map<string, number>> {
+  const supabase = createSupabaseServiceClient();
+  if (!supabase) return new Map();
+  const { data, error } = await supabase
+    .from("sync_runs")
+    .select("store_id, status")
+    .not("store_id", "is", null)
+    .order("started_at", { ascending: false })
+    .limit(lookback);
+  if (error || !data) return new Map();
+  return computeFailureStreaks(
+    data as { store_id: string | null; status: string }[],
+  );
+}
+
 export interface RunDueSyncJobsOutcome {
   results: SyncRunResult[];
   /** Due jobs not attempted because the deadline was reached. */
@@ -123,6 +172,8 @@ export interface RunDueSyncJobsOutcome {
   timedOut?: number;
   /** Due jobs skipped because their provider connector is not configured. */
   skipped?: number;
+  /** Due jobs deferred with an extended backoff after consecutive failures. */
+  backedOff?: number;
 }
 
 /** Run due sync jobs (oldest-due first) within an optional deadline. */
@@ -131,9 +182,22 @@ export async function runDueSyncJobs(
 ): Promise<RunDueSyncJobsOutcome> {
   const sweptStaleRuns = await failStaleRunningRuns();
   const jobs = await getDueSyncJobs();
+  const failureStreaks = await getRecentFailureStreaks();
   const results: SyncRunResult[] = [];
   const supabase = createSupabaseServiceClient();
   const deadlineAt = options?.deadlineAt;
+
+  // Failure-aware ordering: a provider whose most recent runs failed (e.g. an
+  // API key revoked or a permanently disabled account) must NOT keep winning
+  // the oldest-due race and burning the shared budget every invocation. Order
+  // healthy jobs first, and defer chronic failures with an extended backoff so
+  // the working providers (AliExpress/eBay/Amazon) get the full window.
+  const isBackedOff = (job: DueSyncJob) =>
+    (failureStreaks.get(job.storeId) ?? 0) >= SYNC_FAILURE_BACKOFF_THRESHOLD;
+  const orderedJobs = [
+    ...jobs.filter((job) => !isBackedOff(job)),
+    ...jobs.filter((job) => isBackedOff(job)),
+  ];
 
   // A single job must never consume the whole remaining window: a "full"
   // import can legitimately run for many minutes, which is exactly how the
@@ -146,10 +210,12 @@ export async function runDueSyncJobs(
   let deferred = 0;
   let timedOut = 0;
   let skipped = 0;
+  let backedOff = 0;
 
-  const advanceNextRun = async (job: DueSyncJob) => {
+  const advanceNextRun = async (job: DueSyncJob, overrideMinutes?: number) => {
     if (!supabase || !job.id) return;
-    const intervalMs = (job.intervalMinutes ?? SYNC_DEFAULT_INTERVAL_MINUTES) * 60_000;
+    const intervalMs =
+      (overrideMinutes ?? job.intervalMinutes ?? SYNC_DEFAULT_INTERVAL_MINUTES) * 60_000;
     const nextRun = new Date(Date.now() + intervalMs).toISOString();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any)
@@ -158,7 +224,27 @@ export async function runDueSyncJobs(
       .eq("id", job.id);
   };
 
-  for (const job of jobs) {
+  for (let jobIndex = 0; jobIndex < orderedJobs.length; jobIndex++) {
+    const job = orderedJobs[jobIndex];
+    // Chronic failures are deferred with an exponential cooldown BEFORE any
+    // work is attempted, so a dead provider cannot consume the window.
+    if (isBackedOff(job)) {
+      const streak = failureStreaks.get(job.storeId) ?? SYNC_FAILURE_BACKOFF_THRESHOLD;
+      const cooldownMinutes = Math.min(
+        SYNC_FAILURE_BACKOFF_MAX_MINUTES,
+        SYNC_FAILURE_BACKOFF_BASE_MINUTES *
+          2 ** Math.max(0, streak - SYNC_FAILURE_BACKOFF_THRESHOLD),
+      );
+      backedOff++;
+      console.warn(
+        `[sync-scheduler] backing off job ${job.storeSlug}/${job.jobType} for ${Math.round(
+          cooldownMinutes,
+        )}m after ${streak} consecutive failed run(s)`,
+      );
+      await advanceNextRun(job, cooldownMinutes);
+      continue;
+    }
+
     // Skip providers that are not configured instead of attempting them and
     // failing. Unconfigured connectors (e.g. Amazon/CJdropshipping "placeholder"
     // rows in sync_jobs) throw "Connector not configured", which wastes the cron
@@ -184,7 +270,7 @@ export async function runDueSyncJobs(
     const roomLeft =
       deadlineAt !== undefined ? deadlineAt - Date.now() : Number.POSITIVE_INFINITY;
     if (roomLeft < SYNC_MIN_JOB_ROOM_MS) {
-      deferred = jobs.length - attempted;
+      deferred = orderedJobs.length - jobIndex;
       if (deferred > 0) {
         console.warn(
           `[sync-scheduler] deadline reached — deferring ${deferred} due job(s) to next invocation`,
@@ -228,7 +314,7 @@ export async function runDueSyncJobs(
     await advanceNextRun(job);
   }
 
-  return { results, deferred, sweptStaleRuns, timedOut, skipped };
+  return { results, deferred, sweptStaleRuns, timedOut, skipped, backedOff };
 }
 
 /** Fallback jobs when Supabase is not configured — runs mock sync in dry-run. */
