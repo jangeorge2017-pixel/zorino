@@ -123,7 +123,7 @@ export async function triggerPhase1Imports(): Promise<ServiceResult<SyncRunResul
     if (store.integration_type === "aliexpress") {
       const { runAliExpressScheduledSync } = await import("@/services/aliexpress");
       if (!isAliExpressConfigured()) continue;
-      const ali = await runAliExpressScheduledSync({ deadlineMs: 18_000 });
+      const ali = await runAliExpressScheduledSync({ deadlineMs: 10_000 });
       results.push(...ali.results);
       continue;
     }
