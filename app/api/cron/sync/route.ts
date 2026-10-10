@@ -5,7 +5,7 @@ import { runAliExpressScheduledSync } from "@/services/aliexpress";
 import { runAmazonScheduledSync } from "@/services/amazon/scheduler";
 import { runEbayScheduledSync } from "@/services/ebay";
 import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
-import { createCronBudget, CRON_BUDGET_MS, MIN_STEP_BUDGET_MS } from "@/lib/cron/budget";
+import { createCronBudget, withBudgetCap, CRON_BUDGET_MS, MIN_STEP_BUDGET_MS } from "@/lib/cron/budget";
 import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
 
 /**
@@ -67,10 +67,25 @@ export async function GET(request: Request) {
       results.aliexpress = { skipped: true, reason: "budget-exhausted" };
     } else {
       try {
-        const aliexpress = await runAliExpressScheduledSync();
-        results.aliexpress = aliexpress.skipped
-          ? { skipped: true }
-          : { jobsRun: aliexpress.results.length, results: aliexpress.results, error: aliexpress.error };
+        // Resumable micro-batch sweep with its own wall-clock deadline + a hard
+        // cap so the AliExpress step can never wedge or 504 this invocation.
+        const { value: aliexpress, timedOut } = await withBudgetCap(
+          budget,
+          25_000,
+          "aliexpress-scheduled-sync",
+          runAliExpressScheduledSync({ deadlineMs: 20_000 }),
+        );
+        results.aliexpress = timedOut
+          ? { timedOut: true }
+          : aliexpress?.skipped
+            ? { skipped: true }
+            : {
+                jobsRun: aliexpress?.results.length ?? 0,
+                results: aliexpress?.results ?? [],
+                error: aliexpress?.error,
+                done: aliexpress?.done,
+                resumedKind: aliexpress?.resumedKind,
+              };
       } catch (err) {
         results.aliexpress = { error: err instanceof Error ? err.message : String(err) };
       }
@@ -80,10 +95,17 @@ export async function GET(request: Request) {
       results.ebay = { skipped: true, reason: "budget-exhausted" };
     } else {
       try {
-        const ebay = await runEbayScheduledSync();
-        results.ebay = ebay.skipped
-          ? { skipped: true }
-          : { jobsRun: ebay.results.length, results: ebay.results, error: ebay.error };
+        const { value: ebay, timedOut } = await withBudgetCap(
+          budget,
+          25_000,
+          "ebay-scheduled-sync",
+          runEbayScheduledSync(),
+        );
+        results.ebay = timedOut
+          ? { timedOut: true }
+          : ebay?.skipped
+            ? { skipped: true }
+            : { jobsRun: ebay?.results.length ?? 0, results: ebay?.results ?? [], error: ebay?.error };
       } catch (err) {
         results.ebay = { error: err instanceof Error ? err.message : String(err) };
       }
@@ -93,10 +115,17 @@ export async function GET(request: Request) {
       results.amazon = { skipped: true, reason: "budget-exhausted" };
     } else {
       try {
-        const amazon = await runAmazonScheduledSync();
-        results.amazon = amazon.skipped
-          ? { skipped: true }
-          : { jobsRun: amazon.results.length, results: amazon.results, error: amazon.error };
+        const { value: amazon, timedOut } = await withBudgetCap(
+          budget,
+          25_000,
+          "amazon-scheduled-sync",
+          runAmazonScheduledSync(),
+        );
+        results.amazon = timedOut
+          ? { timedOut: true }
+          : amazon?.skipped
+            ? { skipped: true }
+            : { jobsRun: amazon?.results.length ?? 0, results: amazon?.results ?? [], error: amazon?.error };
       } catch (err) {
         results.amazon = { error: err instanceof Error ? err.message : String(err) };
       }
@@ -107,10 +136,17 @@ export async function GET(request: Request) {
       results.importPhase1 = { skipped: true, reason: "budget-exhausted" };
     } else {
       try {
-        const imported = await triggerPhase1Imports();
-        results.importPhase1 = imported.error
-          ? { error: imported.error, results: imported.data }
-          : { providersRun: imported.data.length, results: imported.data };
+        const { value: imported, timedOut } = await withBudgetCap(
+          budget,
+          25_000,
+          "phase1-imports",
+          triggerPhase1Imports(),
+        );
+        results.importPhase1 = timedOut
+          ? { timedOut: true }
+          : imported?.error
+            ? { error: imported.error, results: imported.data }
+            : { providersRun: imported?.data.length ?? 0, results: imported?.data ?? [] };
       } catch (err) {
         results.importPhase1 = { error: err instanceof Error ? err.message : String(err) };
       }

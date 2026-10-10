@@ -12,6 +12,12 @@ import {
   type ImportProviderId,
   type ProviderAdapterMeta,
 } from "@/lib/sync/providers/types";
+import {
+  advanceSweepCursor,
+  ALIEXPRESS_CHUNK_RESULT_COUNT,
+  startSweepCursor,
+  type AliExpressImportCursor,
+} from "@/lib/integrations/aliexpress/import-cursor";
 
 const CREDENTIAL_KEYS = ["ALIEXPRESS_APP_KEY", "ALIEXPRESS_APP_SECRET"] as const;
 
@@ -58,6 +64,67 @@ export class AliExpressProvider extends BaseConnector {
       if (mapped) products.push(mapped);
     }
     return products;
+  }
+
+  /**
+   * Chunked sweep fetch — one keyword page per call (resumes from a cursor).
+   *
+   * The scheduled cron cannot run the whole keyword×page sweep in one
+   * invocation (Vercel Hobby 60s / Cloudflare 504). Callers drive the sweep
+   * with an `AliExpressImportCursor`, persist it after each chunk, and the next
+   * invocation resumes exactly where the last one stopped.
+   */
+  async fetchProductsChunk(
+    ctx: SyncContext,
+    cursor: AliExpressImportCursor | null,
+  ): Promise<{
+    products: ExternalProduct[];
+    next: AliExpressImportCursor | null;
+    done: boolean;
+  }> {
+    if (!this.isConfigured()) {
+      throw this.notConfiguredError();
+    }
+
+    const client = this.client();
+    const config = resolveImportConfig("aliexpress", ctx.jobConfig as Record<string, unknown>);
+    const keywords = config.keywords ?? ["electronics"];
+    const pageSize = Math.min(ALIEXPRESS_CHUNK_RESULT_COUNT, 50);
+
+    const start = cursor ?? startSweepCursor();
+    if (start.type !== "sweep") {
+      return { products: [], next: null, done: true };
+    }
+
+    const keywordIndex = Math.max(0, Math.trunc(start.keywordIndex) || 0);
+    if (keywordIndex >= keywords.length) {
+      return { products: [], next: null, done: true };
+    }
+
+    const page = Math.max(1, Math.trunc(start.page) || 1);
+    const keyword = keywords[keywordIndex];
+
+    const rawProducts = await client.searchByKeyword(keyword, {
+      pageNo: page,
+      pageSize,
+      currency: ctx.currency,
+    });
+
+    const products: ExternalProduct[] = [];
+    for (const raw of rawProducts) {
+      const mapped = mapAliExpressProduct(ctx, raw, config.categorySlug);
+      if (mapped) products.push(mapped);
+    }
+
+    const { next, done } = advanceSweepCursor(
+      start,
+      keywords.length,
+      config.maxPages ?? 3,
+      pageSize,
+      rawProducts.length,
+    );
+
+    return { products, next, done };
   }
 
   async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {
