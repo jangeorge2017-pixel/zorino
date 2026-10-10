@@ -35,6 +35,32 @@ function resolveImportProvider(ctx: SyncContext): ImportProviderId | null {
   return isImportProviderId(ctx.integrationType) ? ctx.integrationType : null;
 }
 
+/** Concurrent per-product write pool (one PostgREST chain per product). */
+const WRITE_CONCURRENCY = 6;
+
+/**
+ * Run `workers` concurrent runners over `items`, preserving order-insensitive
+ * side effects. Bounded — never more than `workers` in flight at once.
+ */
+async function runConcurrent<T>(
+  items: readonly T[],
+  workers: number,
+  fn: (item: T, index: number) => Promise<void>,
+): Promise<void> {
+  let nextIndex = 0;
+  const runner = async () => {
+    while (nextIndex < items.length) {
+      const i = nextIndex;
+      nextIndex += 1;
+      await fn(items[i], i);
+    }
+  };
+  const poolSize = Math.max(1, Math.min(workers, items.length));
+  const runners: Promise<void>[] = [];
+  for (let i = 0; i < poolSize; i++) runners.push(runner());
+  await Promise.all(runners);
+}
+
 /**
  * Write ONE imported product end-to-end (external row → canonical merge →
  * price snapshot → images). Shared by the full sweep and the chunked sweep so
@@ -283,13 +309,23 @@ export async function importProductsChunked(
     result.itemsFetched += chunk.products.length;
     const bridged: BridgedProduct[] = [];
     let interrupted = false;
-    for (const product of chunk.products) {
-      if (Date.now() >= options.deadlineAt) {
-        interrupted = true;
-        break;
+    if (Date.now() >= options.deadlineAt) {
+      interrupted = true;
+    } else {
+      const productsToWrite = chunk.products;
+      let written = 0;
+      for (let i = 0; i < productsToWrite.length; i += WRITE_CONCURRENCY) {
+        if (Date.now() >= options.deadlineAt) {
+          interrupted = true;
+          break;
+        }
+        const batch = productsToWrite.slice(i, i + WRITE_CONCURRENCY);
+        await runConcurrent(batch, WRITE_CONCURRENCY, (product) =>
+          writeImportedProduct(supabase, ctx, provider, product, bridged, result),
+        );
+        written += batch.length;
       }
-      await writeImportedProduct(supabase, ctx, provider, product, bridged, result);
-      processed += 1;
+      processed += written;
     }
     await bridgeImportedProductsToLowestPrices(supabase, ctx, provider, bridged);
 
@@ -357,19 +393,28 @@ export async function importImagesChunked(
 
     result.itemsFetched += chunk.products.length;
     let interrupted = false;
-    for (const product of chunk.products) {
-      if (Date.now() >= options.deadlineAt) {
-        interrupted = true;
-        break;
+    if (Date.now() >= options.deadlineAt) {
+      interrupted = true;
+    } else {
+      let written = 0;
+      for (let i = 0; i < chunk.products.length; i += WRITE_CONCURRENCY) {
+        if (Date.now() >= options.deadlineAt) {
+          interrupted = true;
+          break;
+        }
+        const batch = chunk.products.slice(i, i + WRITE_CONCURRENCY);
+        await runConcurrent(batch, WRITE_CONCURRENCY, async (product) => {
+          try {
+            const { productId } = await mergeExternalProductToCatalog(supabase, ctx, product, null);
+            await mergeExternalImagesToCatalog(supabase, product, productId);
+            result.itemsUpdated += 1;
+          } catch {
+            result.itemsFailed += 1;
+          }
+        });
+        written += batch.length;
       }
-      try {
-        const { productId } = await mergeExternalProductToCatalog(supabase, ctx, product, null);
-        await mergeExternalImagesToCatalog(supabase, product, productId);
-        result.itemsUpdated += 1;
-        processed += 1;
-      } catch {
-        result.itemsFailed += 1;
-      }
+      processed += written;
     }
 
     if (interrupted) {
@@ -438,13 +483,22 @@ export async function importPricesChunked(
 
     const bridged: BridgedProduct[] = [];
     let interrupted = false;
-    for (const product of products) {
-      if (Date.now() >= options.deadlineAt) {
-        interrupted = true;
-        break;
+    if (Date.now() >= options.deadlineAt) {
+      interrupted = true;
+    } else {
+      let written = 0;
+      for (let i = 0; i < products.length; i += WRITE_CONCURRENCY) {
+        if (Date.now() >= options.deadlineAt) {
+          interrupted = true;
+          break;
+        }
+        const batch = products.slice(i, i + WRITE_CONCURRENCY);
+        await runConcurrent(batch, WRITE_CONCURRENCY, (product) =>
+          writeImportedPriceUpdate(supabase, ctx, provider, product, bridged, result),
+        );
+        written += batch.length;
       }
-      await writeImportedPriceUpdate(supabase, ctx, provider, product, bridged, result);
-      processed += 1;
+      processed += written;
     }
     await bridgeImportedProductsToLowestPrices(supabase, ctx, provider, bridged);
 
