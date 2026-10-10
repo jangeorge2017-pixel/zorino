@@ -13,6 +13,17 @@ import type {
 import { extractPromotionLinks } from "@/lib/integrations/aliexpress/promotion-links";
 import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
 
+/**
+ * Hard total timeout (ms) for a single API call INCLUDING its retries + backoff.
+ * One chunk in the cron micro-batch sweep performs exactly one API call; without
+ * a total bound, 3 slow retries could hold the function window open past the
+ * cron deadline and the resume cursor would never persist.
+ */
+export const ALIEXPRESS_CALL_TIMEOUT_MS = 8_000;
+
+/** Per-request fetch timeout (ms) — also bounded by the call deadline above. */
+export const ALIEXPRESS_REQUEST_TIMEOUT_MS = 6_000;
+
 /** Explicit Open Platform fields required by ZORINO product cards + affiliate links. */
 export const ALIEXPRESS_PRODUCT_FIELDS = [
   "product_id",
@@ -344,30 +355,48 @@ export class AliExpressAffiliateClient {
     const maxAttempts = 3;
     let lastError: Error | null = null;
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        return await this.callOnce<T>(method, bizParams);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        lastError = error instanceof Error ? error : new Error(message);
-        const retryable = isRateLimitOrTransientError(message);
-        logAliExpress("API call failed", {
-          method,
-          attempt,
-          maxAttempts,
-          retryable,
-          message,
-        });
-        if (!retryable || attempt === maxAttempts) break;
-        const delayMs = 400 * attempt * attempt;
-        await sleep(delayMs);
-      }
-    }
+    // One shared deadline bounds the WHOLE call including retries + backoff.
+    // A single chunk in the cron sweep performs exactly one API call; if this
+    // loop could take 3×timeout it would blow past the cron deadline and the
+    // resume cursor would never persist. The controller is passed down to the
+    // fetch so a slow retry chain aborts decisively at the deadline.
+    const controller = new AbortController();
+    const callDeadline = setTimeout(() => {
+      controller.abort(new Error("AliExpress API call timeout — deadline exceeded"));
+    }, ALIEXPRESS_CALL_TIMEOUT_MS);
 
-    throw lastError ?? new Error(`AliExpress API call failed: ${method}`);
+    try {
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          return await this.callOnce<T>(method, bizParams, controller.signal);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          lastError = error instanceof Error ? error : new Error(message);
+          const retryable = isRateLimitOrTransientError(message);
+          logAliExpress("API call failed", {
+            method,
+            attempt,
+            maxAttempts,
+            retryable,
+            message,
+          });
+          if (!retryable || attempt === maxAttempts) break;
+          const delayMs = 400 * attempt * attempt;
+          await sleep(delayMs);
+        }
+      }
+
+      throw lastError ?? new Error(`AliExpress API call failed: ${method}`);
+    } finally {
+      clearTimeout(callDeadline);
+    }
   }
 
-  private async callOnce<T>(method: string, bizParams: Record<string, string>): Promise<T> {
+  private async callOnce<T>(
+    method: string,
+    bizParams: Record<string, string>,
+    signal?: AbortSignal,
+  ): Promise<T> {
     const params = buildSignedParams(method, this.appKey, this.appSecret, bizParams);
     const body = new URLSearchParams(params);
 
@@ -379,20 +408,40 @@ export class AliExpressAffiliateClient {
     });
 
     let res: Response;
+    let text: string;
     try {
-      res = await fetch(ALIEXPRESS_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" },
-        body: body.toString(),
-      });
+      // Per-request guard; combined with (and bounded by) the shared call
+      // deadline signal so neither retries nor a stalled body can overrun it.
+      const requestController = new AbortController();
+      const requestTimeoutMs = setTimeout(
+        () => requestController.abort(new Error("AliExpress API request timeout")),
+        ALIEXPRESS_REQUEST_TIMEOUT_MS,
+      );
+      const fetchSignal = signal
+        ? AbortSignal.any([signal, requestController.signal])
+        : requestController.signal;
+      try {
+        res = await fetch(ALIEXPRESS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8" },
+          body: body.toString(),
+          signal: fetchSignal,
+        });
+        // Read the body under the same signal so a stalled body is bounded too.
+        text = await res.text();
+      } finally {
+        clearTimeout(requestTimeoutMs);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       logAliExpress("NETWORK ERROR calling AliExpress API", { message, method });
       throw new Error(`AliExpress network error: ${message}`);
     }
 
-    const text = await res.text();
+    return this.parseResponse<T>(method, res, text);
+  }
 
+  private parseResponse<T>(method: string, res: Response, text: string): T {
     logAliExpress("API RESPONSE", {
       method,
       httpStatus: res.status,

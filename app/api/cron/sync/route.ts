@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { executeScheduledSync, triggerPhase1Imports } from "@/services/sync";
 import { runAliExpressScheduledSync } from "@/services/aliexpress";
+import { ALIEXPRESS_CALL_TIMEOUT_MS } from "@/lib/integrations/aliexpress/client";
 import { runAmazonScheduledSync } from "@/services/amazon/scheduler";
 import { runEbayScheduledSync } from "@/services/ebay";
 import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
@@ -63,20 +64,22 @@ export async function GET(request: Request) {
     }
 
     // ── 2. Heavy provider schedulers (guarded) ────────────────────────────
-    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+    // AliExpress needs room for at least one bounded chunk plus headroom.
+    if (!budget.hasRoomFor(ALIEXPRESS_CALL_TIMEOUT_MS + 8_000)) {
       results.aliexpress = { skipped: true, reason: "budget-exhausted" };
     } else {
       try {
-        // Resumable micro-batch sweep. Deadline is derived from the remaining
-        // budget with headroom so the scheduler always finishes (and persists
-        // its cursor) before the hard cap can fire — never caps mid-kind.
+        // Resumable micro-batch sweep. One chunk is one bounded API call
+        // (ALIEXPRESS_CALL_TIMEOUT_MS); derive the deadline to leave room for a
+        // final chunk plus headroom so the scheduler always finishes and
+        // persists its cursor before the hard cap — never capped mid-kind.
         const aliexpressDeadlineMs = Math.max(
-          8_000,
-          Math.min(budget.remainingMs() - 8_000, 20_000),
+          6_000,
+          Math.min(budget.remainingMs() - (ALIEXPRESS_CALL_TIMEOUT_MS + 6_000), 20_000),
         );
         const { value: aliexpress, timedOut } = await withBudgetCap(
           budget,
-          aliexpressDeadlineMs + 5_000,
+          aliexpressDeadlineMs + ALIEXPRESS_CALL_TIMEOUT_MS + 4_000,
           "aliexpress-scheduled-sync",
           runAliExpressScheduledSync({ deadlineMs: aliexpressDeadlineMs }),
         );
