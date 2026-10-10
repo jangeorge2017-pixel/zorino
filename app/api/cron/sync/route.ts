@@ -77,6 +77,7 @@ export async function GET(request: Request) {
           6_000,
           Math.min(budget.remainingMs() - (ALIEXPRESS_CALL_TIMEOUT_MS + 6_000), 20_000),
         );
+        const budgetBeforeAliExpressMs = budget.remainingMs();
         const { value: aliexpress, timedOut } = await withBudgetCap(
           budget,
           aliexpressDeadlineMs + ALIEXPRESS_CALL_TIMEOUT_MS + 4_000,
@@ -84,7 +85,7 @@ export async function GET(request: Request) {
           runAliExpressScheduledSync({ deadlineMs: aliexpressDeadlineMs }),
         );
         results.aliexpress = timedOut
-          ? { timedOut: true }
+          ? { timedOut: true, budgetBeforeAliExpressMs, deadlineMs: aliexpressDeadlineMs }
           : aliexpress?.skipped
             ? { skipped: true }
             : {
@@ -93,6 +94,8 @@ export async function GET(request: Request) {
                 error: aliexpress?.error,
                 done: aliexpress?.done,
                 resumedKind: aliexpress?.resumedKind,
+                budgetBeforeAliExpressMs,
+                deadlineMs: aliexpressDeadlineMs,
               };
       } catch (err) {
         results.aliexpress = { error: err instanceof Error ? err.message : String(err) };

@@ -155,17 +155,24 @@ async function runAliExpressChunkedKind(
     const cursor = await readAliExpressImportCursor(kind);
     const startedAt = Date.now();
 
+    // Durable progress: persist the resume pointer AFTER EVERY chunk so a hard
+    // cap mid-loop (or a hung chunk) never loses more than the in-flight chunk.
+    // Idempotent upserts make a re-fetched page safe to replay.
+    const persist = (nextCursor: AliExpressImportCursor | null) =>
+      writeAliExpressImportCursor(kind, nextCursor ?? nextStart());
+
     let outcome: ChunkedImportOutcome | undefined;
     if (kind === "products") {
-      outcome = await importProductsChunked(supabase, ctx, result, { cursor, deadlineAt });
+      outcome = await importProductsChunked(supabase, ctx, result, { cursor, deadlineAt, persist });
     } else if (kind === "prices") {
       outcome = await importPricesChunked(supabase, ctx, result, {
         cursor,
         deadlineAt,
         batchSize: ALIEXPRESS_CHUNK_RESULT_COUNT,
+        persist,
       });
     } else {
-      outcome = await importImagesChunked(supabase, ctx, result, { cursor, deadlineAt });
+      outcome = await importImagesChunked(supabase, ctx, result, { cursor, deadlineAt, persist });
     }
 
     // Persist the resume pointer: the next chunk when time ran out, or the

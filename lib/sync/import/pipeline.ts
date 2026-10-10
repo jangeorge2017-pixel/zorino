@@ -248,6 +248,7 @@ export async function importProductsChunked(
   options: {
     cursor: AliExpressImportCursor | null;
     deadlineAt: number;
+    persist?: (cursor: AliExpressImportCursor | null) => Promise<void>;
   },
 ): Promise<ChunkedImportOutcome> {
   const provider = resolveImportProvider(ctx);
@@ -275,21 +276,43 @@ export async function importProductsChunked(
     if (chunk.products.length === 0) {
       if (chunk.done) return { done: true, nextCursor: null, processed };
       // No usable items but more pages? Persist the next cursor and bail.
+      await options.persist?.(chunk.next);
       return { done: chunk.done, nextCursor: chunk.next, processed };
     }
 
     result.itemsFetched += chunk.products.length;
     const bridged: BridgedProduct[] = [];
+    let interrupted = false;
     for (const product of chunk.products) {
+      if (Date.now() >= options.deadlineAt) {
+        interrupted = true;
+        break;
+      }
       await writeImportedProduct(supabase, ctx, provider, product, bridged, result);
+      processed += 1;
     }
     await bridgeImportedProductsToLowestPrices(supabase, ctx, provider, bridged);
-    processed += chunk.products.length;
 
-    if (chunk.done) return { done: true, nextCursor: null, processed };
-    if (!chunk.next) return { done: true, nextCursor: null, processed };
+    if (interrupted) {
+      // Stay on THIS page: the next invocation re-fetches it and finishes the
+      // unwritten products (upserts are idempotent) instead of skipping them.
+      await options.persist?.(cursor);
+      return { done: false, nextCursor: cursor, processed };
+    }
 
+    if (chunk.done) {
+      await options.persist?.(null);
+      return { done: true, nextCursor: null, processed };
+    }
+    if (!chunk.next) {
+      await options.persist?.(null);
+      return { done: true, nextCursor: null, processed };
+    }
+
+    // Persist after every chunk so a hard cap mid-loop never loses progress;
+    // the next invocation resumes exactly at this page (idempotent upserts).
     cursor = chunk.next;
+    await options.persist?.(cursor);
   }
 
   return { done: false, nextCursor: cursor, processed };
@@ -303,6 +326,7 @@ export async function importImagesChunked(
   options: {
     cursor: AliExpressImportCursor | null;
     deadlineAt: number;
+    persist?: (cursor: AliExpressImportCursor | null) => Promise<void>;
   },
 ): Promise<ChunkedImportOutcome> {
   const connector = getConnectorForIntegration(ctx.integrationType) as unknown as {
@@ -327,23 +351,38 @@ export async function importImagesChunked(
   while (Date.now() < options.deadlineAt) {
     const chunk = await connector.fetchProductsChunk(ctx, cursor);
     if (chunk.products.length === 0) {
+      await options.persist?.(chunk.next);
       return { done: chunk.done, nextCursor: chunk.next, processed };
     }
 
     result.itemsFetched += chunk.products.length;
+    let interrupted = false;
     for (const product of chunk.products) {
+      if (Date.now() >= options.deadlineAt) {
+        interrupted = true;
+        break;
+      }
       try {
         const { productId } = await mergeExternalProductToCatalog(supabase, ctx, product, null);
         await mergeExternalImagesToCatalog(supabase, product, productId);
         result.itemsUpdated += 1;
+        processed += 1;
       } catch {
         result.itemsFailed += 1;
       }
     }
-    processed += chunk.products.length;
 
-    if (chunk.done || !chunk.next) return { done: true, nextCursor: null, processed };
+    if (interrupted) {
+      await options.persist?.(cursor);
+      return { done: false, nextCursor: cursor, processed };
+    }
+
+    if (chunk.done || !chunk.next) {
+      await options.persist?.(null);
+      return { done: true, nextCursor: null, processed };
+    }
     cursor = chunk.next;
+    await options.persist?.(cursor);
   }
 
   return { done: false, nextCursor: cursor, processed };
@@ -358,6 +397,7 @@ export async function importPricesChunked(
     cursor: AliExpressImportCursor | null;
     deadlineAt: number;
     batchSize?: number;
+    persist?: (cursor: AliExpressImportCursor | null) => Promise<void>;
   },
 ): Promise<ChunkedImportOutcome> {
   const provider = resolveImportProvider(ctx);
@@ -397,15 +437,28 @@ export async function importPricesChunked(
         : [];
 
     const bridged: BridgedProduct[] = [];
+    let interrupted = false;
     for (const product of products) {
+      if (Date.now() >= options.deadlineAt) {
+        interrupted = true;
+        break;
+      }
       await writeImportedPriceUpdate(supabase, ctx, provider, product, bridged, result);
+      processed += 1;
     }
     await bridgeImportedProductsToLowestPrices(supabase, ctx, provider, bridged);
-    processed += products.length;
 
     const { next, done } = advanceIdsCursor(offset, externalIds.length, batchSize);
-    if (done) return { done: true, nextCursor: null, processed };
+    if (interrupted) {
+      await options.persist?.({ type: "ids", offset });
+      return { done: false, nextCursor: { type: "ids", offset }, processed };
+    }
+    if (done) {
+      await options.persist?.(null);
+      return { done: true, nextCursor: null, processed };
+    }
     offset = (next as { type: "ids"; offset: number }).offset;
+    await options.persist?.({ type: "ids", offset });
   }
 
   return { done: false, nextCursor: { type: "ids", offset }, processed };
