@@ -235,12 +235,17 @@ export async function GET(request: Request) {
         try {
           // The scheduled sync is now a resumable micro-batch sweep: it reads
           // the persisted cursor, processes ~20-item chunks until the deadline,
-          // persists the next cursor, and returns fast. The hard cap stays as a
-          // safety net against an overrun chunk.
+          // persists the next cursor, and returns fast. The deadline is derived
+          // from the remaining budget with headroom so the scheduler ALWAYS
+          // finishes (and persists its cursor) before the hard cap can fire.
+          const aliexpressDeadlineMs = Math.max(
+            8_000,
+            Math.min(budget.remainingMs() - 8_000, 15_000),
+          );
           const { value: aliexpress, timedOut } = await capped(
             "aliexpress-scheduled-sync",
-            20_000,
-            runAliExpressScheduledSync({ deadlineMs: 15_000 }),
+            aliexpressDeadlineMs + 5_000,
+            runAliExpressScheduledSync({ deadlineMs: aliexpressDeadlineMs }),
           );
           results.aliexpress = timedOut
             ? { timedOut: true }
