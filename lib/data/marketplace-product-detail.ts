@@ -15,6 +15,7 @@ import {
   resolveAlibabaProduct,
 } from "@/lib/affiliate/product-url";
 import { resolveStoreLogoSrc } from "@/lib/assets";
+import { getServerIntlPreferences } from "@/lib/international/preferences";
 import type { AdmitadFeedOffer } from "@/lib/integrations/admitad/types";
 import type { AmazonScraperMarketplaceKey } from "@/lib/integrations/amazon-scraper";
 
@@ -705,7 +706,12 @@ async function mergeCanonicalExternalOffersIntoComparison(
 ): Promise<CompareProductResult> {
   try {
     const { compareImportedProductPrices } = await import("@/services/compare");
-    const { data: canonical } = await compareImportedProductPrices(canonicalProductId);
+    // Normalize every offer to the VISITOR's active currency so mixed-source
+    // (USD AliExpress + EGP amazon-eg) offers rank and render in one currency.
+    const { currencyCode } = await getServerIntlPreferences("en");
+    const { data: canonical } = await compareImportedProductPrices(canonicalProductId, {
+      displayCurrency: currencyCode,
+    });
     if (!canonical || canonical.offers.length < 2) return comparison;
     // offers are already store_id-deduped and valid-destination-only — no
     // double-counting, no fabricated offers.
@@ -748,6 +754,23 @@ export async function resolveMarketplaceProductDetail(
     if (enriched !== comparison) comparison = enriched;
   } catch {
     // Enrichment is best-effort; the base detail remains valid.
+  }
+
+  // Multi-currency normalization: provider detail getters and enrichment return
+  // offers in real SOURCE currencies (USD AliExpress/Admitad, EGP amazon-eg).
+  // Normalize every offer + the aggregate stats to the VISITOR's active
+  // currency so the PDP renders one honest currency (follow-up from the
+  // canonical merge — covers e.g. aliexpress-*/ebay-*/enrich-only offers too).
+  try {
+    const { toDisplayCurrencyOffers } = await import("@/services/compare");
+    const { currencyCode } = await getServerIntlPreferences("en");
+    const offers = toDisplayCurrencyOffers(comparison.offers, currencyCode);
+    const changed = offers.some((offer, index) => offer !== comparison.offers[index]);
+    if (changed) {
+      comparison = rebuildComparisonSummary({ ...comparison, offers });
+    }
+  } catch {
+    // Best-effort — the base detail remains valid.
   }
 
   return comparison !== detail.comparison ? { ...detail, comparison } : detail;

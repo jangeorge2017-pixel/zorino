@@ -52,6 +52,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
   };
 
   const cheapest = offers.find((o) => o.isLowest) ?? offers[0];
+  const detailsCurrency = cheapest?.currency ?? "USD";
   const price = lowestPrice || cheapest?.price || 0;
   const originalPrice = cheapest?.originalPrice ?? price;
   const discount =
@@ -187,10 +188,12 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
             )}
 
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-4xl font-bold text-white">{formatPrice(price)}</span>
+              <span className="text-4xl font-bold text-white">
+                {formatPrice(price, detailsCurrency)}
+              </span>
               {originalPrice > price && (
                 <span className="text-2xl text-gray-500 line-through">
-                  {formatPrice(originalPrice)}
+                  {formatPrice(originalPrice, detailsCurrency)}
                 </span>
               )}
               {discount > 0 && (
@@ -246,6 +249,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                 cheapestStoreName={cheapestStoreName}
                 savingsVsHighest={savingsVsHighest}
                 savingsPercent={savingsPercent}
+                currency={detailsCurrency}
               />
             )}
             {offers.length === 1 && (

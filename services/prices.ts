@@ -31,13 +31,39 @@ export async function getCurrentPricesForProduct(
   const { data, error } = await query;
   if (error) return { data: [], error: error.message };
 
-  return {
-    data: ((data ?? []) as PriceWithStore[]).map((row) => {
-      const store = row.stores ? mapStore(row.stores) : undefined;
-      return mapPrice(row, store);
-    }),
-    error: null,
-  };
+  const rows = ((data ?? []) as PriceWithStore[]).map((row) => {
+    const store = row.stores ? mapStore(row.stores) : undefined;
+    return mapPrice(row, store);
+  });
+
+  // Cross-border fallback: a regional/currency scope that matches NO local
+  // rows must not hide the product's real source offers. Offer rows live in
+  // the store's own market (AliExpress/Admitad/eBay rows are USD/US), so a
+  // caller scoping by the VISITOR's country/currency (e.g. a GB session reading
+  // US-catalog offers) would otherwise empty the offer list. When the scoped
+  // query returns nothing, retry unscoped so cross-border listings still
+  // render in the same comparison. Display conversion is the render layer's
+  // job (fromCurrency), never a silent drop here.
+  if (rows.length === 0 && (options?.countryCode !== undefined || options?.currency !== undefined)) {
+    const fallback = await supabase
+      .from("prices")
+      .select("*, stores (*)")
+      .eq("product_id", productId)
+      .eq("is_current", true)
+      .order("price");
+    const { data: fallbackData, error: fallbackError } = await fallback;
+    if (!fallbackError && fallbackData && (fallbackData as PriceWithStore[]).length > 0) {
+      return {
+        data: (fallbackData as PriceWithStore[]).map((row) => {
+          const store = row.stores ? mapStore(row.stores) : undefined;
+          return mapPrice(row, store);
+        }),
+        error: null,
+      };
+    }
+  }
+
+  return { data: rows, error: null };
 }
 
 /** Compare prices across stores for a product (core Compare Prices feature). */

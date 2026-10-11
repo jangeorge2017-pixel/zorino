@@ -4,12 +4,14 @@ import {
   getComparableProducts,
   type CompareProductResult,
 } from "@/services/compare";
+import { getServerIntlPreferences } from "@/lib/international/preferences";
 
 export type { CompareProductResult };
 
 /** Data layer for /compare page. */
 export async function getComparePageProducts(limit = 6): Promise<CompareProductResult[]> {
-  const { data, error } = await getComparableProducts({ limit });
+  const { currencyCode } = await getServerIntlPreferences("en");
+  const { data, error } = await getComparableProducts({ limit, displayCurrency: currencyCode });
   if (!error && data.length > 0) return data;
 
   const { getProducts } = await import("@/services/products");
@@ -17,7 +19,9 @@ export async function getComparePageProducts(limit = 6): Promise<CompareProductR
   const results: CompareProductResult[] = [];
 
   for (const product of products) {
-    const { data: comparison } = await compareImportedProductPrices(product.id);
+    const { data: comparison } = await compareImportedProductPrices(product.id, {
+      displayCurrency: currencyCode,
+    });
     if (comparison && comparison.offers.length > 0) {
       results.push(comparison);
     }
@@ -28,13 +32,19 @@ export async function getComparePageProducts(limit = 6): Promise<CompareProductR
 }
 
 export async function getCompareDataForProduct(productId: string) {
-  const { data, error } = await compareImportedProductPrices(productId);
+  const { currencyCode } = await getServerIntlPreferences("en");
+  const { data, error } = await compareImportedProductPrices(productId, {
+    displayCurrency: currencyCode,
+  });
   if (error) return null;
   return data;
 }
 
 export async function getCompareDataForProducts(productIds: string[]) {
-  const { data, error } = await compareProductsByIds(productIds);
+  const { currencyCode } = await getServerIntlPreferences("en");
+  const { data, error } = await compareProductsByIds(productIds, {
+    displayCurrency: currencyCode,
+  });
   if (error) return [];
   return data;
 }

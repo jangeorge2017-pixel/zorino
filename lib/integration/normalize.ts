@@ -110,6 +110,7 @@ export function catalogItemToTrendingDealCard(
     reviews: item.reviewCount,
     price: item.price,
     originalPrice: item.originalPrice,
+    currency: bestOffer?.currency ?? item.currency ?? "USD",
     store: merchantName,
     storeLogoSrc: baseStore.logoUrl ?? `/stores/${baseStore.slug}.svg`,
     storeInitial,

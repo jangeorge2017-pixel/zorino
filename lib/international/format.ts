@@ -1,5 +1,8 @@
-import type { CurrencyCode } from "@/lib/international/config";
-import { currencies, getCurrencyConfig } from "@/lib/international/config";
+import {
+  currencies,
+  getCurrencyConfig,
+  isSupportedCurrency,
+} from "@/lib/international/config";
 import { convertAmount } from "@/lib/international/exchange-rates";
 
 /**
@@ -11,15 +14,18 @@ export function formatCurrency(
   currencyCode: string,
   options?: {
     locale?: string;
-    fromCurrency?: CurrencyCode;
+    fromCurrency?: string;
   }
 ): string {
   const config = getCurrencyConfig(currencyCode);
   const locale = options?.locale ?? config.formatLocale;
 
   let value = amount;
-  if (options?.fromCurrency && options.fromCurrency !== config.code) {
-    value = convertAmount(amount, options.fromCurrency, config.code);
+  const from = options?.fromCurrency;
+  // Only convert when the source currency is one we can convert honestly;
+  // an unsupported source renders its own magnitude (never a fabricated rate).
+  if (from && from !== config.code && isSupportedCurrency(from)) {
+    value = convertAmount(amount, from, config.code);
   }
 
   return new Intl.NumberFormat(locale, {

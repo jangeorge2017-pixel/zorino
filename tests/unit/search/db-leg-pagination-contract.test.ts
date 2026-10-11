@@ -149,6 +149,7 @@ function buildFakeSupabase(rows: DbRow[]): () => unknown {
     select: () => dbChain,
     or: () => dbChain,
     eq: () => dbChain,
+    in: () => dbChain,
     not: (col?: string, op?: string, val?: unknown) => {
       if (col === "product_id" && op === "in" && typeof val === "string") {
         // `.not("product_id", "in", "(id1,id2,…)")` — the paged leg's

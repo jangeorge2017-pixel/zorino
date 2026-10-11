@@ -91,10 +91,12 @@ export default function PriceComparisonTable({
                   </div>
                 </td>
                 <td>
-                  <span className="price-comparison-price">{formatPrice(offer.price)}</span>
+                  <span className="price-comparison-price">
+                    {formatPrice(offer.price, offer.currency)}
+                  </span>
                   {(offer.originalPrice ?? 0) > offer.price && (
                     <span className="price-comparison-original">
-                      {formatPrice(offer.originalPrice ?? offer.price)}
+                      {formatPrice(offer.originalPrice ?? offer.price, offer.currency)}
                     </span>
                   )}
                 </td>
@@ -144,6 +146,8 @@ type ComparePriceSummaryProps = {
   cheapestStoreName: string;
   savingsVsHighest: number;
   savingsPercent?: number;
+  /** Source currency of the aggregate stat values (defaults to USD). */
+  currency?: string;
 };
 
 export function ComparePriceSummary({
@@ -153,6 +157,7 @@ export function ComparePriceSummary({
   cheapestStoreName,
   savingsVsHighest,
   savingsPercent,
+  currency = "USD",
 }: ComparePriceSummaryProps) {
   const t = useTranslations("product");
   const { formatPrice } = useIntlPreferences();
@@ -161,7 +166,9 @@ export function ComparePriceSummary({
     <div className="compare-price-summary">
       <div className="compare-price-stat">
         <span className="compare-price-stat-label">{t("lowestPrice")}</span>
-        <span className="compare-price-stat-value">{formatPrice(lowestPrice)}</span>
+        <span className="compare-price-stat-value">
+          {formatPrice(lowestPrice, currency)}
+        </span>
         <span className="compare-price-stat-meta">
           {t("atStore", { store: cheapestStoreName })}
         </span>
@@ -177,7 +184,9 @@ export function ComparePriceSummary({
       {savingsVsHighest > 0 && (
         <div className="compare-price-stat">
           <span className="compare-price-stat-label">{t("youSaveUpTo")}</span>
-          <span className="compare-price-stat-value">{formatPrice(savingsVsHighest)}</span>
+          <span className="compare-price-stat-value">
+            {formatPrice(savingsVsHighest, currency)}
+          </span>
           <span className="compare-price-stat-meta">
             {savingsPercent
               ? t("vsHighestPercent", { percent: savingsPercent })

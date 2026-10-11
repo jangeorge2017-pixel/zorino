@@ -157,6 +157,7 @@ function buildFakeSupabase(rows: DbRow[], stats: { ranges: number }): () => unkn
       return dbChain;
     },
     eq: () => dbChain,
+    in: () => dbChain,
     not: (col?: string, op?: string, val?: unknown) => {
       if (col === "product_id" && op === "in" && typeof val === "string") {
         excluded = new Set(

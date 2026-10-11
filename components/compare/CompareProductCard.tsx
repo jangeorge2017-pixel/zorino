@@ -21,6 +21,12 @@ export default function CompareProductCard({
   const t = useTranslations("compare");
   const { formatPrice } = useIntlPreferences();
   const viewLabelText = viewLabel ?? t("viewFullComparison");
+  // Aggregate stats (`lowestPrice`, `savingsVsHighest`) are computed in ONE
+  // currency — the cheapest offer's currency — so both the number and the label
+  // agree when rendered (search-sourced results are already session-stamped;
+  // legacy rows carry the raw source currency here).
+  const cheapest = [...item.offers].sort((a, b) => a.price - b.price)[0];
+  const baseCurrency = cheapest?.currency ?? "USD";
 
   return (
     <article className="zor-compare-page__card">
@@ -41,7 +47,7 @@ export default function CompareProductCard({
           </Link>
           <p className="zor-compare-page__card-meta-line">
             {t("productsCount", { count: item.providerCount })} ·{" "}
-            {t("priceFrom", { price: formatPrice(item.lowestPrice) })}
+            {t("priceFrom", { price: formatPrice(item.lowestPrice, baseCurrency) })}
           </p>
         </div>
       </div>
@@ -52,6 +58,7 @@ export default function CompareProductCard({
         providerCount={item.providerCount}
         cheapestStoreName={item.cheapestStoreName}
         savingsVsHighest={item.savingsVsHighest}
+        currency={baseCurrency}
       />
 
       <PriceComparisonTable offers={item.offers} productId={item.product.id} />

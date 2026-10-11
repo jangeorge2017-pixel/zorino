@@ -180,6 +180,7 @@ async function productToTrendingCard(
     reviews: product.reviewCount,
     price,
     originalPrice: original || price,
+    currency: lowest?.currency ?? "USD",
     store: store?.name ?? "Zorino",
     storeLogoSrc: store?.logoUrl ?? `/stores/${store?.slug ?? "default"}.svg`,
     storeInitial: store?.logoInitial ?? store?.name.slice(0, 2) ?? "?",

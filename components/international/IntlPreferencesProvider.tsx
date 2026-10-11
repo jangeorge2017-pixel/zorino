@@ -34,7 +34,7 @@ type UpdateOptions = {
 };
 
 type IntlPreferencesContextValue = IntlPreferencesSnapshot & {
-  formatPrice: (amount: number, fromCurrency?: CurrencyCode) => string;
+  formatPrice: (amount: number, fromCurrency?: string) => string;
   updatePreferences: (
     prefs: PreferenceUpdate,
     options?: UpdateOptions
@@ -103,7 +103,7 @@ export function IntlPreferencesProvider({ initial, children }: IntlPreferencesPr
   );
 
   const formatPrice = useCallback(
-    (amount: number, fromCurrency?: CurrencyCode) =>
+    (amount: number, fromCurrency?: string) =>
       formatCurrencyValue(amount, snapshot.currency.code, {
         fromCurrency,
         locale: activeLocale === "ar" ? "ar" : undefined,
