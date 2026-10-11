@@ -1,4 +1,5 @@
 import {
+  EBAY_REQUEST_TIMEOUT_MS,
   getEbayCredentials,
   getEbayTokenUrl,
 } from "@/lib/integrations/ebay/config";
@@ -41,14 +42,22 @@ export async function getEbayAccessToken(): Promise<string> {
     scope: "https://api.ebay.com/oauth/api_scope",
   });
 
-  const res = await fetch(getEbayTokenUrl(), {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: body.toString(),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), EBAY_REQUEST_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(getEbayTokenUrl(), {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: body.toString(),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   const text = await res.text();
   if (!res.ok) {

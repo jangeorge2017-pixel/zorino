@@ -5,7 +5,7 @@ import {
   ebayMarketplaceId,
   getEbayAccessToken,
 } from "@/lib/integrations/ebay/auth";
-import { getEbayBrowseApiBase } from "@/lib/integrations/ebay/config";
+import { EBAY_REQUEST_TIMEOUT_MS, getEbayBrowseApiBase } from "@/lib/integrations/ebay/config";
 import type { EbayRawProduct, EbayValidationResult } from "@/lib/integrations/ebay/types";
 
 type SearchResponse = {
@@ -132,7 +132,7 @@ export class EbayAffiliateClient {
         })}`,
         {
           headers: this.buildHeaders(token, marketplaceId),
-          timeoutMs: 12_000,
+          timeoutMs: EBAY_REQUEST_TIMEOUT_MS,
         }
       );
 
@@ -182,6 +182,7 @@ export class EbayAffiliateClient {
           `${getEbayBrowseApiBase()}/item/${encodeURIComponent(itemId)}`,
           {
             headers: this.buildHeaders(token, marketplaceId),
+            timeoutMs: EBAY_REQUEST_TIMEOUT_MS,
           }
         );
         all.push(item);
