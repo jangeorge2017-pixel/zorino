@@ -5,12 +5,7 @@ import { executeTrendingRefresh, isTrendingRefreshDue } from "@/services/trendin
 import {
   executeLowestPriceRefresh,
 } from "@/services/lowest-prices";
-import { triggerPhase1Imports } from "@/services/sync";
-import { runAliExpressScheduledSync } from "@/services/aliexpress";
-import { ALIEXPRESS_CALL_TIMEOUT_MS } from "@/lib/integrations/aliexpress/client";
-import { runAmazonScheduledSync } from "@/services/amazon/scheduler";
-import { runEbayScheduledSync } from "@/services/ebay";
-import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
+import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
 import { runNotificationAlerts } from "@/services/notifications/alerts";
 import { invalidateLowestPricesFromRoute, invalidateTrendingFromRoute } from "@/lib/revalidate";
 import {
@@ -216,131 +211,14 @@ export async function GET(request: Request) {
       }
     }
 
-    // ── 5. Heavy provider schedulers / imports / aggregates ───────────────
-    // Each guarded individually: one slow provider must not starve the rest.
-    // These schedulers loop provider APIs internally without deadline support,
-    // so each also runs under a hard wall-clock cap (withBudgetCap) — without
-    // it the AliExpress scheduler alone overran the 60s serverless limit.
+    // ── 5. Heavy provider steps — run CONCURRENTLY ────────────────────────
+    // AliExpress / eBay / Amazon / phase-1 imports / catalog aggregates each
+    // run under their own guard + wall-clock cap via the shared runner. Running
+    // them sequentially let the first slow provider starve the rest; fanning
+    // them out means a stalled provider (notably eBay, now strictly bounded)
+    // can never block the others within the 60s serverless window.
     if (force || hourUtc % 6 === 0) {
-      const budgetSkipped = () => ({ skipped: true, reason: "budget-exhausted" });
-      const capped = <T>(
-        key: string,
-        maxMs: number,
-        task: Promise<T>,
-      ): Promise<{ value?: T; timedOut: boolean }> =>
-        withBudgetCap(budget, maxMs, key, task);
-
-      if (!budget.hasRoomFor(ALIEXPRESS_CALL_TIMEOUT_MS + 8_000)) {
-        results.aliexpress = budgetSkipped();
-      } else {
-        try {
-          // The scheduled sync is now a resumable micro-batch sweep: it reads
-          // the persisted cursor, processes ~20-item chunks until the deadline,
-          // persists the next cursor, and returns fast. One chunk is one bounded
-          // API call (ALIEXPRESS_CALL_TIMEOUT_MS), so derive the deadline to
-          // leave room for one final chunk PLUS headroom under the hard cap —
-          // the scheduler always finishes and persists its cursor, never capped
-          // mid-kind.
-          const aliexpressDeadlineMs = Math.max(
-            6_000,
-            Math.min(budget.remainingMs() - (ALIEXPRESS_CALL_TIMEOUT_MS + 6_000), 20_000),
-          );
-          const { value: aliexpress, timedOut } = await capped(
-            "aliexpress-scheduled-sync",
-            aliexpressDeadlineMs + ALIEXPRESS_CALL_TIMEOUT_MS + 4_000,
-            runAliExpressScheduledSync({ deadlineMs: aliexpressDeadlineMs }),
-          );
-          results.aliexpress = timedOut
-            ? { timedOut: true }
-            : aliexpress!.skipped
-              ? { skipped: true }
-              : {
-                  jobsRun: aliexpress!.results.length,
-                  results: aliexpress!.results,
-                  error: aliexpress!.error,
-                  done: aliexpress!.done,
-                  resumedKind: aliexpress!.resumedKind,
-                };
-        } catch (err) {
-          results.aliexpress = { error: err instanceof Error ? err.message : String(err) };
-        }
-      }
-
-      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
-        results.ebay = budgetSkipped();
-      } else {
-        try {
-          const { value: ebay, timedOut } = await capped(
-            "ebay-scheduled-sync",
-            20_000,
-            runEbayScheduledSync(),
-          );
-          results.ebay = timedOut
-            ? { timedOut: true }
-            : ebay!.skipped
-              ? { skipped: true }
-              : { jobsRun: ebay!.results.length, results: ebay!.results, error: ebay!.error };
-        } catch (err) {
-          results.ebay = { error: err instanceof Error ? err.message : String(err) };
-        }
-      }
-
-      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
-        results.amazon = budgetSkipped();
-      } else {
-        try {
-          const { value: amazon, timedOut } = await capped(
-            "amazon-scheduled-sync",
-            20_000,
-            runAmazonScheduledSync(),
-          );
-          results.amazon = timedOut
-            ? { timedOut: true }
-            : amazon!.skipped
-              ? { skipped: true }
-              : { jobsRun: amazon!.results.length, results: amazon!.results, error: amazon!.error };
-        } catch (err) {
-          results.amazon = { error: err instanceof Error ? err.message : String(err) };
-        }
-      }
-
-      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
-        results.importPhase1 = budgetSkipped();
-      } else {
-        try {
-          const { value: imported, timedOut } = await capped(
-            "phase1-imports",
-            25_000,
-            triggerPhase1Imports(),
-          );
-          results.importPhase1 = timedOut
-            ? { timedOut: true }
-            : imported!.error
-              ? { error: imported!.error, results: imported!.data }
-              : { providersRun: imported!.data.length, results: imported!.data };
-        } catch (err) {
-          results.importPhase1 = { error: err instanceof Error ? err.message : String(err) };
-        }
-      }
-
-      if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
-        results.universalCatalog = budgetSkipped();
-      } else {
-        try {
-          const { value: catalog, timedOut } = await capped(
-            "universal-catalog",
-            15_000,
-            refreshUniversalCatalogAggregates({ limit: 500 }),
-          );
-          results.universalCatalog = timedOut
-            ? { timedOut: true }
-            : catalog!.error
-              ? { error: catalog!.error }
-              : { refreshed: catalog!.refreshed };
-        } catch (err) {
-          results.universalCatalog = { error: err instanceof Error ? err.message : String(err) };
-        }
-      }
+      Object.assign(results, await runProviderStepsParallel(budget));
     } else {
       results.aliexpress = { skipped: true };
       results.ebay = { skipped: true };

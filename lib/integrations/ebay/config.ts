@@ -10,6 +10,14 @@ export const EBAY_CREDENTIAL_KEYS = {
 
 export const EBAY_PROVIDER_ID = "ebay" as const;
 
+/**
+ * Hard per-request timeout for every eBay Browse/OAuth HTTP call. eBay can be
+ * slow and the cron window is only 60s; a strict 8s bound guarantees a stalled
+ * eBay request can never wedge a provider step (the eBay sync also runs via the
+ * legacy sync_jobs, so a short per-request cap does not lose coverage).
+ */
+export const EBAY_REQUEST_TIMEOUT_MS = 8_000 as const;
+
 /** Accept common Vercel/dashboard key aliases for Client ID. */
 const EBAY_APP_ID_ALIASES = ["EBAY_APP_ID", "EBAY_CLIENT_ID", "EBAY_Client_ID"] as const;
 

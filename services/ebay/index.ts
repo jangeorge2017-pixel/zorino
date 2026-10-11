@@ -4,7 +4,7 @@ export {
   getEbayImportEventLogs,
   getEbaySyncSummary,
 } from "./monitoring";
-export { runEbaySync, runEbayScheduledSync } from "./scheduler";
+export { runEbaySync, runEbayScheduledSync, EBAY_SCHEDULED_DEADLINE_MS } from "./scheduler";
 export {
   generateEbayAffiliateLink,
   generateEbayAffiliateLinks,

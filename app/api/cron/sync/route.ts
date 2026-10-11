@@ -1,12 +1,8 @@
 import { NextResponse } from "next/server";
 import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
-import { executeScheduledSync, triggerPhase1Imports } from "@/services/sync";
-import { runAliExpressScheduledSync } from "@/services/aliexpress";
-import { ALIEXPRESS_CALL_TIMEOUT_MS } from "@/lib/integrations/aliexpress/client";
-import { runAmazonScheduledSync } from "@/services/amazon/scheduler";
-import { runEbayScheduledSync } from "@/services/ebay";
-import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
-import { createCronBudget, withBudgetCap, CRON_BUDGET_MS, MIN_STEP_BUDGET_MS } from "@/lib/cron/budget";
+import { executeScheduledSync } from "@/services/sync";
+import { createCronBudget, CRON_BUDGET_MS } from "@/lib/cron/budget";
+import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
 import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
 
 /**
@@ -63,119 +59,13 @@ export async function GET(request: Request) {
       results.sync = { error: err instanceof Error ? err.message : String(err) };
     }
 
-    // ── 2. Heavy provider schedulers (guarded) ────────────────────────────
-    // AliExpress needs room for at least one bounded chunk plus headroom.
-    if (!budget.hasRoomFor(ALIEXPRESS_CALL_TIMEOUT_MS + 8_000)) {
-      results.aliexpress = { skipped: true, reason: "budget-exhausted" };
-    } else {
-      try {
-        // Resumable micro-batch sweep. One chunk is one bounded API call
-        // (ALIEXPRESS_CALL_TIMEOUT_MS); derive the deadline to leave room for a
-        // final chunk plus headroom so the scheduler always finishes and
-        // persists its cursor before the hard cap — never capped mid-kind.
-        const aliexpressDeadlineMs = Math.max(
-          6_000,
-          Math.min(budget.remainingMs() - (ALIEXPRESS_CALL_TIMEOUT_MS + 6_000), 20_000),
-        );
-        const budgetBeforeAliExpressMs = budget.remainingMs();
-        const { value: aliexpress, timedOut } = await withBudgetCap(
-          budget,
-          aliexpressDeadlineMs + ALIEXPRESS_CALL_TIMEOUT_MS + 4_000,
-          "aliexpress-scheduled-sync",
-          runAliExpressScheduledSync({ deadlineMs: aliexpressDeadlineMs }),
-        );
-        results.aliexpress = timedOut
-          ? { timedOut: true, budgetBeforeAliExpressMs, deadlineMs: aliexpressDeadlineMs }
-          : aliexpress?.skipped
-            ? { skipped: true }
-            : {
-                jobsRun: aliexpress?.results.length ?? 0,
-                results: aliexpress?.results ?? [],
-                error: aliexpress?.error,
-                done: aliexpress?.done,
-                resumedKind: aliexpress?.resumedKind,
-                budgetBeforeAliExpressMs,
-                deadlineMs: aliexpressDeadlineMs,
-              };
-      } catch (err) {
-        results.aliexpress = { error: err instanceof Error ? err.message : String(err) };
-      }
-    }
-
-    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
-      results.ebay = { skipped: true, reason: "budget-exhausted" };
-    } else {
-      try {
-        const { value: ebay, timedOut } = await withBudgetCap(
-          budget,
-          25_000,
-          "ebay-scheduled-sync",
-          runEbayScheduledSync(),
-        );
-        results.ebay = timedOut
-          ? { timedOut: true }
-          : ebay?.skipped
-            ? { skipped: true }
-            : { jobsRun: ebay?.results.length ?? 0, results: ebay?.results ?? [], error: ebay?.error };
-      } catch (err) {
-        results.ebay = { error: err instanceof Error ? err.message : String(err) };
-      }
-    }
-
-    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
-      results.amazon = { skipped: true, reason: "budget-exhausted" };
-    } else {
-      try {
-        const { value: amazon, timedOut } = await withBudgetCap(
-          budget,
-          25_000,
-          "amazon-scheduled-sync",
-          runAmazonScheduledSync(),
-        );
-        results.amazon = timedOut
-          ? { timedOut: true }
-          : amazon?.skipped
-            ? { skipped: true }
-            : { jobsRun: amazon?.results.length ?? 0, results: amazon?.results ?? [], error: amazon?.error };
-      } catch (err) {
-        results.amazon = { error: err instanceof Error ? err.message : String(err) };
-      }
-    }
-
-    // ── 3. Phase-1 provider imports (guarded) ─────────────────────────────
-    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
-      results.importPhase1 = { skipped: true, reason: "budget-exhausted" };
-    } else {
-      try {
-        const { value: imported, timedOut } = await withBudgetCap(
-          budget,
-          25_000,
-          "phase1-imports",
-          triggerPhase1Imports(),
-        );
-        results.importPhase1 = timedOut
-          ? { timedOut: true }
-          : imported?.error
-            ? { error: imported.error, results: imported.data }
-            : { providersRun: imported?.data.length ?? 0, results: imported?.data ?? [] };
-      } catch (err) {
-        results.importPhase1 = { error: err instanceof Error ? err.message : String(err) };
-      }
-    }
-
-    // ── 4. Universal catalog aggregates (guarded) ─────────────────────────
-    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
-      results.universalCatalog = { skipped: true, reason: "budget-exhausted" };
-    } else {
-      try {
-        const catalog = await refreshUniversalCatalogAggregates({ limit: 500 });
-        results.universalCatalog = catalog.error
-          ? { error: catalog.error }
-          : { refreshed: catalog.refreshed };
-      } catch (err) {
-        results.universalCatalog = { error: err instanceof Error ? err.message : String(err) };
-      }
-    }
+    // ── 2. Heavy provider steps — run CONCURRENTLY ────────────────────────
+    // AliExpress / eBay / Amazon / phase-1 imports / catalog aggregates each
+    // run under their own budget guard + wall-clock cap via the shared runner.
+    // Sequential execution let the first slow provider starve the rest; fanning
+    // them out means a stalled provider (notably eBay, now strictly bounded)
+    // can never block the others within the 60s serverless window.
+    Object.assign(results, await runProviderStepsParallel(budget));
   } catch (err) {
     thrown = err;
   }

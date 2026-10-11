@@ -88,10 +88,22 @@ export async function runEbaySync(
   }
 }
 
-export async function runEbayScheduledSync(): Promise<{
+/**
+ * Strict wall-clock deadline for the scheduled eBay sweep. eBay's Browse API
+ * can stall; 8s keeps a single stalled request from eating the shared 60s cron
+ * window. Any kinds not reached before the deadline are deferred (reported in
+ * `deferred`) and picked up by the next run instead of being killed mid-kind.
+ */
+export const EBAY_SCHEDULED_DEADLINE_MS = 8_000;
+
+export async function runEbayScheduledSync(options?: {
+  deadlineMs?: number;
+}): Promise<{
   skipped: boolean;
   results: SyncRunResult[];
   error?: string;
+  done: boolean;
+  deferred: EbaySyncJobKind[];
 }> {
   await loadEbayCredentials();
 
@@ -101,19 +113,35 @@ export async function runEbayScheduledSync(): Promise<{
       level: "info",
       message: "eBay scheduled sync skipped — credentials not configured",
     });
-    return { skipped: true, results: [] };
+    return { skipped: true, results: [], done: true, deferred: [] };
   }
+
+  const requested = Number(options?.deadlineMs);
+  const deadlineMs =
+    Number.isFinite(requested) && requested > 0 ? requested : EBAY_SCHEDULED_DEADLINE_MS;
+  const deadlineAt = Date.now() + deadlineMs;
 
   const kinds: EbaySyncJobKind[] = ["products", "prices", "stock", "images"];
   const results: SyncRunResult[] = [];
 
-  for (const kind of kinds) {
+  for (let index = 0; index < kinds.length; index++) {
+    const kind = kinds[index];
+    if (Date.now() >= deadlineAt) {
+      return { skipped: false, results, done: false, deferred: kinds.slice(index) };
+    }
+
     const { ok, result, error } = await runEbaySync(kind);
     if (result) results.push(result);
     if (!ok && error) {
-      return { skipped: false, results, error };
+      return {
+        skipped: false,
+        results,
+        error,
+        done: false,
+        deferred: kinds.slice(index + 1),
+      };
     }
   }
 
-  return { skipped: false, results };
+  return { skipped: false, results, done: true, deferred: [] };
 }
