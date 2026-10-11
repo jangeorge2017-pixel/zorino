@@ -27,7 +27,10 @@ import {
   escapeRegexToken,
   querySearchTokens,
 } from "@/lib/integration/word-match-filter";
-import type { CurrencyCode } from "@/lib/international/config";
+import {
+  currencyCodes,
+  type CurrencyCode,
+} from "@/lib/international/config";
 import {
   ACCESSORY_TERM_RE,
   HANDSET_EXTRA_TERM_RE,
@@ -888,7 +891,7 @@ async function loadSearchResultsFromDatabase(
     )
     .or(orFilter)
     .eq("country_code", "US")
-    .eq("currency", "USD")
+    .in("currency", currencyCodes)
     .not("image_url", "is", null)
     .neq("image_url", "")
     .order("discount_percent", { ascending: false })
@@ -962,8 +965,12 @@ export function resetDeviceSearchCountCacheForTests(): void {
  * SQL pre-filters that mirror the strict device guard ONCE at the index, so the
  * deep window a device tail leg fetches is not exhausted by accessory rows.
  * Base accessory terms always apply; handset queries add earphone/headphone and
- * the ABSOLUTE $150 price floor (DB rows are always USD — a live EGP row never
- * reaches this leg). A query that pins a concrete brand gets a must-contain OR
+ * the ABSOLUTE USD price floor. DB rows are stored in the US market catalog and
+ * are overwhelmingly USD, but any SUPPORTED convertible currency may reach this
+ * leg (search legs accept `currencyCodes`); the numeric floor below is only a
+ * coarse index pre-filter — the in-memory `passesStrictDeviceGuard` re-checks
+ * every row with its REAL currency so an EUR/AED row is never judged against a
+ * raw USD baseline. A query that pins a concrete brand gets a must-contain OR
  * filter (Latin tokens) matching `titleMeetsRequiredBrand`.
  */
 function deviceGuardSqlQueryContext(device: DeviceDbLegOptions): {
@@ -1026,7 +1033,7 @@ async function loadDeviceSearchCountFromDatabase(
     )
     .or(orFilter)
     .eq("country_code", "US")
-    .eq("currency", "USD")
+    .in("currency", currencyCodes)
     .not("image_url", "is", null)
     .neq("image_url", "");
   for (const { regex } of ctx.excludeImatch) {
@@ -1145,7 +1152,7 @@ async function loadSearchResultsCountFromDatabase(query: string): Promise<number
     .select("product_id", { count: "exact", head: true })
     .or(orFilter)
     .eq("country_code", "US")
-    .eq("currency", "USD")
+    .in("currency", currencyCodes)
     .not("image_url", "is", null)
     .neq("image_url", "");
 
@@ -1257,7 +1264,7 @@ async function loadSearchResultsFromDatabasePaged(
     )
     .or(orFilter)
     .eq("country_code", "US")
-    .eq("currency", "USD")
+    .in("currency", currencyCodes)
     .not("image_url", "is", null)
     .neq("image_url", "");
 

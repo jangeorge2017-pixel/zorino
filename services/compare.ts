@@ -14,6 +14,11 @@ import {
   getLowestPrice,
 } from "@/services/prices";
 import type { Price, Product, ServiceResult } from "@/lib/types/entities";
+import {
+  isSupportedCurrency,
+  type CurrencyCode,
+} from "@/lib/international/config";
+import { convertAmount } from "@/lib/international/exchange-rates";
 
 export type CompareOffer = Price & {
   provider?: string;
@@ -73,13 +78,43 @@ function emptyCompareResult(product: Product): CompareProductResult {
   };
 }
 
+/**
+ * Render-side currency normalisation for the comparison offers, mirroring the
+ * search seam (`lib/search/display-currency.ts`): convert every offer's
+ * price/originalPrice to the visitor's active currency and stamp `currency`, so
+ * the number and the label always agree. Offers already in the target currency
+ * or in an unsupported currency pass through untouched (a fabricated rate would
+ * mislead more than the provider's own number). Pure; never mutates input.
+ */
+export function toDisplayCurrencyOffers<T extends CompareOffer>(
+  offers: readonly T[],
+  target?: CurrencyCode,
+): T[] {
+  if (!target || !isSupportedCurrency(target)) return [...offers];
+  return offers.map((offer) => {
+    if (!isSupportedCurrency(offer.currency)) return offer;
+    if (offer.currency === target) return offer;
+    const from = offer.currency as CurrencyCode;
+    return {
+      ...offer,
+      price: convertAmount(offer.price, from, target),
+      originalPrice:
+        offer.originalPrice != null ? convertAmount(offer.originalPrice, from, target) : null,
+      currency: target,
+    };
+  });
+}
+
 /** Compare prices across all imported sources for a single product. */
 export async function compareImportedProductPrices(
   productId: string,
-  options?: { countryCode?: string; currency?: string }
+  options?: { countryCode?: string; currency?: string; displayCurrency?: CurrencyCode }
 ): Promise<ServiceResult<CompareProductResult | null>> {
   const [pricesResult, productResult, externalResult] = await Promise.all([
-    compareProductPrices(productId, options),
+    compareProductPrices(productId, {
+      countryCode: options?.countryCode,
+      currency: options?.currency,
+    }),
     getProductById(productId),
     getExternalPricesForProduct(productId, options),
   ]);
@@ -153,18 +188,22 @@ export async function compareImportedProductPrices(
     })
     .filter((offer): offer is CompareOffer => offer !== null);
 
-  // Merge both real sources, one offer per store (internal rows win).
+  // Merge both real sources, one offer per store (internal rows win), then
+  // normalize every offer to the visitor's active currency so the whole
+  // comparison — individual offers AND the aggregate stats — speaks one honest
+  // currency. Without `displayCurrency` the raw source currencies are kept.
   const merged = mergeOffersDedupe(
     internalOffers,
     externalOffers,
     (offer) => offer.storeId,
   );
+  const offers = toDisplayCurrencyOffers(merged, options?.displayCurrency);
 
-  if (merged.length === 0) {
+  if (offers.length === 0) {
     return { data: emptyCompareResult(productResult.data), error: null };
   }
 
-  const sorted = [...merged].sort((a, b) => a.price - b.price);
+  const sorted = [...offers].sort((a, b) => a.price - b.price);
   const stats = computeCompareStats(sorted);
 
   for (const offer of sorted) {
@@ -201,51 +240,71 @@ export async function compareImportedProductPrices(
 
 /** Find products with multi-source price data suitable for the compare page. */
 export async function getComparableProducts(
-  options?: { limit?: number; countryCode?: string; currency?: string }
+  options?: {
+    limit?: number;
+    countryCode?: string;
+    currency?: string;
+    displayCurrency?: CurrencyCode;
+  }
 ): Promise<ServiceResult<CompareProductResult[]>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) return { data: [], error: "Supabase not configured" };
+  const client = supabase;
 
-  let priceQuery = supabase
-    .from("prices")
-    .select("product_id, store_id")
-    .eq("is_current", true);
+  const hasScope = options?.countryCode !== undefined || options?.currency !== undefined;
 
-  let externalQuery = supabase
-    .from("external_prices")
-    .select("canonical_product_id, store_id")
-    .eq("is_current", true);
+  async function collect(scoped: boolean): Promise<{ ids: string[]; error?: string }> {
+    let priceQuery = client
+      .from("prices")
+      .select("product_id, store_id")
+      .eq("is_current", true);
 
-  if (options?.countryCode) {
-    priceQuery = priceQuery.eq("country_code", options.countryCode);
-    externalQuery = externalQuery.eq("country_code", options.countryCode);
+    let externalQuery = client
+      .from("external_prices")
+      .select("canonical_product_id, store_id")
+      .eq("is_current", true);
+
+    if (scoped && options?.countryCode) {
+      priceQuery = priceQuery.eq("country_code", options.countryCode);
+      externalQuery = externalQuery.eq("country_code", options.countryCode);
+    }
+    if (scoped && options?.currency) {
+      priceQuery = priceQuery.eq("currency", options.currency);
+      externalQuery = externalQuery.eq("currency", options.currency);
+    }
+
+    const [priceResult, externalResult] = await Promise.all([priceQuery, externalQuery]);
+    if (priceResult.error) return { ids: [], error: priceResult.error.message };
+    if (externalResult.error) return { ids: [], error: externalResult.error.message };
+
+    return {
+      ids: collectComparableProductIds(
+        ((priceResult.data ?? []) as Array<{ product_id: string; store_id: string }>).map((row) => ({
+          productId: row.product_id,
+          storeId: row.store_id,
+        })),
+        ((externalResult.data ?? []) as Array<{
+          canonical_product_id: string | null;
+          store_id: string;
+        }>).map((row) => ({
+          productId: row.canonical_product_id,
+          storeId: row.store_id,
+        })),
+        options?.limit ?? 12,
+      ),
+    };
   }
-  if (options?.currency) {
-    priceQuery = priceQuery.eq("currency", options.currency);
-    externalQuery = externalQuery.eq("currency", options.currency);
-  }
 
-  const [priceResult, externalResult] = await Promise.all([priceQuery, externalQuery]);
-  if (priceResult.error) return { data: [], error: priceResult.error.message };
-  if (externalResult.error) return { data: [], error: externalResult.error.message };
+  const scoped = await collect(hasScope);
+  if (scoped.error) return { data: [], error: scoped.error };
 
-  const multiSourceIds = collectComparableProductIds(
-    ((priceResult.data ?? []) as Array<{ product_id: string; store_id: string }>).map((row) => ({
-      productId: row.product_id,
-      storeId: row.store_id,
-    })),
-    ((externalResult.data ?? []) as Array<{
-      canonical_product_id: string | null;
-      store_id: string;
-    }>).map((row) => ({
-      productId: row.canonical_product_id,
-      storeId: row.store_id,
-    })),
-    options?.limit ?? 12,
-  );
+  // Cross-border fallback: a visitor-region scope that matches NO local rows
+  // must not empty the compare pool — retry unscoped so US-catalog offers
+  // (AliExpress/Admitad) still seed the comparison page.
+  const ids = scoped.ids.length > 0 || !hasScope ? scoped.ids : (await collect(false)).ids;
 
   const compared = await mapWithBoundedConcurrency(
-    multiSourceIds,
+    ids,
     COMPARE_PRODUCT_CONCURRENCY,
     async (productId) => {
       const { data } = await compareImportedProductPrices(productId, options);
@@ -266,7 +325,7 @@ export async function getComparableProducts(
 /** Compare multiple products by ID (backend for /compare page). */
 export async function compareProductsByIds(
   productIds: string[],
-  options?: { countryCode?: string; currency?: string }
+  options?: { countryCode?: string; currency?: string; displayCurrency?: CurrencyCode }
 ): Promise<ServiceResult<CompareProductResult[]>> {
   const results: CompareProductResult[] = [];
   for (const id of productIds) {
@@ -289,26 +348,47 @@ async function getProductById(id: string): Promise<ServiceResult<Product | null>
 
 async function getExternalPricesForProduct(
   productId: string,
-  options?: { countryCode?: string; currency?: string }
+  options?: { countryCode?: string; currency?: string; displayCurrency?: CurrencyCode }
 ): Promise<ServiceResult<ExternalPriceRow[]>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) return { data: [], error: "Supabase not configured" };
+  const client = supabase;
 
-  let query = supabase
-    .from("external_prices")
-    .select(
-      "provider, store_id, external_id, canonical_product_id, price, original_price, currency, country_code, in_stock, recorded_at, stores (*), external_products (product_url, affiliate_url)"
-    )
-    .eq("canonical_product_id", productId)
-    .eq("is_current", true)
-    .order("price", { ascending: true });
+  const hasScope = options?.countryCode !== undefined || options?.currency !== undefined;
 
-  if (options?.countryCode) query = query.eq("country_code", options.countryCode);
-  if (options?.currency) query = query.eq("currency", options.currency);
+  async function load(scoped: boolean): Promise<{
+    data: ExternalPriceRow[];
+    error?: string;
+  }> {
+    let query = client
+      .from("external_prices")
+      .select(
+        "provider, store_id, external_id, canonical_product_id, price, original_price, currency, country_code, in_stock, recorded_at, stores (*), external_products (product_url, affiliate_url)"
+      )
+      .eq("canonical_product_id", productId)
+      .eq("is_current", true)
+      .order("price", { ascending: true });
 
-  const { data, error } = await query;
-  if (error) return { data: [], error: error.message };
-  return { data: (data ?? []) as ExternalPriceRow[], error: null };
+    if (scoped && options?.countryCode) query = query.eq("country_code", options.countryCode);
+    if (scoped && options?.currency) query = query.eq("currency", options.currency);
+
+    const { data, error } = await query;
+    if (error) return { data: [], error: error.message };
+    return { data: (data ?? []) as ExternalPriceRow[] };
+  }
+
+  const scoped = await load(hasScope);
+  if (scoped.error) return { data: [], error: scoped.error };
+
+  // Cross-border fallback: never hide real external offers because the
+  // visitor's region/currency has no local snapshot — retry unscoped.
+  if (scoped.data.length === 0 && hasScope) {
+    const fallback = await load(false);
+    if (fallback.error) return { data: [], error: fallback.error };
+    return { data: fallback.data, error: null };
+  }
+
+  return { data: scoped.data, error: null };
 }
 
 /** Re-export core price helpers used by product detail. */

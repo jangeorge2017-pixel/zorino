@@ -67,9 +67,9 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
       ) : null}
 
       <div className="zh-deal-card__prices">
-        <span className="zh-deal-card__price">{formatPrice(deal.price)}</span>
+        <span className="zh-deal-card__price">{formatPrice(deal.price, deal.currency)}</span>
         {(dropped || increased) && deal.originalPrice !== deal.price ? (
-          <span className="zh-deal-card__was">{formatPrice(deal.originalPrice)}</span>
+          <span className="zh-deal-card__was">{formatPrice(deal.originalPrice, deal.currency)}</span>
         ) : null}
       </div>
 

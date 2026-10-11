@@ -37,6 +37,7 @@ function card(partial: Partial<TrendingDealCard> & { store: string }): TrendingD
     reviews: partial.reviews ?? 0,
     price: partial.price ?? 100,
     originalPrice: partial.originalPrice ?? 100,
+    currency: partial.currency ?? "USD",
     store: partial.store,
     storeLogoSrc: partial.storeLogoSrc ?? "/stores/x.svg",
     storeInitial: partial.storeInitial ?? "XX",

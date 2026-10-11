@@ -245,6 +245,8 @@ export interface TrendingDealCard {
   reviews: number;
   price: number;
   originalPrice: number;
+  /** Real-source currency of price/originalPrice (render via formatPrice fromCurrency). */
+  currency: string;
   store: string;
   storeLogoSrc: string;
   storeInitial: string;
