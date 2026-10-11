@@ -106,7 +106,7 @@ export function IntlPreferencesProvider({ initial, children }: IntlPreferencesPr
     (amount: number, fromCurrency?: string) =>
       formatCurrencyValue(amount, snapshot.currency.code, {
         fromCurrency,
-        locale: activeLocale === "ar" ? "ar" : undefined,
+        locale: activeLocale,
       }),
     [snapshot.currency.code, activeLocale]
   );

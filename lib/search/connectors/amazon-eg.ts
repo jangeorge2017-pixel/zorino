@@ -12,6 +12,7 @@ import { normalizeAmazonScraperRaw } from "@/lib/search/normalization";
 import { normalizeAmazonScraperSearchResults } from "@/lib/search/normalization";
 import { classifyListingCondition } from "@/lib/search/condition-diversity";
 import { AMAZON_EG_SEED_LINKS } from "@/lib/amazon-eg/seed-links";
+import { toLatinNumerals } from "@/lib/international/arabic-numerals";
 
 /**
  * Amazon Egypt search connector.
@@ -52,7 +53,11 @@ type EGRawProduct = {
 
 function parsePriceAmount(amount: number | undefined, displayAmount?: string): number {
   if (displayAmount) {
-    const parsed = parseFloat(displayAmount.replace(/[^0-9.]/g, ""));
+    // Normalise the display string FIRST: an AR-locale marketplace can return
+    // Arabic-Indic digits (٥٠٬٠٠٠٫٠٠) that `[^0-9.]` would strip to nothing,
+    // silently zeroing a real price and dropping the row. Convert to Western
+    // digits, then strip any currency label/code around the number.
+    const parsed = parseFloat(toLatinNumerals(displayAmount).replace(/[^0-9.]/g, ""));
     if (Number.isFinite(parsed) && parsed > 0) return parsed;
   }
   if (amount == null || !Number.isFinite(amount)) return 0;
