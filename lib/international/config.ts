@@ -161,6 +161,28 @@ export function isSupportedCurrency(code: string): code is CurrencyCode {
   return currencyCodes.includes(code as CurrencyCode);
 }
 
+/**
+ * Neutral, always-Latin Intl locale used whenever no explicit UI language is
+ * known. A currency's REGION locale (ar-EG / ar-SA / ar-AE) must never be the
+ * default: an EN surface pricing an EGP/SAR/AED row would otherwise inherit
+ * Arabic-Indic digits and the Arabic symbol (ج.م / ر.س / د.إ).
+ */
+export const DEFAULT_FORMAT_LOCALE = "en-US";
+
+/**
+ * Map an app locale ("en" / "ar") to the Intl locale used for number and
+ * currency formatting. The result tracks the UI LANGUAGE, never the currency's
+ * region: "en" → "en-US" (Latin digits + international symbol), "ar" → "ar"
+ * (Arabic-Indic digits + Arabic symbol). An explicit BCP 47 tag (e.g. "ar-EG",
+ * "en-GB") is honoured as-is; no locale falls back to the Latin default.
+ */
+export function resolveFormatLocale(locale?: string): string {
+  if (!locale) return DEFAULT_FORMAT_LOCALE;
+  if (locale === "en") return DEFAULT_FORMAT_LOCALE;
+  if (locale === "ar") return "ar";
+  return locale;
+}
+
 export function getCountryConfig(code: string): CountryConfig {
   if (isSupportedCountry(code)) return countries[code];
   return countries[DEFAULT_COUNTRY];

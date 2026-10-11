@@ -2,6 +2,7 @@ import {
   currencies,
   getCurrencyConfig,
   isSupportedCurrency,
+  resolveFormatLocale,
 } from "@/lib/international/config";
 import { convertAmount } from "@/lib/international/exchange-rates";
 
@@ -18,7 +19,10 @@ export function formatCurrency(
   }
 ): string {
   const config = getCurrencyConfig(currencyCode);
-  const locale = options?.locale ?? config.formatLocale;
+  // Bind the Intl locale to the UI LANGUAGE, never the currency's region — an
+  // EGP/SAR/AED row on an EN surface must render "EGP 50,000.00", not the
+  // Arabic-Indic "٥٠٬٠٠٠ ج.م". No locale → neutral Latin default.
+  const locale = resolveFormatLocale(options?.locale);
 
   let value = amount;
   const from = options?.fromCurrency;
