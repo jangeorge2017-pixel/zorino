@@ -5,6 +5,8 @@ import {
   PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { retargetIndirectFeedOffer } from "@/lib/canonical/adapters";
+import { DEFAULT_COUNTRY } from "@/lib/international/config";
+import { resolveCountryForCurrency } from "@/lib/integration/catalog-scope";
 import { ADMITAD_PROVIDER_ID } from "./config";
 import { admitadFeedToIndirectFeedOffer } from "./adapter";
 
@@ -71,6 +73,13 @@ export function admitadFeedsToCatalogItems(
       const imageUrl = normalizeProductImageUrl(raw.images?.[0]?.url ?? "");
       if (!imageUrl || imageUrl === PRODUCT_IMAGE_PLACEHOLDER) continue;
 
+      // Market country from the REAL offer signal (currency home market),
+      // never a hardcoded "US".
+      const countryCode =
+        raw.countryCode ??
+        resolveCountryForCurrency(offer.currencyId) ??
+        DEFAULT_COUNTRY;
+
       const discount =
         offer.oldprice && offer.oldprice > offer.price
           ? Math.round(((offer.oldprice - offer.price) / offer.oldprice) * 100)
@@ -85,7 +94,7 @@ export function admitadFeedsToCatalogItems(
         categorySlug: "general",
         rating: 0,
         reviewCount: 0,
-        countryCode: "US",
+        countryCode,
         currency: raw.currency ?? offer.currencyId,
         price: raw.price ?? offer.price,
         originalPrice: offer.oldprice ?? offer.price,
@@ -101,7 +110,7 @@ export function admitadFeedsToCatalogItems(
             price: offer.price,
             originalPrice: offer.oldprice ?? offer.price,
             currency: offer.currencyId,
-            countryCode: "US",
+            countryCode,
             affiliateUrl: raw.affiliateUrl ?? offer.url,
             productUrl: raw.productUrl ?? offer.url,
             inStock: true,

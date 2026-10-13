@@ -32,6 +32,10 @@ import {
   type CurrencyCode,
 } from "@/lib/international/config";
 import {
+  CATALOG_COUNTRIES,
+  CATALOG_CURRENCIES,
+} from "@/lib/integration/catalog-scope";
+import {
   ACCESSORY_TERM_RE,
   HANDSET_EXTRA_TERM_RE,
   HANDSET_PRICE_FLOOR_USD,
@@ -182,8 +186,8 @@ export async function getRealMerchantNames(supabase?: SupabaseDb): Promise<strin
     const { data, error } = await (client as any)
       .from("lowest_prices_today")
       .select("store_name")
-      .eq("country_code", "US")
-      .eq("currency", "USD")
+      .in("country_code", [...CATALOG_COUNTRIES])
+      .in("currency", [...CATALOG_CURRENCIES])
       .not("image_url", "is", null)
       .neq("image_url", "")
       .or(realProviderOr())
@@ -246,8 +250,8 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
       .select(
         "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
       )
-      .eq("country_code", "US")
-      .eq("currency", "USD")
+      .in("country_code", [...CATALOG_COUNTRIES])
+      .in("currency", [...CATALOG_CURRENCIES])
       .eq("store_name", storeName)
       // Only real, image-bearing products enter the homepage catalog. The DB is
       // ~92% image-covered (120K rows), but some store feeds stored empty image
@@ -412,8 +416,8 @@ export async function getRealCatalogProductCount(): Promise<number> {
     const { count, error } = await sb
       .from("lowest_prices_today")
       .select("product_id", { count: "exact", head: true })
-      .eq("country_code", "US")
-      .eq("currency", "USD")
+      .in("country_code", [...CATALOG_COUNTRIES])
+      .in("currency", [...CATALOG_CURRENCIES])
       .in("provider", [...REAL_CATALOG_PROVIDERS]);
 
     if (!error && typeof count === "number") {
@@ -890,7 +894,7 @@ async function loadSearchResultsFromDatabase(
       "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
     )
     .or(orFilter)
-    .eq("country_code", "US")
+    .in("country_code", [...CATALOG_COUNTRIES])
     .in("currency", currencyCodes)
     .not("image_url", "is", null)
     .neq("image_url", "")
@@ -1032,7 +1036,7 @@ async function loadDeviceSearchCountFromDatabase(
       "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
     )
     .or(orFilter)
-    .eq("country_code", "US")
+    .in("country_code", [...CATALOG_COUNTRIES])
     .in("currency", currencyCodes)
     .not("image_url", "is", null)
     .neq("image_url", "");
@@ -1151,7 +1155,7 @@ async function loadSearchResultsCountFromDatabase(query: string): Promise<number
     .from("lowest_prices_today")
     .select("product_id", { count: "exact", head: true })
     .or(orFilter)
-    .eq("country_code", "US")
+    .in("country_code", [...CATALOG_COUNTRIES])
     .in("currency", currencyCodes)
     .not("image_url", "is", null)
     .neq("image_url", "");
@@ -1263,7 +1267,7 @@ async function loadSearchResultsFromDatabasePaged(
       deviceContext ? undefined : { count: "exact" },
     )
     .or(orFilter)
-    .eq("country_code", "US")
+    .in("country_code", [...CATALOG_COUNTRIES])
     .in("currency", currencyCodes)
     .not("image_url", "is", null)
     .neq("image_url", "");

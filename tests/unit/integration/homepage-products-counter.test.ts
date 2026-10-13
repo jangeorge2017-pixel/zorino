@@ -37,19 +37,28 @@ import {
 } from "@/lib/integration/database-catalog";
 import { CATALOG_COUNT_FRESHNESS_MS } from "@/lib/integration/catalog-count";
 
-/** Fake supabase chain: .from().select().eq().eq().in() thenable. */
+/**
+ * Fake supabase filter builder: every filter method returns the chain and the
+ * chain itself is thenable, mirroring PostgREST's PostgrestFilterBuilder. This
+ * keeps the fake order-independent (`.in().in().in()` or `.eq().in()` all
+ * resolve the same way) instead of only resolving on a single terminal call.
+ */
 function buildClient(result: {
   count?: number | null;
   error?: unknown;
 }): () => unknown {
-  const chain = {
+  const chain: Record<string, unknown> = {
     select: () => chain,
     eq: () => chain,
-    in: () =>
+    in: () => chain,
+    then: (
+      onFulfilled: (value: unknown) => unknown,
+      onRejected?: (reason: unknown) => unknown,
+    ) =>
       Promise.resolve({
         count: result.count ?? null,
         error: result.error ?? null,
-      }),
+      }).then(onFulfilled, onRejected),
   };
   return () => ({ from: () => chain });
 }
