@@ -27,6 +27,16 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   // CJdropshipping
   { protocol: "https" as const, hostname: "**.cjdropshipping.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "cjdropshipping.com", pathname: "/**" },
+  // Noon (media served from nooncdn.com CDN / noon.com subdomains)
+  { protocol: "https" as const, hostname: "**.nooncdn.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.noon.com", pathname: "/**" },
+  // Jumia (jumia.is CDN + per-market just-in-time media hosts)
+  { protocol: "https" as const, hostname: "**.jumia.is", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.jumia.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.jumia.com.ng", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.jumia.co.ke", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.jumia.com.gh", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.jumia.ma", pathname: "/**" },
   // Common import/CDN hosts
   { protocol: "https" as const, hostname: "**.amazonaws.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.cloudfront.net", pathname: "/**" },

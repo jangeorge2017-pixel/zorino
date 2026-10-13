@@ -225,6 +225,8 @@ export async function GET(request: Request) {
       results.amazon = { skipped: true };
       results.importPhase1 = { skipped: true };
       results.universalCatalog = { skipped: true };
+      results.noon = { skipped: true };
+      results.jumia = { skipped: true };
     }
 
     // ── 6. Due store-sync jobs LAST, deadline-bounded ─────────────────────

@@ -103,10 +103,14 @@ export const cjdropshippingSearchConnector: SearchConnector = {
 
       return listings;
     } catch (error) {
-      console.error(
-        "[cjdropshipping-connector]",
-        error instanceof Error ? error.message : "CJdropshipping search failed",
-      );
+      const detail = error instanceof Error ? error.message : String(error);
+      // Auth-level failures (bad credentials, dashboard-disabled API access)
+      // apply to every keyword and are not transient — surface them loudly so
+      // an "active-looking" provider does not silently contribute zero.
+      const hint = /disabled|reactivate/i.test(detail)
+        ? " — reactivate API access at https://www.cjdropshipping.com/my.html#/authorize/APIStores"
+        : "";
+      console.error("[cjdropshipping-connector]", detail + hint);
       return [];
     }
   },

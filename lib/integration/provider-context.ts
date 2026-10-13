@@ -75,7 +75,7 @@ const SYNC_STORE_META: Record<
   },
   jumia: {
     storeId: "store-jumia",
-    storeSlug: "default",
+    storeSlug: "jumia",
     integrationType: "partner",
     name: "Jumia",
   },
