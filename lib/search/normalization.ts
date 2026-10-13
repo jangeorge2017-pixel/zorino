@@ -615,6 +615,106 @@ export function normalizeAdmitadRaw(
   };
 }
 
+type NoonRawProductLike = {
+  externalId?: string;
+  title?: string;
+  imageUrl?: string;
+  price?: number;
+  originalPrice?: number;
+  currency?: string;
+  countryCode?: string;
+  productUrl?: string;
+  rating?: number;
+  reviewCount?: number;
+  category?: string;
+};
+
+/** Noon raw product → raw provider listing (providerId "noon"). */
+export function normalizeNoonRaw(raw: NoonRawProductLike): RawProviderListing | null {
+  const externalId = raw.externalId ?? "";
+  const title = raw.title?.trim() ?? "";
+  if (!externalId || !title || !raw.price || raw.price <= 0) return null;
+
+  const originalPrice =
+    raw.originalPrice && raw.originalPrice > raw.price ? raw.originalPrice : raw.price;
+  const discount =
+    originalPrice > raw.price
+      ? Math.max(0, Math.round(((originalPrice - raw.price) / originalPrice) * 100))
+      : 0;
+  const imageUrl = raw.imageUrl ?? "";
+  const productUrl = raw.productUrl ?? "";
+  if (!productUrl) return null;
+
+  return {
+    providerId: "noon",
+    externalId,
+    title,
+    imageUrl,
+    price: raw.price,
+    originalPrice,
+    discount,
+    currency: (raw.currency ?? "AED").toUpperCase(),
+    storeName: "Noon",
+    category: raw.category?.trim() ?? "General",
+    rating: raw.rating ?? 0,
+    reviewCount: raw.reviewCount ?? 0,
+    inStock: true,
+    productUrl,
+    affiliateUrl: productUrl,
+    countryCode: raw.countryCode,
+  };
+}
+
+type JumiaRawProductLike = {
+  externalId?: string;
+  title?: string;
+  imageUrl?: string;
+  price?: number;
+  originalPrice?: number;
+  currency?: string;
+  countryCode?: string;
+  productUrl?: string;
+  rating?: number;
+  reviewCount?: number;
+  category?: string;
+};
+
+/** Jumia raw product → raw provider listing (providerId "jumia"). */
+export function normalizeJumiaRaw(raw: JumiaRawProductLike): RawProviderListing | null {
+  const externalId = raw.externalId ?? "";
+  const title = raw.title?.trim() ?? "";
+  if (!externalId || !title || !raw.price || raw.price <= 0) return null;
+
+  const originalPrice =
+    raw.originalPrice && raw.originalPrice > raw.price ? raw.originalPrice : raw.price;
+  const discount =
+    originalPrice > raw.price
+      ? Math.max(0, Math.round(((originalPrice - raw.price) / originalPrice) * 100))
+      : 0;
+  const imageUrl = raw.imageUrl ?? "";
+  const productUrl = raw.productUrl ?? "";
+  if (!productUrl) return null;
+
+  return {
+    providerId: "jumia",
+    externalId,
+    title,
+    imageUrl,
+    price: raw.price,
+    originalPrice,
+    discount,
+    currency: (raw.currency ?? "EGP").toUpperCase(),
+    storeName: "Jumia",
+    category: raw.category?.trim() ?? "General",
+    rating: raw.rating ?? 0,
+    reviewCount: raw.reviewCount ?? 0,
+    inStock: true,
+    productUrl,
+    affiliateUrl: productUrl,
+    countryCode: raw.countryCode,
+  };
+}
+
 export function toNormalizedListing(
   raw: RawProviderListing,
   analysis: { score: number; tier: ProductMatchTier; isDevice: boolean }

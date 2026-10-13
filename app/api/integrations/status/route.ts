@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
+import { hydrateIntegrationCredentials, getIntegrationCredential } from "@/lib/integration/credentials";
 import { getAliExpressCredentialStatus } from "@/lib/integrations/aliexpress/config";
 import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import { searchAliExpressOpenApi } from "@/lib/integrations/aliexpress/open-api-service";
+import { CJdropshippingClient } from "@/lib/sync/providers/cjdropshipping/client";
 
 export const maxDuration = 60;
 
@@ -38,8 +39,35 @@ export async function GET(request: Request) {
       },
       ebay: { configured: isEbayConfigured() },
       amazon: { configured: isAmazonConfigured() },
+      cjdropshipping: {
+        configured: Boolean(getIntegrationCredential("CJDROPSHIPPING_API_KEY")),
+      },
     },
   };
+
+  // CJ separate from the AliExpress probe: its status comes from a live auth +
+  // list verification, not just a credential boolean.
+  if (probe) {
+    const cjKey = getIntegrationCredential("CJDROPSHIPPING_API_KEY");
+    if (!cjKey) {
+      body.cjdropshippingProbe = {
+        configured: false,
+        message: "CJDROPSHIPPING_API_KEY is not set",
+      };
+    } else {
+      try {
+        body.cjdropshippingProbe = await new CJdropshippingClient(cjKey).verifyConnection();
+      } catch (err) {
+        body.cjdropshippingProbe = {
+          configured: true,
+          authenticated: false,
+          canListProducts: false,
+          message: err instanceof Error ? err.message : String(err),
+          sampleProductCount: 0,
+        };
+      }
+    }
+  }
 
   if (!probe) {
     return NextResponse.json(body);

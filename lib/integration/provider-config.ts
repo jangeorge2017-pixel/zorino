@@ -7,6 +7,8 @@ import { isAmazonConfigured, isAmazonDirectEnabled } from "@/lib/integrations/am
 import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 import { isIntegrationConfigured } from "@/lib/integration/credentials";
 import { isAmazonScraperAvailable } from "@/lib/integrations/amazon-scraper";
+import { isNoonConfigured } from "@/lib/integrations/noon";
+import { isJumiaConfigured } from "@/lib/integrations/jumia";
 import { isProviderLive } from "@/lib/integration/provider-health";
 import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
@@ -90,9 +92,15 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
     case "bestbuy":
       return isIntegrationConfigured(["BESTBUY_API_KEY"]); // Requires BESTBUY_API_KEY
     case "noon":
-      return isIntegrationConfigured(["NOON_API_KEY"]); // Requires NOON_API_KEY
+      // Requires NOON_API_KEY (+ seller/country). Configured ≠ active: without
+      // a live run (or durable DB evidence) it still fails the activation gate,
+      // and without NOON_API_BASE/ENDPOINT the ingestion client never touches
+      // the network (no fabricated inventory).
+      return isNoonConfigured();
     case "jumia":
-      return isIntegrationConfigured(["JUMIA_API_KEY", "JUMIA_AFFILIATE_ID"]); // Requires both
+      // Requires JUMIA_API_KEY + JUMIA_AFFILIATE_ID. Same activation/endpoint
+      // gates as noon.
+      return isJumiaConfigured();
 
     default:
       return false;

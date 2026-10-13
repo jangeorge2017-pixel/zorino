@@ -5,6 +5,8 @@ import { runAmazonScheduledSync } from "@/services/amazon/scheduler";
 import { EBAY_SCHEDULED_DEADLINE_MS, runEbayScheduledSync } from "@/services/ebay";
 import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine";
 import { triggerPhase1Imports } from "@/services/sync";
+import { runNoonIngestion } from "@/lib/integrations/noon";
+import { runJumiaIngestion } from "@/lib/integrations/jumia";
 
 export const PROVIDER_STEP_KEYS = [
   "aliexpress",
@@ -12,6 +14,8 @@ export const PROVIDER_STEP_KEYS = [
   "amazon",
   "importPhase1",
   "universalCatalog",
+  "noon",
+  "jumia",
 ] as const;
 
 export type ProviderStepKey = (typeof PROVIDER_STEP_KEYS)[number];
@@ -165,13 +169,80 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     }
   })();
 
+  // Noon / Jumia: credential-gated ingestion runners. When unconfigured (or
+  // configured without a real API endpoint) they return immediately with an
+  // explicit skip reason and never touch the network — so wiring them here is
+  // free until a real Noon/Jumia API contract lands, at which point products
+  // flow into products/prices/lowest_prices_today with no further changes.
+  const noon = (async (): Promise<ProviderStepResult> => {
+    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+      return { skipped: true, reason: "budget-exhausted" };
+    }
+    try {
+      const { value, timedOut } = await withBudgetCap(
+        budget,
+        20_000,
+        "noon-ingestion",
+        runNoonIngestion({ maxProducts: 200, deadlineMs: 15_000 }),
+      );
+      if (timedOut) return { timedOut: true };
+      return {
+        skipped: value?.skipped,
+        reason: value?.reason,
+        configured: value?.configured,
+        endpointConfigured: value?.endpointConfigured,
+        totalProducts: value?.totalProducts,
+        productsSaved: value?.productsSaved,
+        errors: value?.errors?.slice(0, 5),
+      };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : String(err) };
+    }
+  })();
+
+  const jumia = (async (): Promise<ProviderStepResult> => {
+    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+      return { skipped: true, reason: "budget-exhausted" };
+    }
+    try {
+      const { value, timedOut } = await withBudgetCap(
+        budget,
+        20_000,
+        "jumia-ingestion",
+        runJumiaIngestion({ maxProducts: 200, deadlineMs: 15_000 }),
+      );
+      if (timedOut) return { timedOut: true };
+      return {
+        skipped: value?.skipped,
+        reason: value?.reason,
+        configured: value?.configured,
+        endpointConfigured: value?.endpointConfigured,
+        totalProducts: value?.totalProducts,
+        productsSaved: value?.productsSaved,
+        errors: value?.errors?.slice(0, 5),
+      };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : String(err) };
+    }
+  })();
+
   const [
     aliexpressResult,
     ebayResult,
     amazonResult,
     importPhase1Result,
     universalCatalogResult,
-  ] = await Promise.all([aliExpress, ebay, amazon, importPhase1, universalCatalog]);
+    noonResult,
+    jumiaResult,
+  ] = await Promise.all([
+    aliExpress,
+    ebay,
+    amazon,
+    importPhase1,
+    universalCatalog,
+    noon,
+    jumia,
+  ]);
 
   return {
     aliexpress: aliexpressResult,
@@ -179,5 +250,7 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     amazon: amazonResult,
     importPhase1: importPhase1Result,
     universalCatalog: universalCatalogResult,
+    noon: noonResult,
+    jumia: jumiaResult,
   };
 }

@@ -299,170 +299,32 @@ function feedOfferToCatalogItem(
   };
 }
 
+import { saveCatalogItemsAs } from "@/lib/integration/catalog-saver";
+
 // ---------------------------------------------------------------------------
 // Supabase persistence
 // ---------------------------------------------------------------------------
 
+/**
+ * Admitad persists through the shared catalog saver with the provider's own
+ * store identity. Writes are identical to the previous file-private routine:
+ * stores → products → prices → lowest_prices_today (provider = "admitad").
+ */
 async function saveCatalogItems(items: NormalizedCatalogItem[]): Promise<number> {
-  const { createSupabaseServiceClient } = await import("@/lib/supabase/server");
-  const supabase = createSupabaseServiceClient();
-  if (!supabase) {
-    console.warn("[admitad-ingest] Supabase not configured, skipping DB save");
-    return 0;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = supabase as any;
-
-  // Get or create the "admitad" store
-  let storeId: string | null = null;
-  const { data: existingStore } = await db
-    .from("stores")
-    .select("id")
-    .eq("slug", "admitad")
-    .single();
-
-  if (existingStore) {
-    storeId = existingStore.id;
-  } else {
-    const { data: newStore } = await db
-      .from("stores")
-      .insert({
-        name: "Admitad (Alibaba)",
-        name_ar: "أدميتاد (علي بابا)",
-        slug: "admitad",
-        website: "https://admitad.com",
-        integration_type: "partner",
-        logo_url: "/stores/alibaba.svg",
-        logo_initial: "Ad",
-        supported_regions: ["US"],
-        supported_currencies: ["USD"],
-        is_active: true,
-      })
-      .select("id")
-      .single();
-    storeId = newStore?.id ?? null;
-  }
-
-  if (!storeId) {
-    console.error("[admitad-ingest] failed to resolve/create admitad store");
-    return 0;
-  }
-
-  let saved = 0;
-
-  // Process in batches of 200 for Supabase upsert limits
-  const BATCH = 200;
-  for (let i = 0; i < items.length; i += BATCH) {
-    const batch = items.slice(i, i + BATCH);
-
-    // Upsert products
-    const productRows = batch.map((item) => ({
-      name: item.title,
-      slug: item.slug,
-      description: "",
-      image_url: item.imageUrl,
-      emoji: item.emoji,
-      category_slug: item.categorySlug,
-      brand: null,
-      rating: item.rating || null,
-      review_count: item.reviewCount,
-      currency: item.currency,
-      country_code: item.countryCode,
-      in_stock: true,
-      is_active: true,
-    }));
-
-    const { data: upsertedProducts, error: prodErr } = await db
-      .from("products")
-      .upsert(productRows, { onConflict: "slug", ignoreDuplicates: false })
-      .select("id, slug");
-
-    if (prodErr) {
-      console.error(`[admitad-ingest] product upsert error (batch ${i}):`, prodErr.message);
-      continue;
-    }
-
-    if (!upsertedProducts?.length) continue;
-
-    // Build price rows
-    const slugToId = new Map<string, string>();
-    for (const p of upsertedProducts) slugToId.set(p.slug, p.id);
-
-    const priceRows: unknown[] = [];
-    for (const item of batch) {
-      const productId = slugToId.get(item.slug);
-      if (!productId) continue;
-      const offer = item.offers[0];
-      if (!offer) continue;
-
-      priceRows.push({
-        product_id: productId,
-        store_id: storeId,
-        price: offer.price,
-        original_price: offer.originalPrice,
-        currency: offer.currency,
-        country_code: offer.countryCode,
-        external_url: offer.affiliateUrl || offer.productUrl,
-        external_product_id: offer.externalId,
-        in_stock: offer.inStock,
-        is_current: true,
-      });
-    }
-
-    if (priceRows.length > 0) {
-      await db
-        .from("prices")
-        .upsert(priceRows, {
-          onConflict: "product_id,store_id,country_code,currency",
-          ignoreDuplicates: false,
-        });
-    }
-
-    // Upsert lowest_prices_today
-    const lowestRows: unknown[] = [];
-    for (const item of batch) {
-      const productId = slugToId.get(item.slug);
-      if (!productId) continue;
-      const offer = item.offers[0];
-      if (!offer) continue;
-
-      lowestRows.push({
-        product_id: productId,
-        country_code: item.countryCode,
-        currency: item.currency,
-        product_name: item.title,
-        product_slug: item.slug,
-        image_url: item.imageUrl,
-        emoji: item.emoji,
-        lowest_price: offer.price,
-        original_price: offer.originalPrice,
-        discount_percent: item.discount,
-        savings_amount: Math.max(0, offer.originalPrice - offer.price),
-        store_id: storeId,
-        store_name: offer.storeName,
-        provider: "admitad",
-        affiliate_url: offer.affiliateUrl,
-        external_url: offer.productUrl,
-        is_new_low: false,
-        price_recorded_at: new Date().toISOString(),
-        computed_at: new Date().toISOString(),
-      });
-    }
-
-    if (lowestRows.length > 0) {
-      await db
-        .from("lowest_prices_today")
-        .upsert(lowestRows, {
-          onConflict: "product_id,country_code,currency",
-          ignoreDuplicates: false,
-        });
-    }
-
-    saved += batch.length;
-  }
-
-  return saved;
+  return saveCatalogItemsAs(items, {
+    providerId: ADMITAD_PROVIDER_ID,
+    store: {
+      slug: "admitad",
+      name: "Admitad (Alibaba)",
+      nameAr: "أدميتاد (علي بابا)",
+      website: "https://admitad.com",
+      integrationType: "partner",
+      logoUrl: "/stores/alibaba.svg",
+      logoInitial: "Ad",
+      supportedRegions: ["US"],
+      supportedCurrencies: ["USD"],
+    },
+  });
 }
 
 // ---------------------------------------------------------------------------
