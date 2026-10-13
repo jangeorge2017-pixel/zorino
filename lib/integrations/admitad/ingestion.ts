@@ -28,6 +28,11 @@ import {
 } from "./config";
 import { admitadFeedToRawOffer } from "./adapter";
 import type { AdmitadMerchantProgram } from "./merchant-discovery";
+import {
+  CATALOG_COUNTRIES,
+  CATALOG_CURRENCIES,
+  resolveCatalogCountryForOffer,
+} from "@/lib/integration/catalog-scope";
 
 // ---------------------------------------------------------------------------
 // Feed XML streaming parser (reuses logic from feed-fetcher.ts)
@@ -237,6 +242,7 @@ function feedOfferToCatalogItem(
   campaignId: number,
   campaignName: string,
   gotolink: string,
+  countryCode: string,
 ): NormalizedCatalogItem | null {
   // Real links only: prefer the feed offer URL; fall back to the program's
   // standard affiliate (gotolink) URL reported by the API. Skip offers that
@@ -251,6 +257,7 @@ function feedOfferToCatalogItem(
     merchantName: campaignName,
     sourceRef: `ingest:${campaignId}:${offer.id}`,
     urlOverride: destinationUrl,
+    countryCode,
   });
 
   const storeSlug = campaignName
@@ -272,7 +279,7 @@ function feedOfferToCatalogItem(
     price: offer.price,
     originalPrice: offer.oldprice ?? offer.price,
     currency: offer.currencyId,
-    countryCode: "US",
+    countryCode,
     affiliateUrl: raw.affiliateUrl ?? destinationUrl,
     productUrl: raw.productUrl ?? destinationUrl,
     inStock: true,
@@ -287,7 +294,7 @@ function feedOfferToCatalogItem(
     categorySlug: "general",
     rating: 0,
     reviewCount: 0,
-    countryCode: "US",
+    countryCode,
     currency: raw.currency ?? offer.currencyId,
     price: raw.price ?? offer.price,
     originalPrice: offer.oldprice ?? offer.price,
@@ -321,8 +328,8 @@ async function saveCatalogItems(items: NormalizedCatalogItem[]): Promise<number>
       integrationType: "partner",
       logoUrl: "/stores/alibaba.svg",
       logoInitial: "Ad",
-      supportedRegions: ["US"],
-      supportedCurrencies: ["USD"],
+      supportedRegions: [...CATALOG_COUNTRIES],
+      supportedCurrencies: [...CATALOG_CURRENCIES],
     },
   });
 }
@@ -450,6 +457,11 @@ async function runAdmitadIngestionLocked(
     gotolink: string;
     feedName: string;
     feedUrl: string;
+    /**
+     * Real market country for offers from this feed, resolved from the
+     * merchant program's declared GEO target / currency (never hardcoded).
+     */
+    countryCode: string;
   };
   const allFeeds: FeedCandidate[] = [];
   const seenFeedUrls = new Set<string>();
@@ -478,6 +490,10 @@ async function runAdmitadIngestionLocked(
           gotolink: p.gotolink ?? "",
           feedName: p.merchantName,
           feedUrl: urls[0],
+          countryCode: resolveCatalogCountryForOffer({
+            geoRestrictions: p.geoRestrictions,
+            currency: p.currency,
+          }),
         });
       }
     }
@@ -492,6 +508,10 @@ async function runAdmitadIngestionLocked(
           gotolink: p.gotolink ?? "",
           feedName: p.merchantName,
           feedUrl: url,
+          countryCode: resolveCatalogCountryForOffer({
+            geoRestrictions: p.geoRestrictions,
+            currency: p.currency,
+          }),
         });
       }
     }
@@ -522,6 +542,10 @@ async function runAdmitadIngestionLocked(
               gotolink: campaign.gotolink || "",
               feedName: feed.name || campaign.name,
               feedUrl,
+              countryCode: resolveCatalogCountryForOffer({
+                geoRestrictions: (campaign.regions ?? []).map((r) => r.region),
+                currency: campaign.currency,
+              }),
             });
           }
         }
@@ -603,6 +627,7 @@ async function runAdmitadIngestionLocked(
           candidate.campaignId,
           candidate.campaignName,
           candidate.gotolink,
+          candidate.countryCode,
         );
         if (!item) continue;
 

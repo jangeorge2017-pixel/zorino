@@ -16,15 +16,24 @@ import {
   type IndirectFeedMeta,
   type IndirectFeedOffer,
 } from "@/lib/canonical";
+import { DEFAULT_COUNTRY } from "@/lib/international/config";
+import { resolveCountryForCurrency } from "@/lib/integration/catalog-scope";
 import { ADMITAD_PROVIDER_ID } from "./config";
 
 /**
  * Adapt ONE native Admitad feed offer into the neutral indirect feed shape
  * the uniform indirect adapter consumes. Field names become provider-agnostic
  * here — the canonical spine below this bridge knows nothing about Admitad.
+ *
+ * Market binding: the offer's market is NEVER hardcoded. It comes from the
+ * caller's real signal (the merchant program's declared GEO / the offer's
+ * currency), falling back to the offer currency's home market and only then to
+ * the catalog default — so an EGP/SAR/AED offer is bound to EG/SA/AE instead of
+ * being mislabeled US.
  */
 export function admitadFeedToIndirectFeedOffer(
   offer: AdmitadFeedOffer,
+  options?: { countryCode?: string },
 ): IndirectFeedOffer {
   return {
     id: offer.id,
@@ -35,7 +44,10 @@ export function admitadFeedToIndirectFeedOffer(
     brand: offer.vendor || undefined,
     imageUrl: offer.image || undefined,
     originalPrice: offer.oldprice ?? undefined,
-    countryCode: "US",
+    countryCode:
+      options?.countryCode ??
+      resolveCountryForCurrency(offer.currencyId) ??
+      DEFAULT_COUNTRY,
   };
 }
 
@@ -48,6 +60,12 @@ export interface AdmitadFeedToRawMeta {
   urlOverride?: string;
   /** ISO timestamp of acquisition; defaulted at canonicalize time. */
   fetchedAt?: string;
+  /**
+   * Real market country the caller resolved for this offer (from the merchant
+   * program's GEO/currency). When omitted, the offer currency's home market is
+   * used. Never fabricated.
+   */
+  countryCode?: string;
 }
 
 /**
@@ -59,7 +77,9 @@ export function admitadFeedToRawOffer(
   offer: AdmitadFeedOffer,
   meta: AdmitadFeedToRawMeta,
 ): RawOffer {
-  const neutral = admitadFeedToIndirectFeedOffer(offer);
+  const neutral = admitadFeedToIndirectFeedOffer(offer, {
+    countryCode: meta.countryCode,
+  });
   const destinationUrl = meta.urlOverride || neutral.url;
   const feedMeta: IndirectFeedMeta = {
     providerId: ADMITAD_PROVIDER_ID,

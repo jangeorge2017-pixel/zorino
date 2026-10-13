@@ -20,6 +20,8 @@ import type {
 import { AMAZON_SCRAPER_MARKETPLACES } from "@/lib/integrations/amazon-scraper";
 import { getIntegrationCredential } from "@/lib/integration/credentials";
 import { computeDiscountPercent } from "@/lib/integration/normalize";
+import { DEFAULT_COUNTRY } from "@/lib/international/config";
+import { resolveCountryForCurrency } from "@/lib/integration/catalog-scope";
 import {
   getSyncStoreMeta,
   searchProviderToProductionId,
@@ -604,6 +606,7 @@ export function normalizeAdmitadRaw(
     originalPrice,
     discount,
     currency: offer.currencyId || "USD",
+    countryCode: resolveCountryForCurrency(offer.currencyId) ?? DEFAULT_COUNTRY,
     storeName: feedName || "Alibaba",
     category: "General",
     condition: classifyListingCondition(offer.name),

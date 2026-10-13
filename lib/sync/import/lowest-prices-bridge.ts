@@ -5,8 +5,9 @@
  * that table, but provider imports (AliExpress / eBay / Amazon) write only
  * `external_products` + `products` + `prices` — so their inventory feeds the
  * Homepage / Compare / PDP surfaces but never appears in Search. This bridge
- * sinks each real imported US/USD product (with a usable image + price) into
- * `lowest_prices_today` so it surfaces in Search immediately.
+ * sinks each real imported product in the catalog scope (US + the Arabic
+ * storefronts) with a usable image + price into `lowest_prices_today` so it
+ * surfaces in Search immediately.
  *
  * Fidelity:
  *  - Only REAL imported payloads are written (nothing is synthesized).
@@ -28,6 +29,12 @@ import {
   PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { getSyncStoreMeta } from "@/lib/integration/provider-context";
+import {
+  CATALOG_COUNTRIES,
+  CATALOG_CURRENCIES,
+  isCatalogCountry,
+  isCatalogCurrency,
+} from "@/lib/integration/catalog-scope";
 import type { ImportProviderId } from "@/lib/sync/providers/types";
 import type { ExternalProduct, SyncContext } from "@/lib/sync/types";
 
@@ -104,7 +111,7 @@ export async function bridgeImportedProductsToLowestPrices(
   for (const item of items) {
     const { product, productId } = item;
     if (!productId) continue;
-    if (product.countryCode !== "US" || product.currency !== "USD") continue;
+    if (!isCatalogCountry(product.countryCode) || !isCatalogCurrency(product.currency)) continue;
     if (!product.title || product.price <= 0) continue;
     const image = normalizeProductImageUrl(product.imageUrl);
     if (!image || image === PRODUCT_IMAGE_PLACEHOLDER) continue;
@@ -121,8 +128,8 @@ export async function bridgeImportedProductsToLowestPrices(
       const { data } = await db(supabase)
         .from("lowest_prices_today")
         .select("product_id, lowest_price, image_url")
-        .eq("country_code", "US")
-        .eq("currency", "USD")
+        .in("country_code", [...CATALOG_COUNTRIES])
+        .in("currency", [...CATALOG_CURRENCIES])
         .in("product_id", ids.slice(i, i + EXISTING_READ_BATCH));
       for (const row of (data ?? []) as {
         product_id: string;
