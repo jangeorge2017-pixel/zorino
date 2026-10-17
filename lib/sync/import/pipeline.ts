@@ -13,6 +13,10 @@ import {
   bridgeImportedProductsToLowestPrices,
   type BridgedProduct,
 } from "@/lib/sync/import/lowest-prices-bridge";
+import {
+  ALIEXPRESS_GLOBAL_OFFER_IDENTITY,
+  syncGlobalProductOffer,
+} from "@/lib/sync/import/global-catalog";
 import { getConnectorForIntegration } from "@/lib/sync/connectors";
 import { isImportProviderId } from "@/lib/sync/providers";
 import type { ImportProviderId } from "@/lib/sync/providers/types";
@@ -62,6 +66,20 @@ async function runConcurrent<T>(
 }
 
 /**
+ * Global multi-store schema write (products.global_sku → product_offers).
+ * AliExpress maintains this store alongside the legacy external/canonical
+ * chain so the new global tables stay in sync with every import/price sweep.
+ */
+async function writeGlobalSchemaOffer(
+  supabase: SupabaseDb,
+  provider: ImportProviderId | null,
+  product: ExternalProduct,
+): Promise<void> {
+  if (provider !== "aliexpress") return;
+  await syncGlobalProductOffer(supabase, product, ALIEXPRESS_GLOBAL_OFFER_IDENTITY);
+}
+
+/**
  * Write ONE imported product end-to-end (external row → canonical merge →
  * price snapshot → images). Shared by the full sweep and the chunked sweep so
  * both paths behave identically. Never throws into the caller.
@@ -92,6 +110,7 @@ async function writeImportedProduct(
       await upsertExternalPrice(supabase, provider, ctx.storeId, product, externalRowId, productId);
     }
     await mergeExternalPriceToCatalog(supabase, ctx, provider, product, productId);
+    await writeGlobalSchemaOffer(supabase, provider, product);
 
     if (!skipped) {
       await mergeExternalImagesToCatalog(supabase, product, productId);
@@ -133,6 +152,7 @@ async function writeImportedPriceUpdate(
       await upsertExternalPrice(supabase, provider, ctx.storeId, product, externalRowId, productId);
     }
     await mergeExternalPriceToCatalog(supabase, ctx, provider, product, productId);
+    await writeGlobalSchemaOffer(supabase, provider, product);
     bridged.push({ product, productId });
     result.itemsUpdated += 1;
   } catch {
