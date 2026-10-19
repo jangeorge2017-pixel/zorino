@@ -215,6 +215,29 @@ export const CONNECTOR_REGISTRY: ConnectorSpec[] = [
     notes: "Feed-based; no sync-layer adapter. Search connector always available when feed URL is set.",
   },
 
+  // ── ArabClicks ─────────────────────────────────────────────────────
+  {
+    id: "arabclicks",
+    name: "ArabClicks",
+    category: "affiliate-network",
+    description: "ArabClicks universal product feed — multi-store offers across MENA markets",
+    envVars: [
+      { name: "ARABCLICKS_FEED_URL", requirement: "required", description: "ArabClicks universal product feed URL (CSV or XML, contains embedded auth)", secret: true },
+      { name: "ARABCLICKS_API_KEY", requirement: "optional", description: "ArabClicks publisher API key (Noon/Jumia network transport)", secret: true },
+      { name: "ARABCLICKS_PUBLISHER_ID", requirement: "optional", description: "ArabClicks publisher ID (Noon/Jumia network transport)", secret: false },
+    ],
+    implementationFiles: [
+      "lib/integration/arabclicks.ts",
+      "lib/sync/import/arabclicks-catalog.ts",
+    ],
+    hasSearchConnector: false,
+    hasSyncProvider: true,
+    hasAffiliateLinks: true,
+    hasCatalogIntegration: true,
+    producesRealResults: true,
+    notes: "Universal feed sync into global multi-store schema; one feed covers many stores/markets. Sync runnable via syncArabClicksFeed(feedUrl).",
+  },
+
   // ── CJdropshipping ─────────────────────────────────────────────────
   {
     id: "cjdropshipping",

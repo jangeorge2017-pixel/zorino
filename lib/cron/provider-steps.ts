@@ -1,4 +1,9 @@
-import { withBudgetCap, MIN_STEP_BUDGET_MS, type CronBudget } from "@/lib/cron/budget";
+import {
+  withBudgetCap,
+  stepBudgetMs,
+  MIN_STEP_BUDGET_MS,
+  type CronBudget,
+} from "@/lib/cron/budget";
 import { ALIEXPRESS_CALL_TIMEOUT_MS } from "@/lib/integrations/aliexpress/client";
 import { runAliExpressScheduledSync } from "@/services/aliexpress";
 import { runAmazonScheduledSync } from "@/services/amazon/scheduler";
@@ -7,6 +12,7 @@ import { refreshUniversalCatalogAggregates } from "@/services/marketplace-engine
 import { triggerPhase1Imports } from "@/services/sync";
 import { runNoonIngestion } from "@/lib/integrations/noon";
 import { runJumiaIngestion } from "@/lib/integrations/jumia";
+import { runArabClicksIngestion } from "@/lib/integration/arabclicks";
 
 export const PROVIDER_STEP_KEYS = [
   "aliexpress",
@@ -16,6 +22,7 @@ export const PROVIDER_STEP_KEYS = [
   "universalCatalog",
   "noon",
   "jumia",
+  "arabclicks",
 ] as const;
 
 export type ProviderStepKey = (typeof PROVIDER_STEP_KEYS)[number];
@@ -32,6 +39,22 @@ export type ProviderStepResults = Record<ProviderStepKey, ProviderStepResult>;
  * sync_jobs, so a short cap here never loses ingestion coverage.
  */
 export const EBAY_STEP_CAP_MS = EBAY_SCHEDULED_DEADLINE_MS + 4_000;
+
+// Per-step wall-clock caps. Defaults preserve the historical 60s-serverless
+// values; on Render set the CRON_*_STEP_BUDGET_MS env vars (see render.yaml) so
+// long provider/feed parses can use the full invocation window.
+const ALIEXPRESS_STEP_BUDGET_MS = stepBudgetMs("CRON_ALIEXPRESS_STEP_BUDGET_MS", 20_000);
+const AMAZON_STEP_BUDGET_MS = stepBudgetMs("CRON_AMAZON_STEP_BUDGET_MS", 25_000);
+const PHASE1_STEP_BUDGET_MS = stepBudgetMs("CRON_PHASE1_STEP_BUDGET_MS", 25_000);
+const CATALOG_STEP_BUDGET_MS = stepBudgetMs("CRON_CATALOG_STEP_BUDGET_MS", 15_000);
+const NOON_STEP_BUDGET_MS = stepBudgetMs("CRON_NOON_STEP_BUDGET_MS", 20_000);
+const JUMIA_STEP_BUDGET_MS = stepBudgetMs("CRON_JUMIA_STEP_BUDGET_MS", 20_000);
+const ARABCLICKS_STEP_BUDGET_MS = stepBudgetMs("CRON_ARABCLICKS_STEP_BUDGET_MS", 20_000);
+
+/** Scheduler deadline for a step, leaving headroom before its hard cap. */
+function stepDeadlineMs(capMs: number): number {
+  return Math.max(5_000, capMs - 5_000);
+}
 
 /**
  * Run every heavy provider step CONCURRENTLY under the shared cron budget.
@@ -57,7 +80,7 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     // its cursor before the hard cap — never capped mid-kind.
     const deadlineMs = Math.max(
       6_000,
-      Math.min(budget.remainingMs() - (ALIEXPRESS_CALL_TIMEOUT_MS + 6_000), 20_000),
+      Math.min(budget.remainingMs() - (ALIEXPRESS_CALL_TIMEOUT_MS + 6_000), ALIEXPRESS_STEP_BUDGET_MS),
     );
     const budgetBeforeMs = budget.remainingMs();
     try {
@@ -116,7 +139,7 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     try {
       const { value, timedOut } = await withBudgetCap(
         budget,
-        25_000,
+        AMAZON_STEP_BUDGET_MS,
         "amazon-scheduled-sync",
         runAmazonScheduledSync(),
       );
@@ -139,7 +162,7 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     try {
       const { value, timedOut } = await withBudgetCap(
         budget,
-        25_000,
+        PHASE1_STEP_BUDGET_MS,
         "phase1-imports",
         triggerPhase1Imports(),
       );
@@ -158,7 +181,7 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     try {
       const { value, timedOut } = await withBudgetCap(
         budget,
-        15_000,
+        CATALOG_STEP_BUDGET_MS,
         "universal-catalog",
         refreshUniversalCatalogAggregates({ limit: 500 }),
       );
@@ -181,9 +204,9 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     try {
       const { value, timedOut } = await withBudgetCap(
         budget,
-        20_000,
+        NOON_STEP_BUDGET_MS,
         "noon-ingestion",
-        runNoonIngestion({ maxProducts: 200, deadlineMs: 15_000 }),
+        runNoonIngestion({ maxProducts: 200, deadlineMs: stepDeadlineMs(NOON_STEP_BUDGET_MS) }),
       );
       if (timedOut) return { timedOut: true };
       return {
@@ -207,9 +230,9 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     try {
       const { value, timedOut } = await withBudgetCap(
         budget,
-        20_000,
+        JUMIA_STEP_BUDGET_MS,
         "jumia-ingestion",
-        runJumiaIngestion({ maxProducts: 200, deadlineMs: 15_000 }),
+        runJumiaIngestion({ maxProducts: 200, deadlineMs: stepDeadlineMs(JUMIA_STEP_BUDGET_MS) }),
       );
       if (timedOut) return { timedOut: true };
       return {
@@ -226,6 +249,41 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     }
   })();
 
+  // ArabClicks: network transport that routes Noon EG + Jumia EG offers into
+  // the same catalog spine. Credential-gated AND endpoint-gated — until a real
+  // ArabClicks feed endpoint is configured it returns an explicit skip reason
+  // and never touches the network, so the pipeline stays unblocked.
+  const arabclicks = (async (): Promise<ProviderStepResult> => {
+    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+      return { skipped: true, reason: "budget-exhausted" };
+    }
+    try {
+      const { value, timedOut } = await withBudgetCap(
+        budget,
+        ARABCLICKS_STEP_BUDGET_MS,
+        "arabclicks-ingestion",
+        runArabClicksIngestion({
+          maxProductsPerTarget: 100,
+          deadlineMs: stepDeadlineMs(ARABCLICKS_STEP_BUDGET_MS),
+        }),
+      );
+      if (timedOut) return { timedOut: true };
+      return {
+        skipped: value?.skipped,
+        reason: value?.reason,
+        configured: value?.configured,
+        endpointConfigured: value?.endpointConfigured,
+        targetsRun: value?.targetsRun,
+        totalProducts: value?.totalProducts,
+        productsSaved: value?.productsSaved,
+        byTarget: value?.byTarget,
+        errors: value?.errors?.slice(0, 5),
+      };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : String(err) };
+    }
+  })();
+
   const [
     aliexpressResult,
     ebayResult,
@@ -234,6 +292,7 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     universalCatalogResult,
     noonResult,
     jumiaResult,
+    arabclicksResult,
   ] = await Promise.all([
     aliExpress,
     ebay,
@@ -242,6 +301,7 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     universalCatalog,
     noon,
     jumia,
+    arabclicks,
   ]);
 
   return {
@@ -252,5 +312,6 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     universalCatalog: universalCatalogResult,
     noon: noonResult,
     jumia: jumiaResult,
+    arabclicks: arabclicksResult,
   };
 }
