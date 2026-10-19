@@ -1,0 +1,39 @@
+name: Render cron ping
+
+on:
+  schedule:
+    - cron: "5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-cron-ping
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Trigger /api/cron/refresh
+        env:
+          CRON_URL: ${{ vars.CRON_URL || 'https://zorino-web.onrender.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::Repository secret CRON_SECRET is not set."
+            exit 1
+          fi
+          echo "Pinging $CRON_URL/api/cron/refresh"
+          status=$(curl -sS -m 2100 -o /tmp/cron-response.txt -w "%{http_code}" \
+            -X POST "$CRON_URL/api/cron/refresh" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "User-Agent: zorino-cron-ping")
+          echo "HTTP $status"
+          cat /tmp/cron-response.txt
+          case "$status" in
+            2*) echo "Ping succeeded." ;;
+            *) echo "::error::Cron ping returned HTTP $status"; exit 1 ;;
+          esac
