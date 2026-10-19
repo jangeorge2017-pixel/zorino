@@ -18,6 +18,8 @@ export interface ExternalProduct {
   slug: string;
   description?: string;
   brand?: string;
+  /** Global trade item number (EAN/UPC/GTIN) when the provider supplies one. */
+  barcode?: string;
   categorySlug: string;
   imageUrl: string;
   imageUrls?: string[];

@@ -9,6 +9,7 @@ import { isIntegrationConfigured } from "@/lib/integration/credentials";
 import { isAmazonScraperAvailable } from "@/lib/integrations/amazon-scraper";
 import { isNoonConfigured } from "@/lib/integrations/noon";
 import { isJumiaConfigured } from "@/lib/integrations/jumia";
+import { isArabClicksConfigured } from "@/lib/integration/arabclicks";
 import { isProviderLive } from "@/lib/integration/provider-health";
 import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
@@ -50,7 +51,12 @@ import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshippin
  * UNAVAILABLE placeholders (no credentials on Vercel). Capability-gated:
  *   credentials alone can never make these report as available, because their
  *   sync adapters are placeholders that cannot produce real products.
- *   walmart, temu, bestbuy, noon, jumia
+ *   walmart, temu, bestbuy
+ *
+ *   noon/jumia additionally report configured when the ArabClicks network
+ *   transport is configured (ARABCLICKS_API_KEY + ARABCLICKS_PUBLISHER_ID),
+ *   which routes their EG/SA/AE markets into the same catalog spine. The same
+ *   activation + endpoint gates apply (no fabricated inventory).
  */
 export function isProductionProviderConfigured(providerId: ProductionProviderId): boolean {
   switch (providerId) {
@@ -92,15 +98,18 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
     case "bestbuy":
       return isIntegrationConfigured(["BESTBUY_API_KEY"]); // Requires BESTBUY_API_KEY
     case "noon":
-      // Requires NOON_API_KEY (+ seller/country). Configured ≠ active: without
-      // a live run (or durable DB evidence) it still fails the activation gate,
-      // and without NOON_API_BASE/ENDPOINT the ingestion client never touches
-      // the network (no fabricated inventory).
-      return isNoonConfigured();
+      // Configured via EITHER the direct Noon API (NOON_API_KEY) OR the
+      // ArabClicks network transport (ARABCLICKS_API_KEY + ARABCLICKS_PUBLISHER_ID).
+      // Configured ≠ active: without a live run (or durable DB evidence) it still
+      // fails the activation gate, and without a confirmed feed endpoint
+      // (NOON_API_BASE/ENDPOINT or ARABCLICKS_API_BASE/ENDPOINT) the ingestion
+      // client never touches the network (no fabricated inventory).
+      return isNoonConfigured() || isArabClicksConfigured();
     case "jumia":
-      // Requires JUMIA_API_KEY + JUMIA_AFFILIATE_ID. Same activation/endpoint
-      // gates as noon.
-      return isJumiaConfigured();
+      // Configured via EITHER the direct Jumia API (JUMIA_API_KEY +
+      // JUMIA_AFFILIATE_ID) OR the ArabClicks network transport. Same
+      // activation/endpoint gates as noon.
+      return isJumiaConfigured() || isArabClicksConfigured();
 
     default:
       return false;

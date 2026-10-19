@@ -1,0 +1,405 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Zorino" [ref=e7]
+        - navigation "Primary" [ref=e8]:
+          - link "Deals" [ref=e9] [cursor=pointer]:
+            - /url: /deals
+          - link "Coupons" [ref=e10] [cursor=pointer]:
+            - /url: /coupons
+          - link "Compare" [ref=e11] [cursor=pointer]:
+            - /url: /compare
+          - link "Categories" [ref=e12] [cursor=pointer]:
+            - /url: /categories
+          - link "Stores" [ref=e13] [cursor=pointer]:
+            - /url: /stores
+          - link "Blog" [ref=e14] [cursor=pointer]:
+            - /url: /blog
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - link "Search" [ref=e18] [cursor=pointer]:
+              - /url: /search
+            - generic [ref=e22]:
+              - button "Theme" [ref=e24] [cursor=pointer]:
+                - generic [ref=e25]: Dark
+                - generic [ref=e29]: Light
+              - button "Language, country, and currency" [ref=e39] [cursor=pointer]
+              - link [ref=e45] [cursor=pointer]:
+                - /url: /wishlist
+              - link "Notifications" [ref=e48] [cursor=pointer]:
+                - /url: /notifications
+          - link "Sign In" [ref=e52] [cursor=pointer]:
+            - /url: /auth/login
+            - generic [ref=e53]:
+              - strong [ref=e54]: Hello, User
+              - generic [ref=e55]: Premium
+    - generic [ref=e58]:
+      - generic [ref=e59]:
+        - region "Hero" [ref=e60]:
+          - generic [ref=e62]:
+            - heading "Find Better Deals Faster" [level=1] [ref=e63]: Find BetterDeals Faster
+            - paragraph [ref=e64]: Compare prices across trusted partner stores and discover the best deals in seconds.
+            - generic [ref=e65]:
+              - article [ref=e66]:
+                - paragraph [ref=e67]: "6"
+                - paragraph [ref=e74]: Stores
+              - article [ref=e75]:
+                - paragraph [ref=e76]: 69K+
+                - paragraph [ref=e83]: Products
+              - article [ref=e84]:
+                - paragraph [ref=e85]: "0"
+                - paragraph [ref=e91]: Coupons
+              - article [ref=e92]:
+                - paragraph [ref=e93]: Real-time
+                - paragraph [ref=e99]: Price Tracking
+              - article [ref=e100]:
+                - generic [ref=e101]: "-88%"
+                - generic:
+                  - generic: ‏٩٥٫٠٠ ج.م.‏
+                  - generic: ‏٧٦٥٫٠٠ ج.م.‏
+              - article [ref=e103]:
+                - generic [ref=e104]: "-83%"
+                - generic:
+                  - generic: ‏٥٫٠٠ ج.م.‏
+                  - generic: ‏٢٩٫٩٥ ج.م.‏
+        - generic [ref=e107]:
+          - search [ref=e110]:
+            - searchbox "Search products, brands, categories..." [ref=e114]
+            - button "Smart Search" [ref=e115] [cursor=pointer]
+            - button "Search" [ref=e119] [cursor=pointer]
+          - navigation "Categories" [ref=e121]:
+            - generic [ref=e122]:
+              - link "Phones" [ref=e123] [cursor=pointer]:
+                - /url: /categories/phones
+              - link "Laptops" [ref=e128] [cursor=pointer]:
+                - /url: /categories/laptops
+              - link "Gaming" [ref=e133] [cursor=pointer]:
+                - /url: /categories/gaming
+              - link "TVs" [ref=e138] [cursor=pointer]:
+                - /url: /categories/tvs
+              - link "Home" [ref=e144] [cursor=pointer]:
+                - /url: /categories/home
+              - link "Wearables" [ref=e150] [cursor=pointer]:
+                - /url: /categories/wearables
+              - link "Fashion" [ref=e158] [cursor=pointer]:
+                - /url: /categories/fashion
+              - link "Electronics" [ref=e163] [cursor=pointer]:
+                - /url: /categories/electronics
+              - link "Audio" [ref=e172] [cursor=pointer]:
+                - /url: /categories/audio
+              - link "Beauty" [ref=e177] [cursor=pointer]:
+                - /url: /categories/beauty
+              - link "Sports" [ref=e183] [cursor=pointer]:
+                - /url: /categories/sports
+      - navigation "Quick section navigation" [ref=e194]:
+        - generic [ref=e195]:
+          - generic [ref=e196]:
+            - button "Trending Deals" [ref=e197] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e198]: 🔥
+            - button "Coupons" [ref=e200] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e201]: 🎟️
+            - button "Coupon Brands" [ref=e203] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e204]: 🎟️
+            - button "Flash Deals" [ref=e206] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e207]: ⚡
+            - button "Price Drops" [ref=e209] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e210]: 📉
+            - button "New Arrivals" [ref=e212] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e213]: 🆕
+            - button "Top Rated" [ref=e215] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e216]: ⭐
+            - button "Editor's Picks" [ref=e218] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e219]: ❤️
+            - button "Stores" [ref=e221] [cursor=pointer]:
+              - generic [aria-hidden] [ref=e222]: 🏪
+            - link "Blog" [ref=e224] [cursor=pointer]:
+              - /url: /blog
+              - generic [aria-hidden] [ref=e225]: 📰
+          - button "Show more sections" [ref=e227] [cursor=pointer]
+      - region "Home content" [ref=e230]:
+        - region "Trending deals and coupons" [ref=e232]:
+          - region [ref=e233]:
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - generic [ref=e241]:
+                  - heading "Trending Deals" [level=2] [ref=e242]
+                  - paragraph [ref=e243]: Hot picks shoppers are grabbing right now
+                - generic [ref=e244]:
+                  - link "View All Deals" [ref=e245] [cursor=pointer]:
+                    - /url: /deals
+                  - generic [ref=e249]:
+                    - generic [ref=e250]: Filter by Store
+                    - combobox "Filter by Store" [ref=e251] [cursor=pointer]:
+                      - option "All Deals" [selected]
+                      - option "Admitad"
+                      - option "AliExpress"
+                      - option "Amazon"
+                      - option "Amazon Egypt"
+                      - option "eBay"
+                      - option "Glasseslit WW"
+                      - option "The Deal Outlet AE SA"
+                      - option "Touch UA"
+                  - generic [ref=e252]:
+                    - generic [ref=e253]: Sort by
+                    - combobox "Sort by" [ref=e254] [cursor=pointer]:
+                      - option "Biggest Discount" [selected]
+                      - option "Most Popular"
+                      - option "Newest"
+                      - option "Lowest Price"
+              - tablist "Filter trending deals" [ref=e257]:
+                - tab "All Deals" [selected] [ref=e258] [cursor=pointer]
+                - tab "Trending" [ref=e259] [cursor=pointer]
+                - tab "Hot" [ref=e260] [cursor=pointer]
+                - tab "Best Value" [ref=e261] [cursor=pointer]
+            - generic [ref=e262]:
+              - button "Previous deals" [disabled] [ref=e263]
+              - generic [ref=e266]:
+                - generic [ref=e267]:
+                  - article [ref=e270]:
+                    - generic [ref=e271]:
+                      - img "لينجلينج ألوان أخرى Lengling No 4 Travel Set Trave for للنساء والرجال" [ref=e273]
+                      - generic:
+                        - generic [ref=e274]: The Deal Outlet AE SA
+                        - generic [ref=e275]: "-88%"
+                      - generic: Featured
+                    - generic [ref=e277]:
+                      - heading "لينجلينج ألوان أخرى Lengling No 4 Travel Set Trave for للنساء والرجال" [level=3] [ref=e278]
+                      - paragraph [ref=e279]: The Deal Outlet AE SA
+                      - generic [ref=e281]:
+                        - generic [ref=e282]: ‏٩٥٫٠٠ ج.م.‏
+                        - generic [ref=e283]: ‏٧٦٥٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e284]
+                    - generic [ref=e285]:
+                      - generic [ref=e286]:
+                        - link "Shop Now" [ref=e287] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=admitad-28750-399116612604&store=the-deal-outlet-ae-sa&to=https%3A%2F%2Fbywiola.com%2Fg%2Fwjw0v6sq2u32ef59cc79b6c5579bcf%2F%3Ff_id%3D25037%26ulp%3Dhttps%253A%252F%252Fwww.thedealoutlet.com%252Fae-ar%252Flengling-no-4-travel-set-trave%252F399116612604.html&source=search
+                        - link "Compare Prices" [ref=e292] [cursor=pointer]:
+                          - /url: /product/admitad-28750-399116612604#compare-prices
+                      - paragraph [ref=e295]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e297] [cursor=pointer]
+                  - article [ref=e303]:
+                    - generic [ref=e304]:
+                      - img "200732 Cateye Eyeglasses" [ref=e306]
+                      - generic:
+                        - generic [ref=e307]: Glasseslit WW
+                        - generic [ref=e308]: "-83%"
+                      - generic: Featured
+                    - generic [ref=e310]:
+                      - heading "200732 Cateye Eyeglasses" [level=3] [ref=e311]
+                      - paragraph [ref=e312]: Glasseslit WW
+                      - generic [ref=e314]:
+                        - generic [ref=e315]: ‏٥٫٠٠ ج.م.‏
+                        - generic [ref=e316]: ‏٢٩٫٩٥ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e317]
+                    - generic [ref=e318]:
+                      - generic [ref=e319]:
+                        - link "Shop Now" [ref=e320] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=db-7e3cb91d-a62f-4265-bd5f-4e485fd359cb&store=glasseslit-ww&to=https%3A%2F%2Fcodeaven.com%2Fg%2Fmmjnepjawo32ef59cc79de0721ef8d%2F%3Ff_id%3D17760%26ulp%3Dhttps%253A%252F%252Fwww.glasseslit.com%252Fproinfo%252F200732-bluish_green-200732&source=search
+                        - link "Compare Prices" [ref=e325] [cursor=pointer]:
+                          - /url: /product/db-7e3cb91d-a62f-4265-bd5f-4e485fd359cb#compare-prices
+                      - paragraph [ref=e328]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e330] [cursor=pointer]
+                  - article [ref=e336]:
+                    - generic [ref=e337]:
+                      - img "HP Windows 11 Pro 14\" Laptop PC i5 11th Gen, up to 32GB RAM, 2TB NVMe SSD" [ref=e339]
+                      - generic:
+                        - generic [ref=e340]: eBay
+                        - generic [ref=e341]: "-80%"
+                      - generic: Featured
+                    - generic [ref=e343]:
+                      - heading "HP Windows 11 Pro 14\" Laptop PC i5 11th Gen, up to 32GB RAM, 2TB NVMe SSD" [level=3] [ref=e344]
+                      - paragraph [ref=e345]: eBay
+                      - generic [ref=e347]:
+                        - generic [ref=e348]: ‏٢٢٤٫٠٠ ج.م.‏
+                        - generic [ref=e349]: ‏١٬١٢٠٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e350]
+                    - generic [ref=e351]:
+                      - generic [ref=e352]:
+                        - link "Shop Now" [ref=e353] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=ebay-v1%7C298220737822%7C595235303663&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F298220737822%3F_skw%3Dlaptop%26hash%3Ditem456f57551e%253Ag%253A0h4AAeSw64Vqqh1x%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                        - link "Compare Prices" [ref=e358] [cursor=pointer]:
+                          - /url: /product/ebay-v1%7C298220737822%7C595235303663#compare-prices
+                      - paragraph [ref=e361]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e363] [cursor=pointer]
+                  - article [ref=e369]:
+                    - generic [ref=e370]:
+                      - 'img "RV Backup Camera Wireless Easy Install: Plug & Play for Furrion Pre-Wired RVs - 7″ HD Touch Key Monitor, 1080P DVR, 4-Channel Sp" [ref=e372]'
+                      - generic:
+                        - generic [ref=e373]: AliExpress
+                        - generic [ref=e374]: "-76%"
+                      - generic: Featured
+                    - generic [ref=e376]:
+                      - 'heading "RV Backup Camera Wireless Easy Install: Plug & Play for Furrion Pre-Wired RVs - 7″ HD Touch Key Monitor, 1080P DVR, 4-Channel Sp" [level=3] [ref=e377]'
+                      - paragraph [ref=e378]: AliExpress
+                      - generic [ref=e380]:
+                        - generic [ref=e381]: ‏١٤٧٫٣٧ ج.م.‏
+                        - generic [ref=e382]: ‏٦١٤٫٠٤ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e383]
+                    - generic [ref=e384]:
+                      - generic [ref=e385]:
+                        - link "Shop Now" [ref=e386] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=aliexpress-3256812538505823&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812538505823.html%3Fpdp_npi%3D6%2540dis%2521USD%2521614.04%2521147.37%2521%2521%25214101.83%2521984.44%2521%25402101611117903477675493551e0d2f%252112000059172062120%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                        - link "Compare Prices" [ref=e391] [cursor=pointer]:
+                          - /url: /product/aliexpress-3256812538505823#compare-prices
+                      - paragraph [ref=e394]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e396] [cursor=pointer]
+                  - article [ref=e402]:
+                    - generic [ref=e403]:
+                      - img "Аккумулятор Autel EVO Lite/ Lite Plus Intelligent Battery (102001175) Orange" [ref=e405]
+                      - generic:
+                        - generic [ref=e406]: Touch UA
+                        - generic [ref=e407]: "-56%"
+                      - generic: Featured
+                    - generic [ref=e409]:
+                      - heading "Аккумулятор Autel EVO Lite/ Lite Plus Intelligent Battery (102001175) Orange" [level=3] [ref=e410]
+                      - paragraph [ref=e411]: Touch UA
+                      - generic [ref=e413]:
+                        - generic [ref=e414]: ‏٤٬١٨٩٫٠٠ ج.م.‏
+                        - generic [ref=e415]: ‏٩٬٥٩٩٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e416]
+                    - generic [ref=e417]:
+                      - generic [ref=e418]:
+                        - link "Shop Now" [ref=e419] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=admitad-21026-67331&store=touch-ua&to=https%3A%2F%2Fwbbsv.com%2Fg%2Fynys1f2mjp32ef59cc790e81904d8b%2F%3Ff_id%3D20724%26ulp%3Dhttps%253A%252F%252Ftouch.com.ua%252Fua%252Fitem%252Fautel-evo-lite-lite-plus-intelligent-battery-102001175-orange-akb%252F&source=search
+                        - link "Compare Prices" [ref=e424] [cursor=pointer]:
+                          - /url: /product/admitad-21026-67331#compare-prices
+                      - paragraph [ref=e427]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e429] [cursor=pointer]
+                  - article [ref=e435]:
+                    - generic [ref=e436]:
+                      - img "Apple iPhone 16 (128 GB) - Pink with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e438]
+                      - generic: Amazon Egypt
+                    - generic [ref=e440]:
+                      - heading "Apple iPhone 16 (128 GB) - Pink with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e441]
+                      - paragraph [ref=e442]: Amazon Egypt
+                      - generic [ref=e443]: 4.5 (2,618)
+                      - generic [ref=e447]: ‏٥٨٬٠٠٠٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e449]
+                    - generic [ref=e450]:
+                      - generic [ref=e451]:
+                        - link "Shop Now" [ref=e452] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=amazon-eg-B0DGJ8YZDF&store=amazon-egypt&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-16-128-GB%2Fdp%2FB0DGJ8YZDF%2Fref%3Dsr_1_9%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muh2u4gj_xzwzvq24&source=search
+                        - link "Compare Prices" [ref=e457] [cursor=pointer]:
+                          - /url: /product/amazon-eg-B0DGJ8YZDF#compare-prices
+                      - paragraph [ref=e460]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e462] [cursor=pointer]
+                  - article [ref=e468]:
+                    - generic [ref=e469]:
+                      - img "Apple iPhone 15, 128GB, Black (Renewed)" [ref=e471]
+                      - generic: Amazon
+                    - generic [ref=e473]:
+                      - heading "Apple iPhone 15, 128GB, Black (Renewed)" [level=3] [ref=e474]
+                      - paragraph [ref=e475]: Amazon
+                      - generic [ref=e476]: 3.8 (3,207)
+                      - generic [ref=e480]: ‏٣٥٥٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e482]
+                    - generic [ref=e483]:
+                      - generic [ref=e484]:
+                        - link "Shop Now" [ref=e485] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=amazon-B0CVJ23L79&store=amazon&to=https%3A%2F%2Fwww.amazon.co.uk%2FApple-iPhone-15-128-GB-Black%2Fdp%2FB0CVJ23L79%2Fref%3Dsr_1_7%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muh2u5hj_hf6mz8gz&source=search
+                        - link "Compare Prices" [ref=e490] [cursor=pointer]:
+                          - /url: /product/amazon-B0CVJ23L79#compare-prices
+                      - paragraph [ref=e493]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e495] [cursor=pointer]
+                  - article [ref=e501]:
+                    - generic [ref=e502]:
+                      - img "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [ref=e504]
+                      - generic: Admitad
+                    - generic [ref=e506]:
+                      - heading "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [level=3] [ref=e507]
+                      - paragraph [ref=e508]: Admitad
+                      - generic [ref=e510]: ‏١٨٨٫٠٠ ج.م.‏
+                      - paragraph [aria-hidden] [ref=e512]
+                    - generic [ref=e513]:
+                      - generic [ref=e514]:
+                        - link "Shop Now" [ref=e515] [cursor=pointer]:
+                          - /url: /api/affiliate/go?productId=admitad-20881-60839430013&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60839430013%26i%3D5%26f_id%3D50001&source=search
+                        - link "Compare Prices" [ref=e520] [cursor=pointer]:
+                          - /url: /product/admitad-20881-60839430013#compare-prices
+                      - paragraph [ref=e523]: ZORINO earns commissions on qualifying purchases.
+                    - button "Add to Wishlist" [ref=e525] [cursor=pointer]
+                - button "Next deals" [ref=e529] [cursor=pointer]
+          - region [ref=e532]:
+            - generic [ref=e534]:
+              - heading "Top Coupons" [level=2] [ref=e540]
+              - link "View All Coupons" [ref=e542] [cursor=pointer]:
+                - /url: /coupons
+            - paragraph [ref=e547]: No coupons available right now.
+      - region "Featured products" [ref=e548]
+      - region "Call to action" [ref=e550]:
+        - region [ref=e551]:
+          - generic [ref=e552]:
+            - generic [ref=e553]:
+              - paragraph [ref=e554]: Start saving today
+              - heading "Your smartest way to shop online" [level=2] [ref=e558]
+              - paragraph [ref=e559]: Compare prices across marketplaces, unlock verified coupon codes, and catch flash deals before they disappear.
+            - generic [ref=e560]:
+              - link "Explore Deals" [ref=e561] [cursor=pointer]:
+                - /url: /deals
+              - link "Compare Prices" [ref=e564] [cursor=pointer]:
+                - /url: /compare
+              - link "Get Coupons" [ref=e569] [cursor=pointer]:
+                - /url: /coupons
+      - generic [ref=e573]:
+        - generic [ref=e574]:
+          - generic [ref=e575]:
+            - heading "Featured Stores" [level=2] [ref=e576]
+            - link "View all stores" [ref=e577] [cursor=pointer]:
+              - /url: /stores
+          - generic [ref=e578]:
+            - link [ref=e579] [cursor=pointer]:
+              - /url: /stores/aliexpress
+              - img "AliExpress" [ref=e580]
+            - link [ref=e581] [cursor=pointer]:
+              - /url: /stores/ebay
+              - img "eBay" [ref=e582]
+            - link [ref=e583] [cursor=pointer]:
+              - /url: /stores/admitad
+              - img "Admitad" [ref=e584]
+            - link [ref=e585] [cursor=pointer]:
+              - /url: /stores/cjdropshipping
+              - img "CJdropshipping" [ref=e586]
+        - generic [ref=e587]:
+          - generic [ref=e588]:
+            - heading "Newsletter" [level=2] [ref=e589]
+            - paragraph [ref=e593]: Get weekly deal alerts, price drops, and exclusive coupon codes delivered to your inbox.
+          - generic [ref=e594]:
+            - textbox "Enter your email" [ref=e595]
+            - button "Subscribe" [ref=e596] [cursor=pointer]
+        - generic [ref=e600]:
+          - generic [ref=e601]:
+            - generic [ref=e602]:
+              - strong [ref=e607]: "6"
+              - generic [ref=e608]: Stores
+            - generic [ref=e609]:
+              - strong [ref=e614]: 69K+
+              - generic [ref=e615]: Products
+            - generic [ref=e616]:
+              - strong [ref=e620]: "0"
+              - generic [ref=e621]: Coupons
+            - generic [ref=e622]:
+              - strong [ref=e628]: "0"
+              - generic [ref=e629]: Happy Users
+          - paragraph [ref=e630]:
+            - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+            - link "Learn more" [ref=e631] [cursor=pointer]:
+              - /url: /affiliate-disclosure
+        - navigation "Legal" [ref=e632]:
+          - link "Imprint" [ref=e633] [cursor=pointer]:
+            - /url: /imprint
+          - link "About" [ref=e634] [cursor=pointer]:
+            - /url: /about
+          - link "Privacy" [ref=e635] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e636] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies" [ref=e637] [cursor=pointer]:
+            - /url: /cookies
+          - link "Affiliate" [ref=e638] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+          - link "Contact" [ref=e639] [cursor=pointer]:
+            - /url: /contact
+  - alert [ref=e640]

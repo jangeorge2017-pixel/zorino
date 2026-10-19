@@ -1,0 +1,129 @@
+previews:
+  generation: off
+
+envVarGroups:
+  - name: zorino-shared
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+
+services:
+  - type: web
+    name: zorino-web
+    runtime: node
+    region: frankfurt
+    plan: 1c-2g
+    branch: main
+    autoDeployTrigger: commit
+    healthCheckPath: /robots.txt
+    maxShutdownDelaySeconds: 120
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://zorino.org
+      - fromGroup: zorino-shared
+      - key: CRON_BUDGET_MS
+        value: "1800000"
+      - key: CRON_MIN_STEP_BUDGET_MS
+        value: "12000"
+      - key: CRON_SYNC_STEP_BUDGET_MS
+        value: "900000"
+      - key: CRON_ADMITAD_STEP_BUDGET_MS
+        value: "900000"
+      - key: CRON_ADMITAD_BACKFILL_STEP_BUDGET_MS
+        value: "300000"
+      - key: CRON_ALIEXPRESS_STEP_BUDGET_MS
+        value: "600000"
+      - key: CRON_AMAZON_STEP_BUDGET_MS
+        value: "600000"
+      - key: CRON_PHASE1_STEP_BUDGET_MS
+        value: "600000"
+      - key: CRON_CATALOG_STEP_BUDGET_MS
+        value: "300000"
+      - key: CRON_NOON_STEP_BUDGET_MS
+        value: "300000"
+      - key: CRON_JUMIA_STEP_BUDGET_MS
+        value: "300000"
+      - key: CRON_ARABCLICKS_STEP_BUDGET_MS
+        value: "600000"
+      - key: ADMITAD_MAX_FEEDS
+        value: "20"
+      - key: ADMITAD_MAX_PRODUCTS_PER_FEED
+        value: "2000"
+      - key: ALIEXPRESS_APP_KEY
+        sync: false
+      - key: ALIEXPRESS_APP_SECRET
+        sync: false
+      - key: ALIEXPRESS_TRACKING_ID
+        sync: false
+      - key: ALIEXPRESS_AFFILIATE_BASE_URL
+        value: https://s.click.aliexpress.com/deep_link.htm
+      - key: EBAY_APP_ID
+        sync: false
+      - key: EBAY_CERT_ID
+        sync: false
+      - key: EBAY_CAMPAIGN_ID
+        sync: false
+      - key: EBAY_VERIFICATION_TOKEN
+        sync: false
+      - key: EBAY_NOTIFICATION_ENDPOINT_URL
+        value: https://www.zorino.org/api/ebay/notifications
+      - key: EBAY_SANDBOX
+        value: "false"
+      - key: ADMITAD_CLIENT_ID
+        sync: false
+      - key: ADMITAD_CLIENT_SECRET
+        sync: false
+      - key: ADMITAD_FEED_URL
+        sync: false
+      - key: CJDROPSHIPPING_API_KEY
+        sync: false
+      - key: ARABCLICKS_FEED_URL
+        sync: false
+      - key: ARABCLICKS_API_KEY
+        sync: false
+      - key: ARABCLICKS_PUBLISHER_ID
+        sync: false
+
+  - type: worker
+    name: zorino-worker
+    runtime: node
+    region: frankfurt
+    plan: 0.5c-512mb
+    branch: main
+    autoDeployTrigger: commit
+    maxShutdownDelaySeconds: 120
+    buildCommand: npm ci
+    startCommand: node scripts/worker.mjs
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: NODE_ENV
+        value: production
+      - fromGroup: zorino-shared
+      - key: SYNC_CRON_URL
+        fromService:
+          type: web
+          name: zorino-web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: WORKER_JOBS
+        value: /api/cron/refresh,/api/cron/sync
+      - key: WORKER_INTERVAL_MS
+        value: "3600000"
+      - key: WORKER_RUN_ON_START
+        value: "true"
+      - key: WORKER_REQUEST_TIMEOUT_MS
+        value: "2100000"

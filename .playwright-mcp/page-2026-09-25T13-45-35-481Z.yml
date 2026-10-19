@@ -1,0 +1,1083 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e3]:
+    - banner [ref=f2e4]:
+      - generic [ref=f2e5]:
+        - link [ref=f2e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f2e7]
+        - button "Menu" [ref=f2e8] [cursor=pointer]
+        - generic [ref=f2e10]:
+          - link "Search" [ref=f2e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f2e16] [cursor=pointer]:
+            - generic [ref=f2e17]: Dark
+            - generic [ref=f2e21]: Light
+          - button "Language, country, and currency" [ref=f2e31] [cursor=pointer]:
+            - generic [ref=f2e35]: EN · EGP
+          - link "Wishlist" [ref=f2e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f2e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f2e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f2e52]: Hello, User
+    - main [ref=f2e53]:
+      - generic [ref=f2e103]:
+        - generic [ref=f2e106]:
+          - heading "Search Results" [level=1] [ref=f2e107]
+          - paragraph [ref=f2e108]: Showing results for "iphone 15 pro case"
+        - generic [ref=f2e109]:
+          - complementary [ref=f2e110]:
+            - generic [ref=f2e111]:
+              - heading "Filters" [level=2] [ref=f2e112]
+              - button "Clear" [ref=f2e115] [cursor=pointer]
+            - generic [ref=f2e116]:
+              - generic [ref=f2e117]:
+                - generic [ref=f2e118]: Search for products, brands or categories...
+                - textbox "Search for products, brands or categories..." [ref=f2e119]: iphone 15 pro case
+              - generic [ref=f2e120]:
+                - generic [ref=f2e121]: Categories
+                - combobox [ref=f2e122] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "phones"
+                  - option "Phones & Telecommunications Accessories"
+                  - option "Open box"
+                  - option "New"
+                  - option "General"
+              - generic [ref=f2e123]:
+                - generic [ref=f2e124]: Stores
+                - combobox [ref=f2e125] [cursor=pointer]:
+                  - option "All Stores" [selected]
+                  - option "Alibaba WW"
+                  - option "AliExpress"
+                  - option "eBay"
+              - generic [ref=f2e126]:
+                - generic [ref=f2e127]: Price Range
+                - generic [ref=f2e128]:
+                  - spinbutton "Min Price" [ref=f2e130]
+                  - spinbutton "Max Price" [ref=f2e132]
+              - generic [ref=f2e133]:
+                - generic [ref=f2e134]: Rating
+                - combobox [ref=f2e135] [cursor=pointer]:
+                  - option "All Ratings" [selected]
+                  - option "4+ Stars"
+                  - option "3+ Stars"
+                  - option "2+ Stars"
+              - generic [ref=f2e136] [cursor=pointer]:
+                - checkbox "In Stock Only" [ref=f2e137]
+                - generic [ref=f2e138]: In Stock Only
+              - button "Filter" [ref=f2e139] [cursor=pointer]
+          - generic [ref=f2e140]:
+            - generic [ref=f2e141]:
+              - generic [ref=f2e142]: 50 of 1782 results
+              - combobox [ref=f2e144] [cursor=pointer]:
+                - option "Relevance" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Rating"
+            - generic [ref=f2e145]:
+              - article [ref=f2e146]:
+                - generic [ref=f2e147]:
+                  - img "For iPhone 15 Pro CaseNeo Finger Grip Strap MagSafe Leather Phone Case(Brown)" [ref=f2e149]
+                  - generic: Sunsky-online WW
+                - generic [ref=f2e151]:
+                  - heading "For iPhone 15 Pro CaseNeo Finger Grip Strap MagSafe Leather Phone Case(Brown)" [level=3] [ref=f2e152]
+                  - paragraph [ref=f2e153]: phones • Sunsky-online WW
+                  - generic [ref=f2e155]: ‏٦٫١٠ ج.م.‏
+                  - paragraph [ref=f2e157]: In Stock
+                - generic [ref=f2e158]:
+                  - generic [ref=f2e159]:
+                    - link "Shop Now" [ref=f2e160] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-0281ba11-f9b1-4a5f-ac81-edc7b3816110&store=admitad&to=https%3A%2F%2Fdorinebeaumont.com%2Fg%2F7npkd4cs1i32ef59cc79869a299fda%2F%3Ff_id%3D15768%26ulp%3Dhttps%253A%252F%252Fwww.sunsky-online.com%252Fv%252F3719389&source=search
+                    - link "Compare Prices" [ref=f2e165] [cursor=pointer]:
+                      - /url: /product/db-0281ba11-f9b1-4a5f-ac81-edc7b3816110#compare-prices
+                  - paragraph [ref=f2e168]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e170] [cursor=pointer]
+              - article [ref=f2e174]:
+                - generic [ref=f2e175]:
+                  - img "Anti Fingerprint Cross Bible Phone Case For iPhone 17 16 15 14 13 12 11 Pro Xs Max Plus Air Mini XR X 17e 16e Plating Cover" [ref=f2e177]
+                  - generic:
+                    - generic [ref=f2e178]: AliExpress
+                    - generic [ref=f2e179]: "-50%"
+                - generic [ref=f2e180]:
+                  - heading "Anti Fingerprint Cross Bible Phone Case For iPhone 17 16 15 14 13 12 11 Pro Xs Max Plus Air Mini XR X 17e 16e Plating Cover" [level=3] [ref=f2e181]
+                  - paragraph [ref=f2e182]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e183]: 4.8 (28 sold)
+                  - generic [ref=f2e187]:
+                    - generic [ref=f2e188]: ‏٢٫٧٧ ج.م.‏
+                    - generic [ref=f2e189]: ‏٥٫٥٤ ج.م.‏
+                  - paragraph [ref=f2e190]: In Stock
+                - generic [ref=f2e191]:
+                  - generic [ref=f2e192]:
+                    - link "Shop Now" [ref=f2e193] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811923305819&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811923305819.html%3Fpdp_npi%3D6%2540dis%2521USD%25215.54%25212.77%2521%2521%252136.98%252118.49%2521%25402151fd2c17903439052331392e0d5e%252112000057537795742%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e198] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811923305819#compare-prices
+                  - paragraph [ref=f2e201]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e203] [cursor=pointer]
+              - article [ref=f2e207]:
+                - generic [ref=f2e208]:
+                  - img "Genuine Original Leather/ Silicone Case for Apple iPhone 15, Plus, Pro, Pro Max" [ref=f2e210]
+                  - generic:
+                    - generic [ref=f2e211]: eBay
+                    - generic [ref=f2e212]: "-50%"
+                - generic [ref=f2e213]:
+                  - heading "Genuine Original Leather/ Silicone Case for Apple iPhone 15, Plus, Pro, Pro Max" [level=3] [ref=f2e214]
+                  - paragraph [ref=f2e215]: Open box • eBay
+                  - generic [ref=f2e217]:
+                    - generic [ref=f2e218]: ‏٩٫٩٩ ج.م.‏
+                    - generic [ref=f2e219]: ‏١٩٫٩٨ ج.م.‏
+                  - paragraph [ref=f2e220]: In Stock
+                - generic [ref=f2e221]:
+                  - generic [ref=f2e222]:
+                    - link "Shop Now" [ref=f2e223] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C166731163357%7C466376283119&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F166731163357%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem26d1f3a6dd%253Ag%253AqpcAAOSw4BZmKeTV%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e228] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C166731163357%7C466376283119#compare-prices
+                  - paragraph [ref=f2e231]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e233] [cursor=pointer]
+              - article [ref=f2e237]:
+                - generic [ref=f2e238]:
+                  - img "SHINECON 3D VR Glasses Virtual Reality Headset for iPhone & Android Smartphone" [ref=f2e240]
+                  - generic: Alibaba WW
+                - generic [ref=f2e242]:
+                  - heading "SHINECON 3D VR Glasses Virtual Reality Headset for iPhone & Android Smartphone" [level=3] [ref=f2e243]
+                  - paragraph [ref=f2e244]: phones • Alibaba WW
+                  - generic [ref=f2e246]: ‏٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f2e248]: In Stock
+                - generic [ref=f2e249]:
+                  - generic [ref=f2e250]:
+                    - link "Shop Now" [ref=f2e251] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-d0da24a0-f9e7-455b-a653-8ec80d496cb1&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60660790831%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e256] [cursor=pointer]:
+                      - /url: /product/db-d0da24a0-f9e7-455b-a653-8ec80d496cb1#compare-prices
+                  - paragraph [ref=f2e259]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e261] [cursor=pointer]
+              - article [ref=f2e265]:
+                - generic [ref=f2e266]:
+                  - img "3D Cartoon Bowknot Puppy Warm Fluffy Plush Phone Case For iPhone 17 Air 16 15 14 13 12 11 Pro Max With Lanyard Shockproof Cover" [ref=f2e268]
+                  - generic:
+                    - generic [ref=f2e269]: AliExpress
+                    - generic [ref=f2e270]: "-50%"
+                - generic [ref=f2e271]:
+                  - heading "3D Cartoon Bowknot Puppy Warm Fluffy Plush Phone Case For iPhone 17 Air 16 15 14 13 12 11 Pro Max With Lanyard Shockproof Cover" [level=3] [ref=f2e272]
+                  - paragraph [ref=f2e273]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e274]: 5 (19 sold)
+                  - generic [ref=f2e278]:
+                    - generic [ref=f2e279]: ‏٦٫١١ ج.م.‏
+                    - generic [ref=f2e280]: ‏١٢٫٢٢ ج.م.‏
+                  - paragraph [ref=f2e281]: In Stock
+                - generic [ref=f2e282]:
+                  - generic [ref=f2e283]:
+                    - link "Shop Now" [ref=f2e284] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256810487193808&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256810487193808.html%3Fpdp_npi%3D6%2540dis%2521USD%252112.22%25216.11%2521%2521%252181.66%252140.83%2521%25402151fd2c17903439052331392e0d5e%252112000053150844995%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e289] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256810487193808#compare-prices
+                  - paragraph [ref=f2e292]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e294] [cursor=pointer]
+              - article [ref=f2e298]:
+                - generic [ref=f2e299]:
+                  - img "For iPhone 15 14 13 12 11 Pro Max Mini Soft Silicone Clear Cover Shockproof Case" [ref=f2e301]
+                  - generic:
+                    - generic [ref=f2e302]: eBay
+                    - generic [ref=f2e303]: "-20%"
+                - generic [ref=f2e304]:
+                  - heading "For iPhone 15 14 13 12 11 Pro Max Mini Soft Silicone Clear Cover Shockproof Case" [level=3] [ref=f2e305]
+                  - paragraph [ref=f2e306]: New • eBay
+                  - generic [ref=f2e308]:
+                    - generic [ref=f2e309]: ‏٣٫٩٩ ج.م.‏
+                    - generic [ref=f2e310]: ‏٤٫٩٩ ج.م.‏
+                  - paragraph [ref=f2e311]: In Stock
+                - generic [ref=f2e312]:
+                  - generic [ref=f2e313]:
+                    - link "Shop Now" [ref=f2e314] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C335130772774%7C544363901041&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F335130772774%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem4e0759c526%253Ag%253Am8sAAOSwZ9FlDUrW%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e319] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C335130772774%7C544363901041#compare-prices
+                  - paragraph [ref=f2e322]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e324] [cursor=pointer]
+              - article [ref=f2e328]:
+                - generic [ref=f2e329]:
+                  - img "ShenZhen Factory price Premium display Mobile Phone LCDs screen for Iphone 6" [ref=f2e331]
+                  - generic: Alibaba WW
+                - generic [ref=f2e333]:
+                  - heading "ShenZhen Factory price Premium display Mobile Phone LCDs screen for Iphone 6" [level=3] [ref=f2e334]
+                  - paragraph [ref=f2e335]: phones • Alibaba WW
+                  - generic [ref=f2e337]: ‏٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f2e339]: In Stock
+                - generic [ref=f2e340]:
+                  - generic [ref=f2e341]:
+                    - link "Shop Now" [ref=f2e342] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-50312e52-c935-4abf-adc1-4e9df97a68d0&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62483657263%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e347] [cursor=pointer]:
+                      - /url: /product/db-50312e52-c935-4abf-adc1-4e9df97a68d0#compare-prices
+                  - paragraph [ref=f2e350]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e352] [cursor=pointer]
+              - article [ref=f2e356]:
+                - generic [ref=f2e357]:
+                  - img "Cute Plush Phone Case with Quirky Expressions For iPhone 17 Pro Max 16Plus 15 14 13 Anti-Fall Protective Cover" [ref=f2e359]
+                  - generic:
+                    - generic [ref=f2e360]: AliExpress
+                    - generic [ref=f2e361]: "-50%"
+                - generic [ref=f2e362]:
+                  - heading "Cute Plush Phone Case with Quirky Expressions For iPhone 17 Pro Max 16Plus 15 14 13 Anti-Fall Protective Cover" [level=3] [ref=f2e363]
+                  - paragraph [ref=f2e364]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e365]: 5 (16 sold)
+                  - generic [ref=f2e369]:
+                    - generic [ref=f2e370]: ‏٦٫٨٣ ج.م.‏
+                    - generic [ref=f2e371]: ‏١٣٫٦٦ ج.م.‏
+                  - paragraph [ref=f2e372]: In Stock
+                - generic [ref=f2e373]:
+                  - generic [ref=f2e374]:
+                    - link "Shop Now" [ref=f2e375] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811625168879&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811625168879.html%3Fpdp_npi%3D6%2540dis%2521USD%252113.66%25216.83%2521%2521%252191.28%252145.64%2521%25402151fd2c17903439052331392e0d5e%252112000056652014744%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e380] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811625168879#compare-prices
+                  - paragraph [ref=f2e383]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e385] [cursor=pointer]
+              - article [ref=f2e389]:
+                - generic [ref=f2e390]:
+                  - img "Heavy Duty Metal Armor Case for iPhone 18 Pro Max 17 16 15 14 Shockproof Cover" [ref=f2e392]
+                  - generic:
+                    - generic [ref=f2e393]: eBay
+                    - generic [ref=f2e394]: "-15%"
+                - generic [ref=f2e395]:
+                  - heading "Heavy Duty Metal Armor Case for iPhone 18 Pro Max 17 16 15 14 Shockproof Cover" [level=3] [ref=f2e396]
+                  - paragraph [ref=f2e397]: New • eBay
+                  - generic [ref=f2e399]:
+                    - generic [ref=f2e400]: ‏١٥٫٧٩ ج.م.‏
+                    - generic [ref=f2e401]: ‏١٨٫٥٨ ج.م.‏
+                  - paragraph [ref=f2e402]: In Stock
+                - generic [ref=f2e403]:
+                  - generic [ref=f2e404]:
+                    - link "Shop Now" [ref=f2e405] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C128087192998%7C429497083545&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F128087192998%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem1dd29775a6%253Ag%253AGmwAAOSwZ6dmva8Z%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e410] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C128087192998%7C429497083545#compare-prices
+                  - paragraph [ref=f2e413]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e415] [cursor=pointer]
+              - article [ref=f2e419]:
+                - generic [ref=f2e420]:
+                  - img "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [ref=f2e422]
+                  - generic: Admitad
+                - generic [ref=f2e424]:
+                  - heading "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [level=3] [ref=f2e425]
+                  - paragraph [ref=f2e426]: General • Admitad
+                  - generic [ref=f2e428]: ‏١٨٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f2e430]: In Stock
+                - generic [ref=f2e431]:
+                  - generic [ref=f2e432]:
+                    - link "Shop Now" [ref=f2e433] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60839430013&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60839430013%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e438] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60839430013#compare-prices
+                  - paragraph [ref=f2e441]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e443] [cursor=pointer]
+              - article [ref=f2e447]:
+                - generic [ref=f2e448]:
+                  - img "Funda Phone Cover Phone Case for Apple iPhone 17 Pro Max 15 Pro 7 8 Air 17e 14 16 11 12 13 XR XS MAX Van Gogh Starry Night Cat" [ref=f2e450]
+                  - generic: AliExpress
+                - generic [ref=f2e452]:
+                  - heading "Funda Phone Cover Phone Case for Apple iPhone 17 Pro Max 15 Pro 7 8 Air 17e 14 16 11 12 13 XR XS MAX Van Gogh Starry Night Cat" [level=3] [ref=f2e453]
+                  - paragraph [ref=f2e454]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e455]: 5 (30 sold)
+                  - generic [ref=f2e459]: ‏٢٫٩٣ ج.م.‏
+                  - paragraph [ref=f2e461]: In Stock
+                - generic [ref=f2e462]:
+                  - generic [ref=f2e463]:
+                    - link "Shop Now" [ref=f2e464] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811846969735&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811846969735.html%3Fpdp_npi%3D6%2540dis%2521USD%25212.93%25212.93%2521%2521%252119.58%252119.58%2521%25402151fd2c17903439052331392e0d5e%252112000057327585098%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e469] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811846969735#compare-prices
+                  - paragraph [ref=f2e472]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e474] [cursor=pointer]
+              - article [ref=f2e478]:
+                - generic [ref=f2e479]:
+                  - img "For iPhone 16 Pro Max 15 14 13 12 11 Shockproof MagSafe Magnetic Silicone Case" [ref=f2e481]
+                  - generic:
+                    - generic [ref=f2e482]: eBay
+                    - generic [ref=f2e483]: "-10%"
+                - generic [ref=f2e484]:
+                  - heading "For iPhone 16 Pro Max 15 14 13 12 11 Shockproof MagSafe Magnetic Silicone Case" [level=3] [ref=f2e485]
+                  - paragraph [ref=f2e486]: New • eBay
+                  - generic [ref=f2e488]:
+                    - generic [ref=f2e489]: ‏٨٫٨٢ ج.م.‏
+                    - generic [ref=f2e490]: ‏٩٫٨٠ ج.م.‏
+                  - paragraph [ref=f2e491]: In Stock
+                - generic [ref=f2e492]:
+                  - generic [ref=f2e493]:
+                    - link "Shop Now" [ref=f2e494] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C235831260433%7C536228453746&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F235831260433%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem36e8a37511%253Ag%253AxgkAAOSwUOhjkv-n%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e499] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C235831260433%7C536228453746#compare-prices
+                  - paragraph [ref=f2e502]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e504] [cursor=pointer]
+              - article [ref=f2e508]:
+                - generic [ref=f2e509]:
+                  - img "For iPhone 15 Pro ABEEL C Carbon Fiber Series 6D Micro Relief MagSafe Phone Case(Black Grey)" [ref=f2e511]
+                  - generic: Sunsky-online WW
+                - generic [ref=f2e513]:
+                  - heading "For iPhone 15 Pro ABEEL C Carbon Fiber Series 6D Micro Relief MagSafe Phone Case(Black Grey)" [level=3] [ref=f2e514]
+                  - paragraph [ref=f2e515]: phones • Sunsky-online WW
+                  - generic [ref=f2e517]: ‏٣٫٩٨ ج.م.‏
+                  - paragraph [ref=f2e519]: In Stock
+                - generic [ref=f2e520]:
+                  - generic [ref=f2e521]:
+                    - link "Shop Now" [ref=f2e522] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-32c4bb52-e538-44ec-8875-a0c4995951f1&store=admitad&to=https%3A%2F%2Fdorinebeaumont.com%2Fg%2F7npkd4cs1i32ef59cc79869a299fda%2F%3Ff_id%3D15766%26ulp%3Dhttps%253A%252F%252Fwww.sunsky-online.com%252Fv%252F3593589&source=search
+                    - link "Compare Prices" [ref=f2e527] [cursor=pointer]:
+                      - /url: /product/db-32c4bb52-e538-44ec-8875-a0c4995951f1#compare-prices
+                  - paragraph [ref=f2e530]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e532] [cursor=pointer]
+              - article [ref=f2e536]:
+                - generic [ref=f2e537]:
+                  - img "Book Shelf Creative Pattern Phone Case For iPhone 17 11 12 13 14 15 16 Pro Max 16E XS X XR 7 8 Plus 17 Air Shockproof Soft Cover" [ref=f2e539]
+                  - generic:
+                    - generic [ref=f2e540]: AliExpress
+                    - generic [ref=f2e541]: "-50%"
+                - generic [ref=f2e542]:
+                  - heading "Book Shelf Creative Pattern Phone Case For iPhone 17 11 12 13 14 15 16 Pro Max 16E XS X XR 7 8 Plus 17 Air Shockproof Soft Cover" [level=3] [ref=f2e543]
+                  - paragraph [ref=f2e544]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e545]: 5 (11 sold)
+                  - generic [ref=f2e549]:
+                    - generic [ref=f2e550]: ‏١٫٥٩ ج.م.‏
+                    - generic [ref=f2e551]: ‏٣٫١٨ ج.م.‏
+                  - paragraph [ref=f2e552]: In Stock
+                - generic [ref=f2e553]:
+                  - generic [ref=f2e554]:
+                    - link "Shop Now" [ref=f2e555] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812738896153&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812738896153.html%3Fpdp_npi%3D6%2540dis%2521USD%25213.18%25211.59%2521%2521%252121.22%252110.61%2521%25402151fd2c17903439052331392e0d5e%252112000059728975468%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e560] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812738896153#compare-prices
+                  - paragraph [ref=f2e563]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e565] [cursor=pointer]
+              - article [ref=f2e569]:
+                - generic [ref=f2e570]:
+                  - img "OtterBox Defender Pro Series Case w/ Holster Clip for Apple iPhone 15 Plus" [ref=f2e572]
+                  - generic:
+                    - generic [ref=f2e573]: eBay
+                    - generic [ref=f2e574]: "-10%"
+                - generic [ref=f2e575]:
+                  - heading "OtterBox Defender Pro Series Case w/ Holster Clip for Apple iPhone 15 Plus" [level=3] [ref=f2e576]
+                  - paragraph [ref=f2e577]: New • eBay
+                  - generic [ref=f2e579]:
+                    - generic [ref=f2e580]: ‏١١٫٤٨ ج.م.‏
+                    - generic [ref=f2e581]: ‏١٢٫٧٥ ج.م.‏
+                  - paragraph [ref=f2e582]: In Stock
+                - generic [ref=f2e583]:
+                  - generic [ref=f2e584]:
+                    - link "Shop Now" [ref=f2e585] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C266625604966%7C566379695125&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F266625604966%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem3e141fdd66%253Ag%253APo8AAOSwMQdlqtf9%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e590] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C266625604966%7C566379695125#compare-prices
+                  - paragraph [ref=f2e593]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e595] [cursor=pointer]
+              - article [ref=f2e599]:
+                - generic [ref=f2e600]:
+                  - img "For iPhone 15 Pro Max CaseNeo Finger Grip Strap MagSafe Leather Phone Case(Brown)" [ref=f2e602]
+                  - generic: Sunsky-online WW
+                - generic [ref=f2e604]:
+                  - heading "For iPhone 15 Pro Max CaseNeo Finger Grip Strap MagSafe Leather Phone Case(Brown)" [level=3] [ref=f2e605]
+                  - paragraph [ref=f2e606]: phones • Sunsky-online WW
+                  - generic [ref=f2e608]: ‏٦٫١٠ ج.م.‏
+                  - paragraph [ref=f2e610]: In Stock
+                - generic [ref=f2e611]:
+                  - generic [ref=f2e612]:
+                    - link "Shop Now" [ref=f2e613] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-788e5b0e-8bbf-45b0-af82-56384a556d74&store=admitad&to=https%3A%2F%2Fdorinebeaumont.com%2Fg%2F7npkd4cs1i32ef59cc79869a299fda%2F%3Ff_id%3D15768%26ulp%3Dhttps%253A%252F%252Fwww.sunsky-online.com%252Fv%252F3719383&source=search
+                    - link "Compare Prices" [ref=f2e618] [cursor=pointer]:
+                      - /url: /product/db-788e5b0e-8bbf-45b0-af82-56384a556d74#compare-prices
+                  - paragraph [ref=f2e621]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e623] [cursor=pointer]
+              - article [ref=f2e627]:
+                - generic [ref=f2e628]:
+                  - img "ROCK Band H-HIM Phone Case For IPhone 17 16 15 14 13 12 Pro Max Plus Electroplated Metal Bumper Shockproof Case" [ref=f2e630]
+                  - generic:
+                    - generic [ref=f2e631]: AliExpress
+                    - generic [ref=f2e632]: "-50%"
+                - generic [ref=f2e633]:
+                  - heading "ROCK Band H-HIM Phone Case For IPhone 17 16 15 14 13 12 Pro Max Plus Electroplated Metal Bumper Shockproof Case" [level=3] [ref=f2e634]
+                  - paragraph [ref=f2e635]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e636]: 5 (10 sold)
+                  - generic [ref=f2e640]:
+                    - generic [ref=f2e641]: ‏٤٫٩٣ ج.م.‏
+                    - generic [ref=f2e642]: ‏٩٫٨٦ ج.م.‏
+                  - paragraph [ref=f2e643]: In Stock
+                - generic [ref=f2e644]:
+                  - generic [ref=f2e645]:
+                    - link "Shop Now" [ref=f2e646] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811624322497&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811624322497.html%3Fpdp_npi%3D6%2540dis%2521USD%25219.86%25214.93%2521%2521%252165.88%252132.94%2521%25402151fd2c17903439052331392e0d5e%252112000056641111651%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e651] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811624322497#compare-prices
+                  - paragraph [ref=f2e654]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e656] [cursor=pointer]
+              - article [ref=f2e660]:
+                - generic [ref=f2e661]:
+                  - img "OtterBox Symmetry Series MagSafe Case for Apple iPhone 15 Pro Max - NEW !!!" [ref=f2e663]
+                  - generic:
+                    - generic [ref=f2e664]: eBay
+                    - generic [ref=f2e665]: "-10%"
+                - generic [ref=f2e666]:
+                  - heading "OtterBox Symmetry Series MagSafe Case for Apple iPhone 15 Pro Max - NEW !!!" [level=3] [ref=f2e667]
+                  - paragraph [ref=f2e668]: New • eBay
+                  - generic [ref=f2e670]:
+                    - generic [ref=f2e671]: ‏١١٫٤٨ ج.م.‏
+                    - generic [ref=f2e672]: ‏١٢٫٧٥ ج.م.‏
+                  - paragraph [ref=f2e673]: In Stock
+                - generic [ref=f2e674]:
+                  - generic [ref=f2e675]:
+                    - link "Shop Now" [ref=f2e676] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C266625570114%7C566380333476&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F266625570114%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem3e141f5542%253Ag%253AjMgAAOSw0sFntQEh%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e681] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C266625570114%7C566380333476#compare-prices
+                  - paragraph [ref=f2e684]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e686] [cursor=pointer]
+              - article [ref=f2e690]:
+                - generic [ref=f2e691]:
+                  - img "2019 for iphone 11 pro max biodegradable case soft tpu compostable phone case,ecofriendly Cover for iphone 11 pro max" [ref=f2e693]
+                  - generic: Admitad
+                - generic [ref=f2e695]:
+                  - heading "2019 for iphone 11 pro max biodegradable case soft tpu compostable phone case,ecofriendly Cover for iphone 11 pro max" [level=3] [ref=f2e696]
+                  - paragraph [ref=f2e697]: General • Admitad
+                  - generic [ref=f2e699]: ‏١٫٤٠ ج.م.‏
+                  - paragraph [ref=f2e701]: In Stock
+                - generic [ref=f2e702]:
+                  - generic [ref=f2e703]:
+                    - link "Shop Now" [ref=f2e704] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62347282217&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62347282217%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e709] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62347282217#compare-prices
+                  - paragraph [ref=f2e712]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e714] [cursor=pointer]
+              - article [ref=f2e718]:
+                - generic [ref=f2e719]:
+                  - img "Korean 3D Cartoon Bear Fluffy Plush Couple Phone Case For iPhone 17 Air 16 15 14 13 12 11 Pro Max Shockproof Protective Cover" [ref=f2e721]
+                  - generic:
+                    - generic [ref=f2e722]: AliExpress
+                    - generic [ref=f2e723]: "-50%"
+                - generic [ref=f2e724]:
+                  - heading "Korean 3D Cartoon Bear Fluffy Plush Couple Phone Case For iPhone 17 Air 16 15 14 13 12 11 Pro Max Shockproof Protective Cover" [level=3] [ref=f2e725]
+                  - paragraph [ref=f2e726]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e727]: 5 (9 sold)
+                  - generic [ref=f2e731]:
+                    - generic [ref=f2e732]: ‏٦٫٤٨ ج.م.‏
+                    - generic [ref=f2e733]: ‏١٢٫٩٦ ج.م.‏
+                  - paragraph [ref=f2e734]: In Stock
+                - generic [ref=f2e735]:
+                  - generic [ref=f2e736]:
+                    - link "Shop Now" [ref=f2e737] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811675293258&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811675293258.html%3Fpdp_npi%3D6%2540dis%2521USD%252112.96%25216.48%2521%2521%252186.60%252143.30%2521%25402151fd2c17903439052331392e0d5e%252112000056809244198%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e742] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811675293258#compare-prices
+                  - paragraph [ref=f2e745]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e747] [cursor=pointer]
+              - article [ref=f2e751]:
+                - generic [ref=f2e752]:
+                  - img "OtterBox Defender Pro XT Rugged Magsafe Case for Apple iPhone 15 Pro - Dark Side" [ref=f2e754]
+                  - generic:
+                    - generic [ref=f2e755]: eBay
+                    - generic [ref=f2e756]: "-10%"
+                - generic [ref=f2e757]:
+                  - heading "OtterBox Defender Pro XT Rugged Magsafe Case for Apple iPhone 15 Pro - Dark Side" [level=3] [ref=f2e758]
+                  - paragraph [ref=f2e759]: New • eBay
+                  - generic [ref=f2e761]:
+                    - generic [ref=f2e762]: ‏١٤٫١٨ ج.م.‏
+                    - generic [ref=f2e763]: ‏١٥٫٧٥ ج.م.‏
+                  - paragraph [ref=f2e764]: In Stock
+                - generic [ref=f2e765]:
+                  - generic [ref=f2e766]:
+                    - link "Shop Now" [ref=f2e767] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257349693105%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257349693105%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem3beb3caeb1%253Ag%253AG2sAAeSw22Rph4fE%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e772] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257349693105%7C0#compare-prices
+                  - paragraph [ref=f2e775]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e777] [cursor=pointer]
+              - article [ref=f2e781]:
+                - generic [ref=f2e782]:
+                  - img "For iPhone 11 Pro Case Hybrid Soft Grip Matte Finish TPU Frame Clear Back Panel Ultra-Thin Slim Fit Cover for iPhone 11Pro Max" [ref=f2e784]
+                  - generic: Alibaba WW
+                - generic [ref=f2e786]:
+                  - heading "For iPhone 11 Pro Case Hybrid Soft Grip Matte Finish TPU Frame Clear Back Panel Ultra-Thin Slim Fit Cover for iPhone 11Pro Max" [level=3] [ref=f2e787]
+                  - paragraph [ref=f2e788]: phones • Alibaba WW
+                  - generic [ref=f2e790]: ‏٢٫٥٠ ج.م.‏
+                  - paragraph [ref=f2e792]: In Stock
+                - generic [ref=f2e793]:
+                  - generic [ref=f2e794]:
+                    - link "Shop Now" [ref=f2e795] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-2928f093-7ab8-41fd-a88d-bd1fd2ecfbbb&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62235086563%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e800] [cursor=pointer]:
+                      - /url: /product/db-2928f093-7ab8-41fd-a88d-bd1fd2ecfbbb#compare-prices
+                  - paragraph [ref=f2e803]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e805] [cursor=pointer]
+              - article [ref=f2e809]:
+                - generic [ref=f2e810]:
+                  - img "Wavy Edge TPU Phone Case For iPhone 17 16 15 14 13 12 11 Pro Xs Max Mini 8 7 Plus XR Air 17e 16e Fashion Mystical Evil Eye Cover" [ref=f2e812]
+                  - generic:
+                    - generic [ref=f2e813]: AliExpress
+                    - generic [ref=f2e814]: "-50%"
+                - generic [ref=f2e815]:
+                  - heading "Wavy Edge TPU Phone Case For iPhone 17 16 15 14 13 12 11 Pro Xs Max Mini 8 7 Plus XR Air 17e 16e Fashion Mystical Evil Eye Cover" [level=3] [ref=f2e816]
+                  - paragraph [ref=f2e817]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e818]: 5 (7 sold)
+                  - generic [ref=f2e822]:
+                    - generic [ref=f2e823]: ‏٢٫٧٩ ج.م.‏
+                    - generic [ref=f2e824]: ‏٥٫٥٨ ج.م.‏
+                  - paragraph [ref=f2e825]: In Stock
+                - generic [ref=f2e826]:
+                  - generic [ref=f2e827]:
+                    - link "Shop Now" [ref=f2e828] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812205409485&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812205409485.html%3Fpdp_npi%3D6%2540dis%2521USD%25215.58%25212.79%2521%2521%252137.29%252118.64%2521%25402151fd2c17903439052331392e0d5e%252112000058272292875%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e833] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812205409485#compare-prices
+                  - paragraph [ref=f2e836]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e838] [cursor=pointer]
+              - article [ref=f2e842]:
+                - generic [ref=f2e843]:
+                  - img "For iPhone 15 15 Pro 15 Plus 15 Pro Max Original Case with MagSafe Silicone 2026" [ref=f2e845]
+                  - generic:
+                    - generic [ref=f2e846]: eBay
+                    - generic [ref=f2e847]: "-5%"
+                - generic [ref=f2e848]:
+                  - heading "For iPhone 15 15 Pro 15 Plus 15 Pro Max Original Case with MagSafe Silicone 2026" [level=3] [ref=f2e849]
+                  - paragraph [ref=f2e850]: New • eBay
+                  - generic [ref=f2e852]:
+                    - generic [ref=f2e853]: ‏١٩٫٥٦ ج.م.‏
+                    - generic [ref=f2e854]: ‏٢٠٫٥٩ ج.م.‏
+                  - paragraph [ref=f2e855]: In Stock
+                - generic [ref=f2e856]:
+                  - generic [ref=f2e857]:
+                    - link "Shop Now" [ref=f2e858] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C366396282177%7C636163998193&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F366396282177%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem554eeb9541%253Ag%253ALHUAAeSwkD9pMTYC%26amdata%3Denc%253AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGbpQA3QMKKj1mERE4i4ckrLyblKrcv2fKJ4%252BtwDGBINBjGfDek%252F2YRW3Umb5xDXGkxG00n%252Byhyu0WNKON%252FYfvlpnXMXoDn61AxkqsUXoi%252BahV6lF17x8c%252FmoKeS2zk6PiQd%252Bk67ERgtIW2qCsUUnzZ4N8oF9mFoEv96zjp5tKsuaDbhaRxEs3JxKyLSUOOrMdHtp3OzhklIyLdpcuj7wONWNL%252F2E4am3zG5EI4ygl8nzv0oSft89%252Bnc1IPsWo0xG3vZkWXCD7HitGtGj0rdl1sX0x06C%252BUjSr55bPnwvOBXjQ%253D%253D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e863] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C366396282177%7C636163998193#compare-prices
+                  - paragraph [ref=f2e866]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e868] [cursor=pointer]
+              - article [ref=f2e872]:
+                - generic [ref=f2e873]:
+                  - img "Popular belt clip holster phone cover for iphone 11 Pro protective shockproof defender phone case" [ref=f2e875]
+                  - generic: Alibaba WW
+                - generic [ref=f2e877]:
+                  - heading "Popular belt clip holster phone cover for iphone 11 Pro protective shockproof defender phone case" [level=3] [ref=f2e878]
+                  - paragraph [ref=f2e879]: phones • Alibaba WW
+                  - generic [ref=f2e881]: ‏٢٫٥٠ ج.م.‏
+                  - paragraph [ref=f2e883]: In Stock
+                - generic [ref=f2e884]:
+                  - generic [ref=f2e885]:
+                    - link "Shop Now" [ref=f2e886] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-47003b9e-792b-4a7c-a637-5afbd18e8b29&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62307466045%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e891] [cursor=pointer]:
+                      - /url: /product/db-47003b9e-792b-4a7c-a637-5afbd18e8b29#compare-prices
+                  - paragraph [ref=f2e894]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e896] [cursor=pointer]
+              - article [ref=f2e900]:
+                - generic [ref=f2e901]:
+                  - img "Luxury Zebra Pattern Fluffy Plush Phone Case for iPhone 17 Air 16 15 14 13 12 11 Pro Max Lens Holder Protective Shockproof Cover" [ref=f2e903]
+                  - generic:
+                    - generic [ref=f2e904]: AliExpress
+                    - generic [ref=f2e905]: "-50%"
+                - generic [ref=f2e906]:
+                  - heading "Luxury Zebra Pattern Fluffy Plush Phone Case for iPhone 17 Air 16 15 14 13 12 11 Pro Max Lens Holder Protective Shockproof Cover" [level=3] [ref=f2e907]
+                  - paragraph [ref=f2e908]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e910]:
+                    - generic [ref=f2e911]: ‏٥٫١٣ ج.م.‏
+                    - generic [ref=f2e912]: ‏١٠٫٢٦ ج.م.‏
+                  - paragraph [ref=f2e913]: In Stock
+                - generic [ref=f2e914]:
+                  - generic [ref=f2e915]:
+                    - link "Shop Now" [ref=f2e916] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256811867624462&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256811867624462.html%3Fpdp_npi%3D6%2540dis%2521USD%252110.26%25215.13%2521%2521%252168.52%252134.26%2521%25402151fd2c17903439052331392e0d5e%252112000057388403459%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e921] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256811867624462#compare-prices
+                  - paragraph [ref=f2e924]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e926] [cursor=pointer]
+              - article [ref=f2e930]:
+                - generic [ref=f2e931]:
+                  - img "For iPhone 15 14 13 12 11 Pro Max Mini Soft Silicone Clear Cover Shockproof Case" [ref=f2e933]
+                  - generic: eBay
+                - generic [ref=f2e935]:
+                  - heading "For iPhone 15 14 13 12 11 Pro Max Mini Soft Silicone Clear Cover Shockproof Case" [level=3] [ref=f2e936]
+                  - paragraph [ref=f2e937]: New • eBay
+                  - generic [ref=f2e939]: ‏٢٫٩٩ ج.م.‏
+                  - paragraph [ref=f2e941]: In Stock
+                - generic [ref=f2e942]:
+                  - generic [ref=f2e943]:
+                    - link "Shop Now" [ref=f2e944] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127379615613%7C428476668279&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127379615613%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem1da86aaf7d%253Ag%253AwtQAAOSwIxhmmsA0%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e949] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C127379615613%7C428476668279#compare-prices
+                  - paragraph [ref=f2e952]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e954] [cursor=pointer]
+              - article [ref=f2e958]:
+                - generic [ref=f2e959]:
+                  - img "Official Logo Phone Case For iPhone 11 Pro For iphone 7 8 Plus 6 6S Silicone Liquid Original Cover For iPhone XS Max XR X Cases" [ref=f2e961]
+                  - generic: Alibaba WW
+                - generic [ref=f2e963]:
+                  - heading "Official Logo Phone Case For iPhone 11 Pro For iphone 7 8 Plus 6 6S Silicone Liquid Original Cover For iPhone XS Max XR X Cases" [level=3] [ref=f2e964]
+                  - paragraph [ref=f2e965]: phones • Alibaba WW
+                  - generic [ref=f2e967]: ‏٢٫٥٠ ج.م.‏
+                  - paragraph [ref=f2e969]: In Stock
+                - generic [ref=f2e970]:
+                  - generic [ref=f2e971]:
+                    - link "Shop Now" [ref=f2e972] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-15b3a159-f217-41e2-b5fc-a63995fee362&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60816394632%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e977] [cursor=pointer]:
+                      - /url: /product/db-15b3a159-f217-41e2-b5fc-a63995fee362#compare-prices
+                  - paragraph [ref=f2e980]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e982] [cursor=pointer]
+              - article [ref=f2e986]:
+                - generic [ref=f2e987]:
+                  - img "Luxury Solid Colors Furry Plush Phone Case For iPhone 17 Air 16 15 14 12 13 11 Pro Max With Lanyard Shockproof Protective Cover" [ref=f2e989]
+                  - generic:
+                    - generic [ref=f2e990]: AliExpress
+                    - generic [ref=f2e991]: "-50%"
+                - generic [ref=f2e992]:
+                  - heading "Luxury Solid Colors Furry Plush Phone Case For iPhone 17 Air 16 15 14 12 13 11 Pro Max With Lanyard Shockproof Protective Cover" [level=3] [ref=f2e993]
+                  - paragraph [ref=f2e994]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e995]: 5 (6 sold)
+                  - generic [ref=f2e999]:
+                    - generic [ref=f2e1000]: ‏٥٫٣٥ ج.م.‏
+                    - generic [ref=f2e1001]: ‏١٠٫٧٠ ج.م.‏
+                  - paragraph [ref=f2e1002]: In Stock
+                - generic [ref=f2e1003]:
+                  - generic [ref=f2e1004]:
+                    - link "Shop Now" [ref=f2e1005] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812611231557&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812611231557.html%3Fpdp_npi%3D6%2540dis%2521USD%252110.70%25215.35%2521%2521%252171.46%252135.73%2521%25402151fd2c17903439052331392e0d5e%252112000059349401733%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e1010] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812611231557#compare-prices
+                  - paragraph [ref=f2e1013]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1015] [cursor=pointer]
+              - article [ref=f2e1019]:
+                - generic [ref=f2e1020]:
+                  - img "For iPhone 17 16 15 14 13 12 11 Pro Max Mini X Xs XR 8 Shockproof Clear Case" [ref=f2e1022]
+                  - generic: eBay
+                - generic [ref=f2e1024]:
+                  - heading "For iPhone 17 16 15 14 13 12 11 Pro Max Mini X Xs XR 8 Shockproof Clear Case" [level=3] [ref=f2e1025]
+                  - paragraph [ref=f2e1026]: New • eBay
+                  - generic [ref=f2e1028]: ‏٣٫٩٥ ج.م.‏
+                  - paragraph [ref=f2e1030]: In Stock
+                - generic [ref=f2e1031]:
+                  - generic [ref=f2e1032]:
+                    - link "Shop Now" [ref=f2e1033] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C134750163635%7C434253371248&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F134750163635%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem1f5fbc52b3%253Ag%253AY98AAOSwGAhftuuC%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e1038] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C134750163635%7C434253371248#compare-prices
+                  - paragraph [ref=f2e1041]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1043] [cursor=pointer]
+              - article [ref=f2e1047]:
+                - generic [ref=f2e1048]:
+                  - img "Mickey Mouse Goofy Cute Wristband Stand Case for iPhone 11 Pro Max 11Pro 11 7 8Plus X Xs Max" [ref=f2e1050]
+                  - generic: Alibaba WW
+                - generic [ref=f2e1052]:
+                  - heading "Mickey Mouse Goofy Cute Wristband Stand Case for iPhone 11 Pro Max 11Pro 11 7 8Plus X Xs Max" [level=3] [ref=f2e1053]
+                  - paragraph [ref=f2e1054]: phones • Alibaba WW
+                  - generic [ref=f2e1056]: ‏٢٫٥٠ ج.م.‏
+                  - paragraph [ref=f2e1058]: In Stock
+                - generic [ref=f2e1059]:
+                  - generic [ref=f2e1060]:
+                    - link "Shop Now" [ref=f2e1061] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-65daea53-905b-485e-8618-385c57696a58&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62376691550%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e1066] [cursor=pointer]:
+                      - /url: /product/db-65daea53-905b-485e-8618-385c57696a58#compare-prices
+                  - paragraph [ref=f2e1069]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1071] [cursor=pointer]
+              - article [ref=f2e1075]:
+                - generic [ref=f2e1076]:
+                  - img "3D Cute Cartoon Cat Furry Plush Phone Case For iPhone 17 Air 15 14 13 12 mini 11 16 Pro Max XS XR X 6 7 8 Plus Shockproof Cover" [ref=f2e1078]
+                  - generic:
+                    - generic [ref=f2e1079]: AliExpress
+                    - generic [ref=f2e1080]: "-50%"
+                - generic [ref=f2e1081]:
+                  - heading "3D Cute Cartoon Cat Furry Plush Phone Case For iPhone 17 Air 15 14 13 12 mini 11 16 Pro Max XS XR X 6 7 8 Plus Shockproof Cover" [level=3] [ref=f2e1082]
+                  - paragraph [ref=f2e1083]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e1084]: 5 (4 sold)
+                  - generic [ref=f2e1088]:
+                    - generic [ref=f2e1089]: ‏٥٫٦٧ ج.م.‏
+                    - generic [ref=f2e1090]: ‏١١٫٣٤ ج.م.‏
+                  - paragraph [ref=f2e1091]: In Stock
+                - generic [ref=f2e1092]:
+                  - generic [ref=f2e1093]:
+                    - link "Shop Now" [ref=f2e1094] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812720886495&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812720886495.html%3Fpdp_npi%3D6%2540dis%2521USD%252111.34%25215.67%2521%2521%252175.72%252137.86%2521%25402151fd2c17903439052331392e0d5e%252112000059693107244%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e1099] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812720886495#compare-prices
+                  - paragraph [ref=f2e1102]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1104] [cursor=pointer]
+              - article [ref=f2e1108]:
+                - generic [ref=f2e1109]:
+                  - img "For iPhone 17 16 15 14 13 12 11 Pro Max X XS XR Silicone Case Camera Lens Cover" [ref=f2e1111]
+                  - generic: eBay
+                - generic [ref=f2e1113]:
+                  - heading "For iPhone 17 16 15 14 13 12 11 Pro Max X XS XR Silicone Case Camera Lens Cover" [level=3] [ref=f2e1114]
+                  - paragraph [ref=f2e1115]: New • eBay
+                  - generic [ref=f2e1117]: ‏٤٫٤٥ ج.م.‏
+                  - paragraph [ref=f2e1119]: In Stock
+                - generic [ref=f2e1120]:
+                  - generic [ref=f2e1121]:
+                    - link "Shop Now" [ref=f2e1122] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C157294968550%7C458794799661&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F157294968550%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem249f82bee6%253Ag%253AVYcAAeSwb95ouPyn%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e1127] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C157294968550%7C458794799661#compare-prices
+                  - paragraph [ref=f2e1130]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1132] [cursor=pointer]
+              - article [ref=f2e1136]:
+                - generic [ref=f2e1137]:
+                  - img "Hot Selling Custom Made Hanging Case With Necklace Smart Phone Chain Strap TPU Case for iPhone 11 pro" [ref=f2e1139]
+                  - generic: Alibaba WW
+                - generic [ref=f2e1141]:
+                  - heading "Hot Selling Custom Made Hanging Case With Necklace Smart Phone Chain Strap TPU Case for iPhone 11 pro" [level=3] [ref=f2e1142]
+                  - paragraph [ref=f2e1143]: phones • Alibaba WW
+                  - generic [ref=f2e1145]: ‏٢٫٥٦ ج.م.‏
+                  - paragraph [ref=f2e1147]: In Stock
+                - generic [ref=f2e1148]:
+                  - generic [ref=f2e1149]:
+                    - link "Shop Now" [ref=f2e1150] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-3a19d2f5-4dce-4100-8921-591a6d411398&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62397616857%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e1155] [cursor=pointer]:
+                      - /url: /product/db-3a19d2f5-4dce-4100-8921-591a6d411398#compare-prices
+                  - paragraph [ref=f2e1158]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1160] [cursor=pointer]
+              - article [ref=f2e1164]:
+                - generic [ref=f2e1165]:
+                  - img "Parasyte Popular Anime Phone Case Silicone Soft For IPhone 17 16 15 14 13 12 11 X XR Plus Pro Max Plus" [ref=f2e1167]
+                  - generic:
+                    - generic [ref=f2e1168]: AliExpress
+                    - generic [ref=f2e1169]: "-18%"
+                - generic [ref=f2e1170]:
+                  - heading "Parasyte Popular Anime Phone Case Silicone Soft For IPhone 17 16 15 14 13 12 11 X XR Plus Pro Max Plus" [level=3] [ref=f2e1171]
+                  - paragraph [ref=f2e1172]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e1174]:
+                    - generic [ref=f2e1175]: ‏٤٫٠٦ ج.م.‏
+                    - generic [ref=f2e1176]: ‏٤٫٩٦ ج.م.‏
+                  - paragraph [ref=f2e1177]: In Stock
+                - generic [ref=f2e1178]:
+                  - generic [ref=f2e1179]:
+                    - link "Shop Now" [ref=f2e1180] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812928370549&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812928370549.html%3Fpdp_npi%3D6%2540dis%2521USD%25214.96%25214.06%2521%2521%252133.15%252127.15%2521%25402151fd2c17903439052331392e0d5e%252112000060326724035%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e1185] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812928370549#compare-prices
+                  - paragraph [ref=f2e1188]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1190] [cursor=pointer]
+              - article [ref=f2e1194]:
+                - generic [ref=f2e1195]:
+                  - img "For iPhone 16 15 14 13 12 11 Pro Max XS X 8 7 SE Silicone Case Camera Lens Cover" [ref=f2e1197]
+                  - generic: eBay
+                - generic [ref=f2e1199]:
+                  - heading "For iPhone 16 15 14 13 12 11 Pro Max XS X 8 7 SE Silicone Case Camera Lens Cover" [level=3] [ref=f2e1200]
+                  - paragraph [ref=f2e1201]: New • eBay
+                  - generic [ref=f2e1203]: ‏٤٫٩٩ ج.م.‏
+                  - paragraph [ref=f2e1205]: In Stock
+                - generic [ref=f2e1206]:
+                  - generic [ref=f2e1207]:
+                    - link "Shop Now" [ref=f2e1208] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C203135753347%7C505114720511&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F203135753347%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem2f4bd59c83%253Ag%253AO40AAOSwWNBlSHAG%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e1213] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C203135753347%7C505114720511#compare-prices
+                  - paragraph [ref=f2e1216]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1218] [cursor=pointer]
+              - article [ref=f2e1222]:
+                - generic [ref=f2e1223]:
+                  - img "Latest design cheap cell phone wood engraved case cover for iphone 11/pro oem odm service welcome to inquiry" [ref=f2e1225]
+                  - generic: Alibaba WW
+                - generic [ref=f2e1227]:
+                  - heading "Latest design cheap cell phone wood engraved case cover for iphone 11/pro oem odm service welcome to inquiry" [level=3] [ref=f2e1228]
+                  - paragraph [ref=f2e1229]: phones • Alibaba WW
+                  - generic [ref=f2e1231]: ‏٢٫٦٠ ج.م.‏
+                  - paragraph [ref=f2e1233]: In Stock
+                - generic [ref=f2e1234]:
+                  - generic [ref=f2e1235]:
+                    - link "Shop Now" [ref=f2e1236] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-e2b72afd-2751-4ef2-a503-7ebd2b3c9990&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62288618806%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e1241] [cursor=pointer]:
+                      - /url: /product/db-e2b72afd-2751-4ef2-a503-7ebd2b3c9990#compare-prices
+                  - paragraph [ref=f2e1244]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1246] [cursor=pointer]
+              - article [ref=f2e1250]:
+                - generic [ref=f2e1251]:
+                  - img "Fashionable Tomato Matte Frosted Creative Phone Case For iPhone 17 AIR 16 15 14 13 12 11 PRO MAX MINI 7 8 PLUS Y2K Cover" [ref=f2e1253]
+                  - generic:
+                    - generic [ref=f2e1254]: AliExpress
+                    - generic [ref=f2e1255]: "-57%"
+                - generic [ref=f2e1256]:
+                  - heading "Fashionable Tomato Matte Frosted Creative Phone Case For iPhone 17 AIR 16 15 14 13 12 11 PRO MAX MINI 7 8 PLUS Y2K Cover" [level=3] [ref=f2e1257]
+                  - paragraph [ref=f2e1258]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e1260]:
+                    - generic [ref=f2e1261]: ‏٢٫٢٤ ج.م.‏
+                    - generic [ref=f2e1262]: ‏٥٫٢٠ ج.م.‏
+                  - paragraph [ref=f2e1263]: In Stock
+                - generic [ref=f2e1264]:
+                  - generic [ref=f2e1265]:
+                    - link "Shop Now" [ref=f2e1266] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812896904428&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812896904428.html%3Fpdp_npi%3D6%2540dis%2521USD%25215.20%25212.24%2521%2521%252134.73%252114.93%2521%25402151fd2c17903439052331392e0d5e%252112000060204363335%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e1271] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812896904428#compare-prices
+                  - paragraph [ref=f2e1274]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1276] [cursor=pointer]
+              - article [ref=f2e1280]:
+                - generic [ref=f2e1281]:
+                  - img "Magnetic Case iPhone 17 16 15 15 14 13 12 11 Pro Max Plus Mag safe Shockproof" [ref=f2e1283]
+                  - generic: eBay
+                - generic [ref=f2e1285]:
+                  - heading "Magnetic Case iPhone 17 16 15 15 14 13 12 11 Pro Max Plus Mag safe Shockproof" [level=3] [ref=f2e1286]
+                  - paragraph [ref=f2e1287]: New • eBay
+                  - generic [ref=f2e1289]: ‏٥٫٣٣ ج.م.‏
+                  - paragraph [ref=f2e1291]: In Stock
+                - generic [ref=f2e1292]:
+                  - generic [ref=f2e1293]:
+                    - link "Shop Now" [ref=f2e1294] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C366661023753%7C636322382471&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F366661023753%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem555eb33809%253Ag%253A2TcAAeSwkzpqowHi%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e1299] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C366661023753%7C636322382471#compare-prices
+                  - paragraph [ref=f2e1302]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1304] [cursor=pointer]
+              - article [ref=f2e1308]:
+                - generic [ref=f2e1309]:
+                  - img "fancy 2 in 1 earphone charger holder cell phone case for iphone airpods,for iphone 11 max pro case" [ref=f2e1311]
+                  - generic: Alibaba WW
+                - generic [ref=f2e1313]:
+                  - heading "fancy 2 in 1 earphone charger holder cell phone case for iphone airpods,for iphone 11 max pro case" [level=3] [ref=f2e1314]
+                  - paragraph [ref=f2e1315]: phones • Alibaba WW
+                  - generic [ref=f2e1317]: ‏٢٫٦٣ ج.م.‏
+                  - paragraph [ref=f2e1319]: In Stock
+                - generic [ref=f2e1320]:
+                  - generic [ref=f2e1321]:
+                    - link "Shop Now" [ref=f2e1322] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-830c84f7-6f42-4c36-8f99-d0a76064ae5d&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62384011489%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e1327] [cursor=pointer]:
+                      - /url: /product/db-830c84f7-6f42-4c36-8f99-d0a76064ae5d#compare-prices
+                  - paragraph [ref=f2e1330]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1332] [cursor=pointer]
+              - article [ref=f2e1336]:
+                - generic [ref=f2e1337]:
+                  - img "Cute Cartoon Leopard Print Rabbit Ears Furry Plush Case For iPhone 18 17 Air 16 15 14 13 Pro Max Plus Hand Strap Soft Cover" [ref=f2e1339]
+                  - generic:
+                    - generic [ref=f2e1340]: AliExpress
+                    - generic [ref=f2e1341]: "-8%"
+                - generic [ref=f2e1342]:
+                  - heading "Cute Cartoon Leopard Print Rabbit Ears Furry Plush Case For iPhone 18 17 Air 16 15 14 13 Pro Max Plus Hand Strap Soft Cover" [level=3] [ref=f2e1343]
+                  - paragraph [ref=f2e1344]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e1346]:
+                    - generic [ref=f2e1347]: ‏٨٫٢٤ ج.م.‏
+                    - generic [ref=f2e1348]: ‏٨٫٩٦ ج.م.‏
+                  - paragraph [ref=f2e1349]: In Stock
+                - generic [ref=f2e1350]:
+                  - generic [ref=f2e1351]:
+                    - link "Shop Now" [ref=f2e1352] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812940846052&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812940846052.html%3Fpdp_npi%3D6%2540dis%2521USD%25218.96%25218.24%2521%2521%25218.96%25218.24%2521%25402151fd2c17903439052331392e0d5e%252112000060283767666%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e1357] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812940846052#compare-prices
+                  - paragraph [ref=f2e1360]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1362] [cursor=pointer]
+              - article [ref=f2e1366]:
+                - generic [ref=f2e1367]:
+                  - img "Magnetic Case iPhone 17 16 15 15 14 13 12 11 Pro Max Plus Mag safe Shockproof." [ref=f2e1369]
+                  - generic: eBay
+                - generic [ref=f2e1371]:
+                  - heading "Magnetic Case iPhone 17 16 15 15 14 13 12 11 Pro Max Plus Mag safe Shockproof." [level=3] [ref=f2e1372]
+                  - paragraph [ref=f2e1373]: New • eBay
+                  - generic [ref=f2e1375]: ‏٥٫٤٩ ج.م.‏
+                  - paragraph [ref=f2e1377]: In Stock
+                - generic [ref=f2e1378]:
+                  - generic [ref=f2e1379]:
+                    - link "Shop Now" [ref=f2e1380] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C287437889786%7C589358456222&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F287437889786%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem42eca220fa%253Ag%253Ak5wAAeSwDCFqUyDy%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e1385] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C287437889786%7C589358456222#compare-prices
+                  - paragraph [ref=f2e1388]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1390] [cursor=pointer]
+              - article [ref=f2e1394]:
+                - generic [ref=f2e1395]:
+                  - img "Cute Rabbit Hair Soft TPU Bling Fluffy Shiny Camera Hole Women Case for iphone 11 pro" [ref=f2e1397]
+                  - generic: Alibaba WW
+                - generic [ref=f2e1399]:
+                  - heading "Cute Rabbit Hair Soft TPU Bling Fluffy Shiny Camera Hole Women Case for iphone 11 pro" [level=3] [ref=f2e1400]
+                  - paragraph [ref=f2e1401]: phones • Alibaba WW
+                  - generic [ref=f2e1403]: ‏٢٫٦٨ ج.م.‏
+                  - paragraph [ref=f2e1405]: In Stock
+                - generic [ref=f2e1406]:
+                  - generic [ref=f2e1407]:
+                    - link "Shop Now" [ref=f2e1408] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-8c611933-1597-43ec-8c35-f5d1264e401b&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60773398125%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e1413] [cursor=pointer]:
+                      - /url: /product/db-8c611933-1597-43ec-8c35-f5d1264e401b#compare-prices
+                  - paragraph [ref=f2e1416]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1418] [cursor=pointer]
+              - article [ref=f2e1422]:
+                - generic [ref=f2e1423]:
+                  - img "Rapper Kid C-Cudi Phone Case For iPhone 17 16 15 14 13 12 11 Pro Max Designer Matte Laser Aurora Funda Phone Case" [ref=f2e1425]
+                  - generic:
+                    - generic [ref=f2e1426]: AliExpress
+                    - generic [ref=f2e1427]: "-50%"
+                - generic [ref=f2e1428]:
+                  - heading "Rapper Kid C-Cudi Phone Case For iPhone 17 16 15 14 13 12 11 Pro Max Designer Matte Laser Aurora Funda Phone Case" [level=3] [ref=f2e1429]
+                  - paragraph [ref=f2e1430]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e1431]: 5 (2 sold)
+                  - generic [ref=f2e1435]:
+                    - generic [ref=f2e1436]: ‏٣٫٤٧ ج.م.‏
+                    - generic [ref=f2e1437]: ‏٦٫٩٤ ج.م.‏
+                  - paragraph [ref=f2e1438]: In Stock
+                - generic [ref=f2e1439]:
+                  - generic [ref=f2e1440]:
+                    - link "Shop Now" [ref=f2e1441] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812751114242&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812751114242.html%3Fpdp_npi%3D6%2540dis%2521USD%25216.94%25213.47%2521%2521%252146.33%252123.16%2521%25402151fd2c17903439052331392e0d5e%252112000059767277380%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e1446] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812751114242#compare-prices
+                  - paragraph [ref=f2e1449]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1451] [cursor=pointer]
+              - article [ref=f2e1455]:
+                - generic [ref=f2e1456]:
+                  - img "Magnetic Phone Case For iPhone 17 16 15 14 13 12 Pro Max Plus Bumper Hard Cover" [ref=f2e1458]
+                  - generic: eBay
+                - generic [ref=f2e1460]:
+                  - heading "Magnetic Phone Case For iPhone 17 16 15 14 13 12 Pro Max Plus Bumper Hard Cover" [level=3] [ref=f2e1461]
+                  - paragraph [ref=f2e1462]: New • eBay
+                  - generic [ref=f2e1464]: ‏٦٫٠٣ ج.م.‏
+                  - paragraph [ref=f2e1466]: In Stock
+                - generic [ref=f2e1467]:
+                  - generic [ref=f2e1468]:
+                    - link "Shop Now" [ref=f2e1469] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C318849167410%7C617073460882&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F318849167410%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem4a3ce43032%253Ag%253A84cAAeSw0EJqoZch%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e1474] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C318849167410%7C617073460882#compare-prices
+                  - paragraph [ref=f2e1477]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1479] [cursor=pointer]
+              - article [ref=f2e1483]:
+                - generic [ref=f2e1484]:
+                  - img "For Airpod Case Phone, Unique Design Unified Case for iPhone 11 11 Pro 11 Pro Max XS Max XR XS X 6 7 8 Plus" [ref=f2e1486]
+                  - generic: Alibaba WW
+                - generic [ref=f2e1488]:
+                  - heading "For Airpod Case Phone, Unique Design Unified Case for iPhone 11 11 Pro 11 Pro Max XS Max XR XS X 6 7 8 Plus" [level=3] [ref=f2e1489]
+                  - paragraph [ref=f2e1490]: phones • Alibaba WW
+                  - generic [ref=f2e1492]: ‏٢٫٧٥ ج.م.‏
+                  - paragraph [ref=f2e1494]: In Stock
+                - generic [ref=f2e1495]:
+                  - generic [ref=f2e1496]:
+                    - link "Shop Now" [ref=f2e1497] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-0f73b8cc-77d5-419f-8cde-eccaa9a9e2b9&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62380855870%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e1502] [cursor=pointer]:
+                      - /url: /product/db-0f73b8cc-77d5-419f-8cde-eccaa9a9e2b9#compare-prices
+                  - paragraph [ref=f2e1505]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1507] [cursor=pointer]
+              - article [ref=f2e1511]:
+                - generic [ref=f2e1512]:
+                  - img "Hot anime Heaven Official's Blessing Phone Case For iPhone 16 15 14 13 12 11 X XR XS 8 Plus Mini Pro Max Glass Magnetic Case" [ref=f2e1514]
+                  - generic: AliExpress
+                - generic [ref=f2e1516]:
+                  - heading "Hot anime Heaven Official's Blessing Phone Case For iPhone 16 15 14 13 12 11 X XR XS 8 Plus Mini Pro Max Glass Magnetic Case" [level=3] [ref=f2e1517]
+                  - paragraph [ref=f2e1518]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e1519]: 5 (5 sold)
+                  - generic [ref=f2e1523]: ‏٦٫٠٧ ج.م.‏
+                  - paragraph [ref=f2e1525]: In Stock
+                - generic [ref=f2e1526]:
+                  - generic [ref=f2e1527]:
+                    - link "Shop Now" [ref=f2e1528] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256809229771752&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256809229771752.html%3Fpdp_npi%3D6%2540dis%2521USD%25216.07%25216.07%2521%2521%252140.52%252140.52%2521%25402151fd2c17903439052331392e0d5e%252112000049029769648%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e1533] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256809229771752#compare-prices
+                  - paragraph [ref=f2e1536]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1538] [cursor=pointer]
+              - article [ref=f2e1542]:
+                - generic [ref=f2e1543]:
+                  - img "Case For iPhone 17 16 15 14 13 12 11 Pro Max XR Shockproof Silicone Phone Cover" [ref=f2e1545]
+                  - generic: eBay
+                - generic [ref=f2e1547]:
+                  - heading "Case For iPhone 17 16 15 14 13 12 11 Pro Max XR Shockproof Silicone Phone Cover" [level=3] [ref=f2e1548]
+                  - paragraph [ref=f2e1549]: New • eBay
+                  - generic [ref=f2e1551]: ‏٦٫٩٩ ج.م.‏
+                  - paragraph [ref=f2e1553]: In Stock
+                - generic [ref=f2e1554]:
+                  - generic [ref=f2e1555]:
+                    - link "Shop Now" [ref=f2e1556] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C237045228104%7C537449797769&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F237045228104%3F_skw%3Diphone%2B15%2Bpro%2Bcase%26hash%3Ditem3730ff2248%253Ag%253AtYcAAeSwZsBqmHti%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f2e1561] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C237045228104%7C537449797769#compare-prices
+                  - paragraph [ref=f2e1564]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1566] [cursor=pointer]
+              - article [ref=f2e1570]:
+                - generic [ref=f2e1571]:
+                  - img "2019 Kickstand PU Leather Flip Cover Credit Card Holder Wallet Case for iPhone 11 11 Pro 11 Pro Max" [ref=f2e1573]
+                  - generic: Admitad
+                - generic [ref=f2e1575]:
+                  - heading "2019 Kickstand PU Leather Flip Cover Credit Card Holder Wallet Case for iPhone 11 11 Pro 11 Pro Max" [level=3] [ref=f2e1576]
+                  - paragraph [ref=f2e1577]: General • Admitad
+                  - generic [ref=f2e1579]: ‏٢٫٨٠ ج.م.‏
+                  - paragraph [ref=f2e1581]: In Stock
+                - generic [ref=f2e1582]:
+                  - generic [ref=f2e1583]:
+                    - link "Shop Now" [ref=f2e1584] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-62322115817&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62322115817%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f2e1589] [cursor=pointer]:
+                      - /url: /product/admitad-20881-62322115817#compare-prices
+                  - paragraph [ref=f2e1592]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1594] [cursor=pointer]
+              - article [ref=f2e1598]:
+                - generic [ref=f2e1599]:
+                  - img "Cute Bow Love Heart Phone Case For iPhone 18 17 Pro Max 16 15 13 11 12 14 Pro Max Large Window Mirror Shockproof Soft Back Cover" [ref=f2e1601]
+                  - generic:
+                    - generic [ref=f2e1602]: AliExpress
+                    - generic [ref=f2e1603]: "-63%"
+                - generic [ref=f2e1604]:
+                  - heading "Cute Bow Love Heart Phone Case For iPhone 18 17 Pro Max 16 15 13 11 12 14 Pro Max Large Window Mirror Shockproof Soft Back Cover" [level=3] [ref=f2e1605]
+                  - paragraph [ref=f2e1606]: Phones & Telecommunications Accessories • AliExpress
+                  - generic [ref=f2e1608]:
+                    - generic [ref=f2e1609]: ‏٢٫٣١ ج.م.‏
+                    - generic [ref=f2e1610]: ‏٦٫٢٥ ج.م.‏
+                  - paragraph [ref=f2e1611]: In Stock
+                - generic [ref=f2e1612]:
+                  - generic [ref=f2e1613]:
+                    - link "Shop Now" [ref=f2e1614] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=aliexpress-3256812905771084&store=aliexpress&to=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F3256812905771084.html%3Fpdp_npi%3D6%2540dis%2521USD%25216.25%25212.31%2521%2521%252141.78%252115.43%2521%25402151fd2c17903439052331392e0d5e%252112000060276154939%2521affd%2521%2521%2521%25211%25210%2521&source=search
+                    - link "Compare Prices" [ref=f2e1619] [cursor=pointer]:
+                      - /url: /product/aliexpress-3256812905771084#compare-prices
+                  - paragraph [ref=f2e1622]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f2e1624] [cursor=pointer]
+            - button "Load More" [ref=f2e1629] [cursor=pointer]
+    - contentinfo [ref=f2e67]:
+      - generic [ref=f2e68]:
+        - generic [ref=f2e69]:
+          - text: ZORINO
+          - paragraph [ref=f2e70]: AI-powered deal discovery
+        - navigation "Company" [ref=f2e71]:
+          - heading "Company" [level=3] [ref=f2e72]
+          - list [ref=f2e73]:
+            - listitem [ref=f2e74]:
+              - link "About Us" [ref=f2e75] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f2e76]:
+              - link "Contact" [ref=f2e77] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f2e78]:
+              - link "FAQ" [ref=f2e79] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f2e80]:
+              - link "Blog" [ref=f2e81] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f2e82]:
+          - heading "Legal" [level=3] [ref=f2e83]
+          - list [ref=f2e84]:
+            - listitem [ref=f2e85]:
+              - link "Imprint" [ref=f2e86] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f2e87]:
+              - link "Privacy" [ref=f2e88] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f2e89]:
+              - link "Terms" [ref=f2e90] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f2e91]:
+              - link "Cookies" [ref=f2e92] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f2e93]:
+              - link "Affiliate" [ref=f2e94] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f2e95]:
+              - link "DMCA" [ref=f2e96] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f2e97]:
+              - link "Accessibility" [ref=f2e98] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f2e99]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f2e100]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f2e101] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f2e102]

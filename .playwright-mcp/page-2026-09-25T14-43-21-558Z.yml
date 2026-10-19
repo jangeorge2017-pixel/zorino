@@ -1,0 +1,516 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - banner [ref=f1e4]:
+      - generic [ref=f1e5]:
+        - link [ref=f1e6] [cursor=pointer]:
+          - /url: /
+          - img "ZORINO" [ref=f1e7]
+        - button "Menu" [ref=f1e8] [cursor=pointer]
+        - generic [ref=f1e10]:
+          - link "Search" [ref=f1e11] [cursor=pointer]:
+            - /url: /search
+          - button "Theme" [ref=f1e16] [cursor=pointer]:
+            - generic [ref=f1e17]: Dark
+            - generic [ref=f1e21]: Light
+          - button "Language, country, and currency" [ref=f1e31] [cursor=pointer]:
+            - generic [ref=f1e35]: EN · EGP
+          - link "Wishlist" [ref=f1e38] [cursor=pointer]:
+            - /url: /wishlist
+          - link "Notifications" [ref=f1e42] [cursor=pointer]:
+            - /url: /notifications
+          - link "Sign In" [ref=f1e46] [cursor=pointer]:
+            - /url: /auth/login
+            - strong [ref=f1e52]: Hello, User
+    - main [ref=f1e53]:
+      - generic [ref=f1e54]:
+        - generic [ref=f1e57]:
+          - heading "Search Results" [level=1] [ref=f1e58]
+          - paragraph [ref=f1e59]: Showing results for "iphone 15 pro max"
+        - generic [ref=f1e60]:
+          - complementary [ref=f1e61]:
+            - generic [ref=f1e62]:
+              - heading "Filters" [level=2] [ref=f1e63]
+              - button "Clear" [ref=f1e66] [cursor=pointer]
+            - generic [ref=f1e67]:
+              - generic [ref=f1e68]:
+                - generic [ref=f1e69]: Search for products, brands or categories...
+                - textbox "Search for products, brands or categories..." [ref=f1e70]: iphone 15 pro max
+              - generic [ref=f1e71]:
+                - generic [ref=f1e72]: Categories
+                - combobox [ref=f1e73] [cursor=pointer]:
+                  - option "All Categories" [selected]
+                  - option "Very Good - Refurbished"
+                  - option "Excellent - Refurbished"
+                  - option "General"
+                  - option "Used"
+                  - option "Good - Refurbished"
+                  - option "New"
+              - generic [ref=f1e74]:
+                - generic [ref=f1e75]: Stores
+                - combobox [ref=f1e76] [cursor=pointer]:
+                  - option "All Stores" [selected]
+                  - option "eBay"
+                  - option "Amazon"
+                  - option "Amazon Egypt"
+                  - option "Admitad"
+              - generic [ref=f1e77]:
+                - generic [ref=f1e78]: Price Range
+                - generic [ref=f1e79]:
+                  - spinbutton "Min Price" [ref=f1e81]
+                  - spinbutton "Max Price" [ref=f1e83]
+              - generic [ref=f1e84]:
+                - generic [ref=f1e85]: Rating
+                - combobox [ref=f1e86] [cursor=pointer]:
+                  - option "All Ratings" [selected]
+                  - option "4+ Stars"
+                  - option "3+ Stars"
+                  - option "2+ Stars"
+              - generic [ref=f1e87] [cursor=pointer]:
+                - checkbox "In Stock Only" [ref=f1e88]
+                - generic [ref=f1e89]: In Stock Only
+              - button "Filter" [ref=f1e90] [cursor=pointer]
+          - generic [ref=f1e91]:
+            - generic [ref=f1e92]:
+              - generic [ref=f1e93]: 21 of 1262 results
+              - combobox [ref=f1e95] [cursor=pointer]:
+                - option "Relevance" [selected]
+                - 'option "Price: Low to High"'
+                - 'option "Price: High to Low"'
+                - option "Rating"
+            - generic [ref=f1e96]:
+              - article [ref=f1e97]:
+                - generic [ref=f1e98]:
+                  - img "Apple iPhone 15 Pro Max 1TB Unlocked AT&T T-Mobile Verizon Very Good Condition" [ref=f1e100]
+                  - generic:
+                    - generic [ref=f1e101]: eBay
+                    - generic [ref=f1e102]: "-56%"
+                - generic [ref=f1e103]:
+                  - heading "Apple iPhone 15 Pro Max 1TB Unlocked AT&T T-Mobile Verizon Very Good Condition" [level=3] [ref=f1e104]
+                  - paragraph [ref=f1e105]: Very Good - Refurbished • eBay
+                  - generic [ref=f1e107]:
+                    - generic [ref=f1e108]: ‏٧٠١٫٩٥ ج.م.‏
+                    - generic [ref=f1e109]: ‏١٬٥٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e110]: In Stock
+                - generic [ref=f1e111]:
+                  - generic [ref=f1e112]:
+                    - link "Shop Now" [ref=f1e113] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C305340357295%7C604262085967&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F305340357295%3F_skw%3Diphone%2B15%2Bpro%2Bmax%26hash%3Ditem4717b41aaf%253Ag%253AWEQAAeSwlDRqKZKz%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e118] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C305340357295%7C604262085967#compare-prices
+                  - paragraph [ref=f1e121]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e123] [cursor=pointer]
+              - article [ref=f1e127]:
+                - generic [ref=f1e128]:
+                  - img "Apple iPhone 15 Pro Max 1TB Unlocked AT&T T-Mobile Verizon Excellent Condition" [ref=f1e130]
+                  - generic:
+                    - generic [ref=f1e131]: eBay
+                    - generic [ref=f1e132]: "-54%"
+                - generic [ref=f1e133]:
+                  - heading "Apple iPhone 15 Pro Max 1TB Unlocked AT&T T-Mobile Verizon Excellent Condition" [level=3] [ref=f1e134]
+                  - paragraph [ref=f1e135]: Excellent - Refurbished • eBay
+                  - generic [ref=f1e137]:
+                    - generic [ref=f1e138]: ‏٧٢٩٫٩٥ ج.م.‏
+                    - generic [ref=f1e139]: ‏١٬٥٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e140]: In Stock
+                - generic [ref=f1e141]:
+                  - generic [ref=f1e142]:
+                    - link "Shop Now" [ref=f1e143] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C296153652189%7C594251880311&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F296153652189%3F_skw%3Diphone%2B15%2Bpro%2Bmax%26hash%3Ditem44f4221bdd%253Ag%253AWG4AAeSwOl9qKZKU%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e148] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C296153652189%7C594251880311#compare-prices
+                  - paragraph [ref=f1e151]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e153] [cursor=pointer]
+              - article [ref=f1e157]:
+                - generic [ref=f1e158]:
+                  - img "Apple iPhone 16 Pro Max, 256GB, Black Titanium - Unlocked (Renewed)" [ref=f1e160]
+                  - generic: Amazon
+                - generic [ref=f1e162]:
+                  - heading "Apple iPhone 16 Pro Max, 256GB, Black Titanium - Unlocked (Renewed)" [level=3] [ref=f1e163]
+                  - paragraph [ref=f1e164]: General • Amazon
+                  - generic [ref=f1e165]: 4.2 (4,087)
+                  - generic [ref=f1e169]: ‏٨٠٠٫٩٥ ج.م.‏
+                  - paragraph [ref=f1e171]: In Stock
+                - generic [ref=f1e172]:
+                  - generic [ref=f1e173]:
+                    - link "Shop Now" [ref=f1e174] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0DHJ896RY&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-16-Pro-Max%2Fdp%2FB0DHJ896RY%2Fref%3Dsr_1_9%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muh2m2x5_ykzcg9qo&source=search
+                    - link "Compare Prices" [ref=f1e179] [cursor=pointer]:
+                      - /url: /product/amazon-B0DHJ896RY#compare-prices
+                  - paragraph [ref=f1e182]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e184] [cursor=pointer]
+              - article [ref=f1e188]:
+                - generic [ref=f1e189]:
+                  - img "Apple iPhone 17 Pro Max (256 GB) - Deep Blue with Face ID | Tax Paid | 2 Years Official Warranty" [ref=f1e191]
+                  - generic: Amazon Egypt
+                - generic [ref=f1e193]:
+                  - heading "Apple iPhone 17 Pro Max (256 GB) - Deep Blue with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=f1e194]
+                  - paragraph [ref=f1e195]: General • Amazon Egypt
+                  - generic [ref=f1e196]: 3.8 (72)
+                  - generic [ref=f1e200]: ‏٩٤٬٢٠٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e202]: In Stock
+                - generic [ref=f1e203]:
+                  - generic [ref=f1e204]:
+                    - link "Shop Now" [ref=f1e205] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0FQF9QTMC&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-Pro-Max-256%2Fdp%2FB0FQF9QTMC%2Fref%3Dsr_1_10%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muh2m47r_uyydlee5&source=search
+                    - link "Compare Prices" [ref=f1e210] [cursor=pointer]:
+                      - /url: /product/amazon-eg-B0FQF9QTMC#compare-prices
+                  - paragraph [ref=f1e213]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e215] [cursor=pointer]
+              - article [ref=f1e219]:
+                - generic [ref=f1e220]:
+                  - img "Apple iPhone 13, 128GB, Pink - Unlocked (Renewed)" [ref=f1e222]
+                  - generic: Amazon
+                - generic [ref=f1e224]:
+                  - heading "Apple iPhone 13, 128GB, Pink - Unlocked (Renewed)" [level=3] [ref=f1e225]
+                  - paragraph [ref=f1e226]: General • Amazon
+                  - generic [ref=f1e227]: 4 (27,859)
+                  - generic [ref=f1e231]: ‏٢٨٥٫٨٠ ج.م.‏
+                  - paragraph [ref=f1e233]: In Stock
+                - generic [ref=f1e234]:
+                  - generic [ref=f1e235]:
+                    - link "Shop Now" [ref=f1e236] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B09LNP1ZHT&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-13-128GB-Pink%2Fdp%2FB09LNP1ZHT%2Fref%3Dsr_1_7%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muh2m2x5_lzcf7ylo&source=search
+                    - link "Compare Prices" [ref=f1e241] [cursor=pointer]:
+                      - /url: /product/amazon-B09LNP1ZHT#compare-prices
+                  - paragraph [ref=f1e244]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e246] [cursor=pointer]
+              - article [ref=f1e250]:
+                - generic [ref=f1e251]:
+                  - img "Apple iPhone 17 Pro (256 GB) - Deep Blue with Face ID | Tax Paid | 2 Years Official Warranty" [ref=f1e253]
+                  - generic: Amazon Egypt
+                - generic [ref=f1e255]:
+                  - heading "Apple iPhone 17 Pro (256 GB) - Deep Blue with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=f1e256]
+                  - paragraph [ref=f1e257]: General • Amazon Egypt
+                  - generic [ref=f1e258]: 4.6 (81)
+                  - generic [ref=f1e262]: ‏٨٧٬٧٠٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e264]: In Stock
+                - generic [ref=f1e265]:
+                  - generic [ref=f1e266]:
+                    - link "Shop Now" [ref=f1e267] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0FQFZM6QC&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-17-Pro-256%2Fdp%2FB0FQFZM6QC%2Fref%3Dsr_1_32%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muh2m47s_wbspskgu&source=search
+                    - link "Compare Prices" [ref=f1e272] [cursor=pointer]:
+                      - /url: /product/amazon-eg-B0FQFZM6QC#compare-prices
+                  - paragraph [ref=f1e275]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e277] [cursor=pointer]
+              - article [ref=f1e281]:
+                - generic [ref=f1e282]:
+                  - img "Apple iPhone 15 Pro Max 256GB Unlocked - Used Poor" [ref=f1e284]
+                  - generic:
+                    - generic [ref=f1e285]: eBay
+                    - generic [ref=f1e286]: "-50%"
+                - generic [ref=f1e287]:
+                  - heading "Apple iPhone 15 Pro Max 256GB Unlocked - Used Poor" [level=3] [ref=f1e288]
+                  - paragraph [ref=f1e289]: Used • eBay
+                  - generic [ref=f1e291]:
+                    - generic [ref=f1e292]: ‏٥٩٩٫٩٩ ج.م.‏
+                    - generic [ref=f1e293]: ‏١٬١٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e294]: In Stock
+                - generic [ref=f1e295]:
+                  - generic [ref=f1e296]:
+                    - link "Shop Now" [ref=f1e297] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257335320553%7C558011967154&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257335320553%3F_skw%3Diphone%2B15%2Bpro%2Bmax%26hash%3Ditem3bea615fe9%253Ag%253ADkMAAeSwWV5qtZZy%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e302] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257335320553%7C558011967154#compare-prices
+                  - paragraph [ref=f1e305]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e307] [cursor=pointer]
+              - article [ref=f1e311]:
+                - generic [ref=f1e312]:
+                  - img "Apple iPhone 15 Pro Max 256GB Unlocked - Good" [ref=f1e314]
+                  - generic:
+                    - generic [ref=f1e315]: eBay
+                    - generic [ref=f1e316]: "-50%"
+                - generic [ref=f1e317]:
+                  - heading "Apple iPhone 15 Pro Max 256GB Unlocked - Good" [level=3] [ref=f1e318]
+                  - paragraph [ref=f1e319]: Good - Refurbished • eBay
+                  - generic [ref=f1e321]:
+                    - generic [ref=f1e322]: ‏٦٠٠٫٣٩ ج.م.‏
+                    - generic [ref=f1e323]: ‏١٬١٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e324]: In Stock
+                - generic [ref=f1e325]:
+                  - generic [ref=f1e326]:
+                    - link "Shop Now" [ref=f1e327] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C257334133694%7C558010943484&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F257334133694%3F_skw%3Diphone%2B15%2Bpro%2Bmax%26hash%3Ditem3bea4f43be%253Ag%253ATh0AAeSw7AlqtZZ5%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e332] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C257334133694%7C558010943484#compare-prices
+                  - paragraph [ref=f1e335]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e337] [cursor=pointer]
+              - article [ref=f1e341]:
+                - generic [ref=f1e342]:
+                  - img "Apple iPhone 15 Pro Max 6.7\" Unlocked 256GB - (Blue Titanium) A2849 w/Warranty" [ref=f1e344]
+                  - generic:
+                    - generic [ref=f1e345]: eBay
+                    - generic [ref=f1e346]: "-48%"
+                - generic [ref=f1e347]:
+                  - heading "Apple iPhone 15 Pro Max 6.7\" Unlocked 256GB - (Blue Titanium) A2849 w/Warranty" [level=3] [ref=f1e348]
+                  - paragraph [ref=f1e349]: Good - Refurbished • eBay
+                  - generic [ref=f1e351]:
+                    - generic [ref=f1e352]: ‏٦١٩٫١٥ ج.م.‏
+                    - generic [ref=f1e353]: ‏١٬١٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e354]: In Stock
+                - generic [ref=f1e355]:
+                  - generic [ref=f1e356]:
+                    - link "Shop Now" [ref=f1e357] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C376284911182%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F376284911182%3F_skw%3Diphone%2B15%2Bpro%2Bmax%26hash%3Ditem579c54164e%253Ag%253AL1cAAOSwOWJoNjma%26amdata%3Denc%253AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGY47bHpACEhKQxOpEeRyaYyFsPnYXQFTQ7yyFfwB2KUnygAfllx9jmnV6TpF8l%252Fr0otyXUxW525DlZlY1XqyILrM8RCKKGyNuuCRuFMzk6gIhJb4ZBG7vFH%252Bmf1vXWHO1k3z2p4XoovUJu3Egs98JW4mxXPBHK1Yntcf%252Fl9aF6lu0SC3l1q16BBhomEn9CvBhjpiNQhvciXbzRnXxjLGZsnsMuQE2LA%252F4MmYQjiJaBGN6DNsP3dZgY7ffOA9zYYHb5fDG9NhGtO7HrWwhoroBk%252B4r3ZeDYOeJISo3F4rO%252FZfg%253D%253D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e362] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C376284911182%7C0#compare-prices
+                  - paragraph [ref=f1e365]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e367] [cursor=pointer]
+              - article [ref=f1e371]:
+                - generic [ref=f1e372]:
+                  - img "FACTORY NEW APPLE IPHONE 15 PRO MAX 5G 256G/512G/1T A2849 UNLOCKED SEALED IN BOX" [ref=f1e374]
+                  - generic: eBay
+                - generic [ref=f1e376]:
+                  - heading "FACTORY NEW APPLE IPHONE 15 PRO MAX 5G 256G/512G/1T A2849 UNLOCKED SEALED IN BOX" [level=3] [ref=f1e377]
+                  - paragraph [ref=f1e378]: New • eBay
+                  - generic [ref=f1e380]: ‏٨٩٢٫٠١ ج.م.‏
+                  - paragraph [ref=f1e382]: In Stock
+                - generic [ref=f1e383]:
+                  - generic [ref=f1e384]:
+                    - link "Shop Now" [ref=f1e385] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C137670611869%7C435714683328&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F137670611869%3F_skw%3Diphone%2B15%2Bpro%2Bmax%26hash%3Ditem200dced39d%253Ag%253A4lMAAeSwAY9qXevc%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "Compare Prices" [ref=f1e390] [cursor=pointer]:
+                      - /url: /product/ebay-v1%7C137670611869%7C435714683328#compare-prices
+                  - paragraph [ref=f1e393]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e395] [cursor=pointer]
+              - article [ref=f1e399]:
+                - generic [ref=f1e400]:
+                  - img "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [ref=f1e402]
+                  - generic: Admitad
+                - generic [ref=f1e404]:
+                  - heading "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [level=3] [ref=f1e405]
+                  - paragraph [ref=f1e406]: General • Admitad
+                  - generic [ref=f1e408]: ‏١٨٨٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e410]: In Stock
+                - generic [ref=f1e411]:
+                  - generic [ref=f1e412]:
+                    - link "Shop Now" [ref=f1e413] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60839430013&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60839430013%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e418] [cursor=pointer]:
+                      - /url: /product/admitad-20881-60839430013#compare-prices
+                  - paragraph [ref=f1e421]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e423] [cursor=pointer]
+              - article [ref=f1e427]:
+                - generic [ref=f1e428]:
+                  - img "Apple iPhone 14, 128GB, Midnight - Unlocked (Renewed)" [ref=f1e430]
+                  - generic: Amazon
+                - generic [ref=f1e432]:
+                  - heading "Apple iPhone 14, 128GB, Midnight - Unlocked (Renewed)" [level=3] [ref=f1e433]
+                  - paragraph [ref=f1e434]: General • Amazon
+                  - generic [ref=f1e435]: 4 (13,787)
+                  - generic [ref=f1e439]: ‏٣٠٨٫٩٥ ج.م.‏
+                  - paragraph [ref=f1e441]: In Stock
+                - generic [ref=f1e442]:
+                  - generic [ref=f1e443]:
+                    - link "Shop Now" [ref=f1e444] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0BN72FYFG&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-14-128GB-Midnight%2Fdp%2FB0BN72FYFG%2Fref%3Dsr_1_4%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muh2m2x5_z9igibye&source=search
+                    - link "Compare Prices" [ref=f1e449] [cursor=pointer]:
+                      - /url: /product/amazon-B0BN72FYFG#compare-prices
+                  - paragraph [ref=f1e452]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e454] [cursor=pointer]
+              - article [ref=f1e458]:
+                - generic [ref=f1e459]:
+                  - img "Apple iPhone 14, 128GB, Purple - Unlocked (Renewed)" [ref=f1e461]
+                  - generic: Amazon
+                - generic [ref=f1e463]:
+                  - heading "Apple iPhone 14, 128GB, Purple - Unlocked (Renewed)" [level=3] [ref=f1e464]
+                  - paragraph [ref=f1e465]: General • Amazon
+                  - generic [ref=f1e466]: 4 (13,787)
+                  - generic [ref=f1e470]: ‏٣١٦٫١١ ج.م.‏
+                  - paragraph [ref=f1e472]: In Stock
+                - generic [ref=f1e473]:
+                  - generic [ref=f1e474]:
+                    - link "Shop Now" [ref=f1e475] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0BN71VW28&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-14-128GB-Purple%2Fdp%2FB0BN71VW28%2Fref%3Dsr_1_10%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muh2m2x5_d45mji3g&source=search
+                    - link "Compare Prices" [ref=f1e480] [cursor=pointer]:
+                      - /url: /product/amazon-B0BN71VW28#compare-prices
+                  - paragraph [ref=f1e483]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e485] [cursor=pointer]
+              - article [ref=f1e489]:
+                - generic [ref=f1e490]:
+                  - img "Apple iPhone 16e, 128GB, Black - Unlocked (Renewed)" [ref=f1e492]
+                  - generic: Amazon
+                - generic [ref=f1e494]:
+                  - heading "Apple iPhone 16e, 128GB, Black - Unlocked (Renewed)" [level=3] [ref=f1e495]
+                  - paragraph [ref=f1e496]: General • Amazon
+                  - generic [ref=f1e497]: 4.3 (2,145)
+                  - generic [ref=f1e501]: ‏٣٨٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e503]: In Stock
+                - generic [ref=f1e504]:
+                  - generic [ref=f1e505]:
+                    - link "Shop Now" [ref=f1e506] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0F4RM7Y2L&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-128GB-eSIM-Black%2Fdp%2FB0F4RM7Y2L%2Fref%3Dsr_1_6%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muh2m2x5_b8xapf19&source=search
+                    - link "Compare Prices" [ref=f1e511] [cursor=pointer]:
+                      - /url: /product/amazon-B0F4RM7Y2L#compare-prices
+                  - paragraph [ref=f1e514]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e516] [cursor=pointer]
+              - article [ref=f1e520]:
+                - generic [ref=f1e521]:
+                  - img "iPhone 15 Pro Max" [ref=f1e523]
+                  - generic:
+                    - generic [ref=f1e524]: Temu
+                    - generic [ref=f1e525]: "-15%"
+                - generic [ref=f1e526]:
+                  - heading "iPhone 15 Pro Max" [level=3] [ref=f1e527]
+                  - paragraph [ref=f1e528]: phones • Temu
+                  - generic [ref=f1e530]:
+                    - generic [ref=f1e531]: ‏٨٤٩٫٠٠ ج.م.‏
+                    - generic [ref=f1e532]: ‏٩٩٩٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e533]: In Stock
+                - generic [ref=f1e534]:
+                  - link "Compare Prices" [ref=f1e536] [cursor=pointer]:
+                    - /url: /product/db-313657f6-640d-4861-909d-ea08916d6a80#compare-prices
+                  - paragraph [ref=f1e539]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e541] [cursor=pointer]
+              - article [ref=f1e545]:
+                - generic [ref=f1e546]:
+                  - img "1000W High Power System Active Powered dual 15 inch Floor Stage Speaker with MDF with full painting SA-6607" [ref=f1e548]
+                  - generic: Alibaba WW
+                - generic [ref=f1e550]:
+                  - heading "1000W High Power System Active Powered dual 15 inch Floor Stage Speaker with MDF with full painting SA-6607" [level=3] [ref=f1e551]
+                  - paragraph [ref=f1e552]: electronics • Alibaba WW
+                  - generic [ref=f1e554]: ‏٢٧١٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e556]: In Stock
+                - generic [ref=f1e557]:
+                  - generic [ref=f1e558]:
+                    - link "Shop Now" [ref=f1e559] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-9128859c-b01b-4047-9bda-60ac0588e5ae&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60716761945%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e564] [cursor=pointer]:
+                      - /url: /product/db-9128859c-b01b-4047-9bda-60ac0588e5ae#compare-prices
+                  - paragraph [ref=f1e567]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e569] [cursor=pointer]
+              - article [ref=f1e573]:
+                - generic [ref=f1e574]:
+                  - img "[Europe Stock] KUGOO S1 PRO, Folding Electric Scooter 350W Motor LCD Display Screen 3 Speed Modes" [ref=f1e576]
+                  - generic: Alibaba WW
+                - generic [ref=f1e578]:
+                  - heading "[Europe Stock] KUGOO S1 PRO, Folding Electric Scooter 350W Motor LCD Display Screen 3 Speed Modes" [level=3] [ref=f1e579]
+                  - paragraph [ref=f1e580]: tvs • Alibaba WW
+                  - generic [ref=f1e582]: ‏٢٧٩٫٩٠ ج.م.‏
+                  - paragraph [ref=f1e584]: In Stock
+                - generic [ref=f1e585]:
+                  - generic [ref=f1e586]:
+                    - link "Shop Now" [ref=f1e587] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-7f667769-9d74-4ce3-a876-82f0c3778e09&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62228943182%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e592] [cursor=pointer]:
+                      - /url: /product/db-7f667769-9d74-4ce3-a876-82f0c3778e09#compare-prices
+                  - paragraph [ref=f1e595]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e597] [cursor=pointer]
+              - article [ref=f1e601]:
+                - generic [ref=f1e602]:
+                  - img "[EU STOCK] free duty KUGOO M2 PRO Folding Electric Scooter 350W Motor Folding Electric Scooter like xiao mi M365" [ref=f1e604]
+                  - generic: Alibaba WW
+                - generic [ref=f1e606]:
+                  - heading "[EU STOCK] free duty KUGOO M2 PRO Folding Electric Scooter 350W Motor Folding Electric Scooter like xiao mi M365" [level=3] [ref=f1e607]
+                  - paragraph [ref=f1e608]: electronics • Alibaba WW
+                  - generic [ref=f1e610]: ‏٣٢٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e612]: In Stock
+                - generic [ref=f1e613]:
+                  - generic [ref=f1e614]:
+                    - link "Shop Now" [ref=f1e615] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-a355f7c6-a94a-4ddb-ab60-bbabc2842bbf&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62237313693%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e620] [cursor=pointer]:
+                      - /url: /product/db-a355f7c6-a94a-4ddb-ab60-bbabc2842bbf#compare-prices
+                  - paragraph [ref=f1e623]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e625] [cursor=pointer]
+              - article [ref=f1e629]:
+                - generic [ref=f1e630]:
+                  - img "[Europe Stock ] KUGOO KIRIN M4, Folding Electric Scooter,500W Electric Scooter, 48V 11Ah Max Speed 43km/h" [ref=f1e632]
+                  - generic: Alibaba WW
+                - generic [ref=f1e634]:
+                  - heading "[Europe Stock ] KUGOO KIRIN M4, Folding Electric Scooter,500W Electric Scooter, 48V 11Ah Max Speed 43km/h" [level=3] [ref=f1e635]
+                  - paragraph [ref=f1e636]: electronics • Alibaba WW
+                  - generic [ref=f1e638]: ‏٤٤٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e640]: In Stock
+                - generic [ref=f1e641]:
+                  - generic [ref=f1e642]:
+                    - link "Shop Now" [ref=f1e643] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-5b4c4eb3-e102-4c3b-b31f-a7f78818947d&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62017093513%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e648] [cursor=pointer]:
+                      - /url: /product/db-5b4c4eb3-e102-4c3b-b31f-a7f78818947d#compare-prices
+                  - paragraph [ref=f1e651]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e653] [cursor=pointer]
+              - article [ref=f1e657]:
+                - generic [ref=f1e658]:
+                  - img "100% Original Huawei Mate 20 Pro 6.39&#34; smartphone 4g Android mobile 8GB+128GB Unlocked mobilephone mate20 pro" [ref=f1e660]
+                  - generic: Alibaba WW
+                - generic [ref=f1e662]:
+                  - heading "100% Original Huawei Mate 20 Pro 6.39&#34; smartphone 4g Android mobile 8GB+128GB Unlocked mobilephone mate20 pro" [level=3] [ref=f1e663]
+                  - paragraph [ref=f1e664]: electronics • Alibaba WW
+                  - generic [ref=f1e666]: ‏٥٦٥٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e668]: In Stock
+                - generic [ref=f1e669]:
+                  - generic [ref=f1e670]:
+                    - link "Shop Now" [ref=f1e671] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-72f7afb5-b0c4-451c-affc-07abf02cba14&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62207847116%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e676] [cursor=pointer]:
+                      - /url: /product/db-72f7afb5-b0c4-451c-affc-07abf02cba14#compare-prices
+                  - paragraph [ref=f1e679]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e681] [cursor=pointer]
+              - article [ref=f1e685]:
+                - generic [ref=f1e686]:
+                  - img "15 person Four wheel beer bike mobile bar tour beer Party bike" [ref=f1e688]
+                  - generic: Alibaba WW
+                - generic [ref=f1e690]:
+                  - heading "15 person Four wheel beer bike mobile bar tour beer Party bike" [level=3] [ref=f1e691]
+                  - paragraph [ref=f1e692]: electronics • Alibaba WW
+                  - generic [ref=f1e694]: ‏٨٬٥٠٠٫٠٠ ج.م.‏
+                  - paragraph [ref=f1e696]: In Stock
+                - generic [ref=f1e697]:
+                  - generic [ref=f1e698]:
+                    - link "Shop Now" [ref=f1e699] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-da0e5021-8144-4dcc-9050-76f9aa823899&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62186971511%26i%3D5%26f_id%3D50001&source=search
+                    - link "Compare Prices" [ref=f1e704] [cursor=pointer]:
+                      - /url: /product/db-da0e5021-8144-4dcc-9050-76f9aa823899#compare-prices
+                  - paragraph [ref=f1e707]: ZORINO earns commissions on qualifying purchases.
+                - button "Add to Wishlist" [ref=f1e709] [cursor=pointer]
+            - button "Load More" [ref=f1e714] [cursor=pointer]
+    - contentinfo [ref=f1e715]:
+      - generic [ref=f1e716]:
+        - generic [ref=f1e717]:
+          - text: ZORINO
+          - paragraph [ref=f1e718]: AI-powered deal discovery
+        - navigation "Company" [ref=f1e719]:
+          - heading "Company" [level=3] [ref=f1e720]
+          - list [ref=f1e721]:
+            - listitem [ref=f1e722]:
+              - link "About Us" [ref=f1e723] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=f1e724]:
+              - link "Contact" [ref=f1e725] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=f1e726]:
+              - link "FAQ" [ref=f1e727] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=f1e728]:
+              - link "Blog" [ref=f1e729] [cursor=pointer]:
+                - /url: /blog
+        - navigation "Legal" [ref=f1e730]:
+          - heading "Legal" [level=3] [ref=f1e731]
+          - list [ref=f1e732]:
+            - listitem [ref=f1e733]:
+              - link "Imprint" [ref=f1e734] [cursor=pointer]:
+                - /url: /imprint
+            - listitem [ref=f1e735]:
+              - link "Privacy" [ref=f1e736] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=f1e737]:
+              - link "Terms" [ref=f1e738] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=f1e739]:
+              - link "Cookies" [ref=f1e740] [cursor=pointer]:
+                - /url: /cookies
+            - listitem [ref=f1e741]:
+              - link "Affiliate" [ref=f1e742] [cursor=pointer]:
+                - /url: /affiliate-disclosure
+            - listitem [ref=f1e743]:
+              - link "DMCA" [ref=f1e744] [cursor=pointer]:
+                - /url: /dmca
+            - listitem [ref=f1e745]:
+              - link "Accessibility" [ref=f1e746] [cursor=pointer]:
+                - /url: /accessibility
+        - paragraph [ref=f1e747]: © 2026 ZORINO. All rights reserved.
+        - paragraph [ref=f1e748]:
+          - text: ZORINO earns commissions on qualifying purchases made through links on this site.
+          - link "Learn more" [ref=f1e749] [cursor=pointer]:
+            - /url: /affiliate-disclosure
+  - alert [ref=f1e750]

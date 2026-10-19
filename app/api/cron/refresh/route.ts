@@ -11,6 +11,7 @@ import { invalidateLowestPricesFromRoute, invalidateTrendingFromRoute } from "@/
 import {
   createCronBudget,
   withBudgetCap,
+  stepBudgetMs,
   CRON_BUDGET_MS,
   MIN_STEP_BUDGET_MS,
 } from "@/lib/cron/budget";
@@ -36,19 +37,23 @@ import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
  */
 export const maxDuration = 60;
 
-// Right-sized for the 60s window. Each feed takes ~10-15s at this bound.
-// Raise ADMITAD_MAX_FEEDS / ADMITAD_MAX_PRODUCTS_PER_FEED env vars when the
-// deployment plan allows longer execution windows.
+// Bounded per-feed work. Raise ADMITAD_MAX_FEEDS / ADMITAD_MAX_PRODUCTS_PER_FEED
+// env vars when the deployment plan allows longer execution windows (Render).
 const ADMITAD_CRON_MAX_FEEDS = Number(process.env.ADMITAD_MAX_FEEDS ?? 3);
 const ADMITAD_CRON_MAX_PRODUCTS_PER_FEED = Number(
   process.env.ADMITAD_MAX_PRODUCTS_PER_FEED ?? 300,
 );
-const ADMITAD_CRON_DEADLINE_CAP_MS = 45_000;
+const ADMITAD_CRON_DEADLINE_CAP_MS = stepBudgetMs("CRON_ADMITAD_STEP_BUDGET_MS", 45_000);
+const ADMITAD_BACKFILL_STEP_BUDGET_MS = stepBudgetMs(
+  "CRON_ADMITAD_BACKFILL_STEP_BUDGET_MS",
+  40_000,
+);
 
 // The sync_jobs step runs capped multi-minute import jobs. Without a bound it
-// eats the whole 60s window and starves the provider schedulers above it. Cap
-// its deadline so the dedicated provider/import steps always get a share.
-const SYNC_STEP_BUDGET_MS = 20_000;
+// eats the whole invocation and starves the provider schedulers above it. Cap
+// its deadline so the dedicated provider/import steps always get a share;
+// override with CRON_SYNC_STEP_BUDGET_MS on Render.
+const SYNC_STEP_BUDGET_MS = stepBudgetMs("CRON_SYNC_STEP_BUDGET_MS", 20_000);
 
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
@@ -185,7 +190,7 @@ export async function GET(request: Request) {
       try {
         const deadlineMs = Math.max(
           10_000,
-          Math.min(budget.remainingMs() - 5_000, 40_000),
+          Math.min(budget.remainingMs() - 5_000, ADMITAD_BACKFILL_STEP_BUDGET_MS),
         );
         const { backfillAdmitadImages } = await import(
           "@/services/admitad-image-backfill"

@@ -1,0 +1,942 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: /ar
+          - img "ZORINO" [ref=e7]
+        - button "القائمة" [ref=e8] [cursor=pointer]
+        - generic [ref=e10]:
+          - link "بحث" [ref=e11] [cursor=pointer]:
+            - /url: /ar/search
+          - button "المظهر" [ref=e16] [cursor=pointer]:
+            - generic [ref=e17]: داكن
+            - generic [ref=e21]: فاتح
+          - button "اللغة والدولة والعملة" [ref=e31] [cursor=pointer]:
+            - generic [ref=e35]: AR · EGP
+          - link "المفضلة" [ref=e38] [cursor=pointer]:
+            - /url: /ar/wishlist
+          - link "الإشعارات" [ref=e42] [cursor=pointer]:
+            - /url: /ar/notifications
+          - link "تسجيل الدخول" [ref=e46] [cursor=pointer]:
+            - /url: /ar/auth/login
+            - strong [ref=e52]: مرحباً، User
+    - main [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e57]:
+          - heading "نتائج البحث" [level=1] [ref=e58]
+          - paragraph [ref=e59]: عرض النتائج لـ "iphone 15"
+        - generic [ref=e60]:
+          - complementary [ref=e61]:
+            - generic [ref=e62]:
+              - heading "فلاتر" [level=2] [ref=e63]
+              - button "مسح" [ref=e66] [cursor=pointer]
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - generic [ref=e69]: ابحث عن منتجات أو علامات تجارية أو تصنيفات...
+                - textbox "ابحث عن منتجات أو علامات تجارية أو تصنيفات..." [ref=e70]: iphone 15
+              - generic [ref=e71]:
+                - generic [ref=e72]: التصنيفات
+                - combobox [ref=e73] [cursor=pointer]:
+                  - option "كل التصنيفات" [selected]
+                  - option "General"
+                  - option "Good - Refurbished"
+                  - option "Used"
+                  - option "New"
+              - generic [ref=e74]:
+                - generic [ref=e75]: المتاجر
+                - combobox [ref=e76] [cursor=pointer]:
+                  - option "كل المتاجر" [selected]
+                  - option "Amazon"
+                  - option "eBay"
+                  - option "Amazon Egypt"
+                  - option "Admitad"
+              - generic [ref=e77]:
+                - generic [ref=e78]: نطاق السعر
+                - generic [ref=e79]:
+                  - spinbutton "الحد الأدنى للسعر" [ref=e81]
+                  - spinbutton "الحد الأقصى للسعر" [ref=e83]
+              - generic [ref=e84]:
+                - generic [ref=e85]: التقييم
+                - combobox [ref=e86] [cursor=pointer]:
+                  - option "كل التقييمات" [selected]
+                  - option "٤+ نجوم"
+                  - option "٣+ نجوم"
+                  - option "٢+ نجوم"
+              - generic [ref=e87] [cursor=pointer]:
+                - checkbox "المتوفر فقط" [ref=e88]
+                - generic [ref=e89]: المتوفر فقط
+              - button "تصفية" [ref=e90] [cursor=pointer]
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]: 45 من 9 نتيجة
+              - combobox [ref=e95] [cursor=pointer]:
+                - option "الأكثر صلة" [selected]
+                - 'option "السعر: من الأقل إلى الأعلى"'
+                - 'option "السعر: من الأعلى إلى الأقل"'
+                - option "التقييم"
+            - generic [ref=e96]:
+              - article [ref=e97]:
+                - generic [ref=e98]:
+                  - img "Apple iPhone 15, 128GB, Blue - Locked to AT&T (Renewed)" [ref=e100]
+                  - generic: Amazon
+                - generic [ref=e102]:
+                  - heading "Apple iPhone 15, 128GB, Blue - Locked to AT&T (Renewed)" [level=3] [ref=e103]
+                  - paragraph [ref=e104]: General • Amazon
+                  - generic [ref=e105]: 3.8 (6,735)
+                  - generic [ref=e109]: ‏١٧،٧٦٩.٤٣ ج.م.‏
+                  - paragraph [ref=e111]: متوفر
+                - generic [ref=e112]:
+                  - generic [ref=e113]:
+                    - link "تسوق الآن" [ref=e114] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPKVZ2C&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-128GB-Blue%2Fdp%2FB0CMPKVZ2C%2Fref%3Dsr_1_18%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_6cko491e&source=search
+                    - link "مقارنة الأسعار" [ref=e119] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPKVZ2C#compare-prices
+                  - paragraph [ref=e122]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e124] [cursor=pointer]
+              - article [ref=e128]:
+                - generic [ref=e129]:
+                  - img "Apple iPhone 15 Fully Unlocked 6.1in - 128GB - eSIM -Good" [ref=e131]
+                  - generic:
+                    - generic [ref=e132]: eBay
+                    - generic [ref=e133]: "-٧٣٪"
+                - generic [ref=e134]:
+                  - heading "Apple iPhone 15 Fully Unlocked 6.1in - 128GB - eSIM -Good" [level=3] [ref=e135]
+                  - paragraph [ref=e136]: Good - Refurbished • eBay
+                  - generic [ref=e138]:
+                    - generic [ref=e139]: ‏١٨،١٨٧.٥٠ ج.م.‏
+                    - generic [ref=e140]: ‏٦٦،٣٤٧.٥٢ ج.م.‏
+                  - paragraph [ref=e141]: متوفر
+                - generic [ref=e142]:
+                  - generic [ref=e143]:
+                    - link "تسوق الآن" [ref=e144] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C145829369846%7C444910334068&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F145829369846%3F_skw%3Diphone%2B15%26hash%3Ditem21f41b97f6%253Ag%253AU58AAeSwCqtqjIMZ%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "مقارنة الأسعار" [ref=e149] [cursor=pointer]:
+                      - /url: /ar/product/ebay-v1%7C145829369846%7C444910334068#compare-prices
+                  - paragraph [ref=e152]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e154] [cursor=pointer]
+              - article [ref=e158]:
+                - generic [ref=e159]:
+                  - img "Apple iPhone 15, 128GB, Black - Locked to AT&T (Renewed)" [ref=e161]
+                  - generic: Amazon
+                - generic [ref=e163]:
+                  - heading "Apple iPhone 15, 128GB, Black - Locked to AT&T (Renewed)" [level=3] [ref=e164]
+                  - paragraph [ref=e165]: General • Amazon
+                  - generic [ref=e166]: 3.8 (6,735)
+                  - generic [ref=e170]: ‏١٨،٤٢٥.١٥ ج.م.‏
+                  - paragraph [ref=e172]: متوفر
+                - generic [ref=e173]:
+                  - generic [ref=e174]:
+                    - link "تسوق الآن" [ref=e175] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPLDMYS&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-128GB-Black%2Fdp%2FB0CMPLDMYS%2Fref%3Dsr_1_17%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_a1kcanuf&source=search
+                    - link "مقارنة الأسعار" [ref=e180] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPLDMYS#compare-prices
+                  - paragraph [ref=e183]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e185] [cursor=pointer]
+              - article [ref=e189]:
+                - generic [ref=e190]:
+                  - img "Apple iPhone 15 A2846 128GB 256GB 512GB Unlocked Smartphone - HEAVY SCRATCH" [ref=e192]
+                  - generic:
+                    - generic [ref=e193]: eBay
+                    - generic [ref=e194]: "-٥٧٪"
+                - generic [ref=e195]:
+                  - heading "Apple iPhone 15 A2846 128GB 256GB 512GB Unlocked Smartphone - HEAVY SCRATCH" [level=3] [ref=e196]
+                  - paragraph [ref=e197]: Used • eBay
+                  - generic [ref=e199]:
+                    - generic [ref=e200]: ‏١٨،٩١٤.٥٢ ج.م.‏
+                    - generic [ref=e201]: ‏٤٣،٦٠١.٥٠ ج.م.‏
+                  - paragraph [ref=e202]: متوفر
+                - generic [ref=e203]:
+                  - generic [ref=e204]:
+                    - link "تسوق الآن" [ref=e205] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C157873547276%7C459250581571&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F157873547276%3F_skw%3Diphone%2B15%26hash%3Ditem24c1ff280c%253Ag%253AlHUAAOSwwytnwf0-%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "مقارنة الأسعار" [ref=e210] [cursor=pointer]:
+                      - /url: /ar/product/ebay-v1%7C157873547276%7C459250581571#compare-prices
+                  - paragraph [ref=e213]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e215] [cursor=pointer]
+              - article [ref=e219]:
+                - generic [ref=e220]:
+                  - img "Apple iPhone 16 (128 GB) - White with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e222]
+                  - generic: Amazon Egypt
+                - generic [ref=e224]:
+                  - heading "Apple iPhone 16 (128 GB) - White with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e225]
+                  - paragraph [ref=e226]: General • Amazon Egypt
+                  - generic [ref=e227]: 4.5 (2,618)
+                  - generic [ref=e231]: ‏٥٤،٧٠٠.٠٠ ج.م.‏
+                  - paragraph [ref=e233]: متوفر
+                - generic [ref=e234]:
+                  - generic [ref=e235]:
+                    - link "تسوق الآن" [ref=e236] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0DGHN7913&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-16-128-GB%2Fdp%2FB0DGHN7913%2Fref%3Dsr_1_1%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9i_cab793nv&source=search
+                    - link "مقارنة الأسعار" [ref=e241] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0DGHN7913#compare-prices
+                  - paragraph [ref=e244]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e246] [cursor=pointer]
+              - article [ref=e250]:
+                - generic [ref=e251]:
+                  - img "Apple iPhone 16 (128 GB) - Pink with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e253]
+                  - generic: Amazon Egypt
+                - generic [ref=e255]:
+                  - heading "Apple iPhone 16 (128 GB) - Pink with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e256]
+                  - paragraph [ref=e257]: General • Amazon Egypt
+                  - generic [ref=e258]: 4.5 (2,618)
+                  - generic [ref=e262]: ‏٥٨،٠٠٠.٠٠ ج.م.‏
+                  - paragraph [ref=e264]: متوفر
+                - generic [ref=e265]:
+                  - generic [ref=e266]:
+                    - link "تسوق الآن" [ref=e267] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0DGJ8YZDF&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-16-128-GB%2Fdp%2FB0DGJ8YZDF%2Fref%3Dsr_1_2%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9i_xcgjnk6g&source=search
+                    - link "مقارنة الأسعار" [ref=e272] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0DGJ8YZDF#compare-prices
+                  - paragraph [ref=e275]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e277] [cursor=pointer]
+              - article [ref=e281]:
+                - generic [ref=e282]:
+                  - img "Apple iPhone 15 Pro, 256GB, Blue Titanium - Unlocked (Renewed)" [ref=e284]
+                  - generic: Amazon
+                - generic [ref=e286]:
+                  - heading "Apple iPhone 15 Pro, 256GB, Blue Titanium - Unlocked (Renewed)" [level=3] [ref=e287]
+                  - paragraph [ref=e288]: General • Amazon
+                  - generic [ref=e289]: 3.9 (5,284)
+                  - generic [ref=e293]: ‏٢٧،٠٦٣.٠٠ ج.م.‏
+                  - paragraph [ref=e295]: متوفر
+                - generic [ref=e296]:
+                  - generic [ref=e297]:
+                    - link "تسوق الآن" [ref=e298] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMYXFK3R&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-Pro-Titanium%2Fdp%2FB0CMYXFK3R%2Fref%3Dsr_1_22%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_wrw81v5m&source=search
+                    - link "مقارنة الأسعار" [ref=e303] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMYXFK3R#compare-prices
+                  - paragraph [ref=e306]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e308] [cursor=pointer]
+              - article [ref=e312]:
+                - generic [ref=e313]:
+                  - img "Apple iPhone 15 Plus 128GB Unlocked Good Condition All Colors" [ref=e315]
+                  - generic:
+                    - generic [ref=e316]: eBay
+                    - generic [ref=e317]: "-٥٥٪"
+                - generic [ref=e318]:
+                  - heading "Apple iPhone 15 Plus 128GB Unlocked Good Condition All Colors" [level=3] [ref=e319]
+                  - paragraph [ref=e320]: Good - Refurbished • eBay
+                  - generic [ref=e322]:
+                    - generic [ref=e323]: ‏١٩،٤٣٦.٣٨ ج.م.‏
+                    - generic [ref=e324]: ‏٤٣،٦٤٩.٥٢ ج.م.‏
+                  - paragraph [ref=e325]: متوفر
+                - generic [ref=e326]:
+                  - generic [ref=e327]:
+                    - link "تسوق الآن" [ref=e328] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C127943835598%7C429129678219&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F127943835598%3F_skw%3Diphone%2B15%26hash%3Ditem1dca0bffce%253Ag%253Aw-AAAeSw9gVqPxRF%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "مقارنة الأسعار" [ref=e333] [cursor=pointer]:
+                      - /url: /ar/product/ebay-v1%7C127943835598%7C429129678219#compare-prices
+                  - paragraph [ref=e336]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e338] [cursor=pointer]
+              - article [ref=e342]:
+                - generic [ref=e343]:
+                  - img "Apple iPhone 15 Pro, 256GB, Black Titanium - Unlocked (Renewed)" [ref=e345]
+                  - generic: Amazon
+                - generic [ref=e347]:
+                  - heading "Apple iPhone 15 Pro, 256GB, Black Titanium - Unlocked (Renewed)" [level=3] [ref=e348]
+                  - paragraph [ref=e349]: General • Amazon
+                  - generic [ref=e350]: 3.9 (5,284)
+                  - generic [ref=e354]: ‏٢٨،٦١٢.٥٨ ج.م.‏
+                  - paragraph [ref=e356]: متوفر
+                - generic [ref=e357]:
+                  - generic [ref=e358]:
+                    - link "تسوق الآن" [ref=e359] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMZ5LT14&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-Pro-Titanium%2Fdp%2FB0CMZ5LT14%2Fref%3Dsr_1_19%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_w7i4shnu&source=search
+                    - link "مقارنة الأسعار" [ref=e364] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMZ5LT14#compare-prices
+                  - paragraph [ref=e367]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e369] [cursor=pointer]
+              - article [ref=e373]:
+                - generic [ref=e374]:
+                  - img "Apple iPhone 15 256GB Unlocked 6.1\" - (Black) A2846 w/1 Year Warranty" [ref=e376]
+                  - generic:
+                    - generic [ref=e377]: eBay
+                    - generic [ref=e378]: "-٥٤٪"
+                - generic [ref=e379]:
+                  - heading "Apple iPhone 15 256GB Unlocked 6.1\" - (Black) A2846 w/1 Year Warranty" [level=3] [ref=e380]
+                  - paragraph [ref=e381]: Good - Refurbished • eBay
+                  - generic [ref=e383]:
+                    - generic [ref=e384]: ‏٢٠،٠٨٠.٩٤ ج.م.‏
+                    - generic [ref=e385]: ‏٤٣،٦٠١.٥٠ ج.م.‏
+                  - paragraph [ref=e386]: متوفر
+                - generic [ref=e387]:
+                  - generic [ref=e388]:
+                    - link "تسوق الآن" [ref=e389] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C357763408589%7C0&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F357763408589%3F_skw%3Diphone%2B15%26hash%3Ditem534c5c62cd%253Ag%253Ay0cAAeSwjmBo8VYi%26amdata%3Denc%253AAQALAAAA8ACCtXRWQnOEpyOqnQQ8KGaoqcSZW5VTVsXDr7R4Yy60huwltxYWTh2yxpMyB%252BDWlEw7HNiv5Vtol%252FwfP3qgmE1Iyy6JGTdXLS5DW0FVzBQmF%252Fv3oB8javFjEuoH6tnMpFCyV9JZeYDqlG4FkaGuIxUd%252Bz75PdLSOeSl89b2ahyEK2nf7j5jmgr539yfgVtKSb2Ywx8%252Ba4UV1sSq0jBTkECx77f7XmrwC%252BDgHiGMRxilZN6n7Mui3Kkqo%252Fu9NDS158%252FQsEs9LmxS9vW%252Fg5YRFd%252Bd%252BKKQATavGDD0k%252BHevrNQAqqiHFbeMlinwpJclIoUKg%253D%253D%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "مقارنة الأسعار" [ref=e394] [cursor=pointer]:
+                      - /url: /ar/product/ebay-v1%7C357763408589%7C0#compare-prices
+                  - paragraph [ref=e397]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e399] [cursor=pointer]
+              - article [ref=e403]:
+                - generic [ref=e404]:
+                  - img "Apple iPhone 15 Plus, 128GB, Blue - Unlocked (Renewed)" [ref=e406]
+                  - generic: Amazon
+                - generic [ref=e408]:
+                  - heading "Apple iPhone 15 Plus, 128GB, Blue - Unlocked (Renewed)" [level=3] [ref=e409]
+                  - paragraph [ref=e410]: General • Amazon
+                  - generic [ref=e411]: 4 (3,491)
+                  - generic [ref=e415]: ‏٢٠،٦١٧.٨٤ ج.م.‏
+                  - paragraph [ref=e417]: متوفر
+                - generic [ref=e418]:
+                  - generic [ref=e419]:
+                    - link "تسوق الآن" [ref=e420] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMT39J9B&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-Plus-128GB%2Fdp%2FB0CMT39J9B%2Fref%3Dsr_1_20%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_zj75a58j&source=search
+                    - link "مقارنة الأسعار" [ref=e425] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMT39J9B#compare-prices
+                  - paragraph [ref=e428]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e430] [cursor=pointer]
+              - article [ref=e434]:
+                - generic [ref=e435]:
+                  - img "Apple iPhone 15 Plus A2847 128GB 256GB 512GB Unlocked Smartphone - Good" [ref=e437]
+                  - generic:
+                    - generic [ref=e438]: eBay
+                    - generic [ref=e439]: "-٥٣٪"
+                - generic [ref=e440]:
+                  - heading "Apple iPhone 15 Plus A2847 128GB 256GB 512GB Unlocked Smartphone - Good" [level=3] [ref=e441]
+                  - paragraph [ref=e442]: Good - Refurbished • eBay
+                  - generic [ref=e444]:
+                    - generic [ref=e445]: ‏٢٢،٥٥٢.٠٢ ج.م.‏
+                    - generic [ref=e446]: ‏٤٨،٤٥١.٥٠ ج.م.‏
+                  - paragraph [ref=e447]: متوفر
+                - generic [ref=e448]:
+                  - generic [ref=e449]:
+                    - link "تسوق الآن" [ref=e450] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C156795709355%7C458192532112&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F156795709355%3F_skw%3Diphone%2B15%26hash%3Ditem2481c0a7ab%253Ag%253AW6oAAOSwZvhnwgZy%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "مقارنة الأسعار" [ref=e455] [cursor=pointer]:
+                      - /url: /ar/product/ebay-v1%7C156795709355%7C458192532112#compare-prices
+                  - paragraph [ref=e458]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e460] [cursor=pointer]
+              - article [ref=e464]:
+                - generic [ref=e465]:
+                  - img "Apple iPhone 15 Plus, 256GB, Pink - Unlocked (Renewed)" [ref=e467]
+                  - generic: Amazon
+                - generic [ref=e469]:
+                  - heading "Apple iPhone 15 Plus, 256GB, Pink - Unlocked (Renewed)" [level=3] [ref=e470]
+                  - paragraph [ref=e471]: General • Amazon
+                  - generic [ref=e472]: 4 (3,491)
+                  - generic [ref=e476]: ‏٢٣،٢٣١.٥٠ ج.م.‏
+                  - paragraph [ref=e478]: متوفر
+                - generic [ref=e479]:
+                  - generic [ref=e480]:
+                    - link "تسوق الآن" [ref=e481] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMT3RHHK&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-Plus-256GB%2Fdp%2FB0CMT3RHHK%2Fref%3Dsr_1_23%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_pu2b0wve&source=search
+                    - link "مقارنة الأسعار" [ref=e486] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMT3RHHK#compare-prices
+                  - paragraph [ref=e489]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e491] [cursor=pointer]
+              - article [ref=e495]:
+                - generic [ref=e496]:
+                  - img "Apple iPhone 15, 128GB, Pink - Locked to AT&T (Renewed)" [ref=e498]
+                  - generic: Amazon
+                - generic [ref=e500]:
+                  - heading "Apple iPhone 15, 128GB, Pink - Locked to AT&T (Renewed)" [level=3] [ref=e501]
+                  - paragraph [ref=e502]: General • Amazon
+                  - generic [ref=e504]: ‏١٧،٤٥٩.٥٢ ج.م.‏
+                  - paragraph [ref=e506]: متوفر
+                - generic [ref=e507]:
+                  - generic [ref=e508]:
+                    - link "تسوق الآن" [ref=e509] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0HKP65H7R&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-128GB-Pink%2Fdp%2FB0HKP65H7R%2Fref%3Dsr_1_26%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_bczpthr0&source=search
+                    - link "مقارنة الأسعار" [ref=e514] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0HKP65H7R#compare-prices
+                  - paragraph [ref=e517]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e519] [cursor=pointer]
+              - article [ref=e523]:
+                - generic [ref=e524]:
+                  - img "iPhone 15 Pro Max, 256GB, Blue Titanium - Unlocked (Renewed)" [ref=e526]
+                  - generic: Amazon
+                - generic [ref=e528]:
+                  - heading "iPhone 15 Pro Max, 256GB, Blue Titanium - Unlocked (Renewed)" [level=3] [ref=e529]
+                  - paragraph [ref=e530]: General • Amazon
+                  - generic [ref=e531]: 4 (6,703)
+                  - generic [ref=e535]: ‏٣١،٧١٤.١٥ ج.م.‏
+                  - paragraph [ref=e537]: متوفر
+                - generic [ref=e538]:
+                  - generic [ref=e539]:
+                    - link "تسوق الآن" [ref=e540] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMZDBVWT&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-Pro-Max%2Fdp%2FB0CMZDBVWT%2Fref%3Dsr_1_13%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_wjncao0r&source=search
+                    - link "مقارنة الأسعار" [ref=e545] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMZDBVWT#compare-prices
+                  - paragraph [ref=e548]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e550] [cursor=pointer]
+              - article [ref=e554]:
+                - generic [ref=e555]:
+                  - img "iPhone 15, 128GB, Pink - Unlocked (Renewed)" [ref=e557]
+                  - generic: Amazon
+                - generic [ref=e559]:
+                  - heading "iPhone 15, 128GB, Pink - Unlocked (Renewed)" [level=3] [ref=e560]
+                  - paragraph [ref=e561]: General • Amazon
+                  - generic [ref=e562]: 3.8 (6,735)
+                  - generic [ref=e566]: ‏١٩،٤٠٠.٠٠ ج.م.‏
+                  - paragraph [ref=e568]: متوفر
+                - generic [ref=e569]:
+                  - generic [ref=e570]:
+                    - link "تسوق الآن" [ref=e571] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPLN52T&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-128GB-Pink%2Fdp%2FB0CMPLN52T%2Fref%3Dsr_1_6%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_ymayo53z&source=search
+                    - link "مقارنة الأسعار" [ref=e576] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPLN52T#compare-prices
+                  - paragraph [ref=e579]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e581] [cursor=pointer]
+              - article [ref=e585]:
+                - generic [ref=e586]:
+                  - img "iPhone 15, 128GB, Black - Unlocked (Renewed)" [ref=e588]
+                  - generic: Amazon
+                - generic [ref=e590]:
+                  - heading "iPhone 15, 128GB, Black - Unlocked (Renewed)" [level=3] [ref=e591]
+                  - paragraph [ref=e592]: General • Amazon
+                  - generic [ref=e593]: 3.8 (6,735)
+                  - generic [ref=e597]: ‏١٩،٦٩١.٠٠ ج.م.‏
+                  - paragraph [ref=e599]: متوفر
+                - generic [ref=e600]:
+                  - generic [ref=e601]:
+                    - link "تسوق الآن" [ref=e602] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPMY9ZZ&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-128GB-Black%2Fdp%2FB0CMPMY9ZZ%2Fref%3Dsr_1_1%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_v3ub7dt6&source=search
+                    - link "مقارنة الأسعار" [ref=e607] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPMY9ZZ#compare-prices
+                  - paragraph [ref=e610]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e612] [cursor=pointer]
+              - article [ref=e616]:
+                - generic [ref=e617]:
+                  - img "iPhone 15, 128GB, Blue - Unlocked (Renewed)" [ref=e619]
+                  - generic: Amazon
+                - generic [ref=e621]:
+                  - heading "iPhone 15, 128GB, Blue - Unlocked (Renewed)" [level=3] [ref=e622]
+                  - paragraph [ref=e623]: General • Amazon
+                  - generic [ref=e624]: 3.8 (6,735)
+                  - generic [ref=e628]: ‏١٩،٨٨٤.٥٢ ج.م.‏
+                  - paragraph [ref=e630]: متوفر
+                - generic [ref=e631]:
+                  - generic [ref=e632]:
+                    - link "تسوق الآن" [ref=e633] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPLZDG8&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-128GB-Blue%2Fdp%2FB0CMPLZDG8%2Fref%3Dsr_1_2%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_68p7dv7p&source=search
+                    - link "مقارنة الأسعار" [ref=e638] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPLZDG8#compare-prices
+                  - paragraph [ref=e641]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e643] [cursor=pointer]
+              - article [ref=e647]:
+                - generic [ref=e648]:
+                  - img "iPhone 15, 128GB, Green - Unlocked (Renewed)" [ref=e650]
+                  - generic: Amazon
+                - generic [ref=e652]:
+                  - heading "iPhone 15, 128GB, Green - Unlocked (Renewed)" [level=3] [ref=e653]
+                  - paragraph [ref=e654]: General • Amazon
+                  - generic [ref=e655]: 3.8 (6,735)
+                  - generic [ref=e659]: ‏٢٠،١٨٠.٣٦ ج.م.‏
+                  - paragraph [ref=e661]: متوفر
+                - generic [ref=e662]:
+                  - generic [ref=e663]:
+                    - link "تسوق الآن" [ref=e664] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPMTL69&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-128GB-Green%2Fdp%2FB0CMPMTL69%2Fref%3Dsr_1_10%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_q36a1szb&source=search
+                    - link "مقارنة الأسعار" [ref=e669] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPMTL69#compare-prices
+                  - paragraph [ref=e672]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e674] [cursor=pointer]
+              - article [ref=e678]:
+                - generic [ref=e679]:
+                  - img "iPhone 15, 256GB, Pink - Unlocked (Renewed)" [ref=e681]
+                  - generic: Amazon
+                - generic [ref=e683]:
+                  - heading "iPhone 15, 256GB, Pink - Unlocked (Renewed)" [level=3] [ref=e684]
+                  - paragraph [ref=e685]: General • Amazon
+                  - generic [ref=e686]: 3.8 (6,735)
+                  - generic [ref=e690]: ‏٢٢،٧٤٤.٠٨ ج.م.‏
+                  - paragraph [ref=e692]: متوفر
+                - generic [ref=e693]:
+                  - generic [ref=e694]:
+                    - link "تسوق الآن" [ref=e695] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPM1N33&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-256GB-Pink%2Fdp%2FB0CMPM1N33%2Fref%3Dsr_1_11%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_1xg42nw4&source=search
+                    - link "مقارنة الأسعار" [ref=e700] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPM1N33#compare-prices
+                  - paragraph [ref=e703]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e705] [cursor=pointer]
+              - article [ref=e709]:
+                - generic [ref=e710]:
+                  - img "iPhone 15, 256GB, Black - Unlocked (Renewed)" [ref=e712]
+                  - generic: Amazon
+                - generic [ref=e714]:
+                  - heading "iPhone 15, 256GB, Black - Unlocked (Renewed)" [level=3] [ref=e715]
+                  - paragraph [ref=e716]: General • Amazon
+                  - generic [ref=e717]: 3.8 (6,735)
+                  - generic [ref=e721]: ‏٢٢،٧٤٦.٥٠ ج.م.‏
+                  - paragraph [ref=e723]: متوفر
+                - generic [ref=e724]:
+                  - generic [ref=e725]:
+                    - link "تسوق الآن" [ref=e726] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPLKVDB&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-256GB-Black%2Fdp%2FB0CMPLKVDB%2Fref%3Dsr_1_5%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_rptais1q&source=search
+                    - link "مقارنة الأسعار" [ref=e731] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPLKVDB#compare-prices
+                  - paragraph [ref=e734]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e736] [cursor=pointer]
+              - article [ref=e740]:
+                - generic [ref=e741]:
+                  - img "iPhone 15, 256GB, Blue - Unlocked (Renewed)" [ref=e743]
+                  - generic: Amazon
+                - generic [ref=e745]:
+                  - heading "iPhone 15, 256GB, Blue - Unlocked (Renewed)" [level=3] [ref=e746]
+                  - paragraph [ref=e747]: General • Amazon
+                  - generic [ref=e748]: 3.8 (6,735)
+                  - generic [ref=e752]: ‏٢٢،٧٤٦.٥٠ ج.م.‏
+                  - paragraph [ref=e754]: متوفر
+                - generic [ref=e755]:
+                  - generic [ref=e756]:
+                    - link "تسوق الآن" [ref=e757] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMPKH7WT&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-256GB-Blue%2Fdp%2FB0CMPKH7WT%2Fref%3Dsr_1_8%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_ww2fh1o2&source=search
+                    - link "مقارنة الأسعار" [ref=e762] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMPKH7WT#compare-prices
+                  - paragraph [ref=e765]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e767] [cursor=pointer]
+              - article [ref=e771]:
+                - generic [ref=e772]:
+                  - img "iPhone 15 Plus, 128GB, Black - Unlocked (Renewed)" [ref=e774]
+                  - generic: Amazon
+                - generic [ref=e776]:
+                  - heading "iPhone 15 Plus, 128GB, Black - Unlocked (Renewed)" [level=3] [ref=e777]
+                  - paragraph [ref=e778]: General • Amazon
+                  - generic [ref=e779]: 4 (3,491)
+                  - generic [ref=e783]: ‏٢٠،٧٧٨.٨٦ ج.م.‏
+                  - paragraph [ref=e785]: متوفر
+                - generic [ref=e786]:
+                  - generic [ref=e787]:
+                    - link "تسوق الآن" [ref=e788] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMT4XDSC&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-Plus-128GB%2Fdp%2FB0CMT4XDSC%2Fref%3Dsr_1_7%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_flv5kfzm&source=search
+                    - link "مقارنة الأسعار" [ref=e793] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMT4XDSC#compare-prices
+                  - paragraph [ref=e796]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e798] [cursor=pointer]
+              - article [ref=e802]:
+                - generic [ref=e803]:
+                  - img "iPhone 15 Plus, 128GB, Pink - Unlocked (Renewed)" [ref=e805]
+                  - generic: Amazon
+                - generic [ref=e807]:
+                  - heading "iPhone 15 Plus, 128GB, Pink - Unlocked (Renewed)" [level=3] [ref=e808]
+                  - paragraph [ref=e809]: General • Amazon
+                  - generic [ref=e810]: 4 (3,491)
+                  - generic [ref=e814]: ‏٢١،٣٣٧.٥٨ ج.م.‏
+                  - paragraph [ref=e816]: متوفر
+                - generic [ref=e817]:
+                  - generic [ref=e818]:
+                    - link "تسوق الآن" [ref=e819] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B0CMSYHFCF&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-15-Plus-128GB%2Fdp%2FB0CMSYHFCF%2Fref%3Dsr_1_9%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_h2cklz1k&source=search
+                    - link "مقارنة الأسعار" [ref=e824] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B0CMSYHFCF#compare-prices
+                  - paragraph [ref=e827]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e829] [cursor=pointer]
+              - article [ref=e833]:
+                - generic [ref=e834]:
+                  - img "APPLE IPHONE 15 128GB 256GB 512GB (FACTORY UNLOCKED) 🔋 100% BATTERY 🔋 ❖SEALED❖" [ref=e836]
+                  - generic: eBay
+                - generic [ref=e838]:
+                  - heading "APPLE IPHONE 15 128GB 256GB 512GB (FACTORY UNLOCKED) 🔋 100% BATTERY 🔋 ❖SEALED❖" [level=3] [ref=e839]
+                  - paragraph [ref=e840]: New • eBay
+                  - generic [ref=e842]: ‏٣٠،٥٥٢.٥٨ ج.م.‏
+                  - paragraph [ref=e844]: متوفر
+                - generic [ref=e845]:
+                  - generic [ref=e846]:
+                    - link "تسوق الآن" [ref=e847] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=ebay-v1%7C226285711974%7C525468473601&store=ebay&to=https%3A%2F%2Fwww.ebay.com%2Fitm%2F226285711974%3F_skw%3Diphone%2B15%26hash%3Ditem34afadf266%253Ag%253AiBgAAOSwPJlmtrwA%26mkevt%3D1%26mkcid%3D1%26mkrid%3D711-53200-19255-0%26campid%3D5339158186%26customid%3D%26toolid%3D10049&source=search
+                    - link "مقارنة الأسعار" [ref=e852] [cursor=pointer]:
+                      - /url: /ar/product/ebay-v1%7C226285711974%7C525468473601#compare-prices
+                  - paragraph [ref=e855]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e857] [cursor=pointer]
+              - article [ref=e861]:
+                - generic [ref=e862]:
+                  - img "Apple iPhone 11, 64GB, Purple - Unlocked (Renewed)" [ref=e864]
+                  - generic: Amazon
+                - generic [ref=e866]:
+                  - heading "Apple iPhone 11, 64GB, Purple - Unlocked (Renewed)" [level=3] [ref=e867]
+                  - paragraph [ref=e868]: General • Amazon
+                  - generic [ref=e869]: 4.2 (60,053)
+                  - generic [ref=e873]: ‏٩،٢١٤.٥٢ ج.م.‏
+                  - paragraph [ref=e875]: متوفر
+                - generic [ref=e876]:
+                  - generic [ref=e877]:
+                    - link "تسوق الآن" [ref=e878] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B07ZPKF8RG&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-11-64GB-Unlocked%2Fdp%2FB07ZPKF8RG%2Fref%3Dsr_1_25%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_vr4jqzpo&source=search
+                    - link "مقارنة الأسعار" [ref=e883] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B07ZPKF8RG#compare-prices
+                  - paragraph [ref=e886]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e888] [cursor=pointer]
+              - article [ref=e892]:
+                - generic [ref=e893]:
+                  - img "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [ref=e895]
+                  - generic: Admitad
+                - generic [ref=e897]:
+                  - heading "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [level=3] [ref=e898]
+                  - paragraph [ref=e899]: General • Admitad
+                  - generic [ref=e901]: ‏٩،١١٨.٠٠ ج.م.‏
+                  - paragraph [ref=e903]: متوفر
+                - generic [ref=e904]:
+                  - generic [ref=e905]:
+                    - link "تسوق الآن" [ref=e906] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=admitad-20881-60839430013&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60839430013%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e911] [cursor=pointer]:
+                      - /url: /ar/product/admitad-20881-60839430013#compare-prices
+                  - paragraph [ref=e914]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e916] [cursor=pointer]
+              - article [ref=e920]:
+                - generic [ref=e921]:
+                  - img "Apple iPhone 12, 64GB, Black - Unlocked (Renewed)" [ref=e923]
+                  - generic: Amazon
+                - generic [ref=e925]:
+                  - heading "Apple iPhone 12, 64GB, Black - Unlocked (Renewed)" [level=3] [ref=e926]
+                  - paragraph [ref=e927]: General • Amazon
+                  - generic [ref=e928]: 4 (36,388)
+                  - generic [ref=e932]: ‏٨،٩٢٤.٠٠ ج.م.‏
+                  - paragraph [ref=e934]: متوفر
+                - generic [ref=e935]:
+                  - generic [ref=e936]:
+                    - link "تسوق الآن" [ref=e937] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B08PP5MSVB&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-12-64GB-Black%2Fdp%2FB08PP5MSVB%2Fref%3Dsr_1_24%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38kx_cp6dvfdt&source=search
+                    - link "مقارنة الأسعار" [ref=e942] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B08PP5MSVB#compare-prices
+                  - paragraph [ref=e945]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e947] [cursor=pointer]
+              - article [ref=e951]:
+                - generic [ref=e952]:
+                  - img "Apple iPhone 13, 128GB, Pink - Unlocked (Renewed)" [ref=e954]
+                  - generic: Amazon
+                - generic [ref=e956]:
+                  - heading "Apple iPhone 13, 128GB, Pink - Unlocked (Renewed)" [level=3] [ref=e957]
+                  - paragraph [ref=e958]: General • Amazon
+                  - generic [ref=e959]: 4 (27,859)
+                  - generic [ref=e963]: ‏١٣،٨٥٤.٠٣ ج.م.‏
+                  - paragraph [ref=e965]: متوفر
+                - generic [ref=e966]:
+                  - generic [ref=e967]:
+                    - link "تسوق الآن" [ref=e968] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-B09LNP1ZHT&store=amazon&to=https%3A%2F%2Fwww.amazon.com%2FApple-iPhone-13-128GB-Pink%2Fdp%2FB09LNP1ZHT%2Fref%3Dsr_1_9%3Ftag%3Dzorino-20%26zorino_ref%3Dz_muhh38js_bxyhtcpt&source=search
+                    - link "مقارنة الأسعار" [ref=e973] [cursor=pointer]:
+                      - /url: /ar/product/amazon-B09LNP1ZHT#compare-prices
+                  - paragraph [ref=e976]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e978] [cursor=pointer]
+              - article [ref=e982]:
+                - generic [ref=e983]:
+                  - img "Apple iPhone 16 Plus (128 GB) - Pink with Face ID, (2 years Official Warranty)" [ref=e985]
+                  - generic: Amazon Egypt
+                - generic [ref=e987]:
+                  - heading "Apple iPhone 16 Plus (128 GB) - Pink with Face ID, (2 years Official Warranty)" [level=3] [ref=e988]
+                  - paragraph [ref=e989]: General • Amazon Egypt
+                  - generic [ref=e990]: 4.6 (688)
+                  - generic [ref=e994]: ‏٦٤،٩٩٩.٠٠ ج.م.‏
+                  - paragraph [ref=e996]: متوفر
+                - generic [ref=e997]:
+                  - generic [ref=e998]:
+                    - link "تسوق الآن" [ref=e999] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0DGJ6JS1D&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-16-Plus-128%2Fdp%2FB0DGJ6JS1D%2Fref%3Dsr_1_9%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9j_uqh3k0qk&source=search
+                    - link "مقارنة الأسعار" [ref=e1004] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0DGJ6JS1D#compare-prices
+                  - paragraph [ref=e1007]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1009] [cursor=pointer]
+              - article [ref=e1013]:
+                - generic [ref=e1014]:
+                  - img "Apple iPhone 17 Pro (256 GB) - Cosmic Orange with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e1016]
+                  - generic: Amazon Egypt
+                - generic [ref=e1018]:
+                  - heading "Apple iPhone 17 Pro (256 GB) - Cosmic Orange with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e1019]
+                  - paragraph [ref=e1020]: General • Amazon Egypt
+                  - generic [ref=e1021]: 4.6 (81)
+                  - generic [ref=e1025]: ‏٨٨،٤٩٩.٠٠ ج.م.‏
+                  - paragraph [ref=e1027]: متوفر
+                - generic [ref=e1028]:
+                  - generic [ref=e1029]:
+                    - link "تسوق الآن" [ref=e1030] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0FQFH7JVK&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-17-Pro-256%2Fdp%2FB0FQFH7JVK%2Fref%3Dsr_1_5%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9j_brz40s1f&source=search
+                    - link "مقارنة الأسعار" [ref=e1035] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0FQFH7JVK#compare-prices
+                  - paragraph [ref=e1038]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1040] [cursor=pointer]
+              - article [ref=e1044]:
+                - generic [ref=e1045]:
+                  - img "Apple iPhone 17 (256 GB) - Saga with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e1047]
+                  - generic: Amazon Egypt
+                - generic [ref=e1049]:
+                  - heading "Apple iPhone 17 (256 GB) - Saga with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e1050]
+                  - paragraph [ref=e1051]: General • Amazon Egypt
+                  - generic [ref=e1052]: 4.6 (45)
+                  - generic [ref=e1056]: ‏٦٨،٤٧٥.٠٠ ج.م.‏
+                  - paragraph [ref=e1058]: متوفر
+                - generic [ref=e1059]:
+                  - generic [ref=e1060]:
+                    - link "تسوق الآن" [ref=e1061] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0FQFKG4Y1&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-17-256-GB%2Fdp%2FB0FQFKG4Y1%2Fref%3Dsr_1_4%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9j_37tto9ht&source=search
+                    - link "مقارنة الأسعار" [ref=e1066] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0FQFKG4Y1#compare-prices
+                  - paragraph [ref=e1069]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1071] [cursor=pointer]
+              - article [ref=e1075]:
+                - generic [ref=e1076]:
+                  - img "Apple iPhone 17 (256 GB) - Black with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e1078]
+                  - generic: Amazon Egypt
+                - generic [ref=e1080]:
+                  - heading "Apple iPhone 17 (256 GB) - Black with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e1081]
+                  - paragraph [ref=e1082]: General • Amazon Egypt
+                  - generic [ref=e1083]: 4.6 (45)
+                  - generic [ref=e1087]: ‏٦٨،٥٥٠.٠٠ ج.م.‏
+                  - paragraph [ref=e1089]: متوفر
+                - generic [ref=e1090]:
+                  - generic [ref=e1091]:
+                    - link "تسوق الآن" [ref=e1092] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0FQFNT8WR&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-17-256-GB%2Fdp%2FB0FQFNT8WR%2Fref%3Dsr_1_3%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9i_5wlkh6qv&source=search
+                    - link "مقارنة الأسعار" [ref=e1097] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0FQFNT8WR#compare-prices
+                  - paragraph [ref=e1100]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1102] [cursor=pointer]
+              - article [ref=e1106]:
+                - generic [ref=e1107]:
+                  - img "Apple iPhone 17 (256 GB) - Lavender with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e1109]
+                  - generic: Amazon Egypt
+                - generic [ref=e1111]:
+                  - heading "Apple iPhone 17 (256 GB) - Lavender with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e1112]
+                  - paragraph [ref=e1113]: General • Amazon Egypt
+                  - generic [ref=e1114]: 4.6 (45)
+                  - generic [ref=e1118]: ‏٦٨،٥٥٠.٠٠ ج.م.‏
+                  - paragraph [ref=e1120]: متوفر
+                - generic [ref=e1121]:
+                  - generic [ref=e1122]:
+                    - link "تسوق الآن" [ref=e1123] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0FQFZHJNJ&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-17-256-GB%2Fdp%2FB0FQFZHJNJ%2Fref%3Dsr_1_7%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9j_bm9h56ym&source=search
+                    - link "مقارنة الأسعار" [ref=e1128] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0FQFZHJNJ#compare-prices
+                  - paragraph [ref=e1131]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1133] [cursor=pointer]
+              - article [ref=e1137]:
+                - generic [ref=e1138]:
+                  - img "Apple iPhone 17 Pro Max (256 GB) - Silver with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e1140]
+                  - generic: Amazon Egypt
+                - generic [ref=e1142]:
+                  - heading "Apple iPhone 17 Pro Max (256 GB) - Silver with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e1143]
+                  - paragraph [ref=e1144]: General • Amazon Egypt
+                  - generic [ref=e1145]: 3.8 (72)
+                  - generic [ref=e1149]: ‏٩٤،٣٣٠.٠٠ ج.م.‏
+                  - paragraph [ref=e1151]: متوفر
+                - generic [ref=e1152]:
+                  - generic [ref=e1153]:
+                    - link "تسوق الآن" [ref=e1154] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0FQFH63DX&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-Pro-Max-256%2Fdp%2FB0FQFH63DX%2Fref%3Dsr_1_6%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9j_sdx3vmvc&source=search
+                    - link "مقارنة الأسعار" [ref=e1159] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0FQFH63DX#compare-prices
+                  - paragraph [ref=e1162]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1164] [cursor=pointer]
+              - article [ref=e1168]:
+                - generic [ref=e1169]:
+                  - img "Apple iPhone Air (256 GB) - Space Black with Face ID | Tax Paid | 2 Years Official Warranty" [ref=e1171]
+                  - generic: Amazon Egypt
+                - generic [ref=e1173]:
+                  - heading "Apple iPhone Air (256 GB) - Space Black with Face ID | Tax Paid | 2 Years Official Warranty" [level=3] [ref=e1174]
+                  - paragraph [ref=e1175]: General • Amazon Egypt
+                  - generic [ref=e1176]: 4.1 (15)
+                  - generic [ref=e1180]: ‏٧٢،٥٠٠.٠٠ ج.م.‏
+                  - paragraph [ref=e1182]: متوفر
+                - generic [ref=e1183]:
+                  - generic [ref=e1184]:
+                    - link "تسوق الآن" [ref=e1185] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=amazon-eg-B0FQFL5H5B&store=amazon-eg&to=https%3A%2F%2Fwww.amazon.eg%2F-%2Fen%2FApple-iPhone-Air-256-GB%2Fdp%2FB0FQFL5H5B%2Fref%3Dsr_1_11%3Ftag%3Dzorinoeg-21%26zorino_ref%3Dz_muhguu9j_xgjxzmy7&source=search
+                    - link "مقارنة الأسعار" [ref=e1190] [cursor=pointer]:
+                      - /url: /ar/product/amazon-eg-B0FQFL5H5B#compare-prices
+                  - paragraph [ref=e1193]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1195] [cursor=pointer]
+              - article [ref=e1199]:
+                - generic [ref=e1200]:
+                  - img "iPhone 15 Pro Max" [ref=e1202]
+                  - generic:
+                    - generic [ref=e1203]: Temu
+                    - generic [ref=e1204]: "-١٥٪"
+                - generic [ref=e1205]:
+                  - heading "iPhone 15 Pro Max" [level=3] [ref=e1206]
+                  - paragraph [ref=e1207]: phones • Temu
+                  - generic [ref=e1209]:
+                    - generic [ref=e1210]: ‏٤١،١٧٦.٥٠ ج.م.‏
+                    - generic [ref=e1211]: ‏٤٨،٤٥١.٥٠ ج.م.‏
+                  - paragraph [ref=e1212]: متوفر
+                - generic [ref=e1213]:
+                  - link "مقارنة الأسعار" [ref=e1215] [cursor=pointer]:
+                    - /url: /ar/product/db-313657f6-640d-4861-909d-ea08916d6a80#compare-prices
+                  - paragraph [ref=e1218]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1220] [cursor=pointer]
+              - article [ref=e1224]:
+                - generic [ref=e1225]:
+                  - img "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [ref=e1227]
+                  - generic: Alibaba WW
+                - generic [ref=e1229]:
+                  - heading "Stock Thin Slim Black 32GB A Grade 95% New Used Mobile Phone For Iphone 7" [level=3] [ref=e1230]
+                  - paragraph [ref=e1231]: phones • Alibaba WW
+                  - generic [ref=e1233]: ‏٩،١١٨.٠٠ ج.م.‏
+                  - paragraph [ref=e1235]: متوفر
+                - generic [ref=e1236]:
+                  - generic [ref=e1237]:
+                    - link "تسوق الآن" [ref=e1238] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-ad51156e-727a-49c0-a408-8df364644ee6&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60839430013%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e1243] [cursor=pointer]:
+                      - /url: /ar/product/db-ad51156e-727a-49c0-a408-8df364644ee6#compare-prices
+                  - paragraph [ref=e1246]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1248] [cursor=pointer]
+              - article [ref=e1252]:
+                - generic [ref=e1253]:
+                  - img "Trader High Quality Black 256GB A Grade 95% New Used Mobile Phone For Iphone 7" [ref=e1255]
+                  - generic: Alibaba WW
+                - generic [ref=e1257]:
+                  - heading "Trader High Quality Black 256GB A Grade 95% New Used Mobile Phone For Iphone 7" [level=3] [ref=e1258]
+                  - paragraph [ref=e1259]: phones • Alibaba WW
+                  - generic [ref=e1261]: ‏١٢،٢٢٢.٠٠ ج.م.‏
+                  - paragraph [ref=e1263]: متوفر
+                - generic [ref=e1264]:
+                  - generic [ref=e1265]:
+                    - link "تسوق الآن" [ref=e1266] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-fc68a1a1-fb5e-474f-b002-4b237ecf627f&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60840490594%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e1271] [cursor=pointer]:
+                      - /url: /ar/product/db-fc68a1a1-fb5e-474f-b002-4b237ecf627f#compare-prices
+                  - paragraph [ref=e1274]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1276] [cursor=pointer]
+              - article [ref=e1280]:
+                - generic [ref=e1281]:
+                  - img "A++ Best price of refurbished used mobile phones 64GB smartphone for iPhone X without face id" [ref=e1283]
+                  - generic: Alibaba WW
+                - generic [ref=e1285]:
+                  - heading "A++ Best price of refurbished used mobile phones 64GB smartphone for iPhone X without face id" [level=3] [ref=e1286]
+                  - paragraph [ref=e1287]: phones • Alibaba WW
+                  - generic [ref=e1289]: ‏١٧،٣١٤.٥٠ ج.م.‏
+                  - paragraph [ref=e1291]: متوفر
+                - generic [ref=e1292]:
+                  - generic [ref=e1293]:
+                    - link "تسوق الآن" [ref=e1294] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-35e339b8-6592-4a8d-95d2-8fe2eb7dc6d0&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62382996034%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e1299] [cursor=pointer]:
+                      - /url: /ar/product/db-35e339b8-6592-4a8d-95d2-8fe2eb7dc6d0#compare-prices
+                  - paragraph [ref=e1302]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1304] [cursor=pointer]
+              - article [ref=e1308]:
+                - generic [ref=e1309]:
+                  - img "A Grade unlocked Mobile Phone xr xs for Iphone X mobile phone first-hand supply new media mobile phone smartphone used o" [ref=e1311]
+                  - generic: Alibaba WW
+                - generic [ref=e1313]:
+                  - heading "A Grade unlocked Mobile Phone xr xs for Iphone X mobile phone first-hand supply new media mobile phone smartphone used o" [level=3] [ref=e1314]
+                  - paragraph [ref=e1315]: phones • Alibaba WW
+                  - generic [ref=e1317]: ‏١٩،٣٥١.٥٠ ج.م.‏
+                  - paragraph [ref=e1319]: متوفر
+                - generic [ref=e1320]:
+                  - generic [ref=e1321]:
+                    - link "تسوق الآن" [ref=e1322] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-80bb1cc1-a4cd-4135-b9ec-09862454fa54&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62464755010%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e1327] [cursor=pointer]:
+                      - /url: /ar/product/db-80bb1cc1-a4cd-4135-b9ec-09862454fa54#compare-prices
+                  - paragraph [ref=e1330]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1332] [cursor=pointer]
+              - article [ref=e1336]:
+                - generic [ref=e1337]:
+                  - img "2019 Hottest Thin Black 128GB A Grade 98% New Recycled Phones For Iphone XR" [ref=e1339]
+                  - generic: Alibaba WW
+                - generic [ref=e1341]:
+                  - heading "2019 Hottest Thin Black 128GB A Grade 98% New Recycled Phones For Iphone XR" [level=3] [ref=e1342]
+                  - paragraph [ref=e1343]: phones • Alibaba WW
+                  - generic [ref=e1345]: ‏٢٨،٥٦٦.٥٠ ج.م.‏
+                  - paragraph [ref=e1347]: متوفر
+                - generic [ref=e1348]:
+                  - generic [ref=e1349]:
+                    - link "تسوق الآن" [ref=e1350] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-81e656cb-f4be-4bcd-87e1-d7945d78c942&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D60839483495%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e1355] [cursor=pointer]:
+                      - /url: /ar/product/db-81e656cb-f4be-4bcd-87e1-d7945d78c942#compare-prices
+                  - paragraph [ref=e1358]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1360] [cursor=pointer]
+              - article [ref=e1364]:
+                - generic [ref=e1365]:
+                  - img "A++ Grade refurbished mobilephone used smartphones 64GB mobile phones for iPhone Xr" [ref=e1367]
+                  - generic: Alibaba WW
+                - generic [ref=e1369]:
+                  - heading "A++ Grade refurbished mobilephone used smartphones 64GB mobile phones for iPhone Xr" [level=3] [ref=e1370]
+                  - paragraph [ref=e1371]: phones • Alibaba WW
+                  - generic [ref=e1373]: ‏٣٠،٣١٢.٥٠ ج.م.‏
+                  - paragraph [ref=e1375]: متوفر
+                - generic [ref=e1376]:
+                  - generic [ref=e1377]:
+                    - link "تسوق الآن" [ref=e1378] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-f3e18cc2-76ab-409f-8eda-db859693e107&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62386107156%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e1383] [cursor=pointer]:
+                      - /url: /ar/product/db-f3e18cc2-76ab-409f-8eda-db859693e107#compare-prices
+                  - paragraph [ref=e1386]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1388] [cursor=pointer]
+              - article [ref=e1392]:
+                - generic [ref=e1393]:
+                  - img "3 Axis with integrated Camera, Attachable to Smartphone, Android (USB-C), iPhone IN STOCK DJI OSMO Pocket Smallest 3-Axis Handhe" [ref=e1395]
+                  - generic: Alibaba WW
+                - generic [ref=e1397]:
+                  - heading "3 Axis with integrated Camera, Attachable to Smartphone, Android (USB-C), iPhone IN STOCK DJI OSMO Pocket Smallest 3-Axis Handhe" [level=3] [ref=e1398]
+                  - paragraph [ref=e1399]: phones • Alibaba WW
+                  - generic [ref=e1401]: ‏٣٢،٦٨٩.٠٠ ج.م.‏
+                  - paragraph [ref=e1403]: متوفر
+                - generic [ref=e1404]:
+                  - generic [ref=e1405]:
+                    - link "تسوق الآن" [ref=e1406] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-9b851e52-69d7-4e99-86f5-a79b015083d4&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62078870471%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e1411] [cursor=pointer]:
+                      - /url: /ar/product/db-9b851e52-69d7-4e99-86f5-a79b015083d4#compare-prices
+                  - paragraph [ref=e1414]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1416] [cursor=pointer]
+              - article [ref=e1420]:
+                - generic [ref=e1421]:
+                  - img "JC Pro1000S JC P7 PCIE NAND Programmer HDD Serial Read Write Error Repair Tool For iPhone XS Max 8 X 7 7P 6 6S Plus All iPxd" [ref=e1423]
+                  - generic: Alibaba WW
+                - generic [ref=e1425]:
+                  - heading "JC Pro1000S JC P7 PCIE NAND Programmer HDD Serial Read Write Error Repair Tool For iPhone XS Max 8 X 7 7P 6 6S Plus All iPxd" [level=3] [ref=e1426]
+                  - paragraph [ref=e1427]: phones • Alibaba WW
+                  - generic [ref=e1429]: ‏٤١،٧٠٩.٥٢ ج.م.‏
+                  - paragraph [ref=e1431]: متوفر
+                - generic [ref=e1432]:
+                  - generic [ref=e1433]:
+                    - link "تسوق الآن" [ref=e1434] [cursor=pointer]:
+                      - /url: /api/affiliate/go?productId=db-bc667745-a0c5-45b7-a607-9153c6ec3e49&store=admitad&to=https%3A%2F%2Frzekl.com%2Fg%2Fpm1aev55cl32ef59cc79219aa26f6f%2F%3Fulp%3Dhttps%253A%252F%252Foffer.alibaba.com%252Fcps%252Fm8irg4a8%253Fbm%253Dcps%2526src%253Dsaf%2526productId%253D62106142177%26i%3D5%26f_id%3D50001&source=search
+                    - link "مقارنة الأسعار" [ref=e1439] [cursor=pointer]:
+                      - /url: /ar/product/db-bc667745-a0c5-45b7-a607-9153c6ec3e49#compare-prices
+                  - paragraph [ref=e1442]: يحقق ZORINO عمولات عن المشتريات المؤهلة.
+                - button "أضف إلى المفضلة" [ref=e1444] [cursor=pointer]
+    - contentinfo [ref=e1448]:
+      - generic [ref=e1449]:
+        - generic [ref=e1450]:
+          - text: ZORINO
+          - paragraph [ref=e1451]: اكتشاف عروض مدعوم بالذكاء الاصطناعي
+        - navigation "الشركة" [ref=e1452]:
+          - heading "الشركة" [level=3] [ref=e1453]
+          - list [ref=e1454]:
+            - listitem [ref=e1455]:
+              - link "من نحن" [ref=e1456] [cursor=pointer]:
+                - /url: /ar/about
+            - listitem [ref=e1457]:
+              - link "تواصل معنا" [ref=e1458] [cursor=pointer]:
+                - /url: /ar/contact
+            - listitem [ref=e1459]:
+              - link "الأسئلة الشائعة" [ref=e1460] [cursor=pointer]:
+                - /url: /ar/faq
+            - listitem [ref=e1461]:
+              - link "المدونة" [ref=e1462] [cursor=pointer]:
+                - /url: /ar/blog
+        - navigation "قانوني" [ref=e1463]:
+          - heading "قانوني" [level=3] [ref=e1464]
+          - list [ref=e1465]:
+            - listitem [ref=e1466]:
+              - link "البيان نفسه" [ref=e1467] [cursor=pointer]:
+                - /url: /ar/imprint
+            - listitem [ref=e1468]:
+              - link "الخصوصية" [ref=e1469] [cursor=pointer]:
+                - /url: /ar/privacy
+            - listitem [ref=e1470]:
+              - link "الشروط" [ref=e1471] [cursor=pointer]:
+                - /url: /ar/terms
+            - listitem [ref=e1472]:
+              - link "ملفات تعريف الارتباط" [ref=e1473] [cursor=pointer]:
+                - /url: /ar/cookies
+            - listitem [ref=e1474]:
+              - link "الإفصاح عن العمولة" [ref=e1475] [cursor=pointer]:
+                - /url: /ar/affiliate-disclosure
+            - listitem [ref=e1476]:
+              - link "حقوق النشر" [ref=e1477] [cursor=pointer]:
+                - /url: /ar/dmca
+            - listitem [ref=e1478]:
+              - link "إمكانية الوصول" [ref=e1479] [cursor=pointer]:
+                - /url: /ar/accessibility
+        - paragraph [ref=e1480]: © 2026 زورينو. جميع الحقوق محفوظة.
+        - paragraph [ref=e1481]:
+          - text: يكسب زورينو عمولات على المشتريات المؤهلة التي تتم عبر الروابط على هذا الموقع.
+          - link "اعرف المزيد" [ref=e1482] [cursor=pointer]:
+            - /url: /ar/affiliate-disclosure
+  - alert [ref=e1483]

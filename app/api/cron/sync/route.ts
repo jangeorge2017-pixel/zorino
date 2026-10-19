@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { executeScheduledSync } from "@/services/sync";
-import { createCronBudget, CRON_BUDGET_MS } from "@/lib/cron/budget";
+import { createCronBudget, stepBudgetMs, CRON_BUDGET_MS } from "@/lib/cron/budget";
 import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
 import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
 
@@ -20,10 +20,11 @@ import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
 export const maxDuration = 60;
 
 // The sync_jobs step runs capped multi-minute import jobs. Without a bound it
-// eats the whole 60s window (two 20s-capped jobs already starved every other
+// eats the whole invocation (two 20s-capped jobs already starved every other
 // step in live runs). Cap its deadline so the dedicated provider schedulers
-// and phase-1 imports below always get a share of the budget.
-const SYNC_STEP_BUDGET_MS = 20_000;
+// and phase-1 imports below always get a share of the budget. Override with
+// CRON_SYNC_STEP_BUDGET_MS on Render for longer windows.
+const SYNC_STEP_BUDGET_MS = stepBudgetMs("CRON_SYNC_STEP_BUDGET_MS", 20_000);
 
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
