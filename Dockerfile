@@ -39,12 +39,17 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 # they are missing here they are frozen as `undefined` — every Supabase client
 # then returns null and the site renders 0 products/stores/coupons.
 #
-# The anon key is public by design (it ships to the browser anyway), so baking
-# it into the bundle is equivalent to what the Vercel build did. Secret keys
-# (SUPABASE_SERVICE_ROLE_KEY, provider API keys) are runtime-only and are
-# deliberately NOT declared here — they would persist in the image layers.
-ARG NEXT_PUBLIC_SUPABASE_URL
-ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+# The two values below are Supabase's PUBLIC project URL and its publishable
+# key (`sb_publishable_…`). Both ship to every browser in the JS bundle anyway,
+# so baking them here is equivalent to the previous Vercel build; they are
+# declared as ARG defaults rather than fixed ENV lines so a build arg supplied
+# by Render still takes precedence over the baked value.
+#
+# Secrets are deliberately absent: SUPABASE_SERVICE_ROLE_KEY and provider API
+# keys are runtime-only and must never be written into a Dockerfile, since they
+# would persist in the image layers and in git history.
+ARG NEXT_PUBLIC_SUPABASE_URL="https://trgzpvpzzfldtouikitc.supabase.co"
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY="sb_publishable_9EbS4IP6UhTImBvGcCYVCw_cOmu08DX"
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_CONTACT_EMAIL_DOMAIN
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
@@ -63,10 +68,11 @@ RUN echo "build-arg NEXT_PUBLIC_SUPABASE_URL      = ${NEXT_PUBLIC_SUPABASE_URL:-
     echo "build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY = ${NEXT_PUBLIC_SUPABASE_ANON_KEY:+<set>}${NEXT_PUBLIC_SUPABASE_ANON_KEY:-<EMPTY>}" && \
     echo "build-arg NEXT_PUBLIC_SITE_URL          = ${NEXT_PUBLIC_SITE_URL:-<EMPTY>}"
 
-# Fail fast with a clear message instead of shipping a site with zero data.
+# Should never trip now that defaults are baked, but still catches an explicit
+# empty build arg (`--build-arg NEXT_PUBLIC_SUPABASE_URL=`) from Render.
 RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" || { \
-      echo "ERROR: NEXT_PUBLIC_SUPABASE_URL is not set on the Render service."; \
-      echo "It is injected as a Docker build arg, but must exist in Environment settings."; \
+      echo "ERROR: NEXT_PUBLIC_SUPABASE_URL resolved to an empty string at build time."; \
+      echo "An empty build arg is overriding the baked default - check Environment settings."; \
       exit 1; \
     }
 
