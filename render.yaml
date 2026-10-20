@@ -16,10 +16,10 @@ envVarGroups:
         sync: false
 
 services:
-  # Native Node runtime (not the Dockerfile). Render preselects "Docker" when a
-  # Dockerfile is present in the repo — switch this service to the native
-  # environment, or the build follows ./Dockerfile instead. Both paths install
-  # devDependencies before `next build`.
+  # NOTE: the live service was created with the Docker runtime, which Render
+  # cannot change afterwards — that service builds via ./Dockerfile (Node 22,
+  # `npm ci --include=dev`). This block documents the equivalent native-Node
+  # setup and is used only if the service is ever recreated.
   - type: web
     name: zorino-web
     runtime: node
