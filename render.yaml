@@ -25,13 +25,15 @@ services:
     autoDeployTrigger: commit
     healthCheckPath: /robots.txt
     maxShutdownDelaySeconds: 120
-    buildCommand: npm ci && npm run build
+    # --include=dev keeps TypeScript/Tailwind available to `next build`. Render
+    # exports service env vars during the build step, so never set
+    # NODE_ENV=production here: npm would omit devDependencies and next build
+    # exits 1. `next start` sets NODE_ENV=production itself.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
         value: 22.12.0
-      - key: NODE_ENV
-        value: production
       - key: NEXT_PUBLIC_SITE_URL
         value: https://zorino.org
       - fromGroup: zorino-shared
