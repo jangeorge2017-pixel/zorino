@@ -33,8 +33,34 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
     NODE_OPTIONS=--max-old-space-size=2048 \
     CI=1
 
+# Render injects the service's environment variables as Docker build args, but
+# Docker ignores them unless each one is declared with ARG in the stage that
+# needs it. NEXT_PUBLIC_* values are inlined into .next at BUILD time, so if
+# they are missing here they are frozen as `undefined` — every Supabase client
+# then returns null and the site renders 0 products/stores/coupons.
+#
+# The anon key is public by design (it ships to the browser anyway), so baking
+# it into the bundle is equivalent to what the Vercel build did. Secret keys
+# (SUPABASE_SERVICE_ROLE_KEY, provider API keys) are runtime-only and are
+# deliberately NOT declared here — they would persist in the image layers.
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_CONTACT_EMAIL_DOMAIN
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
+    NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+    NEXT_PUBLIC_CONTACT_EMAIL_DOMAIN=$NEXT_PUBLIC_CONTACT_EMAIL_DOMAIN
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Fail fast with a clear message instead of shipping a site with zero data.
+RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" || { \
+      echo "ERROR: NEXT_PUBLIC_SUPABASE_URL is not set on the Render service."; \
+      echo "It is injected as a Docker build arg, but must exist in Environment settings."; \
+      exit 1; \
+    }
 
 # Type-checking during the build is disabled in next.config.ts
 # (typescript.ignoreBuildErrors) to stay under the free-tier memory ceiling.
