@@ -55,6 +55,14 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Visible in the Render build log — confirms whether Render actually injected
+# the build args. If this prints <EMPTY>, the variable is missing from the
+# service's Environment settings (env vars → build args only apply to vars that
+# already exist on the service).
+RUN echo "build-arg NEXT_PUBLIC_SUPABASE_URL      = ${NEXT_PUBLIC_SUPABASE_URL:-<EMPTY>}" && \
+    echo "build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY = ${NEXT_PUBLIC_SUPABASE_ANON_KEY:+<set>}${NEXT_PUBLIC_SUPABASE_ANON_KEY:-<EMPTY>}" && \
+    echo "build-arg NEXT_PUBLIC_SITE_URL          = ${NEXT_PUBLIC_SITE_URL:-<EMPTY>}"
+
 # Fail fast with a clear message instead of shipping a site with zero data.
 RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" || { \
       echo "ERROR: NEXT_PUBLIC_SUPABASE_URL is not set on the Render service."; \
