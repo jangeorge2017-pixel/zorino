@@ -1,6 +1,5 @@
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { CatalogStats, ServiceResult } from "@/lib/types/entities";
-import { isRealDataStore } from "@/lib/integration/real-stores";
 
 async function countTable(
   table: string,
@@ -19,56 +18,45 @@ async function countTable(
   return count ?? 0;
 }
 
-/** Products that are real-data-backed: rows in the canonical cache produced by
- *  an active, evidence-backed real provider. Not every `products` row is
- *  real-data-backed, so an exact total is not used here. */
+/** Real cached products: rows in the canonical cache. Read straight from
+ *  Supabase and deliberately NOT filtered by the provider active-state gates —
+ *  every row was written by a real provider sync, so the count stays correct
+ *  on a deployment that has no affiliate credentials configured yet. */
 async function countRealProducts(
   supabase: NonNullable<ReturnType<typeof createSupabaseAnonClient>>
 ): Promise<number> {
-  const { getActiveProductionProviders } = await import(
-    "@/lib/integration/provider-config"
-  );
-  const activeProviders = await getActiveProductionProviders();
-
-  if (activeProviders.length === 0) return 0;
-
   const { count, error } = await supabase
     .from("lowest_prices_today")
     .select("*", { count: "exact", head: true })
     .eq("country_code", "US")
-    .eq("currency", "USD")
-    .in("provider", activeProviders);
+    .eq("currency", "USD");
 
   if (error) return 0;
   return count ?? 0;
 }
 
-/** Stores that are real, data-backed merchants (not seed/stub/placeholder). */
-async function countRealStores(
-  supabase: NonNullable<ReturnType<typeof createSupabaseAnonClient>>
-): Promise<number> {
-  const { data, error } = await supabase
-    .from("stores")
-    .select("*")
-    .eq("is_active", true);
-  if (error) return 0;
-
-  const rows = (data ?? []) as { integration_type: string; slug: string }[];
-  const realFlags = await Promise.all(
-    rows.map((row) =>
-      isRealDataStore(row as Parameters<typeof isRealDataStore>[0])
-    )
-  );
-  let count = rows.filter((_, index) => realFlags[index]).length;
+/** Stores that actually carry cached products: distinct merchants present in
+ *  the catalog. Derived from the database rather than from the configured-
+ *  provider list, so it is non-zero without any affiliate credentials. */
+async function countRealStores(): Promise<number> {
+  try {
+    const { getRealMerchantNames } = await import(
+      "@/lib/integration/database-catalog"
+    );
+    const merchantNames = await getRealMerchantNames();
+    if (merchantNames.length > 0) return merchantNames.length;
+  } catch {
+    // catalog enumeration failed — fall through to the configured-provider count
+  }
 
   try {
-    const { getRealMerchantStores } = await import("@/lib/integration/real-stores");
-    const merchants = await getRealMerchantStores();
-    count += merchants.length;
+    const { getConfiguredProductionProviders } = await import(
+      "@/lib/integration/provider-config"
+    );
+    return getConfiguredProductionProviders().length;
   } catch {
-    // merchant enumeration failed — keep the filtered store count
+    return 0;
   }
-  return count;
 }
 
 export async function getCatalogStats(): Promise<ServiceResult<CatalogStats>> {
@@ -91,7 +79,7 @@ export async function getCatalogStats(): Promise<ServiceResult<CatalogStats>> {
     // (mirrors the hasRealCouponSource() gate in services/coupons.ts). Stores:
     // real data-backed merchants only.
     data: {
-      stores: await countRealStores(supabase),
+      stores: await countRealStores(),
       products,
       coupons: 0,
       deals,

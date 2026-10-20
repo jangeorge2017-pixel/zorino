@@ -232,9 +232,10 @@ export async function getPopularSearches(): Promise<string[]> {
 }
 /**
  * Live catalog stats for hero + footer.
- * Derived from the merged live provider catalog — not raw DB row counts.
- * Stores = distinct active providers that returned real products.
- * Products = total real products from live providers.
+ * Reads the Supabase catalog directly, independent of which affiliate
+ * credentials this deployment currently holds.
+ * Stores = distinct merchants carrying cached products.
+ * Products = total cached catalog size.
  * Coupons = real Supabase coupon rows.
  */
 async function loadHomepageStats(): Promise<{
@@ -245,19 +246,27 @@ async function loadHomepageStats(): Promise<{
   let productCount = 0;
 
   try {
-    // Store count = the authoritative CONFIGURED production provider/store set
-    // (credentials present on Vercel). It is deliberately NOT derived from
-    // per-request runtime health or a live merchant scan, because both fluctuate
-    // when a provider times out — the exact symptom this count must never show.
-    // Configured providers are deterministic from env, so the hero/footer count
-    // stays stable and always reports the REAL number of configured active
-    // stores. 0 on failure — no fabrication, no hardcoded value.
-    const { getConfiguredProductionProviders } = await import(
-      "@/lib/integration/provider-config"
+    // Store count = distinct merchants that actually carry cached products in
+    // Supabase. Derived from the database, never from provider credentials, so
+    // the hero/footer count is real on a deployment with no affiliate keys
+    // configured yet. The cached value is stable for the full revalidate window
+    // (one scan per 5 min), so a provider timeout cannot make it fluctuate.
+    const { getRealMerchantNames } = await import(
+      "@/lib/integration/database-catalog"
     );
-    storeCount = (await getConfiguredProductionProviders()).length;
+    const merchantNames = await getRealMerchantNames();
+
+    if (merchantNames.length > 0) {
+      storeCount = merchantNames.length;
+    } else {
+      // Catalog unreachable — fall back to the configured provider/store set.
+      const { getConfiguredProductionProviders } = await import(
+        "@/lib/integration/provider-config"
+      );
+      storeCount = (await getConfiguredProductionProviders()).length;
+    }
   } catch {
-    // Configured-provider fetch failed — count stays at 0. No fake fallback.
+    // Store count failed — stays at 0. No fake fallback.
   }
 
   try {
