@@ -54,6 +54,15 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   compress: true,
+  // TEMPORARY: type-checking during `next build` is skipped because Render's
+  // free tier OOMs on it. Types are still enforced by `npm run typecheck`
+  // locally and in CI (see .github/workflows/ci-cd.yml). Remove this once the
+  // service is on a paid plan.
+  // Note: `eslint.ignoreDuringBuilds` no longer exists in Next 16 — ESLint is
+  // not part of `next build`, so nothing is needed there.
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async headers() {
     const headers = [...securityHeaders];
     if (isProduction) {
