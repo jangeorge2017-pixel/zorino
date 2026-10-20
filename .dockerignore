@@ -1,0 +1,24 @@
+# Keep the Docker build context small and reproducible. Without this,
+# `COPY . .` ships node_modules, prior build output and the ~700 MB local
+# backup archive into the builder and the image.
+node_modules
+.next
+.git
+.github
+.vercel
+.env
+.env.*
+!.env.example
+.playwright-mcp
+coverage
+*.log
+zorino_custom_code_backup.zip
+zorino_db_backup.sql
+refresh1.json
+sync1.json
+sync2.json
+sync3.json
+Dockerfile
+.dockerignore
+render.yaml
+README.md
