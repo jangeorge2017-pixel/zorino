@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Trigger /api/cron/refresh
         env:
-          CRON_URL: ${{ vars.CRON_URL || 'https://zorino-web.onrender.com' }}
+          CRON_URL: ${{ vars.CRON_URL || 'https://zorino-1.onrender.com' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           if [ -z "$CRON_SECRET" ]; then
