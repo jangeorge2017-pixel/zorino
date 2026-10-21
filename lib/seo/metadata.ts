@@ -17,6 +17,18 @@ export interface SEOProps {
   robots?: Record<string, unknown>;
 }
 
+/**
+ * `metadataBase` must always be a valid absolute URL — Next.js throws during
+ * `next build` if it is not. Never let a malformed env var break the build.
+ */
+function toMetadataBase(raw: string): URL {
+  try {
+    return new URL(raw);
+  } catch {
+    return new URL("https://zorino.org");
+  }
+}
+
 export function generateMetadata(props: SEOProps) {
   const siteUrl = getSiteUrl();
   const {
@@ -50,7 +62,7 @@ export function generateMetadata(props: SEOProps) {
     .map(openGraphLocale);
 
   return {
-    metadataBase: new URL(siteUrl),
+    metadataBase: toMetadataBase(siteUrl),
     title: fullTitle,
     description,
     keywords: keywords.join(", "),
