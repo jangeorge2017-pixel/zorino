@@ -9,9 +9,20 @@ function loadEnvFile(path) {
     const eq = trimmed.indexOf("=");
     if (eq === -1) continue;
     const key = trimmed.slice(0, eq).trim();
-    const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
-    process.env[key] = val;
+    process.env[key] = parseEnvValue(trimmed.slice(eq + 1));
   }
+}
+
+/** Quoted value ends at its closing quote; unquoted value ends at ` #`. */
+function parseEnvValue(raw) {
+  const val = raw.trim();
+  if (/^["']/.test(val)) {
+    const quote = val[0];
+    const end = val.indexOf(quote, 1);
+    return end === -1 ? val.slice(1) : val.slice(1, end);
+  }
+  const hash = val.indexOf(" #");
+  return hash === -1 ? val : val.slice(0, hash).trim();
 }
 
 loadEnvFile(resolve(process.cwd(), ".env.vercel.production"));
