@@ -45,13 +45,19 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 # declared as ARG defaults rather than fixed ENV lines so a build arg supplied
 # by Render still takes precedence over the baked value.
 #
+# Every ARG below has a NON-EMPTY default on purpose. An env var that exists
+# but is empty is injected as an empty build arg, which overrides the default —
+# and an empty NEXT_PUBLIC_SITE_URL used to crash `next build` with
+# "Invalid URL" (TypeError in lib/seo/metadata.ts). The defaults keep the
+# build valid even when Render injects nothing at all.
+#
 # Secrets are deliberately absent: SUPABASE_SERVICE_ROLE_KEY and provider API
 # keys are runtime-only and must never be written into a Dockerfile, since they
 # would persist in the image layers and in git history.
 ARG NEXT_PUBLIC_SUPABASE_URL="https://trgzpvpzzfldtouikitc.supabase.co"
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY="sb_publishable_9EbS4IP6UhTImBvGcCYVCw_cOmu08DX"
-ARG NEXT_PUBLIC_SITE_URL
-ARG NEXT_PUBLIC_CONTACT_EMAIL_DOMAIN
+ARG NEXT_PUBLIC_SITE_URL="https://zorino-1.onrender.com"
+ARG NEXT_PUBLIC_CONTACT_EMAIL_DOMAIN="zorino.org"
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
     NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
@@ -70,8 +76,8 @@ RUN echo "build-arg NEXT_PUBLIC_SUPABASE_URL      = ${NEXT_PUBLIC_SUPABASE_URL:-
 
 # Should never trip now that defaults are baked, but still catches an explicit
 # empty build arg (`--build-arg NEXT_PUBLIC_SUPABASE_URL=`) from Render.
-RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" || { \
-      echo "ERROR: NEXT_PUBLIC_SUPABASE_URL resolved to an empty string at build time."; \
+RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" && test -n "$NEXT_PUBLIC_SITE_URL" || { \
+      echo "ERROR: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SITE_URL resolved to an empty string at build time."; \
       echo "An empty build arg is overriding the baked default - check Environment settings."; \
       exit 1; \
     }
