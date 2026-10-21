@@ -1,94 +1,76 @@
 previews:
   generation: off
 
-envVarGroups:
-  - name: zorino-shared
+# Blueprint for the production Render service.
+#
+# The service described here is the live one:
+#   name   zorino-1
+#   URL    https://zorino-1.onrender.com
+#   region virginia
+#   runtime node (native), plan free
+#
+# The `name` MUST stay `zorino-1`: Render matches an existing service by name
+# when a blueprint is applied, so any other name would create a second,
+# duplicate service instead of updating the live one.
+#
+# The Docker deploy path lives in ./Dockerfile and is used by the separate
+# `zorino` service (runtime: docker, same region/plan). It is not part of this
+# blueprint on purpose — a single canonical service keeps the deploy story
+# unambiguous.
+services:
+  - type: web
+    name: zorino-1
+    runtime: node
+    region: virginia
+    plan: free
+    branch: main
+    autoDeployTrigger: commit
+    maxShutdownDelaySeconds: 120
+    # --include=dev keeps TypeScript/Tailwind available to `next build`. Render
+    # exports service env vars during the build step, so never set
+    # NODE_ENV=production here: npm would omit devDependencies and next build
+    # exits 1. `next start` sets NODE_ENV=production itself.
+    buildCommand: npm install; npm run build
+    startCommand: npm run start
     envVars:
-      - key: SUPABASE_URL
-        sync: false
+      # -- public runtime configuration (safe to keep in git) -----------------
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://zorino-1.onrender.com
       - key: NEXT_PUBLIC_SUPABASE_URL
-        sync: false
+        value: https://trgzpvpzzfldtouikitc.supabase.co
+      - key: ALIEXPRESS_AFFILIATE_BASE_URL
+        value: https://s.click.aliexpress.com/deep_link.htm
+      - key: EBAY_NOTIFICATION_ENDPOINT_URL
+        value: https://zorino-1.onrender.com/api/ebay/notifications
+      - key: EBAY_SANDBOX
+        value: "false"
+      - key: AMAZON_DIRECT_ENABLE
+        value: "1"
+      # -- secrets: values are kept in the Render dashboard, never in git ----
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: CRON_SECRET
         sync: false
-
-services:
-  # NOTE: the live service was created with the Docker runtime, which Render
-  # cannot change afterwards — that service builds via ./Dockerfile (Node 22,
-  # `npm ci --include=dev`). This block documents the equivalent native-Node
-  # setup and is used only if the service is ever recreated.
-  - type: web
-    name: zorino-web
-    runtime: node
-    region: frankfurt
-    plan: free
-    branch: main
-    autoDeployTrigger: commit
-    healthCheckPath: /robots.txt
-    maxShutdownDelaySeconds: 120
-    # --include=dev keeps TypeScript/Tailwind available to `next build`. Render
-    # exports service env vars during the build step, so never set
-    # NODE_ENV=production here: npm would omit devDependencies and next build
-    # exits 1. `next start` sets NODE_ENV=production itself.
-    buildCommand: npm ci --include=dev && npm run build
-    startCommand: npm start
-    envVars:
-      - key: NODE_VERSION
-        value: 22.12.0
-      - key: NEXT_PUBLIC_SITE_URL
-        value: https://zorino.org
-      - fromGroup: zorino-shared
-      - key: CRON_BUDGET_MS
-        value: "1800000"
-      - key: CRON_MIN_STEP_BUDGET_MS
-        value: "12000"
-      - key: CRON_SYNC_STEP_BUDGET_MS
-        value: "900000"
-      - key: CRON_ADMITAD_STEP_BUDGET_MS
-        value: "900000"
-      - key: CRON_ADMITAD_BACKFILL_STEP_BUDGET_MS
-        value: "300000"
-      - key: CRON_ALIEXPRESS_STEP_BUDGET_MS
-        value: "600000"
-      - key: CRON_AMAZON_STEP_BUDGET_MS
-        value: "600000"
-      - key: CRON_PHASE1_STEP_BUDGET_MS
-        value: "600000"
-      - key: CRON_CATALOG_STEP_BUDGET_MS
-        value: "300000"
-      - key: CRON_NOON_STEP_BUDGET_MS
-        value: "300000"
-      - key: CRON_JUMIA_STEP_BUDGET_MS
-        value: "300000"
-      - key: CRON_ARABCLICKS_STEP_BUDGET_MS
-        value: "600000"
-      - key: ADMITAD_MAX_FEEDS
-        value: "20"
-      - key: ADMITAD_MAX_PRODUCTS_PER_FEED
-        value: "2000"
-      - key: ALIEXPRESS_APP_KEY
-        sync: false
-      - key: ALIEXPRESS_APP_SECRET
-        sync: false
-      - key: ALIEXPRESS_TRACKING_ID
-        sync: false
-      - key: ALIEXPRESS_AFFILIATE_BASE_URL
-        value: https://s.click.aliexpress.com/deep_link.htm
       - key: EBAY_APP_ID
         sync: false
       - key: EBAY_CERT_ID
         sync: false
       - key: EBAY_CAMPAIGN_ID
         sync: false
+      - key: EBAY_OAUTH_TOKEN
+        sync: false
       - key: EBAY_VERIFICATION_TOKEN
         sync: false
-      - key: EBAY_NOTIFICATION_ENDPOINT_URL
-        value: https://www.zorino.org/api/ebay/notifications
-      - key: EBAY_SANDBOX
-        value: "false"
+      - key: EBAY_REFERENCE_ID
+        sync: false
+      - key: ALIEXPRESS_APP_KEY
+        sync: false
+      - key: ALIEXPRESS_APP_SECRET
+        sync: false
+      - key: ALIEXPRESS_TRACKING_ID
+        sync: false
       - key: ADMITAD_CLIENT_ID
         sync: false
       - key: ADMITAD_CLIENT_SECRET
@@ -97,9 +79,53 @@ services:
         sync: false
       - key: CJDROPSHIPPING_API_KEY
         sync: false
-      - key: ARABCLICKS_FEED_URL
+      - key: AMAZON_ASSOCIATE_TAG
+        sync: false
+      - key: AMAZON_EG_ASSOCIATE_TAG
+        sync: false
+      - key: AMAZON_CREATORS_CLIENT_ID
+        sync: false
+      - key: AMAZON_CREATORS_CLIENT_SECRET
+        sync: false
+      - key: AMAZON_CREATORS_MARKETPLACE
         sync: false
       - key: ARABCLICKS_API_KEY
         sync: false
+      - key: ARABCLICKS_FEED_URL
+        sync: false
       - key: ARABCLICKS_PUBLISHER_ID
+        sync: false
+      - key: ARABCLICKS_API_BASE
+        sync: false
+      - key: ARABCLICKS_API_ENDPOINT
+        sync: false
+      - key: BESTBUY_API_KEY
+        sync: false
+      - key: BESTBUY_AFFILIATE_ID
+        sync: false
+      - key: JUMIA_API_KEY
+        sync: false
+      - key: JUMIA_AFFILIATE_ID
+        sync: false
+      - key: NOON_API_KEY
+        sync: false
+      - key: NOON_KSA_AFFILIATE_ID
+        sync: false
+      - key: NOON_UAE_AFFILIATE_ID
+        sync: false
+      - key: TEMU_API_KEY
+        sync: false
+      - key: TEMU_AFFILIATE_ID
+        sync: false
+      - key: WALMART_API_KEY
+        sync: false
+      - key: WALMART_AFFILIATE_ID
+        sync: false
+      - key: SHOPIFY_ACCESS_TOKEN
+        sync: false
+      - key: SHOPIFY_STORE_DOMAIN
+        sync: false
+      - key: OXYLABS_USERNAME
+        sync: false
+      - key: OXYLABS_PASSWORD
         sync: false
