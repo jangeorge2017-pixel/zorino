@@ -12,8 +12,21 @@ import { loadEbayCredentials } from "@/services/ebay/credentials";
 /** eBay Browse API max pages per search (50 × 10 = 500 listings). */
 const EBAY_MAX_PAGES = 10;
 
-/** Pages fetched concurrently once a device-intent search opts in. */
-const EBAY_OPTIMIZED_PAGE_BATCH = 3;
+/** Pages fetched concurrently per round. */
+const EBAY_OPTIMIZED_PAGE_BATCH = 6;
+
+/**
+ * Concurrent page rounds for EVERY eBay search.
+ *
+ * The engine gives each provider an 8s deadline and the eBay page budget is
+ * ceil(targetFetch 300 / pageSize 50) = 6 pages. Measured Browse API page
+ * latency is ~2.1-3.2s, so scanning those 6 pages sequentially takes ~14.4s:
+ * the engine's race then discarded the whole eBay leg and the provider
+ * silently contributed 0 results on most queries. Fetching the page budget
+ * concurrently finishes the same 6 pages in ~2.6s, comfortably inside the
+ * deadline and with the same number of API calls.
+ */
+const EBAY_PAGE_BATCH = EBAY_OPTIMIZED_PAGE_BATCH;
 
 /**
  * When a category-narrowed device fetch yields fewer than this many listings,
@@ -68,32 +81,39 @@ export type EbayDeviceSearchStrategy = {
   /** Pages fetched concurrently. 1 preserves the strictly sequential default. */
   pageBatch: number;
 };
-
 /**
  * Pure, testable policy: should an eBay search be narrowed to a device
- * category? Runs only when the caller (the /search surface) opts in, so the
- * homepage catalog and Compare Prices keep the exact legacy eBay calls.
+ * category? The category narrowing is opt-in and only runs when the caller
+ * (the /search surface) asks for device intent, so the homepage catalog and
+ * Compare Prices keep the exact legacy eBay calls.
  *
  * Rules:
  * - Accessory queries are never category-filtered — a case/charger lives in an
  *   accessory category, not the device one.
  * - No condition filter is ever added, so Used/Refurbished devices stay valid.
  * - Families with no confident category stay keyword-only.
+ *
+ * Page batching applies to EVERY eBay search (see EBAY_PAGE_BATCH): the
+ * engine's per-provider deadline is 8s and the page budget is 6 pages of 50
+ * items, so scanning them one by one regularly blew the deadline and the
+ * engine discarded the whole eBay leg. Fetching them in concurrent rounds
+ * keeps the same volume inside the deadline.
  */
 export function resolveEbayDeviceSearchStrategy(
   query: string,
   options?: ConnectorSearchOptions,
 ): EbayDeviceSearchStrategy {
   if (options?.optimizeForDeviceIntent !== true) {
-    return { pageBatch: 1 };
+    return { pageBatch: EBAY_PAGE_BATCH };
   }
+
   const capabilities = getProviderSearchCapabilities("ebay");
   const intent = options?.intent ?? analyzeSearchQueryIntent(query);
   const categoryIds =
     capabilities.supportsCategoryFilter && intent.kind !== "accessory"
       ? intent.ebayCategoryId
       : undefined;
-  return { categoryIds, pageBatch: EBAY_OPTIMIZED_PAGE_BATCH };
+  return { categoryIds, pageBatch: EBAY_PAGE_BATCH };
 }
 
 /** Single live Browse API attempt — normalize + dedupe like the old connector. */

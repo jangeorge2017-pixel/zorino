@@ -14,9 +14,25 @@ function loadEnv() {
     const eq = trimmed.indexOf("=");
     if (eq === -1) continue;
     const key = trimmed.slice(0, eq).trim();
-    const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
-    process.env[key] = val;
+    process.env[key] = parseEnvValue(trimmed.slice(eq + 1));
   }
+}
+
+/**
+ * Parse a dotenv value. A quoted value ends at its closing quote (anything
+ * after it is a comment); an unquoted value ends at an inline ` #` comment.
+ * Without this, `KEY=""  # comment` yields a non-empty string that later gets
+ * sent to eBay as a Bearer token and fails with 401 "Invalid access token".
+ */
+function parseEnvValue(raw) {
+  const val = raw.trim();
+  if (/^["']/.test(val)) {
+    const quote = val[0];
+    const end = val.indexOf(quote, 1);
+    return end === -1 ? val.slice(1) : val.slice(1, end);
+  }
+  const hash = val.indexOf(" #");
+  return hash === -1 ? val : val.slice(0, hash).trim();
 }
 
 loadEnv();

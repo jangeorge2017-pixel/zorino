@@ -37,6 +37,28 @@ function resolveEbayCertId(): string | undefined {
   );
 }
 
+/**
+ * A static `EBAY_OAUTH_TOKEN` is only usable when it really is a token.
+ *
+ * eBay access tokens are single opaque values (e.g. `v^1.1#...`). A quoted
+ * env line such as `EBAY_OAUTH_TOKEN=""  # comment` is NOT empty once a
+ * loader keeps the trailing comment — it becomes a non-empty string that
+ * still contains whitespace and surrounding quotes. Sending that as a Bearer
+ * token makes the Browse API answer `401 Invalid access token` and takes the
+ * whole provider down, even though the App ID + Cert ID pair is perfectly
+ * valid. Normalising here keeps a mis-parsed env line from masking working
+ * credentials: the client falls back to the client-credentials exchange.
+ */
+function resolveEbayStaticToken(): string | undefined {
+  const raw = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.OAUTH_TOKEN);
+  if (!raw) return undefined;
+
+  const token = raw.trim().replace(/^["']|["']$/g, "").trim();
+  if (!token) return undefined;
+  if (/\s/.test(token)) return undefined;
+  return token;
+}
+
 const EBAY_PRODUCTION = {
   browseApi: "https://api.ebay.com/buy/browse/v1",
   tokenUrl: "https://api.ebay.com/identity/v1/oauth2/token",
@@ -75,7 +97,7 @@ export function getEbayCredentialStatus(): EbayCredentialStatus {
   const appId = resolveEbayAppId();
   const certId = resolveEbayCertId();
   const campaignId = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.CAMPAIGN_ID);
-  const oauthToken = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.OAUTH_TOKEN);
+  const oauthToken = resolveEbayStaticToken();
   const referenceId = getIntegrationCredential("EBAY_REFERENCE_ID");
 
   const hasOauthToken = Boolean(oauthToken);
@@ -100,7 +122,7 @@ export function getEbayCredentialStatus(): EbayCredentialStatus {
 }
 
 export function getEbayCredentials(): EbayCredentials | null {
-  const oauthToken = getIntegrationCredential(EBAY_CREDENTIAL_KEYS.OAUTH_TOKEN);
+  const oauthToken = resolveEbayStaticToken();
   const appId = resolveEbayAppId();
   const certId = resolveEbayCertId();
 
