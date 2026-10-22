@@ -93,6 +93,24 @@ services:
         sync: false
       - key: ARABCLICKS_FEED_URL
         sync: false
+      - key: ARABCLICKS_FEED_SYNC_ENABLED
+        sync: false
+      - key: ARABCLICKS_FEED_DRY_RUN
+        sync: false
+      - key: ARABCLICKS_FEED_MAX_ITEMS
+        sync: false
+      - key: ARABCLICKS_FEED_DEFAULT_COUNTRY
+        sync: false
+      - key: ARABCLICKS_FEED_DEFAULT_CURRENCY
+        sync: false
+      - key: ARABCLICKS_TRACKING_PARAM
+        sync: false
+      - key: ARABCLICKS_SUBID
+        sync: false
+      - key: ADMITAD_SUBID
+        sync: false
+      - key: ZORINO_TRACKING_TOKEN
+        sync: false
       - key: ARABCLICKS_PUBLISHER_ID
         sync: false
       - key: ARABCLICKS_API_BASE

@@ -13,6 +13,10 @@ import {
   buildCjPassThroughUrl,
   isNonAffiliatePassThroughMarketplace,
 } from "@/lib/affiliate/cjdropshipping-passthrough";
+import {
+  applyTrackingParams,
+  applyTrackingToUrl,
+} from "@/lib/affiliate/tracking-engine";
 
 export type AffiliatePartnerConfig = {
   marketplace: AffiliateMarketplace;
@@ -97,6 +101,16 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
     // Not a parseable URL — fall through to normal generation below.
   }
 
+  // ArabClicks feed deep links are network-tracked already. Only a configured
+  // sub-id param is added (never a fabricated one), so this path must not be
+  // gated on a partner tag.
+  if (marketplace === "arabclicks") {
+    return applyTrackingToUrl(input.destinationUrl, "arabclicks", {
+      tag: input.partnerTag,
+      token: input.trackingId,
+    });
+  }
+
   // Never invent partner tags — untracked destinations stay untracked.
   const tag = input.partnerTag?.trim() || getPartnerTagFromEnv(marketplace);
   if (!tag) return input.destinationUrl;
@@ -105,32 +119,7 @@ export function buildAffiliateUrl(input: BuildAffiliateUrlInput): string {
 
   try {
     const url = new URL(input.destinationUrl);
-
-    switch (marketplace) {
-      case "amazon":
-      case "amazon-eg":
-        url.searchParams.set("tag", tag);
-        break;
-      case "ebay":
-        url.searchParams.set("campid", tag);
-        url.searchParams.set("customid", trackingId);
-        break;
-      case "walmart":
-        url.searchParams.set("wmlspartner", tag);
-        url.searchParams.set("sourceid", trackingId.slice(0, 16));
-        break;
-      case "temu":
-        url.searchParams.set("ref", tag);
-        url.searchParams.set("_p_rfs", trackingId.slice(0, 12));
-        break;
-      case "noon":
-        // Noon uses short-link affiliate tracking (s.noon.com) — no URL params needed.
-        break;
-      case "admitad":
-        // Admitad products come with affiliate URLs from the feed — no extra params needed.
-        break;
-    }
-
+    applyTrackingParams(url, marketplace, { tag, token: trackingId });
     url.searchParams.set("zorino_ref", trackingId);
     return url.toString();
   } catch {
