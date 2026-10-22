@@ -13,6 +13,10 @@ import { triggerPhase1Imports } from "@/services/sync";
 import { runNoonIngestion } from "@/lib/integrations/noon";
 import { runJumiaIngestion } from "@/lib/integrations/jumia";
 import { runArabClicksIngestion } from "@/lib/integration/arabclicks";
+import {
+  runArabClicksFeedIngestion,
+  type ArabClicksFeedRunResult,
+} from "@/lib/integration/arabclicks-feed";
 
 export const PROVIDER_STEP_KEYS = [
   "aliexpress",
@@ -50,6 +54,10 @@ const CATALOG_STEP_BUDGET_MS = stepBudgetMs("CRON_CATALOG_STEP_BUDGET_MS", 15_00
 const NOON_STEP_BUDGET_MS = stepBudgetMs("CRON_NOON_STEP_BUDGET_MS", 20_000);
 const JUMIA_STEP_BUDGET_MS = stepBudgetMs("CRON_JUMIA_STEP_BUDGET_MS", 20_000);
 const ARABCLICKS_STEP_BUDGET_MS = stepBudgetMs("CRON_ARABCLICKS_STEP_BUDGET_MS", 20_000);
+const ARABCLICKS_FEED_STEP_BUDGET_MS = stepBudgetMs(
+  "CRON_ARABCLICKS_FEED_STEP_BUDGET_MS",
+  30_000,
+);
 
 /** Scheduler deadline for a step, leaving headroom before its hard cap. */
 function stepDeadlineMs(capMs: number): number {
@@ -249,14 +257,35 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
     }
   })();
 
-  // ArabClicks: network transport that routes Noon EG + Jumia EG offers into
-  // the same catalog spine. Credential-gated AND endpoint-gated — until a real
-  // ArabClicks feed endpoint is configured it returns an explicit skip reason
-  // and never touches the network, so the pipeline stays unblocked.
+  // ArabClicks: two independent ingest paths sharing one step.
+  //   1. Universal product feed (ARABCLICKS_FEED_URL) — off by default, and
+  //      dry-run by default; parses CSV/XML into products + product_offers.
+  //   2. Network transport that routes Noon EG + Jumia EG offers into the same
+  //      catalog spine. Credential-gated AND endpoint-gated — until a real
+  //      ArabClicks endpoint is configured it returns an explicit skip reason
+  //      and never touches the network, so the pipeline stays unblocked.
   const arabclicks = (async (): Promise<ProviderStepResult> => {
     if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
       return { skipped: true, reason: "budget-exhausted" };
     }
+
+    let feed: ArabClicksFeedRunResult | { error: string } | null = null;
+    try {
+      const feedDeadline = Math.max(
+        6_000,
+        Math.min(budget.remainingMs() - 6_000, ARABCLICKS_FEED_STEP_BUDGET_MS),
+      );
+      feed = await runArabClicksFeedIngestion({
+        deadlineMs: Date.now() + stepDeadlineMs(feedDeadline),
+      });
+    } catch (err) {
+      feed = { error: err instanceof Error ? err.message : String(err) };
+    }
+
+    if (!budget.hasRoomFor(MIN_STEP_BUDGET_MS)) {
+      return { feed, skipped: true, reason: "budget-exhausted" };
+    }
+
     try {
       const { value, timedOut } = await withBudgetCap(
         budget,
@@ -267,8 +296,9 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
           deadlineMs: stepDeadlineMs(ARABCLICKS_STEP_BUDGET_MS),
         }),
       );
-      if (timedOut) return { timedOut: true };
+      if (timedOut) return { feed, timedOut: true };
       return {
+        feed,
         skipped: value?.skipped,
         reason: value?.reason,
         configured: value?.configured,
@@ -280,7 +310,7 @@ export async function runProviderStepsParallel(budget: CronBudget): Promise<Prov
         errors: value?.errors?.slice(0, 5),
       };
     } catch (err) {
-      return { error: err instanceof Error ? err.message : String(err) };
+      return { feed, error: err instanceof Error ? err.message : String(err) };
     }
   })();
 

@@ -8,6 +8,7 @@ export const AFFILIATE_MARKETPLACES = [
   "temu",
   "noon",
   "admitad",
+  "arabclicks",
 ] as const;
 
 export type AffiliateMarketplace = (typeof AFFILIATE_MARKETPLACES)[number];
@@ -22,6 +23,8 @@ export const AFFILIATE_ENV_KEYS: Record<AffiliateMarketplace, string[]> = {
   temu: ["TEMU_AFFILIATE_ID"],
   noon: ["NOON_UAE_AFFILIATE_ID", "NOON_KSA_AFFILIATE_ID"],
   admitad: ["ADMITAD_FEED_URL"],
+  /** Publisher id only — the feed deep links already carry the tracking. */
+  arabclicks: ["ARABCLICKS_PUBLISHER_ID"],
 };
 
 export const DEFAULT_COMMISSION_RATES: Record<AffiliateMarketplace, number> = {
@@ -33,6 +36,7 @@ export const DEFAULT_COMMISSION_RATES: Record<AffiliateMarketplace, number> = {
   temu: 7,
   noon: 5,
   admitad: 5,
+  arabclicks: 5,
 };
 
 /** Map store integration_type / slug to affiliate marketplace id. */
