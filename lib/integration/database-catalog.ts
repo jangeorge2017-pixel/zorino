@@ -183,22 +183,30 @@ export function resetMerchantNamesCacheForTests(): void {
 /**
  * Enumerate the distinct real merchants present in `lowest_prices_today`.
  *
+ * Primary path: the `real_merchant_names` RPC (migration 033) computes the
+ * distinct set in ONE server-side scan and returns it as text[]. With the
+ * covering index from the same migration this is sub-second, which keeps the
+ * whole DB leg inside the homepage budget even on a 0.1-CPU instance.
+ *
+ * Fallback (RPC missing / errors): paginate the full real-provider set with
+ * keyset scans and dedupe on store_name. That path is correct but slow, so it
+ * exists only so a deployment can run before the migration is applied.
+ *
  * IMPORTANT: rows are heavily concentrated by merchant (one merchant can own
  * tens of thousands of rows, another only a handful at the very tail), so a
- * bounded "first N" slice would miss whole merchants. We must therefore walk
- * the full real-provider set and dedupe on store_name.
+ * bounded "first N" slice would miss whole merchants.
  *
  * Reliability (verified against the live 120K-row table):
- * - Use the array-form `.in("provider", [...])` filter. The string-form
- *   `.or("provider.in.(...)")` is planned as a PostgREST `or` filter and
- *   consistently 500s with a statement timeout, which silently emptied the
- *   merchant universe and dropped every persisted (Admitad) row from the
+ * - The keyset fallback must use the array-form `.in("provider", [...])` filter.
+ *   The string-form `.or("provider.in.(...)")` is planned as a PostgREST `or`
+ *   filter and consistently 500s with a statement timeout, which silently
+ *   emptied the merchant universe and dropped every persisted row from the
  *   homepage catalog.
  * - Page by KEY SET (`id > cursor`), never by OFFSET. Deep `.range()` offsets
  *   also hit the statement timeout (verified at offset 6000+), so keyset +
  *   random-UUID partitions gives the same coverage without deep scans.
  * - Result is cached process-wide (shared by the catalog leg and the stats
- *   leg) and de-duplicated while in flight, so the scan runs at most once per
+ *   leg) and de-duplicated while in flight, so the lookup runs at most once per
  *   TTL per instance instead of twice per 5-min cache cycle.
  */
 export async function getRealMerchantNames(supabase?: SupabaseDb): Promise<string[]> {
@@ -211,7 +219,7 @@ export async function getRealMerchantNames(supabase?: SupabaseDb): Promise<strin
   }
   if (merchantNamesInflight) return merchantNamesInflight;
 
-  merchantNamesInflight = scanRealMerchantNames(client)
+  merchantNamesInflight = loadRealMerchantNames(client)
     .then((names) => {
       // Only cache a non-empty result; an empty scan is more likely a transient
       // outage than a genuinely empty table, and must be retried next call.
@@ -223,6 +231,24 @@ export async function getRealMerchantNames(supabase?: SupabaseDb): Promise<strin
     });
 
   return merchantNamesInflight;
+}
+
+/**
+ * RPC-first merchant lookup. Returns null only when the RPC is unavailable so
+ * the caller can fall back to the keyset scan; a successful empty result is
+ * meaningful (the real table has no merchants in scope).
+ */
+async function loadRealMerchantNames(client: SupabaseDb): Promise<string[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (client as any).rpc("real_merchant_names", {
+    p_countries: [...CATALOG_COUNTRIES],
+    p_currencies: [...CATALOG_CURRENCIES],
+    p_providers: [...REAL_CATALOG_PROVIDERS],
+  });
+  if (error || !Array.isArray(data)) return scanRealMerchantNames(client);
+  return data
+    .map((name: unknown) => String(name ?? "").trim())
+    .filter((name: string) => name.length > 0);
 }
 
 async function scanRealMerchantNames(client: SupabaseDb): Promise<string[]> {
