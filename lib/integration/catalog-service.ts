@@ -56,13 +56,14 @@ const DEGRADED_CATALOG_REVALIDATE_MS = 30_000;
 const ADMITAD_FEED_CATALOG_BUDGET_MS = 5_000;
 
 /**
- * Hard budget for the persisted DB catalog path (lowest_prices_today + merchant
- * queries). On a cold cache this can take 15–25s due to a paginated scan of
- * 120K rows plus per-merchant queries — more than the search fan-out. Bounding
- * it keeps the total catalog Promise.all wall-time short and ensures a slow DB
- * never prevents the faster live-search source from rendering usable data.
+ * Hard budget for the persisted DB catalog path (lowest_prices_today merchant
+ * scan + per-merchant queries). The merchant scan is keyset-partitioned and
+ * cached process-wide, and per-merchant reads run concurrently, so a warm leg
+ * resolves in ~1-2s; the budget only guards a cold/failing DB. Bounding it keeps
+ * the total catalog Promise.all wall-time short and ensures a slow DB never
+ * prevents the faster live-search source from rendering usable data.
  */
-const DB_CATALOG_BUDGET_MS = 10_000;
+const DB_CATALOG_BUDGET_MS = 12_000;
 
 /** Normalise a product title for deduplication across live search and database. */
 function normalizeTitle(title: string): string {
