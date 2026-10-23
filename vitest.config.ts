@@ -13,12 +13,8 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     exclude: ["node_modules", ".next", "scripts", "cai"],
     pool: "forks",
-    poolOptions: {
-      forks: {
-        isolate: false,
-        singleFork: true,
-      },
-    },
+    isolate: false,
+    fileParallelism: false,
     coverage: {
       provider: "v8",
       include: ["lib/providers/**"],
