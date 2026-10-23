@@ -245,7 +245,15 @@ async function loadRealMerchantNames(client: SupabaseDb): Promise<string[]> {
     p_currencies: [...CATALOG_CURRENCIES],
     p_providers: [...REAL_CATALOG_PROVIDERS],
   });
-  if (error || !Array.isArray(data)) return scanRealMerchantNames(client);
+  if (error) {
+    console.error("[db] real_merchant_names rpc error:", error.code ?? error.message);
+    return scanRealMerchantNames(client);
+  }
+  if (!Array.isArray(data)) {
+    console.error("[db] real_merchant_names rpc unexpected shape");
+    return scanRealMerchantNames(client);
+  }
+  console.error("[db] real_merchant_names rpc ok count:", data.length);
   return data
     .map((name: unknown) => String(name ?? "").trim())
     .filter((name: string) => name.length > 0);
