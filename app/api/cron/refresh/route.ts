@@ -38,10 +38,10 @@ import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
 export const maxDuration = 60;
 
 // Bounded per-feed work. Raise ADMITAD_MAX_FEEDS / ADMITAD_MAX_PRODUCTS_PER_FEED
-// env vars when the deployment plan allows longer execution windows (Render).
-const ADMITAD_CRON_MAX_FEEDS = Number(process.env.ADMITAD_MAX_FEEDS ?? 3);
+// via env vars on Render if a run needs to cover more merchants in one pass.
+const ADMITAD_CRON_MAX_FEEDS = Number(process.env.ADMITAD_MAX_FEEDS ?? 50);
 const ADMITAD_CRON_MAX_PRODUCTS_PER_FEED = Number(
-  process.env.ADMITAD_MAX_PRODUCTS_PER_FEED ?? 300,
+  process.env.ADMITAD_MAX_PRODUCTS_PER_FEED ?? 5000,
 );
 const ADMITAD_CRON_DEADLINE_CAP_MS = stepBudgetMs("CRON_ADMITAD_STEP_BUDGET_MS", 45_000);
 const ADMITAD_BACKFILL_STEP_BUDGET_MS = stepBudgetMs(

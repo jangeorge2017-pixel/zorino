@@ -40,41 +40,101 @@ function getCredentials(): { clientId: string; clientSecret: string } | null {
 
 /**
  * Obtain a fresh access_token via client-credentials grant.
- * Admitad expects client_id + client_secret as POST body params.
+ * Admitad auth flow may vary by account/version; try multiple methods.
  */
 export async function obtainAccessToken(): Promise<string> {
   const creds = getCredentials();
   if (!creds) throw new Error("ADMITAD_CLIENT_ID / ADMITAD_CLIENT_SECRET not set");
 
-  const body = new URLSearchParams({
-    grant_type: "client_credentials",
-    client_id: creds.clientId,
-    client_secret: creds.clientSecret,
-    scope: REQUIRED_SCOPES,
-  });
+  const basic = Buffer.from(`${creds.clientId}:${creds.clientSecret}`).toString("base64");
 
-  const resp = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
-    signal: AbortSignal.timeout(15_000),
-  });
+  const attempts: Array<{
+    name: string;
+    headers: Record<string, string>;
+    body: string;
+  }> = [
+    {
+      name: "body+scope",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: creds.clientId,
+        client_secret: creds.clientSecret,
+        scope: REQUIRED_SCOPES,
+      }).toString(),
+    },
+    {
+      name: "body-noscope",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: creds.clientId,
+        client_secret: creds.clientSecret,
+      }).toString(),
+    },
+    {
+      name: "basic+body",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${basic}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+      }).toString(),
+    },
+    {
+      name: "basic+scope",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${basic}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        scope: REQUIRED_SCOPES,
+      }).toString(),
+    },
+    {
+      name: "json",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "client_credentials",
+        client_id: creds.clientId,
+        client_secret: creds.clientSecret,
+        scope: REQUIRED_SCOPES,
+      }),
+    },
+  ];
 
-  if (!resp.ok) {
-    const text = await resp.text().catch(() => "");
-    throw new Error(`Admitad token request failed: HTTP ${resp.status} — ${text}`);
+  let lastErr = "";
+  for (const attempt of attempts) {
+    try {
+      const resp = await fetch(TOKEN_URL, {
+        method: "POST",
+        headers: attempt.headers,
+        body: attempt.body,
+        signal: AbortSignal.timeout(15_000),
+      });
+
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => "");
+        lastErr = `(${attempt.name}) HTTP ${resp.status} - ${text}`;
+        continue;
+      }
+
+      const data: TokenResponse = await resp.json();
+      const expiresAt = Date.now() + (data.expires_in - 60) * 1000;
+      cachedToken = { accessToken: data.access_token, expiresAt };
+
+      console.log(
+        `[admitad-auth] obtained access_token via ${attempt.name}, expires in ${data.expires_in}s, scope: ${data.scope}`,
+      );
+      return data.access_token;
+    } catch (err) {
+      lastErr = `(${attempt.name}) ${err instanceof Error ? err.message : String(err)}`;
+    }
   }
 
-  const data: TokenResponse = await resp.json();
-
-  // Cache with 60s safety margin before actual expiry
-  const expiresAt = Date.now() + (data.expires_in - 60) * 1000;
-  cachedToken = { accessToken: data.access_token, expiresAt };
-
-  console.log(
-    `[admitad-auth] obtained access_token, expires in ${data.expires_in}s, scope: ${data.scope}`,
-  );
-  return data.access_token;
+  throw new Error(`Admitad token request failed: ${lastErr}`);
 }
 
 /**

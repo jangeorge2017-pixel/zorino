@@ -39,7 +39,7 @@ let lastDiscoveryWithFeedsAt = 0;
  * the engine deadline. On expiry the run is aborted and discovery degrades to
  * the existing empty/fallback state.
  */
-export const ADMITAD_DISCOVERY_DEADLINE_MS = 8_000;
+export const ADMITAD_DISCOVERY_DEADLINE_MS = 30_000;
 
 /**
  * How long the known-feeds result of a completed discovery is served before a
@@ -216,7 +216,7 @@ async function executeDiscoveryRun(): Promise<void> {
     const discovery = await Promise.race([
       runner(
         {
-          maxFeeds: parseInt(process.env.ADMITAD_MAX_FEEDS || '20'),
+          maxFeeds: parseInt(process.env.ADMITAD_MAX_FEEDS || '100'),
           maxProductsPerFeed: parseInt(process.env.ADMITAD_MAX_PRODUCTS_PER_FEED || '5000'),
         },
         controller.signal,
