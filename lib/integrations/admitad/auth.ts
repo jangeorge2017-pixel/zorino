@@ -46,7 +46,10 @@ export async function obtainAccessToken(): Promise<string> {
   const creds = getCredentials();
   if (!creds) throw new Error("ADMITAD_CLIENT_ID / ADMITAD_CLIENT_SECRET not set");
 
-  const basic = Buffer.from(`${creds.clientId}:${creds.clientSecret}`).toString("base64");
+  const basic =
+    typeof Buffer !== "undefined"
+      ? Buffer.from(`${creds.clientId}:${creds.clientSecret}`).toString("base64")
+      : btoa(`${creds.clientId}:${creds.clientSecret}`);
 
   const attempts: Array<{
     name: string;
