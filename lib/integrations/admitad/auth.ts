@@ -46,10 +46,14 @@ export async function obtainAccessToken(): Promise<string> {
   const creds = getCredentials();
   if (!creds) throw new Error("ADMITAD_CLIENT_ID / ADMITAD_CLIENT_SECRET not set");
 
-  const basic =
-    typeof Buffer !== "undefined"
-      ? Buffer.from(`${creds.clientId}:${creds.clientSecret}`).toString("base64")
-      : btoa(`${creds.clientId}:${creds.clientSecret}`);
+  let basic = "";
+  try {
+    if (typeof Buffer !== "undefined") {
+      basic = Buffer.from(`${creds.clientId}:${creds.clientSecret}`).toString("base64");
+    } else if (typeof btoa !== "undefined") {
+      basic = btoa(`${creds.clientId}:${creds.clientSecret}`);
+    }
+  } catch {}
 
   const attempts: Array<{
     name: string;
@@ -75,38 +79,36 @@ export async function obtainAccessToken(): Promise<string> {
         client_secret: creds.clientSecret,
       }).toString(),
     },
-    {
-      name: "basic+body",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${basic}`,
-      },
-      body: new URLSearchParams({
-        grant_type: "client_credentials",
-      }).toString(),
-    },
-    {
-      name: "basic+scope",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${basic}`,
-      },
-      body: new URLSearchParams({
-        grant_type: "client_credentials",
-        scope: REQUIRED_SCOPES,
-      }).toString(),
-    },
-    {
-      name: "json",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        grant_type: "client_credentials",
-        client_id: creds.clientId,
-        client_secret: creds.clientSecret,
-        scope: REQUIRED_SCOPES,
-      }),
-    },
-  ];
+    basic
+      ? {
+          name: "basic+body",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Basic ${basic}`,
+          },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+          }).toString(),
+        }
+      : null,
+    basic
+      ? {
+          name: "basic+scope",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Basic ${basic}`,
+          },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+            scope: REQUIRED_SCOPES,
+          }).toString(),
+        }
+      : null,
+  ].filter(Boolean) as Array<{
+    name: string;
+    headers: Record<string, string>;
+    body: string;
+  }>;
 
   let lastErr = "";
   for (const attempt of attempts) {
