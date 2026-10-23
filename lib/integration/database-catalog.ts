@@ -159,8 +159,13 @@ const REAL_CATALOG_PROVIDERS = LIVE_PROVIDER_IDS;
  */
 const MERCHANT_NAMES_TTL_MS = 30 * 60_000;
 
-/** Concurrent keyset workers used to enumerate the merchant universe. */
-const MERCHANT_SCAN_WORKERS = 16;
+/**
+ * Concurrent keyset workers used to enumerate the merchant universe.
+ * 64 partitions the ~123K-row table into ~2 pages per worker, so the cold scan
+ * finishes in a few seconds even on 0.1-CPU free instances; 16 workers took
+ * ~10s and could exceed the DB budget on the Docker service.
+ */
+const MERCHANT_SCAN_WORKERS = 64;
 /** Page size per worker (Supabase/PostgREST caps responses at 1000 rows). */
 const MERCHANT_SCAN_PAGE = 1000;
 /** Attempts per page before a worker stops (transient 5xx/timeouts). */
