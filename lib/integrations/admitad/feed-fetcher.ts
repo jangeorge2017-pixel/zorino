@@ -56,7 +56,7 @@ export function isAdmitadFeedReady(): boolean {
  *  One feed per real Admitad merchant program (best effort within the
  *  deadline) so the live feed surfaces EVERY real merchant, not just a small
  *  first slice — without this the homepage/search collapse to a few stores. */
-const DEFAULT_MAX_FEEDS = Number(process.env.ADMITAD_CATALOG_MAX_FEEDS ?? 20);
+const DEFAULT_MAX_FEEDS = Number(process.env.ADMITAD_CATALOG_MAX_FEEDS ?? 100);
 const DEFAULT_MAX_PRODUCTS_PER_FEED = Number(
   process.env.ADMITAD_CATALOG_MAX_PRODUCTS_PER_FEED ?? 300,
 );

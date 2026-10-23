@@ -53,7 +53,7 @@ const DEGRADED_CATALOG_REVALIDATE_MS = 30_000;
  * the initial homepage response fast (the feed drops out gracefully and the
  * catalog resolves from the search fan-out + persisted DB Admitad rows).
  */
-const ADMITAD_FEED_CATALOG_BUDGET_MS = 5_000;
+const ADMITAD_FEED_CATALOG_BUDGET_MS = 30_000;
 
 /**
  * Hard budget for the persisted DB catalog path (lowest_prices_today merchant
