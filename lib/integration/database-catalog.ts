@@ -152,9 +152,27 @@ function rowToCatalogItem(row: LowestPriceRow): NormalizedCatalogItem {
  */
 const REAL_CATALOG_PROVIDERS = LIVE_PROVIDER_IDS;
 
-/** Reciprocal of the .in() filter above — kept for the per-merchant query. */
-function realProviderOr(): string {
-  return `provider.in.(${REAL_CATALOG_PROVIDERS.join(",")})`;
+/**
+ * How long a discovered merchant set stays cached (ms). The merchant universe
+ * changes only when an ingestion run adds/removes a store, so a long TTL is
+ * safe and keeps the expensive scan off the homepage hot path.
+ */
+const MERCHANT_NAMES_TTL_MS = 30 * 60_000;
+
+/** Concurrent keyset workers used to enumerate the merchant universe. */
+const MERCHANT_SCAN_WORKERS = 16;
+/** Page size per worker (Supabase/PostgREST caps responses at 1000 rows). */
+const MERCHANT_SCAN_PAGE = 1000;
+/** Attempts per page before a worker stops (transient 5xx/timeouts). */
+const MERCHANT_SCAN_PAGE_ATTEMPTS = 2;
+
+let merchantNamesCache: { names: string[]; at: number } | null = null;
+let merchantNamesInflight: Promise<string[]> | null = null;
+
+/** Test-only seam: clear the merchant-name cache. */
+export function resetMerchantNamesCacheForTests(): void {
+  merchantNamesCache = null;
+  merchantNamesInflight = null;
 }
 
 /**
@@ -162,61 +180,110 @@ function realProviderOr(): string {
  *
  * IMPORTANT: rows are heavily concentrated by merchant (one merchant can own
  * tens of thousands of rows, another only a handful at the very tail), so a
- * bounded "first N" slice would miss whole merchants. We page the full
- * real-provider set and dedupe on store_name to get every real merchant.
- * Runs once per 5-min catalog cache, so the full scan is acceptable.
+ * bounded "first N" slice would miss whole merchants. We must therefore walk
+ * the full real-provider set and dedupe on store_name.
+ *
+ * Reliability (verified against the live 120K-row table):
+ * - Use the array-form `.in("provider", [...])` filter. The string-form
+ *   `.or("provider.in.(...)")` is planned as a PostgREST `or` filter and
+ *   consistently 500s with a statement timeout, which silently emptied the
+ *   merchant universe and dropped every persisted (Admitad) row from the
+ *   homepage catalog.
+ * - Page by KEY SET (`id > cursor`), never by OFFSET. Deep `.range()` offsets
+ *   also hit the statement timeout (verified at offset 6000+), so keyset +
+ *   random-UUID partitions gives the same coverage without deep scans.
+ * - Result is cached process-wide (shared by the catalog leg and the stats
+ *   leg) and de-duplicated while in flight, so the scan runs at most once per
+ *   TTL per instance instead of twice per 5-min cache cycle.
  */
 export async function getRealMerchantNames(supabase?: SupabaseDb): Promise<string[]> {
   const client = supabase ?? createSupabaseAnonClient();
   if (!client) return [];
+
+  const now = Date.now();
+  if (merchantNamesCache && now - merchantNamesCache.at < MERCHANT_NAMES_TTL_MS) {
+    return merchantNamesCache.names;
+  }
+  if (merchantNamesInflight) return merchantNamesInflight;
+
+  merchantNamesInflight = scanRealMerchantNames(client)
+    .then((names) => {
+      // Only cache a non-empty result; an empty scan is more likely a transient
+      // outage than a genuinely empty table, and must be retried next call.
+      if (names.length > 0) merchantNamesCache = { names, at: Date.now() };
+      return names;
+    })
+    .finally(() => {
+      merchantNamesInflight = null;
+    });
+
+  return merchantNamesInflight;
+}
+
+async function scanRealMerchantNames(client: SupabaseDb): Promise<string[]> {
   const names = new Set<string>();
 
-  // IMPORTANT: the Supabase anon client caps responses at 1000 rows regardless
-  // of the requested range, so we must step by exactly 1000. Previously each
-  // page was fetched sequentially (~120 round-trips over the 120K-row table,
-  // ~13s) just to discover the merchant set. Fetching pages concurrently
-  // collapses that to a handful of parallel batches while remaining correct
-  // (we stop only once a batch contains the short tail page).
-  const page = 1000;
-  const BATCH = 8; // concurrent pages per round
-  const HARD_CAP = 130_000;
+  interface ScanRow {
+    id: string;
+    store_name: string | null;
+  }
 
-  const fetchPage = async (offset: number): Promise<Array<{ store_name: string | null }>> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (client as any)
-      .from("lowest_prices_today")
-      .select("store_name")
-      .in("country_code", [...CATALOG_COUNTRIES])
-      .in("currency", [...CATALOG_CURRENCIES])
-      .not("image_url", "is", null)
-      .neq("image_url", "")
-      .or(realProviderOr())
-      .range(offset, offset + page - 1);
-    if (error) return [];
-    return (data ?? []) as Array<{ store_name: string | null }>;
+  const fetchPage = async (
+    cursor: string | null,
+    upper: string | null,
+  ): Promise<ScanRow[] | null> => {
+    for (let attempt = 0; attempt < MERCHANT_SCAN_PAGE_ATTEMPTS; attempt++) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let query = (client as any)
+        .from("lowest_prices_today")
+        .select("id, store_name")
+        .in("country_code", [...CATALOG_COUNTRIES])
+        .in("currency", [...CATALOG_CURRENCIES])
+        .not("image_url", "is", null)
+        .neq("image_url", "")
+        .in("provider", [...REAL_CATALOG_PROVIDERS])
+        .order("id", { ascending: true })
+        .limit(MERCHANT_SCAN_PAGE);
+      if (cursor) query = query.gt("id", cursor);
+      if (upper) query = query.lte("id", upper);
+      const { data, error } = await query;
+      if (!error) return (data ?? []) as ScanRow[];
+    }
+    return null;
   };
 
-  let offset = 0;
-  for (;;) {
-    if (offset > HARD_CAP) break;
-    const offsets = Array.from(
-      { length: BATCH },
-      (_, i) => offset + i * page,
-    );
-    const batches = await Promise.all(offsets.map((o) => fetchPage(o)));
-    let sawTail = false;
-    for (const rows of batches) {
-      for (const r of rows) {
-        const name = r.store_name?.trim();
+  const scanPartition = async (
+    lower: string | null,
+    upper: string | null,
+  ): Promise<void> => {
+    let cursor = lower;
+    for (;;) {
+      const rows = await fetchPage(cursor, upper);
+      if (rows === null) return;
+      for (const row of rows) {
+        const name = row.store_name?.trim();
         if (name) names.add(name);
       }
-      if (rows.length < page) sawTail = true;
+      if (rows.length < MERCHANT_SCAN_PAGE) return;
+      cursor = rows[rows.length - 1].id;
     }
-    // Advance past this batch. If any page in the batch was short we are past
-    // the tail and there are no more rows to enumerate.
-    offset += BATCH * page;
-    if (sawTail) break;
-  }
+  };
+
+  // Random UUID boundaries partition the key space evenly across workers
+  // (UUIDs are uniformly distributed), avoiding both deep offsets and a long
+  // sequential walk.
+  const boundaries = Array.from({ length: MERCHANT_SCAN_WORKERS }, () =>
+    crypto.randomUUID(),
+  ).sort();
+
+  await Promise.all(
+    boundaries.map((boundary, index) =>
+      scanPartition(
+        index === 0 ? null : boundary,
+        index === boundaries.length - 1 ? null : boundaries[index + 1],
+      ),
+    ),
+  );
 
   return Array.from(names);
 }
@@ -239,41 +306,52 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
   if (storeNames.length === 0) return [];
 
   const PER_MERCHANT = 40;
+  const PER_MERCHANT_CONCURRENCY = 12;
   const collected: LowestPriceRow[] = [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sb = supabase as any;
 
-  for (const storeName of storeNames) {
-    const { data, error } = await sb
-      .from("lowest_prices_today")
-      .select(
-        "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
-      )
-      .in("country_code", [...CATALOG_COUNTRIES])
-      .in("currency", [...CATALOG_CURRENCIES])
-      .eq("store_name", storeName)
-      // Only real, image-bearing products enter the homepage catalog. The DB is
-      // ~92% image-covered (120K rows), but some store feeds stored empty image
-      // URLs that would otherwise resolve to placeholder cards. Filtering here
-      // surfaces real products with real images so valid URLs render.
-      .not("image_url", "is", null)
-      .neq("image_url", "")
-      .order("discount_percent", { ascending: false })
-      .order("lowest_price", { ascending: false })
-      .limit(PER_MERCHANT);
+  // Fetch each merchant's breadth sample concurrently. Sequential per-merchant
+  // queries pushed the whole DB leg past its homepage budget once the merchant
+  // scan was fixed, so bound the fan-out instead.
+  for (let i = 0; i < storeNames.length; i += PER_MERCHANT_CONCURRENCY) {
+    const chunk = storeNames.slice(i, i + PER_MERCHANT_CONCURRENCY);
+    const results = await Promise.all(
+      chunk.map(async (storeName) => {
+        const { data, error } = await sb
+          .from("lowest_prices_today")
+          .select(
+            "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
+          )
+          .in("country_code", [...CATALOG_COUNTRIES])
+          .in("currency", [...CATALOG_CURRENCIES])
+          .eq("store_name", storeName)
+          // Only real, image-bearing products enter the homepage catalog. The DB is
+          // ~92% image-covered (120K rows), but some store feeds stored empty image
+          // URLs that would otherwise resolve to placeholder cards. Filtering here
+          // surfaces real products with real images so valid URLs render.
+          .not("image_url", "is", null)
+          .neq("image_url", "")
+          .order("discount_percent", { ascending: false })
+          .order("lowest_price", { ascending: false })
+          .limit(PER_MERCHANT);
+        if (error || !data) return [] as LowestPriceRow[];
+        return data as LowestPriceRow[];
+      }),
+    );
 
-    if (error || !data) continue;
-
-    for (const row of data as LowestPriceRow[]) {
-      if (
-        row.product_name &&
-        row.image_url &&
-        // Reject rows whose image normalizes to the placeholder (empty,
-        // http-only, or invalid URLs all land there) — never placeholder cards.
-        normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER
-      ) {
-        collected.push(row);
+    for (const data of results) {
+      for (const row of data) {
+        if (
+          row.product_name &&
+          row.image_url &&
+          // Reject rows whose image normalizes to the placeholder (empty,
+          // http-only, or invalid URLs all land there) — never placeholder cards.
+          normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER
+        ) {
+          collected.push(row);
+        }
       }
     }
   }
