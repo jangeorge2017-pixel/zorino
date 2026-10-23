@@ -32,8 +32,14 @@ type TokenResponse = {
 let cachedToken: { accessToken: string; expiresAt: number } | null = null;
 
 function getCredentials(): { clientId: string; clientSecret: string } | null {
-  const clientId = getIntegrationCredential("ADMITAD_CLIENT_ID");
-  const clientSecret = getIntegrationCredential("ADMITAD_CLIENT_SECRET");
+  const clientId =
+    getIntegrationCredential("ADMITAD_CLIENT_ID") ||
+    process.env.ADMITAD_CLIENT_ID?.trim() ||
+    undefined;
+  const clientSecret =
+    getIntegrationCredential("ADMITAD_CLIENT_SECRET") ||
+    process.env.ADMITAD_CLIENT_SECRET?.trim() ||
+    undefined;
   if (!clientId || !clientSecret) return null;
   return { clientId, clientSecret };
 }
