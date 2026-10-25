@@ -14,6 +14,10 @@
  * Token refresh: built into auth.ts (auto-refresh before expiry).
  */
 
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env" });
+
 import type { AdmitadFeedOffer } from "./types";
 import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
 import {

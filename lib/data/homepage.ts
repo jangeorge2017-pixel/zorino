@@ -1,7 +1,11 @@
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 import { getCategories } from "@/services/categories";
-import { getTopCoupons as fetchTopCoupons, getAllCoupons } from "@/services/coupons";
+import {
+  getTopCoupons as fetchTopCoupons,
+  getAllCoupons,
+  getActiveCouponCount,
+} from "@/services/coupons";
 import { getStores } from "@/services/stores";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import {
@@ -120,7 +124,7 @@ function couponToCard(coupon: Awaited<ReturnType<typeof fetchTopCoupons>>["data"
     code: coupon.code,
     usedTimes: coupon.usedTimes,
     verified: coupon.verified,
-    url: store?.website,
+    url: coupon.affiliateUrl ?? undefined,
   };
 }
 
@@ -246,25 +250,14 @@ async function loadHomepageStats(): Promise<{
   let productCount = 0;
 
   try {
-    // Store count = distinct merchants that actually carry cached products in
-    // Supabase. Derived from the database, never from provider credentials, so
-    // the hero/footer count is real on a deployment with no affiliate keys
-    // configured yet. The cached value is stable for the full revalidate window
-    // (one scan per 5 min), so a provider timeout cannot make it fluctuate.
-    const { getRealMerchantNames } = await import(
-      "@/lib/integration/database-catalog"
+    // Store count = the approved Admitad network master (82 merchants). This is
+    // the same allowlist used to filter the homepage catalog and coupons, so the
+    // counter can never advertise merchants that are not rendered.
+    const { getAdmittedMerchantRegistry } = await import(
+      "@/lib/integration/admitted-network"
     );
-    const merchantNames = await getRealMerchantNames();
-
-    if (merchantNames.length > 0) {
-      storeCount = merchantNames.length;
-    } else {
-      // Catalog unreachable — fall back to the configured provider/store set.
-      const { getConfiguredProductionProviders } = await import(
-        "@/lib/integration/provider-config"
-      );
-      storeCount = (await getConfiguredProductionProviders()).length;
-    }
+    const registry = await getAdmittedMerchantRegistry();
+    storeCount = registry.programs.length;
   } catch {
     // Store count failed — stays at 0. No fake fallback.
   }
@@ -282,8 +275,7 @@ async function loadHomepageStats(): Promise<{
 
   let couponCount = 0;
   try {
-    const { data: couponResult } = await loadTopCouponsCached(100);
-    couponCount = couponResult?.length ?? 0;
+    couponCount = await getActiveCouponCount();
   } catch {
     // Coupon fetch failed — count stays at 0.
   }
