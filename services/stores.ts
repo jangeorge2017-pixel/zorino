@@ -1,6 +1,9 @@
 import { mapStore } from "@/lib/database/mappers";
 import type { StoreRow } from "@/lib/database/types";
-import { isAdmittedMerchantName } from "@/lib/integration/admitted-network";
+import {
+  isAdmittedMerchantName,
+  isBlendedStoreSlug,
+} from "@/lib/integration/admitted-network";
 import {
   getRealMerchantStores,
   isRealDataStore,
@@ -34,11 +37,13 @@ export async function getStores(options?: {
 
   if (error) return { data: [], error: error.message };
 
-  // The directory is the approved Admitad network only. Provider rows and
-  // legacy seed/stub stores are never advertised here; every listed merchant
-  // must be one of the ingested master programs.
+  // The directory blends the approved Admitad network with the live
+  // Amazon/eBay/AliExpress storefronts. Legacy seed/stub rows are never
+  // advertised here.
   const rows = ((data as StoreRow[] | null) ?? []).filter((row) => {
-    if (row.admitted_network !== "admitad") return false;
+    if (row.admitted_network !== "admitad" && !isBlendedStoreSlug(row.slug)) {
+      return false;
+    }
     if (options?.integrationType && row.integration_type !== options.integrationType) {
       return false;
     }
@@ -71,10 +76,13 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
       .maybeSingle();
 
     if (error) return { data: null, error: error.message };
-    // Only approved Admitad merchants resolve. Provider rows and legacy
-    // seed/stub stores (walmart, temu, noon, best-buy, jumia, nike, …) must
-    // never render a store page on the Admitad-only directory.
+    // Approved Admitad merchants resolve, plus the blended Amazon/eBay/
+    // AliExpress storefronts. Legacy seed/stub stores (walmart, temu, noon,
+    // best-buy, jumia, nike, …) must never render a store page.
     const row = data as StoreRow | null;
+    if (row && isBlendedStoreSlug(row.slug)) {
+      return { data: mapStore(row), error: null };
+    }
     if (
       row &&
       row.admitted_network === "admitad" &&

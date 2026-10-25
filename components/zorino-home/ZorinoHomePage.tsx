@@ -41,6 +41,8 @@ import {
   getTrendingDeals,
 } from "@/lib/data/homepage";
 import { getStores } from "@/services/stores";
+import { BLENDED_STORE_SLUGS } from "@/lib/integration/admitted-network";
+import type { Store } from "@/lib/types/entities";
 
 /**
  * Hero orbit artwork depends on the live merged catalog (the slowest data
@@ -115,10 +117,23 @@ export default async function ZorinoHomePage() {
   const [stats, categories, storesResult] = await Promise.all([
     getHomepageStats(),
     getHomepageCategories(),
-    getStores({ limit: 16 }),
+    getStores(),
   ]);
-  const featuredStores = (storesResult.data ?? [])
-    .filter((store) => Boolean(store.logoUrl))
+  const allStores = storesResult.data ?? [];
+  // Blend the marketplace giants with the approved merchant network: the three
+  // global stores lead, then the best available network merchant fills the
+  // remaining slot(s). Only stores with real logos are rendered.
+  const featuredStores = [
+    ...BLENDED_STORE_SLUGS.map((slug) =>
+      allStores.find((store) => store.slug === slug),
+    ),
+    ...allStores,
+  ]
+    .filter((store): store is Store => Boolean(store?.logoUrl))
+    .filter(
+      (store, index, list) =>
+        list.findIndex((candidate) => candidate.slug === store.slug) === index,
+    )
     .slice(0, 4);
 
   return (

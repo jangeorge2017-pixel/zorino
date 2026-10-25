@@ -250,14 +250,11 @@ async function loadHomepageStats(): Promise<{
   let productCount = 0;
 
   try {
-    // Store count = the approved Admitad network master (82 merchants). This is
-    // the same allowlist used to filter the homepage catalog and coupons, so the
-    // counter can never advertise merchants that are not rendered.
-    const { getAdmittedMerchantRegistry } = await import(
-      "@/lib/integration/admitted-network"
-    );
-    const registry = await getAdmittedMerchantRegistry();
-    storeCount = registry.programs.length;
+    // Store count = the blended directory (approved Admitad merchants plus
+    // Amazon/eBay/AliExpress). Derived from the same service the /stores page
+    // uses, so the counter can never advertise stores that are not rendered.
+    const { data } = await getStores();
+    storeCount = data?.length ?? 0;
   } catch {
     // Store count failed — stays at 0. No fake fallback.
   }
@@ -300,7 +297,7 @@ async function loadHomepageStats(): Promise<{
  *  aren't recomputed (and the DB isn't hit) on every homepage render. */
 export const getHomepageStats = unstable_cache(
   loadHomepageStats,
-  ["homepage:stats-v3"],
+  ["homepage:stats-v4"],
   { revalidate: 300, tags: ["homepage-catalog"] },
 );
 
