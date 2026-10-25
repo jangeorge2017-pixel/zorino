@@ -40,6 +40,7 @@ import {
   getTopCouponsForHomepage,
   getTrendingDeals,
 } from "@/lib/data/homepage";
+import { getStores } from "@/services/stores";
 
 /**
  * Hero orbit artwork depends on the live merged catalog (the slowest data
@@ -111,10 +112,14 @@ async function FeaturedCouponBrandsSection() {
 export default async function ZorinoHomePage() {
   // Only fast, cached, above-the-fold data is on the critical path. Everything
   // that depends on the live marketplace catalog streams in via <Suspense>.
-  const [stats, categories] = await Promise.all([
+  const [stats, categories, storesResult] = await Promise.all([
     getHomepageStats(),
     getHomepageCategories(),
+    getStores({ limit: 16 }),
   ]);
+  const featuredStores = (storesResult.data ?? [])
+    .filter((store) => Boolean(store.logoUrl))
+    .slice(0, 4);
 
   return (
     <div className="zh-page">
@@ -201,7 +206,10 @@ export default async function ZorinoHomePage() {
         </section>
 
         <section className="zh-footer-wrap">
-          <ZorinoHomeFooter footerStats={stats.footer} />
+          <ZorinoHomeFooter
+            footerStats={stats.footer}
+            featuredStores={featuredStores}
+          />
         </section>
       </div>
     </div>

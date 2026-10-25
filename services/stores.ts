@@ -71,11 +71,16 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
       .maybeSingle();
 
     if (error) return { data: null, error: error.message };
-    // A store page is only real if it maps to a real data-backed merchant.
-    // Stub/seed rows (walmart, temu, noon, best-buy, jumia, nike, foot-locker)
-    // and credential-less Amazon rows must not resolve to a store page.
-    if (data && (await isRealDataStore(data))) {
-      return { data: mapStore(data), error: null };
+    // Only approved Admitad merchants resolve. Provider rows and legacy
+    // seed/stub stores (walmart, temu, noon, best-buy, jumia, nike, …) must
+    // never render a store page on the Admitad-only directory.
+    const row = data as StoreRow | null;
+    if (
+      row &&
+      row.admitted_network === "admitad" &&
+      (await isRealDataStore(row))
+    ) {
+      return { data: mapStore(row), error: null };
     }
   }
 
