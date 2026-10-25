@@ -52,6 +52,9 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   // Amazon (direct product images)
   { protocol: "https" as const, hostname: "m.media-amazon.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "images-na.ssl-images-amazon.com", pathname: "/**" },
+  // Admitad program/coupon logos
+  { protocol: "https" as const, hostname: "cdn.admitad.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.admitad.com", pathname: "/**" },
   // Avatars / misc already used in app
   { protocol: "https" as const, hostname: "i.pravatar.cc", pathname: "/**" },
 ];

@@ -10,6 +10,10 @@
  * via getIntegrationCredential().
  */
 
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env" });
+
 import { getIntegrationCredential } from "@/lib/integration/credentials";
 
 const TOKEN_URL = "https://api.admitad.com/token/";
@@ -33,12 +37,12 @@ let cachedToken: { accessToken: string; expiresAt: number } | null = null;
 
 function getCredentials(): { clientId: string; clientSecret: string } | null {
   const clientId =
-    getIntegrationCredential("ADMITAD_CLIENT_ID") ||
     process.env.ADMITAD_CLIENT_ID?.trim() ||
+    getIntegrationCredential("ADMITAD_CLIENT_ID")?.trim() ||
     undefined;
   const clientSecret =
-    getIntegrationCredential("ADMITAD_CLIENT_SECRET") ||
     process.env.ADMITAD_CLIENT_SECRET?.trim() ||
+    getIntegrationCredential("ADMITAD_CLIENT_SECRET")?.trim() ||
     undefined;
   if (!clientId || !clientSecret) return null;
   return { clientId, clientSecret };
@@ -66,6 +70,31 @@ export async function obtainAccessToken(): Promise<string> {
     headers: Record<string, string>;
     body: string;
   }> = [
+    basic
+      ? {
+          name: "basic+scope",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Basic ${basic}`,
+          },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+            scope: REQUIRED_SCOPES,
+          }).toString(),
+        }
+      : null,
+    basic
+      ? {
+          name: "basic",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Basic ${basic}`,
+          },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+          }).toString(),
+        }
+      : null,
     {
       name: "body+scope",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -85,31 +114,6 @@ export async function obtainAccessToken(): Promise<string> {
         client_secret: creds.clientSecret,
       }).toString(),
     },
-    basic
-      ? {
-          name: "basic+body",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Authorization: `Basic ${basic}`,
-          },
-          body: new URLSearchParams({
-            grant_type: "client_credentials",
-          }).toString(),
-        }
-      : null,
-    basic
-      ? {
-          name: "basic+scope",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Authorization: `Basic ${basic}`,
-          },
-          body: new URLSearchParams({
-            grant_type: "client_credentials",
-            scope: REQUIRED_SCOPES,
-          }).toString(),
-        }
-      : null,
   ].filter(Boolean) as Array<{
     name: string;
     headers: Record<string, string>;

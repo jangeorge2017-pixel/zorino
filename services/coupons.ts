@@ -1,29 +1,37 @@
 import { mapCoupon, mapStore } from "@/lib/database/mappers";
 import type { CouponRow, StoreRow } from "@/lib/database/types";
+import {
+  getAdmittedMerchantRegistry,
+  normalizeMerchantName,
+} from "@/lib/integration/admitted-network";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Coupon, ServiceResult } from "@/lib/types/entities";
 
-type CouponWithStore = CouponRow & { stores: StoreRow | null };
+type CouponWithStore = CouponRow & { stores: StoreRow };
 
 /**
- * Coupon integrity gate.
+ * Admitted-network coupon filter.
  *
- * Zorino only presents a coupon to users when it comes from a real, verified
- * coupon/offer source. Today NO connected integration supplies coupon/offer
- * data (Admitad/eBay/AliExpress/CJ deliver products, not coupons), so the only
- * `coupons` rows are legacy seed rows. Surfacing them would label seed data as
- * real — which is forbidden. Until a real coupon source is wired up, coupon
- * readers return empty and every coupon surface (homepage Top Coupons, featured
- * brands, /coupons) renders nothing rather than fabricated offers.
+ * Coupons are only served when they come from the approved Admitad master and
+ * resolve to one of its stores. Both the SQL join and this in-process allowlist
+ * are applied, so a stale/rogue row can never leak onto a coupon surface.
  */
-function hasRealCouponSource(): boolean {
-  return false;
+async function admittedCouponRows(
+  rows: CouponWithStore[] | null,
+): Promise<CouponWithStore[]> {
+  const { names } = await getAdmittedMerchantRegistry();
+  return (rows ?? []).filter(
+    (row) =>
+      row.stores?.admitted_network === "admitad" &&
+      names.has(normalizeMerchantName(row.stores.name)),
+  );
+}
+
+function toCoupons(rows: CouponWithStore[]): Coupon[] {
+  return rows.map((row) => mapCoupon(row, mapStore(row.stores)));
 }
 
 export async function getTopCoupons(limit = 4): Promise<ServiceResult<Coupon[]>> {
-  if (!hasRealCouponSource()) {
-    return { data: [], error: null };
-  }
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
     return { data: [], error: "Supabase not configured" };
@@ -31,27 +39,26 @@ export async function getTopCoupons(limit = 4): Promise<ServiceResult<Coupon[]>>
 
   const { data, error } = await supabase
     .from("coupons")
-    .select("*, stores (*)")
+    .select("*, stores!inner(*)")
     .eq("is_active", true)
     .eq("verified", true)
-    .order("used_times", { ascending: false })
+    .eq("source", "admitad")
+    .eq("stores.admitted_network", "admitad")
+    .eq("stores.is_active", true)
+    .order("discount_type", { ascending: false })
+    .order("discount", { ascending: false })
+    .order("ends_at", { ascending: true })
     .limit(limit);
 
   if (error) return { data: [], error: error.message };
 
   return {
-    data: ((data ?? []) as CouponWithStore[]).map((row) => {
-      const store = row.stores ? mapStore(row.stores) : undefined;
-      return mapCoupon(row, store);
-    }),
+    data: toCoupons(await admittedCouponRows(data as CouponWithStore[] | null)),
     error: null,
   };
 }
 
 export async function getAllCoupons(limit = 48): Promise<ServiceResult<Coupon[]>> {
-  if (!hasRealCouponSource()) {
-    return { data: [], error: null };
-  }
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
     return { data: [], error: "Supabase not configured" };
@@ -59,26 +66,25 @@ export async function getAllCoupons(limit = 48): Promise<ServiceResult<Coupon[]>
 
   const { data, error } = await supabase
     .from("coupons")
-    .select("*, stores (*)")
+    .select("*, stores!inner(*)")
     .eq("is_active", true)
-    .order("used_times", { ascending: false })
+    .eq("source", "admitad")
+    .eq("stores.admitted_network", "admitad")
+    .eq("stores.is_active", true)
+    .order("discount_type", { ascending: false })
+    .order("discount", { ascending: false })
+    .order("ends_at", { ascending: true })
     .limit(limit);
 
   if (error) return { data: [], error: error.message };
 
   return {
-    data: ((data ?? []) as CouponWithStore[]).map((row) => {
-      const store = row.stores ? mapStore(row.stores) : undefined;
-      return mapCoupon(row, store);
-    }),
+    data: toCoupons(await admittedCouponRows(data as CouponWithStore[] | null)),
     error: null,
   };
 }
 
 export async function getCouponsByStore(storeId: string): Promise<ServiceResult<Coupon[]>> {
-  if (!hasRealCouponSource()) {
-    return { data: [], error: null };
-  }
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
     return { data: [], error: "Supabase not configured" };
@@ -86,18 +92,35 @@ export async function getCouponsByStore(storeId: string): Promise<ServiceResult<
 
   const { data, error } = await supabase
     .from("coupons")
-    .select("*, stores (*)")
+    .select("*, stores!inner(*)")
     .eq("store_id", storeId)
     .eq("is_active", true)
+    .eq("source", "admitad")
+    .eq("stores.admitted_network", "admitad")
+    .eq("stores.is_active", true)
+    .order("discount_type", { ascending: false })
     .order("discount", { ascending: false });
 
   if (error) return { data: [], error: error.message };
 
   return {
-    data: ((data ?? []) as CouponWithStore[]).map((row) => {
-      const store = row.stores ? mapStore(row.stores) : undefined;
-      return mapCoupon(row, store);
-    }),
+    data: toCoupons(await admittedCouponRows(data as CouponWithStore[] | null)),
     error: null,
   };
 }
+
+/** Real count of currently active approved-network coupons. */
+export async function getActiveCouponCount(): Promise<number> {
+  const supabase = createSupabaseAnonClient();
+  if (!supabase) return 0;
+
+  const { count, error } = await supabase
+    .from("coupons")
+    .select("id", { count: "exact", head: true })
+    .eq("is_active", true)
+    .eq("source", "admitad");
+
+  if (error) return 0;
+  return count ?? 0;
+}
+

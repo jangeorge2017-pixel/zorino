@@ -84,16 +84,21 @@ function campaignToProgram(campaign: AdmitadCampaign, websiteId: number): Admita
   };
 }
 
+type DiscoveryOptions = {
+  maxFeeds?: number;
+  maxProductsPerFeed?: number;
+};
+
 /**
  * Discover all active connected merchant programs across every ad space.
  *
  * `signal` is an optional hard deadline owned by the caller (config.ts bounds
  * it to the search engine's provider budget). When it aborts, the underlying
  * Publisher API requests are aborted and this resolves with whatever was
- * collected — never throwing past the caller's deadline.
+ * collected —?" never throwing past the caller's deadline.
  */
 export async function discoverAdmitadMerchants(
-  _options: { maxFeeds?: number; maxProductsPerFeed?: number } = {},
+  options: DiscoveryOptions = {},
   signal?: AbortSignal,
 ): Promise<MerchantDiscoveryResult> {
   const result: MerchantDiscoveryResult = {

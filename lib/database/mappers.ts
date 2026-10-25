@@ -179,12 +179,21 @@ export function mapCoupon(row: CouponRow, store?: Store): Coupon {
     discount: Number(row.discount),
     discountType: row.discount_type,
     currency: row.currency,
-    usedTimes: row.used_times,
-    verified: row.verified,
-    isActive: row.is_active,
-    store,
-  };
-}
+      usedTimes: row.used_times,
+      verified: row.verified,
+      isActive: row.is_active,
+      store,
+      externalId: row.external_id,
+      campaignId: row.campaign_id,
+      affiliateUrl: row.affiliate_url,
+      description: row.description,
+      category: row.category,
+      couponType: row.coupon_type,
+      source: row.source,
+      exclusive: row.exclusive,
+      logoUrl: row.logo_url,
+    };
+  }
 
 export function mapFavorite(row: FavoriteRow, product?: Product): Favorite {
   return {

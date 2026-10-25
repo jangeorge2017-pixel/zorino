@@ -162,11 +162,20 @@ export interface Coupon {
   discount: number;
   discountType: DiscountType;
   currency: string;
-  usedTimes: number;
-  verified: boolean;
-  isActive: boolean;
-  store?: Store;
-}
+    usedTimes: number;
+    verified: boolean;
+    isActive: boolean;
+    store?: Store;
+    externalId?: string | null;
+    campaignId?: string | null;
+    affiliateUrl?: string | null;
+    description?: string | null;
+    category?: string | null;
+    couponType?: string | null;
+    source?: string | null;
+    exclusive?: boolean;
+    logoUrl?: string | null;
+  }
 
 export interface Favorite {
   id: string;
@@ -351,11 +360,11 @@ export interface TopCouponCard {
   offer: string;
   minSpend: string;
   code: string;
-  usedTimes: number;
-  verified: boolean;
-  /** Store website — used for honest outbound "Use Coupon" links. */
-  url?: string;
-}
+    usedTimes: number;
+    verified: boolean;
+    /** Real Admitad affiliate destination for the "Use Coupon" action. */
+    url?: string;
+  }
 
 export interface ServiceResult<T> {
   data: T;

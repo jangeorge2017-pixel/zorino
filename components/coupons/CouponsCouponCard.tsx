@@ -4,7 +4,6 @@ import AssetImage from "@/components/AssetImage";
 import Button from "@/components/ui/Button";
 import { CheckCircle, Copy, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import type { TopCouponCard } from "@/lib/types/entities";
 
 type CouponsCouponCardProps = {
@@ -26,15 +25,10 @@ export default function CouponsCouponCard({
 }: CouponsCouponCardProps) {
   const t = useTranslations("coupons");
 
-  const shopUrl =
-    coupon.url && coupon.storeSlug
-      ? buildAffiliateRedirectPath({
-          productId: `coupon-${coupon.id}`,
-          storeSlug: coupon.storeSlug,
-          destinationUrl: coupon.url,
-          source: "coupons",
-        })
-      : null;
+  // Admitad coupon links are already real, tracked affiliate destinations.
+  // The product redirect guard intentionally rejects merchant homepages, so
+  // coupon links go straight to their source URL instead of being wrapped.
+  const shopUrl = coupon.url ?? null;
 
   const handleUse = () => {
     onCopy(coupon.code);

@@ -1,5 +1,6 @@
 import { mapStore } from "@/lib/database/mappers";
 import type { StoreRow } from "@/lib/database/types";
+import { isAdmittedMerchantName } from "@/lib/integration/admitted-network";
 import {
   getRealMerchantStores,
   isRealDataStore,
@@ -33,13 +34,11 @@ export async function getStores(options?: {
 
   if (error) return { data: [], error: error.message };
 
-  // Directory shows only stores that actually have (or produce) real product
-  // data. Seed/static/stub rows (walmart, temu, noon, best-buy, jumia, nike,
-  // foot-locker, …) and credential-less Amazon rows are never advertised.
-  const allRows = (data as StoreRow[] | null) ?? [];
-  const realFlags = await Promise.all(allRows.map((row) => isRealDataStore(row)));
-  const rows = allRows.filter((row, index) => {
-    if (!realFlags[index]) return false;
+  // The directory is the approved Admitad network only. Provider rows and
+  // legacy seed/stub stores are never advertised here; every listed merchant
+  // must be one of the ingested master programs.
+  const rows = ((data as StoreRow[] | null) ?? []).filter((row) => {
+    if (row.admitted_network !== "admitad") return false;
     if (options?.integrationType && row.integration_type !== options.integrationType) {
       return false;
     }
@@ -49,21 +48,14 @@ export async function getStores(options?: {
     return true;
   });
 
-  // Append the real Admitad merchants derived from the live DB catalog so the
-  // directory lists every real merchant that has products. Only merchants with
-  // a real program record (site URL) are included — nothing is fabricated.
-  const merchantStores = await loadMerchantStores();
-  const it = options?.integrationType;
-  const combined: Store[] = [
-    ...rows.map(mapStore),
-    ...merchantStores.filter((m) => !it || m.integrationType === it),
-  ];
+  const stores = rows.map(mapStore);
   const region = options?.region;
   const filtered = region
-    ? combined.filter(
-        (s) => !s.supportedRegions.length || s.supportedRegions.includes(region),
+    ? stores.filter(
+        (store) =>
+          !store.supportedRegions.length || store.supportedRegions.includes(region),
       )
-    : combined;
+    : stores;
   const result = options?.limit ? filtered.slice(0, options.limit) : filtered;
   return { data: result, error: null };
 }
@@ -93,7 +85,12 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
   if (slug.startsWith("admitad-")) {
     const merchants = await loadMerchantStores();
     const found = merchants.find((m) => m.slug === slug) ?? null;
-    return { data: found, error: null };
+    if (!found) return { data: null, error: "Store not found" };
+    const admitted = await isAdmittedMerchantName(found.name);
+    return {
+      data: admitted ? found : null,
+      error: admitted ? null : "Store not found",
+    };
   }
 
   return { data: null, error: "Store not found" };

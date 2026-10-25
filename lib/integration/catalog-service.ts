@@ -19,6 +19,7 @@ import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { STUB_PROVIDER_IDS } from "@/lib/providers/registry";
+import { filterAdmittedCatalogItems } from "@/lib/integration/admitted-network";
 import {
   resolveCatalogSnapshot,
 } from "@/lib/integration/database-catalog";
@@ -90,7 +91,7 @@ async function computeMergedCatalog(): Promise<{
 }> {
   // Tracks whether a slow source was skipped because it exceeded its budget. A
   // degraded (incomplete) snapshot must never be reused for the full healthy
-  // TTL, or a transient cold source would hide that provider's catalog for
+  // TTL, or a transient cold source would hide that provider's entire catalog for
   // minutes. This is provider-neutral: it reacts to *any* source timing out.
   let dbDegraded = false;
   let admitadFeedDegraded = false;
@@ -288,15 +289,17 @@ const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> =>
     const { getCatalogItemsFromDatabase } = await import(
       "@/lib/integration/database-catalog"
     );
-    return applyCanonicalCatalogIfEnabled(
-      await getCatalogItemsFromDatabase().catch(() => []),
+    return filterAdmittedCatalogItems(
+      applyCanonicalCatalogIfEnabled(
+        await getCatalogItemsFromDatabase().catch(() => []),
+      ),
     );
   }
 
   void scheduleAdmitadIngestionIfStale();
 
   const { items } = await getMergedCatalogSnapshot();
-  return applyCanonicalCatalogIfEnabled(items);
+  return filterAdmittedCatalogItems(applyCanonicalCatalogIfEnabled(items));
 });
 
 // ---------------------------------------------------------------------------

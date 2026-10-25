@@ -1,0 +1,586 @@
+{
+  "generatedAt": "2026-10-25T15:50:33.678Z",
+  "sourceFiles": {
+    "programs": "master_programms.xlsx",
+    "coupons": "coupons_feed.csv"
+  },
+  "programCount": 82,
+  "couponCount": 311,
+  "couponStoreCount": 50,
+  "programs": [
+    {
+      "id": "24298",
+      "name": "Kinguin WW",
+      "slug": "admitad-24298",
+      "siteUrl": "https://www.kinguin.net/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2022/11/22/24298-3ef7b8d5ffac24b0.png"
+    },
+    {
+      "id": "25572",
+      "name": "Hacoo WW",
+      "slug": "admitad-25572",
+      "siteUrl": "https://www.hacoo.app/",
+      "logoUrl": null
+    },
+    {
+      "id": "25925",
+      "name": "Tion",
+      "slug": "admitad-25925",
+      "siteUrl": "https://tion.ru",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/8/6/25925-704368c4cd790a07.png"
+    },
+    {
+      "id": "20881",
+      "name": "Alibaba WW",
+      "slug": "admitad-20881",
+      "siteUrl": "https://www.alibaba.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2020/11/2/20881-ff9430e87ffe5736.png"
+    },
+    {
+      "id": "37709",
+      "name": "Bliss Club [CPS] IN",
+      "slug": "admitad-37709",
+      "siteUrl": "https://blissclub.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "20543",
+      "name": "Redmagic WW",
+      "slug": "admitad-20543",
+      "siteUrl": "https://global.redmagic.gg/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2025/9/5/20543-75ebe1c2bc996c2b.svg"
+    },
+    {
+      "id": "34712",
+      "name": "Disney+ LATAM",
+      "slug": "admitad-34712",
+      "siteUrl": "https://disneyplus.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "21026",
+      "name": "Touch UA",
+      "slug": "admitad-21026",
+      "siteUrl": "https://touch.com.ua/",
+      "logoUrl": null
+    },
+    {
+      "id": "43361",
+      "name": "Whirlpool MX/CO",
+      "slug": "admitad-43361",
+      "siteUrl": "https://www.whirlpool.mx/",
+      "logoUrl": null
+    },
+    {
+      "id": "101241",
+      "name": "Levis MX",
+      "slug": "admitad-101241",
+      "siteUrl": "https://www.levi.com.mx/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2026/8/12/101241-d46db9478b98632d.svg"
+    },
+    {
+      "id": "111007",
+      "name": "Yango Drive AE Promo codes & Links",
+      "slug": "admitad-111007",
+      "siteUrl": "https://drive.yango.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "186080",
+      "name": "Nveda [CPS] IN",
+      "slug": "admitad-186080",
+      "siteUrl": "https://nveda.in/",
+      "logoUrl": null
+    },
+    {
+      "id": "35143",
+      "name": "Funko EU",
+      "slug": "admitad-35143",
+      "siteUrl": "https://funkoeurope.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/4/4/35143-f2e92909360c5ae8.svg"
+    },
+    {
+      "id": "183133",
+      "name": "Cheapvuelos WW",
+      "slug": "admitad-183133",
+      "siteUrl": "https://www.cheapvuelos.com",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2026/5/28/183133-9abf5951f46c2f32.svg"
+    },
+    {
+      "id": "37079",
+      "name": "American Eagle MX",
+      "slug": "admitad-37079",
+      "siteUrl": "https://www.ae.com/mx/es",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/4/17/37079-5359cd4876c62a56.svg"
+    },
+    {
+      "id": "48037",
+      "name": "HONOR UAE",
+      "slug": "admitad-48037",
+      "siteUrl": "https://www.honor.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2026/7/23/48037-c6b04cd28dd82d6d.jpg"
+    },
+    {
+      "id": "21562",
+      "name": "Eyewa AE SA KW QT OM offline codes",
+      "slug": "admitad-21562",
+      "siteUrl": "https://eyewa.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/3/26/21562-17beb9c46064f7fd.png"
+    },
+    {
+      "id": "31369",
+      "name": "Miravia ES",
+      "slug": "admitad-31369",
+      "siteUrl": "https://www.miravia.es/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2022/12/19/31369-37a9656646d5455a.svg"
+    },
+    {
+      "id": "25170",
+      "name": "golden-line.ru",
+      "slug": "admitad-25170",
+      "siteUrl": "https://golden-line.ru/",
+      "logoUrl": null
+    },
+    {
+      "id": "37742",
+      "name": "Gamivo WW",
+      "slug": "admitad-37742",
+      "siteUrl": "https://www.gamivo.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/5/29/37742-c345e7414dd341df.svg"
+    },
+    {
+      "id": "28834",
+      "name": "AdGuard EN",
+      "slug": "admitad-28834",
+      "siteUrl": "https://adguard.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/3/17/28834-7c6e47ad2aa6ad61.svg"
+    },
+    {
+      "id": "43825",
+      "name": "Shopee MX",
+      "slug": "admitad-43825",
+      "siteUrl": "https://shopee.com.mx/",
+      "logoUrl": null
+    },
+    {
+      "id": "25001",
+      "name": "Movavi WW",
+      "slug": "admitad-25001",
+      "siteUrl": "https://www.movavi.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/8/26/25001-3a9921b5a863e031.png"
+    },
+    {
+      "id": "26360",
+      "name": "Douglas PL",
+      "slug": "admitad-26360",
+      "siteUrl": "https://www.douglas-shop.pl",
+      "logoUrl": null
+    },
+    {
+      "id": "38910",
+      "name": "Allegra K Many GEOs",
+      "slug": "admitad-38910",
+      "siteUrl": "https://www.allegra-k.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/6/28/38910-7b12fecf5b3b3671.svg"
+    },
+    {
+      "id": "105191",
+      "name": "Symbol fashion Many GEOs",
+      "slug": "admitad-105191",
+      "siteUrl": "https://symbol.fashion/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/8/15/105191-5354850cf3f2277c.svg"
+    },
+    {
+      "id": "15467",
+      "name": "Geekbuying WW",
+      "slug": "admitad-15467",
+      "siteUrl": "https://www.geekbuying.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/12/6/15467-132f8e42f99e6f75.svg"
+    },
+    {
+      "id": "124942",
+      "name": "Palmonas [CPS] IN",
+      "slug": "admitad-124942",
+      "siteUrl": "https://www.palmonas.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "27912",
+      "name": "Clarks Stores AE offline codes & links",
+      "slug": "admitad-27912",
+      "siteUrl": "https://www.clarksstores.ae/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2022/4/29/27912-03fedd37728b1bd9.png"
+    },
+    {
+      "id": "18428",
+      "name": "Sunsky-online WW",
+      "slug": "admitad-18428",
+      "siteUrl": "https://www.sunsky-online.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2020/10/22/18428-6999aaa7187e4c25.png"
+    },
+    {
+      "id": "100976",
+      "name": "Samsonite MX",
+      "slug": "admitad-100976",
+      "siteUrl": "https://samsonite.com.mx/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/5/22/100976-99b823768734a5cd.svg"
+    },
+    {
+      "id": "27495",
+      "name": "Nadula WW",
+      "slug": "admitad-27495",
+      "siteUrl": "https://www.nadula.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/11/29/27495-e97a7ec938a4ee65.svg"
+    },
+    {
+      "id": "26109",
+      "name": "Lichi",
+      "slug": "admitad-26109",
+      "siteUrl": "https://lichi.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/9/8/26109-937c7b384d7fc630.jpg"
+    },
+    {
+      "id": "26456",
+      "name": "Humanic",
+      "slug": "admitad-26456",
+      "siteUrl": "https://www.humanic.net/cz/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/10/22/26456-7ae6205b8b5c0f49.png"
+    },
+    {
+      "id": "28191",
+      "name": "Guldi (EN)",
+      "slug": "admitad-28191",
+      "siteUrl": "https://www.guldi.com.br/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2022/6/14/28191-6d718d4b2588f30c.svg"
+    },
+    {
+      "id": "146216",
+      "name": "Aovica Official Store Aliexpress",
+      "slug": "admitad-146216",
+      "siteUrl": "https://aovica.top/",
+      "logoUrl": null
+    },
+    {
+      "id": "159043",
+      "name": "Meshnology WW",
+      "slug": "admitad-159043",
+      "siteUrl": "https://meshnology.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2025/12/26/159043-e33945248d4da33c.svg"
+    },
+    {
+      "id": "18336",
+      "name": "ChicMe WW",
+      "slug": "admitad-18336",
+      "siteUrl": "https://www.chicme.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2020/9/30/18336-16313399a7473b4b.png"
+    },
+    {
+      "id": "36176",
+      "name": "Asus [CPS] IN",
+      "slug": "admitad-36176",
+      "siteUrl": "https://asus.com/in/",
+      "logoUrl": null
+    },
+    {
+      "id": "32276",
+      "name": "Joico (EN)",
+      "slug": "admitad-32276",
+      "siteUrl": "https://www.joico.com.br/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/7/21/32276-772ea05df8881e23.svg"
+    },
+    {
+      "id": "94950",
+      "name": "Motorola MX",
+      "slug": "admitad-94950",
+      "siteUrl": "https://www.motorola.com.mx/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/6/26/94950-99b449d9c1b19a21.svg"
+    },
+    {
+      "id": "102186",
+      "name": "Drippy Custom Many GEOs",
+      "slug": "admitad-102186",
+      "siteUrl": "https://drippycustom.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/6/20/102186-c0e26479b9207730.svg"
+    },
+    {
+      "id": "28750",
+      "name": "The Deal Outlet AE SA",
+      "slug": "admitad-28750",
+      "siteUrl": "https://www.thedealoutlet.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2022/7/18/28750-50bc5d4e712eb1da.jpg"
+    },
+    {
+      "id": "29350",
+      "name": "Probel (EN)",
+      "slug": "admitad-29350",
+      "siteUrl": "https://www.probel.com.br/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2022/10/6/29350-cc609e95ccbdc841.svg"
+    },
+    {
+      "id": "41597",
+      "name": "MyHeritage DNA WW",
+      "slug": "admitad-41597",
+      "siteUrl": "https://www.myheritage.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/11/18/41597-5bf4ef2b3fe781fa.svg"
+    },
+    {
+      "id": "29492",
+      "name": "Way.com US CA",
+      "slug": "admitad-29492",
+      "siteUrl": "https://www.way.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/3/17/29492-2386f0ba80e02290.svg"
+    },
+    {
+      "id": "111779",
+      "name": "DocHub WW",
+      "slug": "admitad-111779",
+      "siteUrl": "https://www.dochub.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "142838",
+      "name": "Gold Apple AE",
+      "slug": "admitad-142838",
+      "siteUrl": "https://goldapple.ae/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2026/3/24/142838-c3f2811f6b89ea07.svg"
+    },
+    {
+      "id": "19333",
+      "name": "SharafDG AE affiliate program",
+      "slug": "admitad-19333",
+      "siteUrl": "https://uae.sharafdg.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/3/15/19333-91a6c2a68180cfcd.svg"
+    },
+    {
+      "id": "17970",
+      "name": "Glasseslit WW",
+      "slug": "admitad-17970",
+      "siteUrl": "https://www.glasseslit.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2025/5/19/17970-e3bf116fa6fe6de2.svg"
+    },
+    {
+      "id": "20375",
+      "name": "The Luxury Closet WW",
+      "slug": "admitad-20375",
+      "siteUrl": "https://theluxurycloset.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/10/8/20375-f987dc51de700d9a.jpg"
+    },
+    {
+      "id": "121943",
+      "name": "DelSol MX",
+      "slug": "admitad-121943",
+      "siteUrl": "https://www.delsol.com.mx/",
+      "logoUrl": null
+    },
+    {
+      "id": "22965",
+      "name": "Nordpass WW",
+      "slug": "admitad-22965",
+      "siteUrl": "https://nordpass.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/10/20/22965-9bd23d2878956942.svg"
+    },
+    {
+      "id": "104523",
+      "name": "DKNY AE SA KW - Links & Coupons",
+      "slug": "admitad-104523",
+      "siteUrl": "https://dkny.com.kw/",
+      "logoUrl": null
+    },
+    {
+      "id": "29277",
+      "name": "Vperfumes GCC Links& Offline codes",
+      "slug": "admitad-29277",
+      "siteUrl": "https://www.vperfumes.com/home",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2022/11/18/29277-309be5ed10adfc4a.svg"
+    },
+    {
+      "id": "49316",
+      "name": "Jumbo AE",
+      "slug": "admitad-49316",
+      "siteUrl": "https://www.jumbo.ae/",
+      "logoUrl": null
+    },
+    {
+      "id": "27592",
+      "name": "Tapfiliate WW",
+      "slug": "admitad-27592",
+      "siteUrl": "https://tapfiliate.com/?ref=admitadaffiliatenetwork13",
+      "logoUrl": null
+    },
+    {
+      "id": "21289",
+      "name": "AbeBooks Many GEOs",
+      "slug": "admitad-21289",
+      "siteUrl": "https://www.abebooks.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/4/8/21289-5a76fdf65b485d59.svg"
+    },
+    {
+      "id": "88834",
+      "name": "Salty [CPS] IN",
+      "slug": "admitad-88834",
+      "siteUrl": "https://salty.co.in/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/2/14/88834-03392c67689ce30b.svg"
+    },
+    {
+      "id": "34192",
+      "name": "VectorStock WW",
+      "slug": "admitad-34192",
+      "siteUrl": "https://www.vectorstock.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "186872",
+      "name": "Klook WW",
+      "slug": "admitad-186872",
+      "siteUrl": "https://www.klook.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2026/7/9/186872-ba6ad470fd980eaa.svg"
+    },
+    {
+      "id": "104513",
+      "name": "Camp David | Soccx CZ CPS",
+      "slug": "admitad-104513",
+      "siteUrl": "https://www.campdavid-soccx-shop.cz/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2024/7/16/104513-e028c67178027c78.svg"
+    },
+    {
+      "id": "26897",
+      "name": "Diesel AE SA KW Offline codes & links",
+      "slug": "admitad-26897",
+      "siteUrl": "https://ae.diesel.com/ae_en",
+      "logoUrl": null
+    },
+    {
+      "id": "25915",
+      "name": "IndusInd Credit Card [CPA] IN",
+      "slug": "admitad-25915",
+      "siteUrl": "https://induseasycredit.indusind.com/customer/application/work-details",
+      "logoUrl": null
+    },
+    {
+      "id": "190638",
+      "name": "Vodafone CZ",
+      "slug": "admitad-190638",
+      "siteUrl": "https://www.vodafone.cz/",
+      "logoUrl": null
+    },
+    {
+      "id": "27631",
+      "name": "Huawei SA Offline codes & Links",
+      "slug": "admitad-27631",
+      "siteUrl": "https://consumer.huawei.com/sa-en/offer/",
+      "logoUrl": null
+    },
+    {
+      "id": "24073",
+      "name": "Gshopper Many GEOs",
+      "slug": "admitad-24073",
+      "siteUrl": "https://www.gshopper.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/7/19/24073-20294aae38122887.svg"
+    },
+    {
+      "id": "24287",
+      "name": "Noracora WW",
+      "slug": "admitad-24287",
+      "siteUrl": "https://noracora.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2021/2/26/24287-ff8b06f448b60cfe.png"
+    },
+    {
+      "id": "17400",
+      "name": "Mamasandpapas AE SA KW Tracking promo codes",
+      "slug": "admitad-17400",
+      "siteUrl": "https://mamasandpapas.ae/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/4/12/17400-10d8c840d9f1a9f9.svg"
+    },
+    {
+      "id": "117648",
+      "name": "English (US)",
+      "slug": "admitad-117648",
+      "siteUrl": "https://www.urbanicon.co.id/",
+      "logoUrl": null
+    },
+    {
+      "id": "119288",
+      "name": "LG TR Offline Codes & Links",
+      "slug": "admitad-119288",
+      "siteUrl": "https://www.lg.com/tr/",
+      "logoUrl": null
+    },
+    {
+      "id": "27630",
+      "name": "Huawei AE Offline codes & Links",
+      "slug": "admitad-27630",
+      "siteUrl": "https://consumer.huawei.com/ae-en/offer/",
+      "logoUrl": null
+    },
+    {
+      "id": "106720",
+      "name": "Sam's Club  US",
+      "slug": "admitad-106720",
+      "siteUrl": "https://www.samsclub.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2026/6/9/106720-0dbda3abf897dbaa.svg"
+    },
+    {
+      "id": "22221",
+      "name": "Mivi [CPS] IN",
+      "slug": "admitad-22221",
+      "siteUrl": "https://www.mivi.in/",
+      "logoUrl": null
+    },
+    {
+      "id": "26219",
+      "name": "Huawei CZ",
+      "slug": "admitad-26219",
+      "siteUrl": "https://consumer.huawei.com/cz/",
+      "logoUrl": null
+    },
+    {
+      "id": "22352",
+      "name": "MaxLife Insurance [CPS] IN",
+      "slug": "admitad-22352",
+      "siteUrl": "https://www.maxlifeinsurance.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "119285",
+      "name": "LG SA Offline Codes & Links",
+      "slug": "admitad-119285",
+      "siteUrl": "https://www.lg.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "22897",
+      "name": "Bloomingdales AE SA KW Offline codes & links",
+      "slug": "admitad-22897",
+      "siteUrl": "https://bloomingdales.ae/",
+      "logoUrl": null
+    },
+    {
+      "id": "30068",
+      "name": "Beyond The Beach UAE links and tracking promo codes",
+      "slug": "admitad-30068",
+      "siteUrl": "https://beyondthebeach.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/1/24/30068-6653c0809abe90dc.svg"
+    },
+    {
+      "id": "36687",
+      "name": "Reebok UAE links and tracking promo codes",
+      "slug": "admitad-36687",
+      "siteUrl": "https://www.reebok.ae/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2023/7/19/36687-01ed7683018ccecd.svg"
+    },
+    {
+      "id": "124848",
+      "name": "Sharaf DG SA",
+      "slug": "admitad-124848",
+      "siteUrl": "https://saudi.sharafdg.com/",
+      "logoUrl": null
+    },
+    {
+      "id": "142825",
+      "name": "Ticombo - Global Event Tickets Many GEOs",
+      "slug": "admitad-142825",
+      "siteUrl": "https://www.ticombo.com/",
+      "logoUrl": "https://cdn.admitad.com/campaign/images/2025/10/13/142825-77f616015645fd63.svg"
+    }
+  ]
+}
