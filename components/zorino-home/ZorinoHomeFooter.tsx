@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Mail, Package, Send, Store, Tag, Users } from "lucide-react";
 import { useNewsletter } from "@/lib/features/newsletter-system";
-import type { FooterStatItem } from "@/lib/types/entities";
+import type { FooterStatItem, Store as StoreEntity } from "@/lib/types/entities";
 import type { Locale } from "@/i18n/config";
 import "./ZorinoHomeFooter.css";
 
@@ -16,24 +16,20 @@ const ICONS = {
   users: Users,
 } as const;
 
-/**
- * Featured Stores strip — only stores with a REAL, currently-active data
- * source are advertised. Stub/seed identities (noon, nike, walmart, amazon
- * without live credentials, …) are never linked, so the footer can never
- * route a user to a fake/empty store.
- */
-const FEATURED_STORES = [
-  { id: "aliexpress", slug: "aliexpress", name: "AliExpress", logoSrc: "/stores/aliexpress.svg", initial: "AE" },
-  { id: "ebay", slug: "ebay", name: "eBay", logoSrc: "/stores/ebay.svg", initial: "e" },
-  { id: "admitad", slug: "admitad", name: "Admitad", logoSrc: "/stores/alibaba.svg", initial: "Ad" },
-  { id: "cjdropshipping", slug: "cjdropshipping", name: "CJdropshipping", logoSrc: "/stores/cjdropshipping.svg", initial: "CJ" },
-] as const;
+type FeaturedStore = Pick<
+  StoreEntity,
+  "slug" | "name" | "logoUrl" | "logoInitial"
+>;
 
 type ZorinoHomeFooterProps = {
   footerStats: FooterStatItem[];
+  featuredStores: FeaturedStore[];
 };
 
-export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps) {
+export default function ZorinoHomeFooter({
+  footerStats,
+  featuredStores,
+}: ZorinoHomeFooterProps) {
   const t = useTranslations("home");
   const tHero = useTranslations("hero");
   const tFooter = useTranslations("footer");
@@ -80,19 +76,23 @@ export default function ZorinoHomeFooter({ footerStats }: ZorinoHomeFooterProps)
           </Link>
         </div>
         <div className="zh-footer__store-logos">
-          {FEATURED_STORES.map((store) => (
+          {featuredStores.map((store) => (
             <Link
-              key={store.id}
+              key={store.slug}
               href={`/stores/${store.slug}`}
               className="zh-footer__store-logo"
               title={store.name}
             >
-              <img
-                src={store.logoSrc}
-                alt={store.name}
-                loading="lazy"
-                decoding="async"
-              />
+              {store.logoUrl ? (
+                <img
+                  src={store.logoUrl}
+                  alt={store.name}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span aria-hidden>{store.logoInitial ?? store.name.charAt(0)}</span>
+              )}
             </Link>
           ))}
         </div>
