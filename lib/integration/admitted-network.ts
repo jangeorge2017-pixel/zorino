@@ -18,6 +18,40 @@ type ManifestShape = {
 
 const admittedManifest = manifest as ManifestShape;
 
+/**
+ * Global marketplace giants that stay visible alongside the approved Admitad
+ * merchant network. These providers are real, live integrations with their own
+ * product data and must never be filtered out by the Admitad allowlist.
+ */
+export const BLENDED_PROVIDER_IDS: ReadonlySet<string> = new Set([
+  "amazon",
+  "amazon-eg",
+  "ebay",
+  "aliexpress",
+]);
+
+/**
+ * Store directory rows for the blended providers. `amazon-eg` is a marketplace
+ * variant of Amazon and shares the canonical `amazon` storefront identity.
+ */
+export const BLENDED_STORE_SLUGS: readonly string[] = [
+  "aliexpress",
+  "ebay",
+  "amazon",
+];
+
+const BLENDED_STORE_SLUG_SET: ReadonlySet<string> = new Set(BLENDED_STORE_SLUGS);
+
+/** Whether a raw provider id resolves to one of the blended giants. */
+export function isBlendedProviderId(providerId: string | null | undefined): boolean {
+  return BLENDED_PROVIDER_IDS.has(resolveMarketplaceId(providerId));
+}
+
+/** Whether a store slug belongs to one of the blended giants. */
+export function isBlendedStoreSlug(slug: string | null | undefined): boolean {
+  return Boolean(slug && BLENDED_STORE_SLUG_SET.has(slug.trim().toLowerCase()));
+}
+
 export function normalizeMerchantName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, " ");
 }
@@ -119,27 +153,33 @@ export function offerBelongsToAdmittedMerchant(
   return names.has(normalizeMerchantName(offer.storeName));
 }
 
+/** An offer is allowed when it is an approved Admitad merchant or a blended giant. */
+export function isAllowedCatalogOffer(
+  offer: NormalizedCatalogItem["offers"][number],
+  names: Set<string>,
+): boolean {
+  return isBlendedProviderId(offer.providerId) || offerBelongsToAdmittedMerchant(offer, names);
+}
+
 /**
- * Strict view filter: only Admitad offers from the 82 approved merchants.
- * An item that has no approved offer is dropped entirely. Non-Admitad offers
- * are removed even when they are attached to an otherwise approved item.
+ * Blended view filter: the 82 approved Admitad merchants plus Amazon, eBay,
+ * and AliExpress. Offers from other/unapproved sources are removed; an item
+ * with no allowed offer is dropped entirely.
  */
 export async function filterAdmittedCatalogItems(
   items: readonly NormalizedCatalogItem[],
 ): Promise<NormalizedCatalogItem[]> {
   const { names } = await getAdmittedMerchantRegistry();
-  if (names.size === 0) return [];
 
   const filtered: NormalizedCatalogItem[] = [];
   for (const item of items) {
-    const offers = item.offers.filter((offer) =>
-      offerBelongsToAdmittedMerchant(offer, names),
-    );
+    const offers = item.offers.filter((offer) => isAllowedCatalogOffer(offer, names));
     if (offers.length === 0) continue;
 
-    const providerIds = item.providerIds.filter(
-      (providerId) => resolveMarketplaceId(providerId) === "admitad",
-    );
+    const providerIds = item.providerIds.filter((providerId) => {
+      const resolved = resolveMarketplaceId(providerId);
+      return resolved === "admitad" || BLENDED_PROVIDER_IDS.has(resolved);
+    });
     filtered.push({
       ...item,
       offers,
