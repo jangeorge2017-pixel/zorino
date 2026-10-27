@@ -83,8 +83,8 @@ export async function getProductById(id: string): Promise<ServiceResult<Product 
 
 export async function searchProducts(
   query: string,
-  limitOrOptions?: number | { page?: number; limit?: number; importedOnly?: boolean },
-  maybeOptions?: { importedOnly?: boolean }
+  limitOrOptions?: number | { page?: number; limit?: number; importedOnly?: boolean; forceIlike?: boolean },
+  maybeOptions?: { importedOnly?: boolean; forceIlike?: boolean }
 ): Promise<
   | ServiceResult<Product[]>
   | ServiceResult<{
@@ -109,6 +109,10 @@ export async function searchProducts(
     isPaginatedOptions && limitOrOptions.importedOnly !== undefined
       ? limitOrOptions.importedOnly
       : maybeOptions?.importedOnly;
+  const forceIlike =
+    isPaginatedOptions && (limitOrOptions as any).forceIlike !== undefined
+      ? (limitOrOptions as any).forceIlike
+      : (maybeOptions as any)?.forceIlike === true;
 
   if (importedOnly !== false && !isPaginatedOptions) {
     const { searchCatalogProducts } = await import("@/lib/marketplace-engine/search");
@@ -160,9 +164,44 @@ export async function searchProducts(
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    const hasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(query);
+    const isArabic = /[\u0600-\u06FF]/.test(query);
 
-    if (sanitized && !hasArabic) {
+    if (forceIlike || isArabic) {
+      let ilikeQuery = supabase
+        .from("products")
+        .select("*", { count: "exact" })
+        .eq("is_active", true);
+
+      if (query.trim()) {
+        ilikeQuery = ilikeQuery.ilike("name", `%${query.trim()}%`);
+      }
+
+      const { data, error, count } = await ilikeQuery.order("name").range(from, to);
+
+      if (error) {
+        return {
+          data: { data: [], total: 0, page, limit, total_pages: 0 },
+          error: error.message,
+        };
+      }
+
+      const total = count ?? 0;
+      const total_pages = Math.max(1, Math.ceil(total / limit));
+      const mapped = (data ?? []).map(mapProduct);
+
+      return {
+        data: {
+          data: mapped,
+          total,
+          page,
+          limit,
+          total_pages,
+        },
+        error: null,
+      };
+    }
+
+    if (sanitized) {
       let queryFTS = supabase
         .from("products")
         .select("*", { count: "exact" })
@@ -197,9 +236,8 @@ export async function searchProducts(
       .select("*", { count: "exact" })
       .eq("is_active", true);
 
-    if (sanitized || query.trim()) {
-      const searchTerm = sanitized || query.trim();
-      fallbackQuery = fallbackQuery.ilike("name", `%${searchTerm}%`);
+    if (query.trim()) {
+      fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
     }
 
     const { data, error, count } = await fallbackQuery.order("name").range(from, to);
@@ -227,9 +265,25 @@ export async function searchProducts(
     };
   }
 
-  const hasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(query);
+  const isArabicNonPaginated = /[\u0600-\u06FF]/.test(query);
 
-  if (sanitized && !hasArabic) {
+  if (forceIlike || isArabicNonPaginated) {
+    let ilikeQuery = supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true);
+
+    if (query.trim()) {
+      ilikeQuery = ilikeQuery.ilike("name", `%${query.trim()}%`);
+    }
+
+    const { data, error } = await ilikeQuery.limit(limit);
+
+    if (error) return { data: [], error: error.message };
+    return { data: (data ?? []).map(mapProduct), error: null };
+  }
+
+  if (sanitized) {
     let ftsQuery = supabase
       .from("products")
       .select("*")
@@ -251,9 +305,8 @@ export async function searchProducts(
     .select("*")
     .eq("is_active", true);
 
-  if (sanitized || query.trim()) {
-    const searchTerm = sanitized || query.trim();
-    fallbackQuery = fallbackQuery.ilike("name", `%${searchTerm}%`);
+  if (query.trim()) {
+    fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
   }
 
   const { data, error } = await fallbackQuery.limit(limit);
