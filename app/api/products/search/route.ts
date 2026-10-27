@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchProducts } from "@/services/products";
 import NodeCache from "node-cache";
+import translate from "google-translate-api-x";
 
 const searchCache = new NodeCache({
   stdTTL: 3600,
@@ -11,7 +12,7 @@ const searchCache = new NodeCache({
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const q = url.searchParams.get("q") || url.searchParams.get("query") || "";
+    let q = url.searchParams.get("q") || url.searchParams.get("query") || "";
     const pageParam = url.searchParams.get("page");
     const limitParam = url.searchParams.get("limit");
     const importedOnlyParam = url.searchParams.get("importedOnly");
@@ -21,8 +22,21 @@ export async function GET(req: NextRequest) {
     const importedOnly = importedOnlyParam === "false" ? false : true;
 
     const isArabic = /[\u0600-\u06FF]/.test(q);
+    let searchQuery = q;
 
-    const cacheKey = `search:${q.toLowerCase().trim()}:page:${Number.isNaN(page) ? 1 : page}:limit:${Number.isNaN(limit) ? 20 : limit}:importedOnly:${importedOnly}:ar:${isArabic}`;
+    if (isArabic && q.trim()) {
+      try {
+        const translated = await translate(q, { to: "en" });
+        if (translated?.text) {
+          searchQuery = translated.text;
+        }
+      } catch (error) {
+        console.error("Translation error:", error);
+        searchQuery = q;
+      }
+    }
+
+    const cacheKey = `search:${searchQuery.toLowerCase().trim()}:page:${Number.isNaN(page) ? 1 : page}:limit:${Number.isNaN(limit) ? 20 : limit}:importedOnly:${importedOnly}:ar:${isArabic}`;
 
     const cachedData = searchCache.get(cacheKey);
     if (cachedData) {
@@ -30,34 +44,32 @@ export async function GET(req: NextRequest) {
     }
 
     let result;
-    if (isArabic) {
+    result = await searchProducts(searchQuery, {
+      page: Number.isNaN(page) ? 1 : page,
+      limit: Number.isNaN(limit) ? 20 : limit,
+      importedOnly,
+    });
+
+    const hasData = Array.isArray((result as any)?.data)
+      ? ((result as any).data.length > 0)
+      : Array.isArray((result as any)?.data?.data)
+        ? ((result as any).data.data.length > 0)
+        : false;
+
+    if (!hasData && searchQuery !== q) {
       result = await searchProducts(q, {
         page: Number.isNaN(page) ? 1 : page,
         limit: Number.isNaN(limit) ? 20 : limit,
         importedOnly,
         forceIlike: true,
       });
-    } else {
-      result = await searchProducts(q, {
+    } else if (!hasData && !isArabic) {
+      result = await searchProducts(searchQuery, {
         page: Number.isNaN(page) ? 1 : page,
         limit: Number.isNaN(limit) ? 20 : limit,
         importedOnly,
+        forceIlike: true,
       });
-
-      const hasData = Array.isArray((result as any)?.data)
-        ? ((result as any).data.length > 0)
-        : Array.isArray((result as any)?.data?.data)
-          ? ((result as any).data.data.length > 0)
-          : false;
-
-      if (!hasData) {
-        result = await searchProducts(q, {
-          page: Number.isNaN(page) ? 1 : page,
-          limit: Number.isNaN(limit) ? 20 : limit,
-          importedOnly,
-          forceIlike: true,
-        });
-      }
     }
 
     if (result.error) {
