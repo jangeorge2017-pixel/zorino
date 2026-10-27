@@ -160,19 +160,49 @@ export async function searchProducts(
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    let query = supabase
+    const hasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(query);
+
+    if (sanitized && !hasArabic) {
+      let queryFTS = supabase
+        .from("products")
+        .select("*", { count: "exact" })
+        .eq("is_active", true)
+        .textSearch("name", sanitized, {
+          type: "websearch",
+          config: "english",
+        });
+
+      const { data: ftsData, error: ftsError, count: ftsCount } = await queryFTS.order("name").range(from, to);
+
+      if (!ftsError && (ftsCount ?? 0) > 0 && (ftsData?.length ?? 0) > 0) {
+        const total = ftsCount ?? 0;
+        const total_pages = Math.max(1, Math.ceil(total / limit));
+        const mapped = (ftsData ?? []).map(mapProduct);
+
+        return {
+          data: {
+            data: mapped,
+            total,
+            page,
+            limit,
+            total_pages,
+          },
+          error: null,
+        };
+      }
+    }
+
+    let fallbackQuery = supabase
       .from("products")
       .select("*", { count: "exact" })
       .eq("is_active", true);
 
-    if (sanitized) {
-      query = query.textSearch("name", sanitized, {
-        type: "websearch",
-        config: "english",
-      });
+    if (sanitized || query.trim()) {
+      const searchTerm = sanitized || query.trim();
+      fallbackQuery = fallbackQuery.ilike("name", `%${searchTerm}%`);
     }
 
-    const { data, error, count } = await query.order("name").range(from, to);
+    const { data, error, count } = await fallbackQuery.order("name").range(from, to);
 
     if (error) {
       return {
@@ -197,19 +227,36 @@ export async function searchProducts(
     };
   }
 
-  let nonPaginatedQuery = supabase
+  const hasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(query);
+
+  if (sanitized && !hasArabic) {
+    let ftsQuery = supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true)
+      .textSearch("name", sanitized, {
+        type: "websearch",
+        config: "english",
+      });
+
+    const { data: ftsData, error: ftsError } = await ftsQuery.limit(limit);
+
+    if (!ftsError && (ftsData?.length ?? 0) > 0) {
+      return { data: (ftsData ?? []).map(mapProduct), error: null };
+    }
+  }
+
+  let fallbackQuery = supabase
     .from("products")
     .select("*")
     .eq("is_active", true);
 
-  if (sanitized) {
-    nonPaginatedQuery = nonPaginatedQuery.textSearch("name", sanitized, {
-      type: "websearch",
-      config: "english",
-    });
+  if (sanitized || query.trim()) {
+    const searchTerm = sanitized || query.trim();
+    fallbackQuery = fallbackQuery.ilike("name", `%${searchTerm}%`);
   }
 
-  const { data, error } = await nonPaginatedQuery.limit(limit);
+  const { data, error } = await fallbackQuery.limit(limit);
 
   if (error) return { data: [], error: error.message };
   return { data: (data ?? []).map(mapProduct), error: null };
