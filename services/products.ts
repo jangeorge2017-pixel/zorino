@@ -160,17 +160,19 @@ export async function searchProducts(
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    const { data, error, count } = await supabase
+    let query = supabase
       .from("products")
-      .select(
-        "*",
-        { count: "exact" }
-      )
-      .eq("is_active", true)
-      .ilike("name", `%${sanitized}%`)
-      .or(`name_ar.ilike.%${sanitized}%,brand.ilike.%${sanitized}%`)
-      .order("name")
-      .range(from, to);
+      .select("*", { count: "exact" })
+      .eq("is_active", true);
+
+    if (sanitized) {
+      query = query.textSearch("name", sanitized, {
+        type: "websearch",
+        config: "english",
+      });
+    }
+
+    const { data, error, count } = await query.order("name").range(from, to);
 
     if (error) {
       return {
@@ -195,12 +197,19 @@ export async function searchProducts(
     };
   }
 
-  const { data, error } = await supabase
+  let nonPaginatedQuery = supabase
     .from("products")
     .select("*")
-    .eq("is_active", true)
-    .or(`name.ilike.%${sanitized}%,name_ar.ilike.%${sanitized}%,brand.ilike.%${sanitized}%`)
-    .limit(limit);
+    .eq("is_active", true);
+
+  if (sanitized) {
+    nonPaginatedQuery = nonPaginatedQuery.textSearch("name", sanitized, {
+      type: "websearch",
+      config: "english",
+    });
+  }
+
+  const { data, error } = await nonPaginatedQuery.limit(limit);
 
   if (error) return { data: [], error: error.message };
   return { data: (data ?? []).map(mapProduct), error: null };
