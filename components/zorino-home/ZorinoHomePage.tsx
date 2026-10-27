@@ -28,6 +28,7 @@ import ZorinoHomeCouponsPanel from "@/components/zorino-home/ZorinoHomeCouponsPa
 import ZorinoHomeProductSections from "@/components/zorino-home/ZorinoHomeProductSections";
 import ZorinoHomeCtaBand from "@/components/zorino-home/ZorinoHomeCtaBand";
 import ZorinoHomeFooter from "@/components/zorino-home/ZorinoHomeFooter";
+import SpaceParticles from "@/components/SpaceParticles";
 import "@/components/zorino-home/homepage-landscape-phones.css";
 import {
   getFeaturedCouponBrandsForHomepage,
@@ -137,7 +138,8 @@ export default async function ZorinoHomePage() {
     .slice(0, 4);
 
   return (
-    <div className="zh-page">
+    <div className="zh-page" style={{ position: "relative" }}>
+      <SpaceParticles />
       <div className="zh-page__background" aria-hidden="true" />
       <div className="zh-page__artwork-clip" aria-hidden="true">
         <div className="zh-page__artwork" />
