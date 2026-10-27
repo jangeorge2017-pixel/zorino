@@ -39,6 +39,8 @@
     "marketplace:verify": "node scripts/verify-marketplace-engine.mjs",
     "ebay:prep": "node scripts/verify-ebay-epn-prep.mjs",
     "affiliate:verify": "node scripts/verify-affiliate.mjs",
+    "coupons:aliexpress": "node scripts/aliexpress-coupons.mjs",
+    "coupons:aliexpress:dry": "node scripts/aliexpress-coupons.mjs --dry-run",
     "admin:create": "node scripts/create-admin.mjs",
     "assets:generate": "node scripts/generate-missing-assets.mjs",
     "assets:verify": "node scripts/verify-assets.mjs",

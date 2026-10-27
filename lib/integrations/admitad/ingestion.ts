@@ -349,6 +349,8 @@ export type IngestionResult = {
   feedsWithProducts: number;
   totalProducts: number;
   productsSaved: number;
+  /** Real merchant offers mirrored into products + product_offers. */
+  globalOffersSaved: number;
   errors: string[];
 };
 
@@ -371,6 +373,7 @@ export async function runAdmitadIngestion(
       feedsWithProducts: 0,
       totalProducts: 0,
       productsSaved: 0,
+      globalOffersSaved: 0,
       errors: ["another ingestion run already in progress"],
     };
   }
@@ -404,6 +407,7 @@ async function runAdmitadIngestionLocked(
     feedsWithProducts: 0,
     totalProducts: 0,
     productsSaved: 0,
+    globalOffersSaved: 0,
     errors: [],
   };
 
@@ -674,6 +678,34 @@ async function runAdmitadIngestionLocked(
     result.errors.push(
       `DB save failed: ${err instanceof Error ? err.message : String(err)}`,
     );
+  }
+
+  // Mirror the same real merchant offers into the global multi-store schema
+  // (products.global_sku + product_offers). Additive and deadline-bounded so
+  // it can never extend the ingestion run past its cron budget.
+  if (allItems.length > 0) {
+    try {
+      const { createSupabaseServiceClient } = await import("@/lib/supabase/server");
+      const supabase = createSupabaseServiceClient();
+      if (!supabase) throw new Error("Supabase service client unavailable");
+      const { syncAdmitadItemsToGlobalSchema } = await import("./global-catalog");
+      const global = await syncAdmitadItemsToGlobalSchema(supabase, allItems, {
+        deadlineAt: Math.min(ingestStartedAt + deadlineMs, Date.now() + 10_000),
+      });
+      result.globalOffersSaved = global.offersUpserted;
+      if (global.failed > 0 || global.skipped > 0) {
+        result.errors.push(
+          `Global schema: ${global.offersUpserted} offers, ${global.skipped} skipped, ${global.failed} failed (${global.stoppedReason})`,
+        );
+      }
+      console.log(
+        `[admitad-ingest] Global schema: ${global.offersUpserted} merchant offers (${global.failed} failed, ${global.skipped} skipped, ${global.stoppedReason})`,
+      );
+    } catch (err) {
+      result.errors.push(
+        `Global schema save failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   // Surface each merchant that actually produced products as its own REAL

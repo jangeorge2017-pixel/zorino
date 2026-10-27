@@ -83,24 +83,116 @@ export async function getProductById(id: string): Promise<ServiceResult<Product 
 
 export async function searchProducts(
   query: string,
-  limit = 20,
-  options?: { importedOnly?: boolean }
-): Promise<ServiceResult<Product[]>> {
-  if (options?.importedOnly !== false) {
+  limitOrOptions?: number | { page?: number; limit?: number; importedOnly?: boolean },
+  maybeOptions?: { importedOnly?: boolean }
+): Promise<
+  | ServiceResult<Product[]>
+  | ServiceResult<{
+      data: Product[];
+      total: number;
+      page: number;
+      limit: number;
+      total_pages: number;
+    }>
+> {
+  const isPaginatedOptions =
+    typeof limitOrOptions === "object" && limitOrOptions !== null;
+  const limit =
+    typeof limitOrOptions === "number"
+      ? limitOrOptions
+      : isPaginatedOptions
+        ? limitOrOptions.limit ?? 20
+        : 20;
+  const page =
+    isPaginatedOptions && limitOrOptions.page ? Math.max(1, limitOrOptions.page) : 1;
+  const importedOnly =
+    isPaginatedOptions && limitOrOptions.importedOnly !== undefined
+      ? limitOrOptions.importedOnly
+      : maybeOptions?.importedOnly;
+
+  if (importedOnly !== false && !isPaginatedOptions) {
     const { searchCatalogProducts } = await import("@/lib/marketplace-engine/search");
     const result = await searchCatalogProducts(query, limit);
     return { data: result.data, error: result.error };
   }
 
+  if (importedOnly !== false && isPaginatedOptions) {
+    const { searchCatalogProducts } = await import("@/lib/marketplace-engine/search");
+    const result = await searchCatalogProducts(query, limit);
+    const total = result.data?.length ?? 0;
+    const total_pages = Math.max(1, Math.ceil(total / limit));
+    return {
+      data: {
+        data: result.data ?? [],
+        total,
+        page,
+        limit,
+        total_pages,
+      },
+      error: result.error,
+    };
+  }
+
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
+    if (isPaginatedOptions) {
+      return {
+        data: { data: [], total: 0, page, limit, total_pages: 0 },
+        error: "Supabase not configured",
+      };
+    }
     return { data: [], error: "Supabase not configured" };
   }
 
   const { sanitizeSearchQuery } = await import("@/lib/marketplace-engine/search");
   const sanitized = sanitizeSearchQuery(query);
   if (!sanitized) {
+    if (isPaginatedOptions) {
+      return {
+        data: { data: [], total: 0, page, limit, total_pages: 0 },
+        error: null,
+      };
+    }
     return { data: [], error: null };
+  }
+
+  if (isPaginatedOptions) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabase
+      .from("products")
+      .select(
+        "*",
+        { count: "exact" }
+      )
+      .eq("is_active", true)
+      .ilike("name", `%${sanitized}%`)
+      .or(`name_ar.ilike.%${sanitized}%,brand.ilike.%${sanitized}%`)
+      .order("name")
+      .range(from, to);
+
+    if (error) {
+      return {
+        data: { data: [], total: 0, page, limit, total_pages: 0 },
+        error: error.message,
+      };
+    }
+
+    const total = count ?? 0;
+    const total_pages = Math.max(1, Math.ceil(total / limit));
+    const mapped = (data ?? []).map(mapProduct);
+
+    return {
+      data: {
+        data: mapped,
+        total,
+        page,
+        limit,
+        total_pages,
+      },
+      error: null,
+    };
   }
 
   const { data, error } = await supabase

@@ -1,3 +1,4 @@
+import { getSyncStoreMeta } from "@/lib/integration/provider-context";
 import type { ExternalProduct } from "@/lib/sync/types";
 import type { SupabaseDb } from "@/lib/supabase/config";
 
@@ -20,6 +21,49 @@ export type GlobalOfferIdentity = {
 };
 
 /**
+ * Resolve the canonical `products.global_sku` for a live provider import.
+ *
+ * - A barcode/GTIN is globally meaningful, so it wins and lets the same item
+ *   merge across stores.
+ * - AliExpress keeps its bare external product id for continuity with rows
+ *   written by earlier syncs.
+ * - Every other provider is namespaced so numeric ids from two providers can
+ *   never overwrite each other.
+ */
+export function buildProviderGlobalSku(
+  providerId: string,
+  product: Pick<ExternalProduct, "externalId" | "barcode">,
+): string {
+  const externalId = product.externalId.trim();
+  if (!externalId) {
+    throw new Error(`Cannot build global_sku for ${providerId}: external id is empty`);
+  }
+
+  const barcode = product.barcode?.trim();
+  if (barcode) return `${providerId}:gtin:${barcode}`;
+  if (providerId === "aliexpress") return externalId;
+  return `${providerId}:${externalId}`;
+}
+
+/**
+ * Resolve the store/network identity written into `product_offers` for a
+ * provider import. Store display names come from the canonical sync store
+ * metadata so Amazon Egypt, eBay, AliExpress, etc. keep their real identity.
+ */
+export function getProviderGlobalOfferIdentity(
+  providerId: string,
+  storeSlug?: string,
+  countryCode: string = GLOBAL_OFFER_COUNTRY_CODE,
+): GlobalOfferIdentity {
+  const lookupKey = storeSlug && storeSlug !== "default" ? storeSlug : providerId;
+  return {
+    storeName: getSyncStoreMeta(lookupKey).name,
+    networkName: DIRECT_NETWORK_NAME,
+    countryCode,
+  };
+}
+
+/**
  * Step 1+2 of the global-schema write: upsert the canonical product row keyed
  * by `global_sku` (the provider's external product id) and return its `id`.
  * The upsert returns the row whether it was inserted or updated, so the id is
@@ -32,9 +76,10 @@ export type GlobalOfferIdentity = {
 export async function upsertGlobalProduct(
   supabase: SupabaseDb,
   product: ExternalProduct,
+  globalSku: string = product.externalId,
 ): Promise<string> {
   const row = {
-    global_sku: product.externalId,
+    global_sku: globalSku,
     title: product.title,
     description: product.description ?? product.title,
     brand: product.brand ?? null,
@@ -111,8 +156,9 @@ export async function syncGlobalProductOffer(
   supabase: SupabaseDb,
   product: ExternalProduct,
   identity: GlobalOfferIdentity,
+  globalSku?: string,
 ): Promise<string> {
-  const productId = await upsertGlobalProduct(supabase, product);
+  const productId = await upsertGlobalProduct(supabase, product, globalSku);
   await upsertProductOffer(supabase, productId, product, identity);
   return productId;
 }

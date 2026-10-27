@@ -14,11 +14,12 @@ import {
   type BridgedProduct,
 } from "@/lib/sync/import/lowest-prices-bridge";
 import {
-  ALIEXPRESS_GLOBAL_OFFER_IDENTITY,
+  buildProviderGlobalSku,
+  getProviderGlobalOfferIdentity,
   syncGlobalProductOffer,
 } from "@/lib/sync/import/global-catalog";
 import { getConnectorForIntegration } from "@/lib/sync/connectors";
-import { isImportProviderId } from "@/lib/sync/providers";
+import { getProviderAdapter, isImportProviderId } from "@/lib/sync/providers";
 import type { ImportProviderId } from "@/lib/sync/providers/types";
 import type { ExternalProduct, SyncContext, SyncRunResult } from "@/lib/sync/types";
 import type { SupabaseDb } from "@/lib/supabase/config";
@@ -36,7 +37,21 @@ function db(client: SupabaseDb): any {
 }
 
 function resolveImportProvider(ctx: SyncContext): ImportProviderId | null {
-  return isImportProviderId(ctx.integrationType) ? ctx.integrationType : null;
+  if (isImportProviderId(ctx.integrationType)) return ctx.integrationType;
+  // Partner-typed stores (e.g. CJdropshipping) carry the import provider id in
+  // their store slug instead of stores.integration_type.
+  if (isImportProviderId(ctx.storeSlug)) return ctx.storeSlug;
+  return null;
+}
+
+/**
+ * Resolve the real provider connector. The import provider id is authoritative
+ * so partner-typed stores never fall through to the legacy/mock connector.
+ */
+function resolveImportConnector(ctx: SyncContext, provider: ImportProviderId | null) {
+  return provider
+    ? getProviderAdapter(provider)
+    : getConnectorForIntegration(ctx.integrationType);
 }
 
 /** Concurrent per-product write pool (one PostgREST chain per product). */
@@ -67,16 +82,28 @@ async function runConcurrent<T>(
 
 /**
  * Global multi-store schema write (products.global_sku → product_offers).
- * AliExpress maintains this store alongside the legacy external/canonical
- * chain so the new global tables stay in sync with every import/price sweep.
+ * Every live import provider maintains this store alongside the legacy
+ * external/canonical chain so the new global tables stay in sync with each
+ * import/price sweep. Global writes are additive: a failure never hides the
+ * already-written legacy product row.
  */
 async function writeGlobalSchemaOffer(
   supabase: SupabaseDb,
+  ctx: SyncContext,
   provider: ImportProviderId | null,
   product: ExternalProduct,
 ): Promise<void> {
-  if (provider !== "aliexpress") return;
-  await syncGlobalProductOffer(supabase, product, ALIEXPRESS_GLOBAL_OFFER_IDENTITY);
+  if (!provider) return;
+  try {
+    const identity = getProviderGlobalOfferIdentity(provider, ctx.storeSlug);
+    const globalSku = buildProviderGlobalSku(provider, product);
+    await syncGlobalProductOffer(supabase, product, identity, globalSku);
+  } catch (err) {
+    console.warn(
+      `[sync-import] global offer write failed for ${provider} ${product.externalId}:`,
+      err instanceof Error ? err.message : err,
+    );
+  }
 }
 
 /**
@@ -110,7 +137,7 @@ async function writeImportedProduct(
       await upsertExternalPrice(supabase, provider, ctx.storeId, product, externalRowId, productId);
     }
     await mergeExternalPriceToCatalog(supabase, ctx, provider, product, productId);
-    await writeGlobalSchemaOffer(supabase, provider, product);
+    await writeGlobalSchemaOffer(supabase, ctx, provider, product);
 
     if (!skipped) {
       await mergeExternalImagesToCatalog(supabase, product, productId);
@@ -152,7 +179,7 @@ async function writeImportedPriceUpdate(
       await upsertExternalPrice(supabase, provider, ctx.storeId, product, externalRowId, productId);
     }
     await mergeExternalPriceToCatalog(supabase, ctx, provider, product, productId);
-    await writeGlobalSchemaOffer(supabase, provider, product);
+    await writeGlobalSchemaOffer(supabase, ctx, provider, product);
     bridged.push({ product, productId });
     result.itemsUpdated += 1;
   } catch {
@@ -166,7 +193,7 @@ export async function importProductsFromProvider(
   result: SyncRunResult
 ): Promise<void> {
   const provider = resolveImportProvider(ctx);
-  const connector = getConnectorForIntegration(ctx.integrationType);
+  const connector = resolveImportConnector(ctx, resolveImportProvider(ctx));
   const products = await connector.fetchProducts(ctx);
   result.itemsFetched += products.length;
 
@@ -188,7 +215,7 @@ export async function importPricesFromProvider(
   result: SyncRunResult
 ): Promise<void> {
   const provider = resolveImportProvider(ctx);
-  const connector = getConnectorForIntegration(ctx.integrationType);
+  const connector = resolveImportConnector(ctx, resolveImportProvider(ctx));
 
   const externalIds =
     provider !== null
@@ -228,7 +255,7 @@ export async function importDealsFromProvider(
   ctx: SyncContext,
   result: SyncRunResult
 ): Promise<void> {
-  const connector = getConnectorForIntegration(ctx.integrationType);
+  const connector = resolveImportConnector(ctx, resolveImportProvider(ctx));
   const deals = await connector.fetchDeals(ctx);
   result.itemsFetched += deals.length;
 
@@ -256,7 +283,7 @@ export async function importImagesFromProvider(
   ctx: SyncContext,
   result: SyncRunResult
 ): Promise<void> {
-  const connector = getConnectorForIntegration(ctx.integrationType);
+  const connector = resolveImportConnector(ctx, resolveImportProvider(ctx));
   const products = await connector.fetchProducts(ctx);
 
   for (const product of products) {
@@ -298,7 +325,7 @@ export async function importProductsChunked(
   },
 ): Promise<ChunkedImportOutcome> {
   const provider = resolveImportProvider(ctx);
-  const connector = getConnectorForIntegration(ctx.integrationType) as unknown as {
+  const connector = resolveImportConnector(ctx, resolveImportProvider(ctx)) as unknown as {
     fetchProductsChunk?: (
       ctx: SyncContext,
       cursor: AliExpressImportCursor | null,
@@ -385,7 +412,7 @@ export async function importImagesChunked(
     persist?: (cursor: AliExpressImportCursor | null) => Promise<void>;
   },
 ): Promise<ChunkedImportOutcome> {
-  const connector = getConnectorForIntegration(ctx.integrationType) as unknown as {
+  const connector = resolveImportConnector(ctx, resolveImportProvider(ctx)) as unknown as {
     fetchProductsChunk?: (
       ctx: SyncContext,
       cursor: AliExpressImportCursor | null,
@@ -466,7 +493,7 @@ export async function importPricesChunked(
   },
 ): Promise<ChunkedImportOutcome> {
   const provider = resolveImportProvider(ctx);
-  const connector = getConnectorForIntegration(ctx.integrationType);
+  const connector = resolveImportConnector(ctx, resolveImportProvider(ctx));
 
   const externalIds =
     provider !== null

@@ -169,6 +169,7 @@ export async function GET(request: Request) {
           feedsWithProducts: admitad.feedsWithProducts,
           totalProducts: admitad.totalProducts,
           productsSaved: admitad.productsSaved,
+          globalOffersSaved: admitad.globalOffersSaved,
           errors: admitad.errors.slice(0, 10),
           deadlineMs,
         };
