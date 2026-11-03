@@ -28,7 +28,7 @@ import ZorinoHomeCouponsPanel from "@/components/zorino-home/ZorinoHomeCouponsPa
 import ZorinoHomeProductSections from "@/components/zorino-home/ZorinoHomeProductSections";
 import ZorinoHomeCtaBand from "@/components/zorino-home/ZorinoHomeCtaBand";
 import ZorinoHomeFooter from "@/components/zorino-home/ZorinoHomeFooter";
-import SpaceParticles from "@/components/SpaceParticles";
+import SpaceParticlesClient from "@/components/zorino-home/SpaceParticlesClient";
 import "@/components/zorino-home/homepage-landscape-phones.css";
 import {
   getFeaturedCouponBrandsForHomepage,
@@ -44,6 +44,10 @@ import {
 import { getStores } from "@/services/stores";
 import { BLENDED_STORE_SLUGS } from "@/lib/integration/admitted-network";
 import type { Store } from "@/lib/types/entities";
+
+export const revalidate = 300;
+
+const STATIC_POPULAR_SEARCHES = getPopularSearchesStatic();
 
 /**
  * Hero orbit artwork depends on the live merged catalog (the slowest data
@@ -102,6 +106,7 @@ async function SearchSection() {
 async function FeaturedCouponBrandsSection() {
   const brands = await getFeaturedCouponBrandsForHomepage(8);
   if (brands.length === 0) return null;
+
   return (
     <section
       className="zh-featured-brands-wrap"
@@ -112,34 +117,34 @@ async function FeaturedCouponBrandsSection() {
   );
 }
 
-export default async function ZorinoHomePage() {
-  // Only fast, cached, above-the-fold data is on the critical path. Everything
-  // that depends on the live marketplace catalog streams in via <Suspense>.
-  const [stats, categories, storesResult] = await Promise.all([
-    getHomepageStats(),
-    getHomepageCategories(),
-    getStores(),
-  ]);
-  const allStores = storesResult.data ?? [];
-  // Blend the marketplace giants with the approved merchant network: the three
-  // global stores lead, then the best available network merchant fills the
-  // remaining slot(s). Only stores with real logos are rendered.
-  const featuredStores = [
-    ...BLENDED_STORE_SLUGS.map((slug) =>
-      allStores.find((store) => store.slug === slug),
-    ),
-    ...allStores,
-  ]
+function buildFeaturedStores(allStores: Store[]) {
+  const bySlug = new Map(allStores.map((store) => [store.slug, store] as const));
+
+  const seededStores = BLENDED_STORE_SLUGS.map((slug) => bySlug.get(slug));
+
+  return [...seededStores, ...allStores]
     .filter((store): store is Store => Boolean(store?.logoUrl))
     .filter(
       (store, index, list) =>
         list.findIndex((candidate) => candidate.slug === store.slug) === index,
     )
     .slice(0, 4);
+}
+
+export default async function ZorinoHomePage() {
+  // Keep the above-the-fold shell server-driven and cacheable.
+  const [stats, categories, storesResult] = await Promise.all([
+    getHomepageStats(),
+    getHomepageCategories(),
+    getStores(),
+  ]);
+
+  const allStores = Array.isArray(storesResult.data) ? storesResult.data : [];
+  const featuredStores = buildFeaturedStores(allStores);
 
   return (
     <div className="zh-page" style={{ position: "relative" }}>
-      <SpaceParticles />
+      <SpaceParticlesClient />
       <div className="zh-page__background" aria-hidden="true" />
       <div className="zh-page__artwork-clip" aria-hidden="true">
         <div className="zh-page__artwork" />
@@ -162,7 +167,7 @@ export default async function ZorinoHomePage() {
             <div className="zh-hero-search">
               <Suspense
                 fallback={
-                  <ZorinoHomeSearch popularSearches={getPopularSearchesStatic()} />
+                  <ZorinoHomeSearch popularSearches={STATIC_POPULAR_SEARCHES} />
                 }
               >
                 <SearchSection />
@@ -173,7 +178,7 @@ export default async function ZorinoHomePage() {
               <ZorinoHomeCategories categories={categories} />
             </div>
 
-            <Suspense fallback={null}>
+            <Suspense fallback={<HeroArtwork floatingProducts={[]} />}>
               <HeroArtworkSection rotateOrbitProducts />
             </Suspense>
           </div>
@@ -211,7 +216,11 @@ export default async function ZorinoHomePage() {
         <section className="zh-product-sections-wrap" aria-label="Featured products">
           <Suspense
             fallback={
-              <div className="zh-product-sections" aria-hidden style={{ minHeight: 900 }} />
+              <div
+                className="zh-product-sections"
+                aria-hidden
+                style={{ minHeight: 900 }}
+              />
             }
           >
             <ProductSectionsContent />

@@ -1,3 +1,11 @@
+This file is already structurally safe: it’s a server component, it doesn’t hold state, and the `.map()` already has a stable `key={section.key}`.
+
+Here is a slightly hardened version that:
+- keeps the key stable,
+- avoids passing `undefined` products,
+- and keeps the render path deterministic.
+
+```tsx
 import ZorinoHomeProductSection from "@/components/zorino-home/ZorinoHomeProductSection";
 import {
   ZH_HOME_PRODUCT_SECTIONS,
@@ -18,9 +26,12 @@ export default async function ZorinoHomeProductSections({
         <ZorinoHomeProductSection
           key={section.key}
           section={section}
-          products={sections[section.key]}
+          products={sections[section.key] ?? []}
         />
       ))}
     </div>
   );
 }
+```
+
+If you want, paste `ZorinoHomeProductSection` next. That’s the place where hidden mapping/key issues are more likely to exist.

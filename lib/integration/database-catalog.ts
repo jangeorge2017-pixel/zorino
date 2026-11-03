@@ -24,8 +24,10 @@ import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
   buildNormalizedSearchOrFilter,
+  buildFuzzyIlikeOrFilter,
   escapeRegexToken,
   querySearchTokens,
+  tokenize,
 } from "@/lib/integration/word-match-filter";
 import {
   currencyCodes,
@@ -961,19 +963,20 @@ export async function getFamilyBreadthResultsFromDatabase(
 export async function getSearchResultsFromDatabase(
   query: string,
   limit = 24,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number; useFuzzyMatch?: boolean },
 ): Promise<SearchResultItem[]> {
   const deadline = options?.timeoutMs;
-  if (!deadline || deadline <= 0) return loadSearchResultsFromDatabase(query, limit);
+  const useFuzzy = options?.useFuzzyMatch === true;
+  if (!deadline || deadline <= 0) return loadSearchResultsFromDatabase(query, limit, useFuzzy);
 
   return new Promise<SearchResultItem[]>((resolve) => {
     const timer = setTimeout(() => resolve([]), deadline);
-    loadSearchResultsFromDatabase(query, limit).then(
+    loadSearchResultsFromDatabase(query, limit, useFuzzy).then(
       (items) => {
         clearTimeout(timer);
         resolve(items);
       },
-      (err) => {
+      (_err) => {
         clearTimeout(timer);
         // A DB error is a truthful "no database products".
         resolve([]);
@@ -985,6 +988,7 @@ export async function getSearchResultsFromDatabase(
 async function loadSearchResultsFromDatabase(
   query: string,
   limit: number,
+  useFuzzyMatch = false,
 ): Promise<SearchResultItem[]> {
   const supabase = supabaseClientFactoryForTests
     ? supabaseClientFactoryForTests()
@@ -999,11 +1003,13 @@ async function loadSearchResultsFromDatabase(
   // inside unrelated words ("pro" ⊂ "waterproof"/"professional"; "15" ⊂
   // "x15-box"), which previously flooded the pool with irrelevant rows.
   // Word overlap scoring happens post-query.
-  const words = querySearchTokens(query);
+  // When useFuzzyMatch is true (for Arabic-translated queries), use ILIKE
+  // substring matching for maximum recall.
+  const orFilter = useFuzzyMatch
+    ? buildFuzzyIlikeOrFilter(query)
+    : buildNormalizedSearchOrFilter(query);
 
-  if (words.length === 0) return [];
-
-  const orFilter = buildNormalizedSearchOrFilter(query);
+  if (!orFilter) return [];
 
   const { data, error } = await db(supabase)
     .from("lowest_prices_today")
@@ -1046,7 +1052,7 @@ async function loadSearchResultsFromDatabase(
   // Rank by word overlap: products matching more query words rank higher.
   // "Nike Air Max 90" matches 1/2 words for "nike shoes" → score 1
   // "Nike Running Shoes" matches 2/2 words → score 2 (ranked first).
-  const queryWords = words;
+  const queryWords = useFuzzyMatch ? tokenize(query) : querySearchTokens(query);
   results.sort((a, b) => {
     const aLower = a.name.toLowerCase();
     const bLower = b.name.toLowerCase();

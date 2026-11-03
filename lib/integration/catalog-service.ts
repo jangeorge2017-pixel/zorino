@@ -276,7 +276,20 @@ async function getMergedCatalogSnapshot(): Promise<MergedCatalogSnapshot> {
 }
 
 const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> => {
-  if (!HOMEPAGE_LIVE_FETCH_ENABLED) return [];
+  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
+    // Fallback to database catalog when live fetch is disabled (e.g. dev without HOMEPAGE_LIVE_FETCH=1)
+    const { applyCanonicalCatalogIfEnabled } = await import(
+      "@/lib/canonical/consumption/homepage"
+    );
+    const { getCatalogItemsFromDatabase } = await import(
+      "@/lib/integration/database-catalog"
+    );
+    return filterAdmittedCatalogItems(
+      applyCanonicalCatalogIfEnabled(
+        await getCatalogItemsFromDatabase().catch(() => []),
+      ),
+    );
+  }
 
   const { applyCanonicalCatalogIfEnabled } = await import(
     "@/lib/canonical/consumption/homepage"

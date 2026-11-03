@@ -110,9 +110,9 @@ export async function searchProducts(
       ? limitOrOptions.importedOnly
       : maybeOptions?.importedOnly;
   const forceIlike =
-    isPaginatedOptions && (limitOrOptions as any).forceIlike !== undefined
-      ? (limitOrOptions as any).forceIlike
-      : (maybeOptions as any)?.forceIlike === true;
+    isPaginatedOptions && "forceIlike" in limitOrOptions && limitOrOptions.forceIlike !== undefined
+      ? limitOrOptions.forceIlike
+      : maybeOptions?.forceIlike === true;
 
   if (importedOnly !== false && !isPaginatedOptions) {
     const { searchCatalogProducts } = await import("@/lib/marketplace-engine/search");
@@ -202,7 +202,7 @@ export async function searchProducts(
     }
 
     if (sanitized) {
-      let queryFTS = supabase
+      const queryFTS = supabase
         .from("products")
         .select("*", { count: "exact" })
         .eq("is_active", true)
@@ -284,7 +284,7 @@ export async function searchProducts(
   }
 
   if (sanitized) {
-    let ftsQuery = supabase
+    const ftsQuery = supabase
       .from("products")
       .select("*")
       .eq("is_active", true)

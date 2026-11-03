@@ -213,7 +213,7 @@ export async function runDueSyncJobs(
   const SYNC_MIN_JOB_ROOM_MS = 8_000;
   const SYNC_JOB_HARD_CAP_MS = 20_000;
 
-  let attempted = 0;
+  let _attempted = 0;
   let deferred = 0;
   let timedOut = 0;
   let skipped = 0;
@@ -316,7 +316,7 @@ export async function runDueSyncJobs(
     } else if (result) {
       results.push(result);
     }
-    attempted++;
+    _attempted++;
 
     await advanceNextRun(job);
   }

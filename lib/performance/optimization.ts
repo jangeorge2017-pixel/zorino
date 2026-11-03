@@ -301,7 +301,7 @@ export function getOptimizedImageUrl(
   url: string,
   width?: number,
   height?: number,
-  quality: number = 80
+  _quality: number = 80
 ): string {
   // In production, this would use an image optimization service
   // For now, return the original URL

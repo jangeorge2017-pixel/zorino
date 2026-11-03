@@ -51,21 +51,6 @@ const loadTopCouponsCached = unstable_cache(
   { revalidate: 600, tags: ["homepage-coupons"] },
 );
 
-const loadPopularSearchesCached = unstable_cache(
-  async (): Promise<string[]> => {
-    try {
-      const { searchProducts } = await import("@/lib/search/engine");
-      const items = await searchProducts("electronics", 12);
-      const names = items.map((item) => item.name).filter(Boolean);
-      return names.slice(0, 8);
-    } catch (error) {
-      console.error("[homepage] popular searches fetch failed:", error);
-      return [];
-    }
-  },
-  ["homepage:popular-searches-v2"],
-  { revalidate: 900, tags: ["homepage-popular-searches"] },
-);
 const HERO_ORBIT_POSITIONS = [
   "orbit-top",
   "orbit-upper-left",
@@ -364,8 +349,13 @@ export async function getSearchResults(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
+  // Detect and translate Arabic queries to English for searching
+  const { detectAndTranslateArabic } = await import("@/lib/search/translation");
+  const { translatedQuery, wasTranslated } = await detectAndTranslateArabic(trimmed);
+  const searchQuery = translatedQuery || trimmed;
+
   const { searchProductsSurface } = await import("@/lib/canonical/consumption/search");
-  return searchProductsSurface(trimmed, undefined, sort, activeCurrency);
+  return searchProductsSurface(searchQuery, undefined, sort, activeCurrency, wasTranslated);
 }
 
 /** Paged search results for the /search page "Load more" flow. */
@@ -376,8 +366,13 @@ export async function getSearchResultsPage(
   sort?: "relevance" | "price",
   activeCurrency?: CurrencyCode,
 ) {
+  // Detect and translate Arabic queries to English for searching
+  const { detectAndTranslateArabic } = await import("@/lib/search/translation");
+  const { translatedQuery, wasTranslated } = await detectAndTranslateArabic(query.trim());
+  const searchQuery = translatedQuery || query.trim();
+
   const { searchResultsPagedSurface } = await import("@/lib/canonical/consumption/search");
-  return searchResultsPagedSurface(query, offset, limit, sort, activeCurrency);
+  return searchResultsPagedSurface(searchQuery, offset, limit, sort, activeCurrency, wasTranslated);
 }
 
 /** Filter options for search page — derived from live search results across all active providers. */

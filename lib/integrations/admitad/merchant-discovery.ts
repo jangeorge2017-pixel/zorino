@@ -98,7 +98,7 @@ type DiscoveryOptions = {
  * collected —?" never throwing past the caller's deadline.
  */
 export async function discoverAdmitadMerchants(
-  options: DiscoveryOptions = {},
+  _options: DiscoveryOptions = {},
   signal?: AbortSignal,
 ): Promise<MerchantDiscoveryResult> {
   const result: MerchantDiscoveryResult = {

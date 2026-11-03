@@ -157,7 +157,7 @@ class WishlistSystem {
    * Check for price drops and trigger alerts
    */
   async checkPriceAlerts(userId: string): Promise<WishlistItem[]> {
-    const items = await this.getWishlistItems(userId);
+    const _items = await this.getWishlistItems(userId);
     // Price-alert evaluation requires a live product price service.
     // Until that service is wired, do not fabricate alerts.
     return [];

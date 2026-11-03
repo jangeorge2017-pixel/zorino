@@ -15,7 +15,7 @@ import type { AdmitadMerchantProgram } from "./merchant-discovery";
  * exclusion checks and backwards-compatible exports.
  */
 const feedUrl = process.env.ADMITAD_FEED_URL?.trim() || "";
-const enableMultiMerchantDiscovery = process.env.ADMITAD_DISCOVER_MERCHANTS !== "false";
+const _enableMultiMerchantDiscovery = process.env.ADMITAD_DISCOVER_MERCHANTS !== "false";
 
 let discoveryFeeds: AdmitadFeedConfig[] = [];
 let discoveryInitialized = false;

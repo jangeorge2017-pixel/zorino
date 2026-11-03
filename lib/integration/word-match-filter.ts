@@ -18,12 +18,19 @@
  * orthography + digits folded, dashes erased) and EACH canonical token expands
  * to its Arabic spelling variants (ايفون → آيفون/أيفون/إيفون) + plural forms,
  * so a typo/variant URL can no longer hide a provider's matching catalog rows.
+ *
+ * Additionally, this module exports a fuzzy ILIKE filter for maximum recall
+ * when the query has been translated from Arabic (or any case where we want
+ * broad substring matching instead of word-boundary matching).
  */
 
 import {
   expandQueryToken,
   tokenize,
 } from "@/lib/search/text-normalization";
+
+/** Re-export tokenize for external use. */
+export { tokenize } from "@/lib/search/text-normalization";
 
 /** Escape a query token before embedding it in a Postgres regex. */
 export function escapeRegexToken(token: string): string {
@@ -104,4 +111,30 @@ export function buildNormalizedSearchOrFilter(query: string): string {
         `product_name.imatch.\\m(${g.variants.map(escapeRegexToken).join("|")})\\M`,
     )
     .join(",");
+}
+
+/**
+ * Build a PostgREST `or` filter using ILIKE (case-insensitive substring match)
+ * for maximum recall. This matches the translated query term anywhere in the
+ * product_name, not just as a whole word. Used when the original query was
+ * Arabic and we want to cast a wide net to return thousands of products.
+ *
+ * @param query The (already translated) search query
+ * @returns PostgREST `or` filter string using `product_name.ilike.%term%`
+ */
+export function buildFuzzyIlikeOrFilter(query: string): string {
+  const tokens = tokenize(query);
+  if (tokens.length === 0) return "";
+  
+  // Each token becomes an ILIKE %term% clause
+  return tokens
+    .map((token) => `product_name.ilike.%${escapeIlikeToken(token)}%`)
+    .join(",");
+}
+
+/**
+ * Escape a token for use in ILIKE pattern (% and _ are wildcards in ILIKE).
+ */
+function escapeIlikeToken(token: string): string {
+  return token.replace(/[%_\\]/g, "\\$&");
 }

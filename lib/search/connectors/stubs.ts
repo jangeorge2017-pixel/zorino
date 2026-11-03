@@ -14,7 +14,7 @@ import type { SearchProviderId } from "@/lib/search/types";
  *   2. Add the required env vars to Vercel Production Environment Variables
  *   3. The connector will automatically become available on next deployment
  */
-function createEnvGatedStub(
+function _createEnvGatedStub(
   id: SearchProviderId,
   name: string,
   envKeys: string[]

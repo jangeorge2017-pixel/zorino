@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Search, Filter, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -13,6 +13,28 @@ import type { SearchResultItem } from "@/lib/data/homepage";
 import type { SearchPageResult } from "@/lib/search/engine";
 import { mergePagedResults } from "@/lib/search/pagination";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
+
+interface ProductSearchResult {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice: number;
+  imageSrc: string;
+  store: string;
+  storeSlug: string;
+  rating: number;
+  reviewCount: number;
+  category: string;
+  currency: string;
+  countryCode: string;
+  affiliateUrl: string;
+  emoji: string;
+  discount: number;
+  inStock: boolean;
+  salesCount: number;
+  shipping: string;
+  condition: string;
+}
 
 type SearchPageClientProps = {
   initialQuery: string;
@@ -68,6 +90,7 @@ export default function SearchPageClient({
   const [rating, setRating] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState(initialSortBy);
+  const [isSearching, setIsSearching] = useState(false);
 
   const categoryOptions = [
     { value: "", label: t("allCategories") },
@@ -145,11 +168,43 @@ export default function SearchPageClient({
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery.trim()) params.set("q", searchQuery.trim());
-    router.push(`/search?${params.toString()}`);
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    setIsSearching(true);
+    setLoadError(false);
+    try {
+      const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error("search-failed");
+      const data = await res.json();
+      const products = (data.products ?? data ?? []) as ProductSearchResult[];
+      const mapped: SearchResultItem[] = products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        originalPrice: p.originalPrice,
+        imageSrc: p.imageSrc,
+        emoji: p.emoji,
+        discount: p.discount,
+        rating: p.rating,
+        reviewCount: p.reviewCount,
+        salesCount: p.salesCount,
+        store: p.store,
+        storeSlug: p.storeSlug,
+        category: p.category,
+        inStock: p.inStock,
+        affiliateUrl: p.affiliateUrl,
+      }));
+      setItems(mapped);
+      setReceivedCount(mapped.length);
+      setCurrentHasMore(false);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   return (
@@ -248,8 +303,15 @@ export default function SearchPageClient({
               <span className="text-sm text-gray-300">{t("inStockOnly")}</span>
             </label>
 
-            <Button type="submit" className="w-full">
-              {tCommon("filter")}
+            <Button type="submit" className="w-full" disabled={isSearching}>
+              {isSearching ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {tCommon("pleaseWait")}
+                </span>
+              ) : (
+                tCommon("filter")
+              )}
             </Button>
           </form>
         </aside>
@@ -257,11 +319,10 @@ export default function SearchPageClient({
         <div>
           <div className="flex items-center justify-between mb-6">
             <span className="text-gray-400">
-              {total > 0
-                ? t("resultsOfTotal", {
-                    count: filteredResults.length,
-                    total,
-                  })
+              {isSearching
+                ? t("searching")
+                : filteredResults.length === 0 && searchQuery.trim()
+                ? t("noResults")
                 : t("resultsFound", { count: filteredResults.length })}
             </span>
             <Select
@@ -269,6 +330,7 @@ export default function SearchPageClient({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="w-48"
+              disabled={isSearching}
             />
           </div>
 

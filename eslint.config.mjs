@@ -13,7 +13,7 @@ const eslintConfig = defineConfig([
     rules: {
       // Pre-existing codebase debt — keep visible as warnings, don't block deploy.
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/purity": "warn",
       "@next/next/no-img-element": "warn",

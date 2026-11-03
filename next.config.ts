@@ -47,6 +47,24 @@ const nextConfig: NextConfig = {
     // Pin Turbopack root so dev resolves `next` from this app, not a nested lockfile/root.
     root: path.resolve(__dirname),
   },
+  webpack: (config, { dev }) => {
+    if (dev) {
+      // Force chokidar (used by Watchpack) to ignore system folders at the native level
+      // to prevent EINVAL errors on external F: drive
+      config.watchOptions = {
+        ignored: (filePath: string) => {
+          return (
+            filePath.includes("System Volume Information") ||
+            filePath.includes("\\.git\\") ||
+            filePath.includes("/.git/") ||
+            filePath.includes("\\node_modules\\") ||
+            filePath.includes("/node_modules/")
+          );
+        },
+      };
+    }
+    return config;
+  },
   images: {
     remotePatterns: [...PRODUCT_IMAGE_REMOTE_PATTERNS, ...devOnlyImagePatterns],
     formats: ["image/avif", "image/webp"],

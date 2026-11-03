@@ -534,7 +534,7 @@
     "sectionGlobalTitle": "تغطية عالمية",
     "sectionGlobalSubtitle": "أسواق تشحن حول العالم."
   },
-  "search": {
+"search": {
     "title": "نتائج البحث",
     "subtitle": "عرض النتائج لـ",
     "noResults": "لم يتم العثور على نتائج لـ",
@@ -549,7 +549,7 @@
     "filter": "تصفية",
     "allCategories": "كل التصنيفات",
     "allStores": "كل المتاجر",
-    "allRatings": "كل التقييمات",
+    "allRatings": "כל التقييمات",
     "starsPlus": "{n}+ نجوم",
     "rating4Plus": "٤+ نجوم",
     "rating3Plus": "٣+ نجوم",
@@ -560,7 +560,8 @@
     "clear": "مسح",
     "category": "التصنيف",
     "store": "المتجر",
-    "loadMoreError": "تعذر تحميل المزيد من النتائج. حاول مرة أخرى."
+    "loadMoreError": "تعذر تحميل المزيد من النتائج. حاول مرة أخرى.",
+    "searching": "جاري البحث..."
   },
   "product": {
     "title": "تفاصيل المنتج",

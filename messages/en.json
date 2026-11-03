@@ -560,7 +560,8 @@
     "clear": "Clear",
     "category": "Category",
     "store": "Store",
-    "loadMoreError": "Couldn't load more results. Please try again."
+    "loadMoreError": "Couldn't load more results. Please try again.",
+    "searching": "Searching..."
   },
   "product": {
     "title": "Product Details",

@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-import { FloatingProductCard } from "@/lib/types/entities";
-
 interface HeroCardPosition {
   position: "orbit-top" | "orbit-upper-left" | "orbit-upper-right" | "orbit-lower-right";
   key: string;

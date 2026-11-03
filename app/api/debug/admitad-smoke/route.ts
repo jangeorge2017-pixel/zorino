@@ -18,19 +18,19 @@ export async function POST(request: Request) {
     if (!supabase) {
       return NextResponse.json({ error: "Supabase unavailable" }, { status: 503 });
     }
-    const { data: store, error } = await supabase
+    const { data: store, error: storeError } = await supabase
       .from("stores")
       .select("id, slug, integration_type")
       .eq("slug", "ebay")
-      .maybeSingle();
-    if (error || !store) {
-      return NextResponse.json({ error: error?.message ?? "eBay store missing" }, { status: 500 });
+      .maybeSingle<{ id: string; slug: string; integration_type: string }>();
+    if (storeError || !store) {
+      return NextResponse.json({ error: storeError?.message ?? "eBay store missing" }, { status: 500 });
     }
 
     const result = await runSyncJob(
       {
-        storeId: store.id as string,
-        storeSlug: store.slug as string,
+        storeId: store.id,
+        storeSlug: store.slug,
         integrationType: "ebay",
         countryCode: "US",
         currency: "USD",
@@ -45,7 +45,8 @@ export async function POST(request: Request) {
       .select("product_id, store_name, network_name, country_code, price, currency, affiliate_url")
       .eq("store_name", "eBay")
       .order("last_updated", { ascending: false })
-      .limit(1);
+      .limit(1)
+      .returns<{ product_id: string; store_name: string; network_name: string; country_code: string; price: number; currency: string; affiliate_url: string }[]>();
     const offer = offers?.[0] ?? null;
 
     const { data: product } = offer
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
           .from("products")
           .select("id, global_sku, title, main_image, barcode")
           .eq("id", offer.product_id)
-          .maybeSingle()
+          .maybeSingle<{ id: string; global_sku: string; title: string; main_image: string; barcode: string }>()
       : { data: null };
 
     return NextResponse.json({ result, offer, product });

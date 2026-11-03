@@ -1,7 +1,7 @@
 import type { ProductDetail } from "@/lib/data/product-detail";
 import type { CompareProductResult } from "@/services/compare";
 import type { SearchResultItem } from "@/lib/data/homepage";
-import type { Deal, Coupon, Store, Category } from "@/lib/types/entities";
+import type { Deal, Store, Category } from "@/lib/types/entities";
 import type { TopCouponCard } from "@/lib/types/entities";
 import type { MockBlogPost, MockCategoryDetail, MockStoreDetail, MockWishlistItem } from "@/lib/mock/types";
 import { sortCategoriesForCountry } from "@/lib/international/categories";

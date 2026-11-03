@@ -115,7 +115,7 @@ describe("homepage Products counter (Fix 5)", () => {
   });
 
   it("falls back to last-known-good when the DB and catalog are both down", async () => {
-    // Simulate one successful read first (caches the known-good count)...
+    // Simulate one successful read first (caches the known-good count)....
     setSupabaseAnonClientForTests(buildClient({ count: 69_907 }) as never);
     setCatalogFallbackCountForTests(async () => 0);
     expect(await getRealCatalogProductCount()).toBe(69_907);

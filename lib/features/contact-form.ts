@@ -90,7 +90,7 @@ class ContactFormSystem {
   /**
    * Get ticket status
    */
-  async getTicketStatus(ticketId: string): Promise<{ status: string; updatedAt: Date }> {
+  async getTicketStatus(_ticketId: string): Promise<{ status: string; updatedAt: Date }> {
     // In production, query database
     return {
       status: 'pending',

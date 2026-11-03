@@ -57,7 +57,7 @@ export function setCanonicalSearchFetcherForTests(fetcher: CanonicalSearchFetche
   fetcherOverride = fetcher;
 }
 
-async function fetchCanonicalInputs(query: string, capped: number): Promise<{
+async function fetchCanonicalInputs(query: string, capped: number, useFuzzyMatch = false): Promise<{
   liveListings: RawProviderListing[];
   dbItems: SearchResultItem[];
   activeProviders: string[];
@@ -100,7 +100,7 @@ async function fetchCanonicalInputs(query: string, capped: number): Promise<{
 
   const [dbItems, activeProviders] = await Promise.all([
     (await import("@/lib/integration/database-catalog"))
-      .getSearchResultsFromDatabase(query.trim(), capped * 3)
+      .getSearchResultsFromDatabase(query.trim(), capped * 3, { useFuzzyMatch })
       .catch(() => [] as SearchResultItem[]),
     getActiveProductionProviders().catch(() => []),
   ]);
@@ -266,6 +266,7 @@ export async function canonicalSearchProducts(
   limit: number = SEARCH_ENGINE_DEFAULTS.DEFAULT_LIMIT,
   sortBy?: SearchSortMode,
   activeCurrency?: CurrencyCode,
+  useFuzzyMatch = false,
 ): Promise<SearchResultItem[]> {
   const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   if (!isSurfaceEnabled(SURFACE)) {
@@ -276,6 +277,7 @@ export async function canonicalSearchProducts(
       optimizeForDeviceIntent: true,
       sortBy,
       ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
+      ...(useFuzzyMatch ? { useFuzzyMatch } : {}),
     });
   }
 
@@ -284,12 +286,12 @@ export async function canonicalSearchProducts(
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
 
   const sort = sortBy ?? "relevance";
-  const cacheKey = `canonical-search:${trimmed.toLowerCase()}:${capped}:sort:${sort}:cur:${guardCurrency}`;
+  const cacheKey = `canonical-search:${trimmed.toLowerCase()}:${capped}:sort:${sort}:cur:${guardCurrency}:fuzzy:${useFuzzyMatch}`;
   const cached = canSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.items.slice(0, capped);
 
   try {
-    const inputs = await fetchCanonicalInputs(trimmed, capped);
+    const inputs = await fetchCanonicalInputs(trimmed, capped, useFuzzyMatch);
     const pooled = assembleCanonicalSearchPool({
       ...inputs,
       query: trimmed,
@@ -304,6 +306,7 @@ export async function canonicalSearchProducts(
       optimizeForDeviceIntent: true,
       sortBy: sort,
       ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
+      ...(useFuzzyMatch ? { useFuzzyMatch } : {}),
     });
   }
 }
@@ -314,13 +317,14 @@ export async function searchProductsSurface(
   limit?: number,
   sortBy?: SearchSortMode,
   activeCurrency?: CurrencyCode,
+  useFuzzyMatch = false,
 ): Promise<SearchResultItem[]> {
   // Guard math defaults to USD (classic engine behavior); DISPLAY honors the
   // visitor's active currency, falling back to the EGP legacy when no currency
   // context is supplied (homepage/compare/category callers pass none today).
   const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   const displayCurrency: CurrencyCode = activeCurrency ?? DISPLAY_CURRENCY;
-  const items = await canonicalSearchProducts(query, limit, sortBy, guardCurrency);
+  const items = await canonicalSearchProducts(query, limit, sortBy, guardCurrency, useFuzzyMatch);
   // Display seam: convert source currency to the visitor's ACTIVE currency so
   // formatPrice() (which is called WITHOUT fromCurrency) renders the real
   // number, not raw digits wearing a mismatched label. Engine/pool math keeps
@@ -353,6 +357,7 @@ export async function searchResultsPagedSurface(
   limit: number = SEARCH_ENGINE_DEFAULTS.PAGE_SIZE,
   sortBy?: SearchSortMode,
   activeCurrency?: CurrencyCode,
+  useFuzzyMatch = false,
 ): Promise<SearchPageResult> {
   const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   const displayCurrency: CurrencyCode = activeCurrency ?? DISPLAY_CURRENCY;
@@ -362,6 +367,7 @@ export async function searchResultsPagedSurface(
       optimizeForDeviceIntent: true,
       sortBy,
       ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
+      ...(useFuzzyMatch ? { useFuzzyMatch } : {}),
     });
     return { ...page, items: toDisplayCurrency(page.items, displayCurrency) };
   }

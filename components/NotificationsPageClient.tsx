@@ -16,7 +16,6 @@ import {
   ShoppingBag,
   AlertCircle,
   Star,
-  User,
   Flame,
   DollarSign,
 } from "lucide-react";

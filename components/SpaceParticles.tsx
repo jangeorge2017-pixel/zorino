@@ -1,114 +1,56 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  opacity: number;
-  twinkleSpeed: number;
-  twinklePhase: number;
-  color: string;
-}
-
-const colors = [
-  "rgba(255, 255, 255, 1)",
-  "rgba(173, 216, 230, 1)",
-  "rgba(135, 206, 250, 1)",
-  "rgba(176, 224, 230, 1)",
-];
+'use client';
+import React, { useEffect, useRef } from 'react';
 
 export default function SpaceParticles() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
-    let particles: Particle[] = [];
-
-    const resizeCanvas = () => {
+    let animId: number;
+    const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
+    window.addEventListener('resize', resize);
+    resize();
 
-    const createParticles = () => {
-      particles = [];
-      const particleCount = Math.floor(Math.random() * 21) + 50; // 50-70 particles
-      for (let i = 0; i < particleCount; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.15,
-          vy: (Math.random() - 0.5) * 0.15,
-          radius: Math.random() * 1.2 + 0.3,
-          opacity: Math.random() * 0.6 + 0.3,
-          twinkleSpeed: Math.random() * 0.02 + 0.01,
-          twinklePhase: Math.random() * Math.PI * 2,
-          color: colors[Math.floor(Math.random() * colors.length)],
-        });
-      }
-    };
+    // High contrast stars: White, Cyan, Yellow Gold
+    const stars = Array.from({ length: 90 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 3 + 1.5,
+      color: ['#ffffff', '#22d3ee', '#facc15'][Math.floor(Math.random() * 3)],
+      phase: Math.random() * Math.PI * 2,
+      speed: Math.random() * 0.04 + 0.02
+    }));
 
-    const animate = () => {
+    const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach((particle) => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        particle.twinklePhase += particle.twinkleSpeed;
-
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
-
-        const twinkleOpacity = particle.opacity * (0.6 + Math.sin(particle.twinklePhase) * 0.4);
-        
+      stars.forEach(s => {
+        s.phase += s.speed;
+        // Fast, highly-visible high-contrast neon twinkling
+        const alpha = (Math.sin(s.phase) + 1) / 2 * 0.7 + 0.3;
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = alpha;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = s.color;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color.replace("1)", `${twinkleOpacity})`);
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
         ctx.fill();
       });
-
-      animationFrameId = requestAnimationFrame(animate);
+      animId = requestAnimationFrame(draw);
     };
-
-    resizeCanvas();
-    createParticles();
-    animate();
-
-    window.addEventListener("resize", () => {
-      resizeCanvas();
-      createParticles();
-    });
+    draw();
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animId);
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
-      aria-hidden="true"
-    />
-  );
+  return <canvas ref={canvasRef} className="fixed inset-0 block w-full h-full pointer-events-none mix-blend-screen opacity-90" style={{ zIndex: -1 }} />;
 }

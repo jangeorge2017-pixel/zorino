@@ -51,7 +51,7 @@ export class CJdropshippingProvider extends BaseConnector {
     return products;
   }
 
-  async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {
+  async fetchDeals(_ctx: SyncContext): Promise<ExternalDeal[]> {
     return [];
   }
 

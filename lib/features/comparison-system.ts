@@ -219,7 +219,7 @@ class ComparisonSystem {
     return 1 - (product.price - priceComparison.lowestPrice) / range;
   }
 
-  private calculateRatingScore(product: any, ratingComparison: any): number {
+  private calculateRatingScore(product: any, _ratingComparison: any): number {
     if (!product.rating) return 0;
     return product.rating / 5; // Assuming 5-star rating system
   }

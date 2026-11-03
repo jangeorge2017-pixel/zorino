@@ -249,7 +249,7 @@ export class AliExpressAffiliateClient {
     return dedupeById(all);
   }
 
-  async getProductsByIds(ids: string[], currency: string): Promise<AliExpressRawProduct[]> {
+  async getProductsByIds(ids: string[], _currency: string): Promise<AliExpressRawProduct[]> {
     if (ids.length === 0) return [];
 
     const batch = await this.call<{

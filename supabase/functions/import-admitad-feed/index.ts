@@ -184,7 +184,7 @@ async function processBatch(
   return processed;
 }
 
-serve(async (req: Request) => {
+serve(async (_req: Request) => {
   try {
     const ADMITAD_CSV_URL = Deno.env.get('ADMITAD_CSV_URL');
     

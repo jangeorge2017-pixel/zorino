@@ -215,7 +215,7 @@ export function mergeDbSupplementExactFirst(
 }
 
 /**
- * Search-pool DB supplement: query the canonical/imported ZORINO inventory the
+ * DB supplement: query the canonical/imported ZORINO inventory the
  * Categories already use. Runs the exact query AND the family retrieval
  * keyword in parallel behind the same hard deadline the live providers race,
  * so a slow DB read can never hold the whole search hostage.
@@ -224,6 +224,7 @@ async function fetchDbSupplementForSearch(
   query: string,
   cachedLimit: number,
   familyKeyword: string | undefined,
+  useFuzzyMatch = false,
 ): Promise<SearchResultItem[]> {
   const limit = cachedLimit * 3;
   const loadDbCatalog = () => import("@/lib/integration/database-catalog");
@@ -231,6 +232,7 @@ async function fetchDbSupplementForSearch(
     mod
       .getSearchResultsFromDatabase(query, limit, {
         timeoutMs: providerFetchTimeoutMs,
+        useFuzzyMatch,
       })
       .catch(() => [] as SearchResultItem[]),
   );
@@ -239,6 +241,7 @@ async function fetchDbSupplementForSearch(
         mod
           .getSearchResultsFromDatabase(familyKeyword, limit, {
             timeoutMs: providerFetchTimeoutMs,
+            useFuzzyMatch,
           })
           .catch(() => [] as SearchResultItem[]),
       )
@@ -535,6 +538,7 @@ export async function searchProducts(
     optimizeForDeviceIntent?: boolean;
     sortBy?: SearchSortMode;
     activeCurrency?: CurrencyCode;
+    useFuzzyMatch?: boolean;
   },
 ): Promise<SearchResultItem[]> {
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
@@ -544,6 +548,7 @@ export async function searchProducts(
   const optimizeForDeviceIntent = options?.optimizeForDeviceIntent === true;
   const sortBy: SearchSortMode = options?.sortBy ?? "relevance";
   const activeCurrency: CurrencyCode = options?.activeCurrency ?? "USD";
+  const useFuzzyMatch = options?.useFuzzyMatch === true;
   // Separate cache namespaces per mode + sort so a price-sorted pool can never
   // be served to (or evict) the relevance pool for the same query. The ACTIVE
   // currency is part of the key too: the strict device floor lives in the
@@ -551,7 +556,7 @@ export async function searchProducts(
   // an EGP-mode visitor who may legitimately hold different inventory.
   const cacheKey = `prod-v20-device-pool:${trimmed.toLowerCase()}:${capped}${
     optimizeForDeviceIntent ? ":device-opt" : ""
-  }:sort:${sortBy}:cur:${activeCurrency}`;
+  }:sort:${sortBy}:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -595,7 +600,8 @@ export async function searchProducts(
     }),
     // DB supplement: exact query first, then the canonical family keyword, so
     // Search reaches the same imported/canonical inventory the Categories show.
-    fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword),
+    // Use fuzzy ILIKE matching for Arabic-translated queries to maximize recall.
+    fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword, useFuzzyMatch),
     getActiveProductionProviders(),
   ]);
 
@@ -874,6 +880,7 @@ export async function searchProductsPaged(
     optimizeForDeviceIntent?: boolean;
     sortBy?: SearchSortMode;
     activeCurrency?: CurrencyCode;
+    useFuzzyMatch?: boolean;
   }
 ): Promise<SearchPageResult> {
   const trimmed = query.trim();
@@ -895,6 +902,7 @@ export async function searchProductsPaged(
     options?.optimizeForDeviceIntent === true &&
     analyzeSearchQueryIntent(trimmed).kind === "device";
   const searchCurrency = options?.activeCurrency ?? "USD";
+  const useFuzzyMatch = options?.useFuzzyMatch === true;
   const deviceLeg = deviceIntent
     ? { query: trimmed, activeCurrency: searchCurrency }
     : undefined;
@@ -904,7 +912,7 @@ export async function searchProductsPaged(
     searchProducts(
       trimmed,
       SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
-      options
+      { ...options, useFuzzyMatch }
     ),
     dbModule.then((m) =>
       m.countSearchResultsFromDatabase(trimmed, {
