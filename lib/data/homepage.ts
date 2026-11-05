@@ -349,9 +349,9 @@ export async function getSearchResults(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  // Detect and translate Arabic queries to English for searching
-  const { detectAndTranslateArabic } = await import("@/lib/search/translation");
-  const { translatedQuery, wasTranslated } = await detectAndTranslateArabic(trimmed);
+  // Detect and translate Arabic/Franco-Arab queries to English for searching
+  const { translateSearchQuery } = await import("@/lib/search/query-translation");
+  const { translatedQuery, wasTranslated } = await translateSearchQuery(trimmed);
   const searchQuery = translatedQuery || trimmed;
 
   const { searchProductsSurface } = await import("@/lib/canonical/consumption/search");
@@ -366,9 +366,9 @@ export async function getSearchResultsPage(
   sort?: "relevance" | "price",
   activeCurrency?: CurrencyCode,
 ) {
-  // Detect and translate Arabic queries to English for searching
-  const { detectAndTranslateArabic } = await import("@/lib/search/translation");
-  const { translatedQuery, wasTranslated } = await detectAndTranslateArabic(query.trim());
+  // Detect and translate Arabic/Franco-Arab queries to English for searching
+  const { translateSearchQuery } = await import("@/lib/search/query-translation");
+  const { translatedQuery, wasTranslated } = await translateSearchQuery(query.trim());
   const searchQuery = translatedQuery || query.trim();
 
   const { searchResultsPagedSurface } = await import("@/lib/canonical/consumption/search");

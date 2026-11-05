@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
-import { detectAndTranslateArabic } from "@/lib/search/translation";
+import { translateSearchQuery } from "@/lib/search/query-translation";
 
 export const maxDuration = 30;
 
@@ -14,12 +14,12 @@ export async function GET(req: NextRequest) {
   }
 
   const trimmed = q.trim();
-  const { translatedQuery, isArabic: isArabicQuery } = await detectAndTranslateArabic(trimmed);
+  const { translatedQuery, isArabic: isArabicQuery, isFrancoArab } = await translateSearchQuery(trimmed);
 
   const searchQuery = translatedQuery || trimmed;
 
-  if (isArabicQuery) {
-    console.log(`[search] Arabic query "${trimmed}" translated to "${searchQuery}"`);
+  if (isArabicQuery || isFrancoArab) {
+    console.log(`[search] ${isArabicQuery ? "Arabic" : "Franco-Arab"} query "${trimmed}" translated to "${searchQuery}"`);
   }
 
   const supabase = createSupabaseAnonClient();
@@ -41,6 +41,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     products: data ?? [],
     total: count ?? 0,
-    translated: isArabicQuery ? searchQuery : null,
+    translated: (isArabicQuery || isFrancoArab) ? searchQuery : null,
   });
 }

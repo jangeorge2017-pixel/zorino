@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
-import { detectAndTranslateArabic } from "@/lib/search/translation";
+import { translateSearchQuery } from "@/lib/search/query-translation";
 
 interface ProductRow { id: string; name: string; price: number; original_price: number; image_url: string; store: string; store_slug: string; rating: number; review_count: number; category: string; currency: string; country_code: string; affiliate_url: string; }
 
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   if (!rawQuery) return NextResponse.json([]);
 
   const q = decodeURIComponent(rawQuery);
-  const { translatedQuery } = await detectAndTranslateArabic(q);
+  const { translatedQuery } = await translateSearchQuery(q);
   const searchQuery = translatedQuery || q;
 
   const supabase = createSupabaseAnonClient();
