@@ -1,0 +1,25 @@
+name: Automate TestSprite Merges
+on:
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  auto-approve-and-merge:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.user.login, 'testsprite') || contains(github.event.pull_request.head.ref, 'testsprite')
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Approve Pull Request
+        uses: hmarr/auto-approve-action@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge Pull Request
+        uses: pascalgn/automerge-action@v0.16.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_METHOD: "squash"
+          MERGE_LABELS: ""
+          MERGE_FILTER_AUTHOR: ""

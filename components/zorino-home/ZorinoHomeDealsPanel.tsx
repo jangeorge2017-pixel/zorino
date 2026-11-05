@@ -61,6 +61,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   const [store, setStore] = useState<string>("all");
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const enrichedDeals = useMemo(() => enrichTrendingDeals(deals), [deals]);
 
@@ -92,17 +93,15 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
     setCanScrollRight(canScrollNext);
   }, []);
 
-  useLayoutEffect(() => {
-    syncButtons();
-  }, [visibleDeals.length, syncButtons]);
-
   useEffect(() => {
+    setMounted(true);
     syncButtons();
     window.addEventListener("resize", syncButtons);
     return () => window.removeEventListener("resize", syncButtons);
   }, [visibleDeals.length, syncButtons]);
 
   useEffect(() => {
+    if (!mounted) return;
     const node = trackRef.current;
     if (!node) return;
     const id = window.requestAnimationFrame(() => syncButtons());
@@ -111,7 +110,12 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
       window.cancelAnimationFrame(id);
       detach();
     };
-  }, [visibleDeals.length, syncButtons]);
+  }, [visibleDeals.length, syncButtons, mounted]);
+
+  useLayoutEffect(() => {
+    if (!mounted) return;
+    syncButtons();
+  }, [visibleDeals.length, syncButtons, mounted]);
 
   /*
    * Filter/sort are synchronous computations over already-loaded deals —
@@ -236,7 +240,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
             type="button"
             className="zh-trending-deals__nav zh-trending-deals__nav--prev"
             aria-label={t("prevDeals")}
-            disabled={!canScrollLeft}
+            disabled={!mounted || !canScrollLeft}
             onClick={() => scroll(-1)}
           >
             <ChevronLeft size={18} />
@@ -274,7 +278,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
               type="button"
               className="zh-trending-deals__nav zh-trending-deals__nav--next"
               aria-label={t("nextDeals")}
-              disabled={!canScrollRight}
+              disabled={!mounted || !canScrollRight}
               onClick={() => scroll(1)}
             >
               <ChevronRight size={22} strokeWidth={2.75} />

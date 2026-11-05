@@ -126,6 +126,7 @@ export default function ZorinoHomeFeaturedCouponBrands({
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const syncButtons = useCallback(() => {
     const node = trackRef.current;
@@ -135,17 +136,15 @@ export default function ZorinoHomeFeaturedCouponBrands({
     setCanScrollRight(canScrollNext);
   }, []);
 
-  useLayoutEffect(() => {
-    syncButtons();
-  }, [brands.length, syncButtons]);
-
   useEffect(() => {
+    setMounted(true);
     syncButtons();
     window.addEventListener("resize", syncButtons);
     return () => window.removeEventListener("resize", syncButtons);
   }, [brands.length, syncButtons]);
 
   useEffect(() => {
+    if (!mounted) return;
     const node = trackRef.current;
     if (!node) return;
     const id = window.requestAnimationFrame(() => syncButtons());
@@ -154,7 +153,12 @@ export default function ZorinoHomeFeaturedCouponBrands({
       window.cancelAnimationFrame(id);
       detach();
     };
-  }, [brands.length, syncButtons]);
+  }, [brands.length, syncButtons, mounted]);
+
+  useLayoutEffect(() => {
+    if (!mounted) return;
+    syncButtons();
+  }, [brands.length, syncButtons, mounted]);
 
   const scroll = (direction: -1 | 1) => {
     const node = trackRef.current;
@@ -182,7 +186,7 @@ export default function ZorinoHomeFeaturedCouponBrands({
           type="button"
           className="zh-featured-brands__nav zh-featured-brands__nav--prev"
           aria-label={t("prevBrands")}
-          disabled={!canScrollLeft}
+          disabled={!mounted || !canScrollLeft}
           onClick={() => scroll(-1)}
         >
           <ChevronLeft size={18} />
@@ -199,7 +203,7 @@ export default function ZorinoHomeFeaturedCouponBrands({
             type="button"
             className="zh-featured-brands__nav zh-featured-brands__nav--next"
             aria-label={t("nextBrands")}
-            disabled={!canScrollRight}
+            disabled={!mounted || !canScrollRight}
             onClick={() => scroll(1)}
           >
             <ChevronRight size={22} strokeWidth={2.75} />
