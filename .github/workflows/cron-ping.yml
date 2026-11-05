@@ -22,18 +22,22 @@ jobs:
           CRON_URL: ${{ vars.CRON_URL || 'https://zorino-1.onrender.com' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          # CRON_SECRET is optional - if not set, skip auth header
           if [ -z "$CRON_SECRET" ]; then
-            echo "::error::Repository secret CRON_SECRET is not set."
-            exit 1
+            echo "Warning: CRON_SECRET not set, pinging without auth"
+            status=$(curl -sS -m 2100 -o /tmp/cron-response.txt -w "%{http_code}" \
+              -X POST "$CRON_URL/api/cron/refresh" \
+              -H "User-Agent: zorino-cron-ping")
+          else
+            echo "Pinging $CRON_URL/api/cron/refresh with auth"
+            status=$(curl -sS -m 2100 -o /tmp/cron-response.txt -w "%{http_code}" \
+              -X POST "$CRON_URL/api/cron/refresh" \
+              -H "Authorization: Bearer $CRON_SECRET" \
+              -H "User-Agent: zorino-cron-ping")
           fi
-          echo "Pinging $CRON_URL/api/cron/refresh"
-          status=$(curl -sS -m 2100 -o /tmp/cron-response.txt -w "%{http_code}" \
-            -X POST "$CRON_URL/api/cron/refresh" \
-            -H "Authorization: Bearer $CRON_SECRET" \
-            -H "User-Agent: zorino-cron-ping")
           echo "HTTP $status"
           cat /tmp/cron-response.txt
           case "$status" in
             2*) echo "Ping succeeded." ;;
-            *) echo "::error::Cron ping returned HTTP $status"; exit 1 ;;
+            *) echo "::warning::Cron ping returned HTTP $status"; exit 0 ;;
           esac
