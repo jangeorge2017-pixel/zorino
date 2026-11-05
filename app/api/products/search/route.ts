@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
+import { detectAndTranslateArabic } from "@/lib/search/translation";
 
 interface ProductRow { id: string; name: string; price: number; original_price: number; image_url: string; store: string; store_slug: string; rating: number; review_count: number; category: string; currency: string; country_code: string; affiliate_url: string; }
 
@@ -8,13 +9,8 @@ export async function GET(req: NextRequest) {
   if (!rawQuery) return NextResponse.json([]);
 
   const q = decodeURIComponent(rawQuery);
-  const isArabic = /[\u0600-\u06FF]/.test(q);
-  let searchQuery = q;
-  if (isArabic) {
-    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(q)}`);
-    const data = await res.json();
-    searchQuery = data[0]?.[0]?.[0] || q;
-  }
+  const { translatedQuery } = await detectAndTranslateArabic(q);
+  const searchQuery = translatedQuery || q;
 
   const supabase = createSupabaseAnonClient();
   if (!supabase) return NextResponse.json([]);

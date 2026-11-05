@@ -1,45 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
-
-const GOOGLE_TRANSLATE_API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY;
-const GOOGLE_TRANSLATE_URL = "https://translation.googleapis.com/language/translate/v2";
-
-function isArabic(text: string): boolean {
-  return /[\u0600-\u06FF]/.test(text);
-}
-
-async function translateToEnglish(text: string): Promise<string> {
-  if (!GOOGLE_TRANSLATE_API_KEY) {
-    console.warn("[search] GOOGLE_TRANSLATE_API_KEY not configured, using original text");
-    return text;
-  }
-
-  try {
-    const params = new URLSearchParams({
-      q: text,
-      target: "en",
-      source: "ar",
-      key: GOOGLE_TRANSLATE_API_KEY,
-    });
-
-    const response = await fetch(`${GOOGLE_TRANSLATE_URL}?${params.toString()}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      signal: AbortSignal.timeout(8000),
-    });
-
-    if (!response.ok) {
-      console.error(`[search] Google Translate error: ${response.status}`);
-      return text;
-    }
-
-    const data = await response.json();
-    return data.data?.translations?.[0]?.translatedText ?? text;
-  } catch (error) {
-    console.error("[search] Translation failed:", error);
-    return text;
-  }
-}
+import { detectAndTranslateArabic } from "@/lib/search/translation";
 
 export const maxDuration = 30;
 
@@ -53,11 +14,11 @@ export async function GET(req: NextRequest) {
   }
 
   const trimmed = q.trim();
-  const isArabicQuery = isArabic(trimmed);
+  const { translatedQuery, isArabic: isArabicQuery } = await detectAndTranslateArabic(trimmed);
 
-  let searchQuery = trimmed;
+  const searchQuery = translatedQuery || trimmed;
+
   if (isArabicQuery) {
-    searchQuery = await translateToEnglish(trimmed);
     console.log(`[search] Arabic query "${trimmed}" translated to "${searchQuery}"`);
   }
 
