@@ -168,17 +168,36 @@ export default function SearchPageClient({
     }
   };
 
+  // Sanitize filter values - strip any garbage like "Issues"
+  const sanitizeFilter = (value: string): string => {
+    if (!value) return "";
+    // Rating should only be "", "2", "3", "4"
+    if (["", "2", "3", "4"].includes(value)) return value;
+    // If it contains "Issues" or non-numeric garbage, reset to empty
+    if (/[^0-9]/.test(value) || value.toLowerCase().includes("issue")) return "";
+    return value;
+  };
+
+  // Sanitize rating onChange - prevent garbage like "65 Issues" from being set
+  const handleRatingChange = (value: string) => {
+    if (["", "2", "3", "4"].includes(value)) {
+      setRating(value);
+    } else if (!value || /[^0-9]/.test(value) || value.toLowerCase().includes("issue")) {
+      setRating("");
+    }
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const query = searchQuery.trim();
     if (!query) return;
 
-    // Reset all filter state on new search to prevent stale values
+    // Reset and sanitize all filter state on new search
     setSelectedCategory("");
     setSelectedStore("");
     setMinPrice("");
     setMaxPrice("");
-    setRating("");
+    setRating(sanitizeFilter(rating));
     setInStockOnly(false);
 
     setIsSearching(true);
@@ -298,7 +317,7 @@ export default function SearchPageClient({
               label={t("rating")}
               options={ratingOptions}
               value={rating}
-              onChange={(e) => setRating(e.target.value)}
+              onChange={(e) => handleRatingChange(e.target.value)}
             />
 
             <label className="flex items-center gap-2 cursor-pointer">
