@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import {
   Bell,
@@ -37,7 +38,12 @@ export default function SiteNav() {
     <header className="zor-nav" data-sticky-chrome="primary">
       <div className="zor-nav__inner">
         <Link href="/" className="zor-nav__logo">
-          <img src={ZORINO_LOGO_SOURCE} alt="ZORINO" width={118} height={40} />
+          <Image
+            src={ZORINO_LOGO_SOURCE}
+            alt="ZORINO"
+            width={118}
+            height={40}
+          />
           <span className="zor-nav__tagline">{tHero("title")}</span>
         </Link>
 
@@ -91,7 +97,12 @@ export default function SiteNav() {
           >
             <span className="zor-nav__avatar-ring" aria-hidden />
             {user?.avatar ? (
-              <img src={user.avatar} alt="" width={32} height={32} />
+              <Image
+                src={user.avatar}
+                alt=""
+                width={32}
+                height={32}
+              />
             ) : (
               <span className="zor-nav__profile-fallback" aria-hidden>
                 <User size={18} />

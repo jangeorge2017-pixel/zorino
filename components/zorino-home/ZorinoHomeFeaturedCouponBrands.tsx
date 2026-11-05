@@ -8,6 +8,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import {
@@ -75,12 +76,13 @@ function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
 
       <div className="zh-brand-card__logo-wrap">
         {!logoFailed && logoSrc ? (
-          <img
+          <Image
             src={logoSrc}
             alt={brand.name}
             className="zh-brand-card__logo"
+            fill
+            sizes="60px"
             loading="lazy"
-            decoding="async"
             onError={() => setLogoFailed(true)}
           />
         ) : (

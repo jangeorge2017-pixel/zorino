@@ -66,7 +66,16 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    remotePatterns: [...PRODUCT_IMAGE_REMOTE_PATTERNS, ...devOnlyImagePatterns],
+    remotePatterns: [
+      ...PRODUCT_IMAGE_REMOTE_PATTERNS,
+      ...devOnlyImagePatterns,
+      // OAuth avatar providers
+      { protocol: "https" as const, hostname: "lh3.googleusercontent.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "platform-lookaside.fbsbx.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "graph.facebook.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "secure.gravatar.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "gravatar.com", pathname: "/**" },
+    ],
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85, 92],
   },

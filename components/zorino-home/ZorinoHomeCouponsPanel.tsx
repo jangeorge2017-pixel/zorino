@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Check, CheckCircle, Copy, Flame, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
@@ -50,13 +51,12 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
   return (
     <article className="zh-coupon">
       <div className="zh-coupon__logo">
-        <img
+        <Image
           src={logoSrc}
           alt={coupon.store}
           width={60}
           height={60}
           loading="lazy"
-          decoding="async"
           sizes="60px"
           onError={(e) => {
             // Keep the square empty — do not swap in AM/NO letter placeholders.
