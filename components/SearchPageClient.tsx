@@ -267,6 +267,7 @@ export default function SearchPageClient({
                 setInStockOnly(false);
               }}
             >
+              {/* Force static label only - prevent any dynamic garbage */}
               {tCommon("clear")}
             </Button>
           </div>
@@ -331,6 +332,7 @@ export default function SearchPageClient({
             </label>
 
             <Button type="submit" className="w-full" disabled={isSearching}>
+              {/* Force static label only - prevent any dynamic garbage like "65 Issues" */}
               {isSearching ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
