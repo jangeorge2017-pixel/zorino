@@ -173,6 +173,14 @@ export default function SearchPageClient({
     const query = searchQuery.trim();
     if (!query) return;
 
+    // Reset all filter state on new search to prevent stale values
+    setSelectedCategory("");
+    setSelectedStore("");
+    setMinPrice("");
+    setMaxPrice("");
+    setRating("");
+    setInStockOnly(false);
+
     setIsSearching(true);
     setLoadError(false);
     try {
