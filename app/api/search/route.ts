@@ -14,12 +14,13 @@ export async function GET(req: NextRequest) {
   }
 
   const trimmed = q.trim();
-  const { translatedQuery, isArabic: isArabicQuery, isFrancoArab } = await translateSearchQuery(trimmed);
+  const { translatedQuery, isArabic, isFrancoArab } = await translateSearchQuery(trimmed);
 
   const searchQuery = translatedQuery || trimmed;
+  const wasTranslated = isArabic || isFrancoArab;
 
-  if (isArabicQuery || isFrancoArab) {
-    console.log(`[search] ${isArabicQuery ? "Arabic" : "Franco-Arab"} query "${trimmed}" translated to "${searchQuery}"`);
+  if (wasTranslated) {
+    console.log(`[search] ${isArabic ? "Arabic" : "Franco-Arab"} query "${trimmed}" translated to "${searchQuery}"`);
   }
 
   const supabase = createSupabaseAnonClient();
@@ -27,11 +28,28 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
   }
 
-  const { data, error, count } = await supabase
+  // Primary search with translated query
+  let { data, error, count } = await supabase
     .from("products")
     .select("*", { count: "exact" })
     .ilike("title", `%${searchQuery}%`)
     .limit(limit);
+
+  // Fallback: if translated search returns no results and query was translated,
+  // search with original query using ilike
+  const hasData = Array.isArray(data) && data.length > 0;
+  if (!hasData && wasTranslated && searchQuery !== trimmed) {
+    const fallback = await supabase
+      .from("products")
+      .select("*", { count: "exact" })
+      .ilike("title", `%${trimmed}%`)
+      .limit(limit);
+    if (!fallback.error && fallback.data && fallback.data.length > 0) {
+      data = fallback.data;
+      count = fallback.count;
+      error = null;
+    }
+  }
 
   if (error) {
     console.error("[search] Supabase error:", error);
@@ -41,6 +59,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     products: data ?? [],
     total: count ?? 0,
-    translated: (isArabicQuery || isFrancoArab) ? searchQuery : null,
+    translated: wasTranslated ? searchQuery : null,
   });
 }

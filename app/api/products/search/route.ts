@@ -9,13 +9,29 @@ export async function GET(req: NextRequest) {
   if (!rawQuery) return NextResponse.json([]);
 
   const q = decodeURIComponent(rawQuery);
-  const { translatedQuery } = await translateSearchQuery(q);
+  const { translatedQuery, isArabic, isFrancoArab } = await translateSearchQuery(q);
   const searchQuery = translatedQuery || q;
+  const wasTranslated = isArabic || isFrancoArab;
 
   const supabase = createSupabaseAnonClient();
   if (!supabase) return NextResponse.json([]);
 
-  const { data } = await supabase.from("products").select("*").ilike("title", `%${searchQuery}%`).limit(20);
+  // Primary search with translated query
+  let { data } = await supabase.from("products").select("*").ilike("title", `%${searchQuery}%`).limit(20);
+
+  // Fallback: if translated search returns no results and query was translated,
+  // search with original query using forceIlike (case-insensitive)
+  const hasData = Array.isArray(data) && data.length > 0;
+  if (!hasData && wasTranslated && searchQuery !== q) {
+    const { data: fallbackData } = await supabase
+      .from("products")
+      .select("*")
+      .ilike("title", `%${q}%`)
+      .limit(20);
+    if (fallbackData && fallbackData.length > 0) {
+      data = fallbackData;
+    }
+  }
 
   return NextResponse.json((data || []).map((p: ProductRow) => ({
     id: p.id, name: p.name, price: p.price, originalPrice: p.original_price,
