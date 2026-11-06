@@ -56,6 +56,30 @@ function filterMockByQuery(catalog: typeof MOCK_CATALOG, query: string): typeof 
   return catalog.filter(p => p.name.toLowerCase().includes(lowerQuery));
 }
 
+function sanitizeRating(value: string): number | null {
+  if (!value) return null;
+  const parsed = parseInt(value, 10);
+  if (isNaN(parsed) || ![2, 3, 4].includes(parsed)) return null;
+  return parsed;
+}
+
+function sanitizePrice(value: string): number | null {
+  if (!value) return null;
+  const parsed = parseFloat(value);
+  if (isNaN(parsed) || parsed < 0) return null;
+  return parsed;
+}
+
+function sanitizeString(value: string): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  // Reject garbage like "Issues" or non-alphanumeric corruption
+  if (trimmed.toLowerCase().includes("issue")) return null;
+  if (/[^a-zA-Z0-9\s\-_]/.test(trimmed)) return null;
+  return trimmed;
+}
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const rawQuery = url.searchParams.get("q")?.trim() || "";
@@ -69,6 +93,13 @@ export async function GET(req: NextRequest) {
 
   console.log(`[search] "${q}" → "${searchQuery}" (arabic: ${isArabic}, franco: ${isFrancoArab})`);
 
+  // Extract and strictly validate filter params - omit entirely if invalid
+  const rating = sanitizeRating(url.searchParams.get("rating") || "");
+  const minPrice = sanitizePrice(url.searchParams.get("minPrice") || "");
+  const maxPrice = sanitizePrice(url.searchParams.get("maxPrice") || "");
+  const category = sanitizeString(url.searchParams.get("category") || "");
+  const store = sanitizeString(url.searchParams.get("store") || "");
+
   try {
     const supabase = createSupabaseAnonClient();
     if (!supabase) {
@@ -76,12 +107,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(filteredMock.length > 0 ? filteredMock.map(mapProductRow) : MOCK_CATALOG.map(mapProductRow));
     }
 
-    // Direct Supabase ilike search with translated English query
-    const { data, error } = await supabase
+    // Build query: clean ilike on title + strictly validated optional filters
+    let query = supabase
       .from("products")
       .select("*")
       .ilike("title", `%${searchQuery}%`)
       .limit(20);
+
+    // Only apply filters if they passed strict validation (null = omit entirely)
+    if (category) query = query.eq("category_slug", category);
+    if (store) query = query.eq("store_slug", store);
+    if (rating !== null) query = query.gte("rating", rating);
+    if (minPrice !== null) query = query.gte("price", minPrice);
+    if (maxPrice !== null) query = query.lte("price", maxPrice);
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("[search] Supabase error:", error);
