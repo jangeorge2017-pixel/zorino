@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { Search, Sparkles, TrendingUp } from "lucide-react";
 
 type SearchBarProps = {
@@ -13,6 +14,8 @@ export default function SearchBar({
   popularSearches,
 }: SearchBarProps) {
   const [focused, setFocused] = useState(false);
+  const [query, setQuery] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     if (defaultOpen) {
@@ -20,16 +23,26 @@ export default function SearchBar({
     }
   }, [defaultOpen]);
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const rawText = query.trim();
+    if (!rawText) return;
+    router.push(`/search?q=${encodeURIComponent(rawText)}`);
+    setFocused(false);
+  };
+
   return (
     <div className="search-section">
       <div
         className={`search-wrapper${focused ? " search-wrapper-active search-wrapper--open" : ""}`}
       >
-        <div className="search-bar">
+        <form onSubmit={handleSubmit} className="search-bar">
           <Search size={20} className="search-icon" />
 
           <input
             type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for products, brands or categories..."
             onFocus={() => setFocused(true)}
             onBlur={() => setTimeout(() => setFocused(false), 150)}
@@ -40,17 +53,17 @@ export default function SearchBar({
             AI Search
           </button>
 
-          <button type="button" className="search-submit-btn">
+          <button type="submit" className="search-submit-btn">
             Search
           </button>
-        </div>
+        </form>
 
         {focused && popularSearches.length > 0 && (
           <div className="search-dropdown">
             <p className="search-dropdown-label">Popular searches</p>
             <ul className="search-suggestions">
               {popularSearches.map((term) => (
-                <li key={term}>
+                <li key={term} onClick={() => router.push(`/search?q=${encodeURIComponent(term)}`)}>
                   <TrendingUp size={14} />
                   {term}
                 </li>
