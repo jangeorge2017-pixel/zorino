@@ -83,7 +83,7 @@ export default function SearchPageClient({
     if (!raw) return "";
     const str = String(raw);
     // Remove object-like patterns: [object Object], {key:value}, etc.
-    let cleaned = str
+    const cleaned = str
       .replace(/\[object\s+\w+\]/gi, "")
       .replace(/\{.*?\}/g, "")
       .replace(/Zero.form|Zero-form|zero.form|zero-form/gi, "")
