@@ -77,7 +77,26 @@ export default function SearchPageClient({
   const tCommon = useTranslations("common");
   const tStores = useTranslations("stores");
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
+
+  // Robust string extractor: strips object notation, hidden chars, zero-form artifacts
+  const sanitizeRawQuery = (raw: unknown): string => {
+    if (!raw) return "";
+    const str = String(raw);
+    // Remove object-like patterns: [object Object], {key:value}, etc.
+    let cleaned = str
+      .replace(/\[object\s+\w+\]/gi, "")
+      .replace(/\{.*?\}/g, "")
+      .replace(/Zero.form|Zero-form|zero.form|zero-form/gi, "")
+      .replace(/Issues?/gi, "")
+      .replace(/[^\p{L}\p{N}\s\-_]/gu, "") // Keep only letters, numbers, spaces, hyphens, underscores
+      .trim();
+    return cleaned;
+  };
+
+  // Sanitize initialQuery prop immediately on mount
+  const cleanInitialQuery = sanitizeRawQuery(initialQuery);
+  
+  const [searchQuery, setSearchQuery] = useState(cleanInitialQuery);
   const [items, setItems] = useState(initialResults);
   const [receivedCount, setReceivedCount] = useState(initialResults.length);
   const [currentHasMore, setCurrentHasMore] = useState(hasMore);
