@@ -174,7 +174,7 @@ export default function SearchPageClient({
         limit: String(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE),
         sort: sortBy === "price_low" ? "price" : "relevance",
       });
-      const res = await fetch(`/api/search/paged?${params.toString()}`);
+      const res = await fetch(`/api/products/search?q=${encodeURIComponent(initialQuery)}`);
       if (!res.ok) throw new Error("paged-search-failed");
       const page = (await res.json()) as SearchPageResult;
       setItems((prev) => mergePagedResults(prev, page.items));
