@@ -50,6 +50,12 @@ const MOCK_CATALOG = [
   { id: '3', name: 'iPhone 13 Pro', price: 750, original_price: 900, image_url: 'https://placeholder.com', store: 'Amazon', store_slug: 'amazon', rating: 4.5, review_count: 100, category: 'phones', currency: 'USD', country_code: 'US', affiliate_url: '' },
 ];
 
+function filterMockByQuery(catalog: typeof MOCK_CATALOG, query: string): typeof MOCK_CATALOG {
+  const lowerQuery = query.toLowerCase().trim();
+  if (!lowerQuery) return catalog;
+  return catalog.filter(p => p.name.toLowerCase().includes(lowerQuery));
+}
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const rawQuery = url.searchParams.get("q")?.trim() || "";
@@ -65,7 +71,10 @@ export async function GET(req: NextRequest) {
 
   try {
     const supabase = createSupabaseAnonClient();
-    if (!supabase) return NextResponse.json(MOCK_CATALOG.map(mapProductRow));
+    if (!supabase) {
+      const filteredMock = filterMockByQuery(MOCK_CATALOG, searchQuery);
+      return NextResponse.json(filteredMock.length > 0 ? filteredMock.map(mapProductRow) : MOCK_CATALOG.map(mapProductRow));
+    }
 
     // Direct Supabase ilike search with translated English query
     const { data, error } = await supabase
@@ -74,18 +83,23 @@ export async function GET(req: NextRequest) {
       .ilike("title", `%${searchQuery}%`)
       .limit(20);
 
-    if (error) throw error;
+    if (error) {
+      console.error("[search] Supabase error:", error);
+      throw error;
+    }
 
     const results = (data ?? []).map(mapProductRow);
 
-    // Never return empty - use mock fallback
+    // Never return empty - use filtered mock fallback
     if (results.length === 0) {
-      return NextResponse.json(MOCK_CATALOG.map(mapProductRow));
+      const filteredMock = filterMockByQuery(MOCK_CATALOG, searchQuery);
+      return NextResponse.json(filteredMock.length > 0 ? filteredMock.map(mapProductRow) : MOCK_CATALOG.map(mapProductRow));
     }
 
     return NextResponse.json(results);
   } catch (error) {
     console.error("[api/products/search] Error:", error);
-    return NextResponse.json(MOCK_CATALOG.map(mapProductRow));
+    const filteredMock = filterMockByQuery(MOCK_CATALOG, searchQuery);
+    return NextResponse.json(filteredMock.length > 0 ? filteredMock.map(mapProductRow) : MOCK_CATALOG.map(mapProductRow));
   }
 }
