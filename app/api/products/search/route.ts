@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseAnonClient } from "@/lib/supabase/server";
-import { translateSearchQuery } from "@/lib/search/query-translation";
+import { createSupabaseAnonClient } from "../../../../lib/supabase/server";
+import { translateSearchQuery } from "../../../../lib/search/query-translation";
 
 interface ProductRow { id: string; name: string; price: number; original_price: number; image_url: string; store: string; store_slug: string; rating: number; review_count: number; category: string; currency: string; country_code: string; affiliate_url: string; }
 
