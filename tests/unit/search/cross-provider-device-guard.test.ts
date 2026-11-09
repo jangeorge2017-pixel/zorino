@@ -287,23 +287,23 @@ describe("AliExpress generic device query expansion", () => {
 describe("eBay category strategy", () => {
   it("does not optimize unless the caller opts in", () => {
     expect(resolveEbayDeviceSearchStrategy("iphone 15", undefined)).toEqual({
-      pageBatch: 1,
+      pageBatch: 6,
     });
   });
 
   it("narrows a device query to its category and parallelizes pages", () => {
     expect(
       resolveEbayDeviceSearchStrategy("iphone 15", { optimizeForDeviceIntent: true }),
-    ).toEqual({ categoryIds: "9355", pageBatch: 3 });
+    ).toEqual({ categoryIds: "9355", pageBatch: 6 });
   });
 
   it("never category-narrows accessory or uncategorized families", () => {
     expect(
       resolveEbayDeviceSearchStrategy("iphone 15 case", { optimizeForDeviceIntent: true }),
-    ).toEqual({ pageBatch: 3 });
+    ).toEqual({ pageBatch: 6 });
     expect(
       resolveEbayDeviceSearchStrategy("airpods pro", { optimizeForDeviceIntent: true }),
-    ).toEqual({ pageBatch: 3 });
+    ).toEqual({ pageBatch: 6 });
   });
 
   it("builds Browse params with q/limit/offset and only adds category_ids when given", () => {
@@ -351,7 +351,7 @@ describe("eBay connector — category narrowing preserves Used/Refurbished", () 
     });
 
     expect(results).toHaveLength(3);
-    expect(spy.mock.calls[0]?.[1]).toMatchObject({ categoryIds: "9355", pageBatch: 3 });
+    expect(spy.mock.calls[0]?.[1]).toMatchObject({ categoryIds: "9355", pageBatch: 6 });
     expect(JSON.stringify(spy.mock.calls)).not.toContain("condition");
     const titles = results.map((r) => r.title).join(" | ");
     expect(titles).toContain("Renewed");

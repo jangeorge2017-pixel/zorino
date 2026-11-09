@@ -396,6 +396,7 @@ describe("Fix 11: Fixes 1–10 behavior remains intact", () => {
     // Fix 8 wiring: the DB supplement still receives the 8s timeout.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
       timeoutMs: 8_000,
+      useFuzzyMatch: false,
     });
   });
 

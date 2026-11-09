@@ -32,6 +32,8 @@ afterEach(() => {
   delete process.env.BESTBUY_API_KEY;
   delete process.env.NOON_API_KEY;
   delete process.env.JUMIA_API_KEY;
+  delete process.env.AMAZON_SCRAPER_DISABLED;
+  delete process.env.AMAZON_DIRECT_ENABLE;
 });
 
 // ─── Sync-layer adapter resolution ──────────────────────────────────────────

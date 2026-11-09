@@ -277,8 +277,9 @@ export function setSearchPoolForTests(
   query: string,
   items: ReadonlyArray<SearchResultItem>,
   activeCurrency: CurrencyCode = "USD",
+  useFuzzyMatch = false,
 ): void {
-  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}`;
+  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
   fairSearchCache.set(cacheKey, {
     items: items as SearchResultItem[],
     expiresAt: Date.now() + 60_000,

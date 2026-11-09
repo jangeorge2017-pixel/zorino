@@ -13,23 +13,6 @@ const securityHeaders = [
   { key: "X-XSS-Protection", value: "1; mode=block" },
 ];
 
-const cspValue = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' data: https:",
-  "font-src 'self' data: https://fonts.gstatic.com",
-  "connect-src 'self' https://static.cloudflareinsights.com https://*.cloudflareinsights.com",
-  "media-src 'self'",
-  "object-src 'none'",
-  "frame-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-].join("; ");
-
-securityHeaders.push({ key: "Content-Security-Policy", value: cspValue });
-
 const isProduction = process.env.NODE_ENV === "production";
 
 // Sandbox marketplace image hosts (e.g. eBay Sandbox) are only encountered when
@@ -47,49 +30,13 @@ const nextConfig: NextConfig = {
     // Pin Turbopack root so dev resolves `next` from this app, not a nested lockfile/root.
     root: path.resolve(__dirname),
   },
-  webpack: (config, { dev }) => {
-    if (dev) {
-      // Force chokidar (used by Watchpack) to ignore system folders at the native level
-      // to prevent EINVAL errors on external F: drive
-      config.watchOptions = {
-        ignored: (filePath: string) => {
-          return (
-            filePath.includes("System Volume Information") ||
-            filePath.includes("\\.git\\") ||
-            filePath.includes("/.git/") ||
-            filePath.includes("\\node_modules\\") ||
-            filePath.includes("/node_modules/")
-          );
-        },
-      };
-    }
-    return config;
-  },
   images: {
-    remotePatterns: [
-      ...PRODUCT_IMAGE_REMOTE_PATTERNS,
-      ...devOnlyImagePatterns,
-      // OAuth avatar providers
-      { protocol: "https" as const, hostname: "lh3.googleusercontent.com", pathname: "/**" },
-      { protocol: "https" as const, hostname: "platform-lookaside.fbsbx.com", pathname: "/**" },
-      { protocol: "https" as const, hostname: "graph.facebook.com", pathname: "/**" },
-      { protocol: "https" as const, hostname: "secure.gravatar.com", pathname: "/**" },
-      { protocol: "https" as const, hostname: "gravatar.com", pathname: "/**" },
-    ],
+    remotePatterns: [...PRODUCT_IMAGE_REMOTE_PATTERNS, ...devOnlyImagePatterns],
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85, 92],
   },
   poweredByHeader: false,
   compress: true,
-  // TEMPORARY: type-checking during `next build` is skipped because Render's
-  // free tier OOMs on it. Types are still enforced by `npm run typecheck`
-  // locally and in CI (see .github/workflows/ci-cd.yml). Remove this once the
-  // service is on a paid plan.
-  // Note: `eslint.ignoreDuringBuilds` no longer exists in Next 16 — ESLint is
-  // not part of `next build`, so nothing is needed there.
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   async headers() {
     const headers = [...securityHeaders];
     if (isProduction) {

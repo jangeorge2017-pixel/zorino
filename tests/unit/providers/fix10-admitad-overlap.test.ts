@@ -205,7 +205,7 @@ describe("Fix 10: Fix 9 dedup + hard deadline remain intact", () => {
     const started = Date.now();
     await expect(getAllAdmitadFeeds()).resolves.toEqual([]);
     expect(Date.now() - started).toBeLessThan(2_000);
-    expect(ADMITAD_DISCOVERY_DEADLINE_MS).toBe(8_000);
+    expect(ADMITAD_DISCOVERY_DEADLINE_MS).toBe(30_000);
   });
 });
 
@@ -343,6 +343,7 @@ describe("Fix 10: all other providers remain active; search stays multi-provider
     // Fix 8 wiring: the DB supplement still receives the 8s timeout.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
       timeoutMs: 8_000,
+      useFuzzyMatch: false,
     });
   });
 

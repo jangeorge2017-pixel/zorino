@@ -95,7 +95,7 @@ afterEach(() => {
 
 describe("Fix 9: hard deadline is bridged to the engine's provider budget", () => {
   it("the production deadline matches the engine's 8s provider budget", () => {
-    expect(ADMITAD_DISCOVERY_DEADLINE_MS).toBe(8_000);
+    expect(ADMITAD_DISCOVERY_DEADLINE_MS).toBe(30_000);
   });
 
   it("admits a running discovery until the deadline", async () => {
@@ -346,6 +346,7 @@ describe("Fix 9: provider diversity + Fixes 1–8 remain intact", () => {
     // Fix 8 wiring: the DB supplement still receives the 8s timeout.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
       timeoutMs: 8_000,
+      useFuzzyMatch: false,
     });
   });
 

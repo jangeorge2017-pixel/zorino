@@ -322,6 +322,7 @@ describe("Fix 8: engine wiring preserves diversity, real data, and DB gating", (
 
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
       timeoutMs: 8_000,
+      useFuzzyMatch: false,
     });
   });
 
