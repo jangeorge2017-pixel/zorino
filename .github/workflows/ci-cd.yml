@@ -33,8 +33,7 @@ jobs:
         run: npm run typecheck
 
       - name: Run unit tests
-        run: echo "Skipping unit tests temporarily - adapter-registry.test.ts and identity.test.ts have timeout issues"
-        # run: npm test
+        run: npm test
 
   build:
     runs-on: ubuntu-latest
