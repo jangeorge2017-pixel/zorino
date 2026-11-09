@@ -3,6 +3,7 @@ import {
   admitadCredentialsConfigured,
   initializeMultiMerchantDiscovery,
   getAllAdmitadFeeds,
+  resetAdmitadDiscoveryForTests,
 } from "@/lib/integrations/admitad/config";
 
 const CRED_KEYS = ["ADMITAD_CLIENT_ID", "ADMITAD_CLIENT_SECRET"] as const;
@@ -24,7 +25,10 @@ function restore(saved: Record<string, string | undefined>) {
 
 describe("admitad config credential gate", () => {
   const saved = saveEnv();
-  afterEach(() => restore(saved));
+  afterEach(() => {
+    restore(saved);
+    resetAdmitadDiscoveryForTests();
+  });
 
   it("admitadCredentialsConfigured() is false when credentials are missing", () => {
     clearCreds();

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import {
   getProviderAdapter,
   requireProviderAdapter,
@@ -12,7 +12,12 @@ import {
   admitadAdapter,
   resolveProviderProductDetail,
 } from "@/lib/providers/adapter-registry";
+import { resetAdmitadDiscoveryForTests } from "@/lib/integrations/admitad/config";
 import type { ProviderAdapter } from "@/lib/providers/adapter";
+
+afterEach(() => {
+  resetAdmitadDiscoveryForTests();
+});
 
 // ─── Adapter Registry ───────────────────────────────────────────────────────
 
