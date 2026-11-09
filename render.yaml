@@ -24,6 +24,7 @@ services:
     region: virginia
     plan: free
     branch: main
+    rootDir: .
     autoDeployTrigger: commit
     maxShutdownDelaySeconds: 120
     # --include=dev keeps TypeScript/Tailwind available to `next build`. Render
@@ -31,7 +32,8 @@ services:
     # NODE_ENV=production here: npm would omit devDependencies and next build
     # exits 1. `next start` sets NODE_ENV=production itself.
     # NODE_OPTIONS sets max heap to 2GB to prevent OOM on free tier (512MB limit).
-    buildCommand: NODE_OPTIONS="--max-old-space-size=2048" npm ci --include=dev && npm run build
+    # Use npx to ensure next binary is resolved from node_modules/.bin.
+    buildCommand: NODE_OPTIONS="--max-old-space-size=2048" npm ci --include=dev && npx next build
     startCommand: npm run start
     envVars:
       # -- public runtime configuration (safe to keep in git) -----------------
