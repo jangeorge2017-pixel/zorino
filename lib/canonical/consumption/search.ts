@@ -42,7 +42,26 @@ const SURFACE = "search" as const;
 
 const CACHE_TTL_MS = 2 * 60 * 1000;
 const PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+const CANONICAL_SEARCH_CACHE_MAX_ENTRIES = 500;
 const canSearchCache = new Map<string, { items: SearchResultItem[]; expiresAt: number }>();
+
+function setCanonicalSearchCache(
+  key: string,
+  value: { items: SearchResultItem[]; expiresAt: number },
+): void {
+  if (canSearchCache.size >= CANONICAL_SEARCH_CACHE_MAX_ENTRIES) {
+    const now = Date.now();
+    for (const [existingKey, entry] of canSearchCache) {
+      if (entry.expiresAt <= now) canSearchCache.delete(existingKey);
+    }
+    while (canSearchCache.size >= CANONICAL_SEARCH_CACHE_MAX_ENTRIES) {
+      const oldestKey = canSearchCache.keys().next().value;
+      if (oldestKey === undefined) break;
+      canSearchCache.delete(oldestKey);
+    }
+  }
+  canSearchCache.set(key, value);
+}
 
 /** Test hook — replaces the live fetcher. */
 export type CanonicalSearchFetcher = (query: string) => Promise<{
@@ -299,7 +318,32 @@ export async function canonicalSearchProducts(
       sortBy: sort,
       activeCurrency: guardCurrency,
     });
-    canSearchCache.set(cacheKey, { items: pooled.items, expiresAt: Date.now() + CACHE_TTL_MS });
+
+    // Safety net: an empty canonical pool must never black-hole a query that
+    // the legacy engine can still answer with real provider data. This is the
+    // same fallback contract as the exception path below - the canonical spine
+    // is additive, not a replacement for the working search pipeline.
+    if (pooled.items.length === 0) {
+      const legacy = await searchProducts(trimmed, capped, {
+        optimizeForDeviceIntent: true,
+        sortBy: sort,
+        ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
+        ...(useFuzzyMatch ? { useFuzzyMatch } : {}),
+      });
+      if (legacy.length > 0) {
+        setCanonicalSearchCache(cacheKey, {
+          items: legacy,
+          expiresAt: Date.now() + CACHE_TTL_MS,
+        });
+        return legacy;
+      }
+      return pooled.items;
+    }
+
+    setCanonicalSearchCache(cacheKey, {
+      items: pooled.items,
+      expiresAt: Date.now() + CACHE_TTL_MS,
+    });
     return pooled.items;
   } catch {
     return searchProducts(trimmed, capped, {
