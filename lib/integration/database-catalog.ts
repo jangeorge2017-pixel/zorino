@@ -1081,7 +1081,26 @@ export type DeviceDbLegOptions = {
 };
 
 const DEVICE_SEARCH_COUNT_CACHE_TTL_MS = 5 * 60_000;
+const DEVICE_SEARCH_COUNT_CACHE_MAX_ENTRIES = 500;
 const deviceSearchCountCache = new Map<string, { count: number; expiresAt: number }>();
+
+function setDeviceSearchCountCache(
+  key: string,
+  value: { count: number; expiresAt: number },
+): void {
+  if (deviceSearchCountCache.size >= DEVICE_SEARCH_COUNT_CACHE_MAX_ENTRIES) {
+    const now = Date.now();
+    for (const [existingKey, entry] of deviceSearchCountCache) {
+      if (entry.expiresAt <= now) deviceSearchCountCache.delete(existingKey);
+    }
+    while (deviceSearchCountCache.size >= DEVICE_SEARCH_COUNT_CACHE_MAX_ENTRIES) {
+      const oldestKey = deviceSearchCountCache.keys().next().value;
+      if (oldestKey === undefined) break;
+      deviceSearchCountCache.delete(oldestKey);
+    }
+  }
+  deviceSearchCountCache.set(key, value);
+}
 
 /** Test hook — clears the device-count cache between tests. */
 export function resetDeviceSearchCountCacheForTests(): void {
@@ -1197,7 +1216,7 @@ async function loadDeviceSearchCountFromDatabase(
   }
 
   if (count > 0) {
-    deviceSearchCountCache.set(cacheKey, {
+    setDeviceSearchCountCache(cacheKey, {
       count,
       expiresAt: Date.now() + DEVICE_SEARCH_COUNT_CACHE_TTL_MS,
     });

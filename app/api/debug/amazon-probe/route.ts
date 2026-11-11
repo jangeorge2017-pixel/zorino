@@ -12,11 +12,10 @@ import {
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
 import { amazonSearchConnector } from "@/lib/search/connectors/amazon";
 
-const TEMP_TOKEN = process.env.AMAZON_PROBE_TOKEN ?? "8aa3a74f7256276bef09d0971d31284ef5b0";
-
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  if (url.searchParams.get("t") !== TEMP_TOKEN) {
+  const expectedToken = process.env.AMAZON_PROBE_TOKEN;
+  if (!expectedToken || url.searchParams.get("t") !== expectedToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -34,9 +33,9 @@ export async function GET(request: Request) {
       disabled: process.env.AMAZON_SCRAPER_DISABLED ?? "0",
     },
     envPresent: {
-      AMAZON_DIRECT_ENABLE: process.env.AMAZON_DIRECT_ENABLE,
-      AMAZON_CREATORS_CLIENT_ID: process.env.AMAZON_CREATORS_CLIENT_ID ?? null,
-      AMAZON_CREATORS_CLIENT_SECRET: process.env.AMAZON_CREATORS_CLIENT_SECRET ?? null,
+      AMAZON_DIRECT_ENABLE: Boolean(process.env.AMAZON_DIRECT_ENABLE),
+      AMAZON_CREATORS_CLIENT_ID: Boolean(process.env.AMAZON_CREATORS_CLIENT_ID),
+      AMAZON_CREATORS_CLIENT_SECRET: Boolean(process.env.AMAZON_CREATORS_CLIENT_SECRET),
     },
   };
 

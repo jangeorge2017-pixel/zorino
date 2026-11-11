@@ -13,6 +13,23 @@ const securityHeaders = [
   { key: "X-XSS-Protection", value: "1; mode=block" },
 ];
 
+const cspValue = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: https:",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "connect-src 'self' https://static.cloudflareinsights.com https://*.cloudflareinsights.com",
+  "media-src 'self'",
+  "object-src 'none'",
+  "frame-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+securityHeaders.push({ key: "Content-Security-Policy", value: cspValue });
+
 const isProduction = process.env.NODE_ENV === "production";
 
 // Sandbox marketplace image hosts (e.g. eBay Sandbox) are only encountered when
@@ -31,7 +48,16 @@ const nextConfig: NextConfig = {
     root: path.resolve(__dirname),
   },
   images: {
-    remotePatterns: [...PRODUCT_IMAGE_REMOTE_PATTERNS, ...devOnlyImagePatterns],
+    remotePatterns: [
+      ...PRODUCT_IMAGE_REMOTE_PATTERNS,
+      ...devOnlyImagePatterns,
+      // OAuth avatar providers
+      { protocol: "https" as const, hostname: "lh3.googleusercontent.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "platform-lookaside.fbsbx.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "graph.facebook.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "secure.gravatar.com", pathname: "/**" },
+      { protocol: "https" as const, hostname: "gravatar.com", pathname: "/**" },
+    ],
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85, 92],
   },

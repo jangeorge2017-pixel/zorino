@@ -31,11 +31,16 @@ services:
     # exports service env vars during the build step, so never set
     # NODE_ENV=production here: npm would omit devDependencies and next build
     # exits 1. `next start` sets NODE_ENV=production itself.
-    # NODE_OPTIONS sets max heap to 2GB to prevent OOM on free tier (512MB limit).
-    # Use npx to ensure next binary is resolved from node_modules/.bin.
-    buildCommand: NODE_OPTIONS="--max-old-space-size=2048" npm ci --include=dev && npx next build
+    # NODE_OPTIONS is a service env var so it applies to BOTH the install and
+    # the `next build` process (an inline prefix only applies to the first
+    # command in an `&&` chain). Use npx to resolve next from node_modules/.bin.
+    buildCommand: npm ci --include=dev && npx next build
     startCommand: npm run start
     envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=2048
       # -- public runtime configuration (safe to keep in git) -----------------
       - key: NEXT_PUBLIC_SITE_URL
         value: https://zorino-1.onrender.com

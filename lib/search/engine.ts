@@ -58,10 +58,29 @@ export type GlobalSearchOptions = {
 };
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
+const FAIR_SEARCH_MAX_ENTRIES = 500;
 const fairSearchCache = new Map<
   string,
   { items: SearchResultItem[]; expiresAt: number }
 >();
+
+function setFairSearchCache(
+  key: string,
+  value: { items: SearchResultItem[]; expiresAt: number },
+): void {
+  if (fairSearchCache.size >= FAIR_SEARCH_MAX_ENTRIES) {
+    const now = Date.now();
+    for (const [existingKey, entry] of fairSearchCache) {
+      if (entry.expiresAt <= now) fairSearchCache.delete(existingKey);
+    }
+    while (fairSearchCache.size >= FAIR_SEARCH_MAX_ENTRIES) {
+      const oldestKey = fairSearchCache.keys().next().value;
+      if (oldestKey === undefined) break;
+      fairSearchCache.delete(oldestKey);
+    }
+  }
+  fairSearchCache.set(key, value);
+}
 
 /**
  * Merge the live pool with relevant DB supplements. The first `liveLead` slots
@@ -280,7 +299,7 @@ export function setSearchPoolForTests(
   useFuzzyMatch = false,
 ): void {
   const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
-  fairSearchCache.set(cacheKey, {
+  setFairSearchCache(cacheKey, {
     items: items as SearchResultItem[],
     expiresAt: Date.now() + 60_000,
   });
@@ -757,7 +776,7 @@ export async function searchProducts(
       `capped_mix=[${summarize(cappedHead)}] ` +
       `pooled_len=${mixed.length} composed_len=${composed.length} guarded_len=${guarded.length} capped_len=${viewportCapped.length}`,
   );
-  fairSearchCache.set(cacheKey, {
+  setFairSearchCache(cacheKey, {
     items: viewportCapped,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
   });
