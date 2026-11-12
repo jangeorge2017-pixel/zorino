@@ -8,6 +8,7 @@ import {
   setCachedSearch,
 } from "@/lib/search/cache";
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
+import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
 import {
   classifyListingCondition,
@@ -68,18 +69,7 @@ function setFairSearchCache(
   key: string,
   value: { items: SearchResultItem[]; expiresAt: number },
 ): void {
-  if (fairSearchCache.size >= FAIR_SEARCH_MAX_ENTRIES) {
-    const now = Date.now();
-    for (const [existingKey, entry] of fairSearchCache) {
-      if (entry.expiresAt <= now) fairSearchCache.delete(existingKey);
-    }
-    while (fairSearchCache.size >= FAIR_SEARCH_MAX_ENTRIES) {
-      const oldestKey = fairSearchCache.keys().next().value;
-      if (oldestKey === undefined) break;
-      fairSearchCache.delete(oldestKey);
-    }
-  }
-  fairSearchCache.set(key, value);
+  setBoundedCacheEntry(fairSearchCache, key, value, FAIR_SEARCH_MAX_ENTRIES);
 }
 
 /**

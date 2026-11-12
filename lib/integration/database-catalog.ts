@@ -21,6 +21,7 @@ import {
   PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
+import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
   buildNormalizedSearchOrFilter,
@@ -1088,18 +1089,12 @@ function setDeviceSearchCountCache(
   key: string,
   value: { count: number; expiresAt: number },
 ): void {
-  if (deviceSearchCountCache.size >= DEVICE_SEARCH_COUNT_CACHE_MAX_ENTRIES) {
-    const now = Date.now();
-    for (const [existingKey, entry] of deviceSearchCountCache) {
-      if (entry.expiresAt <= now) deviceSearchCountCache.delete(existingKey);
-    }
-    while (deviceSearchCountCache.size >= DEVICE_SEARCH_COUNT_CACHE_MAX_ENTRIES) {
-      const oldestKey = deviceSearchCountCache.keys().next().value;
-      if (oldestKey === undefined) break;
-      deviceSearchCountCache.delete(oldestKey);
-    }
-  }
-  deviceSearchCountCache.set(key, value);
+  setBoundedCacheEntry(
+    deviceSearchCountCache,
+    key,
+    value,
+    DEVICE_SEARCH_COUNT_CACHE_MAX_ENTRIES,
+  );
 }
 
 /** Test hook — clears the device-count cache between tests. */
