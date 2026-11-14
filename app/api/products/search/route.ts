@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { searchProductsSurface } from "@/lib/canonical/consumption/search";
 import { translateSearchQuery } from "@/lib/search/query-translation";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";

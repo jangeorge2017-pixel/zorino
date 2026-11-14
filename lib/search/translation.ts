@@ -12,6 +12,156 @@ const ARABIC_UNICODE_RANGES = [
   [0xFE70, 0xFEFF], // Arabic Presentation Forms-B
 ];
 
+// Local Arabic-to-English mapping for common device/search terms (fallback when external APIs fail)
+// Sorted longest-first so multi-word phrases match before single words
+const ARABIC_TO_ENGLISH: ReadonlyArray<[arabic: string, english: string]> = ([
+  ["آيفون", "iphone"],
+  ["ايفون", "iphone"],
+  ["آي فون", "iphone"],
+  ["اى فون", "iphone"],
+  ["آيباد", "ipad"],
+  ["ايباد", "ipad"],
+  ["آي باد", "ipad"],
+  ["اى باد", "ipad"],
+  ["آيبود", "ipod"],
+  ["ايبود", "ipod"],
+  ["أيربودز", "airpods"],
+  ["ايربودز", "airpods"],
+  ["سماعات", "headphones"],
+  ["سماعة", "headphone"],
+  ["سامسونج", "samsung"],
+  ["جالكسي", "galaxy"],
+  ["جالكسي", "galaxy"],
+  ["جوجل", "google"],
+  ["بكسل", "pixel"],
+  ["مايكروسوفت", "microsoft"],
+  ["سيرفيس", "surface"],
+  ["لابتوب", "laptop"],
+  ["لاب توب", "laptop"],
+  ["ماك بوك", "macbook"],
+  ["ماكبوك", "macbook"],
+  ["آبل", "apple"],
+  ["ابل", "apple"],
+  ["ساعة", "watch"],
+  ["ساعات", "watches"],
+  ["ساعة آبل", "apple watch"],
+  ["ساعة ابل", "apple watch"],
+  ["برو", "pro"],
+  ["ماكس", "max"],
+  ["الترا", "ultra"],
+  ["الترا", "ultra"],
+  ["ميني", "mini"],
+  ["بلس", "plus"],
+  ["بلس", "plus"],
+  ["فولد", "fold"],
+  ["فليب", "flip"],
+  ["جي بي", "gb"],
+  ["جيجابايت", "gb"],
+  ["تيرا", "tb"],
+  ["تيرابايت", "tb"],
+  ["هاتف", "phone"],
+  ["هواتف", "phones"],
+  ["جوال", "phone"],
+  ["جوالات", "phones"],
+  ["موبايل", "mobile"],
+  ["موبيل", "mobile"],
+  ["تابلت", "tablet"],
+  ["تابلت", "tablet"],
+  ["شاحن", "charger"],
+  ["شاحنة", "charger"],
+  ["كابل", "cable"],
+  ["كيبل", "cable"],
+  ["جراب", "case"],
+  ["كفر", "case"],
+  ["حافظة", "case"],
+  ["شاشة", "screen"],
+  ["شاشه", "screen"],
+  ["بطارية", "battery"],
+  ["بطاريه", "battery"],
+  ["كاميرا", "camera"],
+  ["كاميرة", "camera"],
+  ["معالج", "processor"],
+  ["بروسيسور", "processor"],
+  ["رام", "ram"],
+  ["ذاكرة", "memory"],
+  ["تخزين", "storage"],
+  ["واي فاي", "wifi"],
+  ["واى فاى", "wifi"],
+  ["بلوتوث", "bluetooth"],
+  ["بلوتوت", "bluetooth"],
+  ["خمس جي", "5g"],
+  ["فور جي", "4g"],
+  ["جديد", "new"],
+  ["مستعمل", "used"],
+  ["مجددة", "refurbished"],
+  ["اصلي", "original"],
+  ["أصلي", "original"],
+  ["مضمون", "guaranteed"],
+  ["ضمان", "warranty"],
+  ["سعر", "price"],
+  ["اسعار", "prices"],
+  ["رخيص", "cheap"],
+  ["رخيصة", "cheap"],
+  ["عروض", "deals"],
+  ["عرض", "deal"],
+  ["خصم", "discount"],
+  ["تخفيض", "discount"],
+  ["تخفيضات", "discounts"],
+  ["افضل", "best"],
+  ["أفضل", "best"],
+  ["جديد", "new"],
+  ["احدث", "latest"],
+  ["أحدث", "latest"],
+  ["شاومي", "xiaomi"],
+  ["شيومي", "xiaomi"],
+  ["ريدمي", "redmi"],
+  ["ريدمي نوت", "redmi note"],
+  ["بوكو", "poco"],
+  ["ون بلس", "oneplus"],
+  ["ونبلس", "oneplus"],
+  ["أوبو", "oppo"],
+  ["اوبو", "oppo"],
+  ["فيفو", "vivo"],
+  ["ريال مي", "realme"],
+  ["ريالمي", "realme"],
+  ["موتورولا", "motorola"],
+  ["نوكيا", "nokia"],
+  ["سوني", "sony"],
+  ["إل جي", "lg"],
+  ["ال جي", "lg"],
+  ["اتش تي سي", "htc"],
+  ["بلاك بيري", "blackberry"],
+  ["بلاكبيري", "blackberry"],
+  ["هواوي", "huawei"],
+  ["هواوى", "huawei"],
+  ["هونر", "honor"],
+  ["انفيديا", "nvidia"],
+  ["إنفيديا", "nvidia"],
+  ["أيه ام دي", "amd"],
+  ["ايه ام دي", "amd"],
+  ["انتل", "intel"],
+  ["إنتل", "intel"],
+  ["آي 3", "i3"],
+  ["آي 5", "i5"],
+  ["آي 7", "i7"],
+  ["آي 9", "i9"],
+  ["ام 1", "m1"],
+  ["ام 2", "m2"],
+  ["ام 3", "m3"],
+  ["ار اكس", "rx"],
+  ["آر تي اكس", "rtx"],
+  ["جى تى اكس", "gtx"],
+] as [string, string][]).sort((a, b) => b[0].length - a[0].length);
+
+function transliterateArabic(text: string): string {
+  let out = text;
+  for (const [arabic, english] of ARABIC_TO_ENGLISH) {
+    const re = new RegExp(arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    out = out.replace(re, english);
+  }
+  return out;
+}
+
 // LibreTranslate public endpoints (free, no API key required)
 const LIBRETRANSLATE_ENDPOINTS = [
   'https://libretranslate.de/translate',
@@ -316,8 +466,24 @@ export async function detectAndTranslateArabic(query: string): Promise<{
     };
   }
 
-  // Translate Arabic to English
+  console.log('[translation] Arabic query detected:', query);
+  
+  // First try local Arabic-to-English mapping for common terms (fast, no network)
+  const localTranslation = transliterateArabic(query);
+  if (localTranslation !== query) {
+    console.log('[translation] Local mapping translated:', { original: query, translated: localTranslation });
+    return {
+      originalQuery: query,
+      translatedQuery: localTranslation,
+      wasTranslated: true,
+      isArabic: true,
+    };
+  }
+
+  // Translate Arabic to English via external APIs
   const translatedQuery = await translateWithCache(query, 'en', 'ar');
+  
+  console.log('[translation] Result:', { original: query, translated: translatedQuery, wasTranslated: translatedQuery !== query });
   
   return {
     originalQuery: query,
