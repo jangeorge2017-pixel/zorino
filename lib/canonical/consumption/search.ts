@@ -25,6 +25,7 @@ import { searchProducts } from "@/lib/search/engine";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
 import { rankRawListings } from "@/lib/search/ranking";
+import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import {
   classifyListingCondition,
   enforceConditionDiversity,
@@ -49,18 +50,7 @@ function setCanonicalSearchCache(
   key: string,
   value: { items: SearchResultItem[]; expiresAt: number },
 ): void {
-  if (canSearchCache.size >= CANONICAL_SEARCH_CACHE_MAX_ENTRIES) {
-    const now = Date.now();
-    for (const [existingKey, entry] of canSearchCache) {
-      if (entry.expiresAt <= now) canSearchCache.delete(existingKey);
-    }
-    while (canSearchCache.size >= CANONICAL_SEARCH_CACHE_MAX_ENTRIES) {
-      const oldestKey = canSearchCache.keys().next().value;
-      if (oldestKey === undefined) break;
-      canSearchCache.delete(oldestKey);
-    }
-  }
-  canSearchCache.set(key, value);
+  setBoundedCacheEntry(canSearchCache, key, value, CANONICAL_SEARCH_CACHE_MAX_ENTRIES);
 }
 
 /** Test hook — replaces the live fetcher. */

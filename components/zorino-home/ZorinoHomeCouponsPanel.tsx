@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import { formatCompactCount } from "@/lib/homepage/format";
 import type { TopCouponCard } from "@/lib/types/entities";
-import { resolveStoreLogoSrc } from "@/lib/assets";
+import { resolveStoreLogoSrc, STORE_LOGOS } from "@/lib/assets";
 import "./ZorinoHomeCouponsPanel.css";
 
 /** Top Coupons — official local SVGs (hi-res plates under top-coupons/). */
@@ -33,7 +33,15 @@ function resolveTopCouponLogoSrc(coupon: TopCouponCard): string {
   if (fromName.includes("aliexpress")) return TOP_COUPON_LOGOS.aliexpress;
   if (fromName.includes("nike")) return TOP_COUPON_LOGOS.nike;
 
-  return resolveStoreLogoSrc(String(fromPath?.[1] ?? coupon.id ?? "default")) || coupon.storeLogoSrc;
+  const slug = fromPath?.[1] ?? coupon.storeSlug;
+  if (slug) {
+    const local = resolveStoreLogoSrc(slug);
+    if (local !== STORE_LOGOS.default) return local;
+  }
+
+  // No official local plate for this brand — use the coupon's own (CDN) logo,
+  // falling back to the default store plate only when none is provided.
+  return coupon.storeLogoSrc || STORE_LOGOS.default;
 }
 
 function CouponRow({ coupon }: { coupon: TopCouponCard }) {

@@ -125,7 +125,7 @@ export function resolveStoreLogoSrc(slug?: string | null): string {
     .toLowerCase()
     .replace(/\.svg$/i, "")
     .replace(/\.png$/i, "");
-  return STORE_LOGO_BY_SLUG[key] ?? `/stores/${key || "default"}.svg`;
+  return STORE_LOGO_BY_SLUG[key] ?? STORE_LOGOS.default;
 }
 
 export const MISSING_ASSETS = [] as const;
