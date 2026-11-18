@@ -1036,6 +1036,34 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["provider_health_checkpoints"]["Insert"]>;
         Relationships: [];
       };
+      search_result_cache: {
+        Row: {
+          cache_key: string;
+          query: string;
+          locale: string | null;
+          currency: string | null;
+          sort_mode: string | null;
+          items: Json;
+          item_count: number;
+          provider_counts: Json;
+          fetched_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          cache_key: string;
+          query: string;
+          locale?: string | null;
+          currency?: string | null;
+          sort_mode?: string | null;
+          items?: Json;
+          item_count?: number;
+          provider_counts?: Json;
+          fetched_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["search_result_cache"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

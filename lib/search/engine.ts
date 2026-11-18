@@ -56,6 +56,20 @@ export type GlobalSearchOptions = {
    * keeps classic behavior for callers that do not model a regional currency.
    */
   activeCurrency?: CurrencyCode;
+  /**
+   * Opt-in low-RAM mode for cache warming / background refreshes: providers are
+   * fetched with bounded concurrency, a shorter per-provider budget and a small
+   * per-source cap so heavy storefront HTML is released promptly instead of
+   * overlapping every provider at once. Default (unset) keeps the legacy
+   * unbounded fan-out byte-identical.
+   */
+  lowRam?: boolean;
+  /** Per-provider fetch budget override (default: the engine 8s budget). */
+  providerTimeoutMs?: number;
+  /** Max providers fetched at once in low-RAM mode (default 3). */
+  providerConcurrency?: number;
+  /** Raw listings kept per source in low-RAM mode (default: engine max). */
+  maxListingsPerProvider?: number;
 };
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
@@ -369,6 +383,27 @@ function groupByProvider(
   return byProvider;
 }
 
+/** Run `worker` over `items` with at most `limit` in flight at once. */
+async function runWithConcurrency<T>(
+  items: readonly T[],
+  limit: number,
+  worker: (item: T) => Promise<void>,
+): Promise<void> {
+  if (items.length === 0) return;
+  const queue = [...items];
+  const runners = Array.from(
+    { length: Math.max(1, Math.min(Math.floor(limit), queue.length)) },
+    async () => {
+      while (queue.length > 0) {
+        const item = queue.shift();
+        if (item === undefined) break;
+        await worker(item);
+      }
+    },
+  );
+  await Promise.all(runners);
+}
+
 async function fetchProvidersInParallel(
   query: string,
   options?: GlobalSearchOptions,
@@ -419,8 +454,11 @@ async function fetchProvidersInParallel(
     maxPages: 4,
   } as const;
 
-  await Promise.all(
-    adapters.map(async (adapter) => {
+  const fetchTimeoutMs = options?.providerTimeoutMs ?? providerFetchTimeoutMs;
+  const perSourceCap =
+    options?.maxListingsPerProvider ?? SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE;
+
+  const runAdapter = async (adapter: (typeof adapters)[number]) => {
       const started = Date.now();
       try {
         const searches = [
@@ -460,7 +498,7 @@ async function fetchProvidersInParallel(
                       // results and its duration is not credited.
                       durationMs: 0,
                     }),
-                  providerFetchTimeoutMs,
+                  fetchTimeoutMs,
                 ),
               ),
             ]);
@@ -503,10 +541,7 @@ async function fetchProvidersInParallel(
         // push more than MAX_LISTINGS_PER_SOURCE raw listings into the pool per
         // search query, so slow/lean peers (AliExpress, Admitad) are never
         // drowned out by a high-volume source's paginated tail.
-        const cappedMerged = merged.slice(
-          0,
-          SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE,
-        );
+        const cappedMerged = merged.slice(0, perSourceCap);
         allRaw.push(...cappedMerged);
         recordProviderRun(result.providerId, cappedMerged.length);
         console.log(
@@ -529,8 +564,17 @@ async function fetchProvidersInParallel(
           durationMs: Date.now() - started,
         });
       }
-    }),
-  );
+  };
+
+  if (options?.lowRam) {
+    await runWithConcurrency(
+      adapters,
+      options.providerConcurrency ?? 3,
+      runAdapter,
+    );
+  } else {
+    await Promise.all(adapters.map(runAdapter));
+  }
 
   return { allRaw, providerStats };
 }
@@ -549,6 +593,10 @@ export async function searchProducts(
     sortBy?: SearchSortMode;
     activeCurrency?: CurrencyCode;
     useFuzzyMatch?: boolean;
+    lowRam?: boolean;
+    providerTimeoutMs?: number;
+    providerConcurrency?: number;
+    maxListingsPerProvider?: number;
   },
 ): Promise<SearchResultItem[]> {
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
@@ -607,6 +655,14 @@ export async function searchProducts(
       targetFetch: optimizeForDeviceIntent ? 300 : 120,
       maxPages: optimizeForDeviceIntent ? 8 : 4,
       ...(optimizeForDeviceIntent ? { optimizeForDeviceIntent: true } : {}),
+      ...(options?.lowRam
+        ? {
+            lowRam: true,
+            providerTimeoutMs: options.providerTimeoutMs,
+            providerConcurrency: options.providerConcurrency,
+            maxListingsPerProvider: options.maxListingsPerProvider,
+          }
+        : {}),
     }),
     // DB supplement: exact query first, then the canonical family keyword, so
     // Search reaches the same imported/canonical inventory the Categories show.

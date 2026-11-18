@@ -22,6 +22,14 @@ import {
   DISPLAY_CURRENCY,
 } from "@/lib/search/display-currency";
 import { searchProducts } from "@/lib/search/engine";
+import {
+  buildAndCacheSearchResult,
+  getCachedSearchResult,
+} from "@/lib/search/persistent-cache";
+import {
+  PERSISTENT_SEARCH_MAX_ITEMS,
+  isPersistentSearchCacheEnabled,
+} from "@/lib/search/persistent-cache-store";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
 import { rankRawListings } from "@/lib/search/ranking";
@@ -279,6 +287,20 @@ export async function canonicalSearchProducts(
 ): Promise<SearchResultItem[]> {
   const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   if (!isSurfaceEnabled(SURFACE)) {
+    // Cache-first landing path: serve the persisted balanced pool immediately
+    // (the common case), and only build when the query has never been cached.
+    // Without Supabase service credentials this falls through to the legacy
+    // engine call byte-identically, so tests/local dev keep the old behavior.
+    if (isPersistentSearchCacheEnabled()) {
+      const cacheOptions = {
+        sortBy,
+        activeCurrency: guardCurrency,
+        useFuzzyMatch,
+      };
+      const cached = await getCachedSearchResult(query, limit, cacheOptions);
+      if (cached) return cached;
+      return buildAndCacheSearchResult(query, limit, cacheOptions);
+    }
     // Gate-off delegation stays byte-identical to the legacy call shape: only
     // inject the currency when the caller actually provides one (undefined
     // keeps the engine's classic USD default and the exact legacy option set).
@@ -372,6 +394,88 @@ import {
   type SearchPageResult,
 } from "@/lib/search/engine";
 
+type DatabaseCatalogModule = typeof import("@/lib/integration/database-catalog");
+
+type PooledPageInput = {
+  query: string;
+  pool: SearchResultItem[];
+  dbCountPromise: Promise<number>;
+  dbModule: Promise<DatabaseCatalogModule>;
+  offset: number;
+  limit: number;
+  deviceIntent: boolean;
+  deviceLeg?: { query: string; activeCurrency: CurrencyCode };
+  displayCurrency: CurrencyCode;
+  guardCurrency: CurrencyCode;
+};
+
+/**
+ * Slice the SAME pooled universe for every page: pool positions first, then the
+ * pool-excluded DB tail. Both the canonical gate-on path and the cache-first
+ * gate-off path share this, so page 1 (persistent cache) and "load more" can
+ * never duplicate or skip a product.
+ */
+async function resolvePooledPagedResult(
+  input: PooledPageInput,
+): Promise<SearchPageResult> {
+  const dbCount = await input.dbCountPromise;
+  const total = dbCount > 0 ? dbCount : input.pool.length;
+
+  if (input.offset + input.limit <= input.pool.length) {
+    const page = sliceSearchPage(input.pool, input.offset, input.limit);
+    return {
+      ...page,
+      items: toDisplayCurrency(page.items, input.displayCurrency),
+      total,
+      hasMore: input.offset + input.limit < total,
+    };
+  }
+
+  const selection = resolvePooledPageSelection(
+    input.pool,
+    input.offset,
+    input.limit,
+  );
+  const dbPage = await input.dbModule.then((m) =>
+    m.getSearchResultsFromDatabasePaged(
+      input.query,
+      selection.tailStart,
+      selection.tailCount,
+      {
+        timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+        excludeProductIds: selection.excludeProductIds,
+        ...(input.deviceLeg ? { device: input.deviceLeg } : {}),
+      },
+    ),
+  );
+
+  const tailItems = input.deviceIntent
+    ? dbPage.items.filter((item) =>
+        passesStrictDeviceGuard(
+          item.name,
+          item.price,
+          input.query,
+          item.currency,
+          input.guardCurrency,
+        ),
+      )
+    : dbPage.items;
+
+  const finalTotal =
+    total > 0 ? total : dbPage.total > 0 ? dbPage.total : input.pool.length;
+
+  return {
+    items: toDisplayCurrency(
+      [...selection.poolHead, ...tailItems],
+      input.displayCurrency,
+    ),
+    total: finalTotal,
+    offset: input.offset,
+    limit: input.limit,
+    hasMore: input.offset + input.limit < finalTotal,
+  };
+}
+
 /**
  * Paged seam (search page "load more"). Gate off → legacy paged search verbatim
  * (it inherits the truthful-total / beyond-window fix from engine.ts).
@@ -396,6 +500,65 @@ export async function searchResultsPagedSurface(
   const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   const displayCurrency: CurrencyCode = activeCurrency ?? DISPLAY_CURRENCY;
   if (!isSurfaceEnabled(SURFACE)) {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      return { items: [], total: 0, offset: 0, limit, hasMore: false };
+    }
+    const safeOffset = Number.isFinite(offset)
+      ? Math.max(0, Math.floor(offset))
+      : 0;
+    const safeLimit = Number.isFinite(limit)
+      ? Math.max(1, Math.floor(limit))
+      : SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
+
+    // Cache-first "load more": paginate the SAME persisted pool page 1 served
+    // (pool positions first, then the pool-excluded DB tail) so the cached
+    // first page and later pages stay duplicate/gap-free.
+    if (isPersistentSearchCacheEnabled()) {
+      const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
+      const deviceLeg = deviceIntent
+        ? { query: trimmed, activeCurrency: guardCurrency }
+        : undefined;
+      const cacheOptions = {
+        sortBy,
+        activeCurrency: guardCurrency,
+        useFuzzyMatch,
+      };
+      const dbModule = import("@/lib/integration/database-catalog");
+      const dbCountPromise = dbModule
+        .then((m) =>
+          m.countSearchResultsFromDatabase(trimmed, {
+            timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+            ...(deviceLeg ? { device: deviceLeg } : {}),
+          }),
+        )
+        .catch(() => 0);
+      const cached = await getCachedSearchResult(
+        trimmed,
+        PERSISTENT_SEARCH_MAX_ITEMS,
+        cacheOptions,
+      );
+      const pool =
+        cached ??
+        (await buildAndCacheSearchResult(
+          trimmed,
+          PERSISTENT_SEARCH_MAX_ITEMS,
+          cacheOptions,
+        ));
+      return resolvePooledPagedResult({
+        query: trimmed,
+        pool,
+        dbCountPromise,
+        dbModule,
+        offset: safeOffset,
+        limit: safeLimit,
+        deviceIntent,
+        deviceLeg,
+        displayCurrency,
+        guardCurrency,
+      });
+    }
+
     const { searchProductsPaged } = await import("@/lib/search/engine");
     const page = await searchProductsPaged(query, offset, limit, {
       optimizeForDeviceIntent: true,
@@ -425,86 +588,31 @@ export async function searchResultsPagedSurface(
     : undefined;
 
   const dbModule = import("@/lib/integration/database-catalog");
-  const [pool, dbCountP] = await Promise.all([
-    canonicalSearchProducts(
-      trimmed,
-      SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
-      sortBy,
-      guardCurrency,
-    ),
-    dbModule.then((m) =>
+  const dbCountPromise = dbModule
+    .then((m) =>
       m.countSearchResultsFromDatabase(trimmed, {
         timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
         ...(deviceLeg ? { device: deviceLeg } : {}),
       }),
-    ),
-  ]);
-  const dbCount = await dbCountP;
-  const total = dbCount > 0 ? dbCount : pool.length;
-
-  // Fully inside the canonical pool window: the pure pool slice decides the
-  // items; only the reported total/hasMore become truthful.
-  if (safeOffset + safeLimit <= pool.length) {
-    const page = sliceSearchPage(pool, safeOffset, safeLimit);
-    return {
-      ...page,
-      items: toDisplayCurrency(page.items, displayCurrency),
-      total,
-      hasMore: safeOffset + safeLimit < total,
-    };
-  }
-
-  // Beyond the capped pool: serve the complete catalog from the pool-excluded
-  // DB paged leg. `resolvePooledPageSelection` maps the offset onto the ONE
-  // deterministic universe (pool positions first, then the discount-ordered DB
-  // leg minus the db rows the pool already emitted — excluded by SET, not
-  // skipped by count, so a window can never re-serve a row an earlier page
-  // already showed nor skip a discount-head row the pool never placed).
-  const selection = resolvePooledPageSelection(pool, safeOffset, safeLimit);
-
-  const dbPage = await dbModule.then((m) =>
-    m.getSearchResultsFromDatabasePaged(
-      trimmed,
-      selection.tailStart,
-      selection.tailCount,
-      {
-        timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
-        excludeProductIds: selection.excludeProductIds,
-        ...(deviceLeg ? { device: deviceLeg } : {}),
-      },
-    ),
+    )
+    .catch(() => 0);
+  const pool = await canonicalSearchProducts(
+    trimmed,
+    SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
+    sortBy,
+    guardCurrency,
   );
 
-  // Strict device guard on the DB tail: the canonical pool already filters its
-  // `dbItems` leg, but the beyond-pool DB leg is fetched fresh here and would
-  // otherwise re-import accessory/junk rows on a device query. The device legs
-  // already guard their deep window, so this stays an idempotent last-line
-  // filter. Passes the DB row's real currency AND the visitor's active currency
-  // so the floor never judges raw EGP digits against a USD baseline.
-  const tailItems = deviceIntent
-    ? dbPage.items.filter((item) =>
-        passesStrictDeviceGuard(
-          item.name,
-          item.price,
-          trimmed,
-          item.currency,
-          guardCurrency,
-        ),
-      )
-    : dbPage.items;
-
-  // Prefer the truthful DB count; if only the paged leg succeeded, trust its
-  // exact count; otherwise the pool length keeps the historical behaviour.
-  const finalTotal =
-    total > 0 ? total : dbPage.total > 0 ? dbPage.total : pool.length;
-
-  const items = [...selection.poolHead, ...tailItems];
-
-  return {
-    items: toDisplayCurrency(items, displayCurrency),
-    total: finalTotal,
+  return resolvePooledPagedResult({
+    query: trimmed,
+    pool,
+    dbCountPromise,
+    dbModule,
     offset: safeOffset,
     limit: safeLimit,
-    hasMore: safeOffset + safeLimit < finalTotal,
-  };
+    deviceIntent,
+    deviceLeg,
+    displayCurrency,
+    guardCurrency,
+  });
 }
