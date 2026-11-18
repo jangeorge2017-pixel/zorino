@@ -20,8 +20,7 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   { protocol: "https" as const, hostname: "**.alicdn.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.aliexpress-media.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.aliexpress.com", pathname: "/**" },
-  // eBay (explicit + wildcard so i.ebayimg.com always matches)
-  { protocol: "https" as const, hostname: "i.ebayimg.com", pathname: "/**" },
+  // eBay (wildcard covers i.ebayimg.com and other media subdomains)
   { protocol: "https" as const, hostname: "**.ebayimg.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.ebaystatic.com", pathname: "/**" },
   // CJdropshipping
@@ -49,12 +48,24 @@ export const PRODUCT_IMAGE_REMOTE_PATTERNS = [
   { protocol: "https" as const, hostname: "**.temu.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.kwcdn.com", pathname: "/**" },
   { protocol: "https" as const, hostname: "**.temuapi.com", pathname: "/**" },
-  // Amazon (direct product images)
-  { protocol: "https" as const, hostname: "m.media-amazon.com", pathname: "/**" },
-  { protocol: "https" as const, hostname: "images-na.ssl-images-amazon.com", pathname: "/**" },
-  // Admitad program/coupon logos
-  { protocol: "https" as const, hostname: "cdn.admitad.com", pathname: "/**" },
+  // Amazon (direct product images; covered by the media CDNs above)
+  // Admitad program/coupon logos (wildcard covers cdn.admitad.com)
   { protocol: "https" as const, hostname: "**.admitad.com", pathname: "/**" },
+  // Egyptian storefronts (credential-free adapters)
+  { protocol: "https" as const, hostname: "**.jumia.com.eg", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.carrefouregypt.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "carrefouregypt.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.mafrservices.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.btech.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "btech.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.2b.com.eg", pathname: "/**" },
+  { protocol: "https" as const, hostname: "2b.com.eg", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.dubaiphone.net", pathname: "/**" },
+  { protocol: "https" as const, hostname: "dubaiphone.net", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.raneen.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "raneen.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "**.eldokan.com", pathname: "/**" },
+  { protocol: "https" as const, hostname: "eldokan.com", pathname: "/**" },
   // Avatars / misc already used in app
   { protocol: "https" as const, hostname: "i.pravatar.cc", pathname: "/**" },
 ];

@@ -401,11 +401,20 @@ describe("Fix 11: Fixes 1–10 behavior remains intact", () => {
   });
 
   it("provider registry / defaults / paging contract are unchanged (Fixes 1–10)", () => {
-    expect(PROVIDER_IDS).toHaveLength(11);
+    expect(PROVIDER_IDS).toHaveLength(17);
     expect([...LIVE_PROVIDER_IDS]).toEqual([
       "aliexpress",
       "ebay",
       "cjdropshipping",
+      "temu",
+      "noon",
+      "jumia",
+      "carrefour",
+      "btech",
+      "twob",
+      "dubaiphone",
+      "raneen",
+      "eldokan",
       "admitad",
     ]);
     const adapterIds = getAllProviderAdapters().map((a) => a.id);

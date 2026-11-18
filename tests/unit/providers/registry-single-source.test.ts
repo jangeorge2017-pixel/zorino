@@ -52,9 +52,9 @@ describe("Provider registry is the single source of truth", () => {
     expect(adapterIds).toEqual(registryIds);
   });
 
-  it("adapter count equals registry count (11)", () => {
-    expect(getRegisteredAdapterCount()).toBe(11);
-    expect(PROVIDER_IDS.length).toBe(11);
+  it("adapter count equals registry count (17)", () => {
+    expect(getRegisteredAdapterCount()).toBe(17);
+    expect(PROVIDER_IDS.length).toBe(17);
   });
 
   it("every registry provider ID resolves as a registered provider", () => {

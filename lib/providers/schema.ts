@@ -222,4 +222,5 @@ export type ProviderConfig = {
   supportedCountries: string[];
   rateLimit?: { requests: number; perSeconds: number };
   maxPageSize?: number;
+  defaultActive?: boolean;
 };

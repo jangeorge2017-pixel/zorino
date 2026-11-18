@@ -97,6 +97,25 @@ services:
         sync: false
       - key: AMAZON_CREATORS_MARKETPLACE
         sync: false
+      # -- optional Egyptian store affiliate tags (empty = raw product URL) ----
+      - key: JUMIA_AFF_PREFIX
+        sync: false
+      - key: NOON_AFF_TAG
+        sync: false
+      - key: TEMU_AFF_TAG
+        sync: false
+      - key: CARREFOUR_AFF_TAG
+        sync: false
+      - key: BTECH_AFF_TAG
+        sync: false
+      - key: TWOB_AFF_TAG
+        sync: false
+      - key: DUBAIPHONE_AFF_TAG
+        sync: false
+      - key: RANEEN_AFF_TAG
+        sync: false
+      - key: ELDOKAN_AFF_TAG
+        sync: false
       - key: ARABCLICKS_API_KEY
         sync: false
       - key: ARABCLICKS_FEED_URL

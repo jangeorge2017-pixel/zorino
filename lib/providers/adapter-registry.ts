@@ -22,6 +22,7 @@ import { normalizeEbayRaw } from "@/lib/search/normalization";
 import { normalizeAmazonRaw } from "@/lib/search/normalization";
 import { normalizeCJRaw } from "@/lib/search/normalization";
 import { normalizeAdmitadRaw } from "@/lib/search/normalization";
+import { normalizeEgyptStoreRaw } from "@/lib/search/normalization";
 
 // ─── Connector → Adapter Bridge ─────────────────────────────────────────────
 
@@ -219,9 +220,15 @@ const ADAPTER_MAP: ReadonlyMap<SearchProviderId, ProviderAdapter> = new Map<
   ["admitad", admitadAdapter],
   ["walmart", createStubAdapter("walmart", "Walmart")],
   ["bestbuy", createStubAdapter("bestbuy", "Best Buy")],
-  ["temu", createStubAdapter("temu", "Temu")],
-  ["noon", createStubAdapter("noon", "Noon")],
-  ["jumia", createStubAdapter("jumia", "Jumia")],
+  ["temu", createConnectorAdapter("temu", "Temu", normalizeEgyptStoreRaw)],
+  ["noon", createConnectorAdapter("noon", "Noon", normalizeEgyptStoreRaw)],
+  ["jumia", createConnectorAdapter("jumia", "Jumia", normalizeEgyptStoreRaw)],
+  ["carrefour", createConnectorAdapter("carrefour", "Carrefour Egypt", normalizeEgyptStoreRaw)],
+  ["btech", createConnectorAdapter("btech", "B.TECH", normalizeEgyptStoreRaw)],
+  ["twob", createConnectorAdapter("twob", "2B Egypt", normalizeEgyptStoreRaw)],
+  ["dubaiphone", createConnectorAdapter("dubaiphone", "Dubai Phone", normalizeEgyptStoreRaw)],
+  ["raneen", createConnectorAdapter("raneen", "Raneen", normalizeEgyptStoreRaw)],
+  ["eldokan", createConnectorAdapter("eldokan", "El Dokan", normalizeEgyptStoreRaw)],
 ]);
 
 // ─── Public API ─────────────────────────────────────────────────────────────

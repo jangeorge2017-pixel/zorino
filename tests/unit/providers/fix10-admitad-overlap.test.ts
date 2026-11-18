@@ -348,11 +348,20 @@ describe("Fix 10: all other providers remain active; search stays multi-provider
   });
 
   it("provider registry / defaults / paging contract are unchanged (Fixes 1–9)", () => {
-    expect(PROVIDER_IDS).toHaveLength(11);
+    expect(PROVIDER_IDS).toHaveLength(17);
     expect([...LIVE_PROVIDER_IDS]).toEqual([
       "aliexpress",
       "ebay",
       "cjdropshipping",
+      "temu",
+      "noon",
+      "jumia",
+      "carrefour",
+      "btech",
+      "twob",
+      "dubaiphone",
+      "raneen",
+      "eldokan",
       "admitad",
     ]);
     const adapterIds = getAllProviderAdapters().map((a) => a.id);

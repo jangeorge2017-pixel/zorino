@@ -87,6 +87,42 @@ const SYNC_STORE_META: Record<
     // are carried per-offer via the offer storeName, not here.
     name: "Admitad",
   },
+  carrefour: {
+    storeId: "store-carrefour",
+    storeSlug: "carrefour",
+    integrationType: "partner",
+    name: "Carrefour Egypt",
+  },
+  btech: {
+    storeId: "store-btech",
+    storeSlug: "btech",
+    integrationType: "partner",
+    name: "B.TECH",
+  },
+  twob: {
+    storeId: "store-twob",
+    storeSlug: "twob",
+    integrationType: "partner",
+    name: "2B Egypt",
+  },
+  dubaiphone: {
+    storeId: "store-dubaiphone",
+    storeSlug: "dubaiphone",
+    integrationType: "partner",
+    name: "Dubai Phone",
+  },
+  raneen: {
+    storeId: "store-raneen",
+    storeSlug: "raneen",
+    integrationType: "partner",
+    name: "Raneen",
+  },
+  eldokan: {
+    storeId: "store-eldokan",
+    storeSlug: "eldokan",
+    integrationType: "partner",
+    name: "El Dokan",
+  },
 };
 
 export function getSyncStoreMeta(providerId: string) {

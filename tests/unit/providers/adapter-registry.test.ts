@@ -22,8 +22,8 @@ afterEach(() => {
 // ─── Adapter Registry ───────────────────────────────────────────────────────
 
 describe("Adapter Registry", () => {
-  it("has 11 registered adapters matching SEARCH_PROVIDER_IDS", () => {
-    expect(getRegisteredAdapterCount()).toBe(11);
+  it("has 17 registered adapters matching SEARCH_PROVIDER_IDS", () => {
+    expect(getRegisteredAdapterCount()).toBe(17);
   });
 
   it("returns adapter for every registered provider ID", () => {
@@ -39,6 +39,12 @@ describe("Adapter Registry", () => {
       "temu",
       "noon",
       "jumia",
+      "carrefour",
+      "btech",
+      "twob",
+      "dubaiphone",
+      "raneen",
+      "eldokan",
     ] as const;
 
     for (const id of ids) {
@@ -61,7 +67,7 @@ describe("Adapter Registry", () => {
 
   it("getAllProviderAdapters returns all adapters", () => {
     const all = getAllProviderAdapters();
-    expect(all).toHaveLength(11);
+    expect(all).toHaveLength(17);
     const ids = all.map((a) => a.id);
     expect(ids).toContain("aliexpress");
     expect(ids).toContain("ebay");
@@ -142,7 +148,7 @@ describe("Adapter contracts", () => {
 // ─── Stub Adapter Contracts ─────────────────────────────────────────────────
 
 describe("Stub adapters", () => {
-  const stubIds = ["walmart", "bestbuy", "temu", "noon", "jumia"] as const;
+  const stubIds = ["walmart", "bestbuy"] as const;
 
   for (const id of stubIds) {
     describe(`${id} stub adapter`, () => {

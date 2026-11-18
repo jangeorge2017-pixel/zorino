@@ -4,11 +4,9 @@ import { amazonEgSearchConnector } from "@/lib/search/connectors/amazon-eg";
 import { admitadSearchConnector } from "@/lib/search/connectors/admitad";
 import { cjdropshippingSearchConnector } from "@/lib/search/connectors/cjdropshipping";
 import { ebaySearchConnector } from "@/lib/search/connectors/ebay";
+import { egyptStoreSearchConnectors } from "@/lib/search/connectors/egypt-stores";
 import {
   bestBuySearchConnector,
-  jumiaSearchConnector,
-  noonSearchConnector,
-  temuSearchConnector,
   walmartSearchConnector,
 } from "@/lib/search/connectors/stubs";
 import type { SearchConnector } from "@/lib/search/connectors/types";
@@ -24,9 +22,7 @@ const ALL_CONNECTORS: SearchConnector[] = [
   admitadSearchConnector,
   walmartSearchConnector,
   bestBuySearchConnector,
-  temuSearchConnector,
-  noonSearchConnector,
-  jumiaSearchConnector,
+  ...egyptStoreSearchConnectors,
 ];
 
 const CONNECTOR_MAP = new Map<SearchProviderId, SearchConnector>(

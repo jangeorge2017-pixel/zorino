@@ -738,3 +738,30 @@ export function normalizeRawListing(
 ): NormalizedSearchListing {
   return toNormalizedListing(raw, analysis);
 }
+
+/**
+ * Egyptian store adapters already return fully normalized RawProviderListing
+ * rows (real EGP price, provider image URL, store identity). Validate the
+ * required fields and pass the row through without rewriting provider data.
+ */
+export function normalizeEgyptStoreRaw(raw: unknown): RawProviderListing | null {
+  if (!raw || typeof raw !== "object") return null;
+  const value = raw as Partial<RawProviderListing>;
+  if (
+    typeof value.providerId !== "string" ||
+    typeof value.externalId !== "string" ||
+    !value.externalId ||
+    typeof value.title !== "string" ||
+    !value.title ||
+    typeof value.imageUrl !== "string" ||
+    !value.imageUrl ||
+    typeof value.productUrl !== "string" ||
+    !value.productUrl ||
+    typeof value.price !== "number" ||
+    !Number.isFinite(value.price) ||
+    value.price <= 0
+  ) {
+    return null;
+  }
+  return value as RawProviderListing;
+}

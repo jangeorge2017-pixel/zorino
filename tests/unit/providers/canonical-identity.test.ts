@@ -19,8 +19,22 @@ import { getAllProviderAdapters } from "@/lib/providers/adapter-registry";
 // ─── Live / Stub Derivation ─────────────────────────────────────────────────
 
 describe("Live / stub provider derivation", () => {
-  const expectedLive = ["aliexpress", "ebay", "cjdropshipping", "admitad"];
-  const expectedStub = ["walmart", "bestbuy", "temu", "noon", "jumia"];
+  const expectedLive = [
+    "aliexpress",
+    "ebay",
+    "cjdropshipping",
+    "temu",
+    "noon",
+    "jumia",
+    "carrefour",
+    "btech",
+    "twob",
+    "dubaiphone",
+    "raneen",
+    "eldokan",
+    "admitad",
+  ];
+  const expectedStub = ["walmart", "bestbuy"];
   const expectedConfigured = ["amazon", "amazon-eg"];
 
   it("LIVE_PROVIDER_IDS equals the active providers in registry order", () => {

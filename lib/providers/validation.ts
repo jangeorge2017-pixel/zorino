@@ -238,6 +238,7 @@ export const ProviderConfigSchema = z.object({
     })
     .optional(),
   maxPageSize: z.number().int().positive().optional(),
+  defaultActive: z.boolean().optional(),
 });
 
 // ─── Validation Helpers ─────────────────────────────────────────────────────

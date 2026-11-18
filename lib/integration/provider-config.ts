@@ -7,13 +7,10 @@ import { isAmazonConfigured, isAmazonDirectEnabled } from "@/lib/integrations/am
 import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 import { isIntegrationConfigured } from "@/lib/integration/credentials";
 import { isAmazonScraperAvailable } from "@/lib/integrations/amazon-scraper";
-import { isNoonConfigured } from "@/lib/integrations/noon";
-import { isJumiaConfigured } from "@/lib/integrations/jumia";
-import { isArabClicksConfigured } from "@/lib/integration/arabclicks";
 import { isProviderLive } from "@/lib/integration/provider-health";
-import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
 import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshipping";
+import { getProviderConfig } from "@/lib/providers/registry";
 
 /**
  * Whether a production marketplace provider has credentials and can be queried.
@@ -48,16 +45,14 @@ import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshippin
      *   - the local open-source storefront scraper (isAmazonScraperAvailable()),
      *     which needs NO API keys and is the current production source.
  *
- * UNAVAILABLE placeholders (no credentials on Vercel). Capability-gated:
- *   credentials alone can never make these report as available, because their
- *   sync adapters are placeholders that cannot produce real products.
- *   walmart, temu, bestbuy
- *
- *   noon/jumia additionally report configured when the ArabClicks network
- *   transport is configured (ARABCLICKS_API_KEY + ARABCLICKS_PUBLISHER_ID),
- *   which routes their EG/SA/AE markets into the same catalog spine. The same
- *   activation + endpoint gates apply (no fabricated inventory).
- */
+  * CREDENTIAL-FREE LIVE SOURCES (fault-isolated storefront adapters):
+  *   temu, noon, jumia, carrefour, btech, twob, dubaiphone, raneen, eldokan
+  *
+  * UNAVAILABLE placeholders (no credentials on Vercel). Capability-gated:
+  *   credentials alone can never make these report as available, because their
+  *   sync adapters are placeholders that cannot produce real products.
+  *   walmart, bestbuy
+  */
 export function isProductionProviderConfigured(providerId: ProductionProviderId): boolean {
   switch (providerId) {
     // --- ACTIVE in production (credentials configured on Vercel) ---
@@ -94,22 +89,24 @@ export function isProductionProviderConfigured(providerId: ProductionProviderId)
     case "walmart":
       return createWalmartProvider().isConfigured(); // Requires WALMART_API_KEY
     case "temu":
-      return createTemuProvider().isConfigured(); // Requires TEMU_API_KEY
+      // Live Egyptian storefront adapter; no API credentials are required.
+      return true;
     case "bestbuy":
       return isIntegrationConfigured(["BESTBUY_API_KEY"]); // Requires BESTBUY_API_KEY
     case "noon":
-      // Configured via EITHER the direct Noon API (NOON_API_KEY) OR the
-      // ArabClicks network transport (ARABCLICKS_API_KEY + ARABCLICKS_PUBLISHER_ID).
-      // Configured ≠ active: without a live run (or durable DB evidence) it still
-      // fails the activation gate, and without a confirmed feed endpoint
-      // (NOON_API_BASE/ENDPOINT or ARABCLICKS_API_BASE/ENDPOINT) the ingestion
-      // client never touches the network (no fabricated inventory).
-      return isNoonConfigured() || isArabClicksConfigured();
+      // Live Egyptian storefront adapter (noon.com / egypt-en); no keys required.
+      return true;
     case "jumia":
-      // Configured via EITHER the direct Jumia API (JUMIA_API_KEY +
-      // JUMIA_AFFILIATE_ID) OR the ArabClicks network transport. Same
-      // activation/endpoint gates as noon.
-      return isJumiaConfigured() || isArabClicksConfigured();
+      // Live Egyptian storefront adapter (jumia.com.eg); no keys required.
+      return true;
+    case "carrefour":
+    case "btech":
+    case "twob":
+    case "dubaiphone":
+    case "raneen":
+    case "eldokan":
+      // Credential-free, fault-isolated Egyptian storefront adapters.
+      return true;
 
     default:
       return false;
@@ -135,6 +132,7 @@ export function getConfiguredProductionProviders(): ProductionProviderId[] {
  */
 export function isProductionProviderActive(providerId: ProductionProviderId): boolean {
   if (!isProductionProviderConfigured(providerId)) return false;
+  if (getProviderConfig(providerId)?.defaultActive) return true;
   return isProviderLive(providerId) || hasLoadedEvidenceFor(providerId);
 }
 

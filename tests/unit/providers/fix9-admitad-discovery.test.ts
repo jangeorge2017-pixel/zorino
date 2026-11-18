@@ -354,11 +354,20 @@ describe("Fix 9: provider diversity + Fixes 1–8 remain intact", () => {
     expect(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE).toBe(50);
     expect(SEARCH_ENGINE_DEFAULTS.MAX_PAGES_PER_PROVIDER).toBe(12);
     expect(SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT).toBe(200);
-    expect(PROVIDER_IDS).toHaveLength(11);
+    expect(PROVIDER_IDS).toHaveLength(17);
     expect([...LIVE_PROVIDER_IDS]).toEqual([
       "aliexpress",
       "ebay",
       "cjdropshipping",
+      "temu",
+      "noon",
+      "jumia",
+      "carrefour",
+      "btech",
+      "twob",
+      "dubaiphone",
+      "raneen",
+      "eldokan",
       "admitad",
     ]);
     expect(getSearchResultsFromDatabase).toBeTypeOf("function");
