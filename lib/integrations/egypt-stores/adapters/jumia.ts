@@ -11,7 +11,21 @@ import { maxPagesFor, type StoreSearchAdapter } from "@/lib/integrations/egypt-s
 import type { RawProviderListing } from "@/lib/search/types";
 
 const BASE_URL = "https://www.jumia.com.eg";
+const FALLBACK_BASE_URLS = ["https://jumia.com.eg", "https://www.jumia.com.eg/ar"];
 const STORE_NAME = "Jumia";
+const REQUEST_TIMEOUT_MS = 6_000;
+const JUMIA_USER_AGENT =
+  "Mozilla/5.0 (compatible; ZorinoBot/1.0; +https://zorino.com/bot; contact@zorino.com)";
+const JUMIA_HEADERS: Record<string, string> = {
+  "user-agent": JUMIA_USER_AGENT,
+  accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "accept-language": "en-EG,en;q=0.9,ar-EG;q=0.8",
+  referer: "https://www.jumia.com.eg/",
+  "sec-fetch-dest": "document",
+  "sec-fetch-mode": "navigate",
+  "sec-fetch-site": "same-origin",
+  "upgrade-insecure-requests": "1",
+};
 
 function parseArticle(block: string): RawProviderListing | null {
   const linkMatch = /<a\b[^>]*class="[^"]*\bcore\b[^"]*"[^>]*>/i.exec(block);
@@ -85,39 +99,57 @@ export function parseJumiaHtml(html: string): RawProviderListing[] {
   return results;
 }
 
+async function fetchJumiaPages(
+  baseUrl: string,
+  query: string,
+  pages: number,
+  timeoutMs: number,
+): Promise<RawProviderListing[]> {
+  const urls = Array.from({ length: pages }, (_, index) => {
+    const page = index + 1;
+    return (
+      `${baseUrl}/catalog/?q=${encodeURIComponent(query)}` +
+      (page > 1 ? `&page=${page}` : "")
+    );
+  });
+  const pagesHtml = await Promise.all(
+    urls.map((url) =>
+      fetchTextSafely(url, {
+        timeoutMs,
+        headers: JUMIA_HEADERS,
+      }),
+    ),
+  );
+
+  const results: RawProviderListing[] = [];
+  const seen = new Set<string>();
+  for (const html of pagesHtml) {
+    if (!html) continue;
+    for (const item of parseJumiaHtml(html)) {
+      if (seen.has(item.externalId)) continue;
+      seen.add(item.externalId);
+      results.push(item);
+    }
+  }
+
+  return results;
+}
+
 export const jumiaAdapter: StoreSearchAdapter = {
   id: "jumia",
   name: STORE_NAME,
   async search(query, options) {
     const pages = maxPagesFor(options, 2);
-    const urls = Array.from({ length: pages }, (_, index) => {
-      const page = index + 1;
-      return (
-        `${BASE_URL}/catalog/?q=${encodeURIComponent(query)}` +
-        (page > 1 ? `&page=${page}` : "")
-      );
-    });
-    const pagesHtml = await Promise.all(
-      urls.map((url) =>
-        fetchTextSafely(url, {
-          timeoutMs: 7_000,
-          headers: { "user-agent": "Mozilla/5.0" },
-        }),
-      ),
-    );
+    const deadline = Date.now() + REQUEST_TIMEOUT_MS;
 
-    const results: RawProviderListing[] = [];
-    const seen = new Set<string>();
-    for (const html of pagesHtml) {
-      if (!html) continue;
-      for (const item of parseJumiaHtml(html)) {
-        if (seen.has(item.externalId)) continue;
-        seen.add(item.externalId);
-        results.push(item);
-      }
+    for (const baseUrl of [BASE_URL, ...FALLBACK_BASE_URLS]) {
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) break;
+      const results = await fetchJumiaPages(baseUrl, query, pages, remaining);
+      if (results.length > 0) return results;
     }
 
-    return results;
+    return [];
   },
 };
 
