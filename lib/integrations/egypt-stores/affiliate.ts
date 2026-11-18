@@ -1,7 +1,21 @@
+import { normalizeUrlString } from "@/lib/integrations/egypt-stores/parse";
+
 type EgyptStoreAffiliateConfig = {
   envKey: string;
   mode: "wrap" | "tag";
   defaultParam?: string;
+};
+
+const STORE_BASE_URLS: Record<string, string> = {
+  jumia: "https://www.jumia.com.eg",
+  noon: "https://www.noon.com",
+  temu: "https://www.temu.com",
+  carrefour: "https://www.carrefouregypt.com",
+  btech: "https://btech.com",
+  twob: "https://2b.com.eg",
+  dubaiphone: "https://www.dubaiphone.net",
+  raneen: "https://www.raneen.com",
+  eldokan: "https://eldokan.com",
 };
 
 const STORE_AFFILIATE_CONFIG: Record<string, EgyptStoreAffiliateConfig> = {
@@ -39,6 +53,34 @@ export function resolveEgyptStoreKey(storeName: string): string | null {
     dokan: "eldokan",
   };
   return aliases[key] ?? null;
+}
+
+/**
+ * Every store product link must leave this module as an absolute `https://`
+ * URL. Relative, protocol-relative, backslash-escaped and embedded URLs are
+ * repaired against the store's canonical base.
+ */
+export function normalizeEgyptStoreProductUrl(
+  key: string,
+  rawProductUrl: string,
+): string | null {
+  const cleaned = normalizeUrlString(rawProductUrl);
+  if (!cleaned) return null;
+
+  let candidate = cleaned;
+  const embedded = /^https?:\/\/[^/]+\/(https?:\/\/.+)$/i.exec(candidate);
+  if (embedded) candidate = embedded[1];
+  if (candidate.startsWith("//")) candidate = `https:${candidate}`;
+
+  const base = STORE_BASE_URLS[key];
+  try {
+    const url = new URL(candidate, base);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+    url.protocol = "https:";
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
 
 function appendTag(rawUrl: string, tag: string, defaultParam: string): string {
@@ -87,11 +129,13 @@ export function buildEgyptStoreAffiliateUrl(
 ): string | null {
   const key = resolveEgyptStoreKey(storeName);
   if (!key) return null;
+  const productUrl = normalizeEgyptStoreProductUrl(key, rawProductUrl);
+  if (!productUrl) return null;
   const config = STORE_AFFILIATE_CONFIG[key];
   const value = process.env[config.envKey]?.trim();
-  if (!value) return rawProductUrl;
-  if (config.mode === "wrap") return wrapWithPrefix(rawProductUrl, value);
-  return appendTag(rawProductUrl, value, config.defaultParam ?? "utm_source");
+  if (!value) return productUrl;
+  if (config.mode === "wrap") return wrapWithPrefix(productUrl, value);
+  return appendTag(productUrl, value, config.defaultParam ?? "utm_source");
 }
 
 /**
@@ -99,5 +143,5 @@ export function buildEgyptStoreAffiliateUrl(
  * Empty/unconfigured env vars always fall back to the untouched product URL.
  */
 export function buildAffiliateUrl(storeName: string, rawProductUrl: string): string {
-  return buildEgyptStoreAffiliateUrl(storeName, rawProductUrl) ?? rawProductUrl;
+  return buildEgyptStoreAffiliateUrl(storeName, rawProductUrl) ?? normalizeUrlString(rawProductUrl);
 }

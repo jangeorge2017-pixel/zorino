@@ -30,11 +30,37 @@ export function firstMatch(source: string, pattern: RegExp): string | null {
   return match?.[1] ?? null;
 }
 
+/**
+ * Storefront HTML sometimes embeds JSON/escaped URLs (`https:\/\/...`,
+ * `\/mafegy\/...`). Normalise those before handing the value to `new URL`,
+ * otherwise the result keeps doubled slashes or a broken path.
+ */
+export function normalizeUrlString(value: string): string {
+  const escaped = decodeHtmlEntities(value)
+    .trim()
+    .replace(/\\+\//g, "/")
+    .replace(/\\/g, "/");
+  const embedded = /^https?:\/\/[^/]+\/(https?:\/\/.+)$/i.exec(escaped);
+  const cleaned = embedded ? embedded[1] : escaped;
+
+  if (cleaned.startsWith("//")) {
+    return `//${cleaned.slice(2).replace(/\/{2,}/g, "/")}`;
+  }
+  const protocol = /^(https?):\/\/+/i.exec(cleaned);
+  if (protocol) {
+    const rest = cleaned.slice(protocol[0].length).replace(/\/{2,}/g, "/");
+    return `${protocol[1].toLowerCase()}://${rest}`;
+  }
+  return cleaned.replace(/\/{2,}/g, "/");
+}
+
 export function resolveUrl(href: string | null | undefined, base: string): string | null {
-  const trimmed = href?.trim();
+  const trimmed = normalizeUrlString(href ?? "");
   if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("javascript:")) return null;
   try {
-    return new URL(trimmed, base).toString();
+    const url = new URL(trimmed, base);
+    if (url.protocol === "http:") url.protocol = "https:";
+    return url.toString();
   } catch {
     return null;
   }
