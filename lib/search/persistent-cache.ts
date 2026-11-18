@@ -2,8 +2,10 @@ import { after } from "next/server";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import { searchProducts } from "@/lib/search/engine";
 import {
+  PERSISTENT_SEARCH_INCOMPLETE_TTL_MS,
   PERSISTENT_SEARCH_MAX_ITEMS,
   buildPersistentSearchKey,
+  getMissingCriticalSearchProviders,
   isPersistentSearchCacheEnabled,
   isPersistentSearchEntryStale,
   readPersistentSearchCache,
@@ -61,7 +63,23 @@ export async function getCachedSearchResult(
   const entry = await readPersistentSearchCache(key);
   if (!entry) return null;
 
-  if (isPersistentSearchEntryStale(entry.fetchedAt)) {
+  const missing = getMissingCriticalSearchProviders(entry.items);
+  if (missing.length > 0) {
+    // Never let a pool that dropped Amazon EG / AliExpress / Jumia live for the
+    // full 6h TTL. Refresh in the background; after a short grace, bypass the
+    // entry entirely so the caller rebuilds it live.
+    scheduleSearchCacheRefresh(query, options);
+    const fetchedAt = Date.parse(entry.fetchedAt);
+    const age = Number.isFinite(fetchedAt)
+      ? Date.now() - fetchedAt
+      : Number.POSITIVE_INFINITY;
+    if (age > PERSISTENT_SEARCH_INCOMPLETE_TTL_MS) {
+      console.warn(
+        `[search-cache] bypass incomplete pool for "${query}" (missing: ${missing.join(", ")})`,
+      );
+      return null;
+    }
+  } else if (isPersistentSearchEntryStale(entry.fetchedAt)) {
     scheduleSearchCacheRefresh(query, options);
   }
 

@@ -284,6 +284,20 @@ async function fetchDbSupplementForSearch(
 const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
 let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
 
+/**
+ * Providers whose retrieval is heavy enough that the low-RAM 3.5s cache-warm
+ * budget routinely cut them off entirely (Amazon Egypt's storefront scraper,
+ * the AliExpress Open API, and Jumia's catalog fetch). They keep the full
+ * engine budget even when a caller requests a shorter low-RAM fan-out, so a
+ * cache build never persists a pool that silently dropped them.
+ */
+const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+const CRITICAL_PROVIDER_IDS: ReadonlySet<SearchProviderId> = new Set([
+  "amazon-eg",
+  "aliexpress",
+  "jumia",
+]);
+
 /** Test-only: shrink the per-provider budget so timeout degradation is provable fast. */
 export function setProviderFetchTimeoutForTests(ms?: number): void {
   providerFetchTimeoutMs =
@@ -460,6 +474,11 @@ async function fetchProvidersInParallel(
 
   const runAdapter = async (adapter: (typeof adapters)[number]) => {
       const started = Date.now();
+      // Critical providers always get the full engine budget, even under a
+      // low-RAM caller timeout — otherwise a cache build persists without them.
+      const adapterFetchTimeoutMs = CRITICAL_PROVIDER_IDS.has(adapter.id)
+        ? Math.max(fetchTimeoutMs, CRITICAL_PROVIDER_FETCH_TIMEOUT_MS)
+        : fetchTimeoutMs;
       try {
         const searches = [
           adapter.search(query, {
@@ -498,7 +517,7 @@ async function fetchProvidersInParallel(
                       // results and its duration is not credited.
                       durationMs: 0,
                     }),
-                  fetchTimeoutMs,
+                  adapterFetchTimeoutMs,
                 ),
               ),
             ]);

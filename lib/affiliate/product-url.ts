@@ -375,8 +375,10 @@ export function isNoonProductUrl(raw: string): boolean {
   }
 
   // Locale-prefixed product pages: /<locale>/n/<name>/<id>/... (e.g.
-  // /uae-en/n/electronics/samsung-S300x012345678/) and bare /n/... forms.
+  // /uae-en/n/electronics/samsung-S300x012345678/), bare /n/... forms, and the
+  // `/p/` product path used by noon Egypt (/egypt-en/<name>/p/?o=...).
   if (path.includes("/n/")) return true;
+  if (path.includes("/p/") || /\/p$/i.test(path)) return true;
   if (/\.html$/i.test(path)) return true;
 
   return false;

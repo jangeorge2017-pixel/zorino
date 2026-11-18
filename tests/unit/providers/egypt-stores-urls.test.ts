@@ -4,9 +4,12 @@ import {
   normalizeEgyptStoreProductUrl,
 } from "@/lib/integrations/egypt-stores/affiliate";
 import {
+  extractJumiaProductUrlsFromSearchHtml,
   parseJumiaJsonLd,
   parseJumiaPage,
 } from "@/lib/integrations/egypt-stores/adapters/jumia";
+import { isAllowedAffiliateDestination } from "@/lib/affiliate/redirect-policy";
+import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { resolveUrl } from "@/lib/integrations/egypt-stores/parse";
 
 afterEach(() => {
@@ -142,5 +145,63 @@ describe("Jumia JSON-LD fallback", () => {
     const items = parseJumiaPage(html);
     expect(items).toHaveLength(1);
     expect(items[0]?.externalId).toBe("J1");
+  });
+});
+
+describe("Egyptian storefront affiliate destinations", () => {
+  it("allowlists native product URLs for every Egyptian store", () => {
+    const productUrls = [
+      "https://www.jumia.com.eg/apple-iphone-15-128gb-123456.html",
+      "https://www.noon.com/egypt-en/apple-iphone-15-128gb/p/?o=abc123",
+      "https://www.carrefouregypt.com/mafegy/en/p/123",
+      "https://btech.com/en/iphone-15-128gb",
+      "https://2b.com.eg/en/iphone-15.html",
+      "https://www.dubaiphone.net/iphone-15",
+      "https://www.raneen.com/iphone-15",
+      "https://eldokan.com/iphone-15",
+    ];
+
+    for (const url of productUrls) {
+      expect(isValidProductDestinationUrl(url)).toBe(true);
+      expect(isAllowedAffiliateDestination(url)).toBe(true);
+    }
+  });
+
+  it("still rejects homepages and search pages on those hosts", () => {
+    expect(isAllowedAffiliateDestination("https://www.jumia.com.eg/")).toBe(false);
+    expect(
+      isAllowedAffiliateDestination("https://www.jumia.com.eg/catalog/?q=iphone"),
+    ).toBe(false);
+    expect(isAllowedAffiliateDestination("https://btech.com/")).toBe(false);
+  });
+});
+
+describe("Jumia search-engine fallback URL extraction", () => {
+  it("decodes DuckDuckGo redirect links into native product URLs", () => {
+    const html = `<a class="result__a" href="//duckduckgo.com/l/?uddg=${encodeURIComponent(
+      "https://www.jumia.com.eg/iphone-15-128gb-123.html",
+    )}&amp;rut=abc">iPhone 15</a>`;
+
+    expect(extractJumiaProductUrlsFromSearchHtml(html)).toEqual([
+      "https://www.jumia.com.eg/iphone-15-128gb-123.html",
+    ]);
+  });
+
+  it("decodes Bing redirect links and ignores non-product result pages", () => {
+    const target = Buffer.from(
+      "https://www.jumia.com.eg/iphone-15-128gb-456.html",
+      "utf8",
+    )
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+    const html = `
+      <a href="https://www.bing.com/ck/a?!&&p=xyz&u=a1${target}&ntb=1">iPhone</a>
+      <a href="https://www.jumia.com.eg/catalog/?q=iphone">Search</a>`;
+
+    expect(extractJumiaProductUrlsFromSearchHtml(html)).toEqual([
+      "https://www.jumia.com.eg/iphone-15-128gb-456.html",
+    ]);
   });
 });

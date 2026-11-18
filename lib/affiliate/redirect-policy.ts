@@ -53,6 +53,38 @@ const ADMITAD_PROGRAM_DESTINATION_HOSTS = new Set([
   "offer.alibaba.com",
 ]);
 
+/**
+ * Egyptian storefront domains served by the local store adapters
+ * (`lib/integrations/egypt-stores/`).
+ *
+ * Their product links are real, non-homepage merchant URLs, but they are not
+ * (`stores`-table-backed) marketplace programs and `extractMarketplaceFromUrl`
+ * does not know them — so without this allowlist every outbound redirect from
+ * Jumia / B.TECH / 2B / Carrefour / Raneen / El Dokan got a 403.
+ *
+ * Homepage + search/category URLs on these hosts still fail earlier via
+ * `isValidProductDestinationUrl`, so this only admits product-level links.
+ */
+const EGYPT_STOREFRONT_HOSTS = new Set([
+  "jumia.com.eg",
+  "noon.com",
+  "temu.com",
+  "carrefouregypt.com",
+  "btech.com",
+  "2b.com.eg",
+  "dubaiphone.net",
+  "raneen.com",
+  "eldokan.com",
+]);
+
+export function isKnownStorefrontDestination(hostname: string): boolean {
+  const host = hostname.toLowerCase();
+  for (const domain of EGYPT_STOREFRONT_HOSTS) {
+    if (host === domain || host.endsWith(`.${domain}`)) return true;
+  }
+  return false;
+}
+
 function isAdmitadTrackingHost(hostname: string): boolean {
   const host = hostname.toLowerCase();
   if (host === "admitad.com" || host.endsWith(".admitad.com")) return true;
@@ -117,6 +149,8 @@ export function isAllowedAffiliateDestination(
     // may redirect. This also covers stores whose website is their homepage.
     if (!isValidProductDestinationUrl(destinationUrl)) return false;
     if (isKnownMarketplaceDestination(destinationUrl)) return true;
+    // Native Egyptian storefront product pages (Jumia, B.TECH, 2B, …).
+    if (isKnownStorefrontDestination(parsed.hostname)) return true;
     // Admitad goto/tracking links and Alibaba program destinations are valid,
     // already-tracked affiliate destinations.
     if (isAdmitadTrackingHost(parsed.hostname)) return true;

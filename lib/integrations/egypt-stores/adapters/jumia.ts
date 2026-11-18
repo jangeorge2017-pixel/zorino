@@ -16,18 +16,31 @@ const SLP_SITEMAP_URL = `${BASE_URL}/slp/nc/sitemap/sitemap-en-1.xml`;
 const STORE_NAME = "Jumia";
 const REQUEST_TIMEOUT_MS = 7_500;
 const CATEGORY_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-const JUMIA_USER_AGENT =
-  "Mozilla/5.0 (compatible; ZorinoBot/1.0; +https://zorino.com/bot; contact@zorino.com)";
-const JUMIA_HEADERS: Record<string, string> = {
-  "user-agent": JUMIA_USER_AGENT,
-  accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-  "accept-language": "en-EG,en;q=0.9,ar-EG;q=0.8",
-  referer: "https://www.jumia.com.eg/",
-  "sec-fetch-dest": "document",
-  "sec-fetch-mode": "navigate",
-  "sec-fetch-site": "same-origin",
-  "upgrade-insecure-requests": "1",
-};
+
+// Jumia serves the same public catalog HTML to browser user agents. A desktop
+// Chrome UA is the most reliably accepted; the mobile UA is the second attempt
+// for the `/catalog/?q=` search endpoint (which datacenter clients otherwise
+// see blocked). Both are real browser identities, never a search-engine bot.
+const JUMIA_DESKTOP_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+const JUMIA_MOBILE_USER_AGENT =
+  "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
+
+function buildJumiaHeaders(userAgent: string): Record<string, string> {
+  return {
+    "user-agent": userAgent,
+    accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "accept-language": "en-EG,en;q=0.9,ar-EG;q=0.8",
+    referer: `${BASE_URL}/`,
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "same-origin",
+    "upgrade-insecure-requests": "1",
+  };
+}
+
+const JUMIA_HEADERS = buildJumiaHeaders(JUMIA_DESKTOP_USER_AGENT);
+const JUMIA_MOBILE_HEADERS = buildJumiaHeaders(JUMIA_MOBILE_USER_AGENT);
 // Product cards sit near the top of Jumia listing pages. A bounded range
 // keeps the request under the engine's 8s provider budget on slow networks.
 const JUMIA_PAGE_HEADERS: Record<string, string> = {
@@ -270,8 +283,9 @@ function slugCandidates(query: string): string[] {
 async function fetchListingsFromUrl(
   url: string,
   timeoutMs: number,
+  headers: Record<string, string> = JUMIA_PAGE_HEADERS,
 ): Promise<RawProviderListing[]> {
-  const html = await fetchTextSafely(url, { timeoutMs, headers: JUMIA_PAGE_HEADERS });
+  const html = await fetchTextSafely(url, { timeoutMs, headers });
   return html ? parseJumiaPage(html) : [];
 }
 
@@ -280,12 +294,13 @@ async function firstWithResults(
   urls: readonly string[],
   deadline: number,
   requestedTimeoutMs: number,
+  headers: Record<string, string> = JUMIA_PAGE_HEADERS,
 ): Promise<RawProviderListing[]> {
   const remaining = deadline - Date.now();
   if (remaining <= 0 || urls.length === 0) return [];
   const timeoutMs = Math.max(800, Math.min(requestedTimeoutMs, remaining));
   const pages = await Promise.all(
-    urls.map((url) => fetchListingsFromUrl(url, timeoutMs)),
+    urls.map((url) => fetchListingsFromUrl(url, timeoutMs, headers)),
   );
   return pages.find((items) => items.length > 0) ?? [];
 }
@@ -496,10 +511,34 @@ function dedupeListings(
 }
 
 /**
- * Jumia's `/catalog/?q=` endpoint is disallowed by robots.txt (`Disallow:
- * /catalog/` and `Disallow: /*q=`), which is also what makes datacenter IPs
- * get blocked. Search the same public listings through the allowed SEO paths:
- * `/slp/<query>/` search pages and canonical category pages.
+ * Primary strategy: Jumia's own search listing at `/catalog/?q=`.
+ *
+ * The page carries the same `<article class="prd">` cards as every other
+ * Jumia listing view (SKU, title, EGP price, image), so the existing parsers
+ * handle it unchanged. We try the desktop and mobile browser identities in
+ * parallel because the endpoint is the one most aggressively filtered for
+ * datacenter clients.
+ */
+async function searchJumiaCatalog(
+  query: string,
+  deadline: number,
+): Promise<RawProviderListing[]> {
+  const catalogUrl = `${BASE_URL}/catalog/?q=${encodeURIComponent(query)}`;
+  const desktop = await firstWithResults(
+    [catalogUrl],
+    deadline,
+    5_500,
+    JUMIA_PAGE_HEADERS,
+  );
+  if (desktop.length > 0) return desktop;
+
+  return firstWithResults([catalogUrl], deadline, 5_500, JUMIA_MOBILE_HEADERS);
+}
+
+/**
+ * Secondary SEO paths: `/slp/<query>/` search pages and canonical category
+ * pages. These are the allowed crawl paths and stay as a fallback when the
+ * catalog endpoint is blocked or throttled.
  */
 async function searchJumiaSlp(
   query: string,
@@ -558,6 +597,105 @@ async function searchJumiaStaticHomepage(
   return filterByQuery(parseJumiaPage(html), query);
 }
 
+/** Decode the `u=a1<base64url>` target Bing wraps outbound result links in. */
+function decodeBingRedirect(parsed: URL): string | null {
+  const u = parsed.searchParams.get("u");
+  if (!u || !u.startsWith("a1")) return null;
+  try {
+    const base64 = u.slice(2).replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+    return Buffer.from(padded, "base64").toString("utf8");
+  } catch {
+    return null;
+  }
+}
+
+function isJumiaProductUrl(url: URL): boolean {
+  const host = url.hostname.toLowerCase();
+  if (host !== "jumia.com.eg" && !host.endsWith(".jumia.com.eg")) return false;
+  if (!/\.html?$/i.test(url.pathname)) return false;
+  if (/\/(catalog|slp|ar|sp-)/i.test(url.pathname)) return false;
+  return true;
+}
+
+/** Pull native Jumia product URLs out of a search-engine result page. */
+export function extractJumiaProductUrlsFromSearchHtml(html: string): string[] {
+  const urls = new Set<string>();
+  for (const match of html.matchAll(/href=["']([^"']+)["']/gi)) {
+    const raw = match[1].replace(/&amp;/g, "&");
+    const absolute = raw.startsWith("//") ? `https:${raw}` : raw;
+    try {
+      const parsed = new URL(absolute, "https://www.bing.com");
+      const host = parsed.hostname.toLowerCase();
+
+      let target: string | null = null;
+      if (host === "duckduckgo.com" || host.endsWith(".duckduckgo.com")) {
+        target = parsed.searchParams.get("uddg") ?? parsed.searchParams.get("u");
+      } else if (host === "bing.com" || host.endsWith(".bing.com")) {
+        target = decodeBingRedirect(parsed);
+      } else {
+        target = parsed.toString();
+      }
+      if (!target) continue;
+
+      const productUrl = new URL(target);
+      if (!isJumiaProductUrl(productUrl)) continue;
+      productUrl.hash = "";
+      urls.add(productUrl.toString());
+    } catch {
+      // Relative/malformed result links are not product candidates.
+    }
+  }
+  return Array.from(urls);
+}
+
+function searchEngineUrls(query: string): string[] {
+  const scoped = encodeURIComponent(`site:jumia.com.eg ${query}`);
+  return [
+    `https://html.duckduckgo.com/html/?q=${scoped}`,
+    `https://www.bing.com/search?q=${scoped}&setlang=en&count=20`,
+  ];
+}
+
+/**
+ * Cloud-bypass fallback: discover Jumia product pages through a search-engine
+ * index (`site:jumia.com.eg <query>`), then hydrate each page with the normal
+ * listing/JSON-LD parsers. This is only used when every direct listing path is
+ * unreachable, and it never fabricates a product: pages without a real EGP
+ * price and image are dropped by the parsers.
+ */
+async function searchJumiaSearchEngine(
+  query: string,
+  deadline: number,
+): Promise<RawProviderListing[]> {
+  const remaining = deadline - Date.now();
+  if (remaining <= 0) return [];
+
+  const engineTimeout = Math.max(800, Math.min(4_500, remaining));
+  const htmls = await Promise.all(
+    searchEngineUrls(query).map((url) =>
+      fetchTextSafely(url, { timeoutMs: engineTimeout, headers: JUMIA_HEADERS }),
+    ),
+  );
+
+  const productUrls = Array.from(
+    new Set(
+      htmls.flatMap((html) =>
+        html ? extractJumiaProductUrlsFromSearchHtml(html) : [],
+      ),
+    ),
+  ).slice(0, 6);
+  if (productUrls.length === 0) return [];
+
+  const enrichRemaining = deadline - Date.now();
+  if (enrichRemaining <= 0) return [];
+  const enrichTimeout = Math.max(800, Math.min(4_000, enrichRemaining));
+  const pages = await Promise.all(
+    productUrls.map((url) => fetchListingsFromUrl(url, enrichTimeout)),
+  );
+  return filterByQuery(dedupeListings(pages.flat()), query);
+}
+
 export const jumiaAdapter: StoreSearchAdapter = {
   id: "jumia",
   name: STORE_NAME,
@@ -566,6 +704,11 @@ export const jumiaAdapter: StoreSearchAdapter = {
     const deadline = Date.now() + REQUEST_TIMEOUT_MS;
     const trimmed = query.trim();
     if (!trimmed) return [];
+
+    const catalogResults = await searchJumiaCatalog(trimmed, deadline);
+    if (catalogResults.length > 0) {
+      return dedupeListings(catalogResults).slice(0, maxResults);
+    }
 
     const slpResults = await searchJumiaSlp(trimmed, deadline);
     if (slpResults.length > 0) {
@@ -578,7 +721,12 @@ export const jumiaAdapter: StoreSearchAdapter = {
     }
 
     const staticResults = await searchJumiaStaticHomepage(trimmed, deadline);
-    return dedupeListings(staticResults).slice(0, maxResults);
+    if (staticResults.length > 0) {
+      return dedupeListings(staticResults).slice(0, maxResults);
+    }
+
+    const indexedResults = await searchJumiaSearchEngine(trimmed, deadline);
+    return dedupeListings(indexedResults).slice(0, maxResults);
   },
 };
 

@@ -6,7 +6,7 @@ type EgyptStoreAffiliateConfig = {
   defaultParam?: string;
 };
 
-const STORE_BASE_URLS: Record<string, string> = {
+export const STORE_BASE_URLS: Record<string, string> = {
   jumia: "https://www.jumia.com.eg",
   noon: "https://www.noon.com",
   temu: "https://www.temu.com",
