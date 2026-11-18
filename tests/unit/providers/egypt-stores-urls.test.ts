@@ -132,7 +132,8 @@ describe("Jumia JSON-LD fallback", () => {
   it("deduplicates JSON-LD products already parsed from HTML cards", () => {
     const html = `
       <article class="prd _fb col c-prd" data-moengage-product_image="https://www.jumia.com.eg/iphone.jpg">
-        <a class="core" href="/iphone-15.html" data-gtm-id="J1" data-gtm-name="iPhone 15" data-gtm-price="45000"></a>
+        <a class="core" href="/iphone-15.html" data-gtm-id="J1" data-gtm-name="iPhone 15" data-gtm-price="762.71"></a>
+        <div class="prc _inl">EGP 45,000.00</div>
       </article>
       <script type="application/ld+json">${JSON.stringify({
         "@type": "Product",
@@ -145,6 +146,19 @@ describe("Jumia JSON-LD fallback", () => {
     const items = parseJumiaPage(html);
     expect(items).toHaveLength(1);
     expect(items[0]?.externalId).toBe("J1");
+    expect(items[0]?.price).toBe(45000);
+  });
+
+  it("rejects JSON-LD offers that are not priced in EGP", () => {
+    const html = `<script type="application/ld+json">${JSON.stringify({
+      "@type": "Product",
+      name: "iPhone 15",
+      url: "https://www.jumia.com.eg/iphone-15.html",
+      image: "https://www.jumia.com.eg/iphone.jpg",
+      offers: { "@type": "Offer", price: "762.71", priceCurrency: "USD" },
+    })}</script>`;
+
+    expect(parseJumiaJsonLd(html)).toHaveLength(0);
   });
 });
 

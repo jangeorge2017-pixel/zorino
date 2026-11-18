@@ -74,10 +74,12 @@ describe("Egyptian store parsers", () => {
     });
   });
 
-  it("parses Jumia catalog cards", () => {
+  it("parses Jumia catalog cards from the visible EGP price, not USD analytics", () => {
     const html = `
       <article class="prd _fb col c-prd" data-moengage-product_image="https://www.jumia.com.eg/iphone.jpg">
-        <a class="core" href="/iphone-15.html" data-gtm-id="J1" data-gtm-name="iPhone 15" data-gtm-price="45000" data-ga4-discount="5000"></a>
+        <a class="core" href="/iphone-15.html" data-gtm-id="J1" data-gtm-name="iPhone 15" data-gtm-price="762.71" data-ga4-discount="84.75"></a>
+        <div class="prc _inl">EGP 45,000.00</div>
+        <div class="old">EGP 50,000.00</div>
       </article>`;
     const [item] = parseJumiaHtml(html);
     expect(item).toMatchObject({
@@ -87,6 +89,14 @@ describe("Egyptian store parsers", () => {
       price: 45000,
       originalPrice: 50000,
     });
+  });
+
+  it("drops Jumia cards that only expose the USD analytics price", () => {
+    const html = `
+      <article class="prd _fb col c-prd" data-moengage-product_image="https://www.jumia.com.eg/iphone.jpg">
+        <a class="core" href="/iphone-15.html" data-gtm-id="J1" data-gtm-name="iPhone 15" data-gtm-price="762.71"></a>
+      </article>`;
+    expect(parseJumiaHtml(html)).toHaveLength(0);
   });
 
   it("parses Raneen Vertex products", () => {

@@ -41,13 +41,10 @@ function buildJumiaHeaders(userAgent: string): Record<string, string> {
 
 const JUMIA_HEADERS = buildJumiaHeaders(JUMIA_DESKTOP_USER_AGENT);
 const JUMIA_MOBILE_HEADERS = buildJumiaHeaders(JUMIA_MOBILE_USER_AGENT);
-// Product cards sit near the top of Jumia listing pages. A bounded range
-// keeps the request under the engine's 8s provider budget on slow networks.
-const JUMIA_PAGE_HEADERS: Record<string, string> = {
-  ...JUMIA_HEADERS,
-  range: "bytes=0-500000",
-  "accept-encoding": "identity",
-};
+// Never send a `Range` header: Jumia's listing grid starts well past the first
+// 500 KB of HTML, so a partial response parses as ZERO products. Let fetch
+// negotiate compression (gzip/br) instead of forcing an identity transfer.
+const JUMIA_PAGE_HEADERS: Record<string, string> = { ...JUMIA_HEADERS };
 
 function parseArticle(block: string): RawProviderListing | null {
   const linkMatch = /<a\b[^>]*class="[^"]*\bcore\b[^"]*"[^>]*>/i.exec(block);
@@ -67,18 +64,22 @@ function parseArticle(block: string): RawProviderListing | null {
       getAttribute(block, "data-gtm-name") ??
       stripTags(block.match(/<h3\b[^>]*class="[^"]*\bname\b[^"]*"[^>]*>[\s\S]*?<\/h3>/i)?.[0] ?? ""),
   );
-  const price = parseMoney(
-    getAttribute(linkTag, "data-gtm-price") ?? getAttribute(block, "data-gtm-price"),
-  );
+  // `data-gtm-price` / `data-ga4-price` are emitted in USD by Jumia's analytics
+  // layer. The visible `prc` block is the authoritative EGP price shoppers see.
+  const priceText = block.match(
+    /<div\b[^>]*class="[^"]*\bprc\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+  )?.[1];
+  const price = parseMoney(stripTags(priceText ?? ""));
   if (!externalId || !title || !price) return null;
 
   const imageUrl = resolveUrl(getAttribute(block, "data-moengage-product_image"), BASE_URL);
   if (!imageUrl) return null;
 
-  const discountValue = parseMoney(
-    getAttribute(linkTag, "data-ga4-discount") ?? getAttribute(block, "data-ga4-discount"),
-  );
-  const originalPrice = discountValue > 0 ? price + discountValue : price;
+  const oldPriceText = block.match(
+    /<div\b[^>]*class="[^"]*\bold\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+  )?.[1];
+  const oldPrice = parseMoney(stripTags(oldPriceText ?? ""));
+  const originalPrice = oldPrice > price ? oldPrice : price;
   const category = (
     getAttribute(linkTag, "data-gtm-category") ??
     getAttribute(block, "data-gtm-category") ??
@@ -215,6 +216,10 @@ export function parseJumiaJsonLd(html: string): RawProviderListing[] {
 
       const offersNode = Array.isArray(node.offers) ? node.offers[0] : node.offers;
       const offers = isRecord(offersNode) ? offersNode : {};
+      const currency = firstString(offers.priceCurrency) || "EGP";
+      // Reject non-EGP offers: Jumia's USD analytics values are ~1/59 of the
+      // storefront price and must never be shown as EGP.
+      if (currency.toUpperCase() !== "EGP") continue;
       const price = numericValue(offers.price);
       if (!price) continue;
 
@@ -235,7 +240,7 @@ export function parseJumiaJsonLd(html: string): RawProviderListing[] {
         price,
         originalPrice: price,
         discount: 0,
-        currency: firstString(offers.priceCurrency) || "EGP",
+        currency,
         storeName: STORE_NAME,
         category: firstString(node.category),
         rating,
@@ -285,8 +290,35 @@ async function fetchListingsFromUrl(
   timeoutMs: number,
   headers: Record<string, string> = JUMIA_PAGE_HEADERS,
 ): Promise<RawProviderListing[]> {
-  const html = await fetchTextSafely(url, { timeoutMs, headers });
-  return html ? parseJumiaPage(html) : [];
+  try {
+    const html = await fetchTextSafely(url, { timeoutMs, headers });
+    return html ? parseJumiaPage(html) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Resolve with the first non-empty batch; empty only when all batches fail. */
+async function firstNonEmpty(
+  requests: readonly Promise<RawProviderListing[]>[],
+): Promise<RawProviderListing[]> {
+  if (requests.length === 0) return [];
+  return new Promise((resolve) => {
+    let settled = false;
+    let remaining = requests.length;
+    for (const request of requests) {
+      request.then((items) => {
+        if (settled) return;
+        if (items.length > 0) {
+          settled = true;
+          resolve(items);
+        } else if (--remaining === 0) {
+          settled = true;
+          resolve([]);
+        }
+      });
+    }
+  });
 }
 
 /** Fetch candidate pages in parallel and return the first non-empty set. */
@@ -524,15 +556,10 @@ async function searchJumiaCatalog(
   deadline: number,
 ): Promise<RawProviderListing[]> {
   const catalogUrl = `${BASE_URL}/catalog/?q=${encodeURIComponent(query)}`;
-  const desktop = await firstWithResults(
-    [catalogUrl],
-    deadline,
-    5_500,
-    JUMIA_PAGE_HEADERS,
-  );
-  if (desktop.length > 0) return desktop;
-
-  return firstWithResults([catalogUrl], deadline, 5_500, JUMIA_MOBILE_HEADERS);
+  return firstNonEmpty([
+    firstWithResults([catalogUrl], deadline, 5_500, JUMIA_PAGE_HEADERS),
+    firstWithResults([catalogUrl], deadline, 5_500, JUMIA_MOBILE_HEADERS),
+  ]);
 }
 
 /**
