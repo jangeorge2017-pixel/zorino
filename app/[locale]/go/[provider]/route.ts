@@ -92,18 +92,21 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Destination not allowed" }, { status: 403 });
   }
 
-  const redirect = new URL("/api/affiliate/go", request.url);
-  redirect.searchParams.set("to", destination);
-  redirect.searchParams.set("store", providerId);
+  const params = new URLSearchParams({ to: destination, store: providerId });
 
   const productId = clampString(url.searchParams.get("productId") ?? undefined, 64);
   const source = clampString(url.searchParams.get("source") ?? undefined, 64);
   const country = clampString(url.searchParams.get("country") ?? undefined, 8);
   const sessionId = clampString(url.searchParams.get("sessionId") ?? undefined, 128);
-  if (productId) redirect.searchParams.set("productId", productId);
-  if (source) redirect.searchParams.set("source", source);
-  if (country) redirect.searchParams.set("country", country);
-  if (sessionId) redirect.searchParams.set("sessionId", sessionId);
+  if (productId) params.set("productId", productId);
+  if (source) params.set("source", source);
+  if (country) params.set("country", country);
+  if (sessionId) params.set("sessionId", sessionId);
 
-  return NextResponse.redirect(redirect, 302);
+  // Relative Location: behind Render's proxy `request.url` is the internal
+  // origin (localhost:10000), so an absolute URL would redirect users there.
+  return new Response(null, {
+    status: 302,
+    headers: { Location: `/api/affiliate/go?${params.toString()}` },
+  });
 }
