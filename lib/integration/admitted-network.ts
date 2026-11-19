@@ -1,7 +1,10 @@
 import manifest from "@/data/admitted-network.json";
+import { PRODUCTION_PROVIDER_IDS } from "@/lib/integration/constants";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
+
+const PRODUCTION_PROVIDER_SET = new Set(PRODUCTION_PROVIDER_IDS as readonly string[]);
 
 type ManifestProgram = {
   id: string;
@@ -176,23 +179,21 @@ export function offerBelongsToAdmittedMerchant(
   return names.has(normalizeMerchantName(offer.storeName));
 }
 
-/** An offer is allowed when it is an approved Admitad merchant or a blended giant.
- *  All provider-native admitad offers are allowed so old/new admitted campaigns
- *  remain visible in catalog/search surfaces.
+/** An offer is allowed when it belongs to a known production provider (including
+ *  all Admitad campaigns/merchants and synced catalog providers like Jumia).
+ *  This avoids hardcoded merchant/provider whitelists hiding newly added stores.
  */
 export function isAllowedCatalogOffer(
   offer: NormalizedCatalogItem["offers"][number],
-  names: Set<string>,
+  _names: Set<string>,
 ): boolean {
-  if (isBlendedProviderId(offer.providerId)) return true;
-  if (resolveMarketplaceId(offer.providerId) === "admitad") return true;
-  return offerBelongsToAdmittedMerchant(offer, names);
+  const resolved = resolveMarketplaceId(offer.providerId);
+  return PRODUCTION_PROVIDER_SET.has(resolved) || PRODUCTION_PROVIDER_SET.has(offer.providerId);
 }
 
 /**
- * Blended view filter: the 82 approved Admitad merchants plus Amazon, eBay,
- * and AliExpress. Offers from other/unapproved sources are removed; an item
- * with no allowed offer is dropped entirely.
+ * Catalog offer filter: keep offers from known production providers and preserve
+ * their provider identities so synced Jumia/Admitad and core stores remain visible.
  */
 export async function filterAdmittedCatalogItems(
   items: readonly NormalizedCatalogItem[],
@@ -206,7 +207,7 @@ export async function filterAdmittedCatalogItems(
 
     const providerIds = item.providerIds.filter((providerId) => {
       const resolved = resolveMarketplaceId(providerId);
-      return resolved === "admitad" || BLENDED_PROVIDER_IDS.has(resolved);
+      return PRODUCTION_PROVIDER_SET.has(resolved) || PRODUCTION_PROVIDER_SET.has(providerId);
     });
     filtered.push({
       ...item,
