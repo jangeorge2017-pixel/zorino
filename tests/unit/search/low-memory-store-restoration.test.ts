@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { isAmazonScraperAvailable } from "@/lib/integrations/amazon-scraper";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 import { amazonEgSearchConnector } from "@/lib/search/connectors/amazon-eg";
 import { amazonSearchConnector } from "@/lib/search/connectors/amazon";
 import {
@@ -35,7 +36,7 @@ describe("live store availability", () => {
 });
 
 describe("balanced live-store pool", () => {
-  it("caps eBay at five rows while every other store stays in the first rows", () => {
+  it("keeps eBay bounded to a rich first-page share while every other store stays visible", () => {
     const stores = ["ebay", "amazon-eg", "aliexpress", "noon", "jumia", "btech"];
     const items = Array.from({ length: 40 }, (_, i) => ({
       id: `item-${i}`,
@@ -49,14 +50,27 @@ describe("balanced live-store pool", () => {
     const out = interleaveWithProviderCap(
       items,
       (item) => item.storeSlug || item.store,
-      { ebay: 5 },
+      { ebay: 15 },
     );
     const head = out.slice(0, stores.length);
     expect(head.filter((item) => item.storeSlug === "ebay")).toHaveLength(1);
     for (const store of stores) {
       expect(head.some((item) => item.storeSlug === store)).toBe(true);
     }
-    expect(out.filter((item) => item.storeSlug === "ebay")).toHaveLength(5);
+    expect(out.filter((item) => item.storeSlug === "ebay")).toHaveLength(15);
+  });
+});
+
+describe("remote product image guard", () => {
+  it("rejects empty, local-placeholder, http, and data URLs", () => {
+    expect(isUsableRemoteProductImageUrl("")).toBe(false);
+    expect(isUsableRemoteProductImageUrl("/products/placeholder.svg")).toBe(false);
+    expect(isUsableRemoteProductImageUrl("http://images.example.com/p.jpg")).toBe(false);
+    expect(isUsableRemoteProductImageUrl("data:image/gif;base64,R0lGODlh")).toBe(false);
+  });
+
+  it("accepts real https product images", () => {
+    expect(isUsableRemoteProductImageUrl("https://eg.jumia.is/product/1.jpg")).toBe(true);
   });
 });
 

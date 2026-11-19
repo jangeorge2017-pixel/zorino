@@ -1,14 +1,10 @@
 #!/usr/bin/env node
-/**
- * Standalone Jumia Egypt ingestion for scheduled GitHub Actions.
- * Fetches real listings from jumia.com.eg and upserts into Supabase catalog
- * (stores/products/prices/lowest_prices_today) so Render can serve Jumia
- * products even when live scraping is blocked in production.
- */
-
 import { existsSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
+
+const require = createRequire(import.meta.url);
 
 const envPath = resolve(process.cwd(), ".env.local");
 if (existsSync(envPath)) {
@@ -27,94 +23,16 @@ const BASE_URL = "https://www.jumia.com.eg";
 const STORE_NAME = "Jumia";
 const DESKTOP_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-const MOBILE_UA =
-  "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
+const TARGET_PRODUCTS = 150;
+const PER_QUERY = 30;
 
-const QUERIES = [
-  "iphone",
-  "samsung galaxy",
-  "xiaomi",
-  "oppo",
-  "laptop",
-  "macbook",
-  "tablet",
-  "headphones",
-  "earbuds",
-  "smart watch",
-  "television",
-  "smart tv",
-  "air fryer",
-  "refrigerator",
-  "washing machine",
-  "microwave",
-  "air conditioner",
-  "vacuum cleaner",
-  "shoes",
-  "sneakers",
-  "bags",
-  "perfume",
-  "skincare",
-  "makeup",
-  "gaming",
-  "playstation",
-  "keyboard",
-  "mouse",
-  "printer",
-  "camera",
-  "power bank",
-  "charger",
-  "speaker",
-  "monitor",
-  "router",
+const CATEGORY_QUERIES = [
+  { category: "phones", queries: ["iphone", "samsung galaxy", "xiaomi phone", "oppo phone", "mobile phone"] },
+  { category: "electronics", queries: ["earbuds", "headphones", "bluetooth speaker", "power bank", "smart tv"] },
+  { category: "watches", queries: ["smart watch", "men watch", "women watch"] },
+  { category: "laptops", queries: ["laptop", "macbook", "gaming laptop"] },
+  { category: "home", queries: ["air fryer", "vacuum cleaner", "microwave", "coffee machine"] },
 ];
-
-function headers(ua) {
-  return {
-    "user-agent": ua,
-    accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "accept-language": "en-EG,en;q=0.9,ar-EG;q=0.8",
-    referer: `${BASE_URL}/`,
-    "sec-fetch-dest": "document",
-    "sec-fetch-mode": "navigate",
-    "sec-fetch-site": "same-origin",
-    "upgrade-insecure-requests": "1",
-  };
-}
-
-function decodeHtml(text = "") {
-  return text
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-}
-
-function stripTags(text = "") {
-  return decodeHtml(text.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
-}
-
-function cleanTitle(value) {
-  return decodeHtml(String(value ?? ""))
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 180);
-}
-
-function getAttribute(tag, name) {
-  const re = new RegExp(`${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, "i");
-  const m = tag.match(re);
-  return m ? decodeHtml(m[1] ?? m[2] ?? m[3] ?? "") : null;
-}
-
-function resolveUrl(value, base = BASE_URL) {
-  if (!value) return "";
-  try {
-    return new URL(value, base).toString();
-  } catch {
-    return "";
-  }
-}
 
 function parseMoney(value) {
   if (!value) return 0;
@@ -132,103 +50,91 @@ function discountPercent(price, originalPrice) {
   return Math.max(0, Math.round(((originalPrice - price) / originalPrice) * 100));
 }
 
-function parseArticle(block) {
-  const linkMatch = /<a\b[^>]*class="[^"]*\bcore\b[^"]*"[^>]*>/i.exec(block);
-  const linkTag = linkMatch?.[0] ?? "";
-  const href = getAttribute(linkTag, "href");
-  const productUrl = resolveUrl(href, BASE_URL);
-  if (!productUrl) return null;
-
-  const externalId = (
-    getAttribute(linkTag, "data-gtm-id") ||
-    getAttribute(block, "data-sku") ||
-    getAttribute(block, "data-gtm-id") ||
-    ""
-  ).trim();
-  const title = cleanTitle(
-    getAttribute(linkTag, "data-gtm-name") ||
-      getAttribute(block, "data-gtm-name") ||
-      stripTags(block.match(/<h3\b[^>]*class="[^"]*\bname\b[^"]*"[^>]*>[\s\S]*?<\/h3>/i)?.[0] ?? ""),
-  );
-  const priceText = block.match(/<div\b[^>]*class="[^"]*\bprc\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i)?.[1];
-  const price = parseMoney(stripTags(priceText ?? ""));
-  if (!externalId || !title || !price) return null;
-
-  const imageUrl = resolveUrl(getAttribute(block, "data-moengage-product_image"), BASE_URL);
-  if (!imageUrl) return null;
-
-  const oldPriceText = block.match(/<div\b[^>]*class="[^"]*\bold\b[^"]*"[^>]*>([\s\S]*?)<\/div>/i)?.[1];
-  const oldPrice = parseMoney(stripTags(oldPriceText ?? ""));
-  const originalPrice = oldPrice > price ? oldPrice : price;
-  const category = (
-    getAttribute(linkTag, "data-gtm-category") ||
-    getAttribute(block, "data-gtm-category") ||
-    ""
-  ).split("/")[0]?.trim();
-
-  return {
-    externalId,
-    title,
-    imageUrl,
-    price,
-    originalPrice,
-    discount: discountPercent(price, originalPrice),
-    currency: "EGP",
-    countryCode: "EG",
-    storeName: STORE_NAME,
-    category: category || "general",
-    productUrl,
-    affiliateUrl: productUrl,
-  };
+function cleanTitle(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 180);
 }
 
-function parseJumiaHtml(html) {
-  const results = [];
-  const seen = new Set();
-  const articlePattern = /<article\b[^>]*class="[^"]*\bprd\b[^"]*"[^>]*>[\s\S]*?<\/article>/gi;
-  for (const match of html.matchAll(articlePattern)) {
-    const item = parseArticle(match[0]);
-    if (!item || seen.has(item.externalId)) continue;
-    seen.add(item.externalId);
-    results.push(item);
-  }
-  return results;
-}
-
-async function fetchText(url, ua, timeoutMs = 12000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+function resolveUrl(value, base = BASE_URL) {
+  if (!value) return "";
   try {
-    const res = await fetch(url, { headers: headers(ua), signal: controller.signal, redirect: "follow" });
-    if (!res.ok) return "";
-    return await res.text();
+    const url = new URL(String(value).trim().split(/\s+/)[0], base);
+    return url.protocol === "https:" ? url.toString() : "";
   } catch {
     return "";
-  } finally {
-    clearTimeout(timer);
   }
 }
 
-async function searchJumia(query, maxResults = 40) {
-  const q = encodeURIComponent(query.trim());
-  const urls = [`${BASE_URL}/catalog/?q=${q}`];
-  const attempts = [
-    fetchText(urls[0], DESKTOP_UA),
-    fetchText(urls[0], MOBILE_UA),
-  ];
-  const htmls = await Promise.all(attempts);
-  const merged = [];
-  const seen = new Set();
-  for (const html of htmls) {
-    if (!html) continue;
-    for (const item of parseJumiaHtml(html)) {
-      if (seen.has(item.externalId)) continue;
-      seen.add(item.externalId);
-      merged.push(item);
-      if (merged.length >= maxResults) return merged;
-    }
+function isJumiaImage(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && parsed.hostname.toLowerCase().endsWith(".jumia.is");
+  } catch {
+    return false;
   }
-  return merged;
+}
+
+async function scrapeQuery(page, query, category) {
+  const url = `${BASE_URL}/catalog/?q=${encodeURIComponent(query)}`;
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  await page.waitForSelector("article.prd", { timeout: 20_000 }).catch(() => {});
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(500);
+
+  const rawCards = await page.$$eval("article.prd", (nodes) => {
+    const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
+    return nodes.map((node) => {
+      const link = node.querySelector("a.core") || node.querySelector("a[href]");
+      const image = node.querySelector("img");
+      const values = (name) => link?.getAttribute(name) || node.getAttribute(name) || "";
+      const srcset = image?.getAttribute("data-srcset") || image?.getAttribute("srcset") || "";
+      return {
+        externalId: values("data-gtm-id") || values("data-sku") || "",
+        title:
+          clean(node.querySelector("h3.name")?.textContent || "") ||
+          clean(values("data-gtm-name")) ||
+          clean(image?.getAttribute("alt") || ""),
+        priceText: clean(node.querySelector(".prc")?.textContent || ""),
+        oldPriceText: clean(node.querySelector(".old")?.textContent || ""),
+        productHref: link?.getAttribute("href") || "",
+        imageValue:
+          image?.getAttribute("data-moengage-product_image") ||
+          image?.getAttribute("data-src") ||
+          image?.getAttribute("src") ||
+          srcset.split(",")[0] ||
+          "",
+      };
+    });
+  });
+
+  const results = [];
+  const seen = new Set();
+  for (const card of rawCards) {
+    const productUrl = resolveUrl(card.productHref);
+    const imageUrl = resolveUrl(card.imageValue);
+    const price = parseMoney(card.priceText);
+    const title = cleanTitle(card.title);
+    if (!productUrl || !isJumiaImage(imageUrl) || !price || !title) continue;
+    const externalId = card.externalId.trim() || productUrl;
+    if (seen.has(externalId)) continue;
+    seen.add(externalId);
+    const originalPrice = parseMoney(card.oldPriceText);
+    results.push({
+      externalId,
+      title,
+      imageUrl,
+      price,
+      originalPrice: originalPrice > price ? originalPrice : price,
+      discount: discountPercent(price, originalPrice),
+      currency: "EGP",
+      countryCode: "EG",
+      storeName: STORE_NAME,
+      category,
+      productUrl,
+      affiliateUrl: productUrl,
+    });
+    if (results.length >= PER_QUERY) break;
+  }
+  return results;
 }
 
 function slugify(text) {
@@ -289,7 +195,6 @@ async function saveBatch(items, db, storeId) {
     if (prodErr || !upserted?.length) continue;
 
     const slugToId = new Map(upserted.map((p) => [p.slug, p.id]));
-
     const priceRows = [];
     const lowestRows = [];
     const now = new Date().toISOString();
@@ -356,39 +261,72 @@ async function main() {
     process.exit(1);
   }
 
-  const supabase = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
+  const { chromium } = require("playwright");
+  const browser = await chromium.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-dev-shm-usage"],
   });
+  const context = await browser.newContext({
+    userAgent: DESKTOP_UA,
+    locale: "en-EG",
+    timezoneId: "Africa/Cairo",
+    viewport: { width: 1440, height: 1000 },
+  });
+  const page = await context.newPage();
 
   const all = new Map();
-  for (const query of QUERIES) {
-    console.log(`[jumia-ingest] searching: ${query}`);
-    try {
-      const results = await searchJumia(query, 48);
-      for (const item of results) {
-        const slug = `jumia-${slugify(item.externalId || item.productUrl)}`;
-        if (!slug || all.has(slug)) continue;
-        all.set(slug, {
-          ...item,
-          slug,
-          categorySlug: slugify(item.category || "general") || "general",
-        });
+  try {
+    for (const { category, queries } of CATEGORY_QUERIES) {
+      for (const query of queries) {
+        if (all.size >= TARGET_PRODUCTS) break;
+        console.log(`[jumia-ingest] ${category}: ${query}`);
+        try {
+          const results = await scrapeQuery(page, query, category);
+          for (const item of results) {
+            const slug = `jumia-${slugify(item.externalId || item.productUrl)}`;
+            if (!slug || all.has(slug)) continue;
+            all.set(slug, {
+              ...item,
+              slug,
+              categorySlug: slugify(item.category) || "general",
+            });
+          }
+          console.log(`[jumia-ingest] ${query}: ${results.length} items (total ${all.size})`);
+        } catch (error) {
+          console.warn(`[jumia-ingest] query failed: ${query}`, error?.message || error);
+        }
       }
-      console.log(`[jumia-ingest] ${query}: ${results.length} items (total ${all.size})`);
-    } catch (err) {
-      console.warn(`[jumia-ingest] query failed: ${query}`, err?.message || err);
+      if (all.size >= TARGET_PRODUCTS) break;
     }
+  } finally {
+    await context.close();
+    await browser.close();
   }
 
-  const items = Array.from(all.values());
+  const items = Array.from(all.values()).slice(0, TARGET_PRODUCTS);
   if (items.length === 0) {
-    console.log("[jumia-ingest] no products fetched");
+    console.error("[jumia-ingest] no products fetched");
+    process.exit(1);
+  }
+
+  if (process.argv.includes("--dry-run")) {
+    const withImages = items.filter((item) => isJumiaImage(item.imageUrl)).length;
+    console.log(`[jumia-ingest] dry run: ${items.length} products, ${withImages} Jumia CDN images`);
+    console.log(`[jumia-ingest] sample: ${items[0]?.title} | ${items[0]?.imageUrl}`);
     return;
   }
 
+  const supabase = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
   const storeId = await ensureStore(supabase);
   const saved = await saveBatch(items, supabase, storeId);
-  console.log(`[jumia-ingest] saved ${saved} products`);
+  console.log(
+    `[jumia-ingest] saved ${saved} real Jumia products (images: ${items.filter((item) => isJumiaImage(item.imageUrl)).length})`,
+  );
+  if (items.length < 100) {
+    console.warn(`[jumia-ingest] only ${items.length} products fetched; target is ${TARGET_PRODUCTS}`);
+  }
 }
 
 main().catch((err) => {

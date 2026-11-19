@@ -7,6 +7,7 @@ import ProductCardActions from "@/components/ProductCardActions";
 import WishlistButton from "@/components/WishlistButton";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 import type { Locale } from "@/i18n/config";
 import PriceText from "@/components/international/PriceText";
 import { toArabicNumerals } from "@/lib/international/arabic-numerals";
@@ -69,6 +70,8 @@ export default function ListingProductCard({
   const tProduct = useTranslations("product");
   const locale = useLocale() as Locale;
   const toCardNumerals = (s: string) => (locale === "ar" ? toArabicNumerals(s) : s);
+
+  if (!isUsableRemoteProductImageUrl(product.imageSrc)) return null;
 
   const discount =
     product.discount ??

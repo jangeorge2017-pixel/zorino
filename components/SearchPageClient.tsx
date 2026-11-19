@@ -13,6 +13,7 @@ import type { SearchResultItem } from "@/lib/data/homepage";
 import type { SearchPageResult } from "@/lib/search/engine";
 import { mergePagedResults } from "@/lib/search/pagination";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 
 interface ProductSearchResult {
   id: string;
@@ -118,6 +119,7 @@ export default function SearchPageClient({
   const filteredResults = useMemo(() => {
     return [...items]
       .filter((product) => {
+        if (!isUsableRemoteProductImageUrl(product.imageSrc)) return false;
         if (selectedCategory && product.category !== selectedCategory) return false;
         if (selectedStore && product.storeSlug !== selectedStore) return false;
         if (minPrice && product.price < Number(minPrice)) return false;

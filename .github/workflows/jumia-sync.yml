@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright runtime
+        run: npm install --no-save playwright
+
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps --only-shell
+
       - name: Run Jumia ingestion
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

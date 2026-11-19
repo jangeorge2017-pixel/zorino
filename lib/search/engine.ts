@@ -20,6 +20,12 @@ import {
 } from "@/lib/search/query-intent";
 import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
 import {
+  isRepairOrPartsListing,
+  queryPinsDeviceFamily,
+  titleMeetsRequiredBrand,
+} from "@/lib/search/relevance";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
+import {
   assembleProductionSearchResults,
   enforceViewportSingleSourceCap,
 } from "@/lib/search/production-pipeline";
@@ -72,6 +78,10 @@ export type GlobalSearchOptions = {
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
 const FAIR_SEARCH_MAX_ENTRIES = 500;
+/** eBay is capped only to keep page 1 rich; it never truncates the pool. */
+const FIRST_PAGE_PROVIDER_CAPS = { ebay: 15 } as const;
+/** Relevant companion products kept behind genuine matches per provider. */
+const DEVICE_QUERY_FALLBACK_PER_PROVIDER = 15;
 const fairSearchCache = new Map<
   string,
   { items: SearchResultItem[]; expiresAt: number }
@@ -82,6 +92,38 @@ function setFairSearchCache(
   value: { items: SearchResultItem[]; expiresAt: number },
 ): void {
   setBoundedCacheEntry(fairSearchCache, key, value, FAIR_SEARCH_MAX_ENTRIES);
+}
+
+/**
+ * Keep the strict genuine-device lead, then admit a bounded set of relevant
+ * companion listings per provider so a device query can still produce a rich
+ * first page when a store carries the family but not enough exact handsets.
+ * Relevance ranking below always places genuine devices ahead of this fallback.
+ */
+function enforceVolumeBackedDevicePool<T extends RawProviderListing>(
+  listings: readonly T[],
+  query: string,
+  activeCurrency: CurrencyCode,
+): T[] {
+  const genuine = enforceStrictDevicePool(listings, query, activeCurrency);
+  if (queryPinsDeviceFamily(query)) return genuine;
+  const genuineKeys = new Set(genuine.map((item) => `${item.providerId}:${item.externalId}`));
+  const fallbackCounts = new Map<string, number>();
+  const fallback: T[] = [];
+
+  for (const item of listings) {
+    const key = `${item.providerId}:${item.externalId}`;
+    if (genuineKeys.has(key)) continue;
+    if (!isUsableRemoteProductImageUrl(item.imageUrl)) continue;
+    if (isRepairOrPartsListing(item.title.toLowerCase())) continue;
+    if (!titleMeetsRequiredBrand(item.title, query)) continue;
+    const used = fallbackCounts.get(item.providerId) ?? 0;
+    if (used >= DEVICE_QUERY_FALLBACK_PER_PROVIDER) continue;
+    fallbackCounts.set(item.providerId, used + 1);
+    fallback.push(item);
+  }
+
+  return [...genuine, ...fallback];
 }
 
 /**
@@ -236,9 +278,10 @@ export function mergeDbSupplementExactFirst(
 }
 
 /**
- * Fair round-robin over the assembled pool with a hard per-provider head cap.
- * eBay's catalog is by far the largest; capping it at five rows keeps Amazon,
- * AliExpress, Noon, Jumia, B.TECH and Admitad visible in the first rows.
+ * Fair round-robin over the assembled pool with a small optional per-provider
+ * cap. eBay's catalog is by far the largest; a bounded head share keeps Amazon,
+ * AliExpress, Noon, Jumia, B.TECH and Admitad visible in the first rows without
+ * truncating the rest of the pool.
  */
 export function interleaveWithProviderCap<T extends SearchResultItem>(
   items: readonly T[],
@@ -795,9 +838,12 @@ export async function searchProducts(
   // excluded, ever. Homepage / category / compare pools and accessory-intent
   // queries ("iphone 15 case") are NOT filtered here â€” scope stays with the
   // device-intent caller.
+  const imageSafePool = [...allRaw, ...dbAsRaw].filter((listing) =>
+    isUsableRemoteProductImageUrl(listing.imageUrl),
+  );
   const rawPoolForDeviceIntent = deviceIntent
-    ? enforceStrictDevicePool([...allRaw, ...dbAsRaw], trimmed, activeCurrency)
-    : [...allRaw, ...dbAsRaw];
+    ? enforceVolumeBackedDevicePool(imageSafePool, trimmed, activeCurrency)
+    : imageSafePool;
   const assembled = assembleProductionSearchResults(
     rawPoolForDeviceIntent,
     trimmed,
@@ -872,13 +918,15 @@ export async function searchProducts(
   const interleaved = interleaveWithProviderCap(
     viewportCapped,
     (item) => item.storeSlug || item.store || "unknown",
-    { ebay: 5 },
-  ).map((item) => {
-    const affiliateUrl = normalizeHttpsAffiliateUrl(item.affiliateUrl);
-    return affiliateUrl && affiliateUrl !== item.affiliateUrl
-      ? { ...item, affiliateUrl }
-      : item;
-  });
+    FIRST_PAGE_PROVIDER_CAPS,
+  )
+    .map((item) => {
+      const affiliateUrl = normalizeHttpsAffiliateUrl(item.affiliateUrl);
+      return affiliateUrl && affiliateUrl !== item.affiliateUrl
+        ? { ...item, affiliateUrl }
+        : item;
+    })
+    .filter((item) => isUsableRemoteProductImageUrl(item.imageSrc));
 
   const cappedHead = interleaved.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const summarize = (items: SearchResultItem[]): string =>

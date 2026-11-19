@@ -133,6 +133,23 @@ export function normalizeProductImageUrl(url?: string | null): string {
   return PRODUCT_IMAGE_PLACEHOLDER;
 }
 
+/**
+ * True only for a real remote https product image. Empty, local-placeholder,
+ * http, data:, and malformed URLs are rejected so the UI never renders a blank
+ * dark media well for a dead marketplace fallback card.
+ */
+export function isUsableRemoteProductImageUrl(url?: string | null): boolean {
+  const normalized = normalizeProductImageUrl(url);
+  if (normalized === PRODUCT_IMAGE_PLACEHOLDER || normalized.startsWith("/")) {
+    return false;
+  }
+  try {
+    return new URL(normalized).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 /** True when URL is a same-origin or configured remote asset safe for next/image. */
 export function isLocalProductImage(url: string): boolean {
   return url.startsWith("/");
