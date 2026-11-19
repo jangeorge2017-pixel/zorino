@@ -4,7 +4,10 @@ import {
   type AmazonScrapedProduct,
   type AmazonScrapedSearchResult,
 } from "@/lib/integrations/amazon-scraper/config";
+import { createRequire } from "node:module";
 import type { Browser, BrowserContext, Page, Route } from "playwright";
+
+const nodeRequire = createRequire(process.cwd() + "/package.json");
 
 let sharedBrowserPromise: Promise<Browser> | null = null;
 
@@ -16,9 +19,10 @@ async function getSharedPlaywrightBrowser(): Promise<Browser> {
     sharedBrowserPromise = null;
   }
 
-  sharedBrowserPromise = import("playwright")
-    .then(({ chromium }) =>
-      chromium.launch({
+  sharedBrowserPromise = Promise.resolve()
+    .then(() => {
+      const playwright = nodeRequire("playwright") as typeof import("playwright");
+      return playwright.chromium.launch({
         headless: true,
         args: [
           "--no-sandbox",
@@ -27,8 +31,8 @@ async function getSharedPlaywrightBrowser(): Promise<Browser> {
           "--disable-background-networking",
           "--disable-extensions",
         ],
-      }),
-    )
+      });
+    })
     .catch((error) => {
       sharedBrowserPromise = null;
       throw error;
