@@ -84,7 +84,7 @@ export type GlobalSearchOptions = {
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
 const FAIR_SEARCH_MAX_ENTRIES = 500;
 const DB_SUPPLEMENT_TIMEOUT_MS = 8_000;
-const FAST_DB_LANE_TIMEOUT_MS = 300;
+const DB_LANE_TIMEOUT_MS = 3_000;
 /** Relevant companion products kept behind genuine matches per provider. */
 const DEVICE_QUERY_FALLBACK_PER_PROVIDER = 15;
 const fairSearchCache = new Map<
@@ -549,7 +549,7 @@ async function fetchProvidersInParallel(
       // source never blocks others; critical storefronts keep the full budget.
       const adapterFetchTimeoutMs = CRITICAL_PROVIDER_IDS.has(adapter.id)
         ? Math.max(fetchTimeoutMs, CRITICAL_PROVIDER_FETCH_TIMEOUT_MS)
-        : Math.min(fetchTimeoutMs, 5_000);
+        : Math.min(fetchTimeoutMs, 8_000);
       try {
         const searches = [
           adapter.search(query, {
@@ -754,7 +754,7 @@ export async function searchProducts(
     // Use fuzzy ILIKE matching for Arabic-translated queries to maximize recall.
     withLaneTimeout(
       fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword, useFuzzyMatch),
-      FAST_DB_LANE_TIMEOUT_MS,
+      DB_LANE_TIMEOUT_MS,
       [] as SearchResultItem[],
     ),
     // Fast indexed read of synced Jumia / Admitad rows. Bounded to 200ms so a
@@ -770,7 +770,7 @@ export async function searchProducts(
           )
           .catch(() => [] as SearchResultItem[]),
       ),
-      FAST_DB_LANE_TIMEOUT_MS,
+      DB_LANE_TIMEOUT_MS,
       [] as SearchResultItem[],
     ),
     getActiveProductionProviders(),

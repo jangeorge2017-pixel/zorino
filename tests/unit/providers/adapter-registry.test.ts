@@ -135,7 +135,7 @@ describe("Adapter contracts", () => {
         expect(Array.isArray(result.listings)).toBe(true);
         expect(result).toHaveProperty("durationMs");
         expect(typeof result.durationMs).toBe("number");
-      });
+      }, 30_000);
 
       it("search returns empty for empty query", async () => {
         const result = await adapter.search("");

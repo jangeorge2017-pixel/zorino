@@ -14,7 +14,7 @@ import {
 } from "@/lib/search/persistent-cache-store";
 
 /** Low-RAM live fetch budget for the background/stale search refresh. */
-const LOW_RAM_PROVIDER_TIMEOUT_MS = 4_500;
+const LOW_RAM_PROVIDER_TIMEOUT_MS = 8_000;
 const LOW_RAM_PROVIDER_CONCURRENCY = 4;
 const LOW_RAM_MAX_LISTINGS_PER_PROVIDER = 20;
 
