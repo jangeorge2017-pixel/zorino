@@ -1,4 +1,4 @@
-import { createAmazonClientFromEnv, isAmazonConfigured, isAmazonDirectEnabled } from "@/lib/integrations/amazon";
+import { createAmazonClientFromEnv, isAmazonConfigured } from "@/lib/integrations/amazon";
 import { normalizeAmazonRaw } from "@/lib/search/normalization";
 import { normalizeAmazonScraperRaw } from "@/lib/search/normalization";
 import { normalizeAmazonScraperSearchResults } from "@/lib/search/normalization";
@@ -34,17 +34,10 @@ export const amazonSearchConnector: SearchConnector = {
     // fan-out, burn the provider timeout budget, and get recorded as
     // "available, fetched 0".
     //
-    // Phase 5 decision (AMAZON IS INDIRECT): the LATENT DIRECT path
-    // (query → Creators API / scraper) must NOT activate merely because
-    // credentials are later added. It is additionally gated behind the
-    // explicit AMAZON_DIRECT_ENABLE=1 architecture opt-in. The approved
-    // indirect path (affiliate URL → ASIN → ingestion) does not go through
-    // this connector.
-    //
-    // Phase 6 (current): Oxylabs subscription retired (401). The local
-    // storefront scraper (fetchAmazonSearchScraper) is the production source —
-    // additive, no credentials required.
-    return isAmazonDirectEnabled() && (isAmazonConfigured() || isAmazonScraperAvailable());
+    // Phase 6: Oxylabs is retired (401). The lightweight local storefront
+    // scraper (plain fetch + regex, no headless browser) is the production
+    // source, so availability must not depend on the indirect-path opt-in.
+    return isAmazonConfigured() || isAmazonScraperAvailable();
   },
 
   async search(query: string, options?: ConnectorSearchOptions): Promise<RawProviderListing[]> {

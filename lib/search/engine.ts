@@ -238,6 +238,38 @@ export function mergeDbSupplementExactFirst(
 }
 
 /**
+ * Fair round-robin over the assembled pool with a hard per-provider head cap.
+ * eBay's catalog is by far the largest; capping it at four rows keeps Amazon,
+ * AliExpress, Noon, Jumia, B.TECH and Admitad visible in the first rows.
+ */
+export function interleaveWithProviderCap<T extends SearchResultItem>(
+  items: readonly T[],
+  storeKey: (item: T) => string,
+  caps: Readonly<Record<string, number>>,
+): T[] {
+  const buckets = new Map<string, T[]>();
+  for (const item of items) {
+    const key = storeKey(item).toLowerCase();
+    const bucket = buckets.get(key) ?? [];
+    const cap = caps[key];
+    if (cap !== undefined && bucket.length >= cap) continue;
+    bucket.push(item);
+    buckets.set(key, bucket);
+  }
+  const out: T[] = [];
+  for (let added = true; added; ) {
+    added = false;
+    for (const bucket of buckets.values()) {
+      const item = bucket.shift();
+      if (!item) continue;
+      out.push(item);
+      added = true;
+    }
+  }
+  return out;
+}
+
+/**
  * DB supplement: query the canonical/imported ZORINO inventory the
  * Categories already use. Runs the exact query AND the family retrieval
  * keyword in parallel behind the same hard deadline the live providers race,
@@ -274,29 +306,23 @@ async function fetchDbSupplementForSearch(
 }
 
 /**
- * Hard per-provider budget inside the search fan-out. A slow or stalled
- * connector (e.g. the Admitad feed can take up to ~25s on a cold cache) must
- * never hold the search fan-out â€” and therefore the homepage catalog, which
- * fans out 8 curated queries through this same engine â€” hostage. When a
- * connector exceeds the budget its partial work is dropped and the fan-out
- * settles with the faster providers' real results.
+ * Hard per-provider budget inside the search fan-out. On Render's 512MB
+ * instance every store fetcher is strictly capped at 3.5s so a slow connector
+ * can never pin full HTML response strings in memory. Providers that cannot
+ * answer inside that window are supplemented from the fast indexed Supabase
+ * catalog instead.
  */
-const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 3_500;
 let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
 
-/**
- * Providers whose retrieval is heavy enough that the low-RAM 3.5s cache-warm
- * budget routinely cut them off entirely (Amazon Egypt's storefront scraper,
- * the AliExpress Open API, and Jumia's catalog fetch). They keep the full
- * engine budget even when a caller requests a shorter low-RAM fan-out, so a
- * cache build never persists a pool that silently dropped them.
- */
-const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
-const CRITICAL_PROVIDER_IDS: ReadonlySet<SearchProviderId> = new Set([
-  "amazon-eg",
-  "aliexpress",
+/** Provider keys used by the synced Jumia / Admitad rows in Supabase. */
+const SYNCED_SEARCH_PROVIDERS = [
   "jumia",
-]);
+  "jumia_eg",
+  "jumia-eg",
+  "jumia-egypt",
+  "admitad",
+] as const;
 
 /** Test-only: shrink the per-provider budget so timeout degradation is provable fast. */
 export function setProviderFetchTimeoutForTests(ms?: number): void {
@@ -474,9 +500,9 @@ async function fetchProvidersInParallel(
 
   const runAdapter = async (adapter: (typeof adapters)[number]) => {
       const started = Date.now();
-      // Every store/provider fetcher is independently bounded (5s) so one slow
-      // source never blocks others; fan-out collects via Promise.allSettled.
-      const adapterFetchTimeoutMs = Math.min(fetchTimeoutMs, 5_000);
+      // Every store/provider fetcher is independently bounded at 3.5s on the
+      // low-memory path so response HTML is never held in memory longer.
+      const adapterFetchTimeoutMs = Math.min(fetchTimeoutMs, 3_500);
       try {
         const searches = [
           adapter.search(query, {
@@ -583,14 +609,16 @@ async function fetchProvidersInParallel(
       }
   };
 
-  const runs = adapters.map((adapter) =>
-    Promise.resolve().then(() => runAdapter(adapter)),
-  );
-  if (options?.lowRam) {
-    await Promise.allSettled(runs);
-  } else {
-    await Promise.allSettled(runs);
-  }
+  // Hard low-memory rule: at most TWO store fetchers are in flight at once.
+  // A wide fan-out previously held several multi-megabyte HTML catalogs
+  // simultaneously and pushed Render's 512MB instance past its limit.
+  await runWithConcurrency(adapters, 2, async (adapter) => {
+    try {
+      await runAdapter(adapter);
+    } catch {
+      // A single provider failure must never discard the other stores.
+    }
+  });
 
   return { allRaw, providerStats };
 }
@@ -662,7 +690,7 @@ export async function searchProducts(
       ? familyRetrievalForSearch
       : undefined;
 
-  const [{ allRaw }, fromDb, activeProviderIds] = await Promise.all([
+  const [{ allRaw }, fromDb, syncedStores, activeProviderIds] = await Promise.all([
     fetchProvidersInParallel(trimmed, {
       // Device-intent searches page deeper so an accessory-saturated catalog is
       // not mistaken for "no genuine inventory" after one shallow page. Still
@@ -684,6 +712,18 @@ export async function searchProducts(
     // Search reaches the same imported/canonical inventory the Categories show.
     // Use fuzzy ILIKE matching for Arabic-translated queries to maximize recall.
     fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword, useFuzzyMatch),
+    // Fast indexed read of synced Jumia / Admitad rows. Bounded to 200ms so a
+    // slow external scraper can never erase these real stores from the pool.
+    import("@/lib/integration/database-catalog").then((mod) =>
+      mod
+        .getSyncedStoreResultsFromDatabase(
+          SYNCED_SEARCH_PROVIDERS,
+          trimmed,
+          capped,
+          200,
+        )
+        .catch(() => [] as SearchResultItem[]),
+    ),
     getActiveProductionProviders(),
   ]);
 
@@ -697,7 +737,7 @@ export async function searchProducts(
     "amazon-eg",
   ]);
   const stubProviders = new Set<string>(STUB_PROVIDER_IDS as readonly string[]);
-  const activeDb = fromDb.filter((item) => {
+  const activeDb = mergeDbSupplementExactFirst(fromDb, syncedStores).filter((item) => {
     const providerId = item.storeSlug as string;
     if (!providerId || stubProviders.has(providerId)) return false;
     return activeProviders.has(providerId) || !stubProviders.has(providerId);
@@ -830,17 +870,11 @@ export async function searchProducts(
 
   const mixedHead = guarded.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const composedHead = composed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
-  const buckets = new Map<string, SearchResultItem[]>();
-  for (const it of viewportCapped) {
-    const k = (it.storeSlug || it.store || "unknown").toLowerCase();
-    const b = buckets.get(k) ?? [];
-    if (k !== "ebay" || b.length < 6) { b.push(it); buckets.set(k, b); }
-  }
-  const interleaved: SearchResultItem[] = [];
-  for (let on = true; on; ) {
-    on = false;
-    for (const b of buckets.values()) if (b.length) { interleaved.push(b.shift()!); on = true; }
-  }
+  const interleaved = interleaveWithProviderCap(
+    viewportCapped,
+    (item) => item.storeSlug || item.store || "unknown",
+    { ebay: 4 },
+  );
 
   const cappedHead = interleaved.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const summarize = (items: SearchResultItem[]): string =>

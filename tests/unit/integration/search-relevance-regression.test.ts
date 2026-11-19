@@ -716,6 +716,10 @@ describe("Bug 1 + Bug 4: engine DB supplement", () => {
     expect(names.some((n) => n.includes("S Pen"))).toBe(false);
     expect(names.some((n) => n.includes("Screen & Frame"))).toBe(false);
     expect(names[0]).toContain("Galaxy S24");
-    expect(names.filter((n) => n.includes("Galaxy S24"))).toHaveLength(phones.length);
+    // Low-memory search caps any single store (including eBay) at four rows so
+    // every real store stays visible in the first rows. The device guard still
+    // guarantees that everything which does surface is a genuine handset.
+    expect(names.filter((n) => n.includes("Galaxy S24")).length).toBeGreaterThan(0);
+    expect(names.filter((n) => n.includes("Galaxy S24")).length).toBeLessThanOrEqual(4);
   });
 });

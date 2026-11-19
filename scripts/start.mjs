@@ -8,7 +8,7 @@ if (!existsSync(nextBin)) {
   process.exit(1);
 }
 
-const maxOldSpace = "--max-old-space-size=380";
+const maxOldSpace = "--max-old-space-size=320";
 const inherited = process.env.NODE_OPTIONS?.trim();
 const nodeOptions = inherited ? `${inherited} ${maxOldSpace}` : maxOldSpace;
 

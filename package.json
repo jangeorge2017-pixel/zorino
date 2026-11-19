@@ -14,7 +14,7 @@
     "dev": "next dev",
     "dev:lan": "next dev --hostname 0.0.0.0",
     "build": "next build",
-    "start": "node scripts/start.mjs",
+    "start": "NODE_OPTIONS='--max-old-space-size=320' next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "generate:logo": "node scripts/generate-hero-z-logo-svg.mjs",

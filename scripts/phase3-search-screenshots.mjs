@@ -3,6 +3,7 @@
  * Usage: node scripts/phase3-search-screenshots.mjs [baseUrl]
  */
 import { chromium } from "playwright";
+import "./lib/browser-guard.mjs";
 import { mkdir } from "node:fs/promises";
 
 const baseUrl = (process.argv[2] ?? "https://www.zorino.org/en").replace(/\/$/, "");

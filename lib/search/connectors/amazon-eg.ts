@@ -1,7 +1,7 @@
 import type { SearchConnector, ConnectorSearchOptions } from "@/lib/search/connectors/types";
 import type { RawProviderListing } from "@/lib/search/types";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
-import { getAmazonCredentials, isAmazonConfigured, isAmazonDirectEnabled } from "@/lib/integrations/amazon/config";
+import { getAmazonCredentials, isAmazonConfigured } from "@/lib/integrations/amazon/config";
 import { getCreatorsAccessToken } from "@/lib/integrations/amazon/auth";
 import {
   fetchAmazonProductScraper,
@@ -287,17 +287,10 @@ export const amazonEgSearchConnector: SearchConnector = {
     // available. Without either there is no genuine amazon.eg product data, so
     // the connector must not report as operational.
     //
-    // Phase 5 decision (AMAZON-EG IS INDIRECT): this is the LATENT DIRECT path
-    // (seed ASINs / query → Creators API getItems / storefront scraper). It
-    // must NOT activate merely because credentials are later added — it
-    // requires the explicit AMAZON_DIRECT_ENABLE=1 architecture opt-in. The
-    // approved indirect path (affiliate URL → host-guarded ASIN → ingestion)
-    // does not use this connector.
-    //
-    // Phase 6 (current): Oxylabs subscription retired (401). The local
-    // storefront scraper (fetchAmazonSearchScraper on amazon.eg) is the
-    // production source — additive, no credentials required.
-    return isAmazonDirectEnabled() && (isAmazonConfigured() || isAmazonScraperAvailable());
+    // Phase 6: Oxylabs is retired (401). The lightweight amazon.eg storefront
+    // scraper (plain fetch + regex, no headless browser) is the production
+    // source, so availability must not depend on the indirect-path opt-in.
+    return isAmazonConfigured() || isAmazonScraperAvailable();
   },
 
   async search(

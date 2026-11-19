@@ -2,6 +2,7 @@
  * Inspect homepage computed CSS on localhost (verification only).
  */
 import { chromium } from "playwright";
+import "./lib/browser-guard.mjs";
 
 const BASE = process.env.HOMEPAGE_URL ?? "http://localhost:3000/";
 

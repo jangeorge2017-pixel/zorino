@@ -4,6 +4,7 @@ import {
   type AmazonScrapedProduct,
   type AmazonScrapedSearchResult,
 } from "@/lib/integrations/amazon-scraper/config";
+import { isHeadlessBrowserBlocked } from "@/lib/security/headless-browser-guard";
 
 /**
  * Local, open-source Amazon scraper (free). Fetches the real Amazon storefront
@@ -84,9 +85,10 @@ export function buildAmazonProductUrl(
 async function fetchHtml(url: string): Promise<string> {
   const engine = process.env.AMAZON_SCRAPER_ENGINE?.trim().toLowerCase();
 
-  // Playwright engine (opt-in). Uses the browser to defeat heavier bot
-  // detection. Falls back to the http engine when playwright is unavailable.
-  if (engine === "playwright") {
+  // Playwright engine (local-only opt-in). Hard-blocked on Render / production
+  // because Chromium alone exceeds the 512MB heap. Falls back to the lightweight
+  // fetch + regex http engine everywhere that matters.
+  if (engine === "playwright" && !isHeadlessBrowserBlocked()) {
     try {
       const pw = await import("playwright");
       const browser = await pw.chromium.launch({
@@ -415,8 +417,10 @@ async function fetchAmazonSearchPage(
       );
     }
     results = parseSearchHtml(html, marketplace);
+    const blocked = isWafChallenge(html);
+    html = "";
     if (results.length > 0) return results;
-    if (isWafChallenge(html)) break; // JS challenge never resolves via rotation
+    if (blocked) break; // JS challenge never resolves via rotation
   }
 
   return results;
@@ -570,7 +574,9 @@ export async function fetchAmazonProductScraper(
       html = "";
     }
     product = parseProductHtml(html, trimmed, marketplace);
-    if (isWafChallenge(html)) break;
+    const blocked = isWafChallenge(html);
+    html = "";
+    if (product || blocked) break;
   }
 
   return product;

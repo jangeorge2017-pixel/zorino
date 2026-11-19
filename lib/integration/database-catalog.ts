@@ -987,6 +987,67 @@ export async function getSearchResultsFromDatabase(
   });
 }
 
+/**
+ * Fast, provider-scoped Supabase read for synced Jumia / Admitad rows. Uses
+ * the same word-boundary filter and image guards as the regular DB supplement
+ * but restricts to the given provider keys and a small limit, so it resolves
+ * inside a strict 200ms budget even when every external scraper is slow.
+ */
+export async function getSyncedStoreResultsFromDatabase(
+  providers: readonly string[],
+  query: string,
+  limit = 24,
+  timeoutMs = 200,
+): Promise<SearchResultItem[]> {
+  if (providers.length === 0) return [];
+
+  const load = async (): Promise<SearchResultItem[]> => {
+    const supabase = supabaseClientFactoryForTests
+      ? supabaseClientFactoryForTests()
+      : createSupabaseAnonClient();
+    if (!supabase) return [];
+
+    const orFilter = buildNormalizedSearchOrFilter(query);
+    if (!orFilter) return [];
+
+    const { data, error } = await db(supabase)
+      .from("lowest_prices_today")
+      .select(
+        "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
+      )
+      .in("provider", [...providers])
+      .or(orFilter)
+      .in("country_code", [...CATALOG_COUNTRIES])
+      .not("image_url", "is", null)
+      .neq("image_url", "")
+      .limit(Math.max(1, Math.min(limit, 60)));
+
+    if (error || !data?.length) return [];
+
+    const rows = (data as LowestPriceRow[]).filter(
+      (row) =>
+        row.product_name &&
+        row.image_url &&
+        normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER,
+    );
+    return rows.map((row) => rowToSearchResultItem(row));
+  };
+
+  return new Promise<SearchResultItem[]>((resolve) => {
+    const timer = setTimeout(() => resolve([]), Math.max(1, timeoutMs));
+    load().then(
+      (items) => {
+        clearTimeout(timer);
+        resolve(items);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve([]);
+      },
+    );
+  });
+}
+
 async function loadSearchResultsFromDatabase(
   query: string,
   limit: number,

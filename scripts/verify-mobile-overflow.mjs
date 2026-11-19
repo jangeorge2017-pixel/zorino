@@ -3,6 +3,7 @@
  * Usage: node scripts/verify-mobile-overflow.mjs [url] [width]
  */
 import puppeteer from "puppeteer";
+import "./lib/browser-guard.mjs";
 import { existsSync } from "node:fs";
 
 const url = process.argv[2] ?? "http://localhost:3000/en";
