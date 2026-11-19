@@ -32,20 +32,40 @@ const MOBILE_UA =
 
 const QUERIES = [
   "iphone",
-  "samsung",
+  "samsung galaxy",
+  "xiaomi",
+  "oppo",
   "laptop",
+  "macbook",
+  "tablet",
   "headphones",
+  "earbuds",
   "smart watch",
   "television",
+  "smart tv",
   "air fryer",
   "refrigerator",
   "washing machine",
+  "microwave",
+  "air conditioner",
+  "vacuum cleaner",
   "shoes",
+  "sneakers",
+  "bags",
   "perfume",
   "skincare",
+  "makeup",
   "gaming",
+  "playstation",
+  "keyboard",
+  "mouse",
   "printer",
   "camera",
+  "power bank",
+  "charger",
+  "speaker",
+  "monitor",
+  "router",
 ];
 
 function headers(ua) {
@@ -344,7 +364,7 @@ async function main() {
   for (const query of QUERIES) {
     console.log(`[jumia-ingest] searching: ${query}`);
     try {
-      const results = await searchJumia(query, 40);
+      const results = await searchJumia(query, 48);
       for (const item of results) {
         const slug = `jumia-${slugify(item.externalId || item.productUrl)}`;
         if (!slug || all.has(slug)) continue;

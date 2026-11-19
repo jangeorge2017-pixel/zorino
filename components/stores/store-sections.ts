@@ -7,12 +7,27 @@ export type StoreSection = {
   stores: Store[];
 };
 
-const SECTION_LIMIT = 4;
+const MARKETPLACE_TYPES = new Set([
+  "amazon",
+  "ebay",
+  "aliexpress",
+  "walmart",
+  "noon",
+  "jumia",
+  "temu",
+  "carrefour",
+  "btech",
+  "twob",
+  "dubaiphone",
+  "raneen",
+  "eldokan",
+  "bestbuy",
+  "admitad",
+  "cjdropshipping",
+]);
 
-const MARKETPLACE_TYPES = new Set(["amazon", "ebay", "aliexpress", "walmart", "noon"]);
-
-function topStores(pool: Store[], limit = SECTION_LIMIT): Store[] {
-  return pool.slice(0, limit);
+function topStores(pool: Store[]): Store[] {
+  return [...pool];
 }
 
 function isGlobalStore(store: Store): boolean {

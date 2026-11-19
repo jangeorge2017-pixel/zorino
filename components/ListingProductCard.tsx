@@ -49,7 +49,15 @@ function marketplaceBadgeLabel(storeSlug?: string, store?: string): string | nul
   if (slug === "nike") return "Nike";
   if (slug === "apple") return "Apple";
   if (slug === "foot-locker" || slug === "footlocker") return "Foot Locker";
-  return store?.trim() || null;
+  if (store?.trim()) return store.trim();
+  if (!slug) return null;
+  if (slug.startsWith("admitad_") || slug.startsWith("admitad-")) {
+    return slug
+      .replace(/^admitad[_-]/, "")
+      .replace(/[_-]+/g, " ")
+      .replace(/\b\w/g, (m) => m.toUpperCase());
+  }
+  return slug.replace(/[_-]+/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
 export default function ListingProductCard({

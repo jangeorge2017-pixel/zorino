@@ -299,6 +299,11 @@ const PROVIDER_ALIASES: Record<string, string> = {
   dubaiphonestore: "dubaiphone",
   eldokanstore: "eldokan",
   raneenstore: "raneen",
+  "jumia-eg": "jumia",
+  jumia_eg: "jumia",
+  "jumia-egypt": "jumia",
+  jumiaegypt: "jumia",
+  "jumia-egypt-eg": "jumia",
 };
 
 function compact(value: string): string {

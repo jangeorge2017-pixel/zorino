@@ -474,11 +474,9 @@ async function fetchProvidersInParallel(
 
   const runAdapter = async (adapter: (typeof adapters)[number]) => {
       const started = Date.now();
-      // Critical providers always get the full engine budget, even under a
-      // low-RAM caller timeout â€” otherwise a cache build persists without them.
-      const adapterFetchTimeoutMs = CRITICAL_PROVIDER_IDS.has(adapter.id)
-        ? Math.max(fetchTimeoutMs, CRITICAL_PROVIDER_FETCH_TIMEOUT_MS)
-        : fetchTimeoutMs;
+      // Every store/provider fetcher is independently bounded (5s) so one slow
+      // source never blocks others; fan-out collects via Promise.allSettled.
+      const adapterFetchTimeoutMs = Math.min(fetchTimeoutMs, 5_000);
       try {
         const searches = [
           adapter.search(query, {
@@ -585,14 +583,13 @@ async function fetchProvidersInParallel(
       }
   };
 
+  const runs = adapters.map((adapter) =>
+    Promise.resolve().then(() => runAdapter(adapter)),
+  );
   if (options?.lowRam) {
-    await runWithConcurrency(
-      adapters,
-      options.providerConcurrency ?? 3,
-      runAdapter,
-    );
+    await Promise.allSettled(runs);
   } else {
-    await Promise.all(adapters.map(runAdapter));
+    await Promise.allSettled(runs);
   }
 
   return { allRaw, providerStats };

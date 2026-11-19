@@ -46,22 +46,25 @@ export async function isRealDataStore(
   const slug = row.slug;
 
   if (isAdmitadMerchantRow(slug)) {
-    return row.integration_type === "partner";
+    // All active Admitad merchant/campaign stores must remain visible.
+    return true;
   }
 
   if (slug === "amazon" || slug === "amazon-eg") {
-    return isAmazonConfigured() || isProductionProviderActive(slug);
+    // Keep core Amazon stores visible; direct live query remains gated elsewhere.
+    return true;
   }
 
   if (isKnownProviderStoreSlug(slug)) {
-    return isProductionProviderActive(slug);
+    return true;
   }
 
   if (LIVE_DATA_STORE_SLUGS.has(slug)) {
-    return isProductionProviderActive(slug as ProductionProviderId);
+    return true;
   }
 
-  return false;
+  // Default-visible for active store rows not explicitly excluded.
+  return true;
 }
 
 /**

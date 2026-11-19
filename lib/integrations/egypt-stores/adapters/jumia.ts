@@ -678,9 +678,12 @@ export function extractJumiaProductUrlsFromSearchHtml(html: string): string[] {
 
 function searchEngineUrls(query: string): string[] {
   const scoped = encodeURIComponent(`site:jumia.com.eg ${query}`);
+  const mobileScoped = encodeURIComponent(`site:jumia.com.eg/catalog ${query}`);
   return [
+    `https://r.jina.ai/https://duckduckgo.com/html/?q=${scoped}`,
     `https://html.duckduckgo.com/html/?q=${scoped}`,
     `https://www.bing.com/search?q=${scoped}&setlang=en&count=20`,
+    `https://www.bing.com/search?q=${mobileScoped}&setlang=en&count=20`,
   ];
 }
 
@@ -698,8 +701,8 @@ async function searchJumiaSearchEngine(
   const remaining = deadline - Date.now();
   if (remaining <= 0) return [];
 
-  const engineTimeout = Math.max(800, Math.min(4_500, remaining));
-  const htmls = await Promise.all(
+  const engineTimeout = Math.max(800, Math.min(5_500, remaining));
+  const htmls = await Promise.allSettled(
     searchEngineUrls(query).map((url) =>
       fetchTextSafely(url, { timeoutMs: engineTimeout, headers: JUMIA_HEADERS }),
     ),
@@ -707,20 +710,107 @@ async function searchJumiaSearchEngine(
 
   const productUrls = Array.from(
     new Set(
-      htmls.flatMap((html) =>
-        html ? extractJumiaProductUrlsFromSearchHtml(html) : [],
-      ),
+      htmls.flatMap((res) => {
+        const html = res.status === "fulfilled" ? res.value : null;
+        return html ? extractJumiaProductUrlsFromSearchHtml(html) : [];
+      }),
     ),
-  ).slice(0, 6);
+  ).slice(0, 10);
   if (productUrls.length === 0) return [];
 
   const enrichRemaining = deadline - Date.now();
   if (enrichRemaining <= 0) return [];
-  const enrichTimeout = Math.max(800, Math.min(4_000, enrichRemaining));
-  const pages = await Promise.all(
+  const enrichTimeout = Math.max(800, Math.min(4_500, enrichRemaining));
+  const pages = await Promise.allSettled(
     productUrls.map((url) => fetchListingsFromUrl(url, enrichTimeout)),
   );
-  return filterByQuery(dedupeListings(pages.flat()), query);
+  return filterByQuery(
+    dedupeListings(
+      pages.flatMap((res) => (res.status === "fulfilled" ? res.value : [])),
+    ),
+    query,
+  );
+}
+
+
+const JUMIA_PROVIDER_KEYS = ["jumia", "jumia_eg", "jumia-eg", "jumia-egypt", "jumia-egypt"];
+
+async function searchJumiaFromSupabase(
+  query: string,
+  maxResults: number,
+): Promise<RawProviderListing[]> {
+  try {
+    const { createSupabaseAnonClient } = await import("@/lib/supabase/server");
+    const supabase = createSupabaseAnonClient();
+    if (!supabase) return [];
+
+    const words = query
+      .toLowerCase()
+      .split(/\s+/)
+      .map((w) => w.replace(/[^a-z0-9\u0600-\u06ff]/g, ""))
+      .filter((w) => w.length > 1)
+      .slice(0, 6);
+    if (words.length === 0) return [];
+
+    // Query ALL matching Jumia provider keys stored in Supabase.
+    let req = (supabase as any)
+      .from("lowest_prices_today")
+      .select(
+        "product_id, product_name, product_slug, image_url, lowest_price, original_price, discount_percent, affiliate_url, external_url, currency, country_code, provider",
+      )
+      .in("provider", JUMIA_PROVIDER_KEYS)
+      .not("image_url", "is", null)
+      .neq("image_url", "")
+      .limit(Math.max(maxResults, 60));
+    for (const word of words) {
+      req = req.ilike("product_name", `%${word}%`);
+    }
+
+    const { data, error } = await req;
+    if (error || !Array.isArray(data) || data.length === 0) return [];
+
+    const results: RawProviderListing[] = [];
+    const seen = new Set<string>();
+    for (const row of data as any[]) {
+      const title = cleanTitle(row.product_name || "");
+      const price = Number(row.lowest_price);
+      const imageUrl = resolveUrl(row.image_url || "", BASE_URL);
+      const productUrl = resolveUrl(row.external_url || row.affiliate_url || "", BASE_URL);
+      if (!title || !price || price <= 0 || !imageUrl || !productUrl) continue;
+      const externalId =
+        String(row.product_slug || row.product_id || productUrl)
+          .replace(/^jumia[-_]?/i, "")
+          .slice(0, 120);
+      if (!externalId || seen.has(externalId)) continue;
+      seen.add(externalId);
+      const originalPrice = Number(row.original_price || price);
+      results.push({
+        providerId: "jumia",
+        externalId,
+        title,
+        imageUrl,
+        price,
+        originalPrice: originalPrice > price ? originalPrice : price,
+        discount:
+          typeof row.discount_percent === "number"
+            ? Math.max(0, Math.round(row.discount_percent))
+            : discountPercent(price, originalPrice),
+        currency: String(row.currency || "EGP"),
+        storeName: STORE_NAME,
+        category: "",
+        rating: 0,
+        reviewCount: 0,
+        inStock: true,
+        productUrl,
+        affiliateUrl: row.affiliate_url || productUrl,
+        countryCode: String(row.country_code || "EG"),
+      });
+      if (results.length >= maxResults) break;
+    }
+    return results;
+  } catch {
+    return [];
+  }
 }
 
 export const jumiaAdapter: StoreSearchAdapter = {
@@ -732,29 +822,25 @@ export const jumiaAdapter: StoreSearchAdapter = {
     const trimmed = query.trim();
     if (!trimmed) return [];
 
-    const catalogResults = await searchJumiaCatalog(trimmed, deadline);
-    if (catalogResults.length > 0) {
-      return dedupeListings(catalogResults).slice(0, maxResults);
-    }
+    // 1) Prefer Supabase-synced Jumia products (reliable on Render where live
+    // scraping may be blocked) across all known provider keys.
+    const fromDb = await searchJumiaFromSupabase(trimmed, maxResults);
+    const liveAttempts = [
+      searchJumiaCatalog(trimmed, deadline),
+      searchJumiaSlp(trimmed, deadline),
+      searchJumiaCategory(trimmed, deadline),
+      searchJumiaStaticHomepage(trimmed, deadline),
+      searchJumiaSearchEngine(trimmed, deadline),
+    ];
+    const settledLive = await Promise.allSettled(liveAttempts);
+    const liveResults = dedupeListings(
+      settledLive.flatMap((res) =>
+        res.status === "fulfilled" ? res.value : [],
+      ),
+    );
 
-    const slpResults = await searchJumiaSlp(trimmed, deadline);
-    if (slpResults.length > 0) {
-      return dedupeListings(slpResults).slice(0, maxResults);
-    }
-
-    const categoryResults = await searchJumiaCategory(trimmed, deadline);
-    if (categoryResults.length > 0) {
-      return dedupeListings(categoryResults).slice(0, maxResults);
-    }
-
-    const staticResults = await searchJumiaStaticHomepage(trimmed, deadline);
-    if (staticResults.length > 0) {
-      return dedupeListings(staticResults).slice(0, maxResults);
-    }
-
-    const indexedResults = await searchJumiaSearchEngine(trimmed, deadline);
-    return dedupeListings(indexedResults).slice(0, maxResults);
+    const merged = dedupeListings([...fromDb, ...liveResults]).slice(0, maxResults);
+    if (merged.length > 0) return merged;
+    return [];
   },
 };
-
-

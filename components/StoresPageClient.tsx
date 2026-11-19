@@ -20,7 +20,24 @@ type StoresPageClientProps = {
 
 type QuickFilter = "all" | "marketplace" | "partner" | "global";
 
-const MARKETPLACE_TYPES = new Set(["amazon", "ebay", "aliexpress", "walmart", "noon"]);
+const MARKETPLACE_TYPES = new Set([
+  "amazon",
+  "ebay",
+  "aliexpress",
+  "walmart",
+  "noon",
+  "jumia",
+  "temu",
+  "carrefour",
+  "btech",
+  "twob",
+  "dubaiphone",
+  "raneen",
+  "eldokan",
+  "bestbuy",
+  "admitad",
+  "cjdropshipping",
+]);
 
 function isGlobalStore(store: Store): boolean {
   return store.supportedRegions.includes("GLOBAL") || store.supportedRegions.length >= 3;
