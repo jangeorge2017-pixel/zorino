@@ -16,14 +16,9 @@ export const PERSISTENT_SEARCH_TTL_MS = 6 * 60 * 60 * 1000;
  * provider after a transient low-RAM timeout.
  */
 export const CRITICAL_SEARCH_PROVIDER_IDS = [
-  "amazon",
   "amazon-eg",
   "aliexpress",
   "jumia",
-  "noon",
-  "carrefour",
-  "temu",
-  "btech",
 ] as const;
 
 /** Grace window before an incomplete pool is bypassed and rebuilt live. */

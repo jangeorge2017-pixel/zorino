@@ -97,11 +97,17 @@ export const noonAdapter: StoreSearchAdapter = {
     const results: RawProviderListing[] = [];
     const seen = new Set<string>();
 
-    for (let page = 1; page <= pages; page += 1) {
-      const url =
-        `${BASE_URL}/egypt-en/search/?q=${encodeURIComponent(query)}` +
-        (page > 1 ? `&page=${page}` : "");
-      const html = await fetchTextSafely(url, { timeoutMs: 7_000 });
+    const htmlPages = await Promise.all(
+      Array.from({ length: pages }, (_, index) => {
+        const page = index + 1;
+        const url =
+          `${BASE_URL}/egypt-en/search/?q=${encodeURIComponent(query)}` +
+          (page > 1 ? `&page=${page}` : "");
+        return fetchTextSafely(url, { timeoutMs: 7_000 });
+      }),
+    );
+
+    for (const html of htmlPages) {
       if (!html) continue;
       for (const item of parseNoonHtml(html)) {
         if (seen.has(item.externalId)) continue;

@@ -378,6 +378,7 @@ const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
 const CRITICAL_PROVIDER_IDS: ReadonlySet<SearchProviderId> = new Set([
   "amazon-eg",
   "aliexpress",
+  "btech",
   "jumia",
   "noon",
 ]);
@@ -550,7 +551,7 @@ async function fetchProvidersInParallel(
       // Every store/provider fetcher is independently bounded so one slow
       // source never blocks others; critical storefronts keep the full budget.
       const adapterFetchTimeoutMs = CRITICAL_PROVIDER_IDS.has(adapter.id)
-        ? Math.min(fetchTimeoutMs, CRITICAL_PROVIDER_FETCH_TIMEOUT_MS)
+        ? Math.max(fetchTimeoutMs, CRITICAL_PROVIDER_FETCH_TIMEOUT_MS)
         : Math.min(fetchTimeoutMs, 5_000);
       try {
         const searches = [

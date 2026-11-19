@@ -41,6 +41,7 @@ const MAX_AFFILIATE_LINK_SLICE = 50;
 const STOREFRONT_BASE_URL = "https://www.aliexpress.com";
 const STOREFRONT_TIMEOUT_MS = 6_500;
 const STOREFRONT_MIN_LISTINGS = 10;
+const OPEN_API_DEADLINE_MS = 6_000;
 
 async function getClient() {
   await loadAliExpressCredentials();
@@ -267,6 +268,18 @@ async function fetchAliExpressStorefront(
   return collected.slice(0, Math.max(1, target));
 }
 
+function withDeadline<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    promise.finally(() => {
+      if (timer) clearTimeout(timer);
+    }),
+    new Promise<T>((resolve) => {
+      timer = setTimeout(() => resolve(fallback), ms);
+    }),
+  ]);
+}
+
 export const aliExpressSearchConnector: SearchConnector = {
   id: "aliexpress",
   name: "AliExpress",
@@ -299,7 +312,22 @@ export const aliExpressSearchConnector: SearchConnector = {
     const listings: RawProviderListing[] = [];
     const seenIds = new Set<string>();
 
-    if (client) {
+    // Start the credential-free storefront fetch immediately and in parallel
+    // with the Open API path. Render's egress frequently stalls product.query
+    // past the engine budget; waiting for that timeout before falling back was
+    // what silently zeroed AliExpress on live searches.
+    const storefrontPromise = fetchAliExpressStorefront(keywords, targetFetch).catch(
+      (error) => {
+        console.warn(
+          "[aliexpress-connector] storefront fallback failed (non-fatal)",
+          error instanceof Error ? error.message : String(error),
+        );
+        return [] as AliExpressRawProduct[];
+      },
+    );
+
+    const openApiPromise = (async () => {
+      if (!client) return [] as AliExpressRawProduct[];
       try {
         const rawGroups = await Promise.allSettled(
           keywords.map((keyword) =>
@@ -334,33 +362,31 @@ export const aliExpressSearchConnector: SearchConnector = {
 
         // Enrich a bounded leading batch with tracked affiliate links (the link
         // API generates at most 50 per call). EVERY other fetched listing is
-        // still ingested with its real product URL — previously the enrichment
+        // still returned with its real product URL — previously the enrichment
         // slice doubled as an ingestion cap and silently discarded ~90% of the
         // real AliExpress products the connector had already fetched.
         const withLinks = await attachOpenApiAffiliateLinks(
           client,
           collectedRaw.slice(0, MAX_AFFILIATE_LINK_SLICE),
         );
-        ingestBatch(withLinks, listings, seenIds);
-        ingestBatch(collectedRaw.slice(MAX_AFFILIATE_LINK_SLICE), listings, seenIds);
+        return [...withLinks, ...collectedRaw.slice(MAX_AFFILIATE_LINK_SLICE)];
       } catch (error) {
         console.error(
           "[aliexpress-connector]",
           error instanceof Error ? error.message : "AliExpress search failed",
         );
+        return [] as AliExpressRawProduct[];
       }
-    }
+    })();
 
+    const [openApiRaw, storefrontRaw] = await Promise.all([
+      withDeadline(openApiPromise, OPEN_API_DEADLINE_MS, [] as AliExpressRawProduct[]),
+      storefrontPromise,
+    ]);
+
+    ingestBatch(openApiRaw, listings, seenIds);
     if (listings.length < STOREFRONT_MIN_LISTINGS) {
-      try {
-        const storefrontRaw = await fetchAliExpressStorefront(keywords, targetFetch);
-        ingestBatch(storefrontRaw, listings, seenIds);
-      } catch (error) {
-        console.warn(
-          "[aliexpress-connector] storefront fallback failed (non-fatal)",
-          error instanceof Error ? error.message : String(error),
-        );
-      }
+      ingestBatch(storefrontRaw, listings, seenIds);
     }
 
     return listings;
