@@ -1,4 +1,5 @@
 import type { NormalizedSearchListing, UnifiedSearchProduct } from "@/lib/search/types";
+import { toProductCard } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import {
   getSyncStoreMeta,
@@ -48,7 +49,7 @@ function offerToSearchResultItem(
   offer: NormalizedSearchListing,
 ): SearchResultItem {
   const marketplace = marketplaceDisplayName(offer.providerId);
-  return {
+  const item: SearchResultItem = {
     id: offer.id,
     name: offer.title || product.title,
     imageSrc: offer.imageUrl || product.imageUrl,
@@ -68,13 +69,14 @@ function offerToSearchResultItem(
     category: offer.category || product.category,
     affiliateUrl: offer.affiliateUrl ?? offer.productUrl,
   };
+  return { ...item, productCard: toProductCard(item) ?? undefined };
 }
 
 /** Map a single ranked listing → search card (marketplace-labeled). */
 export function listingToSearchResultItem(
   listing: NormalizedSearchListing,
 ): SearchResultItem {
-  return {
+  const item: SearchResultItem = {
     id: listing.id,
     name: listing.title,
     imageSrc: listing.imageUrl,
@@ -95,6 +97,7 @@ export function listingToSearchResultItem(
     condition: listing.condition,
     affiliateUrl: listing.affiliateUrl ?? listing.productUrl,
   };
+  return { ...item, productCard: toProductCard(item) ?? undefined };
 }
 
 /**

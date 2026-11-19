@@ -1,6 +1,151 @@
 import type { ProductMatchTier } from "@/lib/search/relevance";
-import { LIVE_PROVIDER_IDS, PROVIDER_IDS } from "@/lib/providers/registry";
+import {
+  getProviderDisplayName,
+  LIVE_PROVIDER_IDS,
+  PROVIDER_IDS,
+} from "@/lib/providers/registry";
 import type { ProviderId } from "@/lib/providers/registry";
+import {
+  isUsableRemoteProductImageUrl,
+  normalizeProductImageUrl,
+} from "@/lib/images/product-image";
+
+export const MAX_PRODUCTS_PER_STORE = 5;
+
+export type ProductCard = {
+  id: string;
+  title: string;
+  price: number;
+  currency: string;
+  image_url: string;
+  product_url: string;
+  provider: string;
+  store_name: string;
+  store_badge: string;
+};
+
+export type ProductCardSource = {
+  id?: string | null;
+  externalId?: string | null;
+  name?: string | null;
+  title?: string | null;
+  imageSrc?: string | null;
+  imageUrl?: string | null;
+  image_url?: string | null;
+  price?: number | string | null;
+  currency?: string | null;
+  productUrl?: string | null;
+  product_url?: string | null;
+  affiliateUrl?: string | null;
+  affiliate_url?: string | null;
+  provider?: string | null;
+  providerId?: string | null;
+  store?: string | null;
+  storeName?: string | null;
+  store_name?: string | null;
+  storeSlug?: string | null;
+  store_slug?: string | null;
+  store_badge?: string | null;
+  storeInitial?: string | null;
+};
+
+function normalizeHttpsProductUrl(value?: string | null): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed || trimmed === "#" || trimmed.startsWith("/")) return undefined;
+  const candidate = /^http:\/\//i.test(trimmed)
+    ? `https://${trimmed.slice(7)}`
+    : trimmed.startsWith("//")
+      ? `https:${trimmed}`
+      : trimmed;
+  try {
+    const parsed = new URL(candidate);
+    return parsed.protocol === "https:" ? parsed.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function isUsableProductUrl(value?: string | null): boolean {
+  return Boolean(normalizeHttpsProductUrl(value));
+}
+
+export function toProductCard(input: ProductCardSource): ProductCard | null {
+  const imageUrl = normalizeProductImageUrl(
+    input.image_url ?? input.imageSrc ?? input.imageUrl,
+  );
+  if (!isUsableRemoteProductImageUrl(imageUrl)) return null;
+
+  const productUrl = normalizeHttpsProductUrl(
+    input.product_url ?? input.productUrl ?? input.affiliate_url ?? input.affiliateUrl,
+  );
+  if (!productUrl) return null;
+
+  const title = (input.title ?? input.name)?.trim();
+  if (!title) return null;
+
+  const price = typeof input.price === "string" ? Number(input.price) : input.price;
+  if (typeof price !== "number" || !Number.isFinite(price) || price < 0) return null;
+
+  const provider =
+    input.provider?.trim() ||
+    input.providerId?.trim() ||
+    input.storeSlug?.trim() ||
+    input.store_slug?.trim() ||
+    input.store_name?.trim() ||
+    input.storeName?.trim() ||
+    input.store?.trim();
+  if (!provider) return null;
+
+  const storeName =
+    input.store_name?.trim() ||
+    input.storeName?.trim() ||
+    input.store?.trim() ||
+    getProviderDisplayName(provider);
+  const id = input.id?.trim() || input.externalId?.trim() || productUrl;
+
+  return {
+    id,
+    title,
+    price,
+    currency: input.currency?.trim() ?? "",
+    image_url: imageUrl,
+    product_url: productUrl,
+    provider,
+    store_name: storeName,
+    store_badge:
+      input.store_badge?.trim() ||
+      input.storeInitial?.trim() ||
+      storeName.slice(0, 2).toUpperCase(),
+  };
+}
+
+export function interleaveByStore<T>(
+  items: readonly T[],
+  storeKey: (item: T) => string,
+  limitPerStore: number = MAX_PRODUCTS_PER_STORE,
+): T[] {
+  const buckets = new Map<string, T[]>();
+  for (const item of items) {
+    const key = storeKey(item).trim().toLowerCase() || "unknown";
+    const bucket = buckets.get(key) ?? [];
+    if (bucket.length >= limitPerStore) continue;
+    bucket.push(item);
+    buckets.set(key, bucket);
+  }
+
+  const result: T[] = [];
+  let progressed = true;
+  while (progressed) {
+    progressed = false;
+    for (const bucket of buckets.values()) {
+      const item = bucket.shift();
+      if (!item) continue;
+      result.push(item);
+      progressed = true;
+    }
+  }
+  return result;
+}
 
 /** All marketplace providers the engine can fan out to. */
 export const SEARCH_PROVIDER_IDS: readonly ProviderId[] = PROVIDER_IDS;

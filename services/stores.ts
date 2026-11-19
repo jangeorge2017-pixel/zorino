@@ -13,7 +13,7 @@ import {
   getRealMerchantStores,
   isRealDataStore,
 } from "@/lib/integration/real-stores";
-import { getProviderStoreMeta } from "@/lib/providers/registry";
+import { getProviderConfig, getProviderStoreMeta } from "@/lib/providers/registry";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Store, ServiceResult } from "@/lib/types/entities";
 
@@ -54,9 +54,16 @@ function providerStoreFromId(providerId: ProductionProviderId): Store | null {
 }
 
 function configuredProviderStores(): Store[] {
-  return getConfiguredProductionProviders()
+  const registryStores = PRODUCTION_PROVIDER_IDS.filter((id) => {
+    const status = getProviderConfig(id)?.status;
+    return status === "active" || status === "configured";
+  })
     .map(providerStoreFromId)
     .filter((store): store is Store => store !== null);
+  const credentialStores = getConfiguredProductionProviders()
+    .map(providerStoreFromId)
+    .filter((store): store is Store => store !== null);
+  return [...new Map([...registryStores, ...credentialStores].map((store) => [store.slug, store])).values()];
 }
 
 async function loadMerchantStores(): Promise<Store[]> {

@@ -37,7 +37,12 @@ import type {
   SearchProviderId,
   SearchSortMode,
 } from "@/lib/search/types";
-import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
+import {
+  interleaveByStore,
+  isUsableProductUrl,
+  MAX_PRODUCTS_PER_STORE,
+  SEARCH_ENGINE_DEFAULTS,
+} from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import type { CurrencyCode } from "@/lib/international/config";
 
@@ -78,8 +83,8 @@ export type GlobalSearchOptions = {
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
 const FAIR_SEARCH_MAX_ENTRIES = 500;
-/** eBay is capped only to keep page 1 rich; it never truncates the pool. */
-const FIRST_PAGE_PROVIDER_CAPS = { ebay: 15 } as const;
+const DB_SUPPLEMENT_TIMEOUT_MS = 8_000;
+const FAST_DB_LANE_TIMEOUT_MS = 300;
 /** Relevant companion products kept behind genuine matches per provider. */
 const DEVICE_QUERY_FALLBACK_PER_PROVIDER = 15;
 const fairSearchCache = new Map<
@@ -92,6 +97,17 @@ function setFairSearchCache(
   value: { items: SearchResultItem[]; expiresAt: number },
 ): void {
   setBoundedCacheEntry(fairSearchCache, key, value, FAIR_SEARCH_MAX_ENTRIES);
+}
+
+function withLaneTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  fallback: T,
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), timeoutMs)),
+  ]);
 }
 
 /**
@@ -286,28 +302,9 @@ export function mergeDbSupplementExactFirst(
 export function interleaveWithProviderCap<T extends SearchResultItem>(
   items: readonly T[],
   storeKey: (item: T) => string,
-  caps: Readonly<Record<string, number>>,
+  _caps: Readonly<Record<string, number>>,
 ): T[] {
-  const buckets = new Map<string, T[]>();
-  for (const item of items) {
-    const key = storeKey(item).toLowerCase();
-    const bucket = buckets.get(key) ?? [];
-    const cap = caps[key];
-    if (cap !== undefined && bucket.length >= cap) continue;
-    bucket.push(item);
-    buckets.set(key, bucket);
-  }
-  const out: T[] = [];
-  for (let added = true; added; ) {
-    added = false;
-    for (const bucket of buckets.values()) {
-      const item = bucket.shift();
-      if (!item) continue;
-      out.push(item);
-      added = true;
-    }
-  }
-  return out;
+  return interleaveByStore(items, storeKey, MAX_PRODUCTS_PER_STORE);
 }
 
 /** Normalize every outbound product link to a valid https:// destination. */
@@ -339,7 +336,7 @@ async function fetchDbSupplementForSearch(
   const exactSub = loadDbCatalog().then((mod) =>
     mod
       .getSearchResultsFromDatabase(query, limit, {
-        timeoutMs: providerFetchTimeoutMs,
+        timeoutMs: DB_SUPPLEMENT_TIMEOUT_MS,
         useFuzzyMatch,
       })
       .catch(() => [] as SearchResultItem[]),
@@ -348,7 +345,7 @@ async function fetchDbSupplementForSearch(
     ? loadDbCatalog().then((mod) =>
         mod
           .getSearchResultsFromDatabase(familyKeyword, limit, {
-            timeoutMs: providerFetchTimeoutMs,
+            timeoutMs: DB_SUPPLEMENT_TIMEOUT_MS,
             useFuzzyMatch,
           })
           .catch(() => [] as SearchResultItem[]),
@@ -366,7 +363,7 @@ async function fetchDbSupplementForSearch(
  * connector exceeds the budget its partial work is dropped and the fan-out
  * settles with the faster providers' real results.
  */
-const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 4_500;
 let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
 
 /**
@@ -374,7 +371,7 @@ let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
  * requests a shorter low-RAM fan-out, so a cache build never persists a pool
  * that silently dropped them.
  */
-const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 4_500;
 const CRITICAL_PROVIDER_IDS: ReadonlySet<SearchProviderId> = new Set([
   "amazon-eg",
   "aliexpress",
@@ -755,18 +752,26 @@ export async function searchProducts(
     // DB supplement: exact query first, then the canonical family keyword, so
     // Search reaches the same imported/canonical inventory the Categories show.
     // Use fuzzy ILIKE matching for Arabic-translated queries to maximize recall.
-    fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword, useFuzzyMatch),
+    withLaneTimeout(
+      fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword, useFuzzyMatch),
+      FAST_DB_LANE_TIMEOUT_MS,
+      [] as SearchResultItem[],
+    ),
     // Fast indexed read of synced Jumia / Admitad rows. Bounded to 200ms so a
     // slow external scraper can never erase these real stores from the pool.
-    import("@/lib/integration/database-catalog").then((mod) =>
-      mod
-        .getSyncedStoreResultsFromDatabase(
-          SYNCED_SEARCH_PROVIDERS,
-          trimmed,
-          capped,
-          200,
-        )
-        .catch(() => [] as SearchResultItem[]),
+    withLaneTimeout(
+      import("@/lib/integration/database-catalog").then((mod) =>
+        mod
+          .getSyncedStoreResultsFromDatabase(
+            SYNCED_SEARCH_PROVIDERS,
+            trimmed,
+            capped,
+            200,
+          )
+          .catch(() => [] as SearchResultItem[]),
+      ),
+      FAST_DB_LANE_TIMEOUT_MS,
+      [] as SearchResultItem[],
     ),
     getActiveProductionProviders(),
   ]);
@@ -917,10 +922,9 @@ export async function searchProducts(
 
   const mixedHead = guarded.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const composedHead = composed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
-  const interleaved = interleaveWithProviderCap(
+  const interleaved = interleaveByStore(
     viewportCapped,
     (item) => item.storeSlug || item.store || "unknown",
-    FIRST_PAGE_PROVIDER_CAPS,
   )
     .map((item) => {
       const affiliateUrl = normalizeHttpsAffiliateUrl(item.affiliateUrl);
@@ -928,7 +932,11 @@ export async function searchProducts(
         ? { ...item, affiliateUrl }
         : item;
     })
-    .filter((item) => isUsableRemoteProductImageUrl(item.imageSrc));
+    .filter(
+      (item) =>
+        isUsableRemoteProductImageUrl(item.imageSrc) &&
+        isUsableProductUrl(item.affiliateUrl),
+    );
 
   const cappedHead = interleaved.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const summarize = (items: SearchResultItem[]): string =>

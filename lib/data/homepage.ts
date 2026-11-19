@@ -23,7 +23,7 @@ import { withFallbackCategories } from "@/lib/zorino-home/presentation";
 import { INTL_COOKIE_CURRENCY } from "@/lib/international/cookies";
 import { isSupportedCurrency, type CurrencyCode } from "@/lib/international/config";
 import { formatCurrency as formatCurrencyValue } from "@/lib/international/format";
-import type { ListingCondition } from "@/lib/search/types";
+import type { ListingCondition, ProductCard } from "@/lib/search/types";
 import type {
   FloatingProductCard,
   FooterStatItem,
@@ -335,6 +335,7 @@ export type SearchResultItem = {
    * (e.g. DB-imported) are classified from the title by the guardrail.
    */
   condition?: ListingCondition;
+  productCard?: ProductCard;
 };
 
 /**

@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSearchResultsPage } from "@/lib/data/homepage";
-import {
-  isUsableRemoteProductImageUrl,
-  normalizeProductImageUrl,
-} from "@/lib/images/product-image";
 import type { CurrencyCode } from "@/lib/international/config";
 import {
   detectCountryFromHeaders,
   resolveCurrencyForRequest,
 } from "@/lib/international/detect";
-import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
+import {
+  interleaveByStore,
+  SEARCH_ENGINE_DEFAULTS,
+  toProductCard,
+} from "@/lib/search/types";
 import { translateSearchQuery } from "@/lib/search/query-translation";
 
 export const maxDuration = 60;
@@ -34,37 +34,37 @@ export async function GET(req: NextRequest) {
   const currencyCode = resolveCurrencyForRequest(req, country) as CurrencyCode;
   const page = await getSearchResultsPage(searchQuery, 0, limit, "relevance", currencyCode);
 
-  const products = page.items
-    .filter((item) => isUsableRemoteProductImageUrl(item.imageSrc))
-    .map((item) => {
-      const imageUrl = normalizeProductImageUrl(item.imageSrc);
-      return {
-        id: item.id,
-        name: item.name,
-        title: item.name,
-        image_url: imageUrl,
-        imageSrc: imageUrl,
-        price: item.price,
-        original_price: item.originalPrice,
-        originalPrice: item.originalPrice,
-        discount: item.discount,
-        currency: item.currency ?? currencyCode,
-        country_code: item.countryCode,
-        store: item.store,
-        store_slug: item.storeSlug,
-        storeSlug: item.storeSlug,
-        category: item.category,
-        rating: item.rating,
-        review_count: item.reviewCount,
-        in_stock: item.inStock,
-        affiliate_url: item.affiliateUrl,
-        condition: item.condition,
-      };
-    });
+  const cards = page.items
+    .map((item) => ({ item, card: item.productCard ?? toProductCard(item) }))
+    .filter(
+      (row): row is { item: (typeof page.items)[number]; card: NonNullable<ReturnType<typeof toProductCard>> } =>
+        row.card !== null,
+    );
+  const balanced = interleaveByStore(cards, (row) => row.card.store_name);
+  const products = balanced.map(({ item, card }) => ({
+    ...card,
+    name: card.title,
+    title: card.title,
+    imageSrc: card.image_url,
+    original_price: item.originalPrice,
+    originalPrice: item.originalPrice,
+    discount: item.discount,
+    currency: card.currency || currencyCode,
+    country_code: item.countryCode,
+    store: card.store_name,
+    store_slug: item.storeSlug || card.provider,
+    storeSlug: item.storeSlug || card.provider,
+    category: item.category,
+    rating: item.rating,
+    review_count: item.reviewCount,
+    in_stock: item.inStock,
+    affiliate_url: card.product_url,
+    condition: item.condition,
+  }));
 
   const storeCounts: Record<string, number> = {};
   for (const product of products) {
-    const slug = product.storeSlug || product.store || "unknown";
+    const slug = product.store_slug || product.store || "unknown";
     storeCounts[slug] = (storeCounts[slug] ?? 0) + 1;
   }
 

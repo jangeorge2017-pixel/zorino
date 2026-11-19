@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Mail, Package, Send, Store, Tag, Users } from "lucide-react";
 import { useNewsletter } from "@/lib/features/newsletter-system";
+import { resolveStoreLogoSrc } from "@/lib/assets";
 import type { FooterStatItem, Store as StoreEntity } from "@/lib/types/entities";
 import type { Locale } from "@/i18n/config";
 import "./ZorinoHomeFooter.css";
@@ -76,25 +77,28 @@ export default function ZorinoHomeFooter({
           </Link>
         </div>
         <div className="zh-footer__store-logos">
-          {featuredStores.map((store) => (
-            <Link
-              key={store.slug}
-              href={`/stores/${store.slug}`}
-              className="zh-footer__store-logo"
-              title={store.name}
-            >
-              {store.logoUrl ? (
-                <img
-                  src={store.logoUrl}
-                  alt={store.name}
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <span aria-hidden>{store.logoInitial ?? store.name.charAt(0)}</span>
-              )}
-            </Link>
-          ))}
+          {featuredStores.map((store) => {
+            const logoSrc = store.logoUrl || resolveStoreLogoSrc(store.slug);
+            return (
+              <Link
+                key={store.slug}
+                href={`/stores/${store.slug}`}
+                className="zh-footer__store-logo"
+                title={store.name}
+              >
+                {logoSrc ? (
+                  <img
+                    src={logoSrc}
+                    alt={store.name}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <span aria-hidden>{store.logoInitial ?? store.name.charAt(0)}</span>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </div>
 

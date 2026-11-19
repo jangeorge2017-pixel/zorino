@@ -144,10 +144,10 @@ describe("Amazon INDIRECT gate (Phase 5 decision)", () => {
     });
   };
 
-  it("no Amazon adapter activates with credentials ALONE (AMAZON_DIRECT_ENABLE unset)", async () => {
+  it("Amazon scraper adapters stay available without the direct opt-in", async () => {
     await withAmazonCreds(async () => {
       const active = await getActiveProviderAdapters(["amazon", "amazon-eg"]);
-      expect(active).toEqual([]);
+      expect(active.map((adapter) => adapter.id).sort()).toEqual(["amazon", "amazon-eg"]);
       expect(createAmazonProvider().isConfigured()).toBe(false);
     });
   });

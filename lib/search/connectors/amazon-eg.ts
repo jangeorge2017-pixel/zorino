@@ -28,6 +28,7 @@ const EG_MARKETPLACE = "www.amazon.eg";
 const EG_ASSOCIATE_TAG = "zorinoeg-21";
 const EG_SCRAPER_TARGET = 15;
 const EG_SCRAPER_DEADLINE_MS = 6_500;
+const EG_SEARCH_DEADLINE_MS = 7_000;
 
 const GET_RESOURCES = [
   "images.primary.large",
@@ -65,6 +66,18 @@ function parsePriceAmount(amount: number | undefined, displayAmount?: string): n
   if (amount == null || !Number.isFinite(amount)) return 0;
   if (amount > 0 && amount < 50_000) return amount;
   return amount / 100;
+}
+
+function withDeadline<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    promise.finally(() => {
+      if (timer) clearTimeout(timer);
+    }),
+    new Promise<T>((resolve) => {
+      timer = setTimeout(() => resolve(fallback), ms);
+    }),
+  ]);
 }
 
 async function fetchEgProductsByAsins(asins: string[]): Promise<Map<string, EGRawProduct>> {
@@ -367,7 +380,11 @@ export const amazonEgSearchConnector: SearchConnector = {
       return cloneListings(cached.items);
     }
 
-    const fresh = await fetchAmazonEgSearch(trimmed, options);
+    const fresh = await withDeadline(
+      fetchAmazonEgSearch(trimmed, options),
+      EG_SEARCH_DEADLINE_MS,
+      [] as RawProviderListing[],
+    );
 
     // Only genuinely non-empty scrapes are cached — a live empty result must
     // never pin "no products" onto a query.

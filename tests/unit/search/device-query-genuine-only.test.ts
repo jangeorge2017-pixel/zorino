@@ -78,6 +78,7 @@ function dbItem(overrides: Partial<SearchResultItem> & { name: string }): Search
     reviewCount: 0,
     inStock: true,
     category: "General",
+    affiliateUrl: "https://x.example.com/db?aff=1",
     ...overrides,
   };
 }

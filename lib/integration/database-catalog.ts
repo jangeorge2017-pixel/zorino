@@ -21,6 +21,7 @@ import {
   PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
+import { toProductCard } from "@/lib/search/types";
 import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
@@ -895,7 +896,7 @@ function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
       ? rawCategory
       : inferCategoryFromName(row.product_name);
 
-  return {
+  const item: SearchResultItem = {
     id: `db-${row.product_id}`,
     name: row.product_name,
     imageSrc: normalizeProductImageUrl(row.image_url),
@@ -911,8 +912,9 @@ function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
     category,
     currency: row.currency,
     countryCode: row.country_code,
-      affiliateUrl,
+    affiliateUrl,
   };
+  return { ...item, productCard: toProductCard(item) ?? undefined };
 }
 
 /**

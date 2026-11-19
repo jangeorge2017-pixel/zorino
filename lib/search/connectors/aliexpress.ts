@@ -256,7 +256,13 @@ async function fetchAliExpressStorefront(
         headers: { "accept-language": "en-US,en;q=0.9" },
       });
       if (!html) return;
-      for (const raw of parseAliExpressStorefrontHtml(html)) {
+      const parsed = parseAliExpressStorefrontHtml(html);
+      if (parsed.length === 0) {
+        console.warn(
+          `[aliexpress-storefront] keyword="${keyword}" html_length=${html.length} head=${html.slice(0, 160).replace(/\s+/g, " ")}`,
+        );
+      }
+      for (const raw of parsed) {
         const id = String(raw.product_id ?? "");
         if (!id || seen.has(id)) continue;
         seen.add(id);
@@ -312,10 +318,6 @@ export const aliExpressSearchConnector: SearchConnector = {
     const listings: RawProviderListing[] = [];
     const seenIds = new Set<string>();
 
-    // Start the credential-free storefront fetch immediately and in parallel
-    // with the Open API path. Render's egress frequently stalls product.query
-    // past the engine budget; waiting for that timeout before falling back was
-    // what silently zeroed AliExpress on live searches.
     const storefrontPromise = fetchAliExpressStorefront(keywords, targetFetch).catch(
       (error) => {
         console.warn(

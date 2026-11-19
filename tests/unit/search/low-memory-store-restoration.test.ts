@@ -57,7 +57,7 @@ describe("balanced live-store pool", () => {
     for (const store of stores) {
       expect(head.some((item) => item.storeSlug === store)).toBe(true);
     }
-    expect(out.filter((item) => item.storeSlug === "ebay")).toHaveLength(15);
+    expect(out.filter((item) => item.storeSlug === "ebay")).toHaveLength(5);
   });
 });
 

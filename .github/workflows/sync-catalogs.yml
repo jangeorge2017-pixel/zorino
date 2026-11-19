@@ -1,0 +1,67 @@
+name: Sync all catalogs
+
+on:
+  schedule:
+    - cron: "23 */4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-all-catalogs
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.58.2
+          npx playwright install --with-deps chromium
+
+      - name: Sync Jumia catalog
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          mkdir -p logs
+          node scripts/jumia-ingest.mjs --playwright 2>&1 | tee logs/jumia-sync.log
+
+      - name: Sync all approved Admitad campaigns
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ADMITAD_CLIENT_ID: ${{ secrets.ADMITAD_CLIENT_ID }}
+          ADMITAD_CLIENT_SECRET: ${{ secrets.ADMITAD_CLIENT_SECRET }}
+          ADMITAD_MAX_FEEDS: ${{ vars.ADMITAD_MAX_FEEDS || '1000' }}
+          ADMITAD_MAX_PRODUCTS_PER_FEED: ${{ vars.ADMITAD_MAX_PRODUCTS_PER_FEED || '5000' }}
+        run: |
+          mkdir -p logs
+          node scripts/admitad-api-ingest.mjs 2>&1 | tee logs/admitad-sync.log
+
+      - name: Upload sync logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-sync-logs
+          path: logs/*.log
+          if-no-files-found: ignore

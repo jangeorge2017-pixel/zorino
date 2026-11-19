@@ -3,6 +3,7 @@ import { mapAliExpressRawToOpenApiProduct } from "@/lib/integrations/aliexpress/
 import { attachOpenApiAffiliateLinks } from "@/lib/integrations/aliexpress/open-api-service";
 import type { AliExpressRawProduct } from "@/lib/integrations/aliexpress/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
+import { toProductCard } from "@/lib/search/types";
 import type { ProductDetail } from "@/lib/data/product-detail";
 import type { Product, Store } from "@/lib/types/entities";
 import type { CompareProductResult } from "@/services/compare";
@@ -108,7 +109,7 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
   const mapped = mapAliExpressRawToOpenApiProduct(raw);
   if (!mapped) return null;
 
-  return {
+  const item: SearchResultItem = {
     id: `aliexpress-${mapped.productId}`,
     name: mapped.title,
     imageSrc: mapped.image,
@@ -126,6 +127,7 @@ function mapRawToSearchItem(raw: AliExpressRawProduct): SearchResultItem | null 
     category: mapped.category,
     affiliateUrl: mapped.affiliateUrl,
   };
+  return { ...item, productCard: toProductCard(item) ?? undefined };
 }
 
 async function getClient() {
