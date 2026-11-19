@@ -123,12 +123,11 @@ function buildFeaturedStores(allStores: Store[]) {
   const seededStores = BLENDED_STORE_SLUGS.map((slug) => bySlug.get(slug));
 
   return [...seededStores, ...allStores]
-    .filter((store): store is Store => Boolean(store?.logoUrl))
+    .filter((store): store is Store => Boolean(store))
     .filter(
       (store, index, list) =>
         list.findIndex((candidate) => candidate.slug === store.slug) === index,
-    )
-    .slice(0, 4);
+    );
 }
 
 export default async function ZorinoHomePage() {
