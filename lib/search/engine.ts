@@ -379,6 +379,7 @@ const CRITICAL_PROVIDER_IDS: ReadonlySet<SearchProviderId> = new Set([
   "amazon-eg",
   "aliexpress",
   "jumia",
+  "noon",
 ]);
 
 /** Provider keys used by the synced Jumia / Admitad rows in Supabase. */

@@ -26,6 +26,8 @@ import { toLatinNumerals } from "@/lib/international/arabic-numerals";
 
 const EG_MARKETPLACE = "www.amazon.eg";
 const EG_ASSOCIATE_TAG = "zorinoeg-21";
+const EG_SCRAPER_TARGET = 15;
+const EG_SCRAPER_DEADLINE_MS = 6_500;
 
 const GET_RESOURCES = [
   "images.primary.large",
@@ -186,27 +188,82 @@ function cloneListings(
   return listings.map((listing) => ({ ...listing }));
 }
 
+async function fetchAmazonEgScraperListings(
+  query: string,
+  options?: ConnectorSearchOptions,
+): Promise<RawProviderListing[]> {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return [];
+
+  const keywords = [trimmed];
+  if (
+    options?.optimizeForDeviceIntent === true &&
+    options.intent?.kind === "device" &&
+    options.intent.family === "phone"
+  ) {
+    keywords.push(`${trimmed} smartphone`);
+  }
+
+  const collected = new Map<string, RawProviderListing>();
+  let enough: (() => void) | undefined;
+  const enoughPromise = new Promise<void>((resolve) => {
+    enough = resolve;
+  });
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<void>((resolve) => {
+    timer = setTimeout(resolve, EG_SCRAPER_DEADLINE_MS);
+  });
+
+  const tasks = keywords.map(async (keyword) => {
+    try {
+      const raw = await fetchAmazonSearchScraper(
+        keyword,
+        "amazon-eg",
+        SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE,
+        true,
+      );
+      for (const item of normalizeAmazonScraperSearchResults(raw, "amazon-eg")) {
+        if (!collected.has(item.externalId)) collected.set(item.externalId, item);
+      }
+      if (collected.size >= EG_SCRAPER_TARGET) enough?.();
+    } catch {
+      // One keyword variant must never discard the other's real listings.
+    }
+  });
+
+  try {
+    await Promise.race([
+      Promise.allSettled(tasks).then(() => enough?.()),
+      enoughPromise,
+      deadline,
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+
+  return [...collected.values()].slice(0, SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE);
+}
+
 /**
  * Live fetch — no cache. Public `search` owns the cache layer so rows persist
  * between requests instead of disappearing when a scrape transiently empties.
  */
 async function fetchAmazonEgSearch(
   query: string,
-  _options?: ConnectorSearchOptions,
+  options?: ConnectorSearchOptions,
 ): Promise<RawProviderListing[]> {
   const trimmed = query.trim().toLowerCase();
   if (!trimmed) return [];
 
     // Additive local scraper source: real amazon.eg keyword search results.
     // Feeds the SAME "amazon-eg" store mapping and does not replace the
-    // seed-link / Creators path below (which remains the fallback).
+    // seed-link / Creators path below (which remains the fallback). Device
+    // queries run a canonical `... smartphone` variant in parallel because
+    // Amazon rotates datacenter egress across good/bad result cells and a
+    // single keyword can return a single organic phone even when the
+    // storefront genuinely stocks 10+.
     try {
-      const searchResults = await fetchAmazonSearchScraper(
-        trimmed,
-        "amazon-eg",
-        SEARCH_ENGINE_DEFAULTS.MAX_LISTINGS_PER_SOURCE,
-      );
-      const sListing = normalizeAmazonScraperSearchResults(searchResults, "amazon-eg");
+      const sListing = await fetchAmazonEgScraperListings(trimmed, options);
       if (sListing.length > 0) return sListing;
     } catch {
       // A scraper failure must never silence the existing Egypt path.

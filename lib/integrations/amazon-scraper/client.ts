@@ -284,7 +284,11 @@ function parseRating(html: string): { rating: number; reviewCount: number } {
 }
 
 /** Parse a single `s-search-result` block into a product. */
-function parseSearchResultBlock(html: string, marketplace: AmazonScraperMarketplaceKey): SearchResultBlock | null {
+function parseSearchResultBlock(
+  html: string,
+  marketplace: AmazonScraperMarketplaceKey,
+  includeSponsored = false,
+): SearchResultBlock | null {
   const asin = html.match(/data-asin="([A-Z0-9]{10})"/)?.[1];
   if (!asin) return null;
 
@@ -293,18 +297,24 @@ function parseSearchResultBlock(html: string, marketplace: AmazonScraperMarketpl
     html.match(/<h2[^>]*aria-label="([^"]{10,300})"/)?.[1] ??
     html.match(/class="s-image"[^>]*alt="([^"]{10,300})"/)?.[1];
   if (!title) return null;
-  const cleanTitle = decodeEntities(title);
+  const decodedTitle = decodeEntities(title);
+  const cleanTitle = includeSponsored
+    ? decodedTitle.replace(/^\s*Sponsored Ad\b\s*/i, "").trim()
+    : decodedTitle;
   if (!cleanTitle) return null;
 
-  // Skip paid placements — only organic, real products. Title-prefix alone is
-  // too weak: Amazon renders sponsored ads with "Sponsored"/"Ad" in various
-  // spots (puis-sponsored-label-text, sp-sponsored-result containers). Match
-  // ALL known markers so sponsored inventory can never leak into the device
-  // guard's must-contain pool and masquerade as a real result.
-  if (/^Sponsored Ad\b/i.test(cleanTitle)) return null;
-  if (/puis-sponsored-label-text/i.test(html)) return null;
-  if (/data-component-type="sp-sponsored-result"/i.test(html)) return null;
-  if (/<div[^>]*class="[^"]*\bsponsored-badge/i.test(html)) return null;
+  // Skip paid placements by default — only organic, real products. Title-prefix
+  // alone is too weak: Amazon renders sponsored ads with "Sponsored"/"Ad" in
+  // various spots (puis-sponsored-label-text, sp-sponsored-result containers).
+  // A caller that explicitly opts in keeps the real ASIN-backed listing but the
+  // "Sponsored Ad" prefix is stripped above, and product URLs are normalised to
+  // the canonical /dp/ page rather than an ad redirect.
+  if (!includeSponsored) {
+    if (/^Sponsored Ad\b/i.test(cleanTitle)) return null;
+    if (/puis-sponsored-label-text/i.test(html)) return null;
+    if (/data-component-type="sp-sponsored-result"/i.test(html)) return null;
+    if (/<div[^>]*class="[^"]*\bsponsored-badge/i.test(html)) return null;
+  }
 
   const imageUrl = html.match(/class="s-image"[^>]*src="([^"]+)"/)?.[1] ?? "";
 
@@ -337,6 +347,7 @@ function parseSearchResultBlock(html: string, marketplace: AmazonScraperMarketpl
 function parseSearchHtml(
   html: string,
   marketplace: AmazonScraperMarketplaceKey,
+  includeSponsored = false,
 ): AmazonScrapedSearchResult[] {
   const blocks: SearchResultBlock[] = [];
   // Split on each result container: `<div ... data-asin="..." data-component-type="s-search-result">`.
@@ -352,7 +363,7 @@ function parseSearchHtml(
     const start = starts[i]!;
     const end = starts[i + 1] ? starts[i + 1]!.idx : html.length;
     const block = html.slice(start.idx, end);
-    const parsed = parseSearchResultBlock(block, marketplace);
+    const parsed = parseSearchResultBlock(block, marketplace, includeSponsored);
     if (parsed) blocks.push(parsed);
   }
 
@@ -380,6 +391,7 @@ export async function fetchAmazonSearchScraper(
   query: string,
   marketplace: AmazonScraperMarketplaceKey = "amazon-storefront",
   maxResults: number = SEARCH_DEFAULT_MAX_RESULTS,
+  includeSponsored = false,
 ): Promise<AmazonScrapedSearchResult[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
@@ -389,7 +401,7 @@ export async function fetchAmazonSearchScraper(
   const seen = new Set<string>();
 
   for (let page = 1; page <= SEARCH_MAX_PAGES && results.length < target; page++) {
-    const pageResults = await fetchAmazonSearchPage(trimmed, marketplace, page);
+    const pageResults = await fetchAmazonSearchPage(trimmed, marketplace, page, includeSponsored);
     if (pageResults.length === 0) break;
     let added = 0;
     for (const item of pageResults) {
@@ -418,6 +430,7 @@ async function fetchAmazonSearchPage(
   query: string,
   marketplace: AmazonScraperMarketplaceKey,
   page: number,
+  includeSponsored = false,
 ): Promise<AmazonScrapedSearchResult[]> {
   const url = buildAmazonSearchUrl(query, marketplace, page);
 
@@ -455,7 +468,7 @@ async function fetchAmazonSearchPage(
         "title=", html.match(/<title>([^<]*)<\/title>/)?.[1],
       );
     }
-    results = parseSearchHtml(html, marketplace);
+    results = parseSearchHtml(html, marketplace, includeSponsored);
     const blocked = isWafChallenge(html);
     html = "";
     if (results.length > 0) return results;
