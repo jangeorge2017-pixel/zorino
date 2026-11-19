@@ -4,16 +4,60 @@ import {
   isAdmittedMerchantName,
   isBlendedStoreSlug,
 } from "@/lib/integration/admitted-network";
-import { PRODUCTION_PROVIDER_IDS } from "@/lib/integration/constants";
-import { isProductionProviderActive } from "@/lib/integration/provider-config";
+import {
+  PRODUCTION_PROVIDER_IDS,
+  type ProductionProviderId,
+} from "@/lib/integration/constants";
+import { getConfiguredProductionProviders } from "@/lib/integration/provider-config";
 import {
   getRealMerchantStores,
   isRealDataStore,
 } from "@/lib/integration/real-stores";
+import { getProviderStoreMeta } from "@/lib/providers/registry";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Store, ServiceResult } from "@/lib/types/entities";
 
 const PROVIDER_STORE_SLUGS = new Set<string>(PRODUCTION_PROVIDER_IDS);
+const PROVIDER_INTEGRATION_TYPES = new Set([
+  "amazon",
+  "amazon-eg",
+  "aliexpress",
+  "cjdropshipping",
+  "ebay",
+  "temu",
+  "shopify",
+  "noon",
+  "walmart",
+  "bestbuy",
+  "jumia",
+  "custom",
+  "partner",
+]);
+
+function providerStoreFromId(providerId: ProductionProviderId): Store | null {
+  const meta = getProviderStoreMeta(providerId);
+  if (!meta) return null;
+  return {
+    id: meta.id,
+    name: meta.name,
+    slug: meta.slug,
+    website: meta.website,
+    logoInitial: meta.logoInitial,
+    integrationType: PROVIDER_INTEGRATION_TYPES.has(providerId)
+      ? (providerId as Store["integrationType"])
+      : "custom",
+    commissionRate: 0,
+    supportedRegions: ["EG"],
+    supportedCurrencies: ["EGP"],
+    isActive: true,
+  };
+}
+
+function configuredProviderStores(): Store[] {
+  return getConfiguredProductionProviders()
+    .map(providerStoreFromId)
+    .filter((store): store is Store => store !== null);
+}
 
 async function loadMerchantStores(): Promise<Store[]> {
   try {
@@ -34,7 +78,7 @@ export async function getStores(options?: {
 }): Promise<ServiceResult<Store[]>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
-    return { data: [], error: "Supabase not configured" };
+    return { data: configuredProviderStores(), error: "Supabase not configured" };
   }
 
   const { data, error } = await supabase
@@ -43,30 +87,30 @@ export async function getStores(options?: {
     .eq("is_active", true)
     .order("name");
 
-  if (error) return { data: [], error: error.message };
+  if (error) {
+    return { data: configuredProviderStores(), error: error.message };
+  }
 
   const rows = ((data as StoreRow[] | null) ?? []).filter((row) => {
     const isProvider = isProviderStoreSlug(row.slug);
     const isAdmitad = row.admitted_network === "admitad" || row.slug.startsWith("admitad-");
-    const allowed = isProvider || isAdmitad || isBlendedStoreSlug(row.slug);
-    if (!allowed) return false;
-    if (options?.integrationType && row.integration_type !== options.integrationType) {
+    return isProvider || isAdmitad || isBlendedStoreSlug(row.slug);
+  });
+
+  const dbStores = rows.map(mapStore);
+  const dbSlugs = new Set(dbStores.map((store) => store.slug));
+  const synthesized = configuredProviderStores().filter((store) => !dbSlugs.has(store.slug));
+  const stores = [...dbStores, ...synthesized];
+  const region = options?.region;
+  const filtered = stores.filter((store) => {
+    if (options?.integrationType && store.integrationType !== options.integrationType) {
       return false;
     }
-    if (options?.region && !(row.supported_regions ?? []).includes(options.region)) {
+    if (region && store.supportedRegions.length && !store.supportedRegions.includes(region)) {
       return false;
     }
     return true;
   });
-
-  const stores = rows.map(mapStore);
-  const region = options?.region;
-  const filtered = region
-    ? stores.filter(
-        (store) =>
-          !store.supportedRegions.length || store.supportedRegions.includes(region),
-      )
-    : stores;
   const result = options?.limit ? filtered.slice(0, options.limit) : filtered;
   return { data: result, error: null };
 }
@@ -106,6 +150,11 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
       data: admitted ? found : null,
       error: admitted ? null : "Store not found",
     };
+  }
+
+  const providerStore = configuredProviderStores().find((store) => store.slug === slug);
+  if (providerStore) {
+    return { data: providerStore, error: null };
   }
 
   if (PROVIDER_STORE_SLUGS.has(slug)) {
