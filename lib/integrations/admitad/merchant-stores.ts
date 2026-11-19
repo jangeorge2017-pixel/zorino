@@ -1,15 +1,9 @@
 /**
- * Admitad merchant → Zorino `stores` rows.
+ * Admitad merchant -> Zorino `stores` rows.
  *
- * The Admitad network carries many real merchants under one affiliate
- * account. This module surfaces each merchant that ACTUALLY yielded real
- * products in an ingestion run as its own active `stores` row, so the
- * homepage / /stores counts reflect real merchants instead of collapsing the
- * whole network into a single "admitad" store.
- *
- * Rows are derived exclusively from real Admitad Publisher-API discovery
- * data (campaign id, merchant name, site URL, geo restrictions, currency).
- * No placeholder, seed, or synthetic values are ever written.
+ * Surfaces active discovered Admitad merchant programs as real `stores` rows
+ * so all active campaigns are visible in store/home surfaces with valid
+ * affiliate destinations (merchant site URLs) and metadata.
  */
 
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
@@ -24,6 +18,8 @@ export type MerchantStoreRow = {
   supported_regions: string[];
   supported_currencies: string[];
   external_store_id: string;
+  admitted_network: "admitad";
+  admitted_campaign_id: string;
   is_active: true;
 };
 
@@ -32,50 +28,35 @@ function initials(name: string): string {
   return (letters.slice(0, 2) || "AR").toUpperCase();
 }
 
-/**
- * Pure computation of the real merchant store rows for the catalog items an
- * ingestion run produced. Uses the campaign id embedded in each item id
- * ("admitad-<campaignId>-<offerId>") to look up the official Admitad program
- * metadata. Merchants without a real site URL are skipped (no fabricated
- * websites).
- */
-export function deriveMerchantStoreRows(
-  items: NormalizedCatalogItem[],
+export function deriveMerchantStoreRowsFromPrograms(
   programs: AdmitadMerchantProgram[],
 ): MerchantStoreRow[] {
-  const programById = new Map<number, AdmitadMerchantProgram>(
-    programs
-      .filter((p) => Number.isFinite(p.campaignId))
-      .map((p) => [p.campaignId, p]),
-  );
-
   const rows = new Map<string, MerchantStoreRow>();
 
-  for (const item of items) {
-    const offer = item.offers[0];
-    if (!offer || offer.providerId !== "admitad") continue;
-
-    const campaignId = Number(item.id.split("-")[1]);
-    if (!Number.isFinite(campaignId)) continue;
-    const program = programById.get(campaignId);
-    if (!program) continue;
-
+  for (const program of programs) {
+    if (!Number.isFinite(program.campaignId)) continue;
     const website = program.siteUrl?.trim();
     if (!website || !/^https?:\/\//i.test(website)) continue;
+    const name = program.merchantName?.trim();
+    if (!name) continue;
 
-    const slug = `admitad-${campaignId}`;
+    const slug = `admitad-${program.campaignId}`;
     if (rows.has(slug)) continue;
 
     rows.set(slug, {
-      name: program.merchantName.trim(),
+      name,
       slug,
       website,
       integration_type: "partner",
-      logo_initial: initials(program.merchantName),
+      logo_initial: initials(name),
       supported_regions:
-        program.geoRestrictions.length > 0 ? program.geoRestrictions : ["US"],
+        Array.isArray(program.geoRestrictions) && program.geoRestrictions.length > 0
+          ? program.geoRestrictions
+          : ["US"],
       supported_currencies: program.currency ? [program.currency] : ["USD"],
-      external_store_id: String(campaignId),
+      external_store_id: String(program.campaignId),
+      admitted_network: "admitad",
+      admitted_campaign_id: String(program.campaignId),
       is_active: true,
     });
   }
@@ -84,9 +65,17 @@ export function deriveMerchantStoreRows(
 }
 
 /**
- * Persist the merchant store rows with the service-role client.
- * Returns the number of rows written (0 = nothing to write / not configured).
+ * Backward-compatible derivation from ingested items; now returns store rows for
+ * all programs that have valid metadata (campaign coverage is driven by active
+ * discovered programs passed in).
  */
+export function deriveMerchantStoreRows(
+  _items: NormalizedCatalogItem[],
+  programs: AdmitadMerchantProgram[],
+): MerchantStoreRow[] {
+  return deriveMerchantStoreRowsFromPrograms(programs);
+}
+
 export async function syncMerchantStores(
   items: NormalizedCatalogItem[],
   programs: AdmitadMerchantProgram[],

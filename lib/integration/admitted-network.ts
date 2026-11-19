@@ -95,30 +95,53 @@ export async function getAdmittedMerchantRegistry(): Promise<AdmittedMerchantReg
     const supabase = createSupabaseAnonClient();
     if (!supabase) return manifestRegistry;
 
+    const collected: Array<{
+      name: string;
+      slug: string;
+      admitted_campaign_id: string | null;
+      logo_url: string | null;
+      website: string;
+    }> = [];
+
     const { data, error } = await supabase
       .from("stores")
       .select("name, slug, admitted_campaign_id, logo_url, website")
       .eq("admitted_network", "admitad")
       .eq("is_active", true);
 
-    if (error || !data || data.length === 0) {
-      if (error && !error.message.includes("admitted_network")) {
+    if (error) {
+      if (!error.message.includes("admitted_network")) {
         console.warn("[admitted-network] registry lookup failed:", error.message);
       }
-      return manifestRegistry;
+    } else if (Array.isArray(data)) {
+      collected.push(...(data as typeof collected));
     }
 
-    const rows = data as Array<{
-      name: string;
-      slug: string;
-      admitted_campaign_id: string | null;
-      logo_url: string | null;
-      website: string;
-    }>;
+    // Include legacy/derived admitad merchant rows even when admitted_network
+    // metadata is missing, so old/new active campaigns remain allowed.
+    const { data: slugRows, error: slugError } = await supabase
+      .from("stores")
+      .select("name, slug, admitted_campaign_id, logo_url, website")
+      .eq("is_active", true)
+      .like("slug", "admitad-%");
+
+    if (!slugError && Array.isArray(slugRows)) {
+      collected.push(...(slugRows as typeof collected));
+    }
+
+    if (collected.length === 0) return manifestRegistry;
+
+    const seen = new Set<string>();
+    const deduped = collected.filter((row) => {
+      const key = normalizeMerchantName(row.name) || row.slug;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     return {
-      names: new Set(rows.map((row) => normalizeMerchantName(row.name)).filter(Boolean)),
-      programs: rows.map((row) => ({
+      names: new Set(deduped.map((row) => normalizeMerchantName(row.name)).filter(Boolean)),
+      programs: deduped.map((row) => ({
         id: row.admitted_campaign_id ?? row.slug,
         name: row.name,
         slug: row.slug,
@@ -153,12 +176,17 @@ export function offerBelongsToAdmittedMerchant(
   return names.has(normalizeMerchantName(offer.storeName));
 }
 
-/** An offer is allowed when it is an approved Admitad merchant or a blended giant. */
+/** An offer is allowed when it is an approved Admitad merchant or a blended giant.
+ *  All provider-native admitad offers are allowed so old/new admitted campaigns
+ *  remain visible in catalog/search surfaces.
+ */
 export function isAllowedCatalogOffer(
   offer: NormalizedCatalogItem["offers"][number],
   names: Set<string>,
 ): boolean {
-  return isBlendedProviderId(offer.providerId) || offerBelongsToAdmittedMerchant(offer, names);
+  if (isBlendedProviderId(offer.providerId)) return true;
+  if (resolveMarketplaceId(offer.providerId) === "admitad") return true;
+  return offerBelongsToAdmittedMerchant(offer, names);
 }
 
 /**

@@ -1,50 +1,44 @@
 /**
  * Real, data-backed store identity rules shared by the homepage stats and the
  * /stores directory.
- *
- * Only stores that actually produce real product data are considered "real":
- *   - live configured providers (aliExpress, eBay, Admitad, CJdropshipping)
- *   - Admitad merchant rows (slug "admitad-<campaignId>") — created by the
- *     ingestion pipeline ONLY for merchants whose feeds yielded real products
- *   - Amazon / Amazon-EG when real Creators credentials are configured
- *
- * Stubbed / seed / static store rows (walmart, temu, bestbuy, noon, jumia,
- * nike, foot-locker, …) are never reported here, so they can neither appear
- * in the directory nor inflate the homepage store counter.
  */
 
 import type { ProductionProviderId } from "@/lib/integration/constants";
+import { PRODUCTION_PROVIDER_IDS } from "@/lib/integration/constants";
 import { isProductionProviderActive } from "@/lib/integration/provider-config";
 import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import type { StoreRow } from "@/lib/database/types";
 import type { Store } from "@/lib/types/entities";
 
-/**
- * Provider store slugs that map to a real, live, product-producing
- * integration when the provider is configured.
- */
 export const LIVE_DATA_STORE_SLUGS: ReadonlySet<string> = new Set([
   "aliexpress",
   "ebay",
   "admitad",
   "cjdropshipping",
+  "temu",
+  "noon",
+  "jumia",
+  "carrefour",
+  "btech",
+  "twob",
+  "dubaiphone",
+  "raneen",
+  "eldokan",
 ]);
 
-/** Admitad merchant rows created by the ingestion pipeline (real products only). */
 function isAdmitadMerchantRow(slug: string): boolean {
   return slug.startsWith("admitad-");
+}
+
+function isKnownProviderStoreSlug(slug: string): slug is ProductionProviderId {
+  return (PRODUCTION_PROVIDER_IDS as readonly string[]).includes(slug);
 }
 
 /**
  * Whether a `stores` row represents a real store that has (or can produce)
  * real product data. Used to filter the /stores directory and any count that
  * derives from the `stores` table.
- *
- * Provider rows are REAL only while the provider is ACTIVATED — credentials
- * PLUS durable DB evidence of real product rows OR recent successful live runs
- * (see provider-config / provider-evidence / provider-health). A configured-
- * but-never-produced provider cannot advertise a store.
  */
 export async function isRealDataStore(
   row: Pick<StoreRow, "slug" | "integration_type">,
@@ -55,12 +49,16 @@ export async function isRealDataStore(
     return row.integration_type === "partner";
   }
 
-  if (LIVE_DATA_STORE_SLUGS.has(slug)) {
-    return isProductionProviderActive(slug as ProductionProviderId);
+  if (slug === "amazon" || slug === "amazon-eg") {
+    return isAmazonConfigured() || isProductionProviderActive(slug);
   }
 
-  if (slug === "amazon" || slug === "amazon-eg") {
-    return isAmazonConfigured();
+  if (isKnownProviderStoreSlug(slug)) {
+    return isProductionProviderActive(slug);
+  }
+
+  if (LIVE_DATA_STORE_SLUGS.has(slug)) {
+    return isProductionProviderActive(slug as ProductionProviderId);
   }
 
   return false;
@@ -95,19 +93,6 @@ function initials(name: string): string {
   return (letters.slice(0, 2) || "AR").toUpperCase();
 }
 
-/**
- * Real Admitad merchant stores derived from the live database catalog plus the
- * real Admitad Publisher-API program metadata (name, site URL, geo, currency).
- *
- * Only merchants that (a) actually have products in `lowest_prices_today` AND
- * (b) have a real program record with a valid site URL are returned — nothing
- * is fabricated. Merchants without a discoverable site URL are skipped (the app
- * never invents a merchant website). Used by the /stores directory so every
- * real merchant is listed alongside the provider rows.
- *
- * The full DB merchant scan + Admitad discovery is expensive, so the result is
- * cached for 10 minutes (the merchant universe changes only when feeds change).
- */
 const MERCHANT_STORES_TTL_MS = 10 * 60 * 1000;
 let merchantStoresCache: { at: number; stores: Store[] } | null = null;
 
@@ -121,7 +106,6 @@ export async function getRealMerchantStores(): Promise<Store[]> {
   );
   const merchantNames = await getRealMerchantNames();
 
-  // Prefer real program metadata (siteUrl/geo/currency) when discoverable.
   let programs: Array<{ merchantName: string; siteUrl: string; currency: string | null; geoRestrictions: string[]; campaignId: number }> = [];
   try {
     const { getAdmitadPrograms } = await import(
@@ -149,7 +133,7 @@ export async function getRealMerchantStores(): Promise<Store[]> {
 
     const program = programByName.get(key);
     const website = program?.siteUrl ?? "";
-    if (!website) continue; // never fabricate a merchant website
+    if (!website) continue;
 
     stores.push({
       id: slug,

@@ -4,6 +4,8 @@ import {
   isAdmittedMerchantName,
   isBlendedStoreSlug,
 } from "@/lib/integration/admitted-network";
+import { PRODUCTION_PROVIDER_IDS } from "@/lib/integration/constants";
+import { isProductionProviderActive } from "@/lib/integration/provider-config";
 import {
   getRealMerchantStores,
   isRealDataStore,
@@ -11,12 +13,18 @@ import {
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { Store, ServiceResult } from "@/lib/types/entities";
 
+const PROVIDER_STORE_SLUGS = new Set<string>(PRODUCTION_PROVIDER_IDS);
+
 async function loadMerchantStores(): Promise<Store[]> {
   try {
     return await getRealMerchantStores();
   } catch {
     return [];
   }
+}
+
+function isProviderStoreSlug(slug: string): boolean {
+  return PROVIDER_STORE_SLUGS.has(slug);
 }
 
 export async function getStores(options?: {
@@ -37,13 +45,11 @@ export async function getStores(options?: {
 
   if (error) return { data: [], error: error.message };
 
-  // The directory blends the approved Admitad network with the live
-  // Amazon/eBay/AliExpress storefronts. Legacy seed/stub rows are never
-  // advertised here.
   const rows = ((data as StoreRow[] | null) ?? []).filter((row) => {
-    if (row.admitted_network !== "admitad" && !isBlendedStoreSlug(row.slug)) {
-      return false;
-    }
+    const isProvider = isProviderStoreSlug(row.slug);
+    const isAdmitad = row.admitted_network === "admitad" || row.slug.startsWith("admitad-");
+    const allowed = isProvider || isAdmitad || isBlendedStoreSlug(row.slug);
+    if (!allowed) return false;
     if (options?.integrationType && row.integration_type !== options.integrationType) {
       return false;
     }
@@ -76,25 +82,21 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
       .maybeSingle();
 
     if (error) return { data: null, error: error.message };
-    // Approved Admitad merchants resolve, plus the blended Amazon/eBay/
-    // AliExpress storefronts. Legacy seed/stub stores (walmart, temu, noon,
-    // best-buy, jumia, nike, …) must never render a store page.
     const row = data as StoreRow | null;
-    if (row && isBlendedStoreSlug(row.slug)) {
-      return { data: mapStore(row), error: null };
-    }
-    if (
-      row &&
-      row.admitted_network === "admitad" &&
-      (await isRealDataStore(row))
-    ) {
-      return { data: mapStore(row), error: null };
+    if (row) {
+      if (isBlendedStoreSlug(row.slug) || isProviderStoreSlug(row.slug)) {
+        return { data: mapStore(row), error: null };
+      }
+      if (row.admitted_network === "admitad" || row.slug.startsWith("admitad-")) {
+        if (await isRealDataStore(row)) {
+          return { data: mapStore(row), error: null };
+        }
+      } else if (await isRealDataStore(row)) {
+        return { data: mapStore(row), error: null };
+      }
     }
   }
 
-  // Merchant rows (slug "admitad-<merchant>") are derived on the fly from the
-  // live DB catalog + Admitad program metadata rather than persisted rows, so
-  // look them up here so the store page resolves instead of 404-ing.
   if (slug.startsWith("admitad-")) {
     const merchants = await loadMerchantStores();
     const found = merchants.find((m) => m.slug === slug) ?? null;
@@ -104,6 +106,10 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
       data: admitted ? found : null,
       error: admitted ? null : "Store not found",
     };
+  }
+
+  if (PROVIDER_STORE_SLUGS.has(slug)) {
+    return { data: null, error: "Store not found" };
   }
 
   return { data: null, error: "Store not found" };

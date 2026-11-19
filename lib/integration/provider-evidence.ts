@@ -2,9 +2,10 @@
  * Durable DB evidence of real provider product data.
  *
  * A provider is only ever reported active if real rows for it exist in the
- * database (or it has recent successful runtime health). Mapping:
- *   - admitad        → `lowest_prices_today` rows (feed-cached, currently US/USD)
- *   - all others     → `external_products` rows keyed by `provider`
+ * database (or it has recent successful runtime health). Evidence is counted
+ * from `lowest_prices_today` (provider-tagged catalog rows, written by the
+ * catalog saver / GA ingestion) and, for non-Admitad providers, from
+ * `external_products` as a fallback source.
  *
  * Evidence is cached for 10 minutes (product counts change only via imports).
  */
@@ -22,21 +23,30 @@ async function loadEvidenceCounts(): Promise<Record<string, number>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) return counts;
 
-  const { count: admitadCount, error: admitadError } = await supabase
-    .from("lowest_prices_today")
-    .select("*", { count: "exact", head: true })
-    .eq("provider", "admitad")
-    .limit(0);
-  if (!admitadError) counts.admitad = admitadCount ?? 0;
-
   for (const providerId of PRODUCTION_PROVIDER_IDS) {
-    if (providerId === "admitad") continue;
-    const { count, error } = await supabase
-      .from("external_products")
+    let total = 0;
+
+    const { count: lowestCount, error: lowestError } = await supabase
+      .from("lowest_prices_today")
       .select("*", { count: "exact", head: true })
       .eq("provider", providerId)
       .limit(0);
-    if (!error) counts[providerId] = count ?? 0;
+    if (!lowestError && typeof lowestCount === "number") {
+      total += lowestCount;
+    }
+
+    if (providerId !== "admitad") {
+      const { count: externalCount, error: externalError } = await supabase
+        .from("external_products")
+        .select("*", { count: "exact", head: true })
+        .eq("provider", providerId)
+        .limit(0);
+      if (!externalError && typeof externalCount === "number") {
+        total += externalCount;
+      }
+    }
+
+    counts[providerId] = total;
   }
 
   return counts;

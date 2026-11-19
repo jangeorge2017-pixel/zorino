@@ -82,7 +82,7 @@ function extractOfferImage(xml: string, description: string): string {
     extractTag(xml, "image"),
     extractTag(xml, "picture"),
     extractTag(xml, "photo"),
-    // Google's additional_image_link can carry several space-separated URLs —
+    // Google's additional_image_link can carry several space-separated URLs â€”
     // take the first one.
     extractTag(xml, "additional_image_link")?.split(/\s+/)[0],
     imageFromDescription(description),
@@ -95,7 +95,7 @@ function extractOfferImage(xml: string, description: string): string {
 
 function parsePriceValue(raw: string): number | null {
   if (!raw) return null;
-  // "5.82 USD" → 5.82
+  // "5.82 USD" â†’ 5.82
   const num = parseFloat(raw.replace(/[^\d.]/g, ""));
   return isNaN(num) || num <= 0 ? null : num;
 }
@@ -125,7 +125,7 @@ function parseOfferElement(xml: string): AdmitadFeedOffer | null {
     description = extractTag(xml, "description");
     // Feeds vary between <g:image_link>, <image>, <picture>, <photo> and
     // <g:additional_image_link> (see extractOfferImage). Recover the first
-    // real image the feed provides — never fabricate one.
+    // real image the feed provides â€” never fabricate one.
     image = extractOfferImage(xml, description ?? "");
     modified_time = extractTag(xml, "modified_time");
   } else {
@@ -250,7 +250,7 @@ function feedOfferToCatalogItem(
 ): NormalizedCatalogItem | null {
   // Real links only: prefer the feed offer URL; fall back to the program's
   // standard affiliate (gotolink) URL reported by the API. Skip offers that
-  // have neither — never fabricate a destination.
+  // have neither â€” never fabricate a destination.
   const destinationUrl = offer.url || gotolink || "";
   if (!destinationUrl) return null;
 
@@ -294,7 +294,7 @@ function feedOfferToCatalogItem(
     slug: `admitad-${campaignId}-${offer.id}`,
     title: raw.title ?? offer.name,
     imageUrl: offer.image || "",
-    emoji: "🛍️",
+    emoji: "ðŸ›ï¸",
     categorySlug: "general",
     rating: 0,
     reviewCount: 0,
@@ -319,7 +319,7 @@ import { saveCatalogItemsAs } from "@/lib/integration/catalog-saver";
 /**
  * Admitad persists through the shared catalog saver with the provider's own
  * store identity. Writes are identical to the previous file-private routine:
- * stores → products → prices → lowest_prices_today (provider = "admitad").
+ * stores â†’ products â†’ prices â†’ lowest_prices_today (provider = "admitad").
  */
 async function saveCatalogItems(items: NormalizedCatalogItem[]): Promise<number> {
   return saveCatalogItemsAs(items, {
@@ -327,7 +327,7 @@ async function saveCatalogItems(items: NormalizedCatalogItem[]): Promise<number>
     store: {
       slug: "admitad",
       name: "Admitad (Alibaba)",
-      nameAr: "أدميتاد (علي بابا)",
+      nameAr: "Ø£Ø¯Ù…ÙŠØªØ§Ø¯ (Ø¹Ù„ÙŠ Ø¨Ø§Ø¨Ø§)",
       website: "https://admitad.com",
       integrationType: "partner",
       logoUrl: "/stores/alibaba.svg",
@@ -454,7 +454,7 @@ async function runAdmitadIngestionLocked(
   console.log(`[admitad-ingest] Found ${websites.length} websites`);
 
   // 3. Build feed candidates from the shared discovery registry (initialized
-  // above) — the SAME source used by the live catalog and search connector.
+  // above) â€” the SAME source used by the live catalog and search connector.
   // NOTE: do NOT use the /advcampaigns/website/{id}?has_tool=products filter
   // here; that catalog query is extremely slow and burns the whole function
   // window in retries. The registry lookup is cached and instant.
@@ -600,7 +600,7 @@ async function runAdmitadIngestionLocked(
   const feedOffset = await readAdmitadFeedCursor();
   const feedsToFetch = rotateFeeds(candidateFeeds, feedOffset, maxFeeds);
   console.log(
-    `[admitad-ingest] feed rotation offset=${feedOffset} of ${candidateFeeds.length} → fetching ${feedsToFetch.length} feed(s): ${feedsToFetch
+    `[admitad-ingest] feed rotation offset=${feedOffset} of ${candidateFeeds.length} â†’ fetching ${feedsToFetch.length} feed(s): ${feedsToFetch
       .map((f) => f.feedName)
       .join(", ")}`,
   );
@@ -610,7 +610,7 @@ async function runAdmitadIngestionLocked(
 
     if (fi > 0 && Date.now() - ingestStartedAt > deadlineMs) {
       result.errors.push(
-        `Deadline ${deadlineMs}ms reached — stopping after ${fi}/${feedsToFetch.length} feeds`,
+        `Deadline ${deadlineMs}ms reached â€” stopping after ${fi}/${feedsToFetch.length} feeds`,
       );
       break;
     }
@@ -665,7 +665,7 @@ async function runAdmitadIngestionLocked(
 
   // 5. Save to database
   if (dryRun) {
-    console.log("[admitad-ingest] DRY RUN — skipping DB save");
+    console.log("[admitad-ingest] DRY RUN â€” skipping DB save");
     result.productsSaved = result.totalProducts;
     return result;
   }
@@ -708,10 +708,10 @@ async function runAdmitadIngestionLocked(
     }
   }
 
-  // Surface each merchant that actually produced products as its own REAL
-  // `stores` row (name/site/geo/currency from the Admitad Publisher API).
-  // Runs independently so a store-sync hiccup never blocks the product save.
-  if (allItems.length > 0) {
+  // Surface all active discovered Admitad merchant programs as real `stores`
+  // rows (name/site/geo/currency from the Admitad Publisher API), even when a
+  // specific run yields no products for some campaigns.
+  if (merchantPrograms.length > 0) {
     try {
       const { syncMerchantStores } = await import("./merchant-stores");
       const merchantsSynced = await syncMerchantStores(allItems, merchantPrograms);

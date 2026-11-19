@@ -131,7 +131,7 @@ function rowToCatalogItem(row: LowestPriceRow): NormalizedCatalogItem {
     slug: row.product_slug,
     title: row.product_name,
     imageUrl: normalizeProductImageUrl(row.image_url),
-    emoji: row.emoji ?? "🛍️",
+    emoji: row.emoji ?? "ðŸ›ï¸",
     categorySlug,
     rating: 0,
     reviewCount: 0,
@@ -149,11 +149,12 @@ function rowToCatalogItem(row: LowestPriceRow): NormalizedCatalogItem {
 
 /**
  * Providers that carry real, image-bearing products in `lowest_prices_today`.
- * Used to (a) enumerate the real merchant universe and (b) filter the catalog.
- * Derived from the canonical provider registry (status === "active") so the
- * set can never drift from the live-provider definition.
+ * Includes active live providers plus Amazon/Amazon-EG so indirectly ingested
+ * DB rows can surface without changing the Phase 5 direct-connector gate.
  */
-const REAL_CATALOG_PROVIDERS = LIVE_PROVIDER_IDS;
+const REAL_CATALOG_PROVIDERS = Array.from(
+  new Set([...LIVE_PROVIDER_IDS, "amazon", "amazon-eg"]),
+);
 
 /**
  * How long a discovered merchant set stays cached (ms). The merchant universe
@@ -336,7 +337,7 @@ async function scanRealMerchantNames(client: SupabaseDb): Promise<string[]> {
  * Unlike a single discount-limited slice (which a single dominant merchant can
  * flood and thereby hide every other real store), this pulls a bounded number
  * of the top products FROM EACH real merchant. Every real store in the DB is
- * therefore represented in the homepage catalog — so the store count is real
+ * therefore represented in the homepage catalog â€” so the store count is real
  * and the rendered feed stays diverse. Gracefully returns [] when Supabase is
  * not configured.
  */
@@ -389,7 +390,7 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
           row.product_name &&
           row.image_url &&
           // Reject rows whose image normalizes to the placeholder (empty,
-          // http-only, or invalid URLs all land there) — never placeholder cards.
+          // http-only, or invalid URLs all land there) â€” never placeholder cards.
           normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER
         ) {
           collected.push(row);
@@ -557,7 +558,7 @@ export async function getRealCatalogProductCount(): Promise<number> {
 /**
  * Read the maintained `catalog_count` row only when it is FRESH (written within
  * CATALOG_COUNT_FRESHNESS_MS). Stale/absent rows return 0 so the caller
- * recomputes the live count. Single-row read — single-digit milliseconds.
+ * recomputes the live count. Single-row read â€” single-digit milliseconds.
  */
 async function readFreshMaintainedCatalogCount(): Promise<number> {
   let ageMs: number;
@@ -596,7 +597,7 @@ async function writeMaintainedCatalogCount(count: number): Promise<void> {
     try {
       await catalogCountWriterForTests(count);
     } catch {
-      // best-effort — never let persistence break the stat
+      // best-effort â€” never let persistence break the stat
     }
     return;
   }
@@ -608,7 +609,7 @@ async function writeMaintainedCatalogCount(count: number): Promise<void> {
   try {
     await setCatalogCount(count);
   } catch {
-    // best-effort — never let persistence break the stat
+    // best-effort â€” never let persistence break the stat
   }
 }
 
@@ -616,8 +617,8 @@ async function writeMaintainedCatalogCount(count: number): Promise<void> {
  * Preference order after the exact-count query fails on ALL retries.
  * Never report a transient failure as 0 while real products exist:
  * 1) This instance's last observed real DB count (in-memory).
- * 2) The last count maintained in `catalog_count` — a real DB value, even if
- *    stale — restores the truthful catalog size (e.g. 69K+) on a cold
+ * 2) The last count maintained in `catalog_count` â€” a real DB value, even if
+ *    stale â€” restores the truthful catalog size (e.g. 69K+) on a cold
  *    instance instead of the tiny merged-catalog sample (merged catalog only
  *    carries a bounded representative slice of the DB, ~18 items).
  * 3) The LAST REAL DB count persisted in `integration_settings`.
@@ -681,7 +682,7 @@ async function persistProductCount(count: number): Promise<void> {
       await productCountWriterForTests(count);
       lastPersistedProductCount = count;
     } catch {
-      // best-effort — never let persistence break the stat
+      // best-effort â€” never let persistence break the stat
     }
     return;
   }
@@ -708,7 +709,7 @@ async function persistProductCount(count: number): Promise<void> {
     );
     if (!error) lastPersistedProductCount = count;
   } catch {
-    // best-effort — never let persistence break the stat
+    // best-effort â€” never let persistence break the stat
   }
 }
 
@@ -744,7 +745,7 @@ async function readPersistedProductCount(): Promise<number> {
 /**
  * Real fallback for the homepage "Products" stat when the DB count is
  * unavailable: the number of distinct real products in the merged live catalog
- * — the SAME source that renders the homepage cards. Dynamically imported to
+ * â€” the SAME source that renders the homepage cards. Dynamically imported to
  * avoid a static circular dependency with catalog-service. Returns 0 when the
  * catalog is also unavailable/empty (then the caller uses last-known-good).
  */
@@ -898,7 +899,7 @@ function rowToSearchResultItem(row: LowestPriceRow): SearchResultItem {
     id: `db-${row.product_id}`,
     name: row.product_name,
     imageSrc: normalizeProductImageUrl(row.image_url),
-    emoji: row.emoji ?? "🛍️",
+    emoji: row.emoji ?? "ðŸ›ï¸",
     price,
     originalPrice,
     discount,
@@ -958,8 +959,8 @@ export async function getFamilyBreadthResultsFromDatabase(
  *
  * The search fan-out passes a hard `timeoutMs` so a slow database read can
  * never hold the whole query hostage. On timeout the DB supplement resolves to
- * an EMPTY pool — the same *truthful* "no additional DB products" state the
- * caller already sees after a DB error — never fabricated/partial rows.
+ * an EMPTY pool â€” the same *truthful* "no additional DB products" state the
+ * caller already sees after a DB error â€” never fabricated/partial rows.
  */
 export async function getSearchResultsFromDatabase(
   query: string,
@@ -996,12 +997,12 @@ async function loadSearchResultsFromDatabase(
     : createSupabaseAnonClient();
   if (!supabase) return [];
 
-  // Canonical-token OR matching: "nike shoes" → product_name ~* '\m(nike)\M' OR
-  // '\m(shoes)\M' over NORMALIZED tokens — noise-stripped ("new", "original",
-  // "free shipping", "للبيع"), Arabic-orthography-folded ("آيفون" → ايفون →
-  // matches آيفون/أيفون/إيفون rows), English plural-expanded ("case" → cases).
+  // Canonical-token OR matching: "nike shoes" â†’ product_name ~* '\m(nike)\M' OR
+  // '\m(shoes)\M' over NORMALIZED tokens â€” noise-stripped ("new", "original",
+  // "free shipping", "Ù„Ù„Ø¨ÙŠØ¹"), Arabic-orthography-folded ("Ø¢ÙŠÙÙˆÙ†" â†’ Ø§ÙŠÙÙˆÙ† â†’
+  // matches Ø¢ÙŠÙÙˆÙ†/Ø£ÙŠÙÙˆÙ†/Ø¥ÙŠÙÙˆÙ† rows), English plural-expanded ("case" â†’ cases).
   // Word-boundary regex (not ILIKE '%w%') stops short tokens from matching
-  // inside unrelated words ("pro" ⊂ "waterproof"/"professional"; "15" ⊂
+  // inside unrelated words ("pro" âŠ‚ "waterproof"/"professional"; "15" âŠ‚
   // "x15-box"), which previously flooded the pool with irrelevant rows.
   // Word overlap scoring happens post-query.
   // When useFuzzyMatch is true (for Arabic-translated queries), use ILIKE
@@ -1051,8 +1052,8 @@ async function loadSearchResultsFromDatabase(
   });
 
   // Rank by word overlap: products matching more query words rank higher.
-  // "Nike Air Max 90" matches 1/2 words for "nike shoes" → score 1
-  // "Nike Running Shoes" matches 2/2 words → score 2 (ranked first).
+  // "Nike Air Max 90" matches 1/2 words for "nike shoes" â†’ score 1
+  // "Nike Running Shoes" matches 2/2 words â†’ score 2 (ranked first).
   const queryWords = useFuzzyMatch ? tokenize(query) : querySearchTokens(query);
   results.sort((a, b) => {
     const aLower = a.name.toLowerCase();
@@ -1097,7 +1098,7 @@ function setDeviceSearchCountCache(
   );
 }
 
-/** Test hook — clears the device-count cache between tests. */
+/** Test hook â€” clears the device-count cache between tests. */
 export function resetDeviceSearchCountCacheForTests(): void {
   deviceSearchCountCache.clear();
 }
@@ -1109,7 +1110,7 @@ export function resetDeviceSearchCountCacheForTests(): void {
  * the ABSOLUTE USD price floor. DB rows are stored in the US market catalog and
  * are overwhelmingly USD, but any SUPPORTED convertible currency may reach this
  * leg (search legs accept `currencyCodes`); the numeric floor below is only a
- * coarse index pre-filter — the in-memory `passesStrictDeviceGuard` re-checks
+ * coarse index pre-filter â€” the in-memory `passesStrictDeviceGuard` re-checks
  * every row with its REAL currency so an EUR/AED row is never judged against a
  * raw USD baseline. A query that pins a concrete brand gets a must-contain OR
  * filter (Latin tokens) matching `titleMeetsRequiredBrand`.
@@ -1140,13 +1141,13 @@ function deviceGuardSqlQueryContext(device: DeviceDbLegOptions): {
 /**
  * DEVICE-intent exact count: the number of rows that survive the SQL guard
  * pre-filter AND the in-memory strict device guard inside the first
- * `DEVICE_TAIL_DEEP_WINDOW` rows — the SAME universe the device paged leg
+ * `DEVICE_TAIL_DEEP_WINDOW` rows â€” the SAME universe the device paged leg
  * serves, so in-window `total` and the beyond-pool leg agree and `hasMore`
  * renders the next genuine-device pages instead of mysteriously emptying.
  *
  * Successful (>0) counts are cached TTL 5 min so the 8s count race can never
  * flap `total` between a real match count and the pool length. A 0 (timeout /
- * empty / error) result is never cached — a transient dead datastore must
+ * empty / error) result is never cached â€” a transient dead datastore must
  * recover on the next request.
  */
 async function loadDeviceSearchCountFromDatabase(
@@ -1319,7 +1320,7 @@ async function loadSearchResultsCountFromDatabase(query: string): Promise<number
  * emitted is excluded here, so a window offset can never re-serve a row an
  * earlier page already showed, no matter where that row sits in discount order.
  *
- * `options?.timeoutMs` resolves `{ items: [], total: 0 }` on timeout — the same
+ * `options?.timeoutMs` resolves `{ items: [], total: 0 }` on timeout â€” the same
  * truthful "no additional DB products" state as a DB error.
  */
 export async function getSearchResultsFromDatabasePaged(
@@ -1434,8 +1435,8 @@ async function loadSearchResultsFromDatabasePaged(
   // cap), re-apply the strict device guard in JS so accessory/junk rows the
   // SQL pre-filter cannot catch (Arabic terms, exotic word forms) can never
   // enter a page, rank by query-word overlap, then slice at the offset.
-  // `total` is the length of that guard-passing sequence — the SAME count the
-  // device count leg reports — so pages past the pool render the next batch of
+  // `total` is the length of that guard-passing sequence â€” the SAME count the
+  // device count leg reports â€” so pages past the pool render the next batch of
   // genuine devices with a truthful `hasMore` instead of emptying.
   if (deviceContext) {
     const { data: deepData, error: deepError } = await ordered.range(
@@ -1612,7 +1613,7 @@ export async function getDatabaseSearchItemByProductId(
 /**
  * Look up a single lowest_prices_today row by its Admitad product_slug
  * (`admitad-<campaignId>-<offerId>`) and map it to a SearchResultItem.
- * This is the persisted-row counterpart of the live `admitad-…` feed products,
+ * This is the persisted-row counterpart of the live `admitad-â€¦` feed products,
  * used as a fallback by the PDP resolver when the live feed cache is cold.
  * Only real rows (real name + real image) are ever returned.
  */

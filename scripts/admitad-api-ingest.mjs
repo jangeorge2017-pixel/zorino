@@ -256,8 +256,9 @@ function getSupabase() {
 }
 
 async function ensureStore(db) {
-  const { data: existing } = await db.from("stores").select("id").eq("slug", "admitad").single();
-  if (existing) return existing.id;
+  const { data: existing } = await db.from("stores").select("id").eq("slug", "admitad").maybeSingle();
+  if (existing?.id) return existing.id;
+
   const { data: created } = await db.from("stores").insert({
     name: "Admitad (Alibaba)", name_ar: "أدميتاد (علي بابا)", slug: "admitad",
     website: "https://admitad.com", integration_type: "partner",
@@ -267,6 +268,49 @@ async function ensureStore(db) {
   return created?.id;
 }
 
+function initials(name) {
+  const letters = String(name || "").replace(/[^a-zA-Z0-9]/g, "");
+  return (letters.slice(0, 2) || "AR").toUpperCase();
+}
+
+async function syncAdmitadMerchantStoreRows(db, campaigns) {
+  const rows = [];
+  const seen = new Set();
+  for (const campaign of campaigns || []) {
+    const id = campaign?.id;
+    const name = String(campaign?.name || "").trim();
+    const website = String(campaign?.site_url || "").trim();
+    if (!id || !name || !/^https?:\/\//i.test(website)) continue;
+    const slug = `admitad-${id}`;
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    const regions = Array.isArray(campaign?.regions) && campaign.regions.length
+      ? campaign.regions.map((r) => r?.region).filter(Boolean)
+      : ["US"];
+    const currency = campaign?.currency ? [campaign.currency] : ["USD"];
+    rows.push({
+      name,
+      slug,
+      website,
+      integration_type: "partner",
+      logo_initial: initials(name),
+      supported_regions: regions,
+      supported_currencies: currency,
+      external_store_id: String(id),
+      admitted_network: "admitad",
+      admitted_campaign_id: String(id),
+      is_active: true,
+    });
+  }
+  if (!rows.length) return 0;
+  const { error } = await db.from("stores").upsert(rows, { onConflict: "slug", ignoreDuplicates: false });
+  if (error) {
+    console.warn("[admitad-ingest] merchant store sync failed:", error.message);
+    return 0;
+  }
+  console.log(`[admitad-ingest] synced ${rows.length} admitad merchant store rows`);
+  return rows.length;
+}
 // ---------------------------------------------------------------------------
 // Batch DB save (reusable for incremental persistence)
 // ---------------------------------------------------------------------------
@@ -371,20 +415,42 @@ async function main() {
     console.log(`   - ID: ${w.id}, Name: ${w.name}, URL: ${w.url}, Status: ${w.status}`);
   }
 
-  // 3. Discover programs with feeds
-  console.log("\n3. Discovering programs with product feeds...");
+  // 3. Discover active campaigns and product feeds
+  console.log("\n3. Discovering active programs and product feeds...");
+  const allCampaignsById = new Map();
   const allFeedEntries = [];
   for (const website of websites) {
-    const campaigns = await listAllPages(`/advcampaigns/website/${website.id}/`, { has_tool: "products" });
-    console.log(`   Website ${website.id}: ${campaigns.length} programs with feeds`);
-    for (const c of campaigns) {
-      if (!c.feeds_info?.length) continue;
+    let campaigns = [];
+    try {
+      campaigns = await listAllPages(`/advcampaigns/website/${website.id}/`);
+    } catch (err) {
+      console.warn(`   Website ${website.id}: failed to list campaigns (${err?.message || err})`);
+      campaigns = [];
+    }
+    const activeCampaigns = campaigns.filter(
+      (c) => c?.connection_status === "active" && (c?.status === "active" || !c?.status)
+    );
+    console.log(`   Website ${website.id}: ${campaigns.length} campaigns (${activeCampaigns.length} active)`);
+    for (const c of activeCampaigns) {
+      allCampaignsById.set(c.id, c);
+      if (!Array.isArray(c.feeds_info) || c.feeds_info.length === 0) continue;
       for (const feed of c.feeds_info) {
         allFeedEntries.push({ campaign: c, feed, websiteId: website.id });
       }
     }
   }
+  const allActiveCampaigns = Array.from(allCampaignsById.values());
+  console.log(`   Active campaigns discovered: ${allActiveCampaigns.length}`);
   console.log(`   Total feeds discovered: ${allFeedEntries.length}`);
+
+  try {
+    const dbForStores = getSupabase();
+    if (dbForStores) {
+      await syncAdmitadMerchantStoreRows(dbForStores, allActiveCampaigns);
+    }
+  } catch (err) {
+    console.warn("   Merchant store pre-sync failed:", err?.message || err);
+  }
 
   if (testMode) {
     console.log("\n=== Test Complete ===");
@@ -553,10 +619,20 @@ async function main() {
   console.log("-".repeat(100));
   console.log(`${"TOTAL".padEnd(45)} ${String(totalFeeds).padStart(6)} ${String(totalOk).padStart(4)} ${String(totalFail).padStart(5)} ${String(totalProducts).padStart(9)}`);
 
+  try {
+    const dbFinal = getSupabase();
+    if (dbFinal) {
+      await syncAdmitadMerchantStoreRows(dbFinal, allActiveCampaigns);
+    }
+  } catch (err) {
+    console.warn("Merchant store final sync failed:", err?.message || err);
+  }
+
   console.log(`\n=== Results ===`);
   console.log(`Authenticated:       true`);
   console.log(`Websites found:      ${websites.length}`);
-  console.log(`Programs discovered: ${programReport.size}`);
+  console.log(`Active campaigns:    ${allActiveCampaigns.length}`);
+  console.log(`Programs with feeds: ${programReport.size}`);
   console.log(`Feeds attempted:     ${feedsOk + feedsFailed}`);
   console.log(`Feeds OK:            ${feedsOk}`);
   console.log(`Feeds failed:        ${feedsFailed}`);
