@@ -1,4 +1,4 @@
-﻿import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
+import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
 import { getActiveProductionProviders } from "@/lib/integration/provider-config";
 import { recordProviderRun } from "@/lib/integration/provider-health";
 import { getActiveProviderAdapters } from "@/lib/providers/adapter-registry";
@@ -51,7 +51,7 @@ export type GlobalSearchOptions = {
   optimizeForDeviceIntent?: boolean;
   /**
    * The visitor's ACTIVE display currency. The strict device guard compares a
-   * row's price AND the query's floor in this currency (e.g. $150 Ã¢â€ â€™ Ã¢â€°Ë†7500 EGP)
+   * row's price AND the query's floor in this currency (e.g. $150 â†’ â‰ˆ7500 EGP)
    * so a raw EGP number is never judged against a USD baseline. Default "USD"
    * keeps classic behavior for callers that do not model a regional currency.
    */
@@ -97,7 +97,7 @@ function setFairSearchCache(
 /**
  * Structurally-balanced merge of the live provider pool with the canonical
  * catalog supplement. The DB rows are reserved at a fixed cadence in the
- * pattern from slot 0 (`dbEvery`-spaced) Ã¢â‚¬â€ NOT appended after a live "lead"
+ * pattern from slot 0 (`dbEvery`-spaced) â€” NOT appended after a live "lead"
  * that a single provider's volume could fill to the cap. This is the
  * retrieval-layer guarantee the root requirement names: no provider may
  * independently consume the whole window and hide another surface's matching
@@ -122,7 +122,7 @@ export function interleaveLiveAndDbResults(
   // Normalize the cadence to a Number exactly once; every arithmetic site below
   // (the `/` divisor and the `+= dbEveryNum` cadence stepper) uses the Number so
   // a BigInt-arriving `dbEvery` (older bigint-typed callers) can never mix with
-  // Number on this window's byte-stable cadence math Ã¢â‚¬â€ and the cadence decision
+  // Number on this window's byte-stable cadence math â€” and the cadence decision
   // itself stays a pure structural cadence, fully independent of how many live
   // rows each provider returned.
   const dbEveryNum = Number(dbEvery);
@@ -155,7 +155,7 @@ export function interleaveLiveAndDbResults(
       mixed[pos] = db[drainDi];
       drainDi += 1;
     } else {
-      // Both pools exhausted Ã¢â‚¬â€ the remaining positions are structurally empty
+      // Both pools exhausted â€” the remaining positions are structurally empty
       // and fall away.
       break;
     }
@@ -176,7 +176,7 @@ export const DB_PAGE_LIVE_INTERLEAVE_CADENCE = 3;
  * The DB leg (the complete catalog, discount-ordered and multi-provider) fills
  * every open slot; LIVE rows that are still unconsumed are inserted at the same
  * `Number(dbEvery)` structural cadence that `interleaveLiveAndDbResults`
- * reserves canonical rows at in-window Ã¢â‚¬â€ so live results keep appearing deep
+ * reserves canonical rows at in-window â€” so live results keep appearing deep
  * into the catalog, and once the live head is exhausted the remaining slots run
  * pure DB. Pure + exported so the cadence seam stays unit-testable.
  */
@@ -187,7 +187,7 @@ export function interleaveLiveIntoDbPage(
   dbEvery: number | bigint,
 ): SearchResultItem[] {
   if (pageSize <= 0) return [];
-  // Normalize the cadence to a Number exactly once Ã¢â‚¬â€ same seam as
+  // Normalize the cadence to a Number exactly once â€” same seam as
   // interleaveLiveAndDbResults so a BigInt-arriving caller can never mix with
   // Number on this window's cadence math.
   const cadence = Number(dbEvery) > 0 ? Number(dbEvery) : pageSize + 1;
@@ -218,8 +218,8 @@ export function interleaveLiveIntoDbPage(
 /**
  * Exact-first merge of the search-pool DB supplement. The exact-query rows
  * (highest relevance) come first, then the matching rows for the canonical
- * family retrieval keyword ("phone", "laptop", "earbuds", Ã¢â‚¬Â¦) Ã¢â‚¬â€ the SAME bare
- * family vocabulary the Category surfaces use Ã¢â‚¬â€ deduplicated by item id so a
+ * family retrieval keyword ("phone", "laptop", "earbuds", â€¦) â€” the SAME bare
+ * family vocabulary the Category surfaces use â€” deduplicated by item id so a
  * row reachable through both vocabularies appears once. Pure + exported so the
  * exact-first/dedupe contract is unit-testable.
  */
@@ -276,13 +276,27 @@ async function fetchDbSupplementForSearch(
 /**
  * Hard per-provider budget inside the search fan-out. A slow or stalled
  * connector (e.g. the Admitad feed can take up to ~25s on a cold cache) must
- * never hold the search fan-out Ã¢â‚¬â€ and therefore the homepage catalog, which
- * fans out 8 curated queries through this same engine Ã¢â‚¬â€ hostage. When a
+ * never hold the search fan-out â€” and therefore the homepage catalog, which
+ * fans out 8 curated queries through this same engine â€” hostage. When a
  * connector exceeds the budget its partial work is dropped and the fan-out
  * settles with the faster providers' real results.
  */
 const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
 let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
+
+/**
+ * Providers whose retrieval is heavy enough that the low-RAM 3.5s cache-warm
+ * budget routinely cut them off entirely (Amazon Egypt's storefront scraper,
+ * the AliExpress Open API, and Jumia's catalog fetch). They keep the full
+ * engine budget even when a caller requests a shorter low-RAM fan-out, so a
+ * cache build never persists a pool that silently dropped them.
+ */
+const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+const CRITICAL_PROVIDER_IDS: ReadonlySet<SearchProviderId> = new Set([
+  "amazon-eg",
+  "aliexpress",
+  "jumia",
+]);
 
 /** Test-only: shrink the per-provider budget so timeout degradation is provable fast. */
 export function setProviderFetchTimeoutForTests(ms?: number): void {
@@ -291,85 +305,9 @@ export function setProviderFetchTimeoutForTests(ms?: number): void {
 }
 
 /**
- * Strict store rotation for search diversity (anti-monopoly). Preferred stores
- * appear first in this order; any other active store is appended after them so
- * nothing is dropped from rotation, only eBay/volume leaders are deprioritized.
- */
-export const SEARCH_STORE_PRIORITY: readonly string[] = [
-  "amazon-eg",
-  "jumia",
-  "noon",
-  "aliexpress",
-  "btech",
-  "carrefour",
-  "temu",
-  "admitad",
-  "ebay",
-];
-
-export const MAX_ITEMS_PER_STORE_PER_QUERY = 8;
-
-function normalizeStoreKey(item: SearchResultItem): string {
-  return (item.storeSlug || item.store || "unknown").trim().toLowerCase();
-}
-
-/**
- * Final search-result diversity pass: cap each store (max 8/query) and
- * round-robin in priority order so fast sources (eBay) never monopolize the
- * first rows while slower/cached stores remain visible.
- */
-export function interleaveAndCapSearchResultsByStore(
-  items: readonly SearchResultItem[],
-  maxPerStore: number = MAX_ITEMS_PER_STORE_PER_QUERY,
-  priority: readonly string[] = SEARCH_STORE_PRIORITY,
-): SearchResultItem[] {
-  if (items.length === 0) return [];
-  const cap = Math.max(1, Math.floor(maxPerStore));
-
-  const byStore = new Map<string, SearchResultItem[]>();
-  for (const item of items) {
-    const key = normalizeStoreKey(item);
-    const bucket = byStore.get(key) ?? [];
-    if (bucket.length < cap) {
-      bucket.push(item);
-      byStore.set(key, bucket);
-    }
-  }
-
-  const orderedKeys: string[] = [];
-  const seen = new Set<string>();
-  for (const key of priority) {
-    const k = key.toLowerCase();
-    if (byStore.has(k) && !seen.has(k)) {
-      orderedKeys.push(k);
-      seen.add(k);
-    }
-  }
-  for (const key of byStore.keys()) {
-    if (!seen.has(key)) {
-      orderedKeys.push(key);
-      seen.add(key);
-    }
-  }
-
-  const out: SearchResultItem[] = [];
-  let progressed = true;
-  while (progressed) {
-    progressed = false;
-    for (const key of orderedKeys) {
-      const bucket = byStore.get(key);
-      if (!bucket || bucket.length === 0) continue;
-      out.push(bucket.shift()!);
-      progressed = true;
-    }
-  }
-  return out;
-}
-
-/**
  * Test-only: seed the balanced search pool for a query so the paged seam
  * (`searchProductsPaged`) can be exercised offline with a fully controlled,
- * stable pool Ã¢â‚¬â€ no provider fan-out, no DB supplement fetch. The key mirrors
+ * stable pool â€” no provider fan-out, no DB supplement fetch. The key mirrors
  * exactly what `searchProducts` builds for a device-intent /search request.
  */
 export function setSearchPoolForTests(
@@ -378,7 +316,7 @@ export function setSearchPoolForTests(
   activeCurrency: CurrencyCode = "USD",
   useFuzzyMatch = false,
 ): void {
-  const cacheKey = `prod-v21-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
+  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
   setFairSearchCache(cacheKey, {
     items: items as SearchResultItem[],
     expiresAt: Date.now() + 60_000,
@@ -393,8 +331,8 @@ export function clearSearchPoolForTests(): void {
 /**
  * ZORINO Global Search Engine
  *
- * Pipeline: Provider Connectors (parallel) Ã¢â€ â€™ per-marketplace Ranking Ã¢â€ â€™
- *           Duplicate Detection Ã¢â€ â€™ Price Comparison Ã¢â€ â€™ UI mapping
+ * Pipeline: Provider Connectors (parallel) â†’ per-marketplace Ranking â†’
+ *           Duplicate Detection â†’ Price Comparison â†’ UI mapping
  */
 export async function executeGlobalSearch(
   query: string,
@@ -499,7 +437,7 @@ async function fetchProvidersInParallel(
   // One card per provider+externalId: a device-intent search now fetches the
   // exact query AND the family-keyword fallback, so the same genuine product
   // can legitimately arrive through both legs (same product_id on AliExpress,
-  // same offer id on Admitad, Ã¢â‚¬Â¦). Collapsing identical provider+externalId
+  // same offer id on Admitad, â€¦). Collapsing identical provider+externalId
   // here keeps duplicates out of the assembly pipeline entirely.
   const seenListingKeys = new Set<string>();
 
@@ -510,14 +448,14 @@ async function fetchProvidersInParallel(
 
   // Provider-neutral family-keyword fallback: a device-intent search fans the
   // exact query AND that family's generic retrieval keyword ("phone", "laptop",
-  // "earbuds", Ã¢â‚¬Â¦) out to EVERY adapter in parallel, inside the same per-provider
+  // "earbuds", â€¦) out to EVERY adapter in parallel, inside the same per-provider
   // budget. The family keyword is the same vocabulary the category surfaces rely
   // on to reach genuine devices beyond a device query's accessory-saturated
   // first pages (see lib/data/category-keywords.ts); it uses the legacy shallow
   // budget so AliExpress searches "phone" exactly as /categories/phones does.
   // The relevance tiers still rank exact/model matches first and drop unrelated
   // family results, and duplicate providerId+externalId pairs collapse in
-  // deduplication Ã¢â‚¬â€ so the fallback only ever ADDS genuine inventory to the
+  // deduplication â€” so the fallback only ever ADDS genuine inventory to the
   // pool, never floods it.
   const familyKeyword =
     intent?.kind === "device"
@@ -536,9 +474,9 @@ async function fetchProvidersInParallel(
 
   const runAdapter = async (adapter: (typeof adapters)[number]) => {
       const started = Date.now();
-      // Every store/provider fetcher is independently bounded (7.5s) so slow
-      // sources get a fair window while isolation prevents blocking others.
-      const adapterFetchTimeoutMs = Math.min(fetchTimeoutMs, 7_500);
+      // Every store/provider fetcher is independently bounded (5s) so one slow
+      // source never blocks others; fan-out collects via Promise.allSettled.
+      const adapterFetchTimeoutMs = Math.min(fetchTimeoutMs, 5_000);
       try {
         const searches = [
           adapter.search(query, {
@@ -592,7 +530,7 @@ async function fetchProvidersInParallel(
           }
         };
         const settled = await Promise.all(searches.map(timeoutOnly));
-        // Requirement 3 Ã¢â‚¬â€ strict per-provider debug logging: record how many
+        // Requirement 3 â€” strict per-provider debug logging: record how many
         // raw provider listings each leg (exact query / family keyword) actually
         // returned BEFORE dedupe, cap, or ranking so a disappearing source is
         // diagnosable instead of silently absent.
@@ -616,7 +554,7 @@ async function fetchProvidersInParallel(
           seenListingKeys.add(key);
           return true;
         });
-        // Requirement 1 Ã¢â‚¬â€ fetching limit per source: a single source may never
+        // Requirement 1 â€” fetching limit per source: a single source may never
         // push more than MAX_LISTINGS_PER_SOURCE raw listings into the pool per
         // search query, so slow/lean peers (AliExpress, Admitad) are never
         // drowned out by a high-volume source's paginated tail.
@@ -688,9 +626,9 @@ export async function searchProducts(
   // Separate cache namespaces per mode + sort so a price-sorted pool can never
   // be served to (or evict) the relevance pool for the same query. The ACTIVE
   // currency is part of the key too: the strict device floor lives in the
-  // visitor's currency (US$150 vs Ã¢â€°Ë†7500 EGP), so a USD-mode pool never serves
+  // visitor's currency (US$150 vs â‰ˆ7500 EGP), so a USD-mode pool never serves
   // an EGP-mode visitor who may legitimately hold different inventory.
-  const cacheKey = `prod-v21-device-pool:${trimmed.toLowerCase()}:${capped}${
+  const cacheKey = `prod-v20-device-pool:${trimmed.toLowerCase()}:${capped}${
     optimizeForDeviceIntent ? ":device-opt" : ""
   }:sort:${sortBy}:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
   const cached = fairSearchCache.get(cacheKey);
@@ -701,14 +639,14 @@ export async function searchProducts(
   // Explicit device-intent query (e.g. "iphone 15 pro max", "airpods pro") on
   // the /search surface. For these, a shallow keyword page can be dominated by
   // accessories (cases, chargers, screen protectors) even when genuine devices
-  // exist Ã¢â‚¬â€ so retrieval pages deeper to reach each provider's genuine
+  // exist â€” so retrieval pages deeper to reach each provider's genuine
   // inventory instead of mistaking the first accessory-saturated page for
   // "no genuine match". The pool itself is never gated: assembly stays
   // device-first across all providers.
-  // Intent + the canonical family retrieval keyword Ã¢â‚¬â€ the SAME bare family
-  // vocabulary the Category surfaces search ("phone", "laptop", "earbuds", Ã¢â‚¬Â¦).
+  // Intent + the canonical family retrieval keyword â€” the SAME bare family
+  // vocabulary the Category surfaces search ("phone", "laptop", "earbuds", â€¦).
   // The search pool must reach the same canonical/imported ZORINO inventory the
-  // Categories surface, enriched by the exact query Ã¢â‚¬â€ never a different,
+  // Categories surface, enriched by the exact query â€” never a different,
   // narrower universe of products.
   const intentForSearch = optimizeForDeviceIntent
     ? analyzeSearchQueryIntent(trimmed)
@@ -751,26 +689,17 @@ export async function searchProducts(
 
   // Merge DB results for active live providers and for real catalog-backed
   // provider rows (e.g. GA-ingested Jumia/Admitad/Egypt stores or indirect
-  // Amazon rows). Always include cached/synced providers so slow live scrapers
-  // never leave key stores empty.
+  // Amazon rows). Stub-only providers stay excluded.
   const { STUB_PROVIDER_IDS } = await import("@/lib/providers/registry");
-  const alwaysIncludeDbProviders = new Set<string>([
-    "amazon",
-    "amazon-eg",
-    "jumia",
-    "noon",
-    "admitad",
-  ]);
   const activeProviders = new Set<string>([
     ...activeProviderIds,
-    ...alwaysIncludeDbProviders,
+    "amazon",
+    "amazon-eg",
   ]);
   const stubProviders = new Set<string>(STUB_PROVIDER_IDS as readonly string[]);
   const activeDb = fromDb.filter((item) => {
     const providerId = item.storeSlug as string;
-    if (!providerId) return false;
-    if (alwaysIncludeDbProviders.has(providerId)) return true;
-    if (stubProviders.has(providerId)) return false;
+    if (!providerId || stubProviders.has(providerId)) return false;
     return activeProviders.has(providerId) || !stubProviders.has(providerId);
   });
 
@@ -778,7 +707,7 @@ export async function searchProducts(
   // device-first production pipeline. No device-intent gate: a provider whose
   // retrieval holds genuine devices contributes them (leading every page), and
   // a provider with only relevant accessories contributes those behind all
-  // genuine matches Ã¢â‚¬â€ so Search stays multi-provider and can never read as
+  // genuine matches â€” so Search stays multi-provider and can never read as
   // "eBay-only", while accessories can never displace a genuine match.
   // Imported rows are mapped to the RawProviderListing vocabulary and pass
   // through exactly the same relevance tiers as live listings (drop none &
@@ -812,20 +741,20 @@ export async function searchProducts(
   }
 
   // Strict genuine-device pool guard: on a DEVICE-intent search the user asked
-  // for the physical handset Ã¢â‚¬â€ never a $2.59 silicone case, a $0.26 tempered
+  // for the physical handset â€” never a $2.59 silicone case, a $0.26 tempered
   // glass, a charging cable, a VR headset, or a cardboard dummy that merely
   // names the phone to ride its search traffic. Accessory-saturated first pages
   // on AliExpress / Admitad / Amazon routinely bury the genuine device behind
   // such rowsikuha. The raw pool (live listings + DB supplement) passes through
-  // the STRICT provider-neutral guard BEFORE production assembly Ã¢â‚¬â€ a title with
+  // the STRICT provider-neutral guard BEFORE production assembly â€” a title with
   // any accessory word is dropped immediately (even when it also names the
   // device: "Tempered Glass for iPhone 15 Pro" is a glass product, never a
   // phone), and a row below the query's price floor leaves unless it is itself
-  // a recognised genuine device (iPhone queries floor at $200, others $100 Ã¢â‚¬â€ a
+  // a recognised genuine device (iPhone queries floor at $200, others $100 â€” a
   // genuine refurbished iPhone can legitimately be cheap and must still lead,
   // preserving the Bug1/Bug4 relevance contract). Devices are never price-
   // excluded, ever. Homepage / category / compare pools and accessory-intent
-  // queries ("iphone 15 case") are NOT filtered here Ã¢â‚¬â€ scope stays with the
+  // queries ("iphone 15 case") are NOT filtered here â€” scope stays with the
   // device-intent caller.
   const rawPoolForDeviceIntent = deviceIntent
     ? enforceStrictDevicePool([...allRaw, ...dbAsRaw], trimmed, activeCurrency)
@@ -852,9 +781,9 @@ export async function searchProducts(
   // /search page-1 composition seam: recompose ONLY the head of the balanced
   // pool so every provider that genuinely holds matching results appears
   // EARLY inside the first page (providers missing from page 1 get their best
-  // genuine devices placed right behind the preserved global-relevance lead Ã¢â‚¬â€
+  // genuine devices placed right behind the preserved global-relevance lead â€”
   // a truthful presence, bounded, never a forced equal share). A pure
-  // permutation of the SAME item set Ã¢â‚¬â€ total, hasMore, zero-duplicate and
+  // permutation of the SAME item set â€” total, hasMore, zero-duplicate and
   // DB-leg exclusion are all computed from the unchanged pool, so pagination
   // semantics are untouched. Homepage / Compare Prices never pass the flag,
   // so their pools stay byte-identical.
@@ -865,14 +794,14 @@ export async function searchProducts(
 
   // Condition-diversity guardrail (anti-eBay-monopoly): every page window of
   // the pool caps a single source's Refurbished/Used share at 40% (a dominant
-  // source drops to Ã¢â€°Â¤5 per page when its peers are thinner) and trims only
-  // over-budget Refurbished/Used DISPLAY rows Ã¢â‚¬â€ catalogue/DB totals, relevance
+  // source drops to â‰¤5 per page when its peers are thinner) and trims only
+  // over-budget Refurbished/Used DISPLAY rows â€” catalogue/DB totals, relevance
   // tiers and pagination are untouched.
   //
   // The guardrail is applied to the cached pool, so every page sliced from it
   // inherits the invariant. It is a STABLE TRIM (newFirst: false): the ordered
-  // pool Ã¢â‚¬â€ composition-seam device leads, live-vs-imported relevance, DB
-  // supplement placement Ã¢â‚¬â€ is preserved exactly as assembled. A New-first
+  // pool â€” composition-seam device leads, live-vs-imported relevance, DB
+  // supplement placement â€” is preserved exactly as assembled. A New-first
   // REGROUP is intentionally NOT applied here: it would move an imported "New"
   // device row above a live "Refurbished" exact-match device (breaking the
   // Bug 1/Bug 4 live-lead contiguity contract) and, per the same principle,
@@ -886,7 +815,7 @@ export async function searchProducts(
   });
 
   // Per-viewport single-source cap (anti-monopoly): while any peer provider is
-  // present, no single source may hold more than 60% of a full page's seats
+  // present, no single source may hold more than 60% of a full page's seats â€”
   // surplus rows are relocated to the pool tail, so totals, hasMore and page
   // membership are untouched (pure permutation). The strict 1-1-1 balancer and
   // the condition-diversity guardrail already ran above; this is the final
@@ -899,14 +828,21 @@ export async function searchProducts(
     (item) => item.storeSlug || item.store,
   );
 
-  // Final store diversity: strict priority round-robin + per-store cap so fast
-  // sources (eBay) never flood the top rows and key stores stay visible.
-  const interleavedPool = interleaveAndCapSearchResultsByStore(viewportCapped);
-
   const mixedHead = guarded.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const composedHead = composed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
-  const cappedHead = viewportCapped.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
-  const interleavedHead = interleavedPool.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
+  const buckets = new Map<string, SearchResultItem[]>();
+  for (const it of viewportCapped) {
+    const k = (it.storeSlug || it.store || "unknown").toLowerCase();
+    const b = buckets.get(k) ?? [];
+    if (k !== "ebay" || b.length < 6) { b.push(it); buckets.set(k, b); }
+  }
+  const interleaved: SearchResultItem[] = [];
+  for (let on = true; on; ) {
+    on = false;
+    for (const b of buckets.values()) if (b.length) { interleaved.push(b.shift()!); on = true; }
+  }
+
+  const cappedHead = interleaved.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const summarize = (items: SearchResultItem[]): string =>
     [...new Set(items.map((i) => i.storeSlug || i.store))]
       .map(
@@ -917,15 +853,15 @@ export async function searchProducts(
   console.log(
     `[search-seam] query="${trimmed}" device_only=${optimizeForDeviceIntent} sort=${sortBy} ` +
       `pool_mix=[${summarize(mixedHead)}] composed_mix=[${summarize(composedHead)}] ` +
-      `capped_mix=[${summarize(cappedHead)}] interleaved_mix=[${summarize(interleavedHead)}] ` +
-      `pooled_len=${mixed.length} composed_len=${composed.length} guarded_len=${guarded.length} capped_len=${viewportCapped.length} interleaved_len=${interleavedPool.length}`,
+      `capped_mix=[${summarize(cappedHead)}] ` +
+      `pooled_len=${mixed.length} composed_len=${composed.length} guarded_len=${guarded.length} capped_len=${interleaved.length}`,
   );
   setFairSearchCache(cacheKey, {
-    items: interleavedPool,
+    items: interleaved,
     expiresAt: Date.now() + FAIR_SEARCH_TTL_MS,
   });
 
-  return interleavedPool;
+  return interleaved;
 }
 
 /** One page of search results (offset/limit view over a cached, balanced pool). */
@@ -964,9 +900,9 @@ export function sliceSearchPage(
  * Resolve which universe positions a paged request past the balanced pool is
  * asking for. The complete matching universe is ONE deterministic sequence:
  *
- *   positions [0, pool.length)           Ã¢â€ â€™ the balanced pool (live + db rows in
+ *   positions [0, pool.length)           â†’ the balanced pool (live + db rows in
  *                                         device-first assemble order)
- *   positions [pool.length, total)       Ã¢â€ â€™ the discount-ordered DB leg MINUS
+ *   positions [pool.length, total)       â†’ the discount-ordered DB leg MINUS
  *                                         the db rows the pool already emitted
  *
  * Returns exactly the pool rows the page still needs (`poolHead`), the tail
@@ -1004,7 +940,7 @@ export function resolvePooledPageSelection(
   );
 
   // Every db row the pool emitted belongs to universe positions
-  // [0, pool.length) Ã¢â‚¬â€ exclude ALL of them (by set, wherever they sit in
+  // [0, pool.length) â€” exclude ALL of them (by set, wherever they sit in
   // discount order) so the tail cannot re-serve them.
   const excludeProductIds: string[] = [];
   for (const item of pool) {
@@ -1018,8 +954,8 @@ export function resolvePooledPageSelection(
 
 /**
  * Paged view over the unified search pool. The full balanced pool is fetched
- * (and cached, exactly as searchProducts does) and then sliced Ã¢â‚¬â€ so page 1,
- * page 2, Ã¢â‚¬Â¦ always describe the same stable sequence from one search.
+ * (and cached, exactly as searchProducts does) and then sliced â€” so page 1,
+ * page 2, â€¦ always describe the same stable sequence from one search.
  *
  * Truthful total: `total` and `hasMore` come from the exact Supabase match
  * count when the DB leg is live (a slow/failed count resolves 0), falling back
@@ -1032,7 +968,7 @@ export function resolvePooledPageSelection(
  * single provider monopolizes later pages. The tail index is a rank into the
  * pool-excluded DB universe (`resolvePooledPageSelection`), so every page is a
  * successive, duplicate/gap-free portion of the SAME complete matching
- * universe Ã¢â‚¬â€ the pool's db rows are excluded by SET (not skipped by count),
+ * universe â€” the pool's db rows are excluded by SET (not skipped by count),
  * because the pool is not a discount-prefix and a count-skip re-serves rows
  * already shown.
  */
@@ -1058,7 +994,7 @@ export async function searchProductsPaged(
 
   // The balanced pool and the exact DB count race together so the truthful
   // total never adds latency to the pool fetch. Count resolves 0 on timeout /
-  // failure / empty DB Ã¢â€ â€™ pool.length keeps the historical in-window behaviour.
+  // failure / empty DB â†’ pool.length keeps the historical in-window behaviour.
   // On a DEVICE query the count resolves the guard-passing universe instead of
   // the raw 120K accessory-inclusive match count, so `total`/`hasMore` describe
   // the reachable genuine-device sequence (see database-catalog device legs).
@@ -1091,15 +1027,15 @@ export async function searchProductsPaged(
   // The complete matching universe this pager serves is ONE deterministic
   // sequence, and page offset N is exactly universe position N:
   //
-  //   positions [0, pool.length)            Ã¢â€ â€™ the balanced pool (live + db rows
+  //   positions [0, pool.length)            â†’ the balanced pool (live + db rows
   //                                            in device-first assemble order)
-  //   positions [pool.length, total)        Ã¢â€ â€™ the discount-ordered DB leg,
+  //   positions [pool.length, total)        â†’ the discount-ordered DB leg,
   //                                            EXCLUDING the db rows the pool
   //                                            already emitted (by set, not by
-  //                                            count Ã¢â‚¬â€ the pool is not a
+  //                                            count â€” the pool is not a
   //                                            discount-prefix of the leg)
   //
-  // A page fully inside the pool window is therefore a straight pool slice Ã¢â‚¬â€
+  // A page fully inside the pool window is therefore a straight pool slice â€”
   // the pool head is the universe, not a separate capped universe. Only pages
   // reaching past the pool fetch the DB leg, at an EXCLUSION-filtered rank that
   // advances with the offset past the pool, so every page is a successive,
@@ -1122,7 +1058,7 @@ export async function searchProductsPaged(
   // complete universe from the pool-excluded DB leg at rank
   // (safeOffset - pool.length). The DB leg already excludes the pool's db rows
   // by set (WHERE product_id NOT IN poolDbIds), so rank 0 is the true row after
-  // the pool in discount order Ã¢â‚¬â€ a window can never re-serve a row an earlier
+  // the pool in discount order â€” a window can never re-serve a row an earlier
   // page already showed, nor skip a discount-head row the pool never placed.
   const selection = resolvePooledPageSelection(pool, safeOffset, safeLimit);
 
