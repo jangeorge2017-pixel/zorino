@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { isHeadlessBrowserBlocked } from "@/lib/security/headless-browser-guard";
 import { isAmazonScraperAvailable } from "@/lib/integrations/amazon-scraper";
 import { amazonEgSearchConnector } from "@/lib/search/connectors/amazon-eg";
 import { amazonSearchConnector } from "@/lib/search/connectors/amazon";
@@ -9,7 +8,10 @@ import {
   resetRealCatalogProductCountForTests,
   setSupabaseAnonClientForTests,
 } from "@/lib/integration/database-catalog";
-import { interleaveWithProviderCap } from "@/lib/search/engine";
+import {
+  interleaveWithProviderCap,
+  normalizeHttpsAffiliateUrl,
+} from "@/lib/search/engine";
 import type { SearchResultItem } from "@/lib/data/homepage";
 
 afterEach(() => {
@@ -17,25 +19,14 @@ afterEach(() => {
   resetRealCatalogProductCountForTests();
 });
 
-describe("Render low-memory browser guard", () => {
-  it("blocks headless browsers on Render and when explicitly disabled", () => {
-    vi.stubEnv("RENDER", "true");
-    vi.stubEnv("DISABLE_PLAYWRIGHT", "");
-    expect(isHeadlessBrowserBlocked()).toBe(true);
-
-    vi.stubEnv("RENDER", "");
-    vi.stubEnv("DISABLE_PLAYWRIGHT", "true");
-    expect(isHeadlessBrowserBlocked()).toBe(true);
-  });
-
-  it("keeps the lightweight http Amazon scraper available while browsers are blocked", () => {
+describe("live store availability", () => {
+  it("keeps the lightweight http Amazon scraper available on Render", () => {
     vi.stubEnv("RENDER", "true");
     vi.stubEnv("AMAZON_SCRAPER_DISABLED", "");
-    expect(isHeadlessBrowserBlocked()).toBe(true);
     expect(isAmazonScraperAvailable()).toBe(true);
   });
 
-  it("restores Amazon connectors independently of the indirect-path opt-in", async () => {
+  it("keeps Amazon connectors available independently of the indirect-path opt-in", async () => {
     vi.stubEnv("AMAZON_DIRECT_ENABLE", "");
     vi.stubEnv("AMAZON_SCRAPER_DISABLED", "");
     expect(await amazonSearchConnector.isAvailable()).toBe(true);
@@ -43,8 +34,8 @@ describe("Render low-memory browser guard", () => {
   });
 });
 
-describe("low-memory balanced pool", () => {
-  it("caps eBay at four rows while every other store stays in the first rows", () => {
+describe("balanced live-store pool", () => {
+  it("caps eBay at five rows while every other store stays in the first rows", () => {
     const stores = ["ebay", "amazon-eg", "aliexpress", "noon", "jumia", "btech"];
     const items = Array.from({ length: 40 }, (_, i) => ({
       id: `item-${i}`,
@@ -58,14 +49,29 @@ describe("low-memory balanced pool", () => {
     const out = interleaveWithProviderCap(
       items,
       (item) => item.storeSlug || item.store,
-      { ebay: 4 },
+      { ebay: 5 },
     );
     const head = out.slice(0, stores.length);
     expect(head.filter((item) => item.storeSlug === "ebay")).toHaveLength(1);
     for (const store of stores) {
       expect(head.some((item) => item.storeSlug === store)).toBe(true);
     }
-    expect(out.filter((item) => item.storeSlug === "ebay")).toHaveLength(4);
+    expect(out.filter((item) => item.storeSlug === "ebay")).toHaveLength(5);
+  });
+});
+
+describe("outbound product links", () => {
+  it("upgrades insecure or protocol-relative links to https", () => {
+    expect(normalizeHttpsAffiliateUrl("http://www.jumia.com.eg/phone.html")).toBe(
+      "https://www.jumia.com.eg/phone.html",
+    );
+    expect(normalizeHttpsAffiliateUrl("//www.noon.com/egypt-en/p/1/")).toBe(
+      "https://www.noon.com/egypt-en/p/1/",
+    );
+    expect(normalizeHttpsAffiliateUrl("https://www.ebay.com/itm/123")).toBe(
+      "https://www.ebay.com/itm/123",
+    );
+    expect(normalizeHttpsAffiliateUrl(undefined)).toBeUndefined();
   });
 });
 

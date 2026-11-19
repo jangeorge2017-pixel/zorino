@@ -57,16 +57,14 @@ export type GlobalSearchOptions = {
    */
   activeCurrency?: CurrencyCode;
   /**
-   * Opt-in low-RAM mode for cache warming / background refreshes: providers are
-   * fetched with bounded concurrency, a shorter per-provider budget and a small
-   * per-source cap so heavy storefront HTML is released promptly instead of
-   * overlapping every provider at once. Default (unset) keeps the legacy
-   * unbounded fan-out byte-identical.
+   * Opt-in low-RAM mode for cache warming / background refreshes. All live
+   * providers still fan out in parallel; browser-backed scrapers reuse one
+   * Chromium process and release pages/contexts promptly.
    */
   lowRam?: boolean;
   /** Per-provider fetch budget override (default: the engine 8s budget). */
   providerTimeoutMs?: number;
-  /** Max providers fetched at once in low-RAM mode (default 3). */
+  /** Kept for API compatibility; fan-out is intentionally unbounded. */
   providerConcurrency?: number;
   /** Raw listings kept per source in low-RAM mode (default: engine max). */
   maxListingsPerProvider?: number;
@@ -239,7 +237,7 @@ export function mergeDbSupplementExactFirst(
 
 /**
  * Fair round-robin over the assembled pool with a hard per-provider head cap.
- * eBay's catalog is by far the largest; capping it at four rows keeps Amazon,
+ * eBay's catalog is by far the largest; capping it at five rows keeps Amazon,
  * AliExpress, Noon, Jumia, B.TECH and Admitad visible in the first rows.
  */
 export function interleaveWithProviderCap<T extends SearchResultItem>(
@@ -267,6 +265,18 @@ export function interleaveWithProviderCap<T extends SearchResultItem>(
     }
   }
   return out;
+}
+
+/** Normalize every outbound product link to a valid https:// destination. */
+export function normalizeHttpsAffiliateUrl(
+  raw: string | null | undefined,
+): string | undefined {
+  const value = raw?.trim();
+  if (!value) return undefined;
+  if (/^https:\/\//i.test(value)) return value;
+  if (/^http:\/\//i.test(value)) return `https://${value.slice(7)}`;
+  if (value.startsWith("//")) return `https:${value}`;
+  return value;
 }
 
 /**
@@ -306,14 +316,27 @@ async function fetchDbSupplementForSearch(
 }
 
 /**
- * Hard per-provider budget inside the search fan-out. On Render's 512MB
- * instance every store fetcher is strictly capped at 3.5s so a slow connector
- * can never pin full HTML response strings in memory. Providers that cannot
- * answer inside that window are supplemented from the fast indexed Supabase
- * catalog instead.
+ * Hard per-provider budget inside the search fan-out. A slow or stalled
+ * connector (e.g. the Admitad feed can take up to ~25s on a cold cache) must
+ * never hold the search fan-out — and therefore the homepage catalog, which
+ * fans out 8 curated queries through this same engine — hostage. When a
+ * connector exceeds the budget its partial work is dropped and the fan-out
+ * settles with the faster providers' real results.
  */
-const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 3_500;
+const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
 let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
+
+/**
+ * Heavy storefront providers keep the full engine budget even when a caller
+ * requests a shorter low-RAM fan-out, so a cache build never persists a pool
+ * that silently dropped them.
+ */
+const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 8_000;
+const CRITICAL_PROVIDER_IDS: ReadonlySet<SearchProviderId> = new Set([
+  "amazon-eg",
+  "aliexpress",
+  "jumia",
+]);
 
 /** Provider keys used by the synced Jumia / Admitad rows in Supabase. */
 const SYNCED_SEARCH_PROVIDERS = [
@@ -323,6 +346,7 @@ const SYNCED_SEARCH_PROVIDERS = [
   "jumia-egypt",
   "admitad",
 ] as const;
+
 
 /** Test-only: shrink the per-provider budget so timeout degradation is provable fast. */
 export function setProviderFetchTimeoutForTests(ms?: number): void {
@@ -423,27 +447,6 @@ function groupByProvider(
   return byProvider;
 }
 
-/** Run `worker` over `items` with at most `limit` in flight at once. */
-async function runWithConcurrency<T>(
-  items: readonly T[],
-  limit: number,
-  worker: (item: T) => Promise<void>,
-): Promise<void> {
-  if (items.length === 0) return;
-  const queue = [...items];
-  const runners = Array.from(
-    { length: Math.max(1, Math.min(Math.floor(limit), queue.length)) },
-    async () => {
-      while (queue.length > 0) {
-        const item = queue.shift();
-        if (item === undefined) break;
-        await worker(item);
-      }
-    },
-  );
-  await Promise.all(runners);
-}
-
 async function fetchProvidersInParallel(
   query: string,
   options?: GlobalSearchOptions,
@@ -500,9 +503,11 @@ async function fetchProvidersInParallel(
 
   const runAdapter = async (adapter: (typeof adapters)[number]) => {
       const started = Date.now();
-      // Every store/provider fetcher is independently bounded at 3.5s on the
-      // low-memory path so response HTML is never held in memory longer.
-      const adapterFetchTimeoutMs = Math.min(fetchTimeoutMs, 3_500);
+      // Every store/provider fetcher is independently bounded so one slow
+      // source never blocks others; critical storefronts keep the full budget.
+      const adapterFetchTimeoutMs = CRITICAL_PROVIDER_IDS.has(adapter.id)
+        ? Math.min(fetchTimeoutMs, CRITICAL_PROVIDER_FETCH_TIMEOUT_MS)
+        : Math.min(fetchTimeoutMs, 5_000);
       try {
         const searches = [
           adapter.search(query, {
@@ -609,16 +614,10 @@ async function fetchProvidersInParallel(
       }
   };
 
-  // Hard low-memory rule: at most TWO store fetchers are in flight at once.
-  // A wide fan-out previously held several multi-megabyte HTML catalogs
-  // simultaneously and pushed Render's 512MB instance past its limit.
-  await runWithConcurrency(adapters, 2, async (adapter) => {
-    try {
-      await runAdapter(adapter);
-    } catch {
-      // A single provider failure must never discard the other stores.
-    }
-  });
+  // Restore full parallel fan-out. Browser-backed scrapers now reuse a single
+  // Chromium process and release every page/context in `finally`, so all live
+  // stores can participate without the two-store serialization bottleneck.
+  await Promise.allSettled(adapters.map((adapter) => runAdapter(adapter)));
 
   return { allRaw, providerStats };
 }
@@ -873,8 +872,13 @@ export async function searchProducts(
   const interleaved = interleaveWithProviderCap(
     viewportCapped,
     (item) => item.storeSlug || item.store || "unknown",
-    { ebay: 4 },
-  );
+    { ebay: 5 },
+  ).map((item) => {
+    const affiliateUrl = normalizeHttpsAffiliateUrl(item.affiliateUrl);
+    return affiliateUrl && affiliateUrl !== item.affiliateUrl
+      ? { ...item, affiliateUrl }
+      : item;
+  });
 
   const cappedHead = interleaved.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const summarize = (items: SearchResultItem[]): string =>

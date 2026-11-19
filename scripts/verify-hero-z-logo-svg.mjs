@@ -1,5 +1,4 @@
 import { chromium } from "playwright";
-import "./lib/browser-guard.mjs";
 import { mkdir } from "node:fs/promises";
 
 const base = process.argv[2] ?? "http://localhost:3000";

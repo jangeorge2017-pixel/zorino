@@ -2,7 +2,6 @@
  * Verify homepage header on localhost (header only).
  */
 import { chromium } from "playwright";
-import "./lib/browser-guard.mjs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 

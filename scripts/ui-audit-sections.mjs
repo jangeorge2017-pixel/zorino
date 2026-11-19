@@ -3,7 +3,6 @@
  * Usage: node scripts/ui-audit-sections.mjs [baseUrl] [tag]
  */
 import { chromium } from "playwright";
-import "./lib/browser-guard.mjs";
 import { mkdir } from "node:fs/promises";
 
 const baseUrl = (process.argv[2] ?? "http://localhost:3000/en").replace(/\/$/, "");

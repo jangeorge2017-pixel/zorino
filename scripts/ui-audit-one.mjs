@@ -3,7 +3,6 @@
  * Usage: node scripts/ui-audit-one.mjs <selector> <outName> [baseUrl] [vw] [vh]
  */
 import { chromium } from "playwright";
-import "./lib/browser-guard.mjs";
 import { mkdir } from "node:fs/promises";
 
 const selector = process.argv[2];

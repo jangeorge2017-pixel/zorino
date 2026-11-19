@@ -4,7 +4,38 @@ import {
   type AmazonScrapedProduct,
   type AmazonScrapedSearchResult,
 } from "@/lib/integrations/amazon-scraper/config";
-import { isHeadlessBrowserBlocked } from "@/lib/security/headless-browser-guard";
+import type { Browser, BrowserContext, Page, Route } from "playwright";
+
+let sharedBrowserPromise: Promise<Browser> | null = null;
+
+/** Launch one Chromium process per Node worker and reuse it across scrapes. */
+async function getSharedPlaywrightBrowser(): Promise<Browser> {
+  if (sharedBrowserPromise) {
+    const existing = await sharedBrowserPromise.catch(() => null);
+    if (existing?.isConnected()) return existing;
+    sharedBrowserPromise = null;
+  }
+
+  sharedBrowserPromise = import("playwright")
+    .then(({ chromium }) =>
+      chromium.launch({
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+          "--disable-background-networking",
+          "--disable-extensions",
+        ],
+      }),
+    )
+    .catch((error) => {
+      sharedBrowserPromise = null;
+      throw error;
+    });
+
+  return sharedBrowserPromise;
+}
 
 /**
  * Local, open-source Amazon scraper (free). Fetches the real Amazon storefront
@@ -85,30 +116,34 @@ export function buildAmazonProductUrl(
 async function fetchHtml(url: string): Promise<string> {
   const engine = process.env.AMAZON_SCRAPER_ENGINE?.trim().toLowerCase();
 
-  // Playwright engine (local-only opt-in). Hard-blocked on Render / production
-  // because Chromium alone exceeds the 512MB heap. Falls back to the lightweight
-  // fetch + regex http engine everywhere that matters.
-  if (engine === "playwright" && !isHeadlessBrowserBlocked()) {
+  // Playwright engine (opt-in). One shared browser is reused per worker; every
+  // page/context is closed in `finally` and images/styles/fonts/media are blocked
+  // so Chromium never holds a full rendering heap on memory-limited hosts.
+  if (engine === "playwright") {
+    let context: BrowserContext | undefined;
+    let page: Page | undefined;
     try {
-      const pw = await import("playwright");
-      const browser = await pw.chromium.launch({
-        headless: true,
-        args: ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
+      const browser = await getSharedPlaywrightBrowser();
+      context = await browser.newContext({
+        userAgent: pickUserAgent(),
+        locale: "en-US",
+        extraHTTPHeaders: { "Accept-Language": "en-US,en;q=0.9" },
       });
-      try {
-        const page = await browser.newPage({
-          userAgent: pickUserAgent(),
-          locale: "en-US",
-          extraHTTPHeaders: { "Accept-Language": "en-US,en;q=0.9" },
-        });
-        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25_000 });
-        const html = await page.content();
-        return html;
-      } finally {
-        await browser.close();
-      }
+      page = await context.newPage();
+      await page.route("**/*", (route: Route) => {
+        const type = route.request().resourceType();
+        if (type === "image" || type === "stylesheet" || type === "font" || type === "media") {
+          return route.abort();
+        }
+        return route.continue();
+      });
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25_000 });
+      return await page.content();
     } catch {
-      // Playwright not installed / launch failed — fall through to http.
+      // Playwright unavailable / launch failed — fall through to http.
+    } finally {
+      await page?.close().catch(() => {});
+      await context?.close().catch(() => {});
     }
   }
 
