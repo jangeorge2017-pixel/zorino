@@ -114,15 +114,15 @@ export function buildNormalizedSearchOrFilter(query: string): string {
 }
 
 /**
- * Index-friendly PostgREST filter: one ILIKE clause per canonical token variant.
+ * Index-friendly PostgREST filter: one ILIKE clause per canonical query token.
  * The raw `product_name` GIN trigram index can serve these predicates, unlike
  * the `\m()\M` regex form, so the local Supabase lane stays fast on Render.
  */
 export function buildIndexedSearchOrFilter(query: string): string {
-  const variants = queryTokenGroups(query).flatMap((group) => group.variants);
-  if (variants.length === 0) return "";
-  return variants
-    .map((variant) => `product_name.ilike.%${escapeIlikeToken(variant)}%`)
+  const tokens = [...new Set(queryTokenGroups(query).map((group) => group.token))];
+  if (tokens.length === 0) return "";
+  return tokens
+    .map((token) => `product_name.ilike.%${escapeIlikeToken(token)}%`)
     .join(",");
 }
 

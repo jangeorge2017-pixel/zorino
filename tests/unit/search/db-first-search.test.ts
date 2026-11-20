@@ -4,6 +4,7 @@ import type { SearchResultItem } from "@/lib/data/homepage";
 import * as dbCatalog from "@/lib/integration/database-catalog";
 import * as providerConfig from "@/lib/integration/provider-config";
 import * as providerHealth from "@/lib/integration/provider-health";
+import { buildIndexedSearchOrFilter } from "@/lib/integration/word-match-filter";
 import * as adapterRegistry from "@/lib/providers/adapter-registry";
 import type { ProviderAdapter } from "@/lib/providers/adapter";
 import * as engine from "@/lib/search/engine";
@@ -116,6 +117,14 @@ describe("in-memory search pool cache", () => {
     ]);
     expect(second).toEqual(first);
     expect(read).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("indexed DB search", () => {
+  it("uses one trigram-compatible clause per canonical query token", () => {
+    expect(buildIndexedSearchOrFilter("  Samsung Galaxy S24  ")).toBe(
+      "product_name.ilike.%samsung%,product_name.ilike.%galaxy%,product_name.ilike.%s24%",
+    );
   });
 });
 
