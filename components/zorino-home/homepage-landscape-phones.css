@@ -413,6 +413,28 @@
 }
 
 @media (orientation: landscape) and (max-height: 550px) {
+  .zh-page .zh-product-grid,
+  .zh-page .listing-products-grid,
+  .zh-page .zor-deals-page__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid {
+    --zh-carousel-slide: calc((100% - 16px) / 3);
+    grid-auto-columns: calc((100% - 16px) / 3);
+    gap: 8px;
+  }
+
+  .zh-page .zh-product-section.zh-panel {
+    padding: 10px 12px 12px;
+  }
+
+  .zh-page .zh-product-section .zh-section-head {
+    margin-bottom: 8px;
+  }
+
   .zh-page .zh-trending-deals__track .product-card-media,
   .zh-page .listing-product-card .product-card-media,
   .zh-page .zor-deals-page__card .product-card-media,
@@ -421,8 +443,8 @@
   .zh-page .zh-td-card__media,
   .zh-page .zh-deal-card__media {
     width: 100%;
-    height: min(150px, 38vh) !important;
-    max-height: min(150px, 38vh) !important;
+    height: 110px !important;
+    max-height: 110px !important;
     min-height: 0;
     aspect-ratio: auto;
     padding: 6px;
@@ -433,12 +455,17 @@
   .zh-page .zh-trending-deals__track .product-card-image,
   .zh-page .zh-trending-deals__track .deal-product-img,
   .zh-page .zh-trending-deals__track .trending-card-image,
+  .zh-page .listing-product-card .product-card-image,
+  .zh-page .zor-deals-page__card .product-card-image,
+  .zh-page .deal-card .product-card-image,
+  .zh-page .product-card-image,
   .zh-page .zh-td-card__media img,
   .zh-page .zh-td-card__media .zh-td-card__image,
   .zh-page .zh-deal-card__media img,
   .zh-page .zh-deal-card__media .zh-deal-card__image {
-    height: 100% !important;
-    max-height: 100% !important;
+    width: 100% !important;
+    height: 110px !important;
+    max-height: 110px !important;
     padding: 6px !important;
     object-fit: contain !important;
     object-position: center center !important;
@@ -467,6 +494,14 @@
     min-height: 0 !important;
     font-size: 12px !important;
     line-height: 1.25 !important;
+  }
+
+  .zh-page .deal-price,
+  .zh-page .lowest-price-current,
+  .zh-page .zh-td-card__price,
+  .zh-page .zh-deal-card__price {
+    font-size: 14px !important;
+    line-height: 1.1 !important;
   }
 
   .zh-page .zh-trending-deals__track .home-shop-btn,

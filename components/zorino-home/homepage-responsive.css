@@ -2472,6 +2472,29 @@
     width: 11px;
     height: 11px;
   }
+
+  .zh-page .zh-categories-nav,
+  .zh-page .zh-categories,
+  .zh-page .zh-quick-nav,
+  .zh-page .zh-quick-nav__track,
+  .zh-page .zh-quick-nav__row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .zh-page .zh-categories__item,
+  .zh-page .zh-quick-nav__pill,
+  .zh-page a.zh-quick-nav__pill {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .zh-page .zh-quick-nav__more {
+    flex: 0 0 40px;
+  }
 }
 
 

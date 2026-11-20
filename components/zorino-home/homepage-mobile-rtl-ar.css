@@ -556,11 +556,28 @@
     display: none;
   }
 
+  html[dir="rtl"] .zh-page .zh-categories-nav,
+  html[dir="rtl"] .zh-page .zh-categories,
+  html[dir="rtl"] .zh-page .zh-quick-nav,
+  html[dir="rtl"] .zh-page .zh-quick-nav__track,
+  html[dir="rtl"] .zh-page .zh-quick-nav__row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__item,
   html[dir="rtl"] .zh-page .zh-quick-nav__pill,
   html[dir="rtl"] .zh-page a.zh-quick-nav__pill {
-    flex: 0 0 auto;
-    flex-shrink: 0;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
     white-space: nowrap;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__more {
+    flex: 0 0 40px;
   }
 
   html[dir="rtl"] .zh-page .zh-quick-nav__label {
