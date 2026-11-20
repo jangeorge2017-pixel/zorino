@@ -1,56 +1,47 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React from "react";
+
+const STAR_COLORS = ["#ffffff", "#22d3ee", "#facc15"] as const;
+
+const STARS = Array.from({ length: 78 }, (_, index) => {
+  const random = (salt: number) => {
+    const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
+    return value - Math.floor(value);
+  };
+
+  return {
+    x: 2 + random(1) * 96,
+    y: 3 + random(2) * 94,
+    size: 1.2 + random(3) * 2,
+    color: STAR_COLORS[Math.floor(random(4) * STAR_COLORS.length)],
+    duration: 2.5 + random(5) * 3.5,
+    delay: -random(6) * 6,
+    peak: 0.86 + random(7) * 0.14,
+  };
+});
 
 export default function SpaceParticles() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animId: number;
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resize);
-    resize();
-
-    // High contrast stars: White, Cyan, Yellow Gold
-    const stars = Array.from({ length: 90 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 3 + 1.5,
-      color: ['#ffffff', '#22d3ee', '#facc15'][Math.floor(Math.random() * 3)],
-      phase: Math.random() * Math.PI * 2,
-      speed: Math.random() * 0.04 + 0.02
-    }));
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      stars.forEach(s => {
-        s.phase += s.speed;
-        // Fast, highly-visible high-contrast neon twinkling
-        const alpha = (Math.sin(s.phase) + 1) / 2 * 0.7 + 0.3;
-        ctx.fillStyle = s.color;
-        ctx.globalAlpha = alpha;
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = s.color;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      animId = requestAnimationFrame(draw);
-    };
-    draw();
-
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animId);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="fixed inset-0 block w-full h-full pointer-events-none mix-blend-screen opacity-90" style={{ zIndex: -1 }} />;
+  return (
+    <div className="zh-starfield" aria-hidden="true">
+      {STARS.map((star, index) => (
+        <span
+          key={index}
+          className="zh-starfield__star"
+          style={
+            {
+              left: `${star.x}%`,
+              top: `${star.y}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              color: star.color,
+              backgroundColor: "currentColor",
+              animationDuration: `${star.duration}s`,
+              animationDelay: `${star.delay}s`,
+              "--zh-star-peak": star.peak,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
 }

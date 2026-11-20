@@ -143,11 +143,12 @@ export default async function ZorinoHomePage() {
 
   return (
     <div className="zh-page" style={{ position: "relative" }}>
-      <SpaceParticlesClient />
       <div className="zh-page__background" aria-hidden="true" />
       <div className="zh-page__artwork-clip" aria-hidden="true">
         <div className="zh-page__artwork" />
+        <div className="zh-hero-artwork-shimmer" />
       </div>
+      <SpaceParticlesClient />
       <ZorinoHomeNav />
       <div className="zh-nav-spacer" aria-hidden="true" />
 
