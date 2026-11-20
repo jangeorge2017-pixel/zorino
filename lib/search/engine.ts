@@ -781,33 +781,26 @@ export async function searchProducts(
     syncedStoresPromise,
   ]);
 
-  const { allRaw } = await withLaneTimeout(
-    fetchProvidersInParallel(trimmed, {
-      // Device-intent searches page deeper so an accessory-saturated catalog is
-      // not mistaken for "no genuine inventory" after one shallow page. Still
-      // bounded by the strict live-enrichment budget.
-      minFetch: optimizeForDeviceIntent ? 100 : 60,
-      targetFetch: optimizeForDeviceIntent ? 300 : 120,
-      maxPages: optimizeForDeviceIntent ? 8 : 4,
-      ...(optimizeForDeviceIntent ? { optimizeForDeviceIntent: true } : {}),
-      ...(options?.lowRam
-        ? {
-            lowRam: true,
-            providerTimeoutMs: Math.min(
-              options.providerTimeoutMs ?? LIVE_ENRICHMENT_TIMEOUT_MS,
-              LIVE_ENRICHMENT_TIMEOUT_MS,
-            ),
-            providerConcurrency: options.providerConcurrency,
-            maxListingsPerProvider: options.maxListingsPerProvider,
-          }
-        : {}),
-    }),
-    LIVE_ENRICHMENT_TIMEOUT_MS,
-    {
-      allRaw: [] as RawProviderListing[],
-      providerStats: [] as SearchEngineResult["providers"],
-    },
-  );
+  const { allRaw } = await fetchProvidersInParallel(trimmed, {
+    // Device-intent searches page deeper so an accessory-saturated catalog is
+    // not mistaken for "no genuine inventory" after one shallow page. Still
+    // bounded by the strict live-enrichment budget.
+    minFetch: optimizeForDeviceIntent ? 100 : 60,
+    targetFetch: optimizeForDeviceIntent ? 300 : 120,
+    maxPages: optimizeForDeviceIntent ? 8 : 4,
+    ...(optimizeForDeviceIntent ? { optimizeForDeviceIntent: true } : {}),
+    ...(options?.lowRam
+      ? {
+          lowRam: true,
+          providerTimeoutMs: Math.min(
+            options.providerTimeoutMs ?? LIVE_ENRICHMENT_TIMEOUT_MS,
+            LIVE_ENRICHMENT_TIMEOUT_MS,
+          ),
+          providerConcurrency: options.providerConcurrency,
+          maxListingsPerProvider: options.maxListingsPerProvider,
+        }
+      : {}),
+  });
 
   // Merge DB results for active live providers and for real catalog-backed
   // provider rows (e.g. GA-ingested Jumia/Admitad/Egypt stores or indirect

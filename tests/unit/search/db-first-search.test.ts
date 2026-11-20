@@ -42,6 +42,49 @@ function dbItem(storeSlug: string): SearchResultItem {
   } as SearchResultItem;
 }
 
+function liveListing(id: "aliexpress" | "ebay"): RawProviderListing {
+  return {
+    providerId: id,
+    externalId: `live-${id}`,
+    title: "Wireless Earbuds Bluetooth 5.3",
+    imageUrl: "https://img.alicdn.com/imgextra/fixture-live.jpg",
+    price: 29.99,
+    originalPrice: 39.99,
+    discount: 25,
+    currency: "USD",
+    storeName: id === "ebay" ? "eBay" : "AliExpress",
+    category: "electronics",
+    rating: 4.5,
+    reviewCount: 120,
+    inStock: true,
+    productUrl: `https://example.com/${id}/earbuds`,
+    affiliateUrl: `https://example.com/${id}/earbuds`,
+    countryCode: "US",
+  };
+}
+
+function liveAdapter(
+  id: "aliexpress" | "ebay",
+  listing: RawProviderListing,
+): ProviderAdapter {
+  return {
+    id,
+    name: id === "ebay" ? "eBay" : "AliExpress",
+    async isAvailable() {
+      return true;
+    },
+    normalize(value: RawProviderListing) {
+      return value;
+    },
+    normalizeBatch(values: RawProviderListing[]) {
+      return values;
+    },
+    async search() {
+      return { providerId: id, listings: [listing], durationMs: 12 };
+    },
+  } as ProviderAdapter;
+}
+
 function hangingAdapter(): ProviderAdapter {
   return {
     id: "ebay",
@@ -195,6 +238,20 @@ describe("DB-first search", () => {
     );
 
     expect(items.map((item) => item.storeSlug)).toContain("noon");
+  });
+
+  it("keeps fast live results when another adapter hangs", async () => {
+    vi.spyOn(adapterRegistry, "getActiveProviderAdapters").mockResolvedValue([
+      hangingAdapter(),
+      liveAdapter("aliexpress", liveListing("aliexpress")),
+    ]);
+
+    const items = await engine.searchProducts(
+      `wireless earbuds live-survives-${Date.now()}`,
+      20,
+    );
+
+    expect(items.map((item) => item.storeSlug)).toContain("aliexpress");
   });
 
   it("does not penalize provider health for a timeout-only miss", async () => {
