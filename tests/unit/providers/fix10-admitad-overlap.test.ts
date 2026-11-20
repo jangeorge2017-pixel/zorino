@@ -342,7 +342,7 @@ describe("Fix 10: all other providers remain active; search stays multi-provider
 
     // DB-first wiring: the local lane stays under the strict live budget.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
-      timeoutMs: 1_800,
+      timeoutMs: 3_500,
       useFuzzyMatch: false,
     });
   });

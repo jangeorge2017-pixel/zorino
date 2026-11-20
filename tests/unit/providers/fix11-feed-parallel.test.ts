@@ -395,7 +395,7 @@ describe("Fix 11: Fixes 1–10 behavior remains intact", () => {
 
     // DB-first wiring: the local lane stays under the strict live budget.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
-      timeoutMs: 1_800,
+      timeoutMs: 3_500,
       useFuzzyMatch: false,
     });
   });

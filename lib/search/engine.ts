@@ -84,10 +84,10 @@ export type GlobalSearchOptions = {
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
 const FAIR_SEARCH_MAX_ENTRIES = 500;
-const DB_FAST_LANE_TIMEOUT_MS = 1_200;
-const DB_SUPPLEMENT_TIMEOUT_MS = 1_800;
-const DB_LANE_TIMEOUT_MS = 2_000;
-const PROVIDER_DISCOVERY_TIMEOUT_MS = 500;
+const DB_FAST_LANE_TIMEOUT_MS = 2_000;
+const DB_SUPPLEMENT_TIMEOUT_MS = 3_500;
+const DB_LANE_TIMEOUT_MS = 4_000;
+const PROVIDER_DISCOVERY_TIMEOUT_MS = 750;
 const LIVE_ENRICHMENT_TIMEOUT_MS = 4_000;
 /** Relevant companion products kept behind genuine matches per provider. */
 const DEVICE_QUERY_FALLBACK_PER_PROVIDER = 15;

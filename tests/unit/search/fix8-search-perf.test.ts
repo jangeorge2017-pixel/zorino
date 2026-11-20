@@ -315,7 +315,7 @@ describe("Fix 8: engine wiring preserves diversity, real data, and DB gating", (
     await searchProducts(`fix8-engine-${Date.now()}`, 20);
 
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
-      timeoutMs: 1_800,
+      timeoutMs: 3_500,
       useFuzzyMatch: false,
     });
   });

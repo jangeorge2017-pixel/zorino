@@ -345,7 +345,7 @@ describe("Fix 9: provider diversity + Fixes 1–8 remain intact", () => {
 
     // DB-first wiring: the local lane stays under the strict live budget.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
-      timeoutMs: 1_800,
+      timeoutMs: 3_500,
       useFuzzyMatch: false,
     });
   });
