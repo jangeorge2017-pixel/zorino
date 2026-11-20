@@ -393,9 +393,9 @@ describe("Fix 11: Fixes 1–10 behavior remains intact", () => {
       "https://go.admitad.com/click/fix11",
     );
 
-    // Fix 8 wiring: the DB supplement still receives the 8s timeout.
+    // DB-first wiring: the local lane stays under the strict live budget.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
-      timeoutMs: 8_000,
+      timeoutMs: 1_800,
       useFuzzyMatch: false,
     });
   });

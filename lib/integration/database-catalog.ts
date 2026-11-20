@@ -25,6 +25,7 @@ import { toProductCard } from "@/lib/search/types";
 import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
+  buildIndexedSearchOrFilter,
   buildNormalizedSearchOrFilter,
   buildFuzzyIlikeOrFilter,
   escapeRegexToken,
@@ -1009,7 +1010,7 @@ export async function getSyncedStoreResultsFromDatabase(
       : createSupabaseAnonClient();
     if (!supabase) return [];
 
-    const orFilter = buildNormalizedSearchOrFilter(query);
+    const orFilter = buildIndexedSearchOrFilter(query);
     if (!orFilter) return [];
 
     const { data, error } = await db(supabase)
@@ -1072,7 +1073,7 @@ async function loadSearchResultsFromDatabase(
   // substring matching for maximum recall.
   const orFilter = useFuzzyMatch
     ? buildFuzzyIlikeOrFilter(query)
-    : buildNormalizedSearchOrFilter(query);
+    : buildIndexedSearchOrFilter(query);
 
   if (!orFilter) return [];
 

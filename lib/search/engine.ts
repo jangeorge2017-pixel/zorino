@@ -1,4 +1,5 @@
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
+import { PRODUCTION_PROVIDER_IDS } from "@/lib/integration/constants";
 import { getActiveProductionProviders } from "@/lib/integration/provider-config";
 import { recordProviderRun } from "@/lib/integration/provider-health";
 import { getActiveProviderAdapters } from "@/lib/providers/adapter-registry";
@@ -83,8 +84,11 @@ export type GlobalSearchOptions = {
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
 const FAIR_SEARCH_MAX_ENTRIES = 500;
-const DB_SUPPLEMENT_TIMEOUT_MS = 8_000;
-const DB_LANE_TIMEOUT_MS = 8_000;
+const DB_FAST_LANE_TIMEOUT_MS = 1_200;
+const DB_SUPPLEMENT_TIMEOUT_MS = 1_800;
+const DB_LANE_TIMEOUT_MS = 2_000;
+const PROVIDER_DISCOVERY_TIMEOUT_MS = 500;
+const LIVE_ENRICHMENT_TIMEOUT_MS = 4_000;
 /** Relevant companion products kept behind genuine matches per provider. */
 const DEVICE_QUERY_FALLBACK_PER_PROVIDER = 15;
 const fairSearchCache = new Map<
@@ -363,7 +367,7 @@ async function fetchDbSupplementForSearch(
  * connector exceeds the budget its partial work is dropped and the fan-out
  * settles with the faster providers' real results.
  */
-const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 4_500;
+const DEFAULT_PROVIDER_FETCH_TIMEOUT_MS = 4_000;
 let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
 
 /**
@@ -371,7 +375,7 @@ let providerFetchTimeoutMs = DEFAULT_PROVIDER_FETCH_TIMEOUT_MS;
  * requests a shorter low-RAM fan-out, so a cache build never persists a pool
  * that silently dropped them.
  */
-const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 4_500;
+const CRITICAL_PROVIDER_FETCH_TIMEOUT_MS = 4_000;
 const CRITICAL_PROVIDER_IDS: ReadonlySet<SearchProviderId> = new Set([
   "amazon-eg",
   "aliexpress",
@@ -387,6 +391,16 @@ const SYNCED_SEARCH_PROVIDERS = [
   "jumia-eg",
   "jumia-egypt",
   "admitad",
+  "amazon",
+  "amazon-eg",
+  "btech",
+  "carrefour",
+  "dubaiphone",
+  "eldokan",
+  "noon",
+  "raneen",
+  "temu",
+  "twob",
 ] as const;
 
 
@@ -549,7 +563,7 @@ async function fetchProvidersInParallel(
       // source never blocks others; critical storefronts keep the full budget.
       const adapterFetchTimeoutMs = CRITICAL_PROVIDER_IDS.has(adapter.id)
         ? Math.max(fetchTimeoutMs, CRITICAL_PROVIDER_FETCH_TIMEOUT_MS)
-        : Math.min(fetchTimeoutMs, 8_000);
+        : Math.min(fetchTimeoutMs, LIVE_ENRICHMENT_TIMEOUT_MS);
       try {
         const searches = [
           adapter.search(query, {
@@ -621,6 +635,9 @@ async function fetchProvidersInParallel(
           listings: settled.flatMap((s) => s.listings),
           durationMs: Math.max(...settled.map((s) => s.durationMs), 0),
         };
+        const timedOut = settled.some(
+          (leg) => leg.durationMs === 0 && leg.listings.length === 0,
+        );
         const merged = result.listings.filter((listing) => {
           const key = `${listing.providerId}:${listing.externalId}`;
           if (seenListingKeys.has(key)) return false;
@@ -633,7 +650,9 @@ async function fetchProvidersInParallel(
         // drowned out by a high-volume source's paginated tail.
         const cappedMerged = merged.slice(0, perSourceCap);
         allRaw.push(...cappedMerged);
-        recordProviderRun(result.providerId, cappedMerged.length);
+        if (!timedOut || cappedMerged.length > 0) {
+          recordProviderRun(result.providerId, cappedMerged.length);
+        }
         console.log(
           `[search-engine] provider=${adapter.id} raw_after_dedupe_cap=${cappedMerged.length} (merged=${merged.length})`,
         );
@@ -731,11 +750,42 @@ export async function searchProducts(
       ? familyRetrievalForSearch
       : undefined;
 
-  const [{ allRaw }, fromDb, syncedStores, activeProviderIds] = await Promise.all([
+  const activeProvidersPromise = withLaneTimeout(
+    getActiveProductionProviders(),
+    PROVIDER_DISCOVERY_TIMEOUT_MS,
+    PRODUCTION_PROVIDER_IDS,
+  );
+  const dbSupplementPromise = withLaneTimeout(
+    fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword, useFuzzyMatch),
+    DB_LANE_TIMEOUT_MS,
+    [] as SearchResultItem[],
+  );
+  const syncedStoresPromise = withLaneTimeout(
+    import("@/lib/integration/database-catalog").then((mod) =>
+      mod
+        .getSyncedStoreResultsFromDatabase(
+          SYNCED_SEARCH_PROVIDERS,
+          trimmed,
+          capped,
+          DB_FAST_LANE_TIMEOUT_MS,
+        )
+        .catch(() => [] as SearchResultItem[]),
+    ),
+    DB_LANE_TIMEOUT_MS,
+    [] as SearchResultItem[],
+  );
+
+  const [activeProviderIds, fromDb, syncedStores] = await Promise.all([
+    activeProvidersPromise,
+    dbSupplementPromise,
+    syncedStoresPromise,
+  ]);
+
+  const { allRaw } = await withLaneTimeout(
     fetchProvidersInParallel(trimmed, {
       // Device-intent searches page deeper so an accessory-saturated catalog is
       // not mistaken for "no genuine inventory" after one shallow page. Still
-      // bounded by the same per-provider fetch budget as before.
+      // bounded by the strict live-enrichment budget.
       minFetch: optimizeForDeviceIntent ? 100 : 60,
       targetFetch: optimizeForDeviceIntent ? 300 : 120,
       maxPages: optimizeForDeviceIntent ? 8 : 4,
@@ -743,38 +793,21 @@ export async function searchProducts(
       ...(options?.lowRam
         ? {
             lowRam: true,
-            providerTimeoutMs: options.providerTimeoutMs,
+            providerTimeoutMs: Math.min(
+              options.providerTimeoutMs ?? LIVE_ENRICHMENT_TIMEOUT_MS,
+              LIVE_ENRICHMENT_TIMEOUT_MS,
+            ),
             providerConcurrency: options.providerConcurrency,
             maxListingsPerProvider: options.maxListingsPerProvider,
           }
         : {}),
     }),
-    // DB supplement: exact query first, then the canonical family keyword, so
-    // Search reaches the same imported/canonical inventory the Categories show.
-    // Use fuzzy ILIKE matching for Arabic-translated queries to maximize recall.
-    withLaneTimeout(
-      fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword, useFuzzyMatch),
-      DB_LANE_TIMEOUT_MS,
-      [] as SearchResultItem[],
-    ),
-    // Fast indexed read of synced Jumia / Admitad rows. Bounded to 200ms so a
-    // slow external scraper can never erase these real stores from the pool.
-    withLaneTimeout(
-      import("@/lib/integration/database-catalog").then((mod) =>
-        mod
-          .getSyncedStoreResultsFromDatabase(
-            SYNCED_SEARCH_PROVIDERS,
-            trimmed,
-            capped,
-            200,
-          )
-          .catch(() => [] as SearchResultItem[]),
-      ),
-      DB_LANE_TIMEOUT_MS,
-      [] as SearchResultItem[],
-    ),
-    getActiveProductionProviders(),
-  ]);
+    LIVE_ENRICHMENT_TIMEOUT_MS,
+    {
+      allRaw: [] as RawProviderListing[],
+      providerStats: [] as SearchEngineResult["providers"],
+    },
+  );
 
   // Merge DB results for active live providers and for real catalog-backed
   // provider rows (e.g. GA-ingested Jumia/Admitad/Egypt stores or indirect

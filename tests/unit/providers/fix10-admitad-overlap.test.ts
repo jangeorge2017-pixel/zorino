@@ -340,9 +340,9 @@ describe("Fix 10: all other providers remain active; search stays multi-provider
       "https://go.admitad.com/click/fix10",
     );
 
-    // Fix 8 wiring: the DB supplement still receives the 8s timeout.
+    // DB-first wiring: the local lane stays under the strict live budget.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
-      timeoutMs: 8_000,
+      timeoutMs: 1_800,
       useFuzzyMatch: false,
     });
   });

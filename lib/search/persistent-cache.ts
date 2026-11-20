@@ -1,5 +1,6 @@
 import { after } from "next/server";
 import type { SearchResultItem } from "@/lib/data/homepage";
+import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { searchProducts } from "@/lib/search/engine";
 import {
   PERSISTENT_SEARCH_INCOMPLETE_TTL_MS,
@@ -14,12 +15,32 @@ import {
 } from "@/lib/search/persistent-cache-store";
 
 /** Low-RAM live fetch budget for the background/stale search refresh. */
-const LOW_RAM_PROVIDER_TIMEOUT_MS = 8_000;
+const LOW_RAM_PROVIDER_TIMEOUT_MS = 4_000;
 const LOW_RAM_PROVIDER_CONCURRENCY = 4;
 const LOW_RAM_MAX_LISTINGS_PER_PROVIDER = 20;
+const MEMORY_SEARCH_TTL_MS = 20 * 60 * 1000;
+const MEMORY_SEARCH_MAX_ENTRIES = 64;
 
+const memorySearchCache = new Map<
+  string,
+  { items: SearchResultItem[]; expiresAt: number }
+>();
 const inflightBuilds = new Map<string, Promise<SearchResultItem[]>>();
 const inflightRefreshes = new Set<string>();
+
+function rememberSearchPool(key: string, items: SearchResultItem[]): void {
+  if (items.length === 0) return;
+  setBoundedCacheEntry(
+    memorySearchCache,
+    key,
+    { items, expiresAt: Date.now() + MEMORY_SEARCH_TTL_MS },
+    MEMORY_SEARCH_MAX_ENTRIES,
+  );
+}
+
+export function clearSearchMemoryCacheForTests(): void {
+  memorySearchCache.clear();
+}
 
 function lowRamSearchOptions(options: PersistentSearchOptions) {
   return {
@@ -58,16 +79,19 @@ export async function getCachedSearchResult(
   limit: number,
   options: PersistentSearchOptions = {},
 ): Promise<SearchResultItem[] | null> {
-  if (!isPersistentSearchCacheEnabled()) return null;
   const key = buildPersistentSearchKey(query, options);
+  const sliceLimit = Math.min(limit, PERSISTENT_SEARCH_MAX_ITEMS);
+  const memory = memorySearchCache.get(key);
+  if (memory && memory.expiresAt > Date.now()) {
+    return memory.items.slice(0, sliceLimit);
+  }
+  if (!isPersistentSearchCacheEnabled()) return null;
+
   const entry = await readPersistentSearchCache(key);
   if (!entry) return null;
 
   const missing = getMissingCriticalSearchProviders(entry.items);
   if (missing.length > 0) {
-    // Never let a pool that dropped Amazon EG / AliExpress / Jumia live for the
-    // full 6h TTL. Refresh in the background; after a short grace, bypass the
-    // entry entirely so the caller rebuilds it live.
     scheduleSearchCacheRefresh(query, options);
     const fetchedAt = Date.parse(entry.fetchedAt);
     const age = Number.isFinite(fetchedAt)
@@ -83,7 +107,8 @@ export async function getCachedSearchResult(
     scheduleSearchCacheRefresh(query, options);
   }
 
-  return entry.items.slice(0, Math.min(limit, PERSISTENT_SEARCH_MAX_ITEMS));
+  rememberSearchPool(key, entry.items);
+  return entry.items.slice(0, sliceLimit);
 }
 
 /**
@@ -101,6 +126,7 @@ export async function buildAndCacheSearchResult(
     build = (async () => {
       const items = await buildLiveSearchPool(query, options);
       if (items.length > 0) {
+        rememberSearchPool(key, items);
         void writePersistentSearchCache(key, query, items, options).catch(
           () => {},
         );
@@ -130,6 +156,7 @@ export function scheduleSearchCacheRefresh(
     try {
       const items = await buildLiveSearchPool(query, options);
       if (items.length > 0) {
+        rememberSearchPool(key, items);
         await writePersistentSearchCache(key, query, items, options);
       }
     } catch {

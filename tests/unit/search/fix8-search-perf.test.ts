@@ -1,18 +1,15 @@
 /**
  * Fix 8 regression guards — search performance.
  *
- * Fix 8 changed three things in a bid to cut cold-search latency (~20s):
- *   1. provider discovery (`getActiveProductionProviders`) now runs CONCURRENTLY
- *      with the provider fan-out inside the same `Promise.all` (not serially after);
- *   2. `refreshProviderEvidence` short-circuits when the 10-min evidence cache is
- *      still fresh (no 11 redundant per-provider count reads on every query);
- *   3. the DB supplement honours an optional `timeoutMs` — on timeout it resolves
- *      to an EMPTY pool (the same truthful "no DB products" state a DB error
- *      produces), never fabricated/partial rows.
+ * Search now resolves the local Supabase lanes first and only then starts the
+ * live provider enrichment fan-out, so a slow scraper cannot decide which
+ * stores exist. `refreshProviderEvidence` short-circuits on a fresh cache, and
+ * the DB supplement honours a strict `timeoutMs` that resolves to an EMPTY pool
+ * on timeout — never fabricated/partial rows.
  *
  * These tests lock those guarantees AND guard the surrounding behaviors that
- * must not regress: multi-provider diversity, real-data preservation, the 8s
- * engine→DB timeout wiring, and the active-provider DB filter.
+ * must not regress: multi-provider diversity, real-data preservation, the
+ * DB-first timeout wiring, and the active-provider DB filter.
  *
  * Mocking: suite runs with isolate:false + singleFork:true where per-module
  * `vi.mock` is unreliable, so this file uses live-binding spies
@@ -198,40 +195,37 @@ afterEach(() => {
   resetEvidenceState();
 });
 
-describe("Fix 8: provider discovery runs concurrently with the fan-out", () => {
-  it("calls getActiveProductionProviders while adapters are still in-flight", async () => {
-    let releaseAdapters!: () => void;
+describe("DB-first search: active providers resolve before the live fan-out", () => {
+  it("does not start adapters until the provider-discovery lane resolves", async () => {
+    let releaseProviders!: () => void;
     const gate = new Promise<void>((resolve) => {
-      releaseAdapters = resolve;
+      releaseProviders = resolve;
     });
 
     const adaptersSpy = vi
       .spyOn(adapterRegistry, "getActiveProviderAdapters")
-      .mockImplementation(async () => {
-        await gate;
-        return [];
-      });
+      .mockResolvedValue([]);
 
-    let providersDiscovered: null | "in-flight" | "done" = null;
     vi.spyOn(providerConfig, "getActiveProductionProviders").mockImplementation(
       async () => {
-        providersDiscovered = "in-flight";
+        await gate;
         return ["aliexpress", "ebay"];
       },
     );
 
     vi.spyOn(await dbCatalog(), "getSearchResultsFromDatabase").mockResolvedValue([]);
+    vi.spyOn(await dbCatalog(), "getSyncedStoreResultsFromDatabase").mockResolvedValue(
+      [],
+    );
 
-    const pending = searchProducts(`fix8-concurrent-${Date.now()}`, 20);
+    const pending = searchProducts(`db-first-${Date.now()}`, 20);
 
-    // While the adapter fan-out is still gated, provider discovery must already
-    // have been invoked (it is part of the same Promise.all — not serial-after).
     await new Promise((resolve) => setTimeout(resolve, 50));
-    expect(providersDiscovered).toBe("in-flight");
-    expect(adaptersSpy).toHaveBeenCalled();
+    expect(adaptersSpy).not.toHaveBeenCalled();
 
-    releaseAdapters();
+    releaseProviders();
     const items = await pending;
+    expect(adaptersSpy).toHaveBeenCalled();
     expect(Array.isArray(items)).toBe(true);
   });
 });
@@ -309,7 +303,7 @@ describe("Fix 8: engine wiring preserves diversity, real data, and DB gating", (
     ]);
   });
 
-  it("passes the 8s timeout to the DB supplement", async () => {
+  it("passes the strict DB-first timeout to the supplement", async () => {
     vi.spyOn(adapterRegistry, "getActiveProviderAdapters").mockResolvedValue([
       fakeAdapter("aliexpress", aliexpressListing()),
       fakeAdapter("ebay", ebayListing()),
@@ -321,7 +315,7 @@ describe("Fix 8: engine wiring preserves diversity, real data, and DB gating", (
     await searchProducts(`fix8-engine-${Date.now()}`, 20);
 
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
-      timeoutMs: 8_000,
+      timeoutMs: 1_800,
       useFuzzyMatch: false,
     });
   });

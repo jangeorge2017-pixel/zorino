@@ -7,12 +7,12 @@ import { supabaseUrl } from "@/lib/supabase/config";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 
 /** How long a cached search pool stays "fresh" before a background refresh. */
-export const PERSISTENT_SEARCH_TTL_MS = 6 * 60 * 60 * 1000;
+export const PERSISTENT_SEARCH_TTL_MS = 30 * 60 * 1000;
 
 /**
  * A pool missing one of these was built while that provider was unreachable
  * (blocked storefront / API timeout), not because it had no matching items.
- * Such entries get a short grace TTL so a 6-hour cache can never hide the
+ * Such entries get a short grace TTL so a cached pool can never hide the
  * provider after a transient low-RAM timeout.
  */
 export const CRITICAL_SEARCH_PROVIDER_IDS = [
@@ -22,7 +22,7 @@ export const CRITICAL_SEARCH_PROVIDER_IDS = [
 ] as const;
 
 /** Grace window before an incomplete pool is bypassed and rebuilt live. */
-export const PERSISTENT_SEARCH_INCOMPLETE_TTL_MS = 10 * 60 * 1000;
+export const PERSISTENT_SEARCH_INCOMPLETE_TTL_MS = 5 * 60 * 1000;
 
 /** Max products returned from the persistent cache (and stored per query). */
 export const PERSISTENT_SEARCH_MAX_ITEMS = 60;

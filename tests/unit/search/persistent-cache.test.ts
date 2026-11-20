@@ -31,7 +31,7 @@ describe("persistent search cache", () => {
     );
   });
 
-  it("treats entries older than the 6h TTL as stale", () => {
+  it("treats entries older than the 30min TTL as stale", () => {
     const fresh = new Date().toISOString();
     const stale = new Date(
       Date.now() - PERSISTENT_SEARCH_TTL_MS - 1_000,

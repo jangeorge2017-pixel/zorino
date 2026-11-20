@@ -114,6 +114,19 @@ export function buildNormalizedSearchOrFilter(query: string): string {
 }
 
 /**
+ * Index-friendly PostgREST filter: one ILIKE clause per canonical token variant.
+ * The raw `product_name` GIN trigram index can serve these predicates, unlike
+ * the `\m()\M` regex form, so the local Supabase lane stays fast on Render.
+ */
+export function buildIndexedSearchOrFilter(query: string): string {
+  const variants = queryTokenGroups(query).flatMap((group) => group.variants);
+  if (variants.length === 0) return "";
+  return variants
+    .map((variant) => `product_name.ilike.%${escapeIlikeToken(variant)}%`)
+    .join(",");
+}
+
+/**
  * Build a PostgREST `or` filter using ILIKE (case-insensitive substring match)
  * for maximum recall. This matches the translated query term anywhere in the
  * product_name, not just as a whole word. Used when the original query was

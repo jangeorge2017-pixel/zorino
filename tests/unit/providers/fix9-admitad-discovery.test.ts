@@ -343,9 +343,9 @@ describe("Fix 9: provider diversity + Fixes 1–8 remain intact", () => {
     const admitadItem = items.find((i) => i.storeSlug === "admitad");
     expect(admitadItem?.affiliateUrl).toBe("https://go.admitad.com/click/fix9");
 
-    // Fix 8 wiring: the DB supplement still receives the 8s timeout.
+    // DB-first wiring: the local lane stays under the strict live budget.
     expect(dbSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Number), {
-      timeoutMs: 8_000,
+      timeoutMs: 1_800,
       useFuzzyMatch: false,
     });
   });
