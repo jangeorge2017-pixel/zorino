@@ -2520,14 +2520,16 @@ img {
 .product-card-media {
   position: relative;
   width: 100%;
-  height: var(--product-card-media-height);
-  min-height: 210px;
-  max-height: 290px;
-  flex: 0 0 var(--product-card-media-height);
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: 4 / 3;
+  flex: 0 0 auto;
   margin-bottom: 12px;
   border-radius: 16px;
   overflow: hidden;
   flex-shrink: 0;
+  box-sizing: border-box;
   background: rgba(30, 41, 59, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -2576,9 +2578,9 @@ img {
 .deal-product-img,
 .lowest-price-img,
 .trending-card-image {
-  object-fit: cover !important;
+  object-fit: contain !important;
   object-position: center center !important;
-  padding: 0 !important;
+  padding: 8px !important;
   box-sizing: border-box !important;
   width: 100% !important;
   height: 100% !important;
@@ -3234,8 +3236,9 @@ img {
 }
 
 .listing-product-card .product-card-media {
-  height: var(--product-card-media-height);
-  max-height: 290px;
+  height: auto;
+  max-height: none;
+  aspect-ratio: 4 / 3;
 }
 
 .listing-product-actions {

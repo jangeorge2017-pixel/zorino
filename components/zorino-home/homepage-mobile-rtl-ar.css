@@ -506,4 +506,43 @@
     min-width: 0;
     max-width: none;
   }
+
+  html[dir="rtl"] .zh-page .zh-categories,
+  html[dir="rtl"] .zh-page .zh-quick-nav__row {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-inline: 16px;
+    padding-block: 2px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 16px;
+    overscroll-behavior-x: contain;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories::-webkit-scrollbar,
+  html[dir="rtl"] .zh-page .zh-quick-nav__row::-webkit-scrollbar {
+    display: none;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__pill,
+  html[dir="rtl"] .zh-page a.zh-quick-nav__pill,
+  html[dir="rtl"] .zh-page .zh-categories__item {
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__label,
+  html[dir="rtl"] .zh-page .zh-categories__label {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
 }

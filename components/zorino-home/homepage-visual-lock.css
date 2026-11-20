@@ -32,8 +32,9 @@
 
 .zh-page .product-card-image,
 .zh-page .zh-td-card__media img {
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
+  padding: 8px;
 }
 
 .zh-page .zh-brand-card__logo {
