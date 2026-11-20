@@ -108,7 +108,7 @@
     line-height: 1.35;
   }
 
-  /* ── Categories: exactly 3 visible; EN icon/box size; scroll for rest ── */
+  /* ── Categories: four evenly distributed tiles; EN icon/box size ── */
   html[dir="rtl"] .zh-page .zh-categories-wrap,
   html[dir="rtl"] .zh-page .zh-categories-nav {
     position: relative;
@@ -129,25 +129,23 @@
     margin-inline: 0;
     padding-inline: 0;
     gap: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
+    overflow-x: visible;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    touch-action: pan-y;
   }
 
   html[dir="rtl"] .zh-page .zh-categories::-webkit-scrollbar {
     display: none;
   }
 
-  /* Exactly 3 tiles in view: (100% − 2 gaps) / 3 — same icon box as EN */
+  /* Four equal tiles fill the full row — same icon box as EN */
   html[dir="rtl"] .zh-page .zh-categories__item {
-    flex: 0 0 calc((100% - 16px) / 3);
-    width: calc((100% - 16px) / 3);
-    min-width: calc((100% - 16px) / 3);
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
     max-width: none;
-    scroll-snap-align: start;
+    scroll-snap-align: none;
     padding: 4px 2px 6px;
     gap: 4px;
     justify-content: center;
@@ -242,11 +240,13 @@
     padding-inline: 0;
     padding-block: 2px;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
+    touch-action: pan-x pan-y;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
   }
 
   html[dir="rtl"] .zh-page .zh-quick-nav__row::-webkit-scrollbar {
@@ -331,7 +331,8 @@
     max-width: 100%;
     gap: 6px;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
+    touch-action: pan-x pan-y;
   }
 
   html[dir="rtl"] .zh-page .zh-quick-nav__pill:nth-child(n + 4) {
@@ -507,7 +508,30 @@
     max-width: none;
   }
 
-  html[dir="rtl"] .zh-page .zh-categories,
+  html[dir="rtl"] .zh-page .zh-categories {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-inline: 0;
+    padding-block: 2px;
+    box-sizing: border-box;
+    gap: 8px;
+    overflow-x: visible;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    touch-action: pan-y;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories__item {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    white-space: nowrap;
+  }
+
   html[dir="rtl"] .zh-page .zh-quick-nav__row {
     display: flex;
     flex-wrap: nowrap;
@@ -518,29 +542,28 @@
     padding-block: 2px;
     box-sizing: border-box;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
+    touch-action: pan-x pan-y;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     scroll-snap-type: x proximity;
     scroll-padding-inline: 16px;
     overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
   }
 
-  html[dir="rtl"] .zh-page .zh-categories::-webkit-scrollbar,
   html[dir="rtl"] .zh-page .zh-quick-nav__row::-webkit-scrollbar {
     display: none;
   }
 
   html[dir="rtl"] .zh-page .zh-quick-nav__pill,
-  html[dir="rtl"] .zh-page a.zh-quick-nav__pill,
-  html[dir="rtl"] .zh-page .zh-categories__item {
+  html[dir="rtl"] .zh-page a.zh-quick-nav__pill {
     flex: 0 0 auto;
     flex-shrink: 0;
     white-space: nowrap;
   }
 
-  html[dir="rtl"] .zh-page .zh-quick-nav__label,
-  html[dir="rtl"] .zh-page .zh-categories__label {
+  html[dir="rtl"] .zh-page .zh-quick-nav__label {
     overflow: visible;
     text-overflow: clip;
     white-space: nowrap;

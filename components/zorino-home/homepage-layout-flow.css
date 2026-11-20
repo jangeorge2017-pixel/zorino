@@ -237,12 +237,12 @@
   .zh-page .zh-td-skeleton-grid,
   .zh-page .zh-featured-brands__track {
     overflow-x: auto;
-    overflow-y: clip;
+    overflow-y: auto;
     /*
      * pan-x alone locked vertical page scroll when the finger was on a card.
      * manipulation keeps native horizontal swipe + vertical page scroll.
      */
-    touch-action: manipulation;
+    touch-action: pan-x pan-y;
     overscroll-behavior-x: contain;
     overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -250,8 +250,8 @@
 
   .zh-page .zh-trending-deals__filters {
     overflow-x: auto;
-    overflow-y: clip;
-    touch-action: pan-x;
+    overflow-y: auto;
+    touch-action: pan-x pan-y;
     overscroll-behavior-x: contain;
     overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;

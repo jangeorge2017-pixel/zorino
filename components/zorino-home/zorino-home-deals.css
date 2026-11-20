@@ -227,7 +227,7 @@
  * Card container — same scroll/stack model as Top Coupons `.zh-coupons`:
  * no z-index, no transform, no isolation, no dual-axis overflow scrollport.
  * `overflow-x: auto` alone computes `overflow-y: auto` and promotes a
- * vertical scrollport; use `overflow-y: clip` to keep horizontal snap only.
+ * vertical scrollport; pan-x pan-y keeps horizontal snap and page scroll.
  */
 .zh-trending-deals__track,
 .zh-td-skeleton-grid {
@@ -236,9 +236,9 @@
   grid-auto-columns: calc((100% - 48px) / 4);
   gap: 16px;
   overflow-x: auto;
-  overflow-y: clip;
+  overflow-y: auto;
   overscroll-behavior-x: contain;
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none;
@@ -345,7 +345,7 @@
     min-width: 0;
     flex-wrap: nowrap;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
     overscroll-behavior-x: contain;
     overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -387,11 +387,11 @@
     max-width: 100%;
     min-width: 0;
     overflow-x: auto;
-    overflow-y: clip;
+    overflow-y: auto;
     overscroll-behavior-x: contain;
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
-    touch-action: manipulation;
+    touch-action: pan-x pan-y;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
   }

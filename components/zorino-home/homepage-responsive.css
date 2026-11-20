@@ -309,11 +309,11 @@
     min-width: 0;
     box-sizing: border-box;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
     overscroll-behavior-x: contain;
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    touch-action: pan-x pan-y;
     scrollbar-width: none;
     padding-inline: 0;
   }
@@ -1009,7 +1009,7 @@
     overflow: visible;
   }
 
-  /* Show full category set — scroll for items beyond the first 3 */
+  /* Portrait shows four evenly distributed categories; the pager swaps pages */
   .zh-page .zh-categories__item:nth-child(n + 5) {
     display: flex !important;
   }
@@ -1023,24 +1023,22 @@
     margin-inline: 0;
     padding-inline: 0;
     gap: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
+    overflow-x: visible;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    touch-action: pan-y;
   }
 
   .zh-page .zh-categories::-webkit-scrollbar {
     display: none;
   }
 
-  /* Exactly 3 tiles in view: (100% − 2 gaps) / 3 */
+  /* Four equal columns fill the full row with balanced spacing */
   .zh-page .zh-categories__item {
     box-sizing: border-box;
-    flex: 0 0 calc((100% - 16px) / 3);
-    width: calc((100% - 16px) / 3);
-    min-width: calc((100% - 16px) / 3);
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
     max-width: none;
     min-height: 0;
     padding: 4px 2px 6px;
@@ -1142,11 +1140,13 @@
     padding-inline: 0;
     padding-block: 2px;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
+    touch-action: pan-x pan-y;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
   }
 
   .zh-page .zh-quick-nav__row::-webkit-scrollbar {
@@ -1350,7 +1350,7 @@
     max-width: 100%;
     min-width: 0;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
     overscroll-behavior-x: contain;
     overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -1401,11 +1401,11 @@
     padding-block: 2px 6px;
     scroll-snap-type: x mandatory;
     overflow-x: auto;
-    overflow-y: clip;
+    overflow-y: auto;
     overscroll-behavior-x: contain;
     overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
-    touch-action: manipulation;
+    touch-action: pan-x pan-y;
     scroll-behavior: smooth;
     max-width: 100%;
     min-width: 0;
@@ -1517,8 +1517,8 @@
   .zh-page .zh-td-skeleton-grid,
   .zh-page .zh-featured-brands__track {
     overflow-x: auto;
-    overflow-y: clip;
-    touch-action: manipulation;
+    overflow-y: auto;
+    touch-action: pan-x pan-y;
     grid-auto-columns: var(--zh-carousel-slide);
     gap: var(--zh-carousel-gap, 12px);
   }
@@ -2414,7 +2414,8 @@
     max-width: 100%;
     gap: 6px;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
+    touch-action: pan-x pan-y;
   }
 
   .zh-page .zh-quick-nav__pill:nth-child(n + 4) {

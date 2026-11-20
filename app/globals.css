@@ -2589,6 +2589,26 @@ img {
   transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.listing-product-card,
+.zor-deals-page__card,
+.deal-card,
+.zh-td-card,
+.zh-deal-card,
+.product-card,
+.product-card-media,
+.product-card-image-frame,
+.product-card-image,
+.deal-product-img,
+.lowest-price-img,
+.trending-card-image,
+.zh-trending-deals__track,
+.zh-trending-deals__filters,
+.zh-featured-brands__track,
+.zh-quick-nav__row {
+  touch-action: pan-x pan-y;
+  overscroll-behavior-y: auto;
+}
+
 .asset-image-loading {
   opacity: 0;
 }
@@ -4328,7 +4348,7 @@ img {
   select,
   textarea {
     min-height: 44px;
-    touch-action: manipulation;
+    touch-action: pan-x pan-y;
   }
 
   input,
