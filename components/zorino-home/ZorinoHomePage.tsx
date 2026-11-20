@@ -146,7 +146,6 @@ export default async function ZorinoHomePage() {
       <div className="zh-page__background" aria-hidden="true" />
       <div className="zh-page__artwork-clip" aria-hidden="true">
         <div className="zh-page__artwork" />
-        <div className="zh-hero-artwork-shimmer" aria-hidden="true" />
       </div>
       <SpaceParticlesClient />
       <ZorinoHomeNav />
