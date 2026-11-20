@@ -1451,10 +1451,10 @@ html {
 
   /* Match homepage mobile chrome exactly */
   .zor-nav {
-    --zor-nav-control-h: 38px;
+    --zor-nav-control-h: clamp(26px, 7.6vw, 32px);
     height: 56px;
-    padding: 0 max(10px, env(safe-area-inset-right, 0px)) 0
-      max(10px, env(safe-area-inset-left, 0px));
+    padding: 0 max(12px, env(safe-area-inset-right, 0px)) 0
+      max(12px, env(safe-area-inset-left, 0px));
     overflow: visible;
     background: rgba(7, 11, 22, 0.72);
     backdrop-filter: blur(16px) saturate(1.35);
@@ -1486,10 +1486,11 @@ html {
   .zor-nav__inner {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 6px;
+    justify-content: space-between;
+    gap: clamp(3px, 1vw, 6px);
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     overflow: visible;
   }
 
@@ -1504,16 +1505,19 @@ html {
   }
 
   .zor-nav__logo img {
-    height: 48px;
+    height: auto;
+    max-height: 44px;
     width: auto;
-    max-width: min(128px, 32vw);
+    max-width: min(96px, 26vw);
+    flex-shrink: 1;
   }
 
   .zor-nav__actions {
     display: flex;
     align-items: center;
-    gap: 6px;
-    flex: 0 0 auto;
+    gap: clamp(3px, 1vw, 6px);
+    flex: 0 1 auto;
+    min-width: 0;
     margin-inline-start: auto;
     max-width: none;
   }
@@ -1631,16 +1635,16 @@ html {
   .zor-nav__profile-fallback {
     position: relative;
     z-index: 1;
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: 1.5px solid rgba(7, 11, 22, 0.92);
   }
 
   .zor-public-shell__main {
     overflow-x: clip;
-    padding-left: max(10px, env(safe-area-inset-left, 0px));
-    padding-right: max(10px, env(safe-area-inset-right, 0px));
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
   }
 }
 

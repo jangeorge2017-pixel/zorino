@@ -254,8 +254,8 @@ button,
 
   /* Keep a breath under sticky header; tighten side pad with safe areas */
   .zor-public-shell__main {
-    padding-left: max(10px, env(safe-area-inset-left, 0px));
-    padding-right: max(10px, env(safe-area-inset-right, 0px));
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
   }
 
   .zor-page-header,
@@ -369,5 +369,48 @@ button,
 
   .zh-driftfield {
     display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .site-shell,
+  .page-content,
+  .homepage,
+  .zor-page,
+  .zh-page,
+  .zor-public-shell__main {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .zor-nav,
+  .zor-nav__inner,
+  .zor-nav__actions,
+  .zh-nav,
+  .zh-nav__inner,
+  .zh-nav__actions,
+  [class*="page__toolbar"],
+  .zor-page-header__row,
+  .zor-page-header__actions,
+  .zor-filter-bar {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .zor-page-loading__grid,
+  .listing-products-grid,
+  [class*="product-grid"],
+  [class*="products-grid"],
+  [class*="stores-grid"],
+  [class*="deals-grid"],
+  [class*="coupons-grid"],
+  [class*="categories-grid"] {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
   }
 }

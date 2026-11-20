@@ -313,3 +313,67 @@
     height: 24px;
   }
 }
+
+@media (max-width: 960px) and (max-height: 460px) and (orientation: landscape) {
+  html[dir="rtl"] .zh-page {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  html[dir="rtl"] .zh-page .zh-hero__stats {
+    direction: ltr;
+    unicode-bidi: isolate;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    box-sizing: border-box;
+  }
+
+  html[dir="rtl"] .zh-page .zh-stat__value,
+  html[dir="rtl"] .zh-page .zh-stat__label {
+    direction: rtl;
+    text-align: center;
+    unicode-bidi: isolate;
+  }
+
+  html[dir="rtl"] .zh-page .zh-categories,
+  html[dir="rtl"] .zh-page .zh-quick-nav-wrap,
+  html[dir="rtl"] .zh-page .zh-quick-nav,
+  html[dir="rtl"] .zh-page .zh-quick-nav__track {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    gap: 4px;
+    padding-block: 2px;
+    overflow: visible;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__pill,
+  html[dir="rtl"] .zh-page a.zh-quick-nav__pill {
+    flex: 0 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    overflow: visible;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  html[dir="rtl"] .zh-page .zh-quick-nav__more {
+    flex-shrink: 0;
+  }
+}

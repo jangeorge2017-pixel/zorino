@@ -4315,7 +4315,7 @@ img {
 
   body,
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   button,
