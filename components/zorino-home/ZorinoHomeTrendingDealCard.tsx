@@ -57,7 +57,13 @@ export default function ZorinoHomeTrendingDealCard({
 
         <div className="zh-td-card__store-row">
           <span className="zh-td-card__store-logo" aria-hidden>
-            <AssetImage src={deal.storeLogoSrc || ""} alt="" width={24} height={24} />
+            <AssetImage
+              src={deal.storeLogoSrc || ""}
+              alt=""
+              width={24}
+              height={24}
+              fallback={<span className="store-logo-initial">{deal.store.slice(0, 2)}</span>}
+            />
           </span>
           <span className="zh-td-card__store">{deal.store}</span>
         </div>

@@ -81,6 +81,7 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
               alt=""
               width={24}
               height={24}
+              fallback={<span className="store-logo-initial">{deal.store.slice(0, 2)}</span>}
             />
           </span>
           {deal.store}

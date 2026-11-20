@@ -53,7 +53,7 @@ export default function AssetImage({
     setLoaded(true);
   }
 
-  if (broken && normalized === PRODUCT_IMAGE_PLACEHOLDER) {
+  if (broken && (fallback !== undefined || normalized === PRODUCT_IMAGE_PLACEHOLDER)) {
     return (
       <span
         className={`asset-image-fallback ${className ?? ""}`}

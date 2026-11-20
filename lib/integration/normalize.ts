@@ -1,4 +1,5 @@
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import { hasOfficialStoreLogo, resolveStoreLogoSrc } from "@/lib/assets";
 import { resolveProductDestination } from "@/lib/affiliate/product-url";
 import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
 import type { ProductionProviderId } from "@/lib/integration/constants";
@@ -22,7 +23,7 @@ function storeForProvider(providerId: ProductionProviderId): Store {
     id: meta.storeId,
     name: meta.name,
     slug: meta.storeSlug,
-    logoUrl: `/stores/${meta.storeSlug}.svg`,
+    logoUrl: resolveStoreLogoSrc(meta.storeSlug),
     logoInitial: meta.name.slice(0, 2),
     website: `https://www.${meta.storeSlug}.com`,
     integrationType: meta.integrationType,
@@ -112,7 +113,9 @@ export function catalogItemToTrendingDealCard(
     originalPrice: item.originalPrice,
     currency: bestOffer?.currency ?? item.currency ?? "USD",
     store: merchantName,
-    storeLogoSrc: baseStore.logoUrl ?? `/stores/${baseStore.slug}.svg`,
+    storeLogoSrc: hasOfficialStoreLogo(bestOffer?.storeSlug)
+      ? resolveStoreLogoSrc(bestOffer?.storeSlug)
+      : resolveStoreLogoSrc(baseStore.slug),
     storeInitial,
     updatedMins: options?.updatedMins ?? 5,
     priceHistory:

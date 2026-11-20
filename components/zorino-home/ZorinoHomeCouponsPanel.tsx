@@ -48,6 +48,7 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
   const t = useTranslations("home");
   const tCoupons = useTranslations("coupons");
   const [copied, setCopied] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
   const logoSrc = resolveTopCouponLogoSrc(coupon);
 
   const copyCode = () => {
@@ -59,18 +60,21 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
   return (
     <article className="zh-coupon">
       <div className="zh-coupon__logo">
-        <Image
-          src={logoSrc}
-          alt={coupon.store}
-          width={60}
-          height={60}
-          loading="lazy"
-          sizes="60px"
-          onError={(e) => {
-            // Keep the square empty — do not swap in AM/NO letter placeholders.
-            e.currentTarget.style.visibility = "hidden";
-          }}
-        />
+        {!logoFailed && logoSrc ? (
+          <Image
+            src={logoSrc}
+            alt={coupon.store}
+            width={60}
+            height={60}
+            loading="lazy"
+            sizes="60px"
+            onError={() => setLogoFailed(true)}
+          />
+        ) : (
+          <span className="store-logo-initial" aria-hidden>
+            {coupon.storeInitial ?? coupon.store.slice(0, 2)}
+          </span>
+        )}
       </div>
       <div className="zh-coupon__body">
         <h3 className="zh-coupon__store">{coupon.store}</h3>

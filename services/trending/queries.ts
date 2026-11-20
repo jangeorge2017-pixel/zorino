@@ -11,6 +11,7 @@ import type {
 import { ALL_RANKING_TYPES, getRankingLabel } from "@/lib/trending/labels";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { SupabaseDb } from "@/lib/supabase/config";
+import { hasOfficialStoreLogo, resolveStoreLogoSrc } from "@/lib/assets";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function db(client: SupabaseDb): any {
@@ -182,7 +183,9 @@ async function productToTrendingCard(
     originalPrice: original || price,
     currency: lowest?.currency ?? "USD",
     store: store?.name ?? "Zorino",
-    storeLogoSrc: store?.logoUrl ?? `/stores/${store?.slug ?? "default"}.svg`,
+    storeLogoSrc: hasOfficialStoreLogo(store?.slug)
+      ? resolveStoreLogoSrc(store?.slug)
+      : store?.logoUrl ?? resolveStoreLogoSrc(store?.slug ?? "default"),
     storeInitial: store?.logoInitial ?? store?.name.slice(0, 2) ?? "?",
     updatedMins: product.lastSyncedAt
       ? Math.max(1, Math.round((Date.now() - new Date(product.lastSyncedAt).getTime()) / 60_000))

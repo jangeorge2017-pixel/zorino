@@ -91,16 +91,25 @@ export const STORE_LOGOS = {
   apple: "/stores/apple.svg",
   samsung: "/stores/samsung.svg",
   cjDropshipping: "/stores/cjdropshipping.svg",
+  jumia: "/stores/jumia.svg",
+  carrefour: "/stores/carrefour.svg",
+  btech: "/stores/btech.svg",
+  twob: "/stores/twob.svg",
+  dubaiphone: "/stores/dubaiphone.svg",
+  raneen: "/stores/raneen.svg",
+  eldokan: "/stores/eldokan.svg",
+  admitad: "/stores/admitad.svg",
   alibaba: "/stores/alibaba.svg",
   default: "/stores/default.svg",
 } as const;
 
 const STORE_LOGO_BY_SLUG: Record<string, string> = {
   amazon: STORE_LOGOS.amazon,
-  "best-buy": STORE_LOGOS.bestBuy,
+  amazoneg: STORE_LOGOS.amazon,
+  "amazon-eg": STORE_LOGOS.amazon,
   bestbuy: STORE_LOGOS.bestBuy,
+  bestBuy: STORE_LOGOS.bestBuy,
   walmart: STORE_LOGOS.walmart,
-  "foot-locker": STORE_LOGOS.footLocker,
   footlocker: STORE_LOGOS.footLocker,
   noon: STORE_LOGOS.noon,
   aliexpress: STORE_LOGOS.aliExpress,
@@ -112,20 +121,43 @@ const STORE_LOGO_BY_SLUG: Record<string, string> = {
   apple: STORE_LOGOS.apple,
   samsung: STORE_LOGOS.samsung,
   cjdropshipping: STORE_LOGOS.cjDropshipping,
+  jumia: STORE_LOGOS.jumia,
+  jumiaeg: STORE_LOGOS.jumia,
+  jumiaegypt: STORE_LOGOS.jumia,
+  carrefour: STORE_LOGOS.carrefour,
+  carrefouregypt: STORE_LOGOS.carrefour,
+  btech: STORE_LOGOS.btech,
+  btechstore: STORE_LOGOS.btech,
+  twob: STORE_LOGOS.twob,
+  "2b": STORE_LOGOS.twob,
+  "2begypt": STORE_LOGOS.twob,
+  dubaiphone: STORE_LOGOS.dubaiphone,
+  dubaiphonestore: STORE_LOGOS.dubaiphone,
+  raneen: STORE_LOGOS.raneen,
+  raneenstore: STORE_LOGOS.raneen,
+  eldokan: STORE_LOGOS.eldokan,
+  eldokanstore: STORE_LOGOS.eldokan,
+  admitad: STORE_LOGOS.admitad,
   alibaba: STORE_LOGOS.alibaba,
-  admitad: STORE_LOGOS.alibaba,
-  "amazon-eg": STORE_LOGOS.amazon,
+  alibabaww: STORE_LOGOS.alibaba,
   default: STORE_LOGOS.default,
 };
 
-/** Resolve official local SVG for a store slug (vector assets; refresh via npm run logos:refresh). */
-export function resolveStoreLogoSrc(slug?: string | null): string {
-  const key = String(slug ?? "default")
+function normalizeStoreLogoKey(slug?: string | null): string {
+  return String(slug ?? "default")
     .trim()
     .toLowerCase()
-    .replace(/\.svg$/i, "")
-    .replace(/\.png$/i, "");
-  return STORE_LOGO_BY_SLUG[key] ?? STORE_LOGOS.default;
+    .replace(/\.(svg|png)$/i, "")
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+/** Resolve official local SVG for a store slug (vector assets; refresh via npm run logos:refresh). */
+export function resolveStoreLogoSrc(slug?: string | null): string {
+  return STORE_LOGO_BY_SLUG[normalizeStoreLogoKey(slug)] ?? STORE_LOGOS.default;
+}
+
+export function hasOfficialStoreLogo(slug?: string | null): boolean {
+  return Boolean(STORE_LOGO_BY_SLUG[normalizeStoreLogoKey(slug)]);
 }
 
 export const MISSING_ASSETS = [] as const;

@@ -5,8 +5,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
 import { ExternalLink } from "lucide-react";
-import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
-import { resolveStoreLogoSrc } from "@/lib/assets";
+import { hasOfficialStoreLogo, resolveStoreLogoSrc } from "@/lib/assets";
 import type { Store } from "@/lib/types/entities";
 
 type StoresStoreCardProps = {
@@ -21,9 +20,9 @@ export default function StoresStoreCard({
   visitLabel = "Visit",
 }: StoresStoreCardProps) {
   const [logoFailed, setLogoFailed] = useState(false);
-  // Canonical real logo: prefer DB logo_url, otherwise the canonical local SVG
-  // asset for the store slug (initials remain only the final fallback).
-  const logoSrc = store.logoUrl || resolveStoreLogoSrc(store.slug);
+  const logoSrc = hasOfficialStoreLogo(store.slug)
+    ? resolveStoreLogoSrc(store.slug)
+    : store.logoUrl || resolveStoreLogoSrc(store.slug);
   const showLogo = Boolean(logoSrc) && !logoFailed;
 
   return (
@@ -38,14 +37,6 @@ export default function StoresStoreCard({
               className="zor-stores-page__card-logo-img"
               unoptimized
               onError={() => setLogoFailed(true)}
-            />
-          ) : logoSrc && logoFailed ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={PRODUCT_IMAGE_PLACEHOLDER}
-              alt=""
-              className="zor-stores-page__card-logo-img"
-              style={{ objectFit: "contain", width: "100%", height: "100%" }}
             />
           ) : (
             <span className="zor-stores-page__card-logo-fallback">

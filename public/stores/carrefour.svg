@@ -1,4 +1,1 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="Carrefour">
-  <rect width="240" height="120" rx="20" fill="#004E9F"/>
-  <text x="120" y="60" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700" text-anchor="middle" dominant-baseline="central">Carrefour</text>
-</svg>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="Carrefour"><rect width="240" height="120" rx="18" fill="#ffffff"/><text x="120" y="68" fill="#004e9f" font-family="Arial,Helvetica,sans-serif" font-size="43" font-weight="800" text-anchor="middle">Carrefour</text><path d="M47 50h30c9 0 14 4 14 11v18c0 7-5 11-14 11H47V50Zm15 12v16h11c3 0 5-2 5-5V67c0-3-2-5-5-5H62Z" fill="#e2231a"/><path d="M193 50h-30c-9 0-14 4-14 11v18c0 7 5 11 14 11h30V50Zm-15 12v16h-11c-3 0-5-2-5-5V67c0-3 2-5 5-5h11Z" fill="#008d36"/></svg>

@@ -1,4 +1,1 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="El Dokan">
-  <rect width="240" height="120" rx="20" fill="#00796B"/>
-  <text x="120" y="60" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" text-anchor="middle" dominant-baseline="central">El Dokan</text>
-</svg>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="El Dokan"><rect width="240" height="120" rx="18" fill="#ffffff"/><path d="M38 48h36l7 46H31l7-46Z" fill="none" stroke="#00796b" stroke-width="6" stroke-linejoin="round"/><path d="M49 48v-8a10 10 0 0 1 20 0v8" fill="none" stroke="#00796b" stroke-width="6" stroke-linecap="round"/><text x="150" y="70" fill="#00796b" font-family="Arial,Helvetica,sans-serif" font-size="42" font-weight="800" text-anchor="middle">El Dokan</text></svg>

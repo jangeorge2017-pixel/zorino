@@ -444,8 +444,8 @@
   .zh-page .zh-deal-card__media {
     width: 100%;
     max-width: 100%;
-    height: clamp(132px, 46svh, 180px) !important;
-    max-height: clamp(132px, 46svh, 180px) !important;
+    height: 90px !important;
+    max-height: 90px !important;
     min-height: 0;
     aspect-ratio: 4 / 3;
     box-sizing: border-box;
@@ -607,5 +607,142 @@
 
   .zh-page #zh-section-coupons .zh-coupon__code {
     font-size: 12px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 550px) {
+  .zh-page,
+  .zh-page .zh-shell,
+  .zh-page .zh-hero-zone,
+  .zh-page .hhb,
+  .zh-page .hhb__content,
+  .zh-page .zh-commerce,
+  .zh-page .zh-panel,
+  .zh-page .zh-featured-brands-wrap,
+  .zh-page .zh-product-sections-wrap,
+  .zh-page .zh-product-sections,
+  .zh-page .zh-product-section,
+  .zh-page .zh-trending-deals,
+  .zh-page #zh-section-coupons {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-inline: 0;
+    padding-inline: 16px;
+    box-sizing: border-box;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .zh-page .zh-product-grid,
+  .zh-page .listing-products-grid,
+  .zh-page .zor-deals-page__grid,
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid,
+  .zh-page .zh-featured-brands__track,
+  .zh-page .zh-trending-deals__filters {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-inline: 0;
+    scroll-padding-inline: 16px;
+    box-sizing: border-box;
+  }
+
+  .zh-page .zh-product-section.zh-panel {
+    padding-inline: 16px !important;
+  }
+
+  .zh-page .zh-product-grid,
+  .zh-page .listing-products-grid,
+  .zh-page .zor-deals-page__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .zh-page .zh-trending-deals__track,
+  .zh-page .zh-td-skeleton-grid {
+    --zh-carousel-slide: calc((100% - 16px) / 3);
+    grid-auto-columns: calc((100% - 16px) / 3);
+    gap: 8px;
+  }
+
+  .zh-page .zh-trending-deals__track .product-card-media,
+  .zh-page .listing-product-card .product-card-media,
+  .zh-page .zor-deals-page__card .product-card-media,
+  .zh-page .deal-card .product-card-media,
+  .zh-page .product-card-media,
+  .zh-page .zh-td-card__media,
+  .zh-page .zh-deal-card__media {
+    width: 100%;
+    max-width: 100%;
+    height: 90px !important;
+    max-height: 90px !important;
+    padding: 0;
+    background: #fff;
+  }
+
+  .zh-page .zh-trending-deals__track .product-card-image,
+  .zh-page .zh-trending-deals__track .deal-product-img,
+  .zh-page .zh-trending-deals__track .trending-card-image,
+  .zh-page .listing-product-card .product-card-image,
+  .zh-page .zor-deals-page__card .product-card-image,
+  .zh-page .deal-card .product-card-image,
+  .zh-page .product-card-image,
+  .zh-page .zh-td-card__media img,
+  .zh-page .zh-td-card__media .zh-td-card__image,
+  .zh-page .zh-deal-card__media img,
+  .zh-page .zh-deal-card__media .zh-deal-card__image {
+    width: 100% !important;
+    height: 90px !important;
+    max-width: 100% !important;
+    max-height: 90px !important;
+    padding: 8px !important;
+    object-fit: contain !important;
+    box-sizing: border-box !important;
+  }
+
+  .zh-page .zh-trending-deals__track .listing-product-card,
+  .zh-page .zh-trending-deals__track .zor-deals-page__card,
+  .zh-page .zh-trending-deals__track .deal-card,
+  .zh-page .zh-product-sections .listing-product-card,
+  .zh-page .zh-product-sections .zor-deals-page__card,
+  .zh-page .zh-product-sections .deal-card,
+  .zh-page .zh-td-card,
+  .zh-page .zh-deal-card {
+    padding: 8px !important;
+    gap: 4px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .zh-page .zh-trending-deals__track .product-card-title,
+  .zh-page .zh-td-card__title,
+  .zh-page .zh-deal-card__name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: hidden;
+    white-space: normal;
+    min-height: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  .zh-page .zh-trending-deals__track .product-card-body,
+  .zh-page .zh-td-card__body {
+    gap: 3px;
+  }
+
+  .zh-page .zh-trending-deals__track .home-shop-btn,
+  .zh-page .zh-trending-deals__track .home-compare-btn,
+  .zh-page .zh-td-card__shop,
+  .zh-page .zh-deal-card__shop {
+    min-height: 26px;
+    padding: 3px 6px;
+    font-size: 11px;
+    line-height: 1.1;
   }
 }

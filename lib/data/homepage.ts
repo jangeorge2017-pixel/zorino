@@ -8,6 +8,8 @@ import {
 } from "@/services/coupons";
 import { getStores } from "@/services/stores";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import { hasOfficialStoreLogo, resolveStoreLogoSrc } from "@/lib/assets";
+import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import {
   getIntegratedDeals,
   getIntegratedSectionProducts,
@@ -75,8 +77,11 @@ const CATEGORY_ACCENTS: Record<string, string | null> = {
 function formatStatCount(count: number): string {
   if (count >= 1_000_000) return `${Math.floor(count / 1_000_000)}M+`;
   if (count >= 1_000) return `${Math.floor(count / 1_000)}K+`;
-  if (count >= 10) return `${count}+`;
   return String(count);
+}
+
+function formatExactCount(count: number): string {
+  return count.toLocaleString("en-US");
 }
 
 /** Hero orbit cards are server-formatted — honor the visitor's currency cookie. */
@@ -98,11 +103,15 @@ async function formatCurrency(amount: number, currencyCode?: string): Promise<st
 
 function couponToCard(coupon: Awaited<ReturnType<typeof fetchTopCoupons>>["data"][number]): TopCouponCard {
   const store = coupon.store;
+  const localLogoSrc = hasOfficialStoreLogo(store?.slug)
+    ? resolveStoreLogoSrc(store?.slug)
+    : null;
   return {
     id: coupon.id,
     store: store?.name ?? "Store",
     storeSlug: store?.slug,
-    storeLogoSrc: store?.logoUrl ?? `/stores/${store?.slug ?? "default"}.svg`,
+    storeLogoSrc:
+      localLogoSrc ?? store?.logoUrl ?? resolveStoreLogoSrc(store?.slug ?? "default"),
     storeInitial: store?.logoInitial ?? store?.name.slice(0, 2) ?? "?",
     offer: coupon.offer,
     minSpend: coupon.minSpend ?? "No minimum",
@@ -223,56 +232,64 @@ export async function getPopularSearches(): Promise<string[]> {
  * Live catalog stats for hero + footer.
  * Reads the Supabase catalog directly, independent of which affiliate
  * credentials this deployment currently holds.
- * Stores = distinct merchants carrying cached products.
- * Products = total cached catalog size.
- * Coupons = real Supabase coupon rows.
+ * Stores = active Supabase store rows.
+ * Products = maintained/exact real catalog size.
+ * Coupons = active Supabase coupon rows.
  */
+async function countActiveSupabaseRows(
+  table: "stores" | "coupons",
+): Promise<number | null> {
+  const supabase = createSupabaseAnonClient();
+  if (!supabase) return null;
+  const { count, error } = await supabase
+    .from(table)
+    .select("id", { count: "exact", head: true })
+    .eq("is_active", true);
+  return error ? null : (count ?? 0);
+}
+
 async function loadHomepageStats(): Promise<{
   hero: HeroStatItem[];
   footer: FooterStatItem[];
 }> {
-  let storeCount = 0;
-  let productCount = 0;
+  const [storeCountResult, couponCountResult, productCountResult] = await Promise.all([
+    countActiveSupabaseRows("stores").catch(() => null),
+    countActiveSupabaseRows("coupons").catch(() => null),
+    import("@/lib/integration/database-catalog")
+      .then(({ getRealCatalogProductCount }) => getRealCatalogProductCount())
+      .catch(() => 0),
+  ]);
 
-  try {
-    // Store count = the blended directory (approved Admitad merchants plus
-    // Amazon/eBay/AliExpress). Derived from the same service the /stores page
-    // uses, so the counter can never advertise stores that are not rendered.
-    const { data } = await getStores();
-    storeCount = data?.length ?? 0;
-  } catch {
-    // Store count failed — stays at 0. No fake fallback.
+  let storeCount = storeCountResult ?? 0;
+  if (storeCountResult === null) {
+    try {
+      const { data } = await getStores();
+      storeCount = data?.length ?? 0;
+    } catch {
+      storeCount = 0;
+    }
   }
 
-  try {
-    // Products = the REAL catalog size across live providers (120K+), not the
-    // bounded in-memory feed that only carries a representative sample.
-    const { getRealCatalogProductCount } = await import(
-      "@/lib/integration/database-catalog"
-    );
-    productCount = await getRealCatalogProductCount();
-  } catch {
-    // Database count failed — product count stays at 0. No fake fallback.
-  }
-
-  let couponCount = 0;
-  try {
-    couponCount = await getActiveCouponCount();
-  } catch {
-    // Coupon fetch failed — count stays at 0.
+  let couponCount = couponCountResult ?? 0;
+  if (couponCountResult === null) {
+    try {
+      couponCount = await getActiveCouponCount();
+    } catch {
+      couponCount = 0;
+    }
   }
 
   return {
     hero: [
-      { key: "stores", value: formatStatCount(storeCount), label: "Stores", tone: "purple" },
-      { key: "products", value: formatStatCount(productCount), label: "Products", tone: "blue" },
-      { key: "coupons", value: formatStatCount(couponCount), label: "Coupons", tone: "green" },
+      { key: "stores", value: formatExactCount(storeCount), label: "Stores", tone: "purple" },
+      { key: "products", value: formatStatCount(productCountResult), label: "Products", tone: "blue" },
+      { key: "coupons", value: formatExactCount(couponCount), label: "Coupons", tone: "green" },
       { key: "tracking", value: "Real-time", label: "Price Tracking", tone: "violet" },
     ],
     footer: [
-      { key: "stores", value: formatStatCount(storeCount), label: "Stores" },
-      { key: "products", value: formatStatCount(productCount), label: "Products" },
-      { key: "coupons", value: formatStatCount(couponCount), label: "Coupons" },
+      { key: "stores", value: formatExactCount(storeCount), label: "Stores" },
+      { key: "products", value: formatStatCount(productCountResult), label: "Products" },
+      { key: "coupons", value: formatExactCount(couponCount), label: "Coupons" },
       { key: "users", value: "0", label: "Happy Users" },
     ],
   };
@@ -282,8 +299,11 @@ async function loadHomepageStats(): Promise<{
  *  aren't recomputed (and the DB isn't hit) on every homepage render. */
 export const getHomepageStats = unstable_cache(
   loadHomepageStats,
-  ["homepage:stats-v4"],
-  { revalidate: 300, tags: ["homepage-catalog"] },
+  ["homepage:stats-v5"],
+  {
+    revalidate: 300,
+    tags: ["homepage-catalog", "homepage-stats", "homepage-stores", "homepage-coupons"],
+  },
 );
 
 /** Active stores for /stores page. */
