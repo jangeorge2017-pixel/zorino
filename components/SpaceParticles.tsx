@@ -1,7 +1,6 @@
-'use client';
-import React from "react";
+"use client";
 
-const STAR_COLORS = ["#ffffff", "#22d3ee", "#facc15"] as const;
+const STAR_COLORS = ["#ffffff", "#22d3ee", "#6fd4ff", "#a855f7"] as const;
 
 const STARS = Array.from({ length: 78 }, (_, index) => {
   const random = (salt: number) => {
@@ -16,7 +15,6 @@ const STARS = Array.from({ length: 78 }, (_, index) => {
     color: STAR_COLORS[Math.floor(random(4) * STAR_COLORS.length)],
     duration: 2.5 + random(5) * 3.5,
     delay: -random(6) * 6,
-    peak: 0.86 + random(7) * 0.14,
   };
 });
 
@@ -27,19 +25,15 @@ export default function SpaceParticles() {
         <span
           key={index}
           className="zh-starfield__star"
-          style={
-            {
-              left: `${star.x}%`,
-              top: `${star.y}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              color: star.color,
-              backgroundColor: "currentColor",
-              animationDuration: `${star.duration}s`,
-              animationDelay: `${star.delay}s`,
-              "--zh-star-peak": star.peak,
-            } as React.CSSProperties
-          }
+          style={{
+            left: `${star.x}%`,
+            top: `${star.y}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            backgroundColor: star.color,
+            animationDuration: `${star.duration}s`,
+            animationDelay: `${star.delay}s`,
+          }}
         />
       ))}
     </div>

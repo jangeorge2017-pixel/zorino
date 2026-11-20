@@ -284,14 +284,14 @@ button,
   0%,
   100% {
     opacity: 0.25;
-    filter: drop-shadow(0 0 4px currentColor);
-    transform: translate3d(0, 0, 0) scale(0.85);
+    filter: brightness(1);
+    transform: translate3d(0, 0, 0) scale(0.9);
   }
 
   50% {
-    opacity: var(--zh-star-peak, 1);
-    filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 18px currentColor);
-    transform: translate3d(0, 0, 0) scale(1.25);
+    opacity: 1;
+    filter: brightness(1.4);
+    transform: translate3d(0, 0, 0) scale(1.15);
   }
 }
 
@@ -299,14 +299,14 @@ button,
   0%,
   100% {
     opacity: 0.25;
-    filter: drop-shadow(0 0 4px currentColor);
-    transform: translate3d(0, 0, 0) scale(0.85);
+    filter: brightness(1);
+    transform: translate3d(0, 0, 0) scale(0.9);
   }
 
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 18px currentColor);
-    transform: translate3d(0, 0, 0) scale(1.25);
+    filter: brightness(1.4);
+    transform: translate3d(0, 0, 0) scale(1.15);
   }
 }
 
@@ -314,42 +314,29 @@ button,
   0%,
   100% {
     opacity: 0.25;
-    filter: drop-shadow(0 0 4px currentColor);
-    transform: translate3d(0, 0, 0) scale(1.15);
+    filter: brightness(1);
+    transform: translate3d(0, 0, 0) scale(0.9);
   }
 
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 18px currentColor);
-    transform: translate3d(0, 0, 0) scale(0.85);
-  }
-}
-
-@keyframes zh-logo-aura {
-  0%,
-  100% {
-    opacity: 0.32;
-    transform: translate3d(0, 0, 0) scale(0.96);
-  }
-
-  50% {
-    opacity: 0.58;
-    transform: translate3d(0, 0, 0) scale(1.05);
+    filter: brightness(1.4);
+    transform: translate3d(0, 0, 0) scale(1.15);
   }
 }
 
 @keyframes zh-logo-shimmer {
   0%,
-  58% {
+  62% {
     opacity: 0;
     background-position: 180% 0;
   }
 
-  66% {
-    opacity: 0.55;
+  70% {
+    opacity: 0.38;
   }
 
-  78%,
+  82%,
   100% {
     opacity: 0;
     background-position: -80% 0;
@@ -358,16 +345,16 @@ button,
 
 @keyframes zh-hero-shimmer {
   0%,
-  62% {
+  66% {
     opacity: 0;
     background-position: 180% 0;
   }
 
-  70% {
-    opacity: 0.34;
+  74% {
+    opacity: 0.22;
   }
 
-  82%,
+  86%,
   100% {
     opacity: 0;
     background-position: -80% 0;
@@ -390,8 +377,8 @@ button,
   display: block;
   border-radius: 50%;
   opacity: 0.25;
-  filter: drop-shadow(0 0 4px currentColor);
-  transform: translate3d(0, 0, 0) scale(0.85);
+  filter: brightness(1);
+  transform: translate3d(0, 0, 0) scale(0.9);
   animation-name: zh-star-twinkle;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
@@ -420,28 +407,32 @@ button,
 }
 
 .zh-page__artwork-clip::before {
-  color: rgba(34, 211, 238, 0.8);
   background-image:
-    radial-gradient(circle at 56% 18%, rgba(34, 211, 238, 0.88) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 68% 12%, rgba(255, 255, 255, 0.84) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 78% 26%, rgba(250, 204, 21, 0.78) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 86% 18%, rgba(34, 211, 238, 0.8) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 62% 42%, rgba(255, 255, 255, 0.76) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 74% 48%, rgba(34, 211, 238, 0.84) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 88% 54%, rgba(250, 204, 21, 0.72) 0 1.4px, transparent 3px);
-  animation: zh-dome-twinkle-a 4.8s ease-in-out -1.4s infinite;
+    radial-gradient(circle at 48% 14%, rgba(111, 212, 255, 0.9) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 59% 10%, rgba(255, 255, 255, 0.88) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 70% 18%, rgba(34, 211, 238, 0.9) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 80% 12%, rgba(168, 85, 247, 0.82) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 88% 24%, rgba(111, 212, 255, 0.86) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 54% 34%, rgba(255, 255, 255, 0.84) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 66% 40%, rgba(34, 211, 238, 0.88) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 78% 44%, rgba(168, 85, 247, 0.78) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 90% 52%, rgba(255, 255, 255, 0.82) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 60% 62%, rgba(111, 212, 255, 0.84) 0 1.4px, transparent 3px);
+  animation: zh-dome-twinkle-a 3.2s ease-in-out -0.7s infinite;
 }
 
 .zh-page__artwork-clip::after {
-  color: rgba(168, 85, 247, 0.72);
   background-image:
-    radial-gradient(circle at 51% 30%, rgba(250, 204, 21, 0.72) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 65% 36%, rgba(34, 211, 238, 0.8) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 82% 38%, rgba(255, 255, 255, 0.76) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 58% 58%, rgba(34, 211, 238, 0.72) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 70% 66%, rgba(250, 204, 21, 0.66) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 90% 68%, rgba(255, 255, 255, 0.7) 0 1.4px, transparent 3px);
-  animation: zh-dome-twinkle-b 5.9s ease-in-out -3.2s infinite;
+    radial-gradient(circle at 45% 26%, rgba(34, 211, 238, 0.84) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 56% 22%, rgba(168, 85, 247, 0.78) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 64% 30%, rgba(255, 255, 255, 0.82) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 73% 34%, rgba(111, 212, 255, 0.84) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 84% 36%, rgba(34, 211, 238, 0.8) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 50% 48%, rgba(168, 85, 247, 0.74) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 62% 54%, rgba(255, 255, 255, 0.78) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 74% 62%, rgba(111, 212, 255, 0.8) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 86% 68%, rgba(34, 211, 238, 0.78) 0 1.4px, transparent 3px);
+  animation: zh-dome-twinkle-b 4.4s ease-in-out -2.1s infinite;
 }
 
 .zh-hero-artwork-shimmer {
@@ -453,7 +444,7 @@ button,
   background-image: linear-gradient(
     105deg,
     transparent 38%,
-    rgba(255, 255, 255, 0.42) 50%,
+    rgba(255, 255, 255, 0.34) 50%,
     transparent 62%
   );
   background-repeat: no-repeat;
@@ -477,7 +468,7 @@ button,
     top var(--zh-hero-artwork-painted-top);
   mix-blend-mode: screen;
   opacity: 0;
-  animation: zh-hero-shimmer 9s ease-in-out 2.5s infinite;
+  animation: zh-hero-shimmer 10s ease-in-out 3s infinite;
   will-change: opacity, background-position;
 }
 
@@ -486,27 +477,6 @@ button,
 .logo {
   position: relative;
   isolation: isolate;
-}
-
-.zh-nav__logo::before,
-.zor-nav__logo::before,
-.logo::before {
-  content: "";
-  position: absolute;
-  inset: -10px -16px;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(
-    ellipse at 38% 50%,
-    rgba(34, 211, 238, 0.28),
-    rgba(139, 92, 246, 0.18) 46%,
-    transparent 72%
-  );
-  filter: blur(14px);
-  transform: translate3d(0, 0, 0) scale(0.96);
-  animation: zh-logo-aura 6.5s ease-in-out infinite;
-  will-change: opacity, transform;
 }
 
 .zh-nav__logo::after,
@@ -519,7 +489,7 @@ button,
   background-image: linear-gradient(
     105deg,
     transparent 36%,
-    rgba(255, 255, 255, 0.62) 50%,
+    rgba(255, 255, 255, 0.48) 50%,
     transparent 64%
   );
   background-repeat: no-repeat;
@@ -535,7 +505,7 @@ button,
   mask-position: left center;
   mix-blend-mode: screen;
   opacity: 0;
-  animation: zh-logo-shimmer 7s ease-in-out 1.5s infinite;
+  animation: zh-logo-shimmer 8s ease-in-out 2s infinite;
   will-change: opacity, background-position;
 }
 
@@ -550,7 +520,7 @@ html.light .zh-hero-artwork-shimmer {
   .zh-page__artwork-clip::before,
   .zh-page__artwork-clip::after {
     animation: none;
-    filter: drop-shadow(0 0 5px currentColor);
+    filter: brightness(1.2);
     transform: none;
     will-change: auto;
   }
@@ -562,15 +532,6 @@ html.light .zh-hero-artwork-shimmer {
   .zh-page__artwork-clip::before,
   .zh-page__artwork-clip::after {
     opacity: 0.5;
-  }
-
-  .zh-nav__logo::before,
-  .zor-nav__logo::before,
-  .logo::before {
-    animation: none;
-    opacity: 0.42;
-    transform: none;
-    will-change: auto;
   }
 
   .zh-nav__logo::after,
