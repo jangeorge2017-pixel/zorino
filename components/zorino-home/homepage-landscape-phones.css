@@ -417,14 +417,14 @@
   .zh-page .listing-products-grid,
   .zh-page .zor-deals-page__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    gap: 12px;
   }
 
   .zh-page .zh-trending-deals__track,
   .zh-page .zh-td-skeleton-grid {
-    --zh-carousel-slide: calc((100% - 16px) / 3);
-    grid-auto-columns: calc((100% - 16px) / 3);
-    gap: 8px;
+    --zh-carousel-slide: calc((100% - 24px) / 3);
+    grid-auto-columns: calc((100% - 24px) / 3);
+    gap: 12px;
   }
 
   .zh-page .zh-product-section.zh-panel {
@@ -657,14 +657,14 @@
   .zh-page .listing-products-grid,
   .zh-page .zor-deals-page__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    gap: 12px;
   }
 
   .zh-page .zh-trending-deals__track,
   .zh-page .zh-td-skeleton-grid {
-    --zh-carousel-slide: calc((100% - 16px) / 3);
-    grid-auto-columns: calc((100% - 16px) / 3);
-    gap: 8px;
+    --zh-carousel-slide: calc((100% - 24px) / 3);
+    grid-auto-columns: calc((100% - 24px) / 3);
+    gap: 12px;
   }
 
   .zh-page .zh-trending-deals__track .product-card-media,

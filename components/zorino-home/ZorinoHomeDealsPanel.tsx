@@ -27,7 +27,6 @@ import {
   trendingDealToDeal,
 } from "@/lib/zorino-home/trending-deal-to-deal";
 import type { TrendingDealCard } from "@/lib/types/entities";
-import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 import {
   getCarouselScrollState,
   attachVerticalWheelPassthrough,
@@ -64,13 +63,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const enrichedDeals = useMemo(
-    () =>
-      enrichTrendingDeals(deals).filter(
-        (deal) => deal && isUsableRemoteProductImageUrl(deal.imageSrc),
-      ),
-    [deals],
-  );
+  const enrichedDeals = useMemo(() => enrichTrendingDeals(deals), [deals]);
 
   /** Store dropdown options — derived from the deals actually loaded. */
   const storeOptions = useMemo(() => {
@@ -237,7 +230,7 @@ export default function ZorinoHomeDealsPanel({ deals }: ZorinoHomeDealsPanelProp
         </div>
       </ZorinoHomeSectionHeader>
 
-      {enrichedDeals.length === 0 ? (
+      {deals.length === 0 ? (
         <p className="zh-panel__empty">{t("emptyTrending")}</p>
       ) : visibleDeals.length === 0 ? (
         <p className="zh-panel__empty">{t("emptyFilter")}</p>

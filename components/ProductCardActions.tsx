@@ -32,24 +32,17 @@ export default function ProductCardActions({
       <div
         className={`product-card-actions${showShopButton ? " product-card-actions-dual" : " product-card-actions-single"}`}
       >
-        {showShop && !compareOnly ? (
-          showShopButton ? (
-            <a
-              href={shopHref}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              className="home-shop-btn"
-              onClick={onShopClick}
-            >
-              {t("shopNow")}
-              <ExternalLink size={16} />
-            </a>
-          ) : (
-            <span className="home-shop-btn home-shop-btn--disabled" aria-disabled="true">
-              {t("shopNow")}
-              <ExternalLink size={16} />
-            </span>
-          )
+        {showShopButton ? (
+          <a
+            href={shopHref}
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+            className="home-shop-btn"
+            onClick={onShopClick}
+          >
+            {t("shopNow")}
+            <ExternalLink size={16} />
+          </a>
         ) : null}
         <ComparePricesButton productId={productId} className="home-compare-btn" />
       </div>
