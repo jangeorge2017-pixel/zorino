@@ -83,7 +83,13 @@ export async function getCachedSearchResult(
   const sliceLimit = Math.min(limit, PERSISTENT_SEARCH_MAX_ITEMS);
   const memory = memorySearchCache.get(key);
   if (memory && memory.expiresAt > Date.now()) {
-    return memory.items.slice(0, sliceLimit);
+    const memoryAge = Date.now() - (memory.expiresAt - MEMORY_SEARCH_TTL_MS);
+    const missing = getMissingCriticalSearchProviders(memory.items);
+    if (missing.length === 0 || memoryAge <= PERSISTENT_SEARCH_INCOMPLETE_TTL_MS) {
+      return memory.items.slice(0, sliceLimit);
+    }
+    memorySearchCache.delete(key);
+    scheduleSearchCacheRefresh(query, options);
   }
   if (!isPersistentSearchCacheEnabled()) return null;
 

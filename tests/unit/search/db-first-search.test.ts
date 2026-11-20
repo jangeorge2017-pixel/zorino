@@ -91,6 +91,28 @@ describe("in-memory search pool cache", () => {
     expect(read).not.toHaveBeenCalled();
   });
 
+  it("stops serving an incomplete memory pool after the grace window", async () => {
+    const enabled = vi
+      .spyOn(cacheStore, "isPersistentSearchCacheEnabled")
+      .mockReturnValue(true);
+    const read = vi
+      .spyOn(cacheStore, "readPersistentSearchCache")
+      .mockResolvedValue(null);
+    vi.spyOn(cacheStore, "writePersistentSearchCache").mockResolvedValue(undefined);
+    vi.spyOn(engine, "searchProducts").mockResolvedValue([cacheItem("ebay")]);
+    const query = `memory-grace-${Date.now()}`;
+
+    await buildAndCacheSearchResult(query, 10);
+    enabled.mockReturnValue(false);
+    const now = Date.now();
+    vi.spyOn(Date, "now").mockReturnValue(now + 6 * 60 * 1000);
+
+    const cached = await getCachedSearchResult(query, 10);
+
+    expect(cached).toBeNull();
+    expect(read).not.toHaveBeenCalled();
+  });
+
   it("promotes a fresh Supabase entry into memory", async () => {
     vi.spyOn(cacheStore, "isPersistentSearchCacheEnabled").mockReturnValue(true);
     const read = vi
