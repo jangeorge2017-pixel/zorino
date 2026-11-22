@@ -11,6 +11,7 @@ on:
       - "lib/integration/**"
       - "lib/search/connectors/**"
       - "scripts/**"
+      - "supabase/**"
       - "package.json"
       - "package-lock.json"
   schedule:
