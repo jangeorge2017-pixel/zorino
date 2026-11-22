@@ -3,7 +3,7 @@ import type { ProductionProviderId } from "@/lib/integration/constants";
 import { createCronBudget } from "@/lib/cron/budget";
 import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
 import { runProviderSyncStore } from "@/lib/sync/runner";
-import { STOREFRONT_CATALOG_QUERIES } from "@/lib/sync/providers/shared/storefront-catalog";
+import { SCRAPER_SEED_QUERIES } from "@/lib/sync/scraper/stores";
 
 const STORE_IDS = [
   "amazon-eg",
@@ -12,6 +12,9 @@ const STORE_IDS = [
   "carrefour",
   "btech",
   "temu",
+  "aliexpress",
+  "ebay",
+  "admitad",
   "twob",
   "dubaiphone",
   "raneen",
@@ -27,12 +30,12 @@ function positiveInt(name: string, fallback: number): number {
 
 async function main(): Promise<void> {
   const startedAt = new Date().toISOString();
-  const queries = (process.env.SYNC_STORE_QUERIES ?? STOREFRONT_CATALOG_QUERIES.join(","))
+  const queries = (process.env.SYNC_STORE_QUERIES ?? SCRAPER_SEED_QUERIES.join(","))
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  const maxProductsPerStore = positiveInt("SYNC_STORE_MAX_PRODUCTS", 150);
-  const budgetMs = positiveInt("SYNC_BUDGET_MS", 1_800_000);
+  const maxProductsPerStore = positiveInt("SYNC_STORE_MAX_PRODUCTS", 3000);
+  const budgetMs = positiveInt("SYNC_BUDGET_MS", 3_000_000);
 
   const summary: Record<string, unknown> = {
     startedAt,

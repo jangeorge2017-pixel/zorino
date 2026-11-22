@@ -131,17 +131,50 @@ async function listAllPages(path, params) {
 // ---------------------------------------------------------------------------
 // Feed XML parser
 // ---------------------------------------------------------------------------
-function extractTag(xml, tag) {
-  // Try g: namespace first (Google Merchant format), then plain tag
-  const gTag = `g:${tag}`;
-  let m = xml.match(new RegExp(`<${gTag}>([^<]*)</${gTag}>`));
-  if (m) return m[1].trim();
-  m = xml.match(new RegExp(`<${tag}>([^<]*)</${tag}>`));
+function extractRawTag(xml, tag) {
+  const m = xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`));
   return m ? m[1].trim() : null;
+}
+
+function extractTag(xml, tag) {
+  return extractRawTag(xml, `g:${tag}`) ?? extractRawTag(xml, tag);
 }
 
 function decodeXml(text) {
   return text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+}
+
+function unwrapCdata(value) {
+  const text = String(value || "").trim();
+  const cdata = text.match(/^<!\[CDATA\[([\s\S]*?)\]\]>$/);
+  return cdata ? cdata[1].trim() : text;
+}
+
+function normalizeScrapedImageUrl(value) {
+  let url = decodeXml(unwrapCdata(value)).replace(/\\+\//g, "/").replace(/\s+/g, "");
+  if (url.startsWith("//")) url = `https:${url}`;
+  if (/^http:\/\//i.test(url)) url = `https://${url.slice(7)}`;
+  if (!/^https:\/\//i.test(url)) return "";
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || /\.svg($|\?)/i.test(parsed.pathname)) return "";
+    return parsed.toString();
+  } catch { return ""; }
+}
+
+function extractOfferImage(xml) {
+  const variants = [
+    extractRawTag(xml, "g:image_link"),
+    extractRawTag(xml, "image_link"),
+    extractRawTag(xml, "image"),
+    extractRawTag(extractRawTag(xml, "image") || "", "url"),
+  ];
+  for (const raw of variants) {
+    if (!raw) continue;
+    const url = normalizeScrapedImageUrl(raw);
+    if (url) return url;
+  }
+  return "";
 }
 
 /** Strip markup by re-joining the text content between tags (text nodes). */
@@ -170,7 +203,7 @@ function parseOffer(xml) {
     oldpriceStr = extractTag(xml, "oldprice");
     currencyId = extractTag(xml, "currencyId") || "USD";
     url = decodeXml(extractTag(xml, "url") || "");
-    image = decodeXml(extractTag(xml, "image") || "");
+    image = extractOfferImage(xml);
     vendor = extractTag(xml, "vendor") || "";
     description = toPlainText(extractTag(xml, "description"));
   } else {
@@ -182,7 +215,7 @@ function parseOffer(xml) {
     const priceMatch = priceStr?.match(/([A-Z]{3})$/);
     if (priceMatch) currencyId = priceMatch[1];
     url = decodeXml(extractTag(xml, "link") || "");
-    image = decodeXml(extractTag(xml, "image_link") || "");
+    image = extractOfferImage(xml);
     description = toPlainText(extractTag(xml, "description"));
     vendor = "";
     oldpriceStr = null;
@@ -381,6 +414,30 @@ async function saveBatch(products, db, storeId) {
   return saved;
 }
 
+async function backfillAdmitadImages(db, imageBySlug) {
+  if (!db || imageBySlug.size === 0) return 0;
+  const byImage = new Map();
+  for (const [slug, imageUrl] of imageBySlug) {
+    if (!slug || !imageUrl) continue;
+    const slugs = byImage.get(imageUrl) || [];
+    slugs.push(slug);
+    byImage.set(imageUrl, slugs);
+  }
+
+  let updated = 0;
+  for (const [imageUrl, slugs] of byImage) {
+    for (let i = 0; i < slugs.length; i += 200) {
+      const batch = slugs.slice(i, i + 200);
+      await Promise.all([
+        db.from("products").update({ image_url: imageUrl }).in("slug", batch),
+        db.from("lowest_prices_today").update({ image_url: imageUrl }).in("product_slug", batch),
+      ]);
+      updated += batch.length;
+    }
+  }
+  return updated;
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -479,6 +536,7 @@ async function main() {
   if (resumeFrom > 0) console.log(`   Skipping first ${resumeFrom} feeds (--resume-from)`);
 
   const seenIds = new Set();
+  const imageBySlug = new Map();
   const allProducts = [];
   let feedsOk = 0;
   let feedsFailed = 0;
@@ -527,14 +585,17 @@ async function main() {
         const offers = await fetchFeed(feedUrl);
         let count = 0;
         for (const o of offers.slice(0, perFeedLimit)) {
+          if (!o.image) continue;
           if (seenIds.has(o.id)) continue;
           seenIds.add(o.id);
+          const slug = `admitad-${campaign.id}-${o.id}`;
+          imageBySlug.set(slug, o.image);
           const storeSlug = campaign.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
           const discount = o.oldprice && o.oldprice > o.price
             ? Math.round(((o.oldprice - o.price) / o.oldprice) * 100) : 0;
           allProducts.push({
-            id: `admitad-${campaign.id}-${o.id}`,
-            slug: `admitad-${campaign.id}-${o.id}`,
+            id: slug,
+            slug,
             title: o.name, imageUrl: o.image || "", emoji: "🛍️",
             categorySlug: "general", rating: 0, reviewCount: 0,
             countryCode: "US", currency: o.currencyId,
@@ -589,6 +650,11 @@ async function main() {
     totalSaved += batchSaved;
     allProducts.length = 0;
     console.log(`   [final] Saved ${batchSaved} products (total: ${totalSaved})`);
+  }
+
+  if (db) {
+    const imageBackfill = await backfillAdmitadImages(db, imageBySlug);
+    console.log(`   [images] Backfilled ${imageBackfill} product rows`);
   }
 
   console.log(`\n   Total unique products fetched: ${seenIds.size}`);

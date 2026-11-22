@@ -79,6 +79,7 @@
     "@vitest/coverage-v8": "^5.0.5",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
+    "playwright": "^1.51.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",

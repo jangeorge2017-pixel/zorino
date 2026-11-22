@@ -14,6 +14,7 @@ import type { RawProviderListing } from "@/lib/search/types";
 import { getProviderAdapter, isImportProviderId } from "@/lib/sync/providers";
 import { slugifyTitle } from "@/lib/sync/providers/shared/product-utils";
 import { rawListingToExternalProduct } from "@/lib/sync/providers/shared/storefront-catalog";
+import { fetchFallbackProducts } from "@/lib/sync/scraper";
 import type { ExternalProduct } from "@/lib/sync/types";
 
 export type ProviderStoreSyncOptions = {
@@ -27,7 +28,7 @@ export type ProviderStoreSyncOptions = {
 export type ProviderStoreSyncResult = {
   listings: number;
   saved: number;
-  source: "adapter" | "connector";
+  source: "adapter" | "connector" | "scraper";
   error?: string;
 };
 
@@ -66,6 +67,18 @@ function sanitizeProduct(product: ExternalProduct): ExternalProduct | null {
     currency: product.currency || "EGP",
     countryCode: product.countryCode || "EG",
   };
+}
+
+function sanitizeAndDedupe(products: ExternalProduct[]): ExternalProduct[] {
+  const seen = new Set<string>();
+  return products
+    .map((product) => sanitizeProduct(product))
+    .filter((product): product is ExternalProduct => product !== null)
+    .filter((product) => {
+      if (seen.has(product.externalId)) return false;
+      seen.add(product.externalId);
+      return true;
+    });
 }
 
 function toCatalogItems(
@@ -149,59 +162,70 @@ export async function runProviderSyncStore(
     },
   });
 
-  let source: ProviderStoreSyncResult["source"];
+  let source: ProviderStoreSyncResult["source"] = "adapter";
   let products: ExternalProduct[] = [];
+  let stepError: string | undefined;
 
   if (isImportProviderId(providerId)) {
     const adapter = getProviderAdapter(providerId);
     if (!adapter.isConfigured()) {
-      return { listings: 0, saved: 0, source: "adapter", error: "adapter-not-configured" };
-    }
-    products = await adapter.fetchProducts(ctx);
-    source = "adapter";
-  } else {
-    const connector = getSearchConnector(providerId);
-    if (!connector) {
-      return { listings: 0, saved: 0, source: "connector", error: "connector-not-found" };
-    }
-    if (!(await connector.isAvailable())) {
-      return { listings: 0, saved: 0, source: "connector", error: "connector-unavailable" };
-    }
-
-    const raw: RawProviderListing[] = [];
-    for (const query of queries) {
+      stepError = "adapter-not-configured";
+    } else {
       try {
-        raw.push(
-          ...(await connector.search(query, {
-            pageSize: 24,
-            maxPages: 2,
-            countryCode: ctx.countryCode,
-            currency: ctx.currency,
-          })),
-        );
-      } catch {
-        continue;
+        products = await adapter.fetchProducts(ctx);
+      } catch (error) {
+        stepError = error instanceof Error ? error.message.slice(0, 200) : "adapter-failed";
       }
     }
-
-    products = raw
-      .map((listing) => rawListingToExternalProduct(providerId, listing, ctx))
-      .filter((product): product is ExternalProduct => product !== null);
+  } else {
     source = "connector";
+    const connector = getSearchConnector(providerId);
+    if (!connector) {
+      stepError = "connector-not-found";
+    } else if (!(await connector.isAvailable())) {
+      stepError = "connector-unavailable";
+    } else {
+      const raw: RawProviderListing[] = [];
+      for (const query of queries) {
+        try {
+          raw.push(
+            ...(await connector.search(query, {
+              pageSize: 24,
+              maxPages: 2,
+              countryCode: ctx.countryCode,
+              currency: ctx.currency,
+            })),
+          );
+        } catch {
+          continue;
+        }
+      }
+
+      products = raw
+        .map((listing) => rawListingToExternalProduct(providerId, listing, ctx))
+        .filter((product): product is ExternalProduct => product !== null);
+    }
   }
 
-  const seen = new Set<string>();
-  const usable = products
-    .map((product) => sanitizeProduct(product))
-    .filter((product): product is ExternalProduct => product !== null)
-    .filter((product) => {
-      if (seen.has(product.externalId)) return false;
-      seen.add(product.externalId);
-      return true;
-    });
+  let usable = sanitizeAndDedupe(products);
+  if (usable.length === 0) {
+    try {
+      const fallback = await fetchFallbackProducts(providerId, ctx);
+      const fallbackUsable = sanitizeAndDedupe(fallback);
+      if (fallbackUsable.length > 0) {
+        products = fallback;
+        usable = fallbackUsable;
+        source = "scraper";
+        stepError = undefined;
+      }
+    } catch (error) {
+      stepError = error instanceof Error ? error.message.slice(0, 200) : "scraper-failed";
+    }
+  }
+
   const items = toCatalogItems(providerId, usable, maxProducts);
   if (items.length === 0) {
-    return { listings: products.length, saved: 0, source, error: "no-usable-listings" };
+    return { listings: products.length, saved: 0, source, error: stepError ?? "no-usable-listings" };
   }
 
   const meta = getSyncStoreMeta(providerId);
