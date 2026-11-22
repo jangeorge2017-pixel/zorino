@@ -10,7 +10,7 @@ import { createAmazonProvider } from "@/lib/sync/providers/amazon";
 import { createSyncBridgeConnector } from "@/lib/search/connectors/sync-bridge";
 import { getActiveProviderAdapters } from "@/lib/providers/adapter-registry";
 
-const PLACEHOLDER_IMPORT_IDS = ["walmart", "temu", "bestbuy", "noon", "jumia"] as const;
+const STOREFRONT_IMPORT_IDS = ["walmart", "temu", "bestbuy", "noon", "jumia"] as const;
 
 /**
  * Run fn with a credential env var set, then always restore the environment.
@@ -47,7 +47,7 @@ describe("sync-layer getProviderAdapter", () => {
   });
 
   it("resolves every registered import provider to its own adapter", () => {
-    for (const id of [...PLACEHOLDER_IMPORT_IDS, "aliexpress", "ebay", "cjdropshipping", "amazon"]) {
+    for (const id of [...STOREFRONT_IMPORT_IDS, "aliexpress", "ebay", "cjdropshipping", "amazon"]) {
       const adapter = getSyncProviderAdapter(id);
       expect(adapter.id, id).toBe(id);
     }
@@ -57,14 +57,14 @@ describe("sync-layer getProviderAdapter", () => {
 // ─── Capability gate ────────────────────────────────────────────────────────
 
 describe("isSyncProviderCapable", () => {
-  it("false for every placeholder adapter (cannot produce real products)", () => {
-    for (const id of PLACEHOLDER_IMPORT_IDS) {
-      expect(isSyncProviderCapable(id), id).toBe(false);
-    }
-  });
-
-  it("true for live adapters (real client path exists)", () => {
-    for (const id of ["aliexpress", "ebay", "cjdropshipping", "amazon"]) {
+  it("true for every live adapter (real client path exists)", () => {
+    for (const id of [
+      ...STOREFRONT_IMPORT_IDS,
+      "aliexpress",
+      "ebay",
+      "cjdropshipping",
+      "amazon",
+    ]) {
       expect(isSyncProviderCapable(id), id).toBe(true);
     }
   });
@@ -73,15 +73,15 @@ describe("isSyncProviderCapable", () => {
     expect(isSyncProviderCapable("nonexistent")).toBe(false);
   });
 
-  it("Noon is labeled placeholder (it was mislabeled 'live' while returning [])", () => {
-    expect(createNoonProvider().meta.phase).toBe("placeholder");
+  it("Noon is labeled live with a real storefront fetcher", () => {
+    expect(createNoonProvider().meta.phase).toBe("live");
   });
 });
 
 // ─── Sync-bridge availability (phantom-source defense) ──────────────────────
 
 describe("sync-bridge availability", () => {
-  it("placeholder connectors are unavailable with no credentials", async () => {
+  it("credential-gated connectors are unavailable without credentials", async () => {
     const connector = createSyncBridgeConnector({
       id: "walmart",
       name: "Walmart",
@@ -91,7 +91,7 @@ describe("sync-bridge availability", () => {
     expect(await connector.isAvailable()).toBe(false);
   });
 
-  it("placeholder connectors stay unavailable EVEN when credentials are set", async () => {
+  it("credential-gated connectors become available when credentials are set", async () => {
     await withCredential("WALMART_API_KEY", async () => {
       const connector = createSyncBridgeConnector({
         id: "walmart",
@@ -99,11 +99,11 @@ describe("sync-bridge availability", () => {
         importId: "walmart",
         productionId: "walmart",
       });
-      expect(await connector.isAvailable()).toBe(false);
+      expect(await connector.isAvailable()).toBe(true);
     });
   });
 
-  it("search returns [] without invoking the placeholder adapter", async () => {
+  it("search returns [] for an empty query without invoking the adapter", async () => {
     await withCredential("WALMART_API_KEY", async () => {
       const connector = createSyncBridgeConnector({
         id: "walmart",
@@ -111,15 +111,15 @@ describe("sync-bridge availability", () => {
         importId: "walmart",
         productionId: "walmart",
       });
-      const results = await connector.search("shoes");
+      const results = await connector.search("");
       expect(results).toEqual([]);
     });
   });
 
-  it("getActiveProviderAdapters excludes configured-but-incapable placeholders", async () => {
+  it("getActiveProviderAdapters includes configured live adapters", async () => {
     await withCredential("WALMART_API_KEY", async () => {
       const active = await getActiveProviderAdapters(["walmart"]);
-      expect(active).toEqual([]);
+      expect(active.map((adapter) => adapter.id)).toEqual(["walmart"]);
     });
   });
 });

@@ -60,6 +60,12 @@ export function getConnectorForStore(integrationType: string): "mock" | string {
   return integrationType;
 }
 
+export function isWebSupabaseOnly(): boolean {
+  return ["1", "true", "yes", "on"].includes(
+    (process.env.WEB_SUPABASE_ONLY ?? "").trim().toLowerCase(),
+  );
+}
+
 export function getCronSecret(): string | undefined {
   return process.env.CRON_SECRET;
 }

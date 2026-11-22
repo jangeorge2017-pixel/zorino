@@ -38,12 +38,12 @@ const PHASE1_META: Record<
   aliexpress: { name: "AliExpress", phase: "live" },
   ebay: { name: "eBay", phase: "live" },
   cjdropshipping: { name: "CJdropshipping", phase: "live" },
-  amazon: { name: "Amazon", phase: "placeholder" },
-  temu: { name: "Temu", phase: "placeholder" },
-  walmart: { name: "Walmart", phase: "placeholder" },
-  bestbuy: { name: "Best Buy", phase: "placeholder" },
-  noon: { name: "Noon", phase: "placeholder" },
-  jumia: { name: "Jumia", phase: "placeholder" },
+  amazon: { name: "Amazon", phase: "live" },
+  temu: { name: "Temu", phase: "live" },
+  walmart: { name: "Walmart", phase: "live" },
+  bestbuy: { name: "Best Buy", phase: "live" },
+  noon: { name: "Noon", phase: "live" },
+  jumia: { name: "Jumia", phase: "live" },
 };
 
 const LIVE_ONLY_PROVIDERS = new Set<ImportProviderId>(["aliexpress", "ebay"]);

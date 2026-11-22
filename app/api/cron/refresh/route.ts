@@ -16,6 +16,7 @@ import {
   MIN_STEP_BUDGET_MS,
 } from "@/lib/cron/budget";
 import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /**
  * Bundled maintenance cron — keeps Vercel Hobby plan within the 2-cron limit.
@@ -58,6 +59,14 @@ const SYNC_STEP_BUDGET_MS = stepBudgetMs("CRON_SYNC_STEP_BUDGET_MS", 20_000);
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();
+  }
+
+  if (isWebSupabaseOnly()) {
+    return NextResponse.json({
+      ok: true,
+      mode: "web-supabase-only",
+      skipped: "Heavy ingestion runs in GitHub Actions; web service serves Supabase reads only.",
+    });
   }
 
   const url = new URL(request.url);

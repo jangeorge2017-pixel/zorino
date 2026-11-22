@@ -8,9 +8,7 @@ if (!existsSync(nextBin)) {
   process.exit(1);
 }
 
-const maxOldSpace = "--max-old-space-size=380";
-const inherited = process.env.NODE_OPTIONS?.trim();
-const nodeOptions = inherited ? `${inherited} ${maxOldSpace}` : maxOldSpace;
+const nodeOptions = "--max-old-space-size=380";
 
 const child = spawn(process.execPath, [nextBin, "start"], {
   stdio: "inherit",

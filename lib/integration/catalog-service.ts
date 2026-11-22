@@ -20,6 +20,7 @@ import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { STUB_PROVIDER_IDS } from "@/lib/providers/registry";
 import { filterAdmittedCatalogItems } from "@/lib/integration/admitted-network";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 import {
   resolveCatalogSnapshot,
 } from "@/lib/integration/database-catalog";
@@ -89,6 +90,16 @@ async function computeMergedCatalog(): Promise<{
   items: NormalizedCatalogItem[];
   complete: boolean;
 }> {
+  if (isWebSupabaseOnly()) {
+    const { getCatalogItemsFromDatabase } = await import(
+      "@/lib/integration/database-catalog"
+    );
+    return {
+      items: await getCatalogItemsFromDatabase().catch(() => [] as NormalizedCatalogItem[]),
+      complete: false,
+    };
+  }
+
   // Tracks whether a slow source was skipped because it exceeded its budget. A
   // degraded (incomplete) snapshot must never be reused for the full healthy
   // TTL, or a transient cold source would hide that provider's entire catalog for
@@ -276,7 +287,7 @@ async function getMergedCatalogSnapshot(): Promise<MergedCatalogSnapshot> {
 }
 
 const getCatalogItems = reactCache(async (): Promise<NormalizedCatalogItem[]> => {
-  if (!HOMEPAGE_LIVE_FETCH_ENABLED) {
+  if (!HOMEPAGE_LIVE_FETCH_ENABLED || isWebSupabaseOnly()) {
     // Fallback to database catalog when live fetch is disabled (e.g. dev without HOMEPAGE_LIVE_FETCH=1)
     const { applyCanonicalCatalogIfEnabled } = await import(
       "@/lib/canonical/consumption/homepage"

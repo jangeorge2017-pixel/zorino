@@ -1,4 +1,5 @@
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 import { PRODUCTION_PROVIDER_IDS } from "@/lib/integration/constants";
 import { getActiveProductionProviders } from "@/lib/integration/provider-config";
 import { recordProviderRun } from "@/lib/integration/provider-health";
@@ -510,6 +511,10 @@ async function fetchProvidersInParallel(
   allRaw: RawProviderListing[];
   providerStats: SearchEngineResult["providers"];
 }> {
+  if (isWebSupabaseOnly()) {
+    return { allRaw: [], providerStats: [] };
+  }
+
   await hydrateIntegrationCredentials();
 
   // All provider fan-out flows through the ProviderAdapter layer, which wraps

@@ -1,5 +1,10 @@
 import type { ExternalDeal, ExternalProduct, SyncContext } from "@/lib/sync/types";
 import { BaseConnector } from "@/lib/sync/connectors/base";
+import { externalProductsToDeals } from "@/lib/sync/providers/shared/storefront-catalog";
+import {
+  fetchBestBuyCatalog,
+  isBestBuyConfigured,
+} from "@/lib/sync/providers/shared/global-retail-catalog";
 import {
   checkProviderCredentials,
   type ProviderAdapterMeta,
@@ -7,31 +12,31 @@ import {
 
 const CREDENTIAL_KEYS = ["BESTBUY_API_KEY"] as const;
 
-/** Best Buy API adapter (placeholder). */
 export class BestBuyProvider extends BaseConnector {
   id = "bestbuy" as const;
 
   readonly meta: ProviderAdapterMeta = {
     id: "bestbuy",
     name: "Best Buy",
-    phase: "placeholder",
-    apiDocs: "https://developer.bestbuy.com/",
+    phase: "live",
+    apiDocs: "https://developer.bestbuy.com/apis",
   };
 
   isConfigured(): boolean {
-    return checkProviderCredentials([...CREDENTIAL_KEYS]).configured;
+    return isBestBuyConfigured();
   }
 
   getCredentials() {
     return checkProviderCredentials([...CREDENTIAL_KEYS]);
   }
 
-  async fetchProducts(_ctx: SyncContext): Promise<ExternalProduct[]> {
-    return [];
+  async fetchProducts(ctx: SyncContext): Promise<ExternalProduct[]> {
+    if (!this.isConfigured()) throw this.notConfiguredError();
+    return fetchBestBuyCatalog(ctx);
   }
 
-  async fetchDeals(_ctx: SyncContext): Promise<ExternalDeal[]> {
-    return [];
+  async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {
+    return externalProductsToDeals(await this.fetchProducts(ctx));
   }
 }
 

@@ -6,7 +6,8 @@ const isDev = process.env.NODE_ENV === "development";
 
 /** Skip live marketplace fan-out in dev unless explicitly enabled. */
 export const HOMEPAGE_LIVE_FETCH_ENABLED =
-  process.env.HOMEPAGE_LIVE_FETCH === "1" || !isDev;
+  process.env.HOMEPAGE_LIVE_FETCH === "1" ||
+  (!isDev && process.env.HOMEPAGE_LIVE_FETCH !== "0");
 
 /** Merged catalog depth (per provider) for homepage sections. */
 export const HOMEPAGE_CATALOG_FETCH = {

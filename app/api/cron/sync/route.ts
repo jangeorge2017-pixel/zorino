@@ -4,6 +4,7 @@ import { executeScheduledSync } from "@/services/sync";
 import { createCronBudget, stepBudgetMs, CRON_BUDGET_MS } from "@/lib/cron/budget";
 import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
 import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /**
  * Dedicated heavy-sync cron window (second Vercel Hobby cron slot).
@@ -29,6 +30,14 @@ const SYNC_STEP_BUDGET_MS = stepBudgetMs("CRON_SYNC_STEP_BUDGET_MS", 20_000);
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();
+  }
+
+  if (isWebSupabaseOnly()) {
+    return NextResponse.json({
+      ok: true,
+      mode: "web-supabase-only",
+      skipped: "Heavy sync runs in GitHub Actions; web service serves Supabase reads only.",
+    });
   }
 
   const url = new URL(request.url);

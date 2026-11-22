@@ -1,6 +1,18 @@
 name: Sync all catalogs
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/sync-catalogs.yml"
+      - "lib/sync/**"
+      - "lib/cron/**"
+      - "lib/integration/**"
+      - "lib/search/connectors/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
   schedule:
     - cron: "23 */4 * * *"
   workflow_dispatch:
@@ -29,12 +41,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Chromium
-        run: |
-          npm install --no-save playwright@1.58.2
-          npx playwright install --with-deps chromium
-
-      - name: Sync Jumia catalog
+      - name: Sync Jumia sitemap catalog
         continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -42,7 +49,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           mkdir -p logs
-          node scripts/jumia-ingest.mjs --playwright 2>&1 | tee logs/jumia-sync.log
+          node scripts/jumia-ingest.mjs 2>&1 | tee logs/jumia-sync.log
 
       - name: Sync all approved Admitad campaigns
         continue-on-error: true
@@ -58,10 +65,53 @@ jobs:
           mkdir -p logs
           node scripts/admitad-api-ingest.mjs 2>&1 | tee logs/admitad-sync.log
 
+      - name: Sync provider APIs and storefront catalogs
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SYNC_BUDGET_MS: ${{ vars.SYNC_BUDGET_MS || '1500000' }}
+          SYNC_STORE_MAX_PRODUCTS: ${{ vars.SYNC_STORE_MAX_PRODUCTS || '150' }}
+          SYNC_STORE_QUERIES: ${{ vars.SYNC_STORE_QUERIES || '' }}
+          ALIEXPRESS_APP_KEY: ${{ secrets.ALIEXPRESS_APP_KEY }}
+          ALIEXPRESS_APP_SECRET: ${{ secrets.ALIEXPRESS_APP_SECRET }}
+          ALIEXPRESS_TRACKING_ID: ${{ secrets.ALIEXPRESS_TRACKING_ID }}
+          EBAY_APP_ID: ${{ secrets.EBAY_APP_ID }}
+          EBAY_CERT_ID: ${{ secrets.EBAY_CERT_ID }}
+          EBAY_CAMPAIGN_ID: ${{ secrets.EBAY_CAMPAIGN_ID }}
+          EBAY_OAUTH_TOKEN: ${{ secrets.EBAY_OAUTH_TOKEN }}
+          AMAZON_DIRECT_ENABLE: "1"
+          AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
+          AMAZON_EG_ASSOCIATE_TAG: ${{ secrets.AMAZON_EG_ASSOCIATE_TAG }}
+          AMAZON_CREATORS_CLIENT_ID: ${{ secrets.AMAZON_CREATORS_CLIENT_ID }}
+          AMAZON_CREATORS_CLIENT_SECRET: ${{ secrets.AMAZON_CREATORS_CLIENT_SECRET }}
+          CJDROPSHIPPING_API_KEY: ${{ secrets.CJDROPSHIPPING_API_KEY }}
+          WALMART_API_KEY: ${{ secrets.WALMART_API_KEY }}
+          WALMART_CONSUMER_ID: ${{ secrets.WALMART_CONSUMER_ID }}
+          WALMART_PRIVATE_KEY: ${{ secrets.WALMART_PRIVATE_KEY }}
+          WALMART_KEY_VERSION: ${{ secrets.WALMART_KEY_VERSION || '1' }}
+          WALMART_PUBLISHER_ID: ${{ secrets.WALMART_PUBLISHER_ID }}
+          WALMART_SEARCH_ENDPOINT: ${{ secrets.WALMART_SEARCH_ENDPOINT }}
+          BESTBUY_API_KEY: ${{ secrets.BESTBUY_API_KEY }}
+          JUMIA_AFF_PREFIX: ${{ secrets.JUMIA_AFF_PREFIX }}
+          NOON_AFF_TAG: ${{ secrets.NOON_AFF_TAG }}
+          TEMU_AFF_TAG: ${{ secrets.TEMU_AFF_TAG }}
+          CARREFOUR_AFF_TAG: ${{ secrets.CARREFOUR_AFF_TAG }}
+          BTECH_AFF_TAG: ${{ secrets.BTECH_AFF_TAG }}
+          ARABCLICKS_API_KEY: ${{ secrets.ARABCLICKS_API_KEY }}
+          ARABCLICKS_FEED_URL: ${{ secrets.ARABCLICKS_FEED_URL }}
+          ARABCLICKS_FEED_SYNC_ENABLED: ${{ vars.ARABCLICKS_FEED_SYNC_ENABLED || 'false' }}
+          ARABCLICKS_FEED_DRY_RUN: ${{ vars.ARABCLICKS_FEED_DRY_RUN || 'true' }}
+        run: |
+          mkdir -p logs
+          npm run sync:catalogs 2>&1 | tee logs/provider-sync.log
+
       - name: Upload sync logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: catalog-sync-logs
-          path: logs/*.log
+          path: logs/*
           if-no-files-found: ignore

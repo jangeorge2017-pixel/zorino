@@ -389,12 +389,20 @@ const dryRun = args.includes("--dry-run");
 const testMode = args.includes("--test");
 const resumeFrom = (() => { const m = args.find(a => a.startsWith("--resume-from=")); return m ? parseInt(m.split("=")[1]) || 0 : 0; })();
 const saveEvery = (() => { const m = args.find(a => a.startsWith("--save-every=")); return m ? parseInt(m.split("=")[1]) || 10 : 10; })();
+const positiveEnvInt = (name, fallback) => {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+};
+const maxFeeds = positiveEnvInt("ADMITAD_MAX_FEEDS", Infinity);
+const maxPerFeed = positiveEnvInt("ADMITAD_MAX_PRODUCTS_PER_FEED", 5000);
 
 async function main() {
   console.log("=== Admitad API Ingestion ===");
   console.log(`Mode: ${testMode ? "TEST" : dryRun ? "DRY RUN" : "FULL"}`);
   if (resumeFrom > 0) console.log(`Resume from feed: ${resumeFrom}`);
   console.log(`Save every: ${saveEvery} feeds`);
+  console.log(`Max feeds: ${Number.isFinite(maxFeeds) ? maxFeeds : "all"}`);
+  console.log(`Max products per feed: ${maxPerFeed}`);
   console.log(`Time: ${new Date().toISOString()}\n`);
 
   if (!process.env.ADMITAD_CLIENT_ID || !process.env.ADMITAD_CLIENT_SECRET) {
@@ -463,8 +471,11 @@ async function main() {
     const bIsAlibaba = b.campaign.name?.toLowerCase().includes("alibaba") ? 0 : 1;
     return aIsAlibaba - bIsAlibaba;
   });
-  const maxPerFeed = dryRun ? 200 : 5000;
-  console.log(`\n4. Fetching products from ALL ${allFeedEntries.length} feeds (no cap)...`);
+  const perFeedLimit = dryRun ? Math.min(200, maxPerFeed) : maxPerFeed;
+  const feedLimit = Number.isFinite(maxFeeds)
+    ? Math.min(allFeedEntries.length, resumeFrom + maxFeeds)
+    : allFeedEntries.length;
+  console.log(`\n4. Fetching products from ${feedLimit - resumeFrom} of ${allFeedEntries.length} feeds...`);
   if (resumeFrom > 0) console.log(`   Skipping first ${resumeFrom} feeds (--resume-from)`);
 
   const seenIds = new Set();
@@ -487,7 +498,7 @@ async function main() {
     }
   }
 
-  for (let i = 0; i < allFeedEntries.length; i++) {
+  for (let i = 0; i < feedLimit; i++) {
     // Skip feeds before resume point
     if (i < resumeFrom) continue;
 
@@ -515,7 +526,7 @@ async function main() {
       try {
         const offers = await fetchFeed(feedUrl);
         let count = 0;
-        for (const o of offers.slice(0, maxPerFeed)) {
+        for (const o of offers.slice(0, perFeedLimit)) {
           if (seenIds.has(o.id)) continue;
           seenIds.add(o.id);
           const storeSlug = campaign.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
