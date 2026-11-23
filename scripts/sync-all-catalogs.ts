@@ -110,7 +110,13 @@ async function main(): Promise<void> {
     summary.timedOut = true;
     summary.finishedAt = new Date().toISOString();
     writeSummary();
+    const forceExitTimer = setTimeout(() => {
+      console.warn("[sync-all-catalogs] cache bump exceeded hard limit; exiting");
+      process.exit(0);
+    }, 10_000);
+    forceExitTimer.unref?.();
     await bumpCache();
+    clearTimeout(forceExitTimer);
     writeSummary();
     console.warn(
       `[sync-all-catalogs] global ${GLOBAL_TIMEOUT_MS}ms safety timeout reached; flushed and exiting`,
@@ -118,13 +124,22 @@ async function main(): Promise<void> {
     process.exit(0);
   };
 
+  const emergencyExit = (label: string, error?: unknown): void => {
+    if (error) console.error(`[sync-all-catalogs] ${label} flush failed:`, error);
+    process.exit(0);
+  };
+
   const safetyTimer = setTimeout(() => {
     abortController.abort();
-    void flushAndExit().catch((error) => {
-      console.error("[sync-all-catalogs] emergency flush failed:", error);
-      process.exit(0);
-    });
+    void flushAndExit().catch((error) => emergencyExit("global timeout", error));
   }, GLOBAL_TIMEOUT_MS);
+
+  for (const signal of ["SIGTERM", "SIGINT"] as const) {
+    process.once(signal, () => {
+      abortController.abort();
+      void flushAndExit().catch((error) => emergencyExit(signal, error));
+    });
+  }
 
   writeSummary();
 

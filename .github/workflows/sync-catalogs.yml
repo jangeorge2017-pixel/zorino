@@ -138,7 +138,19 @@ jobs:
           ARABCLICKS_FEED_DRY_RUN: ${{ vars.ARABCLICKS_FEED_DRY_RUN || 'true' }}
         run: |
           mkdir -p logs
-          npm run sync:catalogs 2>&1 | tee logs/provider-sync.log
+          set +e
+          timeout --signal=TERM --kill-after=30s 720s npm run sync:catalogs 2>&1 | tee logs/provider-sync.log
+          status=${PIPESTATUS[0]}
+          set -e
+          case "$status" in
+            124|137|143)
+              echo "[sync-all-catalogs] external watchdog ended sync after 720s"
+              exit 0
+              ;;
+            *)
+              exit "$status"
+              ;;
+          esac
 
       - name: Upload sync logs
         if: always()
