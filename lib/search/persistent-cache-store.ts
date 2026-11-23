@@ -27,6 +27,8 @@ export const PERSISTENT_SEARCH_INCOMPLETE_TTL_MS = 5 * 60 * 1000;
 /** Max products returned from the persistent cache (and stored per query). */
 export const PERSISTENT_SEARCH_MAX_ITEMS = 60;
 
+const PERSISTENT_SEARCH_CACHE_VERSION = "v2";
+
 /** Critical providers absent from a cached pool (empty when complete). */
 export function getMissingCriticalSearchProviders(
   items: readonly SearchResultItem[],
@@ -67,7 +69,7 @@ export function buildPersistentSearchKey(
   const currency = options.activeCurrency ?? "USD";
   const sort = options.sortBy ?? "relevance";
   const fuzzy = options.useFuzzyMatch === true ? "1" : "0";
-  return `${normalized}|sort:${sort}|cur:${currency}|fuzzy:${fuzzy}`;
+  return `${PERSISTENT_SEARCH_CACHE_VERSION}|${normalized}|sort:${sort}|cur:${currency}|fuzzy:${fuzzy}`;
 }
 
 export function isPersistentSearchEntryStale(fetchedAt: string): boolean {
