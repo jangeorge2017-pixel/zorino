@@ -4,7 +4,16 @@ export type TimeoutResult<T> =
 
 export const QUERY_TIMEOUT_MS = 20_000;
 export const STORE_TIMEOUT_MS = 180_000;
-export const GLOBAL_TIMEOUT_MS = 11 * 60 * 1000;
+
+function positiveIntEnv(name: string, fallback: number): number {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+}
+
+export const GLOBAL_TIMEOUT_MS = positiveIntEnv(
+  "SYNC_GLOBAL_TIMEOUT_MS",
+  11 * 60 * 1000,
+);
 
 export async function withTimeout<T>(
   label: string,

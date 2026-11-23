@@ -98,6 +98,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SYNC_BUDGET_MS: ${{ vars.SYNC_BUDGET_MS || '3000000' }}
+          SYNC_GLOBAL_TIMEOUT_MS: ${{ vars.SYNC_GLOBAL_TIMEOUT_MS || '300000' }}
           SYNC_STORE_MAX_PRODUCTS: ${{ vars.SYNC_STORE_MAX_PRODUCTS || '3000' }}
           SYNC_STORE_QUERIES: ${{ vars.SYNC_STORE_QUERIES || '' }}
           SYNC_SCRAPER_ENABLED: "1"
@@ -139,12 +140,12 @@ jobs:
         run: |
           mkdir -p logs
           set +e
-          timeout --signal=TERM --kill-after=30s 720s npm run sync:catalogs 2>&1 | tee logs/provider-sync.log
+          timeout --signal=TERM --kill-after=15s 330s npm run sync:catalogs 2>&1 | tee logs/provider-sync.log
           status=${PIPESTATUS[0]}
           set -e
           case "$status" in
             124|137|143)
-              echo "[sync-all-catalogs] external watchdog ended sync after 720s"
+              echo "[sync-all-catalogs] external watchdog ended sync after 330s"
               exit 0
               ;;
             *)
