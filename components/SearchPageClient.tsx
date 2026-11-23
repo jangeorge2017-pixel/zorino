@@ -11,7 +11,6 @@ import ListingProductCard from "@/components/ListingProductCard";
 import { PageHeader, PageLayout } from "@/components/pages";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import type { SearchPageResult } from "@/lib/search/engine";
-import { mergePagedResults } from "@/lib/search/pagination";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
 import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 
@@ -79,9 +78,10 @@ export default function SearchPageClient({
   const tStores = useTranslations("stores");
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [items, setItems] = useState(initialResults);
+  const [pages, setPages] = useState<SearchResultItem[][]>([initialResults]);
+  const [currentPage, setCurrentPage] = useState(0);
   const [receivedCount, setReceivedCount] = useState(initialResults.length);
-  const [currentHasMore, setCurrentHasMore] = useState(hasMore);
+  const [pageHasMore, setPageHasMore] = useState<boolean[]>([hasMore]);
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -116,10 +116,24 @@ export default function SearchPageClient({
     { value: "2", label: t("rating2Plus") },
   ];
 
+  const currentItems = useMemo(() => {
+    const seen = new Set<string>();
+    return (pages[currentPage] ?? []).filter((product) => {
+      if (!isUsableRemoteProductImageUrl(product.imageSrc) || seen.has(product.id)) return false;
+      seen.add(product.id);
+      return true;
+    });
+  }, [pages, currentPage]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(total / SEARCH_ENGINE_DEFAULTS.PAGE_SIZE),
+    pages.length,
+  );
+
   const filteredResults = useMemo(() => {
-    return [...items]
+    return [...currentItems]
       .filter((product) => {
-        if (!isUsableRemoteProductImageUrl(product.imageSrc)) return false;
         if (selectedCategory && product.category !== selectedCategory) return false;
         if (selectedStore && product.storeSlug !== selectedStore) return false;
         if (minPrice && product.price < Number(minPrice)) return false;
@@ -135,7 +149,7 @@ export default function SearchPageClient({
         return 0;
       });
   }, [
-    items,
+    currentItems,
     selectedCategory,
     selectedStore,
     minPrice,
@@ -145,24 +159,32 @@ export default function SearchPageClient({
     sortBy,
   ]);
 
-  const handleLoadMore = async () => {
+  const handleNextPage = async () => {
     if (loadingMore) return;
+
+    const nextPage = currentPage + 1;
+    if (nextPage < pages.length) {
+      setCurrentPage(nextPage);
+      return;
+    }
+    if (!pageHasMore[currentPage]) return;
+
     setLoadingMore(true);
     setLoadError(false);
     try {
-      const offset = receivedCount;
       const params = new URLSearchParams({
         q: initialQuery,
-        offset: String(offset),
+        offset: String(receivedCount),
         limit: String(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE),
         sort: sortBy === "price_low" ? "price" : "relevance",
       });
       const res = await fetch(`/api/search/paged?${params.toString()}`);
       if (!res.ok) throw new Error("paged-search-failed");
       const page = (await res.json()) as SearchPageResult;
-      setItems((prev) => mergePagedResults(prev, page.items));
+      setPages((prev) => [...prev, page.items]);
+      setPageHasMore((prev) => [...prev, page.hasMore]);
       setReceivedCount((prev) => prev + page.items.length);
-      setCurrentHasMore(page.hasMore);
+      setCurrentPage(nextPage);
     } catch {
       setLoadError(true);
     } finally {
@@ -226,9 +248,10 @@ export default function SearchPageClient({
         inStock: p.inStock,
         affiliateUrl: p.affiliateUrl,
       }));
-      setItems(mapped);
+      setPages([mapped]);
+      setCurrentPage(0);
       setReceivedCount(mapped.length);
-      setCurrentHasMore(false);
+      setPageHasMore([false]);
     } catch {
       setLoadError(true);
     } finally {
@@ -404,16 +427,31 @@ export default function SearchPageClient({
                 ))}
               </div>
 
-              {currentHasMore ? (
-                <div className="mt-8 flex flex-col items-center gap-3">
-                  {loadError ? (
-                    <p className="text-sm text-red-400">{t("loadMoreError")}</p>
-                  ) : null}
+              <div className="mt-8 flex flex-col items-center gap-3">
+                {loadError ? (
+                  <p className="text-sm text-red-400">{t("loadMoreError")}</p>
+                ) : null}
+                <div className="flex items-center gap-3">
                   <Button
                     variant="secondary"
                     type="button"
-                    onClick={handleLoadMore}
-                    disabled={loadingMore}
+                    onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
+                    disabled={loadingMore || currentPage === 0}
+                    className="px-8"
+                  >
+                    {tCommon("previous")}
+                  </Button>
+                  <span className="text-sm text-gray-400">
+                    {currentPage + 1} / {totalPages}
+                  </span>
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={handleNextPage}
+                    disabled={
+                      loadingMore ||
+                      (!pageHasMore[currentPage] && currentPage + 1 >= pages.length)
+                    }
                     className="px-8"
                   >
                     {loadingMore ? (
@@ -422,11 +460,11 @@ export default function SearchPageClient({
                         {tCommon("pleaseWait")}
                       </span>
                     ) : (
-                      tCommon("loadMore")
+                      tCommon("next")
                     )}
                   </Button>
                 </div>
-              ) : null}
+              </div>
             </>
           )}
         </div>

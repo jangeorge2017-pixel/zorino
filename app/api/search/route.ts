@@ -17,10 +17,12 @@ export const maxDuration = 60;
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const q = url.searchParams.get("q") ?? "";
-  const requestedLimit = Number(url.searchParams.get("limit") ?? "40");
+  const requestedLimit = Number(
+    url.searchParams.get("limit") ?? String(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE),
+  );
   const limit = Number.isFinite(requestedLimit)
     ? Math.min(Math.max(1, Math.floor(requestedLimit)), SEARCH_ENGINE_DEFAULTS.PAGE_SIZE)
-    : 40;
+    : SEARCH_ENGINE_DEFAULTS.PAGE_SIZE;
 
   if (!q.trim()) {
     return NextResponse.json({ products: [], total: 0, storeCounts: {} });

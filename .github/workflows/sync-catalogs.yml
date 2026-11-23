@@ -29,6 +29,8 @@ jobs:
   sync:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    env:
+      NODE_OPTIONS: "--max-old-space-size=6144"
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -78,6 +80,16 @@ jobs:
           mkdir -p logs
           node scripts/admitad-api-ingest.mjs 2>&1 | tee logs/admitad-sync.log
 
+      - name: Purge broken product images
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          mkdir -p logs
+          node scripts/purge-bad-product-images.mjs --concurrency=80 --timeout=5000 2>&1 | tee logs/image-purge.log
+
       - name: Sync provider APIs and storefront catalogs
         continue-on-error: true
         env:
@@ -91,7 +103,8 @@ jobs:
           SYNC_SCRAPER_ENABLED: "1"
           SYNC_DIAGNOSTICS: "1"
           SYNC_SCRAPER_PAGES: ${{ vars.SYNC_SCRAPER_PAGES || '3' }}
-          SYNC_SCRAPER_QUERIES: ${{ vars.SYNC_SCRAPER_QUERIES || '12' }}
+          SYNC_SCRAPER_PAGE_SIZE: ${{ vars.SYNC_SCRAPER_PAGE_SIZE || '24' }}
+          SYNC_SCRAPER_QUERIES: ${{ vars.SYNC_SCRAPER_QUERIES || '26' }}
           SYNC_SCRAPER_MAX_PRODUCTS: ${{ vars.SYNC_SCRAPER_MAX_PRODUCTS || '3000' }}
           AMAZON_SCRAPER_ENGINE: playwright
           ALIEXPRESS_APP_KEY: ${{ secrets.ALIEXPRESS_APP_KEY }}

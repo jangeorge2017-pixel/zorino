@@ -162,6 +162,10 @@ function normalizeScrapedImageUrl(value) {
   } catch { return ""; }
 }
 
+function toGlobalSku(slug) {
+  return `admitad:${String(slug ?? "").replace(/^admitad-/, "")}`;
+}
+
 function extractOfferImage(xml) {
   const variants = [
     extractRawTag(xml, "g:image_link"),
@@ -350,27 +354,47 @@ async function syncAdmitadMerchantStoreRows(db, campaigns) {
 async function saveBatch(products, db, storeId) {
   if (!products.length) return 0;
   let saved = 0;
+  let rejectedImages = 0;
   const BATCH = 200;
-  for (let i = 0; i < products.length; i += BATCH) {
-    const batch = products.slice(i, i + BATCH);
+  const validProducts = products.filter((p) => {
+    const imageUrl = normalizeScrapedImageUrl(p.imageUrl);
+    if (!imageUrl) {
+      rejectedImages += 1;
+      return false;
+    }
+    p.imageUrl = imageUrl;
+    return true;
+  });
+  for (let i = 0; i < validProducts.length; i += BATCH) {
+    const now = new Date().toISOString();
+    const batch = validProducts.slice(i, i + BATCH);
+    if (!batch.length) continue;
 
     const productRows = batch.map(p => ({
-      name: p.title, slug: p.slug, description: "", image_url: p.imageUrl,
-      emoji: p.emoji, category_slug: p.categorySlug, brand: null,
-      rating: null, review_count: 0, currency: p.currency,
-      country_code: p.countryCode, in_stock: true, is_active: true,
+      global_sku: toGlobalSku(p.slug),
+      title: p.title,
+      description: null,
+      brand: null,
+      main_image: p.imageUrl,
+      category_path: p.categorySlug,
+      barcode: null,
+      updated_at: now,
     }));
 
-    const { data: upserted } = await db.from("products").upsert(productRows, {
-      onConflict: "slug", ignoreDuplicates: false,
-    }).select("id, slug");
+    const { data: upserted, error: upsertError } = await db.from("products").upsert(productRows, {
+      onConflict: "global_sku", ignoreDuplicates: false,
+    }).select("id, global_sku");
 
+    if (upsertError) {
+      console.error("[admitad-ingest] product upsert failed:", upsertError.message);
+      continue;
+    }
     if (!upserted?.length) continue;
 
-    const slugToId = new Map(upserted.map(p => [p.slug, p.id]));
+    const skuToId = new Map(upserted.map(p => [p.global_sku, p.id]));
 
     const priceRows = batch.flatMap(p => {
-      const pid = slugToId.get(p.slug);
+      const pid = skuToId.get(toGlobalSku(p.slug));
       const o = p.offers?.[0];
       if (!pid || !o) return [];
       return [{
@@ -382,13 +406,14 @@ async function saveBatch(products, db, storeId) {
     });
 
     if (priceRows.length) {
-      await db.from("prices").upsert(priceRows, {
+      const { error: priceError } = await db.from("prices").upsert(priceRows, {
         onConflict: "product_id,store_id,country_code,currency", ignoreDuplicates: false,
       });
+      if (priceError) console.error("[admitad-ingest] price upsert failed:", priceError.message);
     }
 
     const lowestRows = batch.flatMap(p => {
-      const pid = slugToId.get(p.slug);
+      const pid = skuToId.get(toGlobalSku(p.slug));
       const o = p.offers?.[0];
       if (!pid || !o) return [];
       return [{
@@ -398,18 +423,23 @@ async function saveBatch(products, db, storeId) {
         discount_percent: p.discount, savings_amount: Math.max(0, o.originalPrice - o.price),
         store_id: storeId, store_name: o.storeName, provider: "admitad",
         affiliate_url: o.affiliateUrl, external_url: o.productUrl,
-        is_new_low: false, price_recorded_at: new Date().toISOString(),
-        computed_at: new Date().toISOString(),
+        is_new_low: false, price_recorded_at: now, computed_at: now,
       }];
     });
 
     if (lowestRows.length) {
-      await db.from("lowest_prices_today").upsert(lowestRows, {
+      const { error: lowestError } = await db.from("lowest_prices_today").upsert(lowestRows, {
         onConflict: "product_id,country_code,currency", ignoreDuplicates: false,
       });
+      if (lowestError) {
+        console.error("[admitad-ingest] lowest_prices_today upsert failed:", lowestError.message);
+        continue;
+      }
+      saved += lowestRows.length;
     }
-
-    saved += batch.length;
+  }
+  if (rejectedImages > 0) {
+    console.warn(`[admitad-ingest] rejected ${rejectedImages} offer(s) without a valid https image`);
   }
   return saved;
 }
@@ -426,12 +456,17 @@ async function backfillAdmitadImages(db, imageBySlug) {
 
   let updated = 0;
   for (const [imageUrl, slugs] of byImage) {
+    const safeImageUrl = normalizeScrapedImageUrl(imageUrl);
+    if (!safeImageUrl) continue;
     for (let i = 0; i < slugs.length; i += 200) {
       const batch = slugs.slice(i, i + 200);
-      await Promise.all([
-        db.from("products").update({ image_url: imageUrl }).in("slug", batch),
-        db.from("lowest_prices_today").update({ image_url: imageUrl }).in("product_slug", batch),
+      const updates = await Promise.all([
+        db.from("products").update({ main_image: safeImageUrl }).in("global_sku", batch.map(toGlobalSku)),
+        db.from("lowest_prices_today").update({ image_url: safeImageUrl }).in("product_slug", batch),
       ]);
+      for (const result of updates) {
+        if (result.error) console.warn("[admitad-ingest] image backfill failed:", result.error.message);
+      }
       updated += batch.length;
     }
   }
@@ -585,18 +620,19 @@ async function main() {
         const offers = await fetchFeed(feedUrl);
         let count = 0;
         for (const o of offers.slice(0, perFeedLimit)) {
-          if (!o.image) continue;
+          const imageUrl = normalizeScrapedImageUrl(o.image);
+          if (!imageUrl || !o.url || !/^https?:\/\//i.test(o.url)) continue;
           if (seenIds.has(o.id)) continue;
           seenIds.add(o.id);
           const slug = `admitad-${campaign.id}-${o.id}`;
-          imageBySlug.set(slug, o.image);
+          imageBySlug.set(slug, imageUrl);
           const storeSlug = campaign.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
           const discount = o.oldprice && o.oldprice > o.price
             ? Math.round(((o.oldprice - o.price) / o.oldprice) * 100) : 0;
           allProducts.push({
             id: slug,
             slug,
-            title: o.name, imageUrl: o.image || "", emoji: "🛍️",
+            title: o.name, imageUrl, emoji: "🛍️",
             categorySlug: "general", rating: 0, reviewCount: 0,
             countryCode: "US", currency: o.currencyId,
             price: o.price, originalPrice: o.oldprice ?? o.price,

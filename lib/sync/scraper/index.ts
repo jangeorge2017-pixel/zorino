@@ -50,7 +50,7 @@ export async function fetchFallbackProducts(
 
   const queries = (
     ctx.jobConfig?.keywords?.length ? ctx.jobConfig.keywords : config.seeds
-  ).slice(0, positiveInt("SYNC_SCRAPER_QUERIES", 12));
+  ).slice(0, positiveInt("SYNC_SCRAPER_QUERIES", SCRAPER_SEED_QUERIES.length));
   const pages = positiveInt("SYNC_SCRAPER_PAGES", 3);
   const maxProducts = positiveInt("SYNC_SCRAPER_MAX_PRODUCTS", 3000);
   const products: ExternalProduct[] = [];

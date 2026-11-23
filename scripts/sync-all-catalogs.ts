@@ -1,4 +1,5 @@
 import { mkdirSync, writeFileSync } from "node:fs";
+import { createClient } from "@supabase/supabase-js";
 import type { ProductionProviderId } from "@/lib/integration/constants";
 import { createCronBudget } from "@/lib/cron/budget";
 import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
@@ -26,6 +27,44 @@ const STORE_IDS = [
 function positiveInt(name: string, fallback: number): number {
   const value = Number(process.env[name]);
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+}
+
+async function bumpSearchCacheVersion(): Promise<string | null> {
+  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    console.warn("[sync-all-catalogs] cache bump skipped: Supabase credentials unavailable");
+    return null;
+  }
+
+  const version = `v3-${Date.now()}`;
+  const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { error: settingError } = await db.from("integration_settings").upsert(
+    {
+      key: "search_cache_version",
+      value: version,
+      provider: "search",
+      label: "Search cache epoch",
+      is_secret: false,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "key" },
+  );
+  if (settingError) {
+    console.error(`[sync-all-catalogs] cache version write failed: ${settingError.message}`);
+    return null;
+  }
+
+  const { error: cacheError } = await db
+    .from("search_result_cache")
+    .delete()
+    .not("cache_key", "is", null);
+  if (cacheError) {
+    console.warn(`[sync-all-catalogs] cache row delete failed: ${cacheError.message}`);
+  }
+
+  console.log(`[sync-all-catalogs] search cache bumped to ${version}`);
+  return version;
 }
 
 async function main(): Promise<void> {
@@ -84,6 +123,13 @@ async function main(): Promise<void> {
   }
   summary.stores = stores;
   summary.finishedAt = new Date().toISOString();
+
+  try {
+    summary.searchCacheVersion = await bumpSearchCacheVersion();
+  } catch (error) {
+    summary.searchCacheVersion = { error: error instanceof Error ? error.message : String(error) };
+    console.error("[sync-all-catalogs] cache bump failed:", error);
+  }
 
   writeSummary();
   console.log("[sync-all-catalogs] complete");

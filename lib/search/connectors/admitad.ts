@@ -2,8 +2,8 @@ import type { SearchConnector, ConnectorSearchOptions } from "./types";
 import type { RawProviderListing, SearchProviderId } from "@/lib/search/types";
 import { getAllAdmitadFeeds } from "@/lib/integrations/admitad/config";
 import {
+  isUsableRemoteProductImageUrl,
   normalizeProductImageUrl,
-  PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { normalizeAdmitadRaw } from "@/lib/search/normalization";
 import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
@@ -89,8 +89,8 @@ async function searchIngestedRows(
           : row.lowest_price;
       const url = row.affiliate_url || row.external_url || "";
       const imageUrl = normalizeProductImageUrl(row.image_url || "");
-      // Never surface a row whose image resolves to the placeholder.
-      if (imageUrl === PRODUCT_IMAGE_PLACEHOLDER) continue;
+      // Never surface a row whose image is empty, relative, http, or a placeholder.
+      if (!isUsableRemoteProductImageUrl(imageUrl)) continue;
 
       listings.push({
         providerId: "admitad",
@@ -182,9 +182,9 @@ export const admitadSearchConnector: SearchConnector = {
           seenIds.add(dedupeKey);
 
           const image = normalizeProductImageUrl(offer.image || "");
-          // Skip offers that have no usable product image — never emit a
+          // Skip offers that have no usable https product image — never emit a
           // placeholder-image search card as real data.
-          if (image === PRODUCT_IMAGE_PLACEHOLDER) continue;
+          if (!isUsableRemoteProductImageUrl(image)) continue;
 
           const normalized = normalizeAdmitadRaw(
             {

@@ -21,6 +21,8 @@ export type ProviderStoreSyncOptions = {
   providerId: ProductionProviderId;
   queries?: string[];
   maxProducts?: number;
+  maxPages?: number;
+  pageSize?: number;
   countryCode?: string;
   currency?: string;
 };
@@ -77,6 +79,11 @@ const STORE_WEBSITES: Partial<Record<ProductionProviderId, string>> = {
   raneen: "https://www.raneen.com",
   eldokan: "https://www.eldokan.com",
 };
+
+function positiveIntEnv(name: string, fallback: number): number {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+}
 
 function emptyDropCounts(): Record<SyncDropReason, number> {
   return {
@@ -219,13 +226,21 @@ export async function runProviderSyncStore(
   const { providerId } = options;
   const queries = (options.queries ?? []).filter(Boolean);
   const maxProducts = Math.max(options.maxProducts ?? 150, 1);
+  const maxPages = Math.max(
+    options.maxPages ?? positiveIntEnv("SYNC_SCRAPER_PAGES", 3),
+    1,
+  );
+  const pageSize = Math.max(
+    options.pageSize ?? positiveIntEnv("SYNC_SCRAPER_PAGE_SIZE", 24),
+    1,
+  );
   const ctx = buildProviderSyncContext(providerId, {
     countryCode: options.countryCode ?? "EG",
     currency: options.currency ?? "EGP",
     jobConfig: {
       keywords: queries,
-      maxPages: 2,
-      pageSize: 24,
+      maxPages,
+      pageSize,
     },
   });
 
@@ -264,8 +279,8 @@ export async function runProviderSyncStore(
       for (const query of queries) {
         try {
           const listings = await connector.search(query, {
-            pageSize: 24,
-            maxPages: 2,
+            pageSize,
+            maxPages,
             countryCode: ctx.countryCode,
             currency: ctx.currency,
           });

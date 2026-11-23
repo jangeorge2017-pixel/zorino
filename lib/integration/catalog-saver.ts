@@ -1,4 +1,5 @@
 import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 import { buildProviderGlobalSku } from "@/lib/sync/import/global-catalog";
 import type { StoreIntegrationType } from "@/lib/types/entities";
 
@@ -80,6 +81,7 @@ export async function saveCatalogItemsAs(
   }
 
   let saved = 0;
+  let rejectedImages = 0;
   const BATCH = 200;
 
   for (let i = 0; i < items.length; i += BATCH) {
@@ -88,6 +90,11 @@ export async function saveCatalogItemsAs(
     const deduped = new Map<string, SaveEntry>();
 
     for (const item of batch) {
+      if (!isUsableRemoteProductImageUrl(item.imageUrl)) {
+        rejectedImages += 1;
+        continue;
+      }
+
       const offer =
         item.offers.find((entry) => entry.providerId === opts.providerId) ?? item.offers[0];
       if (!offer) continue;
@@ -203,6 +210,12 @@ export async function saveCatalogItemsAs(
     }
 
     saved += lowestRows.length;
+  }
+
+  if (rejectedImages > 0) {
+    console.warn(
+      `[catalog-saver] rejected ${rejectedImages} ${opts.providerId} product(s) without a valid https image`,
+    );
   }
 
   return saved;
