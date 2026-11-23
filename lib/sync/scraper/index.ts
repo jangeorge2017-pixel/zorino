@@ -62,8 +62,13 @@ export async function fetchFallbackProducts(
       if (products.length >= maxProducts) break queryLoop;
 
       try {
-        const html = await fetchStorefrontHtml(config.searchUrl(query, page), config);
-        const listings = extractScrapedListings(html, config);
+        const fetched = await fetchStorefrontHtml(config.searchUrl(query, page), config);
+        const listings = extractScrapedListings(fetched.html, config);
+        if (listings.length === 0) {
+          throw new Error(
+            `zero-listings status=${fetched.status} title="${fetched.title}" url=${fetched.finalUrl}`,
+          );
+        }
         for (const listing of listings) {
           const product = toExternalProduct(ctx, config, listing);
           if (seen.has(product.externalId)) continue;

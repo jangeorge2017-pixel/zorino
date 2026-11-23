@@ -34,13 +34,13 @@ services:
     # NODE_OPTIONS is pinned below the 512MB container ceiling so the runtime
     # heap cannot be sized larger than the service itself. Use npx to resolve
     # next from node_modules/.bin.
-    buildCommand: npm ci --include=dev && NODE_OPTIONS=--max-old-space-size=360 npx next build && npm prune --omit=dev
+    buildCommand: npm ci --include=dev && NODE_OPTIONS=--max-old-space-size=320 npx next build && npm prune --omit=dev
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION
         value: "22"
       - key: NODE_OPTIONS
-        value: --max-old-space-size=360
+        value: --max-old-space-size=320
       - key: WEB_SUPABASE_ONLY
         value: "1"
       - key: HOMEPAGE_LIVE_FETCH

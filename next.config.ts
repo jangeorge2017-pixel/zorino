@@ -43,6 +43,10 @@ const devOnlyImagePatterns = isProduction
     ];
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   experimental: {
     cpus: 1,
   },

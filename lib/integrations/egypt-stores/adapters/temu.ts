@@ -1,4 +1,4 @@
-import { fetchTextSafely } from "@/lib/integrations/egypt-stores/http";
+import { fetchText } from "@/lib/integrations/egypt-stores/http";
 import { cleanTitle, discountPercent, parseMoney, resolveUrl } from "@/lib/integrations/egypt-stores/parse";
 import type { StoreSearchAdapter } from "@/lib/integrations/egypt-stores/types";
 import type { RawProviderListing } from "@/lib/search/types";
@@ -142,10 +142,15 @@ export const temuAdapter: StoreSearchAdapter = {
   id: "temu",
   name: STORE_NAME,
   async search(query) {
-    const html = await fetchTextSafely(
-      `${BASE_URL}/eg-en/search_result.html?search_key=${encodeURIComponent(query)}`,
-      { timeoutMs: 5_000 },
-    );
-    return html ? parseTemuHtml(html) : [];
+    const url = `${BASE_URL}/eg-en/search_result.html?search_key=${encodeURIComponent(query)}`;
+    const html = await fetchText(url, { timeoutMs: 5_000 });
+    const results = parseTemuHtml(html);
+    if (results.length === 0) {
+      const title = html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() ?? "";
+      throw new Error(
+        `temu-search-unavailable title="${title}" bytes=${html.length} challenge=${html.toLowerCase().includes("challenge")}`,
+      );
+    }
+    return results;
   },
 };

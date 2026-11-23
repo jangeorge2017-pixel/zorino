@@ -46,6 +46,13 @@ async function main(): Promise<void> {
     stores: {},
   };
 
+  const writeSummary = (): void => {
+    mkdirSync("logs", { recursive: true });
+    writeFileSync("logs/catalog-sync-summary.json", JSON.stringify(summary, null, 2));
+  };
+
+  writeSummary();
+
   try {
     const providerResults = await runProviderStepsParallel(createCronBudget(budgetMs));
     summary.providerSteps = providerResults;
@@ -54,6 +61,7 @@ async function main(): Promise<void> {
     summary.providerSteps = { error: error instanceof Error ? error.message : String(error) };
     console.error("[sync-all-catalogs] provider steps failed:", error);
   }
+  writeSummary();
 
   const stores: Record<string, unknown> = {};
   for (const providerId of STORE_IDS) {
@@ -72,15 +80,16 @@ async function main(): Promise<void> {
       stores[providerId] = { listings: 0, saved: 0, source: "unknown", error: message };
       console.error(`[sync-all-catalogs] ${providerId} failed:`, message);
     }
+    writeSummary();
   }
   summary.stores = stores;
   summary.finishedAt = new Date().toISOString();
 
-  mkdirSync("logs", { recursive: true });
-  writeFileSync("logs/catalog-sync-summary.json", JSON.stringify(summary, null, 2));
+  writeSummary();
   console.log("[sync-all-catalogs] complete");
 }
 
 main().catch((error) => {
   console.error("[sync-all-catalogs] fatal:", error);
+  process.exitCode = 1;
 });

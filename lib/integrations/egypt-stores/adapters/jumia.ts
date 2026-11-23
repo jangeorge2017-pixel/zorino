@@ -14,7 +14,7 @@ const BASE_URL = "https://www.jumia.com.eg";
 const STATIC_BASE_URL = "https://static.jumia.com.eg";
 const SLP_SITEMAP_URL = `${BASE_URL}/slp/nc/sitemap/sitemap-en-1.xml`;
 const STORE_NAME = "Jumia";
-const REQUEST_TIMEOUT_MS = 7_500;
+const REQUEST_TIMEOUT_MS = 15_000;
 const CATEGORY_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 // Jumia serves the same public catalog HTML to browser user agents. A desktop
@@ -557,8 +557,8 @@ async function searchJumiaCatalog(
 ): Promise<RawProviderListing[]> {
   const catalogUrl = `${BASE_URL}/catalog/?q=${encodeURIComponent(query)}`;
   return firstNonEmpty([
-    firstWithResults([catalogUrl], deadline, 5_500, JUMIA_PAGE_HEADERS),
-    firstWithResults([catalogUrl], deadline, 5_500, JUMIA_MOBILE_HEADERS),
+    firstWithResults([catalogUrl], deadline, 15_000, JUMIA_PAGE_HEADERS),
+    firstWithResults([catalogUrl], deadline, 15_000, JUMIA_MOBILE_HEADERS),
   ]);
 }
 

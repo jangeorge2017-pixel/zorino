@@ -177,6 +177,13 @@ function isWafChallenge(html: string): boolean {
   );
 }
 
+function isSparseChallengePage(html: string): boolean {
+  const hasProductMarkers =
+    html.includes("s-search-result") || html.includes("s-result-item") || html.includes("a-price");
+  const title = html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() ?? "";
+  return !hasProductMarkers && html.length < 5_000 && (title === "&nbsp;" || title.length === 0);
+}
+
 /** Decode common HTML entities in titles. */
 function decodeEntities(input: string): string {
   return input
@@ -454,7 +461,13 @@ async function fetchAmazonSearchPage(
       // attempt may land on a healthy cell.
       html = "";
     }
-    if (before && html.length > 0 && before === html && !html.includes("s-search-result")) {
+    if (
+      before &&
+      html.length > 0 &&
+      before === html &&
+      !html.includes("s-search-result") &&
+      !isSparseChallengePage(html)
+    ) {
       // Same unproductive page back to back — stop burning the retry budget.
       break;
     }

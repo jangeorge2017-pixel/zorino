@@ -7,6 +7,15 @@ export type FetchOptions = {
 const DEFAULT_TIMEOUT_MS = 8_000;
 const MAX_HTML_BYTES = 4_000_000;
 
+function extractHtmlTitle(text: string): string {
+  const match = text.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  return match?.[1]?.replace(/\s+/g, " ").trim().slice(0, 200) ?? "";
+}
+
+function diagnosticsEnabled(): boolean {
+  return process.env.SYNC_DIAGNOSTICS === "1";
+}
+
 const DEFAULT_HEADERS: Record<string, string> = {
   "user-agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
@@ -28,23 +37,22 @@ export async function fetchText(url: string, options: FetchOptions = {}): Promis
     signal: AbortSignal.timeout(timeoutMs),
   });
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} for ${url}`);
-  }
-
   const contentLength = Number(response.headers.get("content-length") ?? "0");
   if (Number.isFinite(contentLength) && contentLength > MAX_HTML_BYTES) {
     throw new Error(`Response too large (${contentLength} bytes) for ${url}`);
   }
 
   const reader = response.body?.getReader();
-  if (!reader) return "";
+  if (!reader) {
+    if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+    return "";
+  }
 
   const decoder = new TextDecoder();
   let text = "";
   let bytes = 0;
   try {
-    while (true) {
+    for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
       bytes += value.byteLength;
@@ -56,6 +64,19 @@ export async function fetchText(url: string, options: FetchOptions = {}): Promis
     text += decoder.decode();
   } finally {
     reader.releaseLock();
+  }
+
+  const title = extractHtmlTitle(text);
+  if (diagnosticsEnabled()) {
+    console.log(
+      `[storefront-fetch] ${new URL(url).host} ${url} status=${response.status} bytes=${bytes} title="${title}"`,
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `HTTP ${response.status} for ${url} title="${title}" body="${text.slice(0, 300)}"`,
+    );
   }
 
   return text;

@@ -7,6 +7,11 @@ type RouteLike = {
   continue(): Promise<void>;
 };
 
+type NavigationResponseLike = {
+  status(): number;
+  url(): string;
+};
+
 type PageLike = {
   goto(url: string, options?: Record<string, unknown>): Promise<unknown>;
   content(): Promise<string>;
@@ -48,6 +53,15 @@ function pickUserAgent(): string {
   return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)] ?? USER_AGENTS[0];
 }
 
+function extractHtmlTitle(html: string): string {
+  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  return match?.[1]?.replace(/\s+/g, " ").trim().slice(0, 200) ?? "";
+}
+
+function diagnosticsEnabled(): boolean {
+  return process.env.SYNC_DIAGNOSTICS === "1";
+}
+
 async function getBrowser(): Promise<BrowserLike> {
   if (browserPromise) {
     const existing = await browserPromise.catch(() => null);
@@ -77,10 +91,17 @@ async function getBrowser(): Promise<BrowserLike> {
   return browserPromise;
 }
 
+export type StorefrontHtmlResult = {
+  html: string;
+  status: number;
+  finalUrl: string;
+  title: string;
+};
+
 export async function fetchStorefrontHtml(
   url: string,
   config: ScraperStoreConfig,
-): Promise<string> {
+): Promise<StorefrontHtmlResult> {
   const browser = await getBrowser();
   let context: ContextLike | undefined;
   let page: PageLike | undefined;
@@ -107,8 +128,28 @@ export async function fetchStorefrontHtml(
       }
       return route.continue();
     });
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
-    return await page.content();
+    const navigationResponse = await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: 30_000,
+    });
+    const html = await page.content();
+    const status =
+      typeof (navigationResponse as NavigationResponseLike | null)?.status === "function"
+        ? (navigationResponse as NavigationResponseLike).status()
+        : 0;
+    const finalUrl =
+      typeof (navigationResponse as NavigationResponseLike | null)?.url === "function"
+        ? (navigationResponse as NavigationResponseLike).url()
+        : url;
+    const title = extractHtmlTitle(html);
+
+    if (diagnosticsEnabled()) {
+      console.log(
+        `[scraper-fetch] ${config.id} ${finalUrl} status=${status} bytes=${html.length} title="${title}"`,
+      );
+    }
+
+    return { html, status, finalUrl, title };
   } finally {
     await page?.close().catch(() => {});
     await context?.close().catch(() => {});
