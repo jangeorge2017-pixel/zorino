@@ -46,6 +46,7 @@ import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
 import { recordProviderRun } from "@/lib/integration/provider-health";
 import { canonicalizeSearchListings } from "./core";
 import { isSurfaceEnabled } from "./feature";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 const SURFACE = "search" as const;
 
@@ -81,8 +82,9 @@ async function fetchCanonicalInputs(query: string, capped: number, useFuzzyMatch
 }> {
   if (fetcherOverride) return fetcherOverride(query.trim());
 
-  await hydrateIntegrationCredentials();
-  const adapters = await getActiveProviderAdapters();
+  const supabaseOnly = isWebSupabaseOnly();
+  if (!supabaseOnly) await hydrateIntegrationCredentials();
+  const adapters = supabaseOnly ? [] : await getActiveProviderAdapters();
   const allRaw: RawProviderListing[] = [];
   const intent = analyzeSearchQueryIntent(query.trim());
 

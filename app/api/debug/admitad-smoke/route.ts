@@ -4,10 +4,19 @@ import { runAdmitadIngestion } from "@/lib/integrations/admitad";
 import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { runSyncJob } from "@/lib/sync/engine";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  if (isWebSupabaseOnly()) {
+    return NextResponse.json({
+      ok: true,
+      mode: "web-supabase-only",
+      skipped: "Heavy ingestion runs in GitHub Actions; web service serves Supabase reads only.",
+    });
+  }
+
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();
   }

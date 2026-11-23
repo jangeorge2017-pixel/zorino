@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   sync:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
       - name: Checkout
@@ -42,7 +42,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate Supabase secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node -e "const missing=[];if(!process.env.SUPABASE_URL)missing.push('SUPABASE_URL');if(!process.env.SUPABASE_SERVICE_ROLE_KEY)missing.push('SUPABASE_SERVICE_ROLE_KEY');if(missing.length){console.error('Missing GitHub Secrets: '+missing.join(', '));process.exit(1)}"
+
       - name: Install Playwright Chromium
+        continue-on-error: true
         run: npx playwright install chromium --with-deps
 
       - name: Sync Jumia sitemap catalog

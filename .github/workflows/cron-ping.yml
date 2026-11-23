@@ -15,27 +15,5 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Trigger /api/cron/refresh
-        env:
-          CRON_URL: ${{ vars.CRON_URL || 'https://zorino-1.onrender.com' }}
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-        run: |
-          # CRON_SECRET is optional - if not set, skip auth header
-          if [ -z "$CRON_SECRET" ]; then
-            echo "Warning: CRON_SECRET not set, pinging without auth"
-            status=$(curl -sS -m 2100 -o /tmp/cron-response.txt -w "%{http_code}" \
-              -X POST "$CRON_URL/api/cron/refresh" \
-              -H "User-Agent: zorino-cron-ping")
-          else
-            echo "Pinging $CRON_URL/api/cron/refresh with auth"
-            status=$(curl -sS -m 2100 -o /tmp/cron-response.txt -w "%{http_code}" \
-              -X POST "$CRON_URL/api/cron/refresh" \
-              -H "Authorization: Bearer $CRON_SECRET" \
-              -H "User-Agent: zorino-cron-ping")
-          fi
-          echo "HTTP $status"
-          cat /tmp/cron-response.txt
-          case "$status" in
-            2*) echo "Ping succeeded." ;;
-            *) echo "::warning::Cron ping returned HTTP $status"; exit 0 ;;
-          esac
+      - name: Skip Render cron ping
+        run: echo "Render web service is Supabase-read-only; heavy sync runs in GitHub Actions."

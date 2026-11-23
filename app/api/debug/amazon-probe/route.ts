@@ -11,8 +11,17 @@ import {
 } from "@/lib/integrations/amazon-scraper";
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
 import { amazonSearchConnector } from "@/lib/search/connectors/amazon";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 export async function GET(request: Request) {
+  if (isWebSupabaseOnly()) {
+    return NextResponse.json({
+      ok: true,
+      mode: "web-supabase-only",
+      skipped: "Live provider probing runs in GitHub Actions; web service serves Supabase reads only.",
+    });
+  }
+
   const url = new URL(request.url);
   const expectedToken = process.env.AMAZON_PROBE_TOKEN;
   if (!expectedToken || url.searchParams.get("t") !== expectedToken) {

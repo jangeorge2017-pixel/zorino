@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { runArabClicksFeedIngestion } from "@/lib/integration/arabclicks-feed";
 import { invalidateLowestPricesFromRoute } from "@/lib/revalidate";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /**
  * Manual / dry-run runner for the ArabClicks universal product feed.
@@ -30,6 +31,14 @@ function parseBool(raw: string | null): boolean | undefined {
 }
 
 export async function GET(request: Request) {
+  if (isWebSupabaseOnly()) {
+    return NextResponse.json({
+      ok: true,
+      mode: "web-supabase-only",
+      skipped: "Heavy feed ingestion runs in GitHub Actions; web service serves Supabase reads only.",
+    });
+  }
+
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();
   }

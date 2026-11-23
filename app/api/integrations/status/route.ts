@@ -5,6 +5,7 @@ import { isEbayConfigured } from "@/lib/integrations/ebay/config";
 import { isAmazonConfigured } from "@/lib/integrations/amazon";
 import { searchAliExpressOpenApi } from "@/lib/integrations/aliexpress/open-api-service";
 import { CJdropshippingClient } from "@/lib/sync/providers/cjdropshipping/client";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 export const maxDuration = 60;
 
@@ -13,6 +14,14 @@ export const maxDuration = 60;
  * Optional ?probe=1&q=keywords runs a live Open API search and reports field presence.
  */
 export async function GET(request: Request) {
+  if (isWebSupabaseOnly()) {
+    return NextResponse.json({
+      ok: true,
+      mode: "web-supabase-only",
+      skipped: "Live provider probing runs in GitHub Actions; web service serves Supabase reads only.",
+    });
+  }
+
   await hydrateIntegrationCredentials();
 
   // Only allow in development or when a management secret is provided

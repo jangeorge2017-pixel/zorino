@@ -43,6 +43,19 @@ const devOnlyImagePatterns = isProduction
     ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    cpus: 1,
+  },
+  serverExternalPackages: ["playwright", "playwright-core"],
+  outputFileTracingExcludes: {
+    "/*": ["./node_modules/playwright/**/*", "./node_modules/playwright-core/**/*", "./scripts/**/*"],
+    "/api/*": [
+      "./node_modules/playwright/**/*",
+      "./node_modules/playwright-core/**/*",
+      "./lib/sync/scraper/**/*",
+      "./scripts/**/*",
+    ],
+  },
   turbopack: {
     // Pin Turbopack root so dev resolves `next` from this app, not a nested lockfile/root.
     root: path.resolve(__dirname),
