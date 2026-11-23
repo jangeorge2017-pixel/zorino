@@ -96,10 +96,29 @@ export function externalProductsToDeals(products: ExternalProduct[]): ExternalDe
     }));
 }
 
+async function searchStorefrontWithRetries(
+  adapter: StoreSearchAdapter,
+  query: string,
+  options: Parameters<StoreSearchAdapter["search"]>[1],
+  retries: number,
+): Promise<RawProviderListing[]> {
+  const attempts = Math.max(1, Math.min(retries + 1, 4));
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const listings = await adapter.search(query, options);
+      if (listings.length > 0) return listings;
+    } catch {}
+    if (attempt < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+    }
+  }
+  return [];
+}
+
 export async function fetchStorefrontCatalog(
   providerId: string,
   ctx: SyncContext,
-  options?: { maxProducts?: number },
+  options?: { maxProducts?: number; retries?: number },
 ): Promise<ExternalProduct[]> {
   const adapter = STORE_ADAPTERS.get(providerId);
   if (!adapter) throw new Error(`No storefront catalog adapter registered for "${providerId}"`);
@@ -117,17 +136,18 @@ export async function fetchStorefrontCatalog(
 
   for (const query of queries) {
     if (products.length >= maxProducts) break;
-    let listings: RawProviderListing[];
-    try {
-      listings = await adapter.search(query, {
+    const listings = await searchStorefrontWithRetries(
+      adapter,
+      query,
+      {
         pageSize,
         maxPages,
         countryCode: ctx.countryCode,
         currency: ctx.currency,
-      });
-    } catch {
-      continue;
-    }
+      },
+      options?.retries ?? 0,
+    );
+    if (listings.length === 0) continue;
 
     for (const listing of listings) {
       if (products.length >= maxProducts) break;

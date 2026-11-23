@@ -7,8 +7,20 @@ import type { DiscountType, StoreIntegrationType } from "@/lib/types/entities";
 export type SyncJobType = "products" | "prices" | "deals" | "images" | "full";
 export type SyncRunStatus = "pending" | "running" | "completed" | "failed" | "cancelled";
 export type ProductSyncStatus = "idle" | "pending" | "syncing" | "synced" | "failed" | "stale";
-export type ConnectorId = StoreIntegrationType | "mock";
-export type ImportProviderId = "amazon" | "aliexpress" | "cjdropshipping" | "ebay" | "temu" | "walmart" | "bestbuy" | "noon" | "jumia";
+export type ConnectorId = StoreIntegrationType | "mock" | ImportProviderId;
+export type ImportProviderId =
+  | "amazon"
+  | "amazon-eg"
+  | "aliexpress"
+  | "cjdropshipping"
+  | "ebay"
+  | "temu"
+  | "walmart"
+  | "bestbuy"
+  | "noon"
+  | "jumia"
+  | "carrefour"
+  | "btech";
 
 /** Normalized payload from any partner connector before DB persistence. */
 export interface ExternalProduct {

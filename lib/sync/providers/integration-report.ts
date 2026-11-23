@@ -44,6 +44,9 @@ const PHASE1_META: Record<
   bestbuy: { name: "Best Buy", phase: "live" },
   noon: { name: "Noon", phase: "live" },
   jumia: { name: "Jumia", phase: "live" },
+  "amazon-eg": { name: "Amazon Egypt", phase: "live" },
+  carrefour: { name: "Carrefour Egypt", phase: "live" },
+  btech: { name: "B.TECH", phase: "live" },
 };
 
 const LIVE_ONLY_PROVIDERS = new Set<ImportProviderId>(["aliexpress", "ebay"]);

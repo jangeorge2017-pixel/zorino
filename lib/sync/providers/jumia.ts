@@ -32,7 +32,7 @@ export class JumiaProvider extends BaseConnector {
 
   async fetchProducts(ctx: SyncContext): Promise<ExternalProduct[]> {
     if (!this.isConfigured()) throw this.notConfiguredError();
-    return fetchStorefrontCatalog("jumia", ctx);
+    return fetchStorefrontCatalog("jumia", ctx, { retries: 2 });
   }
 
   async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {

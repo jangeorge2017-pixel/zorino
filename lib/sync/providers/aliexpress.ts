@@ -54,15 +54,26 @@ export class AliExpressProvider extends BaseConnector {
       throw this.notConfiguredError();
     }
 
-    const client = this.client();
     const config = resolveImportConfig("aliexpress", ctx.jobConfig as Record<string, unknown>);
-    const rawProducts = await client.searchProducts(config, ctx.currency);
-
+    const keywords = config.keywords ?? ["electronics"];
+    const maxChunks = Math.max(1, keywords.length * Math.max(config.maxPages ?? 3, 1));
     const products: ExternalProduct[] = [];
-    for (const raw of rawProducts) {
-      const mapped = mapAliExpressProduct(ctx, raw, config.categorySlug);
-      if (mapped) products.push(mapped);
+    const seen = new Set<string>();
+    let cursor = startSweepCursor();
+    let chunksFetched = 0;
+
+    while (chunksFetched < maxChunks) {
+      const chunk = await this.fetchProductsChunk(ctx, cursor);
+      for (const product of chunk.products) {
+        if (seen.has(product.externalId)) continue;
+        seen.add(product.externalId);
+        products.push(product);
+      }
+      chunksFetched += 1;
+      if (chunk.done || !chunk.next) break;
+      cursor = chunk.next;
     }
+
     return products;
   }
 

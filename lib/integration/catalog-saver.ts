@@ -1,20 +1,5 @@
-/**
- * Shared Supabase catalog saver used by every provider ingestion pipeline
- * (Admitad today; Noon/Jumia when their credential-gated clients go live).
- *
- * Writes the standard spine for a provider's normalized items:
- *   stores (get-or-create the provider store row)
- *   → products (upsert by slug)
- *   → prices (upsert by product_id,store_id,country_code,currency)
- *   → lowest_prices_today (upsert by product_id,country_code,currency,
- *     tagged with the real provider id + store name)
- *
- * Extracted from the Admitad ingestion's file-private saveCatalogItems so a
- * second provider does not duplicate a ~160-line DB routine. Behavior is
- * byte-identical to the original for the Admitad call site.
- */
-
-import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
+import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
+import { buildProviderGlobalSku } from "@/lib/sync/import/global-catalog";
 import type { StoreIntegrationType } from "@/lib/types/entities";
 
 type CatalogTargetStore = {
@@ -30,13 +15,10 @@ type CatalogTargetStore = {
 };
 
 export type CatalogSaveOptions = {
-  /** DB `provider` value written on lowest_prices_today rows. */
   providerId: string;
-  /** Store metadata used to get-or-create the `stores` row. */
   store: CatalogTargetStore;
 };
 
-/** Resolve (or create) the provider store row and return its DB id. */
 async function resolveStoreId(
   db: { from: (table: string) => unknown },
   store: CatalogTargetStore,
@@ -71,6 +53,12 @@ async function resolveStoreId(
   return newStore?.id ?? null;
 }
 
+type SaveEntry = {
+  item: NormalizedCatalogItem;
+  offer: ProviderOffer;
+  globalSku: string;
+};
+
 export async function saveCatalogItemsAs(
   items: NormalizedCatalogItem[],
   opts: CatalogSaveOptions,
@@ -92,119 +80,129 @@ export async function saveCatalogItemsAs(
   }
 
   let saved = 0;
-
-  // Process in batches of 200 for Supabase upsert limits
   const BATCH = 200;
+
   for (let i = 0; i < items.length; i += BATCH) {
     const batch = items.slice(i, i + BATCH);
+    const now = new Date().toISOString();
+    const deduped = new Map<string, SaveEntry>();
 
-    // Upsert products
-    const productRows = batch.map((item) => ({
-      name: item.title,
-      slug: item.slug,
-      description: "",
-      image_url: item.imageUrl,
-      emoji: item.emoji,
-      category_slug: item.categorySlug,
+    for (const item of batch) {
+      const offer =
+        item.offers.find((entry) => entry.providerId === opts.providerId) ?? item.offers[0];
+      if (!offer) continue;
+
+      const globalSku = buildProviderGlobalSku(opts.providerId, {
+        externalId: offer.externalId || item.id,
+      });
+      if (!globalSku || deduped.has(globalSku)) continue;
+      deduped.set(globalSku, { item, offer, globalSku });
+    }
+
+    const entries = [...deduped.values()];
+    if (entries.length === 0) continue;
+
+    const productRows = entries.map(({ item, globalSku }) => ({
+      global_sku: globalSku,
+      title: item.title,
+      description: null,
       brand: null,
-      rating: item.rating || null,
-      review_count: item.reviewCount,
-      currency: item.currency,
-      country_code: item.countryCode,
-      in_stock: true,
-      is_active: true,
+      main_image: item.imageUrl || null,
+      category_path: item.categorySlug || null,
+      barcode: null,
+      updated_at: now,
     }));
 
     const { data: upsertedProducts, error: prodErr } = await db
       .from("products")
-      .upsert(productRows, { onConflict: "slug", ignoreDuplicates: false })
-      .select("id, slug");
+      .upsert(productRows, { onConflict: "global_sku", ignoreDuplicates: false })
+      .select("id, global_sku");
 
     if (prodErr) {
-      console.error(
-        `[catalog-saver] product upsert error (batch ${i}):`,
-        prodErr.message,
-      );
+      console.error(`[catalog-saver] product upsert error (batch ${i}): ${prodErr.message}`);
       continue;
     }
-
     if (!upsertedProducts?.length) continue;
 
-    // Build price rows
-    const slugToId = new Map<string, string>();
-    for (const p of upsertedProducts) slugToId.set(p.slug, p.id);
+    const productIdBySku = new Map<string, string>();
+    for (const row of upsertedProducts) {
+      if (row.global_sku) productIdBySku.set(row.global_sku, row.id);
+    }
 
     const priceRows: unknown[] = [];
-    for (const item of batch) {
-      const productId = slugToId.get(item.slug);
+    const lowestRows: unknown[] = [];
+
+    for (const { item, offer, globalSku } of entries) {
+      const productId = productIdBySku.get(globalSku);
       if (!productId) continue;
-      const offer = item.offers[0];
-      if (!offer) continue;
+
+      const countryCode = (offer.countryCode || item.countryCode || "US").slice(0, 2).toUpperCase();
+      const currency = (offer.currency || item.currency || "USD").slice(0, 3).toUpperCase();
+      const originalPrice =
+        Number.isFinite(offer.originalPrice) && offer.originalPrice > offer.price
+          ? offer.originalPrice
+          : offer.price;
 
       priceRows.push({
         product_id: productId,
         store_id: storeId,
         price: offer.price,
-        original_price: offer.originalPrice,
-        currency: offer.currency,
-        country_code: offer.countryCode,
+        original_price: originalPrice,
+        currency,
+        country_code: countryCode,
         external_url: offer.affiliateUrl || offer.productUrl,
         external_product_id: offer.externalId,
         in_stock: offer.inStock,
         is_current: true,
       });
-    }
-
-    if (priceRows.length > 0) {
-      await db
-        .from("prices")
-        .upsert(priceRows, {
-          onConflict: "product_id,store_id,country_code,currency",
-          ignoreDuplicates: false,
-        });
-    }
-
-    // Upsert lowest_prices_today
-    const lowestRows: unknown[] = [];
-    for (const item of batch) {
-      const productId = slugToId.get(item.slug);
-      if (!productId) continue;
-      const offer = item.offers[0];
-      if (!offer) continue;
 
       lowestRows.push({
         product_id: productId,
-        country_code: item.countryCode,
-        currency: item.currency,
+        country_code: countryCode,
+        currency,
         product_name: item.title,
         product_slug: item.slug,
         image_url: item.imageUrl,
         emoji: item.emoji,
         lowest_price: offer.price,
-        original_price: offer.originalPrice,
+        original_price: originalPrice,
         discount_percent: item.discount,
-        savings_amount: Math.max(0, offer.originalPrice - offer.price),
+        savings_amount: Math.max(0, originalPrice - offer.price),
         store_id: storeId,
-        store_name: offer.storeName,
+        store_name: offer.storeName || opts.store.name,
         provider: opts.providerId,
-        affiliate_url: offer.affiliateUrl,
+        affiliate_url: offer.affiliateUrl || offer.productUrl,
         external_url: offer.productUrl,
         is_new_low: false,
-        price_recorded_at: new Date().toISOString(),
-        computed_at: new Date().toISOString(),
+        price_recorded_at: now,
+        computed_at: now,
       });
     }
 
-    if (lowestRows.length > 0) {
-      await db
-        .from("lowest_prices_today")
-        .upsert(lowestRows, {
-          onConflict: "product_id,country_code,currency",
+    if (priceRows.length > 0) {
+      const { error: priceErr } = await db
+        .from("prices")
+        .upsert(priceRows, {
+          onConflict: "product_id,store_id,country_code,currency",
           ignoreDuplicates: false,
         });
+      if (priceErr) console.error(`[catalog-saver] price upsert error: ${priceErr.message}`);
     }
 
-    saved += batch.length;
+    if (lowestRows.length === 0) continue;
+
+    const { error: lowestErr } = await db
+      .from("lowest_prices_today")
+      .upsert(lowestRows, {
+        onConflict: "product_id,country_code,currency",
+        ignoreDuplicates: false,
+      });
+    if (lowestErr) {
+      console.error(`[catalog-saver] lowest_prices_today upsert error: ${lowestErr.message}`);
+      continue;
+    }
+
+    saved += lowestRows.length;
   }
 
   return saved;

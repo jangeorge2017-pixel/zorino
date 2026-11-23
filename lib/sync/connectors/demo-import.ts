@@ -15,6 +15,9 @@ const PROVIDER_STORE_SLUG: Record<ImportProviderId, string> = {
   bestbuy: "bestbuy",
   noon: "noon",
   jumia: "jumia",
+  "amazon-eg": "amazon-eg",
+  carrefour: "carrefour",
+  btech: "btech",
 };
 
 /**

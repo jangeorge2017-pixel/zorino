@@ -37,7 +37,7 @@ export class NoonProvider extends BaseConnector {
 
   async fetchProducts(ctx: SyncContext): Promise<ExternalProduct[]> {
     if (!this.isConfigured()) throw this.notConfiguredError();
-    return fetchStorefrontCatalog("noon", ctx);
+    return fetchStorefrontCatalog("noon", ctx, { retries: 2 });
   }
 
   async fetchDeals(ctx: SyncContext): Promise<ExternalDeal[]> {

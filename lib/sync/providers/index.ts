@@ -1,6 +1,7 @@
 import type { ImportProviderId } from "@/lib/sync/providers/types";
 import type { PartnerConnector } from "@/lib/sync/types";
 import { createAmazonProvider } from "@/lib/sync/providers/amazon";
+import { createAmazonEgProvider } from "@/lib/sync/providers/amazon/eg";
 import { createAliExpressProvider } from "@/lib/sync/providers/aliexpress";
 import { createCJdropshippingProvider } from "@/lib/sync/providers/cjdropshipping";
 import { createEbayProvider } from "@/lib/sync/providers/ebay";
@@ -9,8 +10,11 @@ import { createWalmartProvider } from "@/lib/sync/providers/walmart";
 import { createBestBuyProvider } from "@/lib/sync/providers/bestbuy";
 import { createNoonProvider } from "@/lib/sync/providers/amazon/noon";
 import { createJumiaProvider } from "@/lib/sync/providers/jumia";
+import { createCarrefourProvider } from "@/lib/sync/providers/carrefour";
+import { createBtechProvider } from "@/lib/sync/providers/btech";
 const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   amazon: createAmazonProvider(),
+  "amazon-eg": createAmazonEgProvider(),
   aliexpress: createAliExpressProvider(),
   cjdropshipping: createCJdropshippingProvider(),
   ebay: createEbayProvider(),
@@ -19,6 +23,8 @@ const providerInstances: Record<ImportProviderId, PartnerConnector> = {
   bestbuy: createBestBuyProvider(),
   noon: createNoonProvider(),
   jumia: createJumiaProvider(),
+  carrefour: createCarrefourProvider(),
+  btech: createBtechProvider(),
 };
 
 /** Resolve provider — live adapters only; never fall back to mock/demo catalogs. */
@@ -57,6 +63,7 @@ export function isImportProviderId(value: string): value is ImportProviderId {
 
 export {
   createAmazonProvider,
+  createAmazonEgProvider,
   createAliExpressProvider,
   createCJdropshippingProvider,
   createEbayProvider,
@@ -65,4 +72,6 @@ export {
   createBestBuyProvider,
   createNoonProvider,
   createJumiaProvider,
+  createCarrefourProvider,
+  createBtechProvider,
 };

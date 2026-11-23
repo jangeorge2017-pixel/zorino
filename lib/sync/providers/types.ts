@@ -4,6 +4,7 @@
 
 export type ImportProviderId =
   | "amazon"
+  | "amazon-eg"
   | "aliexpress"
   | "cjdropshipping"
   | "ebay"
@@ -11,7 +12,9 @@ export type ImportProviderId =
   | "walmart"
   | "bestbuy"
   | "noon"
-  | "jumia";
+  | "jumia"
+  | "carrefour"
+  | "btech";
 
 export interface ProviderCredentials {
   envKeys: string[];
