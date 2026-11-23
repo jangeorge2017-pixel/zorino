@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { SearchResultItem } from "@/lib/data/homepage";
+import { getSearchCacheVersion } from "@/lib/search/cache-version";
 import {
   CRITICAL_SEARCH_PROVIDER_IDS,
   PERSISTENT_SEARCH_MAX_ITEMS,
@@ -22,12 +23,12 @@ describe("persistent search cache", () => {
         activeCurrency: "EGP",
         useFuzzyMatch: true,
       }),
-    ).toBe("iphone 15 pro|sort:price|cur:EGP|fuzzy:1");
+    ).toBe(`${getSearchCacheVersion()}|iphone 15 pro|sort:price|cur:EGP|fuzzy:1`);
   });
 
   it("defaults to relevance/USD/non-fuzzy", () => {
     expect(buildPersistentSearchKey("tv")).toBe(
-      "tv|sort:relevance|cur:USD|fuzzy:0",
+      `${getSearchCacheVersion()}|tv|sort:relevance|cur:USD|fuzzy:0`,
     );
   });
 

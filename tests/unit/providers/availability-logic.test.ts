@@ -39,11 +39,9 @@ afterEach(() => {
 // ─── Sync-layer adapter resolution ──────────────────────────────────────────
 
 describe("sync-layer getProviderAdapter", () => {
-  it("throws for unknown providers instead of silently aliasing them", () => {
+  it("throws for unknown providers and resolves amazon-eg to its own adapter", () => {
     expect(() => getSyncProviderAdapter("nonexistent")).toThrow();
-    // amazon-eg is NOT an import provider — it must never resolve through the
-    // sync provider layer (no silent redirect to another adapter).
-    expect(() => getSyncProviderAdapter("amazon-eg")).toThrow();
+    expect(getSyncProviderAdapter("amazon-eg").id).toBe("amazon-eg");
   });
 
   it("resolves every registered import provider to its own adapter", () => {
