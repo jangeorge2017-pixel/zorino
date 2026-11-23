@@ -10,12 +10,12 @@ import {
   normalizeProductImageUrl,
 } from "@/lib/images/product-image";
 import { getSearchConnector } from "@/lib/search/connectors/registry";
-import type { RawProviderListing } from "@/lib/search/types";
 import { getProviderAdapter, isImportProviderId } from "@/lib/sync/providers";
 import { slugifyTitle } from "@/lib/sync/providers/shared/product-utils";
 import { rawListingToExternalProduct } from "@/lib/sync/providers/shared/storefront-catalog";
 import { fetchFallbackProducts } from "@/lib/sync/scraper";
-import type { ExternalProduct } from "@/lib/sync/types";
+import { QUERY_TIMEOUT_MS, STORE_TIMEOUT_MS, withTimeout } from "@/lib/sync/timeout";
+import type { ExternalProduct, SyncContext } from "@/lib/sync/types";
 
 export type ProviderStoreSyncOptions = {
   providerId: ProductionProviderId;
@@ -25,6 +25,7 @@ export type ProviderStoreSyncOptions = {
   pageSize?: number;
   countryCode?: string;
   currency?: string;
+  abortSignal?: AbortSignal;
 };
 
 export type SyncDropReason =
@@ -83,6 +84,23 @@ const STORE_WEBSITES: Partial<Record<ProductionProviderId, string>> = {
 function positiveIntEnv(name: string, fallback: number): number {
   const value = Number(process.env[name]);
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+}
+
+function querySyncContext(
+  ctx: SyncContext,
+  query: string,
+  maxPages: number,
+  pageSize: number,
+): SyncContext {
+  return {
+    ...ctx,
+    jobConfig: {
+      ...ctx.jobConfig,
+      keywords: [query],
+      maxPages,
+      pageSize,
+    },
+  };
 }
 
 function emptyDropCounts(): Record<SyncDropReason, number> {
@@ -244,110 +262,29 @@ export async function runProviderSyncStore(
     },
   });
 
+  const controller = new AbortController();
+  const abortFromParent = (): void => controller.abort();
+  options.abortSignal?.addEventListener("abort", abortFromParent, { once: true });
+  if (options.abortSignal?.aborted) controller.abort();
+
+  const startedAt = Date.now();
+  const storeTimer = setTimeout(() => controller.abort(), STORE_TIMEOUT_MS);
+  const queryTimeout = (): number =>
+    Math.max(1, Math.min(QUERY_TIMEOUT_MS, STORE_TIMEOUT_MS - (Date.now() - startedAt)));
+
   let source: ProviderStoreSyncResult["source"] = "adapter";
-  let products: ExternalProduct[] = [];
   let stepError: string | undefined;
   const attempts: SyncAttemptDiagnostic[] = [];
   const sanitizeDrops = emptyDropCounts();
+  const seenExternalIds = new Set<string>();
+  let rawTotal = 0;
+  let usableTotal = 0;
+  let savedTotal = 0;
+  let savedItems = 0;
   let fallbackUsed = false;
 
-  if (isImportProviderId(providerId)) {
-    const adapter = getProviderAdapter(providerId);
-    if (!adapter.isConfigured()) {
-      stepError = "adapter-not-configured";
-      attempts.push({ source: "adapter", error: stepError, rawCount: 0 });
-    } else {
-      try {
-        products = await adapter.fetchProducts(ctx);
-        attempts.push({ source: "adapter", rawCount: products.length });
-      } catch (error) {
-        stepError = error instanceof Error ? error.message.slice(0, 200) : "adapter-failed";
-        attempts.push({ source: "adapter", error: stepError, rawCount: 0 });
-      }
-    }
-  } else {
-    source = "connector";
-    const connector = getSearchConnector(providerId);
-    if (!connector) {
-      stepError = "connector-not-found";
-      attempts.push({ source: "connector", error: stepError, rawCount: 0 });
-    } else if (!(await connector.isAvailable())) {
-      stepError = "connector-unavailable";
-      attempts.push({ source: "connector", error: stepError, rawCount: 0 });
-    } else {
-      const raw: RawProviderListing[] = [];
-      for (const query of queries) {
-        try {
-          const listings = await connector.search(query, {
-            pageSize,
-            maxPages,
-            countryCode: ctx.countryCode,
-            currency: ctx.currency,
-          });
-          raw.push(...listings);
-          attempts.push({ source: "connector", query, rawCount: listings.length });
-        } catch (error) {
-          const message = error instanceof Error ? error.message.slice(0, 200) : "connector-failed";
-          attempts.push({ source: "connector", query, error: message, rawCount: 0 });
-          console.warn(`[provider-sync] ${providerId} "${query}": ${message}`);
-        }
-      }
-
-      products = raw
-        .map((listing) => rawListingToExternalProduct(providerId, listing, ctx))
-        .filter((product): product is ExternalProduct => product !== null);
-    }
-  }
-
-  let usable = sanitizeAndDedupe(products, sanitizeDrops);
-  if (usable.length === 0) {
-    try {
-      const fallback = await fetchFallbackProducts(providerId, ctx);
-      const fallbackDrops = emptyDropCounts();
-      const fallbackUsable = sanitizeAndDedupe(fallback, fallbackDrops);
-      for (const reason of Object.keys(sanitizeDrops) as SyncDropReason[]) {
-        sanitizeDrops[reason] += fallbackDrops[reason];
-      }
-      attempts.push({
-        source: "scraper",
-        rawCount: fallback.length,
-        usableCount: fallbackUsable.length,
-        error: fallbackUsable.length === 0 ? "no-usable-listings" : undefined,
-      });
-      if (fallbackUsable.length > 0) {
-        products = fallback;
-        usable = fallbackUsable;
-        source = "scraper";
-        stepError = undefined;
-        fallbackUsed = true;
-      }
-    } catch (error) {
-      stepError = error instanceof Error ? error.message.slice(0, 200) : "scraper-failed";
-      attempts.push({ source: "scraper", error: stepError, rawCount: 0 });
-    }
-  }
-
-  const diagnostics: ProviderStoreSyncResult["diagnostics"] = {
-    attempts,
-    rawTotal: products.length,
-    usableAfterSanitize: usable.length,
-    sanitizeDrops,
-    fallbackUsed,
-  };
-
-  const items = toCatalogItems(providerId, usable, maxProducts);
-  if (items.length === 0) {
-    return {
-      listings: products.length,
-      saved: 0,
-      source,
-      error: stepError ?? "no-usable-listings",
-      diagnostics,
-    };
-  }
-
   const meta = getSyncStoreMeta(providerId);
-  const saved = await saveCatalogItemsAs(items, {
+  const saveOptions = {
     providerId,
     store: {
       slug: meta.storeSlug,
@@ -357,7 +294,156 @@ export async function runProviderSyncStore(
       supportedRegions: [ctx.countryCode],
       supportedCurrencies: [ctx.currency],
     },
+  };
+
+  const saveBatch = async (
+    products: ExternalProduct[],
+  ): Promise<{ usable: number; saved: number }> => {
+    if (products.length === 0 || controller.signal.aborted) return { usable: 0, saved: 0 };
+    rawTotal += products.length;
+
+    const fresh = products.filter((product) => {
+      if (!product.externalId || seenExternalIds.has(product.externalId)) return false;
+      seenExternalIds.add(product.externalId);
+      return true;
+    });
+    const usable = sanitizeAndDedupe(fresh, sanitizeDrops);
+    usableTotal += usable.length;
+    if (usable.length === 0 || savedItems >= maxProducts) {
+      return { usable: usable.length, saved: 0 };
+    }
+
+    const items = toCatalogItems(providerId, usable, maxProducts - savedItems);
+    if (items.length === 0) return { usable: usable.length, saved: 0 };
+
+    try {
+      const saved = await saveCatalogItemsAs(items, saveOptions);
+      savedItems += items.length;
+      savedTotal += saved;
+      return { usable: usable.length, saved };
+    } catch (error) {
+      stepError = error instanceof Error ? error.message.slice(0, 200) : "catalog-save-failed";
+      console.error(`[provider-sync] ${providerId} save failed: ${stepError}`);
+      return { usable: usable.length, saved: 0 };
+    }
+  };
+
+  const buildResult = (timeoutError?: string): ProviderStoreSyncResult => ({
+    listings: rawTotal,
+    saved: savedTotal,
+    source,
+    error:
+      timeoutError ??
+      stepError ??
+      (usableTotal === 0 ? "no-usable-listings" : undefined),
+    diagnostics: {
+      attempts: [...attempts],
+      rawTotal,
+      usableAfterSanitize: usableTotal,
+      sanitizeDrops: { ...sanitizeDrops },
+      fallbackUsed,
+    },
   });
 
-  return { listings: products.length, saved, source, diagnostics };
+  const runStore = async (): Promise<ProviderStoreSyncResult> => {
+    if (isImportProviderId(providerId)) {
+      const adapter = getProviderAdapter(providerId);
+      if (!adapter.isConfigured()) {
+        stepError = "adapter-not-configured";
+        attempts.push({ source: "adapter", error: stepError, rawCount: 0 });
+      } else {
+        for (const query of queries) {
+          if (controller.signal.aborted) break;
+          const fetched = await withTimeout(
+            `adapter ${providerId} "${query}"`,
+            adapter.fetchProducts(querySyncContext(ctx, query, maxPages, pageSize)),
+            queryTimeout(),
+          );
+          if (!fetched.ok) {
+            attempts.push({ source: "adapter", query, error: fetched.error, rawCount: 0 });
+            continue;
+          }
+          const batch = await saveBatch(fetched.value);
+          attempts.push({
+            source: "adapter",
+            query,
+            rawCount: fetched.value.length,
+            usableCount: batch.usable,
+          });
+        }
+      }
+    } else {
+      source = "connector";
+      const connector = getSearchConnector(providerId);
+      if (!connector) {
+        stepError = "connector-not-found";
+        attempts.push({ source: "connector", error: stepError, rawCount: 0 });
+      } else if (!(await connector.isAvailable())) {
+        stepError = "connector-unavailable";
+        attempts.push({ source: "connector", error: stepError, rawCount: 0 });
+      } else {
+        for (const query of queries) {
+          if (controller.signal.aborted) break;
+          const fetched = await withTimeout(
+            `connector ${providerId} "${query}"`,
+            connector.search(query, {
+              pageSize,
+              maxPages,
+              countryCode: ctx.countryCode,
+              currency: ctx.currency,
+            }),
+            queryTimeout(),
+          );
+          if (!fetched.ok) {
+            attempts.push({ source: "connector", query, error: fetched.error, rawCount: 0 });
+            continue;
+          }
+          const products = fetched.value
+            .map((listing) => rawListingToExternalProduct(providerId, listing, ctx))
+            .filter((product): product is ExternalProduct => product !== null);
+          const batch = await saveBatch(products);
+          attempts.push({
+            source: "connector",
+            query,
+            rawCount: fetched.value.length,
+            usableCount: batch.usable,
+          });
+        }
+      }
+    }
+
+    if (usableTotal === 0 && !controller.signal.aborted) {
+      try {
+        const fallback = await fetchFallbackProducts(providerId, ctx, {
+          signal: controller.signal,
+          timeoutMs: queryTimeout(),
+        });
+        const batch = await saveBatch(fallback);
+        attempts.push({
+          source: "scraper",
+          rawCount: fallback.length,
+          usableCount: batch.usable,
+          error: batch.usable === 0 ? "no-usable-listings" : undefined,
+        });
+        if (batch.usable > 0) {
+          source = "scraper";
+          stepError = undefined;
+          fallbackUsed = true;
+        }
+      } catch (error) {
+        stepError = error instanceof Error ? error.message.slice(0, 200) : "scraper-failed";
+        attempts.push({ source: "scraper", error: stepError, rawCount: 0 });
+      }
+    }
+
+    return buildResult(controller.signal.aborted ? "store-timeout" : undefined);
+  };
+
+  try {
+    const outcome = await withTimeout(`store ${providerId}`, runStore(), STORE_TIMEOUT_MS);
+    return outcome.ok ? outcome.value : buildResult(outcome.error);
+  } finally {
+    clearTimeout(storeTimer);
+    options.abortSignal?.removeEventListener("abort", abortFromParent);
+  }
 }

@@ -7,6 +7,7 @@ import {
   slugifyTitle,
 } from "@/lib/sync/providers/shared/product-utils";
 import type { ScraperStoreConfig, ScrapedListing } from "@/lib/sync/scraper/types";
+import { QUERY_TIMEOUT_MS, withTimeout } from "@/lib/sync/timeout";
 import type { ExternalProduct, SyncContext } from "@/lib/sync/types";
 
 export { SCRAPER_SEED_QUERIES };
@@ -42,6 +43,7 @@ function toExternalProduct(
 export async function fetchFallbackProducts(
   providerId: string,
   ctx: SyncContext,
+  options?: { signal?: AbortSignal; timeoutMs?: number },
 ): Promise<ExternalProduct[]> {
   if (process.env.SYNC_SCRAPER_ENABLED === "0") return [];
 
@@ -55,18 +57,33 @@ export async function fetchFallbackProducts(
   const maxProducts = positiveInt("SYNC_SCRAPER_MAX_PRODUCTS", 3000);
   const products: ExternalProduct[] = [];
   const seen = new Set<string>();
+  const timeoutMs = Math.max(1, Math.floor(options?.timeoutMs ?? QUERY_TIMEOUT_MS));
   let consecutiveFailures = 0;
 
   queryLoop: for (const query of queries) {
+    if (options?.signal?.aborted) break;
     for (let page = 1; page <= pages; page += 1) {
-      if (products.length >= maxProducts) break queryLoop;
+      if (products.length >= maxProducts || options?.signal?.aborted) break queryLoop;
+
+      const fetched = await withTimeout(
+        `scraper ${providerId} "${query}" page ${page}`,
+        fetchStorefrontHtml(config.searchUrl(query, page), config),
+        timeoutMs,
+      );
+      if (!fetched.ok) {
+        consecutiveFailures += 1;
+        console.warn(
+          `[scraper-fallback] ${providerId} "${query}" page ${page}: ${fetched.error}`,
+        );
+        if (consecutiveFailures >= 3) break queryLoop;
+        continue;
+      }
 
       try {
-        const fetched = await fetchStorefrontHtml(config.searchUrl(query, page), config);
-        const listings = extractScrapedListings(fetched.html, config);
+        const listings = extractScrapedListings(fetched.value.html, config);
         if (listings.length === 0) {
           throw new Error(
-            `zero-listings status=${fetched.status} title="${fetched.title}" url=${fetched.finalUrl}`,
+            `zero-listings status=${fetched.value.status} title="${fetched.value.title}" url=${fetched.value.finalUrl}`,
           );
         }
         for (const listing of listings) {

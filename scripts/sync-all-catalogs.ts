@@ -5,6 +5,7 @@ import { createCronBudget } from "@/lib/cron/budget";
 import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
 import { runProviderSyncStore } from "@/lib/sync/runner";
 import { SCRAPER_SEED_QUERIES } from "@/lib/sync/scraper/stores";
+import { GLOBAL_TIMEOUT_MS } from "@/lib/sync/timeout";
 
 const STORE_IDS = [
   "amazon-eg",
@@ -75,20 +76,55 @@ async function main(): Promise<void> {
     .filter(Boolean);
   const maxProductsPerStore = positiveInt("SYNC_STORE_MAX_PRODUCTS", 3000);
   const budgetMs = positiveInt("SYNC_BUDGET_MS", 3_000_000);
+  const abortController = new AbortController();
+  const stores: Record<string, unknown> = {};
+  let cacheBumpStarted = false;
 
   const summary: Record<string, unknown> = {
     startedAt,
     queries,
     maxProductsPerStore,
     budgetMs,
+    globalTimeoutMs: GLOBAL_TIMEOUT_MS,
     providerSteps: {},
-    stores: {},
+    stores,
   };
 
   const writeSummary = (): void => {
     mkdirSync("logs", { recursive: true });
     writeFileSync("logs/catalog-sync-summary.json", JSON.stringify(summary, null, 2));
   };
+
+  const bumpCache = async (): Promise<void> => {
+    if (cacheBumpStarted) return;
+    cacheBumpStarted = true;
+    try {
+      summary.searchCacheVersion = await bumpSearchCacheVersion();
+    } catch (error) {
+      summary.searchCacheVersion = { error: error instanceof Error ? error.message : String(error) };
+      console.error("[sync-all-catalogs] cache bump failed:", error);
+    }
+  };
+
+  const flushAndExit = async (): Promise<void> => {
+    summary.timedOut = true;
+    summary.finishedAt = new Date().toISOString();
+    writeSummary();
+    await bumpCache();
+    writeSummary();
+    console.warn(
+      `[sync-all-catalogs] global ${GLOBAL_TIMEOUT_MS}ms safety timeout reached; flushed and exiting`,
+    );
+    process.exit(0);
+  };
+
+  const safetyTimer = setTimeout(() => {
+    abortController.abort();
+    void flushAndExit().catch((error) => {
+      console.error("[sync-all-catalogs] emergency flush failed:", error);
+      process.exit(0);
+    });
+  }, GLOBAL_TIMEOUT_MS);
 
   writeSummary();
 
@@ -102,8 +138,8 @@ async function main(): Promise<void> {
   }
   writeSummary();
 
-  const stores: Record<string, unknown> = {};
   for (const providerId of STORE_IDS) {
+    if (abortController.signal.aborted) break;
     try {
       const result = await runProviderSyncStore({
         providerId,
@@ -111,6 +147,7 @@ async function main(): Promise<void> {
         maxProducts: maxProductsPerStore,
         countryCode: providerId === "walmart" || providerId === "bestbuy" ? "US" : "EG",
         currency: providerId === "walmart" || providerId === "bestbuy" ? "USD" : "EGP",
+        abortSignal: abortController.signal,
       });
       stores[providerId] = result;
       console.log(`[sync-all-catalogs] ${providerId}:`, JSON.stringify(result));
@@ -121,16 +158,10 @@ async function main(): Promise<void> {
     }
     writeSummary();
   }
-  summary.stores = stores;
   summary.finishedAt = new Date().toISOString();
 
-  try {
-    summary.searchCacheVersion = await bumpSearchCacheVersion();
-  } catch (error) {
-    summary.searchCacheVersion = { error: error instanceof Error ? error.message : String(error) };
-    console.error("[sync-all-catalogs] cache bump failed:", error);
-  }
-
+  clearTimeout(safetyTimer);
+  await bumpCache();
   writeSummary();
   console.log("[sync-all-catalogs] complete");
 }
