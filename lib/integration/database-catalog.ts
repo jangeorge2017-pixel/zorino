@@ -26,7 +26,6 @@ import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
   buildIndexedSearchOrFilter,
-  buildNormalizedSearchOrFilter,
   buildFuzzyIlikeOrFilter,
   escapeRegexToken,
   querySearchTokens,
@@ -1229,7 +1228,7 @@ async function loadDeviceSearchCountFromDatabase(
   const words = querySearchTokens(device.query);
   if (words.length === 0) return 0;
 
-  const orFilter = buildNormalizedSearchOrFilter(device.query);
+  const orFilter = buildIndexedSearchOrFilter(device.query);
   const ctx = deviceGuardSqlQueryContext(device);
 
   const selected = db(supabase)
@@ -1351,7 +1350,7 @@ async function loadSearchResultsCountFromDatabase(query: string): Promise<number
   const words = querySearchTokens(query);
   if (words.length === 0) return 0;
 
-  const orFilter = buildNormalizedSearchOrFilter(query);
+  const orFilter = buildIndexedSearchOrFilter(query);
 
   const { count, error } = await db(supabase)
     .from("lowest_prices_today")
@@ -1444,7 +1443,7 @@ async function loadSearchResultsFromDatabasePaged(
   const words = querySearchTokens(query);
   if (words.length === 0) return { items: [], total: 0 };
 
-  const orFilter = buildNormalizedSearchOrFilter(query);
+  const orFilter = buildIndexedSearchOrFilter(query);
 
   const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
   const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 1;

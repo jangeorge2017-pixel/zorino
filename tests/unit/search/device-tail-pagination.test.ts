@@ -125,8 +125,19 @@ function parseOrFilter(clause: string): RegExp[] {
     .map((c) => c.trim())
     .filter(Boolean)
     .map((c) => {
-      const token = c.replace(/^product_name\.imatch\./, "");
-      return new RegExp(token.replace(/\\m/g, "\\b").replace(/\\M/g, "\\b"), "i");
+      const imatch = /^product_name\.imatch\.(.*)$/.exec(c);
+      if (imatch) {
+        return new RegExp(
+          imatch[1].replace(/\\m/g, "\\b").replace(/\\M/g, "\\b"),
+          "i",
+        );
+      }
+      const ilike = /^product_name\.ilike\.%(.*)%$/.exec(c);
+      if (ilike) {
+        const token = ilike[1].replace(/\\([%_\\])/g, "$1");
+        return new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      }
+      throw new Error(`unsupported or filter clause: ${c}`);
     });
 }
 
