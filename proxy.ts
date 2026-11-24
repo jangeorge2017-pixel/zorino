@@ -21,6 +21,42 @@ import { stripLocaleFromPathname } from "@/lib/international/path";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
+const INTERNAL_LOCALE_REWRITE_HEADER = "x-zor-internal-locale-rewrite";
+
+function isInternalProxyRewriteTarget(url: URL, request: NextRequest) {
+  const hostname = url.hostname.toLowerCase();
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "0.0.0.0" ||
+    hostname === request.nextUrl.hostname.toLowerCase()
+  );
+}
+
+function normalizeIntlProxyResponse(response: NextResponse, request: NextRequest) {
+  const rewrite = response.headers.get("x-middleware-rewrite");
+  if (!rewrite) return response;
+
+  try {
+    const url = new URL(rewrite);
+    if (url.protocol === "https:" && isInternalProxyRewriteTarget(url, request)) {
+      url.protocol = "http:";
+      response.headers.set("x-middleware-rewrite", url.toString());
+    }
+  } catch {}
+
+  const overrideHeader = response.headers.get("x-middleware-override-headers");
+  const overrides = overrideHeader
+    ? overrideHeader.split(",").map((name) => name.trim()).filter(Boolean)
+    : [];
+  if (!overrides.includes(INTERNAL_LOCALE_REWRITE_HEADER)) {
+    overrides.push(INTERNAL_LOCALE_REWRITE_HEADER);
+  }
+  response.headers.set("x-middleware-override-headers", overrides.join(","));
+  response.headers.set(`x-middleware-request-${INTERNAL_LOCALE_REWRITE_HEADER}`, "1");
+  return response;
+}
+
 function applyPreferenceCookies(
   response: NextResponse,
   country: CountryCode,
@@ -57,6 +93,10 @@ function applyPreferenceCookies(
 
 /** Next.js 16+ proxy entry (replaces deprecated middleware.ts). */
 export function proxy(request: NextRequest) {
+  if (request.headers.get(INTERNAL_LOCALE_REWRITE_HEADER) === "1") {
+    return NextResponse.next();
+  }
+
   const detectedCountry = detectCountryFromHeaders(request);
   const geoInitialized = request.cookies.get(INTL_COOKIE_GEO_DONE)?.value === "1";
   const pathname = request.nextUrl.pathname;
@@ -83,7 +123,7 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  const response = intlMiddleware(request);
+  const response = normalizeIntlProxyResponse(intlMiddleware(request), request);
 
   if (!geoInitialized) {
     response.cookies.set(INTL_COOKIE_GEO_DONE, "1", {
@@ -98,5 +138,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|robots\\.txt|sitemap\\.xml|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|_vercel|cart|auth/callback|robots\\.txt|sitemap\\.xml|.*\\..*).*)"],
 };
