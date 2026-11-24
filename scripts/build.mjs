@@ -10,12 +10,12 @@ if (!existsSync(nextBin)) {
 
 const env = {
   ...process.env,
-  NODE_OPTIONS: "--max-old-space-size=440",
+  NODE_OPTIONS: "--max-old-space-size=320",
   NEXT_TELEMETRY_DISABLED: "1",
 };
 
 console.log(
-  "[build] next build with NODE_OPTIONS=--max-old-space-size=440 NEXT_TELEMETRY_DISABLED=1",
+  "[build] next build with NODE_OPTIONS=--max-old-space-size=320 NEXT_TELEMETRY_DISABLED=1",
 );
 const result = spawnSync(process.execPath, [nextBin, "build"], { stdio: "inherit", env });
 if (result.error) {

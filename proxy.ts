@@ -104,6 +104,24 @@ export function proxy(request: NextRequest) {
   const explicitEnglish = pathname === "/en" || pathname.startsWith("/en/");
   const explicitArabic = pathname === "/ar" || pathname.startsWith("/ar/");
 
+  if (explicitEnglish) {
+    const headers = new Headers(request.headers);
+    headers.set("x-next-intl-locale", "en");
+    headers.set(INTERNAL_LOCALE_REWRITE_HEADER, "1");
+    const response = normalizeIntlProxyResponse(
+      NextResponse.rewrite(request.nextUrl, { request: { headers } }),
+      request,
+    );
+    if (!geoInitialized) {
+      response.cookies.set(INTL_COOKIE_GEO_DONE, "1", {
+        maxAge: INTL_COOKIE_MAX_AGE,
+        path: "/",
+      });
+    }
+    applyPreferenceCookies(response, detectedCountry, request, "en");
+    return response;
+  }
+
   // Geo auto-Arabic is first-visit only, and never overrides an explicit /en URL.
   if (
     !geoInitialized &&

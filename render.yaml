@@ -33,9 +33,9 @@ services:
     # NODE_ENV=production here: npm would omit devDependencies and next build
     # exits 1. `next build` sets NODE_ENV=production itself.
     # Build and runtime memory are intentionally separated: npm run build uses
-    # NODE_OPTIONS=--max-old-space-size=440 so compilation does not heap-OOM,
+    # NODE_OPTIONS=--max-old-space-size=320 so compilation fits the 512MB container,
     # while the NODE_OPTIONS env var below stays at 256MB for the standalone
-    # runtime server (~100-160MB RSS under the 512MB container ceiling).
+    # runtime server (~100-160MB RSS under the same ceiling).
     buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev
     startCommand: npm run start
     envVars:

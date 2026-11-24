@@ -30,7 +30,7 @@ FROM base AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1 \
     NODE_ENV=production \
-    NODE_OPTIONS=--max-old-space-size=440 \
+    NODE_OPTIONS=--max-old-space-size=320 \
     CI=1
 
 # Render injects the service's environment variables as Docker build args, but
@@ -83,7 +83,7 @@ RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" && test -n "$NEXT_PUBLIC_SITE_URL" || { 
     }
 
 # Type-checking is disabled in next.config.ts and Next 16 no longer lints during
-# build; npm run build sets NODE_OPTIONS=--max-old-space-size=440 and copies
+# build; npm run build sets NODE_OPTIONS=--max-old-space-size=320 and copies
 # standalone assets.
 RUN npm run build
 
