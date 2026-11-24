@@ -8,6 +8,10 @@ import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { SupabaseDb } from "@/lib/supabase/config";
 
+const MAX_LOWEST_LIMIT = 100;
+const LOWEST_PRICE_SELECT =
+  "id, product_id, country_code, currency, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, savings_amount, store_name, provider, affiliate_url, external_url, is_new_low, price_recorded_at";
+
 type LowestPriceRow = {
   id: string;
   product_id: string;
@@ -87,13 +91,23 @@ export async function getLowestPricesToday(options?: {
   const countryCode = options?.countryCode ?? DEFAULT_LOWEST_COUNTRY;
   const currency = options?.currency ?? DEFAULT_LOWEST_CURRENCY;
   const sort = options?.sort ?? "lowest_price";
-  const limit = options?.limit ?? DEFAULT_LOWEST_LIMIT;
+  const limit = Math.min(Math.max(options?.limit ?? DEFAULT_LOWEST_LIMIT, 1), MAX_LOWEST_LIMIT);
 
-  const { data, error } = await db(supabase)
+  let query = db(supabase)
     .from("lowest_prices_today")
-    .select("*")
+    .select(LOWEST_PRICE_SELECT)
     .eq("country_code", countryCode)
     .eq("currency", currency);
+
+  if (sort === "biggest_discount") {
+    query = query.order("discount_percent", { ascending: false });
+  } else if (sort === "new_lowest") {
+    query = query.order("is_new_low", { ascending: false }).order("price_recorded_at", { ascending: false });
+  } else {
+    query = query.order("lowest_price", { ascending: true });
+  }
+
+  const { data, error } = await query.limit(limit);
 
   if (error) return { data: [], error: error.message };
 
@@ -122,7 +136,8 @@ async function getLowestPricesLiveFallback(
     )
     .eq("is_current", true)
     .eq("country_code", countryCode)
-    .eq("currency", currency);
+    .eq("currency", currency)
+    .limit(MAX_LOWEST_LIMIT);
 
   if (error) return { data: [], error: error.message };
 
@@ -190,7 +205,7 @@ export async function getLowestPriceRefreshStatus() {
 
   const { data, error } = await db(supabase)
     .from("lowest_price_refresh_jobs")
-    .select("*")
+    .select("id, status, started_at, finished_at, error_message, updated_at")
     .limit(1)
     .maybeSingle();
 

@@ -26,7 +26,7 @@ export const CRITICAL_SEARCH_PROVIDER_IDS = [
 export const PERSISTENT_SEARCH_INCOMPLETE_TTL_MS = 5 * 60 * 1000;
 
 /** Max products returned from the persistent cache (and stored per query). */
-export const PERSISTENT_SEARCH_MAX_ITEMS = 60;
+export const PERSISTENT_SEARCH_MAX_ITEMS = 50;
 
 /** Critical providers absent from a cached pool (empty when complete). */
 export function getMissingCriticalSearchProviders(

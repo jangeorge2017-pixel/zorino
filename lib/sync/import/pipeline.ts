@@ -5,7 +5,6 @@ import {
   mergeExternalProductToCatalog,
 } from "@/lib/sync/import/merger";
 import {
-  getExternalIdsForStore,
   upsertExternalPrice,
   upsertExternalProduct,
 } from "@/lib/sync/import/repository";
@@ -36,6 +35,35 @@ function db(client: SupabaseDb): any {
   return client;
 }
 
+async function loadExternalIdsForStore(
+  supabase: SupabaseDb,
+  provider: ImportProviderId,
+  storeId: string
+): Promise<string[]> {
+  const ids: string[] = [];
+  let offset = 0;
+
+  for (;;) {
+    const { data, error } = await db(supabase)
+      .from("external_products")
+      .select("external_id")
+      .eq("provider", provider)
+      .eq("store_id", storeId)
+      .order("external_id", { ascending: true })
+      .order("id", { ascending: true })
+      .range(offset, offset + READ_PAGE_SIZE - 1);
+
+    if (error) throw new Error(error.message);
+
+    const rows = (data ?? []) as { external_id: string }[];
+    ids.push(...rows.map((row) => row.external_id));
+    if (rows.length < READ_PAGE_SIZE) break;
+    offset += READ_PAGE_SIZE;
+  }
+
+  return ids;
+}
+
 function resolveImportProvider(ctx: SyncContext): ImportProviderId | null {
   if (isImportProviderId(ctx.integrationType)) return ctx.integrationType;
   // Partner-typed stores (e.g. CJdropshipping) carry the import provider id in
@@ -56,6 +84,20 @@ function resolveImportConnector(ctx: SyncContext, provider: ImportProviderId | n
 
 /** Concurrent per-product write pool (one PostgREST chain per product). */
 const WRITE_CONCURRENCY = 6;
+const READ_PAGE_SIZE = 100;
+
+type ExternalProductRow = {
+  external_id: string;
+  title: string;
+  slug: string;
+  category_slug: string | null;
+  image_url: string | null;
+  country_code: string | null;
+  product_url: string | null;
+  brand: string | null;
+  rating: number | null;
+  review_count: number | null;
+};
 
 /**
  * Run `workers` concurrent runners over `items`, preserving order-insensitive
@@ -219,7 +261,7 @@ export async function importPricesFromProvider(
 
   const externalIds =
     provider !== null
-      ? await getExternalIdsForStore(supabase, provider, ctx.storeId)
+      ? await loadExternalIdsForStore(supabase, provider, ctx.storeId)
       : [];
 
   let priceUpdates: Pick<
@@ -497,7 +539,7 @@ export async function importPricesChunked(
 
   const externalIds =
     provider !== null
-      ? await getExternalIdsForStore(supabase, provider, ctx.storeId)
+      ? await loadExternalIdsForStore(supabase, provider, ctx.storeId)
       : [];
 
   if (externalIds.length === 0) {
@@ -576,33 +618,59 @@ async function hydratePriceUpdates(
 ): Promise<ExternalProduct[]> {
   const hydrated: ExternalProduct[] = [];
 
-  for (const update of updates) {
-    const { data: row } = await db(supabase)
-      .from("external_products")
-      .select("*")
-      .eq("provider", provider)
-      .eq("store_id", storeId)
-      .eq("external_id", update.externalId)
-      .maybeSingle();
+  for (let i = 0; i < updates.length; i += READ_PAGE_SIZE) {
+    const batch = updates.slice(i, i + READ_PAGE_SIZE);
+    const rows = new Map<string, ExternalProductRow>();
+    let offset = 0;
 
-    if (!row) continue;
+    for (;;) {
+      const { data, error } = await db(supabase)
+        .from("external_products")
+        .select(
+          "external_id, title, slug, category_slug, image_url, country_code, product_url, brand, rating, review_count"
+        )
+        .eq("provider", provider)
+        .eq("store_id", storeId)
+        .in(
+          "external_id",
+          batch.map((update) => update.externalId)
+        )
+        .order("external_id", { ascending: true })
+        .order("id", { ascending: true })
+        .range(offset, offset + READ_PAGE_SIZE - 1);
 
-    hydrated.push({
-      externalId: update.externalId,
-      title: row.title,
-      slug: row.slug,
-      categorySlug: row.category_slug ?? "phones",
-      imageUrl: row.image_url,
-      price: update.price,
-      originalPrice: update.originalPrice,
-      currency: update.currency,
-      countryCode: row.country_code ?? "US",
-      inStock: update.inStock,
-      productUrl: row.product_url ?? "",
-      brand: row.brand ?? undefined,
-      rating: row.rating ?? undefined,
-      reviewCount: row.review_count ?? 0,
-    });
+      if (error) throw new Error(error.message);
+
+      const page = (data ?? []) as ExternalProductRow[];
+      for (const row of page) {
+        if (!rows.has(row.external_id)) rows.set(row.external_id, row);
+      }
+
+      if (page.length < READ_PAGE_SIZE) break;
+      offset += READ_PAGE_SIZE;
+    }
+
+    for (const update of batch) {
+      const row = rows.get(update.externalId);
+      if (!row) continue;
+
+      hydrated.push({
+        externalId: update.externalId,
+        title: row.title,
+        slug: row.slug,
+        categorySlug: row.category_slug ?? "phones",
+        imageUrl: row.image_url ?? "",
+        price: update.price,
+        originalPrice: update.originalPrice,
+        currency: update.currency,
+        countryCode: row.country_code ?? "US",
+        inStock: update.inStock,
+        productUrl: row.product_url ?? "",
+        brand: row.brand ?? undefined,
+        rating: row.rating ?? undefined,
+        reviewCount: row.review_count ?? 0,
+      });
+    }
   }
 
   return hydrated;

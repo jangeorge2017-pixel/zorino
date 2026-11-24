@@ -84,7 +84,7 @@ export type GlobalSearchOptions = {
 };
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
-const FAIR_SEARCH_MAX_ENTRIES = 500;
+const FAIR_SEARCH_MAX_ENTRIES = 50;
 const DB_FAST_LANE_TIMEOUT_MS = 2_000;
 const DB_SUPPLEMENT_TIMEOUT_MS = 3_500;
 const DB_LANE_TIMEOUT_MS = 4_000;

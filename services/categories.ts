@@ -14,9 +14,10 @@ export async function getCategories(): Promise<ServiceResult<Category[]>> {
 
   const { data, error } = await supabase
     .from("categories")
-    .select("*")
+    .select("id, slug, name, name_ar, description, icon, parent_id, sort_order, product_count, is_active, created_at, updated_at")
     .eq("is_active", true)
-    .order("sort_order");
+    .order("sort_order")
+    .limit(100);
 
   if (error) return { data: [], error: error.message };
 
@@ -44,7 +45,7 @@ export async function getCategoryBySlug(slug: string): Promise<ServiceResult<Cat
 
   const { data, error } = await supabase
     .from("categories")
-    .select("*")
+    .select("id, slug, name, name_ar, description, icon, parent_id, sort_order, product_count, is_active, created_at, updated_at")
     .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();

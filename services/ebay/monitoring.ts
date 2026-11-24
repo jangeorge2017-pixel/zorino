@@ -32,7 +32,9 @@ export async function getEbayImportEventLogs(options?: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
     .from("import_event_logs")
-    .select("*")
+    .select(
+      "id, provider, job_type, level, message, metadata, sync_run_id, created_at"
+    )
     .eq("provider", EBAY_PROVIDER_ID)
     .order("created_at", { ascending: false })
     .limit(options?.limit ?? 50);
@@ -74,7 +76,9 @@ export async function getEbaySyncSummary(limit = 10) {
 
   const { data: runs } = await supabase
     .from("sync_runs")
-    .select("*")
+    .select(
+      "id, job_type, status, items_fetched, items_created, items_updated, items_failed, started_at, error_message"
+    )
     .eq("store_id", storeId)
     .order("started_at", { ascending: false })
     .limit(limit);

@@ -3,6 +3,9 @@ import type { SupabaseDb } from "@/lib/supabase/config";
 import { LOWEST_PRICE_REFRESH_INTERVAL_MINUTES } from "@/lib/lowest-prices/config";
 
 const DEFAULT_COUNTRIES = ["US", "GB", "AE", "SA", "DE"] as const;
+const PAGE_SIZE = 100;
+const PRICE_COLUMNS =
+  "product_id, store_id, price, original_price, currency, country_code, external_url, recorded_at, stores (name, slug, integration_type, website)";
 
 type PriceCandidate = {
   product_id: string;
@@ -83,26 +86,60 @@ async function computeForCountry(
   supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>,
   countryCode: string
 ): Promise<number> {
-  const { data: priceRows, error } = await db(supabase)
-    .from("prices")
-    .select(
-      "product_id, store_id, price, original_price, currency, country_code, external_url, recorded_at, stores (name, slug, integration_type, website)"
-    )
-    .eq("is_current", true)
-    .eq("country_code", countryCode);
+  let offset = 0;
+  let currentProductId: string | null = null;
+  let bestForCurrent: PriceCandidate | null = null;
+  let pending = new Map<string, PriceCandidate>();
+  let computed = 0;
 
-  if (error) throw new Error(error.message);
+  const flush = async () => {
+    if (pending.size === 0) return;
+    computed += await processProductBatch(supabase, countryCode, pending);
+    pending = new Map<string, PriceCandidate>();
+  };
 
-  const byProduct = new Map<string, PriceCandidate[]>();
-  for (const row of (priceRows ?? []) as PriceCandidate[]) {
-    const list = byProduct.get(row.product_id) ?? [];
-    list.push(row);
-    byProduct.set(row.product_id, list);
+  for (;;) {
+    const { data, error } = await db(supabase)
+      .from("prices")
+      .select(PRICE_COLUMNS)
+      .eq("is_current", true)
+      .eq("country_code", countryCode)
+      .order("product_id", { ascending: true })
+      .order("store_id", { ascending: true })
+      .order("recorded_at", { ascending: true })
+      .range(offset, offset + PAGE_SIZE - 1);
+
+    if (error) throw new Error(error.message);
+
+    const rows = (data ?? []) as PriceCandidate[];
+    for (const row of rows) {
+      if (currentProductId !== null && row.product_id !== currentProductId) {
+        if (bestForCurrent) pending.set(currentProductId, bestForCurrent);
+        bestForCurrent = null;
+        if (pending.size >= PAGE_SIZE) await flush();
+      }
+      currentProductId = row.product_id;
+      if (!bestForCurrent || row.price < bestForCurrent.price) bestForCurrent = row;
+    }
+
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
   }
 
-  if (byProduct.size === 0) return 0;
+  if (currentProductId !== null && bestForCurrent) {
+    pending.set(currentProductId, bestForCurrent);
+  }
+  await flush();
 
-  const productIds = [...byProduct.keys()];
+  return computed;
+}
+
+async function processProductBatch(
+  supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>,
+  countryCode: string,
+  bestByProduct: Map<string, PriceCandidate>
+): Promise<number> {
+  const productIds = [...bestByProduct.keys()];
   const { data: products } = await db(supabase)
     .from("products")
     .select("id, name, slug, image_url, emoji")
@@ -114,15 +151,16 @@ async function computeForCountry(
   );
 
   const affiliateMap = await loadAffiliateUrls(supabase, productIds, countryCode);
+  const previousLows = await loadPreviousLows(supabase, productIds, countryCode);
 
   const cacheRows: Record<string, unknown>[] = [];
+  const historyRows: Record<string, unknown>[] = [];
   let computed = 0;
 
-  for (const [productId, candidates] of byProduct) {
+  for (const [productId, best] of bestByProduct) {
     const product = productMap.get(productId);
     if (!product) continue;
 
-    const best = candidates.reduce((min, row) => (row.price < min.price ? row : min));
     const store = best.stores;
     const original = best.original_price ?? best.price;
     const discountPercent =
@@ -138,11 +176,11 @@ async function computeForCountry(
       store?.website ??
       "";
 
-    const previousLow = await getPreviousLowest(supabase, productId, countryCode, best.currency);
+    const previousLow = previousLows.get(productId) ?? null;
     const isNewLow = previousLow === null || best.price < previousLow;
 
     if (isNewLow) {
-      await db(supabase).from("lowest_price_history").insert({
+      historyRows.push({
         product_id: productId,
         store_id: best.store_id,
         provider,
@@ -178,10 +216,18 @@ async function computeForCountry(
     computed += 1;
   }
 
-  if (cacheRows.length > 0) {
+  for (let i = 0; i < historyRows.length; i += PAGE_SIZE) {
+    await db(supabase)
+      .from("lowest_price_history")
+      .insert(historyRows.slice(i, i + PAGE_SIZE));
+  }
+
+  for (let i = 0; i < cacheRows.length; i += PAGE_SIZE) {
     await db(supabase)
       .from("lowest_prices_today")
-      .upsert(cacheRows, { onConflict: "product_id,country_code,currency" });
+      .upsert(cacheRows.slice(i, i + PAGE_SIZE), {
+        onConflict: "product_id,country_code,currency",
+      });
   }
 
   return computed;
@@ -193,57 +239,98 @@ async function loadAffiliateUrls(
   countryCode: string
 ) {
   const map = new Map<string, string>();
-  const { data } = await db(supabase)
-    .from("product_sources")
-    .select("product_id, store_id, country_code, currency, affiliate_url, external_url")
-    .in("product_id", productIds)
-    .eq("is_active", true);
+  let offset = 0;
 
-  for (const row of data ?? []) {
-    const r = row as {
-      product_id: string;
-      store_id: string;
-      country_code: string | null;
-      currency: string;
-      affiliate_url: string | null;
-      external_url: string | null;
-    };
-    if (r.country_code && r.country_code !== countryCode) continue;
-    const url = r.affiliate_url ?? r.external_url;
-    if (!url) continue;
-    map.set(`${r.product_id}:${r.store_id}:${countryCode}:${r.currency}`, url);
+  for (;;) {
+    const { data } = await db(supabase)
+      .from("product_sources")
+      .select("product_id, store_id, country_code, currency, affiliate_url, external_url")
+      .in("product_id", productIds)
+      .eq("is_active", true)
+      .order("product_id", { ascending: true })
+      .order("store_id", { ascending: true })
+      .order("currency", { ascending: true })
+      .range(offset, offset + PAGE_SIZE - 1);
+
+    const rows = data ?? [];
+    for (const row of rows) {
+      const r = row as {
+        product_id: string;
+        store_id: string;
+        country_code: string | null;
+        currency: string;
+        affiliate_url: string | null;
+        external_url: string | null;
+      };
+      if (r.country_code && r.country_code !== countryCode) continue;
+      const url = r.affiliate_url ?? r.external_url;
+      if (!url) continue;
+      map.set(`${r.product_id}:${r.store_id}:${countryCode}:${r.currency}`, url);
+    }
+
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
   }
 
   return map;
 }
 
-async function getPreviousLowest(
+async function loadPreviousLows(
   supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>,
-  productId: string,
-  countryCode: string,
-  currency: string
-): Promise<number | null> {
-  const { data: cached } = await db(supabase)
-    .from("lowest_prices_today")
-    .select("lowest_price")
-    .eq("product_id", productId)
-    .eq("country_code", countryCode)
-    .eq("currency", currency)
-    .maybeSingle();
+  productIds: string[],
+  countryCode: string
+): Promise<Map<string, number | null>> {
+  const map = new Map<string, number | null>();
+  for (const id of productIds) map.set(id, null);
 
-  if (cached?.lowest_price != null) return Number(cached.lowest_price);
+  let offset = 0;
+  for (;;) {
+    const { data } = await db(supabase)
+      .from("lowest_prices_today")
+      .select("product_id, lowest_price")
+      .eq("country_code", countryCode)
+      .in("product_id", productIds)
+      .order("product_id", { ascending: true })
+      .range(offset, offset + PAGE_SIZE - 1);
 
-  const { data: history } = await db(supabase)
-    .from("lowest_price_history")
-    .select("price")
-    .eq("product_id", productId)
-    .eq("country_code", countryCode)
-    .eq("currency", currency)
-    .order("recorded_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    const rows = data ?? [];
+    for (const row of rows) {
+      const r = row as { product_id: string; lowest_price: number | string | null };
+      if (r.lowest_price == null) continue;
+      if (map.get(r.product_id) == null) map.set(r.product_id, Number(r.lowest_price));
+    }
 
-  return history?.price != null ? Number(history.price) : null;
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+
+  const missing = productIds.filter((id) => map.get(id) == null);
+  for (let i = 0; i < missing.length; i += PAGE_SIZE) {
+    const chunk = missing.slice(i, i + PAGE_SIZE);
+    let historyOffset = 0;
+
+    for (;;) {
+      const { data } = await db(supabase)
+        .from("lowest_price_history")
+        .select("product_id, price")
+        .eq("country_code", countryCode)
+        .in("product_id", chunk)
+        .order("recorded_at", { ascending: false })
+        .range(historyOffset, historyOffset + PAGE_SIZE - 1);
+
+      const rows = data ?? [];
+      for (const row of rows) {
+        const r = row as { product_id: string; price: number | string | null };
+        if (r.price == null) continue;
+        if (map.get(r.product_id) == null) map.set(r.product_id, Number(r.price));
+      }
+
+      if (rows.length < PAGE_SIZE) break;
+      historyOffset += PAGE_SIZE;
+    }
+  }
+
+  return map;
 }
 
 export async function isLowestPriceRefreshDue(): Promise<boolean> {

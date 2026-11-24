@@ -22,7 +22,7 @@ export async function getCurrentUser(): Promise<ServiceResult<User | null>> {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, email, name, avatar_url, locale, country_code, currency, is_verified, is_admin, created_at, updated_at, last_login_at")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -67,9 +67,10 @@ export async function getUserFavorites(userId: string): Promise<ServiceResult<Fa
 
   const { data, error } = await supabase
     .from("favorites")
-    .select("*, products (*)")
+    .select("id, user_id, product_id, price_alert, currency, created_at, products (id, name, name_ar, slug, description, description_ar, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, specifications, tags, is_active, category_id, last_synced_at, sync_status, created_at, updated_at)")
     .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   if (error) return { data: [], error: error.message };
 
@@ -133,16 +134,14 @@ export async function getUserNotifications(
 
   let query = supabase
     .from("notifications")
-    .select("*")
+    .select("id, user_id, type, title, title_ar, message, message_ar, link, data, read, created_at, read_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (options?.unreadOnly) {
     query = query.eq("read", false);
   }
-  if (options?.limit) {
-    query = query.limit(options.limit);
-  }
+  query = query.limit(Math.min(options?.limit ?? 100, 100));
 
   const { data, error } = await query;
   if (error) return { data: [], error: error.message };
@@ -227,7 +226,7 @@ export async function getNotificationPreferences(
 
   const { data, error } = await supabase
     .from("notification_preferences")
-    .select("*")
+    .select("user_id, email_price_drops, email_trending, in_app_enabled")
     .eq("user_id", userId)
     .maybeSingle();
 

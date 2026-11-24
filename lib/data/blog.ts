@@ -59,10 +59,10 @@ export async function getPublishedBlogPosts(limit = 100): Promise<MockBlogPost[]
 
   const { data, error } = await supabase
     .from("blog_posts")
-    .select("*")
+    .select("id, title, title_ar, slug, excerpt, excerpt_ar, content, content_ar, image_url, author, category, tags, published, published_at, updated_at, views, featured")
     .eq("published", true)
     .order("published_at", { ascending: false })
-    .limit(limit);
+    .limit(Math.min(limit, 100));
 
   if (error || !data) {
     console.error("[blog]", error?.message ?? "Failed to load posts");
@@ -78,7 +78,7 @@ export async function getPublishedBlogPost(slug: string): Promise<MockBlogPost |
 
   const { data, error } = await supabase
     .from("blog_posts")
-    .select("*")
+    .select("id, title, title_ar, slug, excerpt, excerpt_ar, content, content_ar, image_url, author, category, tags, published, published_at, updated_at, views, featured")
     .eq("slug", slug)
     .eq("published", true)
     .maybeSingle();

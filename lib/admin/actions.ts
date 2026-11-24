@@ -72,7 +72,11 @@ export async function uploadCatalogImage(formData: FormData) {
 export async function adminListProducts() {
   await assertAdmin();
   const supabase = await getAdminSupabaseClient();
-  const { data, error } = await supabase.from("products").select("*").order("name");
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, name, name_ar, slug, description, description_ar, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, specifications, tags, is_active, category_id, last_synced_at, sync_status, created_at, updated_at")
+    .order("name")
+    .limit(100);
   if (error) throw new Error(error.message);
   return (data ?? []).map(mapProduct);
 }
@@ -137,7 +141,11 @@ export async function adminDeleteProduct(id: string) {
 export async function adminListStores() {
   await assertAdmin();
   const supabase = await getAdminSupabaseClient();
-  const { data, error } = await supabase.from("stores").select("*").order("name");
+  const { data, error } = await supabase
+    .from("stores")
+    .select("id, name, name_ar, slug, logo_url, logo_initial, website, integration_type, affiliate_program, commission_rate, supported_regions, supported_currencies, external_store_id, is_active")
+    .order("name")
+    .limit(100);
   if (error) throw new Error(error.message);
   return (data ?? []).map(mapStore);
 }
@@ -194,8 +202,9 @@ export async function adminListCoupons() {
   const supabase = await getAdminSupabaseClient();
   const { data, error } = await supabase
     .from("coupons")
-    .select("*, stores (*)")
-    .order("created_at", { ascending: false });
+    .select("id, store_id, code, title, title_ar, offer, offer_ar, min_spend, discount, discount_type, currency, used_times, verified, is_active, starts_at, ends_at, external_id, campaign_id, affiliate_url, description, category, coupon_type, source, exclusive, logo_url, created_at, updated_at, stores (id, name, name_ar, slug, logo_url, logo_initial, website, integration_type, affiliate_program, commission_rate, supported_regions, supported_currencies, external_store_id, is_active)")
+    .order("created_at", { ascending: false })
+    .limit(100);
   if (error) throw new Error(error.message);
 
   return ((data ?? []) as (CouponRow & { stores: StoreRow | null })[]).map((row) => {
@@ -261,8 +270,9 @@ export async function adminListDeals() {
   const supabase = await getAdminSupabaseClient();
   const { data, error } = await supabase
     .from("deals")
-    .select("*, products (*), stores (*)")
-    .order("sort_order");
+    .select("id, product_id, store_id, title, title_ar, description, discount, discount_type, price, original_price, currency, country_code, is_featured, is_active, sort_order, starts_at, ends_at, created_at, updated_at, products (id, name, name_ar, slug, description, description_ar, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, specifications, tags, is_active, category_id, last_synced_at, sync_status, created_at, updated_at), stores (id, name, name_ar, slug, logo_url, logo_initial, website, integration_type, affiliate_program, commission_rate, supported_regions, supported_currencies, external_store_id, is_active)")
+    .order("sort_order")
+    .limit(100);
   if (error) throw new Error(error.message);
 
   return ((data ?? []) as (DealRow & { products: ProductRow | null; stores: StoreRow | null })[]).map(

@@ -44,11 +44,11 @@ export async function getTrendingProducts(
 
   const { data, error } = await db(supabase)
     .from("trending_rankings")
-    .select("rank, score, badge, metadata, product_id, ranking_type, country_code, products (*)")
+    .select("rank, score, badge, metadata, product_id, ranking_type, country_code, products (id, name, name_ar, slug, description, description_ar, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, specifications, tags, is_active, category_id, last_synced_at, sync_status, created_at, updated_at)")
     .eq("ranking_type", rankingType)
     .eq("country_code", countryCode)
     .order("rank")
-    .limit(limit);
+    .limit(Math.min(limit, 100));
 
   if (error) return { data: [], error: error.message };
   if (!data?.length) {
@@ -211,12 +211,12 @@ async function getTrendingProductsFallback(
 
   let query = supabase
     .from("products")
-    .select("*")
+    .select("id, name, name_ar, slug, description, description_ar, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, specifications, tags, is_active, category_id, last_synced_at, sync_status, created_at, updated_at")
     .eq("is_active", true)
     .eq("sync_status", "synced")
     .not("last_synced_at", "is", null)
     .not("image_url", "like", "/products/%")
-    .limit(limit * 2);
+    .limit(Math.min(limit * 2, 100));
 
   if (rankingType === "best_sellers") {
     query = query.order("review_count", { ascending: false });
@@ -277,7 +277,7 @@ export async function getTrendingRefreshStatus() {
 
   const { data, error } = await db(supabase)
     .from("trending_refresh_jobs")
-    .select("*")
+    .select("id, interval_minutes, is_enabled, last_run_at, next_run_at, last_status, last_error, items_ranked, created_at, updated_at")
     .limit(1)
     .maybeSingle();
 

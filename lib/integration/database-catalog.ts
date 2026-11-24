@@ -1146,7 +1146,7 @@ export type DeviceDbLegOptions = {
 };
 
 const DEVICE_SEARCH_COUNT_CACHE_TTL_MS = 5 * 60_000;
-const DEVICE_SEARCH_COUNT_CACHE_MAX_ENTRIES = 500;
+const DEVICE_SEARCH_COUNT_CACHE_MAX_ENTRIES = 50;
 const deviceSearchCountCache = new Map<string, { count: number; expiresAt: number }>();
 
 function setDeviceSearchCountCache(

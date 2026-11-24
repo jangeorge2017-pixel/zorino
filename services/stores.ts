@@ -33,6 +33,9 @@ const PROVIDER_INTEGRATION_TYPES = new Set([
   "custom",
   "partner",
 ]);
+const STORE_SELECT =
+  "id, name, name_ar, slug, logo_url, logo_initial, website, integration_type, affiliate_program, commission_rate, supported_regions, supported_currencies, external_store_id, admitted_network, admitted_campaign_id, is_active";
+const MAX_STORE_LIMIT = 100;
 
 function providerStoreFromId(providerId: ProductionProviderId): Store | null {
   const meta = getProviderStoreMeta(providerId);
@@ -88,17 +91,20 @@ export async function getStores(options?: {
     return { data: configuredProviderStores(), error: "Supabase not configured" };
   }
 
+  const limit = Math.min(Math.max(options?.limit ?? MAX_STORE_LIMIT, 1), MAX_STORE_LIMIT);
+
   const { data, error } = await supabase
     .from("stores")
-    .select("*")
+    .select(STORE_SELECT)
     .eq("is_active", true)
-    .order("name");
+    .order("name")
+    .limit(limit);
 
   if (error) {
     return { data: configuredProviderStores(), error: error.message };
   }
 
-  const rows = ((data as StoreRow[] | null) ?? []).filter((row) => {
+  const rows = ((data as unknown as StoreRow[] | null) ?? []).filter((row) => {
     const isProvider = isProviderStoreSlug(row.slug);
     const isAdmitad = row.admitted_network === "admitad" || row.slug.startsWith("admitad-");
     return isProvider || isAdmitad || isBlendedStoreSlug(row.slug);
@@ -118,8 +124,7 @@ export async function getStores(options?: {
     }
     return true;
   });
-  const result = options?.limit ? filtered.slice(0, options.limit) : filtered;
-  return { data: result, error: null };
+  return { data: filtered.slice(0, limit), error: null };
 }
 
 export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store | null>> {
@@ -127,13 +132,14 @@ export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store 
   if (supabase) {
     const { data, error } = await supabase
       .from("stores")
-      .select("*")
+      .select(STORE_SELECT)
       .eq("slug", slug)
       .eq("is_active", true)
+      .limit(1)
       .maybeSingle();
 
     if (error) return { data: null, error: error.message };
-    const row = data as StoreRow | null;
+    const row = data as unknown as StoreRow | null;
     if (row) {
       if (isBlendedStoreSlug(row.slug) || isProviderStoreSlug(row.slug)) {
         return { data: mapStore(row), error: null };
@@ -179,8 +185,9 @@ export async function getStoreById(id: string): Promise<ServiceResult<Store | nu
 
   const { data, error } = await supabase
     .from("stores")
-    .select("*")
+    .select(STORE_SELECT)
     .eq("id", id)
+    .limit(1)
     .maybeSingle();
 
   if (error) return { data: null, error: error.message };

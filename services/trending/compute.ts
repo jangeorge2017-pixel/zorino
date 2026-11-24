@@ -15,8 +15,6 @@ export type RankedProduct = {
 
 type ProductRow = {
   id: string;
-  slug: string;
-  name: string;
   rating: number | null;
   review_count: number;
   last_synced_at: string | null;
@@ -34,18 +32,24 @@ type PriceRow = {
   product_id: string;
   price: number;
   original_price: number | null;
-  store_id: string;
 };
 
 type DealRow = {
   product_id: string | null;
   discount: number;
-  is_active: boolean;
-  ends_at: string;
 };
 
 const DEFAULT_COUNTRIES = ["US", "GB", "AE", "SA", "DE"] as const;
 const TOP_N = 12;
+const PAGE_SIZE = 100;
+
+type CountryRankingContext = {
+  countryCode: string;
+  engagementMap: Map<string, EngagementStat>;
+  priceMap: Map<string, PriceRow>;
+  dealMap: Map<string, DealRow>;
+  rankings: Record<TrendingRankingType, RankedProduct[]>;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function db(client: NonNullable<ReturnType<typeof createSupabaseServiceClient>>): any {
@@ -80,34 +84,35 @@ export async function computeAllTrendingRankings(): Promise<{
   let totalRanked = 0;
 
   try {
+    const contexts: CountryRankingContext[] = [];
     for (const countryCode of DEFAULT_COUNTRIES) {
-      const products = await loadActiveProducts(supabase);
-      const engagementMap = await loadEngagementStats(supabase, countryCode);
-      const prices = await loadCurrentPrices(supabase, countryCode);
-      const deals = await loadActiveDeals(supabase);
+      contexts.push({
+        countryCode,
+        engagementMap: await loadEngagementStats(supabase, countryCode),
+        priceMap: await loadCurrentPrices(supabase, countryCode),
+        dealMap: await loadActiveDeals(supabase),
+        rankings: emptyRankings(),
+      });
+    }
 
-      const priceMap = mapPrices(prices);
-      const dealMap = mapDeals(deals);
+    const productPool: ProductRow[] = [];
+    await forEachProductPage(supabase, (product) => {
+      if (productPool.length < PAGE_SIZE) productPool.push(product);
+      for (const context of contexts) addProductRankings(context, product);
+    });
 
-      const rankings: Record<TrendingRankingType, RankedProduct[]> = {
-        trending_today: computeTrendingToday(products, engagementMap),
-        best_sellers: computeBestSellers(products, engagementMap),
-        hot_deals: computeHotDeals(products, dealMap, engagementMap, priceMap),
-        biggest_drops: computeBiggestDrops(products, priceMap, engagementMap),
-        popular_country: computePopularByCountry(products, engagementMap, countryCode),
-      };
-
-      for (const [rankingType, ranked] of Object.entries(rankings) as [
+    for (const context of contexts) {
+      for (const [rankingType, ranked] of Object.entries(context.rankings) as [
         TrendingRankingType,
         RankedProduct[],
       ][]) {
         const filled = backfillRankings(
           ranked,
-          products,
+          productPool,
           TOP_N,
-          badgeForRankingType(rankingType as TrendingRankingType)
+          badgeForRankingType(rankingType)
         );
-        await persistRankings(supabase, rankingType, countryCode, filled.slice(0, TOP_N));
+        await persistRankings(supabase, rankingType, context.countryCode, filled.slice(0, TOP_N));
         totalRanked += Math.min(filled.length, TOP_N);
       }
     }
@@ -136,113 +141,84 @@ export async function computeAllTrendingRankings(): Promise<{
   }
 }
 
-function computeTrendingToday(
-  products: ProductRow[],
-  engagementMap: Map<string, EngagementStat>
-): RankedProduct[] {
-  return products
-    .map((product) => {
-      const stats = engagementMap.get(product.id);
-      const views = stats?.views ?? 0;
-      const clicks = stats?.clicks ?? 0;
-      const purchases = stats?.purchases ?? 0;
-      const score = trendingEngagementScore({ views, clicks, purchases });
-
-      return {
-        productId: product.id,
-        score,
-        badge: score > 0 ? ("trending" as TrendingBadge) : null,
-        metadata: {
-          algorithm: "engagement",
-          views,
-          clicks,
-          purchases,
-          lookbackDays: TRENDING_LOOKBACK_DAYS,
-        },
-      };
-    })
-    .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score);
+function emptyRankings(): Record<TrendingRankingType, RankedProduct[]> {
+  return {
+    trending_today: [],
+    best_sellers: [],
+    hot_deals: [],
+    biggest_drops: [],
+    popular_country: [],
+  };
 }
 
-function computeBestSellers(
-  products: ProductRow[],
-  engagementMap: Map<string, EngagementStat>
-): RankedProduct[] {
-  return products
-    .map((product) => {
-      const stats = engagementMap.get(product.id);
-      const purchases = stats?.purchases ?? 0;
-      const clicks = stats?.clicks ?? 0;
-      const views = stats?.views ?? 0;
-      const reviewBoost = (product.review_count ?? 0) * 0.01;
-      const score =
-        purchases * TRENDING_ENGAGEMENT_WEIGHTS.purchases * 2 +
-        clicks * TRENDING_ENGAGEMENT_WEIGHTS.clicks +
-        views * 0.5 +
-        reviewBoost;
-
-      return {
-        productId: product.id,
-        score,
-        badge: purchases > 0 ? ("bestseller" as TrendingBadge) : null,
-        metadata: { algorithm: "best_sellers", purchases, clicks, views },
-      };
-    })
-    .sort((a, b) => b.score - a.score);
+function pushTopRanked(list: RankedProduct[], item: RankedProduct): void {
+  if (list.length < TOP_N) {
+    list.push(item);
+    list.sort((a, b) => b.score - a.score);
+    return;
+  }
+  if (item.score <= list[list.length - 1].score) return;
+  list[list.length - 1] = item;
+  list.sort((a, b) => b.score - a.score);
 }
 
-function computeHotDeals(
-  products: ProductRow[],
-  dealMap: Map<string, DealRow>,
-  engagementMap: Map<string, EngagementStat>,
-  priceMap: Map<string, PriceRow>
-): RankedProduct[] {
-  const results: RankedProduct[] = [];
+function addProductRankings(context: CountryRankingContext, product: ProductRow): void {
+  const stats = context.engagementMap.get(product.id);
+  const views = stats?.views ?? 0;
+  const clicks = stats?.clicks ?? 0;
+  const purchases = stats?.purchases ?? 0;
+  const engagementScore = trendingEngagementScore({ views, clicks, purchases });
 
-  for (const product of products) {
-    const deal = dealMap.get(product.id);
-    const price = priceMap.get(product.id);
-    const discount =
-      deal?.discount ??
-      (price?.original_price && price.original_price > price.price
-        ? Math.round(((price.original_price - price.price) / price.original_price) * 100)
-        : 0);
-    const stats = engagementMap.get(product.id);
-    const engagement = stats ? trendingEngagementScore(stats) : 0;
-    const score = discount * 0.6 + engagement + (deal ? 15 : 0);
-
-    if (discount < 5 && !deal && engagement === 0) continue;
-
-    results.push({
+  if (engagementScore > 0) {
+    pushTopRanked(context.rankings.trending_today, {
       productId: product.id,
-      score,
+      score: engagementScore,
+      badge: "trending",
+      metadata: {
+        algorithm: "engagement",
+        views,
+        clicks,
+        purchases,
+        lookbackDays: TRENDING_LOOKBACK_DAYS,
+      },
+    });
+  }
+
+  const reviewBoost = (product.review_count ?? 0) * 0.01;
+  pushTopRanked(context.rankings.best_sellers, {
+    productId: product.id,
+    score:
+      purchases * TRENDING_ENGAGEMENT_WEIGHTS.purchases * 2 +
+      clicks * TRENDING_ENGAGEMENT_WEIGHTS.clicks +
+      views * 0.5 +
+      reviewBoost,
+    badge: purchases > 0 ? "bestseller" : null,
+    metadata: { algorithm: "best_sellers", purchases, clicks, views },
+  });
+
+  const deal = context.dealMap.get(product.id);
+  const price = context.priceMap.get(product.id);
+  const discount =
+    deal?.discount ??
+    (price?.original_price && price.original_price > price.price
+      ? Math.round(((price.original_price - price.price) / price.original_price) * 100)
+      : 0);
+  const engagement = stats ? trendingEngagementScore(stats) : 0;
+
+  if (!(discount < 5 && !deal && engagement === 0)) {
+    pushTopRanked(context.rankings.hot_deals, {
+      productId: product.id,
+      score: discount * 0.6 + engagement + (deal ? 15 : 0),
       badge: "hot",
       metadata: { algorithm: "hot_deals", discount, hasDeal: !!deal, engagement },
     });
   }
 
-  return results.sort((a, b) => b.score - a.score);
-}
-
-function computeBiggestDrops(
-  products: ProductRow[],
-  priceMap: Map<string, PriceRow>,
-  engagementMap: Map<string, EngagementStat>
-): RankedProduct[] {
-  const results: RankedProduct[] = [];
-
-  for (const product of products) {
-    const price = priceMap.get(product.id);
-    if (!price?.original_price || price.original_price <= price.price) continue;
-
+  if (price?.original_price && price.original_price > price.price) {
     const dropPct = ((price.original_price - price.price) / price.original_price) * 100;
-    const stats = engagementMap.get(product.id);
-    const engagement = stats ? trendingEngagementScore(stats) * 0.1 : 0;
-
-    results.push({
+    pushTopRanked(context.rankings.biggest_drops, {
       productId: product.id,
-      score: dropPct + engagement,
+      score: dropPct + engagementScore * 0.1,
       badge: "price_drop",
       metadata: {
         algorithm: "biggest_drops",
@@ -252,30 +228,15 @@ function computeBiggestDrops(
     });
   }
 
-  return results.sort((a, b) => b.score - a.score);
-}
-
-function computePopularByCountry(
-  products: ProductRow[],
-  engagementMap: Map<string, EngagementStat>,
-  countryCode: string
-): RankedProduct[] {
-  return products
-    .map((product) => {
-      const stats = engagementMap.get(product.id);
-      const countryMatch = product.country_code === countryCode ? 5 : 0;
-      const score = stats
-        ? trendingEngagementScore(stats) + countryMatch
-        : catalogFallbackScore(product) + countryMatch;
-
-      return {
-        productId: product.id,
-        score,
-        badge: "popular" as TrendingBadge,
-        metadata: { algorithm: "popular_country", countryCode },
-      };
-    })
-    .sort((a, b) => b.score - a.score);
+  const countryMatch = product.country_code === context.countryCode ? 5 : 0;
+  pushTopRanked(context.rankings.popular_country, {
+    productId: product.id,
+    score: stats
+      ? engagementScore + countryMatch
+      : catalogFallbackScore(product) + countryMatch,
+    badge: "popular",
+    metadata: { algorithm: "popular_country", countryCode: context.countryCode },
+  });
 }
 
 function catalogFallbackScore(product: ProductRow): number {
@@ -321,12 +282,41 @@ function backfillRankings(
   return result;
 }
 
-async function loadActiveProducts(supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>) {
-  const { data } = await db(supabase)
-    .from("products")
-    .select("id, slug, name, rating, review_count, last_synced_at, country_code")
-    .eq("is_active", true);
-  return (data ?? []) as ProductRow[];
+async function forEachPage<T>(
+  build: (from: number, to: number) => PromiseLike<unknown>,
+  onRow: (row: T) => void
+): Promise<void> {
+  let offset = 0;
+
+  for (;;) {
+    const result = (await build(offset, offset + PAGE_SIZE - 1)) as {
+      data: T[] | null;
+      error: { message: string } | null;
+    };
+    if (result.error) throw new Error(result.error.message);
+
+    const rows = result.data ?? [];
+    for (const row of rows) onRow(row);
+
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+}
+
+async function forEachProductPage(
+  supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>,
+  onProduct: (product: ProductRow) => void
+): Promise<void> {
+  await forEachPage<ProductRow>(
+    (from, to) =>
+      db(supabase)
+        .from("products")
+        .select("id, rating, review_count, last_synced_at, country_code")
+        .eq("is_active", true)
+        .order("id", { ascending: true })
+        .range(from, to),
+    onProduct
+  );
 }
 
 /** Load engagement from daily aggregates, falling back to raw events. */
@@ -334,119 +324,119 @@ async function loadEngagementStats(
   supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>,
   countryCode: string
 ): Promise<Map<string, EngagementStat>> {
-  const daily = await loadDailyStats(supabase, countryCode);
-  const map = aggregateDailyStats(daily);
-
-  if ([...map.values()].some((s) => s.views + s.clicks + s.purchases > 0)) {
-    return map;
-  }
-
-  return loadEngagementFromEvents(supabase, countryCode);
-}
-
-async function loadDailyStats(
-  supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>,
-  countryCode: string
-) {
-  const since = new Date(Date.now() - TRENDING_LOOKBACK_DAYS * 24 * 60 * 60_000)
+  const daily = new Map<string, EngagementStat>();
+  const dailySince = new Date(Date.now() - TRENDING_LOOKBACK_DAYS * 24 * 60 * 60_000)
     .toISOString()
     .slice(0, 10);
-  const { data } = await db(supabase)
-    .from("product_engagement_daily")
-    .select("product_id, views, clicks, purchases")
-    .eq("country_code", countryCode)
-    .gte("stat_date", since);
-  return (data ?? []) as EngagementStat[];
-}
 
-async function loadEngagementFromEvents(
-  supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>,
-  countryCode: string
-) {
-  const since = new Date(Date.now() - TRENDING_LOOKBACK_DAYS * 24 * 60 * 60_000).toISOString();
-  const { data } = await db(supabase)
-    .from("product_engagement_events")
-    .select("product_id, event_type")
-    .eq("country_code", countryCode)
-    .gte("created_at", since);
+  await forEachPage<EngagementStat>(
+    (from, to) =>
+      db(supabase)
+        .from("product_engagement_daily")
+        .select("product_id, views, clicks, purchases")
+        .eq("country_code", countryCode)
+        .gte("stat_date", dailySince)
+        .order("product_id", { ascending: true })
+        .order("stat_date", { ascending: true })
+        .range(from, to),
+    (row) => addDailyStat(daily, row)
+  );
 
-  const map = new Map<string, EngagementStat>();
-
-  for (const row of data ?? []) {
-    const event = row as { product_id: string; event_type: string };
-    const stat = map.get(event.product_id) ?? {
-      product_id: event.product_id,
-      views: 0,
-      clicks: 0,
-      purchases: 0,
-    };
-
-    if (event.event_type === "view") stat.views += 1;
-    else if (event.event_type === "click") stat.clicks += 1;
-    else if (event.event_type === "purchase") stat.purchases += 1;
-
-    map.set(event.product_id, stat);
+  if ([...daily.values()].some((s) => s.views + s.clicks + s.purchases > 0)) {
+    return daily;
   }
 
-  return map;
-}
+  const events = new Map<string, EngagementStat>();
+  const eventsSince = new Date(Date.now() - TRENDING_LOOKBACK_DAYS * 24 * 60 * 60_000).toISOString();
 
-function aggregateDailyStats(rows: EngagementStat[]) {
-  const map = new Map<string, EngagementStat>();
-  for (const row of rows) {
-    const existing = map.get(row.product_id);
-    if (existing) {
-      map.set(row.product_id, {
-        product_id: row.product_id,
-        views: existing.views + row.views,
-        clicks: existing.clicks + row.clicks,
-        purchases: existing.purchases + row.purchases,
-      });
-    } else {
-      map.set(row.product_id, { ...row });
+  await forEachPage<{ product_id: string; event_type: string }>(
+    (from, to) =>
+      db(supabase)
+        .from("product_engagement_events")
+        .select("product_id, event_type")
+        .eq("country_code", countryCode)
+        .gte("created_at", eventsSince)
+        .order("created_at", { ascending: true })
+        .order("product_id", { ascending: true })
+        .range(from, to),
+    (event) => {
+      const stat = events.get(event.product_id) ?? {
+        product_id: event.product_id,
+        views: 0,
+        clicks: 0,
+        purchases: 0,
+      };
+
+      if (event.event_type === "view") stat.views += 1;
+      else if (event.event_type === "click") stat.clicks += 1;
+      else if (event.event_type === "purchase") stat.purchases += 1;
+
+      events.set(event.product_id, stat);
     }
+  );
+
+  return events;
+}
+
+function addDailyStat(map: Map<string, EngagementStat>, row: EngagementStat): void {
+  const existing = map.get(row.product_id);
+  if (existing) {
+    map.set(row.product_id, {
+      product_id: row.product_id,
+      views: existing.views + row.views,
+      clicks: existing.clicks + row.clicks,
+      purchases: existing.purchases + row.purchases,
+    });
+  } else {
+    map.set(row.product_id, { ...row });
   }
-  return map;
 }
 
 async function loadCurrentPrices(
   supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>,
   countryCode: string
-) {
-  const { data } = await db(supabase)
-    .from("prices")
-    .select("product_id, price, original_price, store_id")
-    .eq("is_current", true)
-    .eq("country_code", countryCode);
-  return (data ?? []) as PriceRow[];
-}
-
-async function loadActiveDeals(supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>) {
-  const now = new Date().toISOString();
-  const { data } = await db(supabase)
-    .from("deals")
-    .select("product_id, discount, is_active, ends_at")
-    .eq("is_active", true)
-    .gte("ends_at", now);
-  return (data ?? []) as DealRow[];
-}
-
-function mapPrices(rows: PriceRow[]) {
+): Promise<Map<string, PriceRow>> {
   const map = new Map<string, PriceRow>();
-  for (const row of rows) {
-    const existing = map.get(row.product_id);
-    if (!existing || row.price < existing.price) {
-      map.set(row.product_id, row);
+
+  await forEachPage<PriceRow>(
+    (from, to) =>
+      db(supabase)
+        .from("prices")
+        .select("product_id, price, original_price")
+        .eq("is_current", true)
+        .eq("country_code", countryCode)
+        .order("product_id", { ascending: true })
+        .order("store_id", { ascending: true })
+        .range(from, to),
+    (row) => {
+      const existing = map.get(row.product_id);
+      if (!existing || row.price < existing.price) map.set(row.product_id, row);
     }
-  }
+  );
+
   return map;
 }
 
-function mapDeals(rows: DealRow[]) {
+async function loadActiveDeals(
+  supabase: NonNullable<ReturnType<typeof createSupabaseServiceClient>>
+): Promise<Map<string, DealRow>> {
+  const now = new Date().toISOString();
   const map = new Map<string, DealRow>();
-  for (const row of rows) {
-    if (row.product_id) map.set(row.product_id, row);
-  }
+
+  await forEachPage<DealRow>(
+    (from, to) =>
+      db(supabase)
+        .from("deals")
+        .select("product_id, discount")
+        .eq("is_active", true)
+        .gte("ends_at", now)
+        .order("product_id", { ascending: true })
+        .range(from, to),
+    (row) => {
+      if (row.product_id) map.set(row.product_id, row);
+    }
+  );
+
   return map;
 }
 

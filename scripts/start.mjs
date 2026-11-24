@@ -8,7 +8,7 @@ if (!existsSync(nextBin)) {
   process.exit(1);
 }
 
-const nodeOptions = "--max-old-space-size=320";
+const nodeOptions = "--max-old-space-size=256";
 
 const child = spawn(process.execPath, [nextBin, "start"], {
   stdio: "inherit",

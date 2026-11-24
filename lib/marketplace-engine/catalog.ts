@@ -99,7 +99,7 @@ export async function computeProductPricingSummary(
 ): Promise<ProductPricingSummary | null> {
   let query = db(supabase)
     .from("prices")
-    .select("*, stores(name, integration_type)")
+    .select("id, product_id, store_id, price, original_price, currency, country_code, in_stock, external_url, stores(name, integration_type)")
     .eq("product_id", productId)
     .eq("is_current", true)
     .order("price");
@@ -107,7 +107,7 @@ export async function computeProductPricingSummary(
   if (options?.countryCode) query = query.eq("country_code", options.countryCode);
   if (options?.currency) query = query.eq("currency", options.currency);
 
-  const { data } = await query;
+  const { data } = await query.limit(100);
   const rows = (data ?? []) as PriceRow[];
   if (rows.length === 0) return null;
 

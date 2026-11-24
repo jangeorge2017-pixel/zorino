@@ -52,7 +52,7 @@ const SURFACE = "search" as const;
 
 const CACHE_TTL_MS = 2 * 60 * 1000;
 const PROVIDER_FETCH_TIMEOUT_MS = 8_000;
-const CANONICAL_SEARCH_CACHE_MAX_ENTRIES = 500;
+const CANONICAL_SEARCH_CACHE_MAX_ENTRIES = 50;
 const canSearchCache = new Map<string, { items: SearchResultItem[]; expiresAt: number }>();
 
 function setCanonicalSearchCache(

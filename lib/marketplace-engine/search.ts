@@ -35,7 +35,7 @@ export async function searchCatalogProducts(
 
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select("id, name, name_ar, slug, description, description_ar, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, specifications, tags, is_active, category_id, last_synced_at, sync_status, created_at, updated_at")
     .eq("is_active", true)
     .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
     .not("last_synced_at", "is", null)
@@ -43,7 +43,7 @@ export async function searchCatalogProducts(
       `name.ilike.%${sanitized}%,name_ar.ilike.%${sanitized}%,brand.ilike.%${sanitized}%,description.ilike.%${sanitized}%`
     )
     .order("lowest_price", { ascending: true, nullsFirst: false })
-    .limit(limit);
+    .limit(Math.min(limit, 100));
 
   if (error) return { data: [], error: error.message, indexed: false };
   return {

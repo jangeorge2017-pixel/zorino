@@ -1,6 +1,8 @@
 name: Render cron ping
 
 on:
+  schedule:
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -15,5 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Skip Render cron ping
-        run: echo "Render web service is Supabase-read-only; heavy sync runs in GitHub Actions."
+      - name: Ping lightweight health endpoint
+        run: |
+          base="${{ vars.RENDER_BASE_URL || 'https://zorino-1.onrender.com' }}"
+          url="${base%/}/api/health"
+          curl -fsS --max-time 10 -o /dev/null -w "%{http_code}\n" "$url"

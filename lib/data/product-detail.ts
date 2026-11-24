@@ -83,10 +83,11 @@ async function getProductVariants(productId: string): Promise<ProductVariant[]> 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (supabase as any)
     .from("product_variants")
-    .select("*")
+    .select("id, product_id, store_id, external_id, sku, name, attributes, price, original_price, currency, in_stock, image_url")
     .eq("product_id", productId)
     .eq("is_active", true)
-    .order("price");
+    .order("price")
+    .limit(100);
 
   return ((data ?? []) as {
     id: string;

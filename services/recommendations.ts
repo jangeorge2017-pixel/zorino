@@ -24,7 +24,7 @@ export type RecommendedProductCard = {
 function importedProductQuery(supabase: NonNullable<ReturnType<typeof createSupabaseAnonClient>>) {
   return supabase
     .from("products")
-    .select("*")
+    .select("id, name, name_ar, slug, description, description_ar, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, specifications, tags, is_active, category_id, last_synced_at, sync_status, created_at, updated_at")
     .eq("is_active", true)
     .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
     .not("last_synced_at", "is", null)

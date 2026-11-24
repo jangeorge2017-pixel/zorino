@@ -50,7 +50,11 @@ export async function getAffiliateSettings(): Promise<AffiliateSetting[]> {
     }));
   }
 
-  const { data } = await db(supabase).from("affiliate_settings").select("*").order("marketplace");
+  const { data } = await db(supabase)
+    .from("affiliate_settings")
+    .select("marketplace, display_name, partner_tag, commission_rate, is_enabled")
+    .order("marketplace")
+    .limit(100);
 
   return AFFILIATE_MARKETPLACES.map((marketplace) => {
     const row = (data ?? []).find(

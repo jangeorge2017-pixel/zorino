@@ -26,21 +26,22 @@ services:
     branch: main
     rootDir: .
     autoDeployTrigger: commit
+    healthCheckPath: /api/health
     maxShutdownDelaySeconds: 120
     # --include=dev keeps TypeScript/Tailwind available to `next build`. Render
     # exports service env vars during the build step, so never set
     # NODE_ENV=production here: npm would omit devDependencies and next build
     # exits 1. `next start` sets NODE_ENV=production itself.
     # NODE_OPTIONS is pinned below the 512MB container ceiling so the runtime
-    # heap cannot be sized larger than the service itself. Use npx to resolve
-    # next from node_modules/.bin.
-    buildCommand: npm ci --include=dev && NODE_OPTIONS=--max-old-space-size=320 npx next build && npm prune --omit=dev
+    # heap and native buffers stay clear of the hard kill limit. Use npx to
+    # resolve next from node_modules/.bin.
+    buildCommand: npm ci --include=dev && NODE_OPTIONS=--max-old-space-size=256 npx next build && npm prune --omit=dev
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION
         value: "22"
       - key: NODE_OPTIONS
-        value: --max-old-space-size=320
+        value: --max-old-space-size=256
       - key: WEB_SUPABASE_ONLY
         value: "1"
       - key: HOMEPAGE_LIVE_FETCH

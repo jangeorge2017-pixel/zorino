@@ -53,7 +53,7 @@ const EBAY_SPARSE_CATEGORY_THRESHOLD = 20;
 const LIVE_RETRIES = 1;
 const RETRY_BACKOFF_MS = [400];
 const LAST_GOOD_TTL_MS = 20 * 60 * 1000;
-const MAX_CACHE_ENTRIES = 200;
+const MAX_CACHE_ENTRIES = 50;
 
 type LastGoodEntry = { items: RawProviderListing[]; fetchedAt: number };
 const lastGoodByQuery = new Map<string, LastGoodEntry>();

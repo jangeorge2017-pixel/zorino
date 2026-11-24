@@ -1,7 +1,45 @@
 import { mapProduct } from "@/lib/database/mappers";
 import { IMPORTED_PRODUCT_SYNC_STATUS } from "@/lib/catalog/imported-products";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
+import type { ProductRow } from "@/lib/database/types";
 import type { Product, ServiceResult } from "@/lib/types/entities";
+
+const PRODUCT_COLUMNS =
+  "id, name, name_ar, slug, description, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, tags, is_active, last_synced_at";
+const PAGE_SIZE = 100;
+
+type ProductQueryResult = {
+  rows: ProductRow[];
+  count: number | null;
+  error: string | null;
+};
+
+async function fetchProductRows(
+  build: (from: number, to: number) => PromiseLike<unknown>,
+  from: number,
+  limit: number
+): Promise<ProductQueryResult> {
+  const rows: ProductRow[] = [];
+  let count: number | null = null;
+
+  for (let cursor = from; rows.length < limit; cursor += PAGE_SIZE) {
+    const size = Math.min(PAGE_SIZE, limit - rows.length);
+    const result = (await build(cursor, cursor + size - 1)) as {
+      data: ProductRow[] | null;
+      count: number | null;
+      error: { message: string } | null;
+    };
+
+    if (result.error) return { rows: [], count: null, error: result.error.message };
+    if (result.count != null) count = result.count;
+
+    const page = result.data ?? [];
+    rows.push(...page);
+    if (page.length < size) break;
+  }
+
+  return { rows, count, error: null };
+}
 
 export async function getProducts(options?: {
   categorySlug?: string;
@@ -16,36 +54,40 @@ export async function getProducts(options?: {
     return { data: [], error: "Supabase not configured" };
   }
 
-  let query = supabase
-    .from("products")
-    .select("*")
-    .eq("is_active", true)
-    .order("name");
+  const requestedLimit = options?.limit ?? (options?.offset !== undefined ? 20 : PAGE_SIZE);
+  const limit = Math.min(PAGE_SIZE, Math.max(1, Math.trunc(requestedLimit) || PAGE_SIZE));
+  const offset = Math.max(0, Math.trunc(options?.offset ?? 0) || 0);
 
-  if (options?.importedOnly) {
-    query = query
-      .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
-      .not("last_synced_at", "is", null)
-      .not("image_url", "like", "/products/%");
-  }
+  const { rows, error } = await fetchProductRows(
+    (from, to) => {
+      let query = supabase
+        .from("products")
+        .select(PRODUCT_COLUMNS)
+        .eq("is_active", true)
+        .order("name");
 
-  if (options?.categorySlug) {
-    query = query.eq("category_slug", options.categorySlug);
-  }
-  if (options?.countryCode) {
-    query = query.eq("country_code", options.countryCode);
-  }
-  if (options?.limit) {
-    query = query.limit(options.limit);
-  }
-  if (options?.offset) {
-    query = query.range(options.offset, options.offset + (options.limit ?? 20) - 1);
-  }
+      if (options?.importedOnly) {
+        query = query
+          .eq("sync_status", IMPORTED_PRODUCT_SYNC_STATUS)
+          .not("last_synced_at", "is", null)
+          .not("image_url", "like", "/products/%");
+      }
 
-  const { data, error } = await query;
-  if (error) return { data: [], error: error.message };
+      if (options?.categorySlug) {
+        query = query.eq("category_slug", options.categorySlug);
+      }
+      if (options?.countryCode) {
+        query = query.eq("country_code", options.countryCode);
+      }
 
-  return { data: (data ?? []).map(mapProduct), error: null };
+      return query.range(from, to);
+    },
+    offset,
+    limit
+  );
+
+  if (error) return { data: [], error };
+  return { data: rows.map(mapProduct), error: null };
 }
 
 export async function getProductBySlug(slug: string): Promise<ServiceResult<Product | null>> {
@@ -56,13 +98,13 @@ export async function getProductBySlug(slug: string): Promise<ServiceResult<Prod
 
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select(PRODUCT_COLUMNS)
     .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();
 
   if (error) return { data: null, error: error.message };
-  return { data: data ? mapProduct(data) : null, error: null };
+  return { data: data ? mapProduct(data as ProductRow) : null, error: null };
 }
 
 export async function getProductById(id: string): Promise<ServiceResult<Product | null>> {
@@ -73,12 +115,12 @@ export async function getProductById(id: string): Promise<ServiceResult<Product 
 
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select(PRODUCT_COLUMNS)
     .eq("id", id)
     .maybeSingle();
 
   if (error) return { data: null, error: error.message };
-  return { data: data ? mapProduct(data) : null, error: null };
+  return { data: data ? mapProduct(data as ProductRow) : null, error: null };
 }
 
 export async function searchProducts(
@@ -97,12 +139,13 @@ export async function searchProducts(
 > {
   const isPaginatedOptions =
     typeof limitOrOptions === "object" && limitOrOptions !== null;
-  const limit =
+  const requestedLimit =
     typeof limitOrOptions === "number"
       ? limitOrOptions
       : isPaginatedOptions
         ? limitOrOptions.limit ?? 20
         : 20;
+  const limit = Math.min(PAGE_SIZE, Math.max(1, Math.trunc(requestedLimit) || 20));
   const page =
     isPaginatedOptions && limitOrOptions.page ? Math.max(1, limitOrOptions.page) : 1;
   const importedOnly =
@@ -162,36 +205,39 @@ export async function searchProducts(
 
   if (isPaginatedOptions) {
     const from = (page - 1) * limit;
-    const to = from + limit - 1;
-
     const isArabic = /[\u0600-\u06FF]/.test(query);
 
     if (forceIlike || isArabic) {
-      let ilikeQuery = supabase
-        .from("products")
-        .select("*", { count: "exact" })
-        .eq("is_active", true);
+      const { rows, count, error } = await fetchProductRows(
+        (chunkFrom, chunkTo) => {
+          let ilikeQuery = supabase
+            .from("products")
+            .select(PRODUCT_COLUMNS, { count: "exact" })
+            .eq("is_active", true);
 
-      if (query.trim()) {
-        ilikeQuery = ilikeQuery.ilike("name", `%${query.trim()}%`);
-      }
+          if (query.trim()) {
+            ilikeQuery = ilikeQuery.ilike("name", `%${query.trim()}%`);
+          }
 
-      const { data, error, count } = await ilikeQuery.order("name").range(from, to);
+          return ilikeQuery.order("name").range(chunkFrom, chunkTo);
+        },
+        from,
+        limit
+      );
 
       if (error) {
         return {
           data: { data: [], total: 0, page, limit, total_pages: 0 },
-          error: error.message,
+          error,
         };
       }
 
       const total = count ?? 0;
       const total_pages = Math.max(1, Math.ceil(total / limit));
-      const mapped = (data ?? []).map(mapProduct);
 
       return {
         data: {
-          data: mapped,
+          data: rows.map(mapProduct),
           total,
           page,
           limit,
@@ -202,25 +248,29 @@ export async function searchProducts(
     }
 
     if (sanitized) {
-      const queryFTS = supabase
-        .from("products")
-        .select("*", { count: "exact" })
-        .eq("is_active", true)
-        .textSearch("name", sanitized, {
-          type: "websearch",
-          config: "english",
-        });
+      const { rows: ftsData, count: ftsCount, error: ftsError } = await fetchProductRows(
+        (chunkFrom, chunkTo) =>
+          supabase
+            .from("products")
+            .select(PRODUCT_COLUMNS, { count: "exact" })
+            .eq("is_active", true)
+            .textSearch("name", sanitized, {
+              type: "websearch",
+              config: "english",
+            })
+            .order("name")
+            .range(chunkFrom, chunkTo),
+        from,
+        limit
+      );
 
-      const { data: ftsData, error: ftsError, count: ftsCount } = await queryFTS.order("name").range(from, to);
-
-      if (!ftsError && (ftsCount ?? 0) > 0 && (ftsData?.length ?? 0) > 0) {
+      if (!ftsError && (ftsCount ?? 0) > 0 && ftsData.length > 0) {
         const total = ftsCount ?? 0;
         const total_pages = Math.max(1, Math.ceil(total / limit));
-        const mapped = (ftsData ?? []).map(mapProduct);
 
         return {
           data: {
-            data: mapped,
+            data: ftsData.map(mapProduct),
             total,
             page,
             limit,
@@ -231,31 +281,36 @@ export async function searchProducts(
       }
     }
 
-    let fallbackQuery = supabase
-      .from("products")
-      .select("*", { count: "exact" })
-      .eq("is_active", true);
+    const { rows, count, error } = await fetchProductRows(
+      (chunkFrom, chunkTo) => {
+        let fallbackQuery = supabase
+          .from("products")
+          .select(PRODUCT_COLUMNS, { count: "exact" })
+          .eq("is_active", true);
 
-    if (query.trim()) {
-      fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
-    }
+        if (query.trim()) {
+          fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
+        }
 
-    const { data, error, count } = await fallbackQuery.order("name").range(from, to);
+        return fallbackQuery.order("name").range(chunkFrom, chunkTo);
+      },
+      from,
+      limit
+    );
 
     if (error) {
       return {
         data: { data: [], total: 0, page, limit, total_pages: 0 },
-        error: error.message,
+        error,
       };
     }
 
     const total = count ?? 0;
     const total_pages = Math.max(1, Math.ceil(total / limit));
-    const mapped = (data ?? []).map(mapProduct);
 
     return {
       data: {
-        data: mapped,
+        data: rows.map(mapProduct),
         total,
         page,
         limit,
@@ -268,49 +323,65 @@ export async function searchProducts(
   const isArabicNonPaginated = /[\u0600-\u06FF]/.test(query);
 
   if (forceIlike || isArabicNonPaginated) {
-    let ilikeQuery = supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true);
+    const { rows, error } = await fetchProductRows(
+      (chunkFrom, chunkTo) => {
+        let ilikeQuery = supabase
+          .from("products")
+          .select(PRODUCT_COLUMNS)
+          .eq("is_active", true);
 
-    if (query.trim()) {
-      ilikeQuery = ilikeQuery.ilike("name", `%${query.trim()}%`);
-    }
+        if (query.trim()) {
+          ilikeQuery = ilikeQuery.ilike("name", `%${query.trim()}%`);
+        }
 
-    const { data, error } = await ilikeQuery.limit(limit);
+        return ilikeQuery.range(chunkFrom, chunkTo);
+      },
+      0,
+      limit
+    );
 
-    if (error) return { data: [], error: error.message };
-    return { data: (data ?? []).map(mapProduct), error: null };
+    if (error) return { data: [], error };
+    return { data: rows.map(mapProduct), error: null };
   }
 
   if (sanitized) {
-    const ftsQuery = supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true)
-      .textSearch("name", sanitized, {
-        type: "websearch",
-        config: "english",
-      });
+    const { rows: ftsData, error: ftsError } = await fetchProductRows(
+      (chunkFrom, chunkTo) =>
+        supabase
+          .from("products")
+          .select(PRODUCT_COLUMNS)
+          .eq("is_active", true)
+          .textSearch("name", sanitized, {
+            type: "websearch",
+            config: "english",
+          })
+          .range(chunkFrom, chunkTo),
+      0,
+      limit
+    );
 
-    const { data: ftsData, error: ftsError } = await ftsQuery.limit(limit);
-
-    if (!ftsError && (ftsData?.length ?? 0) > 0) {
-      return { data: (ftsData ?? []).map(mapProduct), error: null };
+    if (!ftsError && ftsData.length > 0) {
+      return { data: ftsData.map(mapProduct), error: null };
     }
   }
 
-  let fallbackQuery = supabase
-    .from("products")
-    .select("*")
-    .eq("is_active", true);
+  const { rows, error } = await fetchProductRows(
+    (chunkFrom, chunkTo) => {
+      let fallbackQuery = supabase
+        .from("products")
+        .select(PRODUCT_COLUMNS)
+        .eq("is_active", true);
 
-  if (query.trim()) {
-    fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
-  }
+      if (query.trim()) {
+        fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
+      }
 
-  const { data, error } = await fallbackQuery.limit(limit);
+      return fallbackQuery.range(chunkFrom, chunkTo);
+    },
+    0,
+    limit
+  );
 
-  if (error) return { data: [], error: error.message };
-  return { data: (data ?? []).map(mapProduct), error: null };
+  if (error) return { data: [], error };
+  return { data: rows.map(mapProduct), error: null };
 }

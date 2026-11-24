@@ -30,7 +30,7 @@ class SearchCache {
   constructor(options: SearchCacheOptions = {}) {
     this.cache = new Map();
     this.defaultTTL = options.ttl || 5 * 60 * 1000; // 5 minutes default
-    this.maxEntries = options.maxEntries || 500;
+    this.maxEntries = options.maxEntries || 50;
     this.stats = { hits: 0, misses: 0 };
   }
 
@@ -144,7 +144,7 @@ class SearchCache {
 // Export singleton instance
 export const searchCache = new SearchCache({
   ttl: 5 * 60 * 1000, // 5 minutes
-  maxEntries: 500,
+  maxEntries: 50,
 });
 
 export type { SearchCacheOptions, SearchCacheStats };

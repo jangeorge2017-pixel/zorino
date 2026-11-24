@@ -4,20 +4,23 @@ import { translateSearchQuery } from "@/lib/search/query-translation";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { ListingCondition } from "@/lib/search/types";
 
+const MAX_SEARCH_LIMIT = 20;
+const PRODUCT_SEARCH_SELECT =
+  "id, product_name, product_slug, image_url, lowest_price, original_price, store_name, provider, affiliate_url, external_url, currency, country_code";
+
 interface ProductRow {
   id: string;
-  name: string;
-  price: number;
-  original_price: number;
+  product_name: string;
+  product_slug: string;
   image_url: string;
-  store: string;
-  store_slug: string;
-  rating: number;
-  review_count: number;
-  category: string;
+  lowest_price: number;
+  original_price: number | null;
+  store_name: string;
+  provider: string | null;
+  affiliate_url: string | null;
+  external_url: string | null;
   currency: string;
-  country_code: string;
-  affiliate_url: string;
+  country_code: string | null;
 }
 
 function sanitizeFilterValue(value: string): string {
@@ -29,22 +32,24 @@ function sanitizeFilterValue(value: string): string {
 }
 
 function mapProductRow(p: ProductRow) {
+  const affiliateUrl = p.affiliate_url ?? p.external_url ?? "";
+  const originalPrice = p.original_price ?? p.lowest_price;
   return {
     id: p.id,
-    name: p.name,
-    price: p.price,
-    originalPrice: p.original_price,
+    name: p.product_name,
+    price: p.lowest_price,
+    originalPrice,
     imageSrc: p.image_url,
-    store: p.store,
-    storeSlug: p.store_slug,
-    rating: p.rating ?? 0,
-    reviewCount: p.review_count ?? 0,
-    category: p.category,
+    store: p.store_name,
+    storeSlug: p.provider ?? p.store_name,
+    rating: 0,
+    reviewCount: 0,
+    category: p.product_slug,
     currency: p.currency,
-    countryCode: p.country_code,
-    affiliateUrl: p.affiliate_url,
+    countryCode: p.country_code ?? "",
+    affiliateUrl,
     emoji: "",
-    discount: p.original_price ? Math.round((1 - p.price / p.original_price) * 100) : 0,
+    discount: originalPrice > p.lowest_price ? Math.round((1 - p.lowest_price / originalPrice) * 100) : 0,
     inStock: true,
     salesCount: 0,
     shipping: "",
@@ -58,9 +63,7 @@ export async function GET(req: NextRequest) {
   if (!rawQuery) return NextResponse.json([]);
 
   // Extract and sanitize any filter params that might leak garbage
-  const ratingParam = sanitizeFilterValue(url.searchParams.get("rating") || "");
   const storeParam = sanitizeFilterValue(url.searchParams.get("store") || "");
-  const categoryParam = sanitizeFilterValue(url.searchParams.get("category") || "");
   const minPriceParam = sanitizeFilterValue(url.searchParams.get("minPrice") || "");
   const maxPriceParam = sanitizeFilterValue(url.searchParams.get("maxPrice") || "");
 
@@ -71,12 +74,12 @@ export async function GET(req: NextRequest) {
 
   try {
     // Primary: full search engine with translated query
-    let results = await searchProductsSurface(searchQuery, 20);
+    let results = await searchProductsSurface(searchQuery, MAX_SEARCH_LIMIT);
 
     // Fallback 1: if translated search empty and query was translated, try original query
     const hasData = Array.isArray(results) && results.length > 0;
     if (!hasData && wasTranslated && searchQuery !== q) {
-      const fallbackResults = await searchProductsSurface(q, 20);
+      const fallbackResults = await searchProductsSurface(q, MAX_SEARCH_LIMIT);
       if (fallbackResults.length > 0) {
         results = fallbackResults;
       }
@@ -87,17 +90,15 @@ export async function GET(req: NextRequest) {
       const supabase = createSupabaseAnonClient();
       if (supabase) {
         let query = supabase
-          .from("products")
-          .select("*")
-          .ilike("title", `%${searchQuery}%`)
-          .limit(20);
+          .from("lowest_prices_today")
+          .select(PRODUCT_SEARCH_SELECT)
+          .ilike("product_name", `%${searchQuery}%`)
+          .limit(MAX_SEARCH_LIMIT);
 
         // Apply sanitized filters if present
-        if (categoryParam) query = query.eq("category_slug", categoryParam);
-        if (storeParam) query = query.eq("store_slug", storeParam);
-        if (ratingParam) query = query.gte("rating", parseInt(ratingParam, 10));
-        if (minPriceParam) query = query.gte("price", parseFloat(minPriceParam));
-        if (maxPriceParam) query = query.lte("price", parseFloat(maxPriceParam));
+        if (storeParam) query = query.or(`provider.ilike.%${storeParam}%,store_name.ilike.%${storeParam}%`);
+        if (minPriceParam) query = query.gte("lowest_price", parseFloat(minPriceParam));
+        if (maxPriceParam) query = query.lte("lowest_price", parseFloat(maxPriceParam));
 
         const { data: localResults } = await query;
 

@@ -42,7 +42,8 @@ export async function getDueSyncJobs(): Promise<DueSyncJob[]> {
     .or(`next_run_at.is.null,next_run_at.lte.${now}`)
     // Oldest-due first: deterministic fairness so one provider's backlog
     // cannot permanently starve the others across invocations.
-    .order("next_run_at", { ascending: true, nullsFirst: true });
+    .order("next_run_at", { ascending: true, nullsFirst: true })
+    .limit(100);
 
   if (error || !data?.length) {
     // Mock "due" jobs are a local-dev convenience. In production, fabricating

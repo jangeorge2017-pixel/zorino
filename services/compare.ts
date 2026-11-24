@@ -340,7 +340,11 @@ async function getProductById(id: string): Promise<ServiceResult<Product | null>
   const supabase = createSupabaseAnonClient();
   if (!supabase) return { data: null, error: "Supabase not configured" };
 
-  const { data, error } = await supabase.from("products").select("*").eq("id", id).maybeSingle();
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, name, name_ar, slug, description, description_ar, image_url, emoji, category_slug, brand, rating, review_count, currency, country_code, in_stock, specifications, tags, is_active, category_id, last_synced_at, sync_status, created_at, updated_at")
+    .eq("id", id)
+    .maybeSingle();
   if (error) return { data: null, error: error.message };
   if (!data) return { data: null, error: null };
   return { data: mapProduct(data as ProductRow), error: null };
@@ -363,11 +367,12 @@ async function getExternalPricesForProduct(
     let query = client
       .from("external_prices")
       .select(
-        "provider, store_id, external_id, canonical_product_id, price, original_price, currency, country_code, in_stock, recorded_at, stores (*), external_products (product_url, affiliate_url)"
+        "provider, store_id, external_id, canonical_product_id, price, original_price, currency, country_code, in_stock, recorded_at, stores (id, name, name_ar, slug, logo_url, logo_initial, website, integration_type, affiliate_program, commission_rate, supported_regions, supported_currencies, external_store_id, is_active), external_products (product_url, affiliate_url)"
       )
       .eq("canonical_product_id", productId)
       .eq("is_current", true)
-      .order("price", { ascending: true });
+      .order("price", { ascending: true })
+      .limit(100);
 
     if (scoped && options?.countryCode) query = query.eq("country_code", options.countryCode);
     if (scoped && options?.currency) query = query.eq("currency", options.currency);

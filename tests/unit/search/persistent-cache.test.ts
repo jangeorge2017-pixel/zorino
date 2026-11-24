@@ -42,8 +42,8 @@ describe("persistent search cache", () => {
     expect(isPersistentSearchEntryStale("not-a-date")).toBe(true);
   });
 
-  it("caps the stored/returned pool at 40-60 products", () => {
-    expect(PERSISTENT_SEARCH_MAX_ITEMS).toBe(60);
+  it("caps the stored/returned pool at 50 products", () => {
+    expect(PERSISTENT_SEARCH_MAX_ITEMS).toBe(50);
   });
 
   it("detects pools that silently dropped a critical provider", () => {

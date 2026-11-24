@@ -166,9 +166,10 @@ export async function getImportProviders() {
 
   const { data, error } = await supabase
     .from("import_providers")
-    .select("*")
+    .select("id, name, description, integration_type, is_enabled, requires_credentials, credential_env_keys, default_sync_interval_minutes, config, created_at, updated_at")
     .eq("is_enabled", true)
-    .order("name");
+    .order("name")
+    .limit(100);
 
   if (error) return { data: [], error: error.message };
   return { data: data ?? [], error: null };
@@ -182,9 +183,9 @@ export async function getRecentSyncRuns(limit = 20) {
 
   const { data, error } = await supabase
     .from("sync_runs")
-    .select("*")
+    .select("id, sync_job_id, store_id, job_type, status, country_code, currency, started_at, finished_at, items_fetched, items_created, items_updated, items_failed, error_message, metadata")
     .order("started_at", { ascending: false })
-    .limit(limit);
+    .limit(Math.min(limit, 100));
 
   if (error) return { data: [], error: error.message };
   return { data: data ?? [], error: null };

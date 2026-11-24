@@ -65,6 +65,7 @@ const nextConfig: NextConfig = {
     root: path.resolve(__dirname),
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       ...PRODUCT_IMAGE_REMOTE_PATTERNS,
       ...devOnlyImagePatterns,

@@ -1,7 +1,7 @@
 import type { SearchEngineResult } from "@/lib/search/types";
 
 const CACHE_TTL_MS = 2 * 60 * 1000;
-const MAX_CACHE_ENTRIES = 200;
+const MAX_CACHE_ENTRIES = 50;
 
 type CacheEntry = {
   result: SearchEngineResult;

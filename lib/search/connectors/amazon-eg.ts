@@ -13,6 +13,7 @@ import { normalizeAmazonScraperSearchResults } from "@/lib/search/normalization"
 import { classifyListingCondition } from "@/lib/search/condition-diversity";
 import { AMAZON_EG_SEED_LINKS } from "@/lib/amazon-eg/seed-links";
 import { toLatinNumerals } from "@/lib/international/arabic-numerals";
+import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 
 /**
  * Amazon Egypt search connector.
@@ -185,9 +186,10 @@ async function fetchEgProductsByAsins(asins: string[]): Promise<Map<string, EGRa
 
 const AMAZON_EG_CACHE_TTL_MS = 10 * 60_000;
 const AMAZON_EG_CACHE_STALE_MS = 60 * 60_000;
+const AMAZON_EG_CACHE_MAX_ENTRIES = 50;
 const amazonEgSearchCache = new Map<
   string,
-  { items: RawProviderListing[]; fetchedAt: number }
+  { items: RawProviderListing[]; fetchedAt: number; expiresAt: number }
 >();
 
 /** Test hook — clears the amazon-eg search cache between tests. */
@@ -389,10 +391,16 @@ export const amazonEgSearchConnector: SearchConnector = {
     // Only genuinely non-empty scrapes are cached — a live empty result must
     // never pin "no products" onto a query.
     if (fresh.length > 0) {
-      amazonEgSearchCache.set(cacheKey, {
-        items: cloneListings(fresh),
-        fetchedAt: now,
-      });
+      setBoundedCacheEntry(
+        amazonEgSearchCache,
+        cacheKey,
+        {
+          items: cloneListings(fresh),
+          fetchedAt: now,
+          expiresAt: now + AMAZON_EG_CACHE_STALE_MS,
+        },
+        AMAZON_EG_CACHE_MAX_ENTRIES,
+      );
       return fresh;
     }
 

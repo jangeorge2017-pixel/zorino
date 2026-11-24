@@ -16,10 +16,11 @@ export async function getCurrentPricesForProduct(
 
   let query = supabase
     .from("prices")
-    .select("*, stores (*)")
+    .select("id, product_id, store_id, price, original_price, currency, country_code, external_url, external_product_id, in_stock, is_current, recorded_at, created_at, stores (id, name, name_ar, slug, logo_url, logo_initial, website, integration_type, affiliate_program, commission_rate, supported_regions, supported_currencies, external_store_id, is_active)")
     .eq("product_id", productId)
     .eq("is_current", true)
-    .order("price");
+    .order("price")
+    .limit(100);
 
   if (options?.countryCode) {
     query = query.eq("country_code", options.countryCode);
@@ -47,10 +48,11 @@ export async function getCurrentPricesForProduct(
   if (rows.length === 0 && (options?.countryCode !== undefined || options?.currency !== undefined)) {
     const fallback = await supabase
       .from("prices")
-      .select("*, stores (*)")
+      .select("id, product_id, store_id, price, original_price, currency, country_code, external_url, external_product_id, in_stock, is_current, recorded_at, created_at, stores (id, name, name_ar, slug, logo_url, logo_initial, website, integration_type, affiliate_program, commission_rate, supported_regions, supported_currencies, external_store_id, is_active)")
       .eq("product_id", productId)
       .eq("is_current", true)
-      .order("price");
+      .order("price")
+      .limit(100);
     const { data: fallbackData, error: fallbackError } = await fallback;
     if (!fallbackError && fallbackData && (fallbackData as PriceWithStore[]).length > 0) {
       return {
@@ -85,16 +87,14 @@ export async function getPriceHistory(
 
   let query = supabase
     .from("price_history")
-    .select("*")
+    .select("id, product_id, store_id, price, currency, recorded_at")
     .eq("product_id", productId)
     .order("recorded_at", { ascending: true });
 
   if (options?.storeId) {
     query = query.eq("store_id", options.storeId);
   }
-  if (options?.limit) {
-    query = query.limit(options.limit);
-  }
+  query = query.limit(Math.min(options?.limit ?? 100, 100));
 
   const { data, error } = await query;
   if (error) return { data: [], error: error.message };
