@@ -33,7 +33,42 @@ function isInternalProxyRewriteTarget(url: URL, request: NextRequest) {
   );
 }
 
+function getRequestHost(request: NextRequest) {
+  return (
+    request.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ||
+    request.headers.get("host") ||
+    request.nextUrl.host
+  ).toLowerCase();
+}
+
+function getRequestProtocol(request: NextRequest) {
+  const forwarded = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim()
+    .toLowerCase();
+  if (forwarded === "http" || forwarded === "https") return forwarded;
+  return request.nextUrl.protocol === "http:" ? "http" : "https";
+}
+
+function normalizeInternalRedirect(response: NextResponse, request: NextRequest) {
+  const location = response.headers.get("location");
+  if (!location) return response;
+
+  try {
+    const url = new URL(location, request.url);
+    if (isInternalProxyRewriteTarget(url, request) || url.host.toLowerCase() === getRequestHost(request)) {
+      const origin = `${getRequestProtocol(request)}://${getRequestHost(request)}`;
+      response.headers.set("location", `${origin}${url.pathname}${url.search}${url.hash}`);
+    }
+  } catch {}
+
+  return response;
+}
+
 function normalizeIntlProxyResponse(response: NextResponse, request: NextRequest) {
+  normalizeInternalRedirect(response, request);
+
   const rewrite = response.headers.get("x-middleware-rewrite");
   if (!rewrite) return response;
 
@@ -132,7 +167,7 @@ export function proxy(request: NextRequest) {
   ) {
     const url = request.nextUrl.clone();
     url.pathname = `/ar${pathWithoutLocale === "/" ? "" : pathWithoutLocale}`;
-    const response = NextResponse.redirect(url);
+    const response = normalizeInternalRedirect(NextResponse.redirect(url), request);
     response.cookies.set(INTL_COOKIE_GEO_DONE, "1", {
       maxAge: INTL_COOKIE_MAX_AGE,
       path: "/",
