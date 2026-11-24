@@ -17,6 +17,7 @@ import {
 import { affiliateRateLimiter, enforceRateLimit } from "@/lib/security/api-rate-limit";
 import { clampString } from "@/lib/security/input";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /** Track click and redirect to the affiliate destination URL. */
 export async function GET(request: Request) {
@@ -98,7 +99,7 @@ export async function GET(request: Request) {
     || /s\.noon\.com/i.test(destinationUrl);
 
   let affiliateUrl: string;
-  if (alreadyTracked) {
+  if (alreadyTracked || isWebSupabaseOnly()) {
     affiliateUrl = destinationUrl;
   } else if (marketplace === "admitad" || marketplace === "alibaba") {
     // Admitad programs: generate a REAL deeplink through the Admitad API when

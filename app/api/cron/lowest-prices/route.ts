@@ -3,11 +3,16 @@ import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/c
 import { executeLowestPriceRefresh } from "@/services/lowest-prices";
 import { invalidateLowestPricesFromRoute } from "@/lib/revalidate";
 import { invalidateSearchCachesAfterSync } from "@/lib/search/cache-invalidation";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /** Cron: refresh lowest prices cache every ~4 hours. */
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();
+  }
+
+  if (isWebSupabaseOnly()) {
+    return NextResponse.json({ skipped: "handled by GitHub Actions" });
   }
 
   const url = new URL(request.url);

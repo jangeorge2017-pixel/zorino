@@ -33,11 +33,7 @@ function parseBool(raw: string | null): boolean | undefined {
 
 export async function GET(request: Request) {
   if (isWebSupabaseOnly()) {
-    return NextResponse.json({
-      ok: true,
-      mode: "web-supabase-only",
-      skipped: "Heavy feed ingestion runs in GitHub Actions; web service serves Supabase reads only.",
-    });
+    return NextResponse.json({ skipped: "handled by GitHub Actions" });
   }
 
   if (!authorizeCronRequest(request)) {

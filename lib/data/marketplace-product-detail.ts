@@ -18,6 +18,7 @@ import { resolveStoreLogoSrc } from "@/lib/assets";
 import { getServerIntlPreferences } from "@/lib/international/preferences";
 import type { AdmitadFeedOffer } from "@/lib/integrations/admitad/types";
 import type { AmazonScraperMarketplaceKey } from "@/lib/integrations/amazon-scraper";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 export function buildStore(slug: string, displayName?: string): Store {
   const meta = getProviderStoreMeta(slug) ?? {
@@ -783,6 +784,12 @@ async function resolveMarketplaceProductDetailBase(
   const trimmedId = id.trim().split("#")[0]!.split("?")[0]!.trim();
   if (/^db-/i.test(trimmedId)) {
     return getDatabaseProductDetail(trimmedId.slice(3));
+  }
+
+  if (isWebSupabaseOnly()) {
+    const canonical = await getCanonicalProductDetailFromDatabase(trimmedId).catch(() => null);
+    if (canonical) return canonical;
+    return null;
   }
 
   const { providerId, externalId } = parseMarketplaceProductId(id);

@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { executeTrendingRefresh, isTrendingRefreshDue } from "@/services/trending";
 import { invalidateTrendingFromRoute } from "@/lib/revalidate";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /** Cron endpoint — recomputes trending rankings every ~4 hours. */
 export async function GET(request: Request) {
   if (!authorizeCronRequest(request)) {
     return cronUnauthorizedResponse();
+  }
+
+  if (isWebSupabaseOnly()) {
+    return NextResponse.json({ skipped: "handled by GitHub Actions" });
   }
 
   const url = new URL(request.url);

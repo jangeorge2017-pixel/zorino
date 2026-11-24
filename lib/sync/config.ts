@@ -61,9 +61,7 @@ export function getConnectorForStore(integrationType: string): "mock" | string {
 }
 
 export function isWebSupabaseOnly(): boolean {
-  return ["1", "true", "yes", "on"].includes(
-    (process.env.WEB_SUPABASE_ONLY ?? "").trim().toLowerCase(),
-  );
+  return (process.env.GITHUB_ACTIONS ?? "").trim().toLowerCase() !== "true";
 }
 
 export function getCronSecret(): string | undefined {

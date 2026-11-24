@@ -23,6 +23,7 @@ import { createAmazonProvider } from "@/lib/sync/providers/amazon";
 import { createEbayProvider } from "@/lib/sync/providers/ebay";
 import { createTemuProvider } from "@/lib/sync/providers/temu";
 import { createWalmartProvider } from "@/lib/sync/providers/walmart";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 const MATCH_THRESHOLD = 0.52;
 
@@ -67,6 +68,10 @@ async function fetchExternalProducts(
 export async function fetchProviderCatalog(
   providerId: ProductionProviderId,
 ): Promise<{ items: NormalizedCatalogItem[]; error?: string }> {
+  if (isWebSupabaseOnly()) {
+    return { items: [], error: "web-supabase-only" };
+  }
+
   if (!isProductionProviderConfigured(providerId)) {
     return { items: [], error: "not_configured" };
   }

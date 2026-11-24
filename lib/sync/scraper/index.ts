@@ -8,6 +8,7 @@ import {
   slugifyTitle,
 } from "@/lib/sync/providers/shared/product-utils";
 import type { ScraperStoreConfig, ScrapedListing } from "@/lib/sync/scraper/types";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 import { QUERY_TIMEOUT_MS, withTimeout } from "@/lib/sync/timeout";
 import type { ExternalProduct, SyncContext } from "@/lib/sync/types";
 
@@ -53,7 +54,7 @@ export async function fetchFallbackProducts(
   ctx: SyncContext,
   options?: FallbackFetchOptions,
 ): Promise<ExternalProduct[]> {
-  if (process.env.SYNC_SCRAPER_ENABLED === "0") return [];
+  if (isWebSupabaseOnly() || process.env.SYNC_SCRAPER_ENABLED === "0") return [];
 
   const config = SCRAPER_STORES[providerId];
   if (!config) return [];

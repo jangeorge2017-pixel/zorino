@@ -12,6 +12,7 @@ import type {
 } from "@/lib/integrations/aliexpress/types";
 import { extractPromotionLinks } from "@/lib/integrations/aliexpress/promotion-links";
 import { isValidAliExpressDestinationUrl } from "@/lib/affiliate/product-url";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /**
  * Hard total timeout (ms) for a single API call INCLUDING its retries + backoff.
@@ -352,6 +353,10 @@ export class AliExpressAffiliateClient {
   }
 
   private async call<T>(method: string, bizParams: Record<string, string>): Promise<T> {
+    if (isWebSupabaseOnly()) {
+      throw new Error(`AliExpress connector disabled outside GitHub Actions: ${method}`);
+    }
+
     const maxAttempts = 3;
     let lastError: Error | null = null;
 

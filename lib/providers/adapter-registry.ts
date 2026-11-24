@@ -23,6 +23,7 @@ import { normalizeAmazonRaw } from "@/lib/search/normalization";
 import { normalizeCJRaw } from "@/lib/search/normalization";
 import { normalizeAdmitadRaw } from "@/lib/search/normalization";
 import { normalizeEgyptStoreRaw } from "@/lib/search/normalization";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 // ─── Connector → Adapter Bridge ─────────────────────────────────────────────
 
@@ -269,6 +270,8 @@ export function getAllProviderAdapters(): ProviderAdapter[] {
 export async function getActiveProviderAdapters(
   providerIds?: SearchProviderId[],
 ): Promise<ProviderAdapter[]> {
+  if (isWebSupabaseOnly()) return [];
+
   const ids = providerIds ?? (Array.from(SEARCH_PROVIDER_IDS) as SearchProviderId[]);
   const adapters = ids
     .map((id) => ADAPTER_MAP.get(id))
@@ -316,6 +319,8 @@ export async function resolveProviderProductDetail(
   providerId: SearchProviderId,
   externalId: string,
 ): Promise<ProductDetail | null> {
+  if (isWebSupabaseOnly()) return null;
+
   const adapter = ADAPTER_MAP.get(providerId);
   if (!adapter?.getProductDetail) return null;
   try {

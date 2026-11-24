@@ -12,6 +12,7 @@ import {
 import type { SearchConnector } from "@/lib/search/connectors/types";
 import type { SearchProviderId } from "@/lib/search/types";
 import { SEARCH_PROVIDER_IDS } from "@/lib/search/types";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 const ALL_CONNECTORS: SearchConnector[] = [
   aliExpressSearchConnector,
@@ -48,6 +49,8 @@ export function getRegisteredSearchConnectors(): SearchConnector[] {
 export async function getActiveSearchConnectors(
   providerIds?: SearchProviderId[]
 ): Promise<SearchConnector[]> {
+  if (isWebSupabaseOnly()) return [];
+
   // Single source of truth: registered connectors. Optional filter only.
   // New connectors added to ALL_CONNECTORS are included automatically.
   const connectors = (providerIds

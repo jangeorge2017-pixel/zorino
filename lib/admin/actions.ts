@@ -9,6 +9,7 @@ import { slugify } from "@/lib/admin/slug";
 import { mapCoupon, mapDeal, mapProduct, mapStore } from "@/lib/database/mappers";
 import { validateFileUpload } from "@/lib/security/security";
 import type { CouponRow, DealRow, ProductRow, StoreRow } from "@/lib/database/types";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 function revalidateAdmin() {
   revalidateCatalog();
@@ -441,6 +442,13 @@ export async function adminSaveAliExpressSettings(values: Record<string, string>
 
 export async function adminValidateAliExpressCredentials() {
   await assertAdmin();
+  if (isWebSupabaseOnly()) {
+    return {
+      ok: false,
+      message: "External sync is handled by GitHub Actions",
+      testedAt: new Date().toISOString(),
+    };
+  }
   const { validateAliExpressCredentials } = await import("@/services/aliexpress/credentials");
   return validateAliExpressCredentials();
 }
@@ -449,6 +457,9 @@ export async function adminRunAliExpressSync(
   kind: "products" | "prices" | "stock" | "images" | "full"
 ) {
   await assertAdmin();
+  if (isWebSupabaseOnly()) {
+    return { ok: false, error: "External sync is handled by GitHub Actions" };
+  }
   const {
     importAliExpressProducts,
     syncAliExpressPrices,
@@ -501,6 +512,13 @@ export async function adminSaveEbaySettings(values: Record<string, string>) {
 
 export async function adminValidateEbayCredentials() {
   await assertAdmin();
+  if (isWebSupabaseOnly()) {
+    return {
+      ok: false,
+      message: "External sync is handled by GitHub Actions",
+      testedAt: new Date().toISOString(),
+    };
+  }
   const { validateEbayCredentials } = await import("@/services/ebay/credentials");
   return validateEbayCredentials();
 }
@@ -509,6 +527,9 @@ export async function adminRunEbaySync(
   kind: "products" | "prices" | "stock" | "images" | "full"
 ) {
   await assertAdmin();
+  if (isWebSupabaseOnly()) {
+    return { ok: false, error: "External sync is handled by GitHub Actions" };
+  }
   const {
     importEbayProducts,
     syncEbayPrices,

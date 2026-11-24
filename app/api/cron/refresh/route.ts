@@ -63,11 +63,7 @@ export async function GET(request: Request) {
   }
 
   if (isWebSupabaseOnly()) {
-    return NextResponse.json({
-      ok: true,
-      mode: "web-supabase-only",
-      skipped: "Heavy ingestion runs in GitHub Actions; web service serves Supabase reads only.",
-    });
+    return NextResponse.json({ skipped: "handled by GitHub Actions" });
   }
 
   const url = new URL(request.url);

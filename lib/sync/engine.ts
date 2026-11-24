@@ -5,6 +5,7 @@ import {
   importProductsFromProvider,
 } from "@/lib/sync/import/pipeline";
 import { hydrateIntegrationCredentials } from "@/lib/integration/credentials";
+import { isWebSupabaseOnly } from "@/lib/sync/config";
 import { getConnectorForIntegration } from "@/lib/sync/connectors";
 import { resolveImportConfig } from "@/lib/sync/providers/shared/import-config";
 import type { SyncJobType, SyncRunResult } from "@/lib/sync/types";
@@ -35,6 +36,18 @@ export async function runSyncJob(
   input: RunJobInput,
   options: SyncEngineOptions = {}
 ): Promise<SyncRunResult> {
+  if (isWebSupabaseOnly()) {
+    return {
+      jobType: input.jobType,
+      status: "completed",
+      itemsFetched: 0,
+      itemsCreated: 0,
+      itemsUpdated: 0,
+      itemsFailed: 0,
+      metadata: { skipped: "handled by GitHub Actions" },
+    };
+  }
+
   const { persist = true, dryRun = false } = options;
   await hydrateIntegrationCredentials();
   const supabase = persist && !dryRun ? createSupabaseServiceClient() : null;
