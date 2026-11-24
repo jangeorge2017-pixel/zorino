@@ -366,7 +366,7 @@ describe("Fix 10: all other providers remain active; search stays multi-provider
     ]);
     const adapterIds = getAllProviderAdapters().map((a) => a.id);
     for (const id of ALL_FOUR) expect(adapterIds).toContain(id);
-    expect(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE).toBe(50);
+    expect(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE).toBe(60);
     expect(SEARCH_ENGINE_DEFAULTS.MAX_PAGES_PER_PROVIDER).toBe(12);
     expect(SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT).toBe(200);
   });

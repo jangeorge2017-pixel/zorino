@@ -9,6 +9,7 @@ import {
   getCachedSearch,
   setCachedSearch,
 } from "@/lib/search/cache";
+import { getSearchCacheVersion } from "@/lib/search/cache-version";
 import { mergeDuplicateListings } from "@/lib/search/deduplication";
 import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { rankRawListings, sortUnifiedByRelevance } from "@/lib/search/ranking";
@@ -423,7 +424,9 @@ export function setSearchPoolForTests(
   activeCurrency: CurrencyCode = "USD",
   useFuzzyMatch = false,
 ): void {
-  const cacheKey = `prod-v20-device-pool:${query.trim().toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
+  const cacheKey = `prod-v20-device-pool:${getSearchCacheVersion()}:${query
+    .trim()
+    .toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
   setFairSearchCache(cacheKey, {
     items: items as SearchResultItem[],
     expiresAt: Date.now() + 60_000,
@@ -463,7 +466,11 @@ export async function executeGlobalSearch(
   }
 
   const providerKey = (options?.providers ?? ["all"]).join(",");
-  const cacheKey = buildSearchCacheKey(trimmed, limit, `prod-v1:${providerKey}`);
+  const cacheKey = buildSearchCacheKey(
+    trimmed,
+    limit,
+    `prod-v1:${getSearchCacheVersion()}:${providerKey}`,
+  );
   if (!options?.skipCache) {
     const cached = getCachedSearch(cacheKey);
     if (cached) return cached;
@@ -721,9 +728,8 @@ export async function searchProducts(
   // currency is part of the key too: the strict device floor lives in the
   // visitor's currency (US$150 vs â‰ˆ7500 EGP), so a USD-mode pool never serves
   // an EGP-mode visitor who may legitimately hold different inventory.
-  const cacheKey = `prod-v20-device-pool:${trimmed.toLowerCase()}:${capped}${
-    optimizeForDeviceIntent ? ":device-opt" : ""
-  }:sort:${sortBy}:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
+  const cacheKey = `prod-v20-device-pool:${getSearchCacheVersion()}:${trimmed
+    .toLowerCase()}:${capped}${optimizeForDeviceIntent ? ":device-opt" : ""}:sort:${sortBy}:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -956,6 +962,7 @@ export async function searchProducts(
   const interleaved = interleaveByStore(
     viewportCapped,
     (item) => item.storeSlug || item.store || "unknown",
+    MAX_PRODUCTS_PER_STORE,
   )
     .map((item) => {
       const affiliateUrl = normalizeHttpsAffiliateUrl(item.affiliateUrl);

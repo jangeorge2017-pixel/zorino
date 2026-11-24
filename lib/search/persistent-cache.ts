@@ -7,6 +7,7 @@ import {
   PERSISTENT_SEARCH_MAX_ITEMS,
   buildPersistentSearchKey,
   getMissingCriticalSearchProviders,
+  isIncompletePersistentSearchPool,
   isPersistentSearchCacheEnabled,
   isPersistentSearchEntryStale,
   readPersistentSearchCache,
@@ -17,7 +18,7 @@ import {
 /** Low-RAM live fetch budget for the background/stale search refresh. */
 const LOW_RAM_PROVIDER_TIMEOUT_MS = 4_000;
 const LOW_RAM_PROVIDER_CONCURRENCY = 4;
-const LOW_RAM_MAX_LISTINGS_PER_PROVIDER = 20;
+const LOW_RAM_MAX_LISTINGS_PER_PROVIDER = 32;
 const MEMORY_SEARCH_TTL_MS = 20 * 60 * 1000;
 const MEMORY_SEARCH_MAX_ENTRIES = 50;
 
@@ -84,28 +85,35 @@ export async function getCachedSearchResult(
   const memory = memorySearchCache.get(key);
   if (memory && memory.expiresAt > Date.now()) {
     const memoryAge = Date.now() - (memory.expiresAt - MEMORY_SEARCH_TTL_MS);
-    const missing = getMissingCriticalSearchProviders(memory.items);
-    if (missing.length === 0 || memoryAge <= PERSISTENT_SEARCH_INCOMPLETE_TTL_MS) {
+    const incomplete = isIncompletePersistentSearchPool(memory.items);
+    if (!incomplete || memoryAge <= PERSISTENT_SEARCH_INCOMPLETE_TTL_MS) {
       return memory.items.slice(0, sliceLimit);
     }
     memorySearchCache.delete(key);
-    scheduleSearchCacheRefresh(query, options);
+    if (getMissingCriticalSearchProviders(memory.items).length > 0) {
+      scheduleSearchCacheRefresh(query, options);
+    }
   }
   if (!isPersistentSearchCacheEnabled()) return null;
 
   const entry = await readPersistentSearchCache(key);
   if (!entry) return null;
 
+  const incomplete = isIncompletePersistentSearchPool(entry.items);
   const missing = getMissingCriticalSearchProviders(entry.items);
   if (missing.length > 0) {
     scheduleSearchCacheRefresh(query, options);
+  }
+  if (incomplete) {
     const fetchedAt = Date.parse(entry.fetchedAt);
     const age = Number.isFinite(fetchedAt)
       ? Date.now() - fetchedAt
       : Number.POSITIVE_INFINITY;
     if (age > PERSISTENT_SEARCH_INCOMPLETE_TTL_MS) {
       console.warn(
-        `[search-cache] bypass incomplete pool for "${query}" (missing: ${missing.join(", ")})`,
+        `[search-cache] bypass incomplete pool for "${query}" (items=${entry.items.length}, missing: ${
+          missing.join(", ") || "none"
+        })`,
       );
       return null;
     }

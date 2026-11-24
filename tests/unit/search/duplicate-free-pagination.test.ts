@@ -264,7 +264,7 @@ describe("resolvePooledPageSelection — one deterministic universe", () => {
   it("clamps malformed offsets/limits", () => {
     const sel = resolvePooledPageSelection(pool, NaN, NaN);
     expect(sel.tailStart).toBe(0);
-    expect(sel.tailCount).toBe(40);
+    expect(sel.tailCount).toBe(50);
     expect(sel.poolHead).toEqual(pool.slice(0, Math.min(50, pool.length)));
     const neg = resolvePooledPageSelection(pool, -5, 5);
     expect(neg.poolHead).toEqual(pool.slice(0, 5));

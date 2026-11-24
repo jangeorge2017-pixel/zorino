@@ -20,6 +20,7 @@ import {
   normalizeProductImageUrl,
   PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
+import { getSearchCacheVersion } from "@/lib/search/cache-version";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { toProductCard } from "@/lib/search/types";
 import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
@@ -1131,13 +1132,33 @@ async function loadSearchResultsFromDatabase(
 }
 
 /**
- * Deep window the DEVICE-intent DB tail legs walk. Staying well under the
- * Supabase 1000-row fetch cap, the device legs pull the SQL-guard-prefiltered
- * universe once and re-apply the in-memory strict device guard + relevance
- * ranking in JS, so pages past the pool slice a genuine device sequence instead
- * of a discount-ordered window that is often saturated with accessories.
+ * Deep window the DEVICE-intent DB tail legs walk. It is read in paged chunks
+ * under the Supabase 1000-row fetch cap, then the SQL-guard-prefiltered rows are
+ * re-checked with the in-memory strict device guard + relevance ranking in JS,
+ * so pages past the pool slice a genuine device sequence instead of a
+ * discount-ordered window that is often saturated with accessories.
  */
-export const DEVICE_TAIL_DEEP_WINDOW = 600;
+export const DEVICE_TAIL_DEEP_WINDOW = 2000;
+const DEVICE_TAIL_READ_PAGE = 900;
+
+type DeviceTailRangeSource = {
+  range: (from: number, to: number) => PromiseLike<{ data: unknown; error: unknown }>;
+};
+
+async function loadDeviceTailRows(
+  source: DeviceTailRangeSource,
+): Promise<LowestPriceRow[]> {
+  const rows: LowestPriceRow[] = [];
+  for (let from = 0; from < DEVICE_TAIL_DEEP_WINDOW; from += DEVICE_TAIL_READ_PAGE) {
+    const to = Math.min(from + DEVICE_TAIL_READ_PAGE, DEVICE_TAIL_DEEP_WINDOW) - 1;
+    const { data, error } = await source.range(from, to);
+    if (error) return [];
+    const page = Array.isArray(data) ? (data as LowestPriceRow[]) : [];
+    rows.push(...page);
+    if (page.length < to - from + 1) break;
+  }
+  return rows;
+}
 
 /** Device-intent DB leg options. `query` may differ from the surface query. */
 export type DeviceDbLegOptions = {
@@ -1216,7 +1237,7 @@ function deviceGuardSqlQueryContext(device: DeviceDbLegOptions): {
 async function loadDeviceSearchCountFromDatabase(
   device: DeviceDbLegOptions,
 ): Promise<number> {
-  const cacheKey = `device:${device.query.trim().toLowerCase()}`;
+  const cacheKey = `device:${getSearchCacheVersion()}:${device.query.trim().toLowerCase()}`;
   const cached = deviceSearchCountCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) return cached.count;
 
@@ -1247,17 +1268,17 @@ async function loadDeviceSearchCountFromDatabase(
   if (ctx.brandOr) selected.or(ctx.brandOr);
   if (ctx.floor !== null) selected.gte("lowest_price", ctx.floor);
 
-  const { data, error } = await selected
+  const ordered = selected
     .order("discount_percent", { ascending: false })
     .order("product_name", { ascending: true })
-    .order("id", { ascending: true })
-    .range(0, DEVICE_TAIL_DEEP_WINDOW - 1);
+    .order("id", { ascending: true });
+  const rows = await loadDeviceTailRows(ordered);
 
-  if (error || !data?.length) return 0;
+  if (rows.length === 0) return 0;
 
   const activeCurrency: CurrencyCode = device.activeCurrency ?? "USD";
   let count = 0;
-  for (const row of data as LowestPriceRow[]) {
+  for (const row of rows) {
     if (
       row.product_name &&
       row.image_url &&
@@ -1502,14 +1523,11 @@ async function loadSearchResultsFromDatabasePaged(
   // device count leg reports â€” so pages past the pool render the next batch of
   // genuine devices with a truthful `hasMore` instead of emptying.
   if (deviceContext) {
-    const { data: deepData, error: deepError } = await ordered.range(
-      0,
-      DEVICE_TAIL_DEEP_WINDOW - 1,
-    );
-    if (deepError || !deepData?.length) return { items: [], total: 0 };
+    const deepData = await loadDeviceTailRows(ordered);
+    if (deepData.length === 0) return { items: [], total: 0 };
 
     const activeCurrency: CurrencyCode = device?.activeCurrency ?? "USD";
-    const guardRows = (deepData as LowestPriceRow[]).filter(
+    const guardRows = deepData.filter(
       (row) =>
         row.product_name &&
         row.image_url &&

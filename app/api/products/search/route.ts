@@ -4,7 +4,7 @@ import { translateSearchQuery } from "@/lib/search/query-translation";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { ListingCondition } from "@/lib/search/types";
 
-const MAX_SEARCH_LIMIT = 20;
+const MAX_SEARCH_LIMIT = 60;
 const PRODUCT_SEARCH_SELECT =
   "id, product_name, product_slug, image_url, lowest_price, original_price, store_name, provider, affiliate_url, external_url, currency, country_code";
 

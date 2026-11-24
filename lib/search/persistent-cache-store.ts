@@ -26,7 +26,10 @@ export const CRITICAL_SEARCH_PROVIDER_IDS = [
 export const PERSISTENT_SEARCH_INCOMPLETE_TTL_MS = 5 * 60 * 1000;
 
 /** Max products returned from the persistent cache (and stored per query). */
-export const PERSISTENT_SEARCH_MAX_ITEMS = 50;
+export const PERSISTENT_SEARCH_MAX_ITEMS = 60;
+
+/** A pool shorter than this was built from a partial fan-out, not a thin catalog. */
+export const PERSISTENT_SEARCH_MIN_COMPLETE_ITEMS = 48;
 
 /** Critical providers absent from a cached pool (empty when complete). */
 export function getMissingCriticalSearchProviders(
@@ -39,6 +42,15 @@ export function getMissingCriticalSearchProviders(
     present.add(resolveProviderId(raw));
   }
   return CRITICAL_SEARCH_PROVIDER_IDS.filter((id) => !present.has(id));
+}
+
+export function isIncompletePersistentSearchPool(
+  items: readonly SearchResultItem[],
+): boolean {
+  return (
+    items.length < PERSISTENT_SEARCH_MIN_COMPLETE_ITEMS ||
+    getMissingCriticalSearchProviders(items).length > 0
+  );
 }
 
 const READ_TIMEOUT_MS = 900;

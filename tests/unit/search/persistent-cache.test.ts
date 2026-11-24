@@ -8,6 +8,7 @@ import {
   PERSISTENT_SEARCH_TTL_MS,
   buildPersistentSearchKey,
   getMissingCriticalSearchProviders,
+  isIncompletePersistentSearchPool,
   isPersistentSearchEntryStale,
 } from "@/lib/search/persistent-cache-store";
 
@@ -42,8 +43,19 @@ describe("persistent search cache", () => {
     expect(isPersistentSearchEntryStale("not-a-date")).toBe(true);
   });
 
-  it("caps the stored/returned pool at 50 products", () => {
-    expect(PERSISTENT_SEARCH_MAX_ITEMS).toBe(50);
+  it("caps the stored/returned pool at 60 products", () => {
+    expect(PERSISTENT_SEARCH_MAX_ITEMS).toBe(60);
+  });
+
+  it("treats short pools as incomplete even with all critical providers", () => {
+    const rich = [
+      item("Amazon Egypt", "amazon-eg"),
+      item("AliExpress", "aliexpress"),
+      item("Jumia", "jumia"),
+      ...Array.from({ length: 45 }, (_, index) => item(`Store ${index}`, `store-${index}`)),
+    ];
+    expect(isIncompletePersistentSearchPool(rich)).toBe(false);
+    expect(isIncompletePersistentSearchPool(rich.slice(0, 47))).toBe(true);
   });
 
   it("detects pools that silently dropped a critical provider", () => {

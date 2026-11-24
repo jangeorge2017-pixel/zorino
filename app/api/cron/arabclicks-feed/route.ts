@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { runArabClicksFeedIngestion } from "@/lib/integration/arabclicks-feed";
 import { invalidateLowestPricesFromRoute } from "@/lib/revalidate";
+import { invalidateSearchCachesAfterSync } from "@/lib/search/cache-invalidation";
 import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /**
@@ -59,6 +60,7 @@ export async function GET(request: Request) {
 
   if (!result.dryRun && !result.skipped && !result.error) {
     invalidateLowestPricesFromRoute();
+    await invalidateSearchCachesAfterSync("arabclicks-feed-cron");
   }
 
   return NextResponse.json(

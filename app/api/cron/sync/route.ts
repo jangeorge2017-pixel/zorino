@@ -4,6 +4,7 @@ import { executeScheduledSync } from "@/services/sync";
 import { createCronBudget, stepBudgetMs, CRON_BUDGET_MS } from "@/lib/cron/budget";
 import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
 import { finishCronRun, startCronRun } from "@/lib/cron/heartbeat";
+import { invalidateSearchCachesAfterSync } from "@/lib/search/cache-invalidation";
 import { isWebSupabaseOnly } from "@/lib/sync/config";
 
 /**
@@ -47,6 +48,7 @@ export async function GET(request: Request) {
   const budget = createCronBudget();
   const heartbeat = await startCronRun("/api/cron/sync");
   const results: Record<string, unknown> = {};
+  const searchCacheReasons: string[] = [];
   let thrown: unknown = null;
 
   try {
@@ -65,6 +67,9 @@ export async function GET(request: Request) {
             timedOut: sync.timedOut ?? 0,
             results: sync.data,
           };
+      if (!sync.error && sync.data.length > 0) {
+        searchCacheReasons.push("scheduled-sync");
+      }
     } catch (err) {
       results.sync = { error: err instanceof Error ? err.message : String(err) };
     }
@@ -76,8 +81,13 @@ export async function GET(request: Request) {
     // them out means a stalled provider (notably eBay, now strictly bounded)
     // can never block the others within the 60s serverless window.
     Object.assign(results, await runProviderStepsParallel(budget));
+    searchCacheReasons.push("provider-steps");
   } catch (err) {
     thrown = err;
+  }
+
+  if (!thrown && searchCacheReasons.length > 0) {
+    await invalidateSearchCachesAfterSync(searchCacheReasons.join(","));
   }
 
   const durationMs = Date.now() - heartbeat.startedAt;

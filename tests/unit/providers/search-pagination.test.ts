@@ -76,12 +76,12 @@ describe("sliceSearchPage", () => {
     expect(page.total).toBe(10);
   });
 
-  it("clamps NaN offset to 0 and default limit to PAGE_SIZE=50", () => {
+  it("clamps NaN offset to 0 and default limit to PAGE_SIZE=60", () => {
     const pool = makeItems(80);
     const page = sliceSearchPage(pool, Number.NaN, Number.NaN);
     expect(page.offset).toBe(0);
-    expect(page.limit).toBe(50);
-    expect(page.items).toHaveLength(50);
+    expect(page.limit).toBe(60);
+    expect(page.items).toHaveLength(60);
     expect(page.hasMore).toBe(true);
   });
 });

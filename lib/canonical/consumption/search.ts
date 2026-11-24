@@ -30,6 +30,7 @@ import {
   PERSISTENT_SEARCH_MAX_ITEMS,
   isPersistentSearchCacheEnabled,
 } from "@/lib/search/persistent-cache-store";
+import { getSearchCacheVersion } from "@/lib/search/cache-version";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
 import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
 import { rankRawListings } from "@/lib/search/ranking";
@@ -319,7 +320,7 @@ export async function canonicalSearchProducts(
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
 
   const sort = sortBy ?? "relevance";
-  const cacheKey = `canonical-search:${trimmed.toLowerCase()}:${capped}:sort:${sort}:cur:${guardCurrency}:fuzzy:${useFuzzyMatch}`;
+  const cacheKey = `canonical-search:${getSearchCacheVersion()}:${trimmed.toLowerCase()}:${capped}:sort:${sort}:cur:${guardCurrency}:fuzzy:${useFuzzyMatch}`;
   const cached = canSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.items.slice(0, capped);
 

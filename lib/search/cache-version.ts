@@ -87,3 +87,14 @@ export function getSearchCacheVersion(): string {
   }
   return `${currentVersion}|${currentCatalogFingerprint}`;
 }
+
+export async function refreshSearchCacheVersion(): Promise<string> {
+  const refresh = refreshVersion().finally(() => {
+    if (pendingRefresh === refresh) {
+      pendingRefresh = null;
+    }
+  });
+  pendingRefresh = refresh;
+  await refresh;
+  return `${currentVersion}|${currentCatalogFingerprint}`;
+}

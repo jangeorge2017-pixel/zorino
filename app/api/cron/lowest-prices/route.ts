@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authorizeCronRequest, cronUnauthorizedResponse } from "@/lib/security/cron-auth";
 import { executeLowestPriceRefresh } from "@/services/lowest-prices";
 import { invalidateLowestPricesFromRoute } from "@/lib/revalidate";
+import { invalidateSearchCachesAfterSync } from "@/lib/search/cache-invalidation";
 
 /** Cron: refresh lowest prices cache every ~4 hours. */
 export async function GET(request: Request) {
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
 
   if (!result.skipped) {
     invalidateLowestPricesFromRoute();
+    await invalidateSearchCachesAfterSync("lowest-prices-cron");
   }
 
   return NextResponse.json({

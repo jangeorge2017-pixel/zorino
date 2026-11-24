@@ -351,7 +351,7 @@ describe("Fix 9: provider diversity + Fixes 1–8 remain intact", () => {
   });
 
   it("engine defaults / provider registry / paging contract are unchanged (Fixes 1–8)", () => {
-    expect(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE).toBe(50);
+    expect(SEARCH_ENGINE_DEFAULTS.PAGE_SIZE).toBe(60);
     expect(SEARCH_ENGINE_DEFAULTS.MAX_PAGES_PER_PROVIDER).toBe(12);
     expect(SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT).toBe(200);
     expect(PROVIDER_IDS).toHaveLength(17);

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidateCatalog, revalidateLowestPrices, revalidateTrending } from "@/lib/revalidate";
+import { invalidateSearchCachesAfterSync } from "@/lib/search/cache-invalidation";
 import { deleteRows, insertRow, updateRow } from "@/lib/database/writes";
 import { getAdminSupabaseClient, getAdminUser } from "@/lib/admin/auth";
 import { slugify } from "@/lib/admin/slug";
@@ -119,12 +120,14 @@ export async function adminSaveProduct(input: {
     const { data, error } = await updateRow(supabase, "products", payload, { id: input.id });
     if (error) return { data: null, error: error.message };
     revalidateAdmin();
+    await invalidateSearchCachesAfterSync("admin-product-update");
     return { data: data ? mapProduct(data as ProductRow) : null, error: null };
   }
 
   const { data, error } = await insertRow(supabase, "products", payload);
   if (error) return { data: null, error: error.message };
   revalidateAdmin();
+  await invalidateSearchCachesAfterSync("admin-product-create");
   return { data: data ? mapProduct(data) : null, error: null };
 }
 
@@ -134,6 +137,7 @@ export async function adminDeleteProduct(id: string) {
   const { error } = await deleteRows(supabase, "products", { id });
   if (error) return { ok: false, error: error.message };
   revalidateAdmin();
+  await invalidateSearchCachesAfterSync("admin-product-delete");
   return { ok: true, error: null };
 }
 
@@ -346,6 +350,9 @@ export async function adminRefreshLowestPrices() {
   const { executeLowestPriceRefresh } = await import("@/services/lowest-prices");
   const result = await executeLowestPriceRefresh({ force: true, triggeredBy: "admin" });
   revalidateLowestPrices();
+  if (!("error" in result && result.error) && !("skipped" in result && result.skipped)) {
+    await invalidateSearchCachesAfterSync("admin-lowest-prices-refresh");
+  }
   return {
     itemsComputed: result.itemsComputed ?? 0,
     skipped: "skipped" in result ? result.skipped : false,
@@ -374,6 +381,9 @@ export async function adminRefreshPrices() {
   ]);
   revalidateLowestPrices();
   revalidateCatalog();
+  if (!syncResult.error && !("error" in lowestResult && lowestResult.error)) {
+    await invalidateSearchCachesAfterSync("admin-prices-refresh");
+  }
   return {
     storesSynced: syncResult.data?.length ?? 0,
     lowestPricesComputed: lowestResult.itemsComputed ?? 0,
@@ -386,6 +396,9 @@ export async function adminRunPhase1Import() {
   const { triggerPhase1Imports } = await import("@/services/sync");
   const result = await triggerPhase1Imports();
   revalidateCatalog();
+  if (!result.error) {
+    await invalidateSearchCachesAfterSync("admin-phase1-import");
+  }
 
   const totals = (result.data ?? []).reduce(
     (acc, r) => ({
@@ -463,6 +476,9 @@ export async function adminRunAliExpressSync(
 
   const result = await runners[kind]();
   revalidateAdmin();
+  if (!result.error) {
+    await invalidateSearchCachesAfterSync("admin-provider-sync");
+  }
   return {
     ok: result.ok,
     error: result.error ?? null,
@@ -518,6 +534,9 @@ export async function adminRunEbaySync(
 
   const result = await runners[kind]();
   revalidateAdmin();
+  if (!result.error) {
+    await invalidateSearchCachesAfterSync("admin-provider-sync");
+  }
   return {
     ok: result.ok,
     error: result.error ?? null,

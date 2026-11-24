@@ -11,6 +11,7 @@ import {
 } from "@/lib/images/product-image";
 
 export const MAX_PRODUCTS_PER_STORE = 5;
+export const SEARCH_INTERLEAVE_MAX_PER_STORE = 12;
 
 export type ProductCard = {
   id: string;
@@ -177,7 +178,7 @@ export type SearchSortMode = "relevance" | "price";
 export type ListingCondition = "new" | "refurbished" | "used";
 
 export const SEARCH_ENGINE_DEFAULTS = {
-  PAGE_SIZE: 50,
+  PAGE_SIZE: 60,
   /** Max API pages per provider (50 × 12 = 600 listings). */
   MAX_PAGES_PER_PROVIDER: 12,
   /**

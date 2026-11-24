@@ -8,6 +8,7 @@ import {
 import { runProviderStepsParallel } from "@/lib/cron/provider-steps";
 import { runNotificationAlerts } from "@/services/notifications/alerts";
 import { invalidateLowestPricesFromRoute, invalidateTrendingFromRoute } from "@/lib/revalidate";
+import { invalidateSearchCachesAfterSync } from "@/lib/search/cache-invalidation";
 import {
   createCronBudget,
   withBudgetCap,
@@ -74,6 +75,7 @@ export async function GET(request: Request) {
     url.searchParams.get("force") === "true" || request.headers.get("x-vercel-cron") === "1";
   const hourUtc = new Date().getUTCHours();
   const results: Record<string, unknown> = {};
+  const searchCacheReasons: string[] = [];
 
   const budget = createCronBudget();
   const heartbeat = await startCronRun("/api/cron/refresh");
@@ -146,6 +148,7 @@ export async function GET(request: Request) {
             : { skipped: lowest.skipped, itemsComputed: lowest.itemsComputed };
         if (!lowest.skipped && !("error" in lowest && lowest.error)) {
           invalidateLowestPricesFromRoute();
+          searchCacheReasons.push("lowest-prices");
         }
       } catch (err) {
         results.lowestPrices = {
@@ -182,6 +185,9 @@ export async function GET(request: Request) {
           errors: admitad.errors.slice(0, 10),
           deadlineMs,
         };
+        if (admitad.productsSaved > 0 || admitad.globalOffersSaved > 0) {
+          searchCacheReasons.push("admitad-ingestion");
+        }
       } catch (err) {
         results.admitadIngestion = {
           error: err instanceof Error ? err.message : String(err),
@@ -219,6 +225,9 @@ export async function GET(request: Request) {
           errors: backfill.errors.slice(0, 10),
           deadlineMs,
         };
+        if (backfill.rowsPatched > 0) {
+          searchCacheReasons.push("admitad-image-backfill");
+        }
       } catch (err) {
         results.admitadImageBackfill = {
           error: err instanceof Error ? err.message : String(err),
@@ -234,6 +243,7 @@ export async function GET(request: Request) {
     // can never block the others within the 60s serverless window.
     if (force || hourUtc % 6 === 0) {
       Object.assign(results, await runProviderStepsParallel(budget));
+      searchCacheReasons.push("provider-steps");
     } else {
       results.aliexpress = { skipped: true };
       results.ebay = { skipped: true };
@@ -266,6 +276,9 @@ export async function GET(request: Request) {
               skipped: sync.skipped ?? 0,
               results: sync.data,
             };
+        if (!sync.error && sync.data.length > 0) {
+          searchCacheReasons.push("scheduled-sync");
+        }
       } catch (err) {
         results.sync = {
           error: err instanceof Error ? err.message : String(err),
@@ -301,6 +314,10 @@ export async function GET(request: Request) {
     }
   } catch (err) {
     thrown = err;
+  }
+
+  if (!thrown && searchCacheReasons.length > 0) {
+    await invalidateSearchCachesAfterSync(searchCacheReasons.join(","));
   }
 
   const durationMs = Date.now() - heartbeat.startedAt;

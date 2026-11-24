@@ -173,8 +173,8 @@ describe("production pool — no single marketplace can crowd out genuine invent
   it("bounds the exact-model ceiling to at most 60% and never below a page", () => {
     expect(SEARCH_POOL_SINGLE_PROVIDER_EXACT_SHARE).toBe(0.6);
     expect(exactModelPerProviderCeiling(200)).toBe(120);
-    expect(exactModelPerProviderCeiling(50)).toBe(50);
-    expect(exactModelPerProviderCeiling(10)).toBe(50);
+    expect(exactModelPerProviderCeiling(50)).toBe(60);
+    expect(exactModelPerProviderCeiling(10)).toBe(60);
   });
 
 it("caps each source to its strict equal share so a volume leader can no longer crowd the pool", () => {
