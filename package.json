@@ -13,8 +13,8 @@
   "scripts": {
     "dev": "next dev",
     "dev:lan": "next dev --hostname 0.0.0.0",
-    "build": "node --max-old-space-size=256 --require=./scripts/node-options-256.cjs node_modules/next/dist/bin/next build",
-    "start": "node --max-old-space-size=256 --require=./scripts/node-options-256.cjs scripts/start.mjs",
+    "build": "node scripts/build.mjs",
+    "start": "node scripts/start.mjs",
     "lint": "node --max-old-space-size=2048 node_modules/eslint/bin/eslint.js",
     "typecheck": "tsc --noEmit",
     "generate:logo": "node scripts/generate-hero-z-logo-svg.mjs",

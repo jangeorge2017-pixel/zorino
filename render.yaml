@@ -31,11 +31,12 @@ services:
     # --include=dev keeps TypeScript/Tailwind available to `next build`. Render
     # exports service env vars during the build step, so never set
     # NODE_ENV=production here: npm would omit devDependencies and next build
-    # exits 1. `next start` sets NODE_ENV=production itself.
-    # NODE_OPTIONS is pinned below the 512MB container ceiling so the runtime
-    # heap and native buffers stay clear of the hard kill limit. Use npx to
-    # resolve next from node_modules/.bin.
-    buildCommand: npm ci --include=dev && NODE_OPTIONS=--max-old-space-size=256 npx next build && npm prune --omit=dev
+    # exits 1. `next build` sets NODE_ENV=production itself.
+    # Build and runtime memory are intentionally separated: npm run build uses
+    # NODE_OPTIONS=--max-old-space-size=440 so compilation does not heap-OOM,
+    # while the NODE_OPTIONS env var below stays at 256MB for the standalone
+    # runtime server (~100-160MB RSS under the 512MB container ceiling).
+    buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION

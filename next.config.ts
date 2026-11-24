@@ -44,11 +44,13 @@ const devOnlyImagePatterns = isProduction
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  productionBrowserSourceMaps: false,
   typescript: {
     ignoreBuildErrors: true,
   },
   experimental: {
     cpus: 1,
+    workerThreads: false,
   },
   serverExternalPackages: ["playwright", "playwright-core"],
   outputFileTracingExcludes: {

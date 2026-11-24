@@ -30,7 +30,7 @@ FROM base AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1 \
     NODE_ENV=production \
-    NODE_OPTIONS=--max-old-space-size=2048 \
+    NODE_OPTIONS=--max-old-space-size=440 \
     CI=1
 
 # Render injects the service's environment variables as Docker build args, but
@@ -82,8 +82,9 @@ RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" && test -n "$NEXT_PUBLIC_SITE_URL" || { 
       exit 1; \
     }
 
-# Type-checking during the build is disabled in next.config.ts
-# (typescript.ignoreBuildErrors) to stay under the free-tier memory ceiling.
+# Type-checking is disabled in next.config.ts and Next 16 no longer lints during
+# build; npm run build sets NODE_OPTIONS=--max-old-space-size=440 and copies
+# standalone assets.
 RUN npm run build
 
 # Drop devDependencies in place — cheaper than a second full install.
@@ -95,15 +96,15 @@ WORKDIR /app
 
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    HOME=/app
+    HOME=/app \
+    NODE_OPTIONS=--max-old-space-size=256
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
+# npm run build copies public/ and .next/static/ into the standalone bundle, so
+# only the traced standalone output is needed at runtime (no full node_modules).
+COPY --from=builder /app/.next/standalone ./
 
 USER nextjs
 
@@ -113,5 +114,6 @@ EXPOSE 3000
 ENV PORT=3000 \
     HOSTNAME="0.0.0.0"
 
-# Invoke next directly — npm has no writable cache dir for the nextjs user.
-CMD ["node", "node_modules/next/dist/bin/next", "start"]
+# Standalone server starts faster and uses ~100-160MB RSS, well below the 512MB
+# Render container limit. npm has no writable cache dir for the nextjs user.
+CMD ["node", "--max-old-space-size=256", "server.js"]

@@ -2,17 +2,21 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
-const nextBin = join(process.cwd(), "node_modules", "next", "dist", "bin", "next");
-if (!existsSync(nextBin)) {
-  console.error(`[start] next binary not found at ${nextBin}`);
+const standaloneServer = join(process.cwd(), ".next", "standalone", "server.js");
+if (!existsSync(standaloneServer)) {
+  console.error(`[start] standalone server not found at ${standaloneServer}`);
   process.exit(1);
 }
 
 const nodeOptions = "--max-old-space-size=256";
 
-const child = spawn(process.execPath, [nextBin, "start"], {
+const child = spawn(process.execPath, [standaloneServer], {
   stdio: "inherit",
-  env: { ...process.env, NODE_OPTIONS: nodeOptions },
+  env: {
+    ...process.env,
+    NODE_OPTIONS: nodeOptions,
+    HOSTNAME: process.env.HOSTNAME || "0.0.0.0",
+  },
 });
 
 child.on("exit", (code, signal) => {
