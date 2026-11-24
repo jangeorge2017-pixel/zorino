@@ -15,7 +15,7 @@ const child = spawn(process.execPath, [standaloneServer], {
   env: {
     ...process.env,
     NODE_OPTIONS: nodeOptions,
-    HOSTNAME: process.env.HOSTNAME || "0.0.0.0",
+    HOSTNAME: "0.0.0.0",
   },
 });
 
