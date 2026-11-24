@@ -3,9 +3,9 @@ import {
   cleanTitle,
   decodeHtmlEntities,
   getAttribute,
-  parseMoney,
   resolveUrl,
 } from "@/lib/integrations/egypt-stores/parse";
+import { categoryForScraperQuery } from "@/lib/sync/scraper/stores";
 import type { ScraperStoreConfig, ScrapedListing } from "@/lib/sync/scraper/types";
 
 type Candidate = {
@@ -47,16 +47,43 @@ function asText(value: unknown): string {
   return "";
 }
 
+function parseScraperNumber(raw: string): number {
+  const normalized = raw
+    .replace(/[\u0660-\u0669]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
+    .replace(/[\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) - 0x06f0))
+    .replace(/\u066c/g, "")
+    .replace(/\u066b/g, ".");
+  const match = /([\d][\d.,\s]*)/.exec(normalized);
+  if (!match) return 0;
+
+  let compact = match[1].replace(/\s+/g, "");
+  const lastComma = compact.lastIndexOf(",");
+  const lastDot = compact.lastIndexOf(".");
+  if (lastComma >= 0 && lastDot >= 0) {
+    compact =
+      lastComma > lastDot
+        ? compact.replace(/\./g, "").replace(/,/g, ".")
+        : compact.replace(/,/g, "");
+  } else if (lastComma >= 0) {
+    compact = /,\d{1,2}$/.test(compact)
+      ? compact.replace(/\./g, "").replace(/,/g, ".")
+      : compact.replace(/,/g, "");
+  }
+
+  const value = Number.parseFloat(compact);
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
 function asNumber(value: unknown): number {
   if (typeof value === "number") return Number.isFinite(value) && value > 0 ? value : 0;
   const record = asRecord(value);
   if (record) {
     for (const key of ["value", "amount", "current", "raw", "minPrice"]) {
       const nested = record[key];
-      if (nested !== undefined && nested !== null) return parseMoney(asText(nested));
+      if (nested !== undefined && nested !== null) return parseScraperNumber(asText(nested));
     }
   }
-  return parseMoney(asText(value));
+  return parseScraperNumber(asText(value));
 }
 
 function asImage(value: unknown): string {
@@ -103,11 +130,18 @@ function pickSrcsetUrl(value: string | null): string {
 }
 
 function pickImageAttribute(imageTag: string): string {
-  const srcsetImage = pickSrcsetUrl(getAttribute(imageTag, "srcset"));
-  if (normalizeImageUrl(srcsetImage)) return srcsetImage;
-  for (const attribute of ["data-original", "data-src", "data-lazy-src", "src"]) {
+  for (const attribute of [
+    "data-srcset",
+    "data-lazy-srcset",
+    "data-original",
+    "data-src",
+    "data-lazy-src",
+    "srcset",
+    "src",
+  ]) {
     const value = getAttribute(imageTag, attribute);
-    if (value && normalizeImageUrl(value)) return value;
+    const candidate = /srcset$/i.test(attribute) ? pickSrcsetUrl(value) : value;
+    if (candidate && normalizeImageUrl(candidate)) return candidate;
   }
   return "";
 }
@@ -139,6 +173,21 @@ function isStoreHost(url: string, host: string): boolean {
     return hostname === host || hostname.endsWith(`.${host}`);
   } catch {
     return false;
+  }
+}
+
+function canonicalProductUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    for (const key of [...parsed.searchParams.keys()]) {
+      if (/^(utm_|fbclid$|gclid$|gbraid$|wbraid$|ref$|refsrc$|aff_)/i.test(key)) {
+        parsed.searchParams.delete(key);
+      }
+    }
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return url;
   }
 }
 
@@ -241,12 +290,14 @@ function extractDomCandidates(html: string, config: ScraperStoreConfig): Candida
 
     const chunk = match[4] ?? "";
     const imageTag = /<img\b[^>]*>/i.exec(chunk)?.[0] ?? "";
-    const image = pickImageAttribute(imageTag);
+    const sourceTag = /<source\b[^>]*>/i.exec(chunk)?.[0] ?? "";
+    const image = pickImageAttribute(imageTag) || pickImageAttribute(sourceTag);
     const text = cleanTitle(chunk.replace(/<[^>]*>/g, " ")).slice(0, 200);
     const currencyToken = /(EGP|E£|\bLE\b|USD|\$|SAR|AED)/i.exec(text)?.[0] ?? "";
+    const currencyPattern = "EGP|E£|\\\\bLE\\\\b|USD|\\\\$|£|SAR|AED";
     const priceMatch =
-      /(?:EGP|E£|LE|£|\$|USD)\s*([\d,.]+)/i.exec(text) ??
-      /\b([\d,.]+)\s*(?:EGP|E£|LE|USD)/i.exec(text);
+      new RegExp(`(?:${currencyPattern})\\s*([\\d,.]+)`, "i").exec(text) ??
+      new RegExp(`([\\d,.]+)\\s*(?:${currencyPattern})`, "i").exec(text);
     const dataPrice = getAttribute(chunk, "data-price") ?? getAttribute(chunk, "data-price-amount");
 
     out.push({
@@ -266,12 +317,17 @@ function extractDomCandidates(html: string, config: ScraperStoreConfig): Candida
   return out;
 }
 
-function finalizeCandidate(candidate: Candidate, config: ScraperStoreConfig): ScrapedListing | null {
+function finalizeCandidate(
+  candidate: Candidate,
+  config: ScraperStoreConfig,
+  query?: string,
+): ScrapedListing | null {
   const title = cleanTitle(asText(candidate.title));
   if (title.length < 4 || title.length > 300) return null;
 
-  const productUrl = resolveUrl(asText(candidate.url), config.origin);
-  if (!productUrl || !isStoreHost(productUrl, config.host)) return null;
+  const resolvedUrl = resolveUrl(asText(candidate.url), config.origin);
+  if (!resolvedUrl || !isStoreHost(resolvedUrl, config.host)) return null;
+  const productUrl = canonicalProductUrl(resolvedUrl);
 
   const imageUrl = normalizeImageUrl(candidate.image);
   if (!imageUrl || !isUsableRemoteProductImageUrl(imageUrl)) return null;
@@ -294,7 +350,7 @@ function finalizeCandidate(candidate: Candidate, config: ScraperStoreConfig): Sc
     currency,
     imageUrl,
     productUrl,
-    category: asText(candidate.category).slice(0, 120),
+    category: asText(candidate.category).slice(0, 120) || categoryForScraperQuery(query ?? "") || "",
     originalPrice: originalPrice > price ? originalPrice : undefined,
     rating: rating > 0 ? rating : undefined,
     reviewCount: reviewCount > 0 ? reviewCount : undefined,
@@ -305,6 +361,7 @@ function finalizeCandidate(candidate: Candidate, config: ScraperStoreConfig): Sc
 export function extractScrapedListings(
   html: string,
   config: ScraperStoreConfig,
+  query?: string,
 ): ScrapedListing[] {
   const candidates = [
     ...extractStructuredCandidates(html),
@@ -314,7 +371,7 @@ export function extractScrapedListings(
   const listings: ScrapedListing[] = [];
 
   for (const candidate of candidates) {
-    const listing = finalizeCandidate(candidate, config);
+    const listing = finalizeCandidate(candidate, config, query);
     if (!listing) continue;
     const key = listing.productUrl.split("?")[0] ?? listing.productUrl;
     if (seen.has(key)) continue;

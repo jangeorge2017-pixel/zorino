@@ -13,6 +13,7 @@ type NavigationResponseLike = {
 };
 
 type PageLike = {
+  addInitScript(script: string): Promise<void> | void;
   goto(url: string, options?: Record<string, unknown>): Promise<unknown>;
   content(): Promise<string>;
   route(
@@ -74,12 +75,14 @@ async function getBrowser(): Promise<BrowserLike> {
       const playwright = nodeRequire("playwright") as PlaywrightLike;
       return playwright.chromium.launch({
         headless: true,
+        ignoreDefaultArgs: ["--enable-automation"],
         args: [
           "--no-sandbox",
           "--disable-dev-shm-usage",
           "--disable-gpu",
           "--disable-background-networking",
           "--disable-extensions",
+          "--disable-blink-features=AutomationControlled",
         ],
       });
     })
@@ -123,6 +126,11 @@ export async function fetchStorefrontHtml(
       },
     });
     page = await context.newPage();
+    await page.addInitScript(`
+      Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+      Object.defineProperty(navigator, "languages", { get: () => ["en-US", "en"] });
+      Object.defineProperty(navigator, "plugins", { get: () => [] });
+    `);
     await page.route("**/*", (route) => {
       const type = route.request().resourceType();
       if (type === "image" || type === "stylesheet" || type === "font" || type === "media") {

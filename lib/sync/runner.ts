@@ -104,11 +104,15 @@ function querySyncContext(
 }
 
 const SCRAPER_FIRST_PROVIDER_IDS = new Set<ProductionProviderId>([
+  "amazon",
+  "amazon-eg",
   "noon",
   "jumia",
   "carrefour",
   "btech",
   "temu",
+  "aliexpress",
+  "ebay",
 ]);
 
 function isScraperAutomationEnabled(): boolean {

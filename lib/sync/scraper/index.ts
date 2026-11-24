@@ -1,3 +1,4 @@
+import { buildEgyptStoreAffiliateUrl } from "@/lib/integrations/egypt-stores/affiliate";
 import { fetchStorefrontHtml } from "@/lib/sync/scraper/browser";
 import { extractScrapedListings } from "@/lib/sync/scraper/extract";
 import { SCRAPER_SEED_QUERIES, SCRAPER_STORES } from "@/lib/sync/scraper/stores";
@@ -24,6 +25,7 @@ function toExternalProduct(
 ): ExternalProduct {
   return finalizeExternalProduct(ctx, {
     externalId: `${config.id}-${listing.externalId}`,
+    affiliateUrl: buildEgyptStoreAffiliateUrl(config.name, listing.productUrl) ?? undefined,
     title: listing.title,
     slug: slugifyTitle(listing.title),
     categorySlug: mapProviderCategory(listing.category, listing.title),
@@ -101,7 +103,7 @@ export async function fetchFallbackProducts(
       }
 
       try {
-        const listings = extractScrapedListings(fetched.value.html, config);
+        const listings = extractScrapedListings(fetched.value.html, config, query);
         if (listings.length === 0) {
           throw new Error(
             `zero-listings status=${fetched.value.status} title="${fetched.value.title}" url=${fetched.value.finalUrl}`,

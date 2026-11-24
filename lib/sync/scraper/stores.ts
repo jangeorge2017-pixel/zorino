@@ -1,4 +1,48 @@
+import type { CategorySlug } from "@/lib/sync/providers/shared/category-map";
 import type { ScraperStoreConfig } from "@/lib/sync/scraper/types";
+
+export const SCRAPER_QUERY_CATEGORIES: Record<string, CategorySlug> = {
+  "iPhone 16": "phones",
+  "iPhone 15": "phones",
+  "iPhone 14": "phones",
+  "iPhone 13": "phones",
+  "Samsung S24": "phones",
+  "Samsung S23": "phones",
+  "Samsung A55": "phones",
+  "Samsung A35": "phones",
+  "Xiaomi Redmi": "phones",
+  "OPPO Reno": "phones",
+  Realme: "phones",
+  MacBook: "laptops",
+  "Lenovo IdeaPad": "laptops",
+  "Lenovo ThinkPad": "laptops",
+  "HP Pavilion": "laptops",
+  "Dell Inspiron": "laptops",
+  "Asus VivoBook": "laptops",
+  iPad: "laptops",
+  "Samsung Tab": "laptops",
+  "PlayStation 5": "gaming",
+  "PS5 Controller": "gaming",
+  Xbox: "gaming",
+  "Samsung Smart TV": "tvs",
+  "LG Smart TV": "tvs",
+  "AirPods Pro": "wearables",
+  "JBL Headphones": "wearables",
+  "Apple Watch": "wearables",
+  "Smart Watch": "wearables",
+  "Air Fryer": "home",
+  "Espresso Machine": "home",
+  Tornado: "home",
+  Fresh: "home",
+  Sharp: "home",
+  Refrigerator: "home",
+  "Washing Machine": "home",
+  "Vacuum Cleaner": "home",
+};
+
+export function categoryForScraperQuery(query: string): CategorySlug | undefined {
+  return SCRAPER_QUERY_CATEGORIES[query.trim()];
+}
 
 export const SCRAPER_SEED_QUERIES = [
   "iPhone 16",

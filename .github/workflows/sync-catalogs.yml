@@ -108,6 +108,13 @@ jobs:
           mkdir -p logs
           node scripts/purge-bad-product-images.mjs --concurrency=80 --timeout=5000 2>&1 | tee logs/image-purge.log
 
+      - name: Ensure scraper stores are enabled
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/verify-scraper-stores.mjs
+
       - name: Sync provider APIs and storefront catalogs
         continue-on-error: true
         env:
