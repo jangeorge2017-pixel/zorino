@@ -83,6 +83,47 @@ function normalizeImageUrl(value: unknown): string {
   }
 }
 
+function pickSrcsetUrl(value: string | null): string {
+  if (!value) return "";
+  let best = "";
+  let bestScore = -1;
+  for (const part of value.split(",")) {
+    const [rawUrl, ...descriptors] = part.trim().split(/\s+/);
+    if (!rawUrl) continue;
+    const descriptor = descriptors.join(" ");
+    const width = /(\d+)w/i.exec(descriptor);
+    const density = /(\d+(?:\.\d+)?)x/i.exec(descriptor);
+    const score = width ? Number(width[1]) : density ? Number(density[1]) * 1000 : 1;
+    if (score > bestScore) {
+      bestScore = score;
+      best = rawUrl;
+    }
+  }
+  return best;
+}
+
+function pickImageAttribute(imageTag: string): string {
+  const srcsetImage = pickSrcsetUrl(getAttribute(imageTag, "srcset"));
+  if (normalizeImageUrl(srcsetImage)) return srcsetImage;
+  for (const attribute of ["data-original", "data-src", "data-lazy-src", "src"]) {
+    const value = getAttribute(imageTag, attribute);
+    if (value && normalizeImageUrl(value)) return value;
+  }
+  return "";
+}
+
+function canonicalCurrency(value: unknown, fallback: string): string {
+  const raw = asText(value).toUpperCase();
+  if (!raw) return fallback.toUpperCase();
+  if (raw.includes("EGP") || /^(E£|LE)$/.test(raw)) return "EGP";
+  if (raw.includes("USD") || raw === "$" || raw === "US$") return "USD";
+  if (raw.includes("SAR")) return "SAR";
+  if (raw.includes("AED")) return "AED";
+  if (raw.includes("GBP") || raw === "£") return "GBP";
+  if (raw.includes("EUR") || raw === "€") return "EUR";
+  return raw.replace(/[^A-Z]/g, "") || fallback.toUpperCase();
+}
+
 function hashId(value: string): string {
   let hash = 2166136261;
   for (let i = 0; i < value.length; i += 1) {
@@ -200,14 +241,9 @@ function extractDomCandidates(html: string, config: ScraperStoreConfig): Candida
 
     const chunk = match[4] ?? "";
     const imageTag = /<img\b[^>]*>/i.exec(chunk)?.[0] ?? "";
-    const srcset = getAttribute(imageTag, "srcset")?.trim().split(/\s+/)[0];
-    const image =
-      getAttribute(imageTag, "data-src") ??
-      getAttribute(imageTag, "src") ??
-      getAttribute(imageTag, "data-lazy-src") ??
-      srcset ??
-      "";
+    const image = pickImageAttribute(imageTag);
     const text = cleanTitle(chunk.replace(/<[^>]*>/g, " ")).slice(0, 200);
+    const currencyToken = /(EGP|E£|\bLE\b|USD|\$|SAR|AED)/i.exec(text)?.[0] ?? "";
     const priceMatch =
       /(?:EGP|E£|LE|£|\$|USD)\s*([\d,.]+)/i.exec(text) ??
       /\b([\d,.]+)\s*(?:EGP|E£|LE|USD)/i.exec(text);
@@ -224,6 +260,7 @@ function extractDomCandidates(html: string, config: ScraperStoreConfig): Candida
         getAttribute(match[0], "data-id") ??
         undefined,
       category: "",
+      currency: currencyToken || undefined,
     });
   }
   return out;
@@ -242,8 +279,10 @@ function finalizeCandidate(candidate: Candidate, config: ScraperStoreConfig): Sc
   const price = asNumber(candidate.price);
   if (price <= 0) return null;
 
-  const rawCurrency = asText(candidate.currency).toUpperCase();
-  const currency = /^(EGP|USD|EUR|GBP|SAR|AED)$/.test(rawCurrency) ? rawCurrency : config.currency;
+  const expectedCurrency = config.currency.toUpperCase();
+  const rawCurrency = asText(candidate.currency);
+  const currency = canonicalCurrency(rawCurrency, expectedCurrency);
+  if (rawCurrency && currency !== expectedCurrency) return null;
   const originalPrice = asNumber(candidate.originalPrice);
   const rating = asNumber(candidate.rating);
   const reviewCount = asNumber(candidate.reviewCount);

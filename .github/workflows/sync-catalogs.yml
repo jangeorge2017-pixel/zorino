@@ -28,7 +28,7 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       NODE_OPTIONS: "--max-old-space-size=6144"
     steps:
@@ -116,14 +116,17 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SYNC_BUDGET_MS: ${{ vars.SYNC_BUDGET_MS || '3000000' }}
-          SYNC_GLOBAL_TIMEOUT_MS: ${{ vars.SYNC_GLOBAL_TIMEOUT_MS || '300000' }}
+          SYNC_GLOBAL_TIMEOUT_MS: ${{ vars.SYNC_GLOBAL_TIMEOUT_MS || '600000' }}
           SYNC_STORE_MAX_PRODUCTS: ${{ vars.SYNC_STORE_MAX_PRODUCTS || '3000' }}
           SYNC_STORE_QUERIES: ${{ vars.SYNC_STORE_QUERIES || '' }}
+          SYNC_STORE_CONCURRENCY: ${{ vars.SYNC_STORE_CONCURRENCY || '6' }}
           SYNC_SCRAPER_ENABLED: "1"
+          SYNC_SCRAPER_AUTO: "1"
           SYNC_DIAGNOSTICS: "1"
           SYNC_SCRAPER_PAGES: ${{ vars.SYNC_SCRAPER_PAGES || '5' }}
           SYNC_SCRAPER_PAGE_SIZE: ${{ vars.SYNC_SCRAPER_PAGE_SIZE || '24' }}
-          SYNC_SCRAPER_QUERIES: ${{ vars.SYNC_SCRAPER_QUERIES || '26' }}
+          SYNC_SCRAPER_PAGE_TIMEOUT_MS: ${{ vars.SYNC_SCRAPER_PAGE_TIMEOUT_MS || '20000' }}
+          SYNC_SCRAPER_QUERIES: ${{ vars.SYNC_SCRAPER_QUERIES || '36' }}
           SYNC_SCRAPER_MAX_PRODUCTS: ${{ vars.SYNC_SCRAPER_MAX_PRODUCTS || '3000' }}
           AMAZON_SCRAPER_ENGINE: playwright
           ALIEXPRESS_APP_KEY: ${{ secrets.ALIEXPRESS_APP_KEY }}
@@ -158,12 +161,12 @@ jobs:
         run: |
           mkdir -p logs
           set +e
-          timeout --signal=TERM --kill-after=15s 330s npm run sync:catalogs 2>&1 | tee logs/provider-sync.log
+          timeout --signal=TERM --kill-after=15s 600s npm run sync:catalogs 2>&1 | tee logs/provider-sync.log
           status=${PIPESTATUS[0]}
           set -e
           case "$status" in
             124|137|143)
-              echo "[sync-all-catalogs] external watchdog ended sync after 330s"
+              echo "[sync-all-catalogs] external watchdog ended sync after 600s"
               exit 0
               ;;
             *)

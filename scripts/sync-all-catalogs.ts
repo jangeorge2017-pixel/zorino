@@ -73,10 +73,13 @@ async function bumpSearchCacheVersion(): Promise<string | null> {
 
 async function main(): Promise<void> {
   const startedAt = new Date().toISOString();
-  const queries = (process.env.SYNC_STORE_QUERIES ?? SCRAPER_SEED_QUERIES.join(","))
+  const configuredQueries = process.env.SYNC_STORE_QUERIES?.trim();
+  const queryLimit = positiveInt("SYNC_SCRAPER_QUERIES", SCRAPER_SEED_QUERIES.length);
+  const queries = (configuredQueries || SCRAPER_SEED_QUERIES.join(","))
     .split(",")
     .map((value) => value.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .slice(0, queryLimit);
   const maxProductsPerStore = positiveInt("SYNC_STORE_MAX_PRODUCTS", 3000);
   const budgetMs = positiveInt("SYNC_BUDGET_MS", 3_000_000);
   const abortController = new AbortController();
@@ -156,26 +159,35 @@ async function main(): Promise<void> {
   }
   writeSummary();
 
-  for (const providerId of STORE_IDS) {
-    if (abortController.signal.aborted) break;
-    try {
-      const result = await runProviderSyncStore({
-        providerId,
-        queries,
-        maxProducts: maxProductsPerStore,
-        countryCode: US_STORE_IDS.has(providerId) ? "US" : "EG",
-        currency: US_STORE_IDS.has(providerId) ? "USD" : "EGP",
-        abortSignal: abortController.signal,
-      });
-      stores[providerId] = result;
-      console.log(`[sync-all-catalogs] ${providerId}:`, JSON.stringify(result));
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      stores[providerId] = { listings: 0, saved: 0, source: "unknown", error: message };
-      console.error(`[sync-all-catalogs] ${providerId} failed:`, message);
+  const storeConcurrency = positiveInt("SYNC_STORE_CONCURRENCY", 6);
+  let nextStoreIndex = 0;
+  const runNextStore = async (): Promise<void> => {
+    while (!abortController.signal.aborted && nextStoreIndex < STORE_IDS.length) {
+      const providerId = STORE_IDS[nextStoreIndex];
+      nextStoreIndex += 1;
+      try {
+        const result = await runProviderSyncStore({
+          providerId,
+          queries,
+          maxProducts: maxProductsPerStore,
+          countryCode: US_STORE_IDS.has(providerId) ? "US" : "EG",
+          currency: US_STORE_IDS.has(providerId) ? "USD" : "EGP",
+          abortSignal: abortController.signal,
+        });
+        stores[providerId] = result;
+        console.log(`[sync-all-catalogs] ${providerId}:`, JSON.stringify(result));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        stores[providerId] = { listings: 0, saved: 0, source: "unknown", error: message };
+        console.error(`[sync-all-catalogs] ${providerId} failed:`, message);
+      }
+      writeSummary();
     }
-    writeSummary();
-  }
+  };
+
+  await Promise.all(
+    Array.from({ length: Math.min(storeConcurrency, STORE_IDS.length) }, () => runNextStore()),
+  );
   summary.finishedAt = new Date().toISOString();
 
   clearTimeout(safetyTimer);

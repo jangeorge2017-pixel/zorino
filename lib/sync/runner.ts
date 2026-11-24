@@ -103,6 +103,18 @@ function querySyncContext(
   };
 }
 
+const SCRAPER_FIRST_PROVIDER_IDS = new Set<ProductionProviderId>([
+  "noon",
+  "jumia",
+  "carrefour",
+  "btech",
+  "temu",
+]);
+
+function isScraperAutomationEnabled(): boolean {
+  return process.env.SYNC_SCRAPER_AUTO !== "0";
+}
+
 function emptyDropCounts(): Record<SyncDropReason, number> {
   return {
     "missing-id": 0,
@@ -346,86 +358,140 @@ export async function runProviderSyncStore(
   });
 
   const runStore = async (): Promise<ProviderStoreSyncResult> => {
-    if (isImportProviderId(providerId)) {
-      const adapter = getProviderAdapter(providerId);
-      if (!adapter.isConfigured()) {
-        stepError = "adapter-not-configured";
-        attempts.push({ source: "adapter", error: stepError, rawCount: 0 });
-      } else {
-        for (const query of queries) {
-          if (controller.signal.aborted) break;
-          const fetched = await withTimeout(
-            `adapter ${providerId} "${query}"`,
-            adapter.fetchProducts(querySyncContext(ctx, query, maxPages, pageSize)),
-            queryTimeout(),
-          );
-          if (!fetched.ok) {
-            attempts.push({ source: "adapter", query, error: fetched.error, rawCount: 0 });
-            continue;
-          }
-          const batch = await saveBatch(fetched.value);
-          attempts.push({
-            source: "adapter",
-            query,
-            rawCount: fetched.value.length,
-            usableCount: batch.usable,
-          });
-        }
-      }
-    } else {
-      source = "connector";
-      const connector = getSearchConnector(providerId);
-      if (!connector) {
-        stepError = "connector-not-found";
-        attempts.push({ source: "connector", error: stepError, rawCount: 0 });
-      } else if (!(await connector.isAvailable())) {
-        stepError = "connector-unavailable";
-        attempts.push({ source: "connector", error: stepError, rawCount: 0 });
-      } else {
-        for (const query of queries) {
-          if (controller.signal.aborted) break;
-          const fetched = await withTimeout(
-            `connector ${providerId} "${query}"`,
-            connector.search(query, {
-              pageSize,
-              maxPages,
-              countryCode: ctx.countryCode,
-              currency: ctx.currency,
-            }),
-            queryTimeout(),
-          );
-          if (!fetched.ok) {
-            attempts.push({ source: "connector", query, error: fetched.error, rawCount: 0 });
-            continue;
-          }
-          const products = fetched.value
-            .map((listing) => rawListingToExternalProduct(providerId, listing, ctx))
-            .filter((product): product is ExternalProduct => product !== null);
-          const batch = await saveBatch(products);
-          attempts.push({
-            source: "connector",
-            query,
-            rawCount: fetched.value.length,
-            usableCount: batch.usable,
-          });
-        }
-      }
+    const adapter = isImportProviderId(providerId) ? getProviderAdapter(providerId) : null;
+    const connector = adapter ? null : getSearchConnector(providerId);
+    const adapterConfigured = adapter?.isConfigured() ?? false;
+    const connectorConfigured = connector ? await connector.isAvailable() : false;
+    const apiConfigured = adapterConfigured || connectorConfigured;
+    const scraperFirst =
+      isScraperAutomationEnabled() &&
+      (SCRAPER_FIRST_PROVIDER_IDS.has(providerId) || !apiConfigured);
+
+    if (!adapter) source = "connector";
+    if (!apiConfigured) {
+      stepError = adapter ? "adapter-not-configured" : "connector-unavailable";
+      attempts.push({ source: adapter ? "adapter" : "connector", error: stepError, rawCount: 0 });
     }
 
-    if (usableTotal === 0 && !controller.signal.aborted) {
+    const scraperUsableByQuery = new Map<string, number>();
+
+    const runScraperQuery = async (query: string): Promise<number> => {
+      if (controller.signal.aborted) return 0;
+      const previous = scraperUsableByQuery.get(query);
+      if (previous !== undefined) return previous;
+      let usable = 0;
       try {
-        const fallback = await fetchFallbackProducts(providerId, ctx, {
-          signal: controller.signal,
-          timeoutMs: queryTimeout(),
-        });
+        const fallback = await fetchFallbackProducts(
+          providerId,
+          querySyncContext(ctx, query, maxPages, pageSize),
+          { signal: controller.signal, timeoutMs: queryTimeout() },
+        );
         const batch = await saveBatch(fallback);
+        usable = batch.usable;
         attempts.push({
           source: "scraper",
+          query,
           rawCount: fallback.length,
           usableCount: batch.usable,
           error: batch.usable === 0 ? "no-usable-listings" : undefined,
         });
         if (batch.usable > 0) {
+          source = "scraper";
+          stepError = undefined;
+          fallbackUsed = true;
+        }
+      } catch (error) {
+        stepError = error instanceof Error ? error.message.slice(0, 200) : "scraper-failed";
+        attempts.push({ source: "scraper", query, error: stepError, rawCount: 0 });
+      }
+      scraperUsableByQuery.set(query, usable);
+      return usable;
+    };
+
+    const runAdapterQuery = async (query: string): Promise<number> => {
+      if (!adapter || !adapterConfigured || controller.signal.aborted) return 0;
+      const fetched = await withTimeout(
+        `adapter ${providerId} "${query}"`,
+        adapter.fetchProducts(querySyncContext(ctx, query, maxPages, pageSize)),
+        queryTimeout(),
+      );
+      if (!fetched.ok) {
+        attempts.push({ source: "adapter", query, error: fetched.error, rawCount: 0 });
+        return 0;
+      }
+      const batch = await saveBatch(fetched.value);
+      attempts.push({
+        source: "adapter",
+        query,
+        rawCount: fetched.value.length,
+        usableCount: batch.usable,
+      });
+      return batch.usable;
+    };
+
+    const runConnectorQuery = async (query: string): Promise<number> => {
+      if (!connector || !connectorConfigured || controller.signal.aborted) return 0;
+      const fetched = await withTimeout(
+        `connector ${providerId} "${query}"`,
+        connector.search(query, {
+          pageSize,
+          maxPages,
+          countryCode: ctx.countryCode,
+          currency: ctx.currency,
+        }),
+        queryTimeout(),
+      );
+      if (!fetched.ok) {
+        attempts.push({ source: "connector", query, error: fetched.error, rawCount: 0 });
+        return 0;
+      }
+      const products = fetched.value
+        .map((listing) => rawListingToExternalProduct(providerId, listing, ctx))
+        .filter((product): product is ExternalProduct => product !== null);
+      const batch = await saveBatch(products);
+      attempts.push({
+        source: "connector",
+        query,
+        rawCount: fetched.value.length,
+        usableCount: batch.usable,
+      });
+      return batch.usable;
+    };
+
+    const runApiQuery = async (query: string): Promise<number> =>
+      adapter ? runAdapterQuery(query) : runConnectorQuery(query);
+
+    for (const query of queries) {
+      if (controller.signal.aborted) break;
+      if (scraperFirst) {
+        if ((await runScraperQuery(query)) === 0) await runApiQuery(query);
+      } else if ((await runApiQuery(query)) === 0) {
+        await runScraperQuery(query);
+      }
+    }
+
+    if (
+      usableTotal === 0 &&
+      !controller.signal.aborted &&
+      (queries.length === 0 || scraperUsableByQuery.size < queries.length)
+    ) {
+      let batchUsable = 0;
+      try {
+        const fallback = await fetchFallbackProducts(providerId, ctx, {
+          signal: controller.signal,
+          timeoutMs: queryTimeout(),
+          onBatch: async (_query, products) => {
+            const batch = await saveBatch(products);
+            batchUsable += batch.usable;
+          },
+        });
+        attempts.push({
+          source: "scraper",
+          rawCount: fallback.length,
+          usableCount: batchUsable,
+          error: batchUsable === 0 ? "no-usable-listings" : undefined,
+        });
+        if (batchUsable > 0) {
           source = "scraper";
           stepError = undefined;
           fallbackUsed = true;

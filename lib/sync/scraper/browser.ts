@@ -101,7 +101,9 @@ export type StorefrontHtmlResult = {
 export async function fetchStorefrontHtml(
   url: string,
   config: ScraperStoreConfig,
+  timeoutMs = 30_000,
 ): Promise<StorefrontHtmlResult> {
+  const navigationTimeout = Math.max(1, Math.min(Math.floor(timeoutMs), 30_000));
   const browser = await getBrowser();
   let context: ContextLike | undefined;
   let page: PageLike | undefined;
@@ -130,7 +132,7 @@ export async function fetchStorefrontHtml(
     });
     const navigationResponse = await page.goto(url, {
       waitUntil: "domcontentloaded",
-      timeout: 30_000,
+      timeout: navigationTimeout,
     });
     const html = await page.content();
     const status =
