@@ -34,6 +34,9 @@ function copyDirectory(source, target) {
 }
 
 try {
+  const standaloneServer = join(process.cwd(), ".next", "standalone", "server.js");
+  if (!existsSync(standaloneServer)) throw new Error(`Missing ${standaloneServer}`);
+
   copyDirectory(
     join(process.cwd(), ".next", "static"),
     join(process.cwd(), ".next", "standalone", ".next", "static"),

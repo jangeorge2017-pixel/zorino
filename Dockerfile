@@ -97,23 +97,24 @@ WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOME=/app \
-    NODE_OPTIONS=--max-old-space-size=256
+    NODE_OPTIONS=--max-old-space-size=256 \
+    HOSTNAME="0.0.0.0" \
+    PORT=10000
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# npm run build copies public/ and .next/static/ into the standalone bundle, so
-# only the traced standalone output is needed at runtime (no full node_modules).
-COPY --from=builder /app/.next/standalone ./
+# The standalone bundle contains traced node_modules only; static/public are copied explicitly below.
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./.next/standalone
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/standalone/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./.next/standalone/public
+
+RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
-EXPOSE 3000
-
-# Render injects PORT/HOSTNAME at runtime; these are local-dev defaults only.
-ENV PORT=3000 \
-    HOSTNAME="0.0.0.0"
+EXPOSE 10000
 
 # Standalone server starts faster and uses ~100-160MB RSS, well below the 512MB
 # Render container limit. npm has no writable cache dir for the nextjs user.
-CMD ["node", "--max-old-space-size=256", "server.js"]
+CMD ["sh", "-c", "export HOSTNAME=0.0.0.0; exec node --max-old-space-size=256 .next/standalone/server.js"]

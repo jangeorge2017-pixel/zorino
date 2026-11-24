@@ -12,8 +12,9 @@ node_modules
 .playwright-mcp
 coverage
 *.log
-# Not imported by app code; scripts/ alone is ~42MB of generated assets.
-scripts
+# scripts/ alone is ~42MB of generated assets; npm run build only needs build.mjs.
+scripts/*
+!scripts/build.mjs
 tests
 supabase
 zorino_custom_code_backup.zip
