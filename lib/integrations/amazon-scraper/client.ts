@@ -399,15 +399,20 @@ export async function fetchAmazonSearchScraper(
   marketplace: AmazonScraperMarketplaceKey = "amazon-storefront",
   maxResults: number = SEARCH_DEFAULT_MAX_RESULTS,
   includeSponsored = false,
+  requestedMaxPages = SEARCH_MAX_PAGES,
 ): Promise<AmazonScrapedSearchResult[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
   const target = Math.max(1, Math.floor(maxResults));
+  const maxPages = Math.min(
+    Math.max(Math.floor(requestedMaxPages), 1),
+    AMAZON_SCRAPER_SYNC_MAX_PAGES,
+  );
   const results: AmazonScrapedSearchResult[] = [];
   const seen = new Set<string>();
 
-  for (let page = 1; page <= SEARCH_MAX_PAGES && results.length < target; page++) {
+  for (let page = 1; page <= maxPages && results.length < target; page++) {
     const pageResults = await fetchAmazonSearchPage(trimmed, marketplace, page, includeSponsored);
     if (pageResults.length === 0) break;
     let added = 0;
@@ -427,8 +432,11 @@ export async function fetchAmazonSearchScraper(
   return results.slice(0, target);
 }
 
-/** Max organic /s pages the local scraper walks (page 1 + page 2). */
+/** Max organic /s pages the local scraper walks by default (page 1 + page 2). */
 const SEARCH_MAX_PAGES = 2;
+
+/** Upper bound for explicit deep-sync crawls (pages 1–5). */
+export const AMAZON_SCRAPER_SYNC_MAX_PAGES = 5;
 
 /** Default raw listing target for a storefront keyword search. */
 const SEARCH_DEFAULT_MAX_RESULTS = 50;

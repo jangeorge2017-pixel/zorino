@@ -44,6 +44,7 @@ import {
   interleaveByStore,
   isUsableProductUrl,
   MAX_PRODUCTS_PER_STORE,
+  SEARCH_BROAD_MAX_PRODUCTS_PER_STORE,
   SEARCH_ENGINE_DEFAULTS,
 } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
@@ -424,7 +425,7 @@ export function setSearchPoolForTests(
   activeCurrency: CurrencyCode = "USD",
   useFuzzyMatch = false,
 ): void {
-  const cacheKey = `prod-v20-device-pool:${getSearchCacheVersion()}:${query
+  const cacheKey = `prod-v21-device-pool:${getSearchCacheVersion()}:${query
     .trim()
     .toLowerCase()}:${SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT}:device-opt:sort:relevance:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
   setFairSearchCache(cacheKey, {
@@ -728,7 +729,7 @@ export async function searchProducts(
   // currency is part of the key too: the strict device floor lives in the
   // visitor's currency (US$150 vs â‰ˆ7500 EGP), so a USD-mode pool never serves
   // an EGP-mode visitor who may legitimately hold different inventory.
-  const cacheKey = `prod-v20-device-pool:${getSearchCacheVersion()}:${trimmed
+  const cacheKey = `prod-v21-device-pool:${getSearchCacheVersion()}:${trimmed
     .toLowerCase()}:${capped}${optimizeForDeviceIntent ? ":device-opt" : ""}:sort:${sortBy}:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
@@ -959,10 +960,19 @@ export async function searchProducts(
 
   const mixedHead = guarded.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
   const composedHead = composed.slice(0, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE);
+  const distinctStoreCount = new Set(
+    viewportCapped.map((item) =>
+      (item.storeSlug || item.store || "unknown").trim().toLowerCase(),
+    ),
+  ).size;
+  const perStoreCap =
+    !deviceIntent && distinctStoreCount > 1
+      ? Math.max(MAX_PRODUCTS_PER_STORE, SEARCH_BROAD_MAX_PRODUCTS_PER_STORE)
+      : MAX_PRODUCTS_PER_STORE;
   const interleaved = interleaveByStore(
     viewportCapped,
     (item) => item.storeSlug || item.store || "unknown",
-    MAX_PRODUCTS_PER_STORE,
+    perStoreCap,
   )
     .map((item) => {
       const affiliateUrl = normalizeHttpsAffiliateUrl(item.affiliateUrl);

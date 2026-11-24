@@ -11,7 +11,9 @@ import {
 } from "@/lib/images/product-image";
 
 export const MAX_PRODUCTS_PER_STORE = 5;
+export const SEARCH_BROAD_MAX_PRODUCTS_PER_STORE = 20;
 export const SEARCH_INTERLEAVE_MAX_PER_STORE = 12;
+export const SEARCH_API_ROUND_ROBIN_MAX_PER_STORE = 20;
 
 export type ProductCard = {
   id: string;
@@ -144,6 +146,42 @@ export function interleaveByStore<T>(
       result.push(item);
       progressed = true;
     }
+  }
+  return result;
+}
+
+export function interleaveByStoreRoundRobin<T>(
+  items: readonly T[],
+  storeKey: (item: T) => string,
+  targetSize: number,
+  maxPerStore: number = SEARCH_API_ROUND_ROBIN_MAX_PER_STORE,
+): T[] {
+  const storeCount = new Set(
+    items.map((item) => storeKey(item).trim().toLowerCase() || "unknown"),
+  ).size;
+  if (storeCount === 0) return [];
+  const target = Math.max(1, targetSize);
+  const limitPerStore = Math.min(maxPerStore, target);
+  const buckets = new Map<string, T[]>();
+  for (const item of items) {
+    const key = storeKey(item).trim().toLowerCase() || "unknown";
+    const bucket = buckets.get(key) ?? [];
+    if (bucket.length >= limitPerStore) continue;
+    bucket.push(item);
+    buckets.set(key, bucket);
+  }
+
+  const result: T[] = [];
+  while (result.length < target) {
+    let progressed = false;
+    for (const bucket of buckets.values()) {
+      if (result.length >= target) break;
+      const item = bucket.shift();
+      if (!item) continue;
+      result.push(item);
+      progressed = true;
+    }
+    if (!progressed) break;
   }
   return result;
 }

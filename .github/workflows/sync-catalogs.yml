@@ -80,6 +80,24 @@ jobs:
           mkdir -p logs
           node scripts/admitad-api-ingest.mjs 2>&1 | tee logs/admitad-sync.log
 
+      - name: Sync full Admitad program catalog
+        continue-on-error: true
+        timeout-minutes: 14
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ADMITAD_CLIENT_ID: ${{ secrets.ADMITAD_CLIENT_ID }}
+          ADMITAD_CLIENT_SECRET: ${{ secrets.ADMITAD_CLIENT_SECRET }}
+          ADMITAD_MAX_PRODUCTS_PER_FEED: ${{ vars.ADMITAD_MAX_PRODUCTS_PER_FEED || '5000' }}
+          ADMITAD_FEED_TIMEOUT_MS: ${{ vars.ADMITAD_FEED_TIMEOUT_MS || '30000' }}
+          ADMITAD_FEED_CONCURRENCY: ${{ vars.ADMITAD_FEED_CONCURRENCY || '8' }}
+          ADMITAD_FULL_DEADLINE_MS: ${{ vars.ADMITAD_FULL_DEADLINE_MS || '840000' }}
+          SYNC_DIAGNOSTICS: "1"
+        run: |
+          mkdir -p logs
+          npx tsx scripts/sync-admitad-all.ts 2>&1 | tee logs/admitad-full-sweep.log
+
       - name: Purge broken product images
         continue-on-error: true
         env:
@@ -103,7 +121,7 @@ jobs:
           SYNC_STORE_QUERIES: ${{ vars.SYNC_STORE_QUERIES || '' }}
           SYNC_SCRAPER_ENABLED: "1"
           SYNC_DIAGNOSTICS: "1"
-          SYNC_SCRAPER_PAGES: ${{ vars.SYNC_SCRAPER_PAGES || '3' }}
+          SYNC_SCRAPER_PAGES: ${{ vars.SYNC_SCRAPER_PAGES || '5' }}
           SYNC_SCRAPER_PAGE_SIZE: ${{ vars.SYNC_SCRAPER_PAGE_SIZE || '24' }}
           SYNC_SCRAPER_QUERIES: ${{ vars.SYNC_SCRAPER_QUERIES || '26' }}
           SYNC_SCRAPER_MAX_PRODUCTS: ${{ vars.SYNC_SCRAPER_MAX_PRODUCTS || '3000' }}

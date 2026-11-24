@@ -81,12 +81,28 @@ export class AmazonProvider extends BaseConnector {
 
     // Storefront scraper path (no credentials). Searches the real Amazon US +
     // UK storefronts and builds affiliate-tagged product URLs for the same
-    // sync/catalog pipeline.
+    // sync/catalog pipeline. The explicit sync page budget reaches pages 1–5
+    // (the live connector keeps its shallower default).
+    const scraperPageSize = Math.min(Math.max(ctx.jobConfig?.pageSize ?? 24, 1), 50);
+    const scraperMaxPages = Math.min(Math.max(ctx.jobConfig?.maxPages ?? 5, 1), 5);
+    const scraperTarget = scraperPageSize * scraperMaxPages;
     for (const keyword of keywords) {
       try {
         const [us, uk] = await Promise.all([
-          fetchAmazonSearchScraper(keyword, "amazon-storefront"),
-          fetchAmazonSearchScraper(keyword, "amazon-co-uk"),
+          fetchAmazonSearchScraper(
+            keyword,
+            "amazon-storefront",
+            scraperTarget,
+            false,
+            scraperMaxPages,
+          ),
+          fetchAmazonSearchScraper(
+            keyword,
+            "amazon-co-uk",
+            scraperTarget,
+            false,
+            scraperMaxPages,
+          ),
         ]);
         for (const item of [...us, ...uk]) {
           const external = mapAmazonScraperSyncProduct(ctx, item);
@@ -95,7 +111,6 @@ export class AmazonProvider extends BaseConnector {
       } catch {
         // A scraper failure must never abort the whole sync job.
       }
-      if (products.length >= 20) break;
     }
 
     return products;

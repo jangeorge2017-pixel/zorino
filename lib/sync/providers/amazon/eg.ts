@@ -32,13 +32,19 @@ export class AmazonEgProvider extends BaseConnector {
     const keywords = ctx.jobConfig?.keywords?.length
       ? ctx.jobConfig.keywords
       : ["iphone", "samsung galaxy", "laptop", "smart tv", "headphones"];
-    const maxPages = Math.min(Math.max(ctx.jobConfig?.maxPages ?? 2, 1), 3);
+    const maxPages = Math.min(Math.max(ctx.jobConfig?.maxPages ?? 2, 1), 5);
     const pageSize = Math.min(Math.max(ctx.jobConfig?.pageSize ?? 24, 1), 50);
     const seen = new Set<string>();
     const products: ExternalProduct[] = [];
 
     for (const query of keywords) {
-      const raw = await fetchAmazonSearchScraper(query, "amazon-eg", pageSize * maxPages, true);
+      const raw = await fetchAmazonSearchScraper(
+        query,
+        "amazon-eg",
+        pageSize * maxPages,
+        true,
+        maxPages,
+      );
       for (const listing of normalizeAmazonScraperSearchResults(raw, "amazon-eg")) {
         if (!listing.externalId || seen.has(listing.externalId)) continue;
         const product = rawListingToExternalProduct("amazon-eg", listing, ctx);

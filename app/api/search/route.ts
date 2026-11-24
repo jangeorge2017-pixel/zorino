@@ -6,9 +6,8 @@ import {
   resolveCurrencyForRequest,
 } from "@/lib/international/detect";
 import {
-  interleaveByStore,
+  interleaveByStoreRoundRobin,
   SEARCH_ENGINE_DEFAULTS,
-  SEARCH_INTERLEAVE_MAX_PER_STORE,
   toProductCard,
 } from "@/lib/search/types";
 import { translateSearchQuery } from "@/lib/search/query-translation";
@@ -43,10 +42,10 @@ export async function GET(req: NextRequest) {
       (row): row is { item: (typeof page.items)[number]; card: NonNullable<ReturnType<typeof toProductCard>> } =>
         row.card !== null,
     );
-  const balanced = interleaveByStore(
+  const balanced = interleaveByStoreRoundRobin(
     cards,
     (row) => row.card.store_name,
-    SEARCH_INTERLEAVE_MAX_PER_STORE,
+    limit,
   );
   const products = balanced.map(({ item, card }) => ({
     ...card,

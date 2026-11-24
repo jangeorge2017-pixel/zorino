@@ -161,7 +161,7 @@ export async function fetchWalmartCatalog(ctx: SyncContext): Promise<ExternalPro
     jobConfig?.keywords && jobConfig.keywords.length > 0
       ? jobConfig.keywords
       : ["iphone", "samsung galaxy", "laptop", "smart tv", "gaming", "home appliances"];
-  const maxPages = Math.min(Math.max(jobConfig?.maxPages ?? 2, 1), 3);
+  const maxPages = Math.min(Math.max(jobConfig?.maxPages ?? 2, 1), 5);
   const pageSize = Math.min(Math.max(jobConfig?.pageSize ?? 25, 1), 25);
   const authHeaders = walmartAuthHeaders();
   const endpoint =
@@ -242,7 +242,7 @@ export async function fetchBestBuyCatalog(ctx: SyncContext): Promise<ExternalPro
     jobConfig?.keywords && jobConfig.keywords.length > 0
       ? jobConfig.keywords
       : ["iphone", "samsung galaxy", "laptop", "smart tv", "gaming console", "home appliances"];
-  const maxPages = Math.min(Math.max(jobConfig?.maxPages ?? 2, 1), 3);
+  const maxPages = Math.min(Math.max(jobConfig?.maxPages ?? 2, 1), 5);
   const pageSize = Math.min(Math.max(jobConfig?.pageSize ?? 24, 1), 50);
   const searchExpression = queries
     .map((query) => `search=${encodeURIComponent(query)}`)

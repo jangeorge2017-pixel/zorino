@@ -128,7 +128,7 @@ export async function fetchStorefrontCatalog(
     jobConfig?.keywords && jobConfig.keywords.length > 0
       ? jobConfig.keywords
       : [...STOREFRONT_CATALOG_QUERIES];
-  const maxPages = Math.min(Math.max(jobConfig?.maxPages ?? 2, 1), 3);
+  const maxPages = Math.min(Math.max(jobConfig?.maxPages ?? 2, 1), 5);
   const pageSize = Math.min(Math.max(jobConfig?.pageSize ?? 24, 1), 30);
   const maxProducts = Math.max(options?.maxProducts ?? 150, 1);
   const seen = new Set<string>();

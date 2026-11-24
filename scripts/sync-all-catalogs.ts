@@ -7,7 +7,10 @@ import { runProviderSyncStore } from "@/lib/sync/runner";
 import { SCRAPER_SEED_QUERIES } from "@/lib/sync/scraper/stores";
 import { GLOBAL_TIMEOUT_MS } from "@/lib/sync/timeout";
 
+const US_STORE_IDS = new Set<string>(["amazon", "walmart", "bestbuy"]);
+
 const STORE_IDS = [
+  "amazon",
   "amazon-eg",
   "noon",
   "jumia",
@@ -160,8 +163,8 @@ async function main(): Promise<void> {
         providerId,
         queries,
         maxProducts: maxProductsPerStore,
-        countryCode: providerId === "walmart" || providerId === "bestbuy" ? "US" : "EG",
-        currency: providerId === "walmart" || providerId === "bestbuy" ? "USD" : "EGP",
+        countryCode: US_STORE_IDS.has(providerId) ? "US" : "EG",
+        currency: US_STORE_IDS.has(providerId) ? "USD" : "EGP",
         abortSignal: abortController.signal,
       });
       stores[providerId] = result;

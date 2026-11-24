@@ -38,6 +38,24 @@ import {
   resolveCatalogCountryForOffer,
 } from "@/lib/integration/catalog-scope";
 
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+  const runners = Array.from({ length: Math.max(1, Math.min(concurrency, items.length)) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      results[index] = await worker(items[index]!, index);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
+
 // ---------------------------------------------------------------------------
 // Feed XML streaming parser (reuses logic from feed-fetcher.ts)
 // ---------------------------------------------------------------------------
@@ -354,16 +372,21 @@ export type IngestionResult = {
   errors: string[];
 };
 
+export type AdmitadIngestionOptions = {
+  maxFeeds?: number;
+  maxProductsPerFeed?: number;
+  dryRun?: boolean;
+  deadlineMs?: number;
+  fullSweep?: boolean;
+  feedTimeoutMs?: number;
+  feedConcurrency?: number;
+};
+
 /** Module-level lock: prevents overlapping ingestion runs in one instance. */
 let ingestionRunInProgress = false;
 
 export async function runAdmitadIngestion(
-  options: {
-    maxFeeds?: number;
-    maxProductsPerFeed?: number;
-    dryRun?: boolean;
-    deadlineMs?: number;
-  } = {},
+  options: AdmitadIngestionOptions = {},
 ): Promise<IngestionResult> {
   if (ingestionRunInProgress) {
     return {
@@ -386,18 +409,16 @@ export async function runAdmitadIngestion(
 }
 
 async function runAdmitadIngestionLocked(
-  options: {
-    maxFeeds?: number;
-    maxProductsPerFeed?: number;
-    dryRun?: boolean;
-    deadlineMs?: number;
-  } = {},
+  options: AdmitadIngestionOptions = {},
 ): Promise<IngestionResult> {
   const {
     maxFeeds = Infinity,
     maxProductsPerFeed = 5000,
     dryRun = false,
     deadlineMs = 240_000,
+    fullSweep = false,
+    feedTimeoutMs = 180_000,
+    feedConcurrency = 1,
   } = options;
   const ingestStartedAt = Date.now();
   const result: IngestionResult = {
@@ -484,6 +505,7 @@ async function runAdmitadIngestionLocked(
   try {
     const { getAdmitadPrograms } = await import("./merchant-discovery");
     merchantPrograms = await getAdmitadPrograms();
+    result.programsDiscovered = merchantPrograms.length;
 
     // Breadth-first: one feed per merchant first, then extra multi-GEO feeds,
     // so a bounded maxFeeds budget covers as many distinct merchants as possible.
@@ -591,44 +613,36 @@ async function runAdmitadIngestionLocked(
   const allItems: NormalizedCatalogItem[] = [];
   const seenOfferIds = new Set<string>();
 
-  // Rotate the feed window across runs so the whole discovered merchant
-  // catalog is swept over time instead of re-ingesting the same first N feeds
-  // every day. The persisted cursor (migration 028) advances after each run;
-  // when absent it degrades to a deterministic day-of-year offset.
   const { readAdmitadFeedCursor, advanceAdmitadFeedCursor, rotateFeeds } =
     await import("./feed-rotation");
-  const feedOffset = await readAdmitadFeedCursor();
-  const feedsToFetch = rotateFeeds(candidateFeeds, feedOffset, maxFeeds);
+  const feedOffset = fullSweep ? 0 : await readAdmitadFeedCursor();
+  const feedsToFetch = fullSweep
+    ? candidateFeeds
+    : rotateFeeds(candidateFeeds, feedOffset, maxFeeds);
   console.log(
-    `[admitad-ingest] feed rotation offset=${feedOffset} of ${candidateFeeds.length} â†’ fetching ${feedsToFetch.length} feed(s): ${feedsToFetch
-      .map((f) => f.feedName)
-      .join(", ")}`,
+    `[admitad-ingest] ${fullSweep ? "full sweep" : `feed rotation offset=${feedOffset}`} of ${candidateFeeds.length} → fetching ${feedsToFetch.length} feed(s)`,
   );
 
-  for (let fi = 0; fi < feedsToFetch.length; fi++) {
-    const candidate = feedsToFetch[fi];
+  type FeedToIngest = (typeof feedsToFetch)[number];
 
-    if (fi > 0 && Date.now() - ingestStartedAt > deadlineMs) {
-      result.errors.push(
-        `Deadline ${deadlineMs}ms reached â€” stopping after ${fi}/${feedsToFetch.length} feeds`,
-      );
-      break;
-    }
+  const ingestFeed = async (candidate: FeedToIngest, fi: number): Promise<void> => {
+    if (fi > 0 && Date.now() - ingestStartedAt > deadlineMs) return;
 
     console.log(
       `[admitad-ingest] Feed ${fi + 1}/${feedsToFetch.length}: "${candidate.feedName}" from "${candidate.campaignName}"...`,
     );
 
     try {
-      // Early-exit streaming: stops downloading once the per-feed budget is parsed.
       const offers = await fetchFeedStreaming(candidate.feedUrl, {
+        timeoutMs: feedTimeoutMs,
         maxOffers: Math.min(maxProductsPerFeed + 50, maxProductsPerFeed * 2),
       });
       if (offers.length > 0) result.feedsWithProducts++;
 
       let feedCount = 0;
       for (const offer of offers.slice(0, maxProductsPerFeed)) {
-        if (seenOfferIds.has(offer.id)) continue;
+        const offerKey = `${candidate.campaignId}:${offer.id}`;
+        if (seenOfferIds.has(offerKey)) continue;
 
         const item = feedOfferToCatalogItem(
           offer,
@@ -639,7 +653,7 @@ async function runAdmitadIngestionLocked(
         );
         if (!item) continue;
 
-        seenOfferIds.add(offer.id);
+        seenOfferIds.add(offerKey);
         allItems.push(item);
         feedCount++;
       }
@@ -653,13 +667,33 @@ async function runAdmitadIngestionLocked(
         `Feed "${candidate.feedName}" fetch failed: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
+  };
+
+  if (fullSweep) {
+    await mapWithConcurrency(feedsToFetch, feedConcurrency, ingestFeed);
+    if (Date.now() - ingestStartedAt > deadlineMs) {
+      result.errors.push(
+        `Deadline ${deadlineMs}ms reached during full sweep after ${feedsToFetch.length} feed(s)`,
+      );
+    }
+  } else {
+    for (let fi = 0; fi < feedsToFetch.length; fi++) {
+      const candidate = feedsToFetch[fi]!;
+      if (fi > 0 && Date.now() - ingestStartedAt > deadlineMs) {
+        result.errors.push(
+          `Deadline ${deadlineMs}ms reached — stopping after ${fi}/${feedsToFetch.length} feeds`,
+        );
+        break;
+      }
+      await ingestFeed(candidate, fi);
+    }
   }
 
   console.log(`[admitad-ingest] Total unique products: ${result.totalProducts}`);
 
   // Advance the rotation cursor by the window we just attempted so the NEXT
   // run covers the following merchants. Best-effort; never blocks the save.
-  if (!dryRun) {
+  if (!dryRun && !fullSweep) {
     await advanceAdmitadFeedCursor(feedsToFetch.length);
   }
 
