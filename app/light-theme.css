@@ -6,17 +6,17 @@
 
 /* ── Tokens ──────────────────────────────────────────────────────────── */
 html.light {
-  --homepage-bg-fallback: #f4f6fb;
+  --homepage-bg-fallback: #e2e8f0;
   --glass: rgba(255, 255, 255, 0.88);
   --glass-border: rgba(15, 23, 42, 0.1);
   --shadow-glow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --zor-bg-deep: #f4f6fb;
+  --zor-bg-deep: #e2e8f0;
 }
 
 /* ── Base ────────────────────────────────────────────────────────────── */
 html.light,
 html.light body {
-  background: #f4f6fb !important;
+  background: #e2e8f0 !important;
   background-image: none !important;
   color: #0f172a !important;
 }
@@ -127,20 +127,25 @@ html.light .theme-option-active {
   color: #0f172a;
 }
 
-/* ── Homepage (zorino-home) — unpin the hardcoded space-black surfaces ── */
+/* ── Homepage (zorino-home) — lighten only the page/card surfaces ────── */
 html.light:has(.zh-page),
 html.light body:has(.zh-page) {
-  background: #f4f6fb !important;
+  background: #e2e8f0 !important;
 }
 
 html.light .zh-page,
-html.light .zh-page .zh-page__background,
-html.light .zh-page .zh-page__background::before {
-  background: #f4f6fb !important;
-  --homepage-bg-fallback: #f4f6fb;
+html.light .zh-page .zh-page__background {
+  background: #f1f5f9 !important;
+  --homepage-bg-fallback: #f1f5f9;
   border: none;
   outline: none;
   box-shadow: none;
+}
+
+/* Keep the exact Dark hero canvas so the original artwork and stars stay visible. */
+html.light .zh-page .zh-page__background::before,
+html.light .zh-page .zh-page__background::after {
+  background: #070b16 !important;
 }
 
 html.light .zh-page .zh-nav {
@@ -148,14 +153,16 @@ html.light .zh-page .zh-nav {
   border-bottom-color: rgba(15, 23, 42, 0.08) !important;
 }
 
-/* Hero zone keeps its artwork but drops the black page wash */
-html.light .zh-page .zh-hero-zone {
-  background: transparent !important;
+/* Original white raster lockup stays readable on the light header. */
+html.light .zh-logo-pill {
+  background: #0b1120 !important;
+  padding: 4px 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16) !important;
 }
 
-/* The hero artwork is a dark space-themed PNG — hide it on light surfaces */
-html.light .zh-page .zh-page__artwork {
-  display: none;
+html.light .zh-page .zh-hero-zone {
+  background: transparent !important;
 }
 
 /* ── Homepage typography & glass surfaces on light ──────────────────── */
@@ -164,7 +171,6 @@ html.light .zh-page {
 }
 html.light .zh-nav__link,
 html.light .zh-nav__logo-lockup,
-html.light .zh-hero__title,
 html.light .zh-stat__value,
 html.light .zh-panel__title,
 html.light .zh-section-header__title,
@@ -174,10 +180,6 @@ html.light .zh-footer__featured-title,
 html.light .zh-footer__stat strong {
   color: #0f172a !important;
 }
-html.light .zh-hero__subtitle,
-html.light .zh-hero__subtitle-lead,
-html.light .zh-hero__subtitle-tail,
-html.light .zh-hero__badge,
 html.light .zh-stat__label,
 html.light .zh-stat__meta,
 html.light .zh-section-header__subtitle,
@@ -686,38 +688,14 @@ html body .product-card-badge--featured {
   backface-visibility: hidden;
 }
 
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page {
-  background: #f8fafc !important;
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background {
+  background: #f1f5f9 !important;
 }
 
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::before,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::after,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero-zone {
-  background: linear-gradient(180deg, #e0e7ff 0%, #eef2ff 45%, #f8fafc 100%) !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::before {
-  background:
-    radial-gradient(ellipse 44% 30% at 50% 92%, transparent 56%, rgba(79, 70, 229, 0.16) 57%, rgba(37, 99, 235, 0.09) 60%, transparent 63%),
-    radial-gradient(ellipse 52% 42% at 50% 100%, rgba(79, 70, 229, 0.1), transparent 72%),
-    linear-gradient(180deg, #e0e7ff 0%, #eef2ff 45%, #f8fafc 100%) !important;
-  border-radius: 48% 48% 0 0 / 24% 24% 0 0;
-  box-shadow: inset 0 -2px 0 rgba(79, 70, 229, 0.12), 0 18px 48px rgba(37, 99, 235, 0.08) !important;
-  opacity: 1 !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-starfield,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-driftfield {
-  mix-blend-mode: normal !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-starfield__star,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-driftfield__particle {
-  min-width: 2px !important;
-  min-height: 2px !important;
-  box-shadow: 0 0 8px currentColor !important;
-  filter: saturate(1.15) !important;
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::after {
+  background: #070b16 !important;
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-panel,
@@ -1045,127 +1023,3 @@ html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .z
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-
-.zh-logo-vector,
-.zh-light-dome,
-.zh-light-z {
-  display: none;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-logo-raster {
-  display: none !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-lockup.zh-logo-vector {
-  display: block !important;
-  color: #0f172a !important;
-  filter: none !important;
-  transform: none !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-dome,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z {
-  display: block !important;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: visible;
-  direction: ltr !important;
-  unicode-bidi: isolate !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-dome svg,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z svg {
-  position: absolute;
-  display: block;
-  overflow: visible;
-  max-width: 100vw;
-  pointer-events: none;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-dome svg {
-  width: calc(var(--zh-hero-artwork-painted-width) * 0.92) !important;
-  height: calc(var(--zh-hero-artwork-painted-height) * 0.94) !important;
-  right: calc(var(--zh-hero-artwork-painted-right) + 180px) !important;
-  top: calc(var(--zh-hero-artwork-painted-top) + 40px) !important;
-  opacity: 0.92 !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z svg {
-  width: calc(var(--zh-hero-artwork-painted-width) * 0.62) !important;
-  height: calc(var(--zh-hero-artwork-painted-height) * 0.82) !important;
-  right: calc(var(--zh-hero-artwork-painted-right) - 10px) !important;
-  top: calc(var(--zh-hero-artwork-painted-top) + 12px) !important;
-  filter: drop-shadow(0 22px 34px rgba(37, 99, 235, 0.18)) !important;
-}
-
-@keyframes zh-light-z-emerge {
-  0%,
-  100% {
-    transform: perspective(900px) translateZ(-46px) scale(0.9);
-    opacity: 0.76;
-  }
-
-  50% {
-    transform: perspective(900px) translateZ(28px) scale(1.035);
-    opacity: 1;
-  }
-}
-
-.zh-nav-mobile-menu__light-tools {
-  display: none !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z {
-  transform-origin: 50% 56%;
-  transform-style: preserve-3d;
-  animation: zh-light-z-emerge 8.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star {
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.38) !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle {
-  box-shadow: 0 0 10px rgba(124, 58, 237, 0.34) !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav-mobile-menu__light-tools {
-  display: flex !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav-mobile-menu__theme-row {
-  cursor: default;
-}
-
-@media (max-width: 767px) and (orientation: portrait) {
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__logo-lockup {
-    max-width: none !important;
-    width: auto !important;
-    flex-shrink: 0 !important;
-  }
-
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__logo {
-    margin-inline-end: 8px !important;
-  }
-
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__search-slot,
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__wishlist,
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__icon-btn--notify,
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__desktop-theme {
-    display: none !important;
-  }
-
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__cluster {
-    gap: 6px !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z {
-    animation: none !important;
-    transform: perspective(900px) translateZ(0) scale(0.98) !important;
-  }
-}
-

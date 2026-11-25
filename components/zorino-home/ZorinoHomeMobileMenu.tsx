@@ -4,11 +4,7 @@ import { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import {
-  Bell,
   Crown,
-  Heart,
-  Search,
-  SunMoon,
   UserRound,
   ShoppingBag,
   Columns2,
@@ -17,7 +13,6 @@ import {
   X,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { useAuth } from "@/lib/auth/auth-context";
 
 type ZorinoHomeMobileMenuProps = {
@@ -86,12 +81,6 @@ export default function ZorinoHomeMobileMenu({
     { href: "/settings", label: tCommon("settings"), icon: Settings },
   ] as const;
 
-  const tools = [
-    { href: "/search", label: tCommon("search"), icon: Search },
-    { href: "/wishlist", label: tCommon("wishlist"), icon: Heart },
-    { href: "/notifications", label: tCommon("notifications"), icon: Bell },
-  ] as const;
-
   return createPortal(
     <>
       <div className="zh-nav-mobile-menu__backdrop" aria-hidden onClick={onClose} />
@@ -126,36 +115,6 @@ export default function ZorinoHomeMobileMenu({
             <X size={18} aria-hidden />
           </button>
         </header>
-
-        <nav
-          className="zh-nav-mobile-menu__section zh-nav-mobile-menu__light-tools"
-          aria-label={tCommon("menu")}
-        >
-          <p className="zh-nav-mobile-menu__heading">{tCommon("menu")}</p>
-          {tools.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`zh-nav-mobile-menu__link${
-                isLinkActive(pathname, href) ? " is-active" : ""
-              }`}
-              onClick={onClose}
-            >
-              <span className="zh-nav-mobile-menu__link-icon" aria-hidden>
-                <Icon size={18} strokeWidth={2.1} />
-              </span>
-              <span className="zh-nav-mobile-menu__link-label">{label}</span>
-            </Link>
-          ))}
-          <div className="zh-nav-mobile-menu__link zh-nav-mobile-menu__theme-row">
-            <span className="zh-nav-mobile-menu__link-icon" aria-hidden>
-              <SunMoon size={18} strokeWidth={2.1} />
-            </span>
-            <span className="zh-nav-mobile-menu__link-label">
-              <ThemeSwitcher />
-            </span>
-          </div>
-        </nav>
 
         <nav
           className="zh-nav-mobile-menu__section"

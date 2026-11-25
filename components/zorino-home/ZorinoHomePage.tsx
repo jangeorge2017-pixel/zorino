@@ -29,7 +29,6 @@ import ZorinoHomeProductSections from "@/components/zorino-home/ZorinoHomeProduc
 import ZorinoHomeCtaBand from "@/components/zorino-home/ZorinoHomeCtaBand";
 import ZorinoHomeFooter from "@/components/zorino-home/ZorinoHomeFooter";
 import SpaceParticlesClient from "@/components/zorino-home/SpaceParticlesClient";
-import { LightHeroDome, LightHeroZEmblem } from "@/components/zorino-home/LightHeroScene";
 import "@/components/zorino-home/homepage-landscape-phones.css";
 import {
   getFeaturedCouponBrandsForHomepage,
@@ -148,9 +147,7 @@ export default async function ZorinoHomePage() {
       <div className="zh-page__artwork-clip" aria-hidden="true">
         <div className="zh-page__artwork" />
       </div>
-      <LightHeroDome />
       <SpaceParticlesClient />
-      <LightHeroZEmblem />
       <ZorinoHomeNav />
       <div className="zh-nav-spacer" aria-hidden="true" />
 

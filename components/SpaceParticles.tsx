@@ -1,14 +1,8 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 
 const STAR_COLORS = ["#38bdf8", "#818cf8", "#60a5fa", "#ffffff"] as const;
-const LIGHT_PARTICLE_COLORS = ["#2563eb", "#4f46e5", "#7c3aed", "#2563eb"] as const;
-
-function isLightMode() {
-  const root = document.documentElement;
-  return root.classList.contains("light") || root.dataset.theme === "light";
-}
 
 function random(index: number, salt: number) {
   const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
@@ -66,51 +60,11 @@ const DRIFT_PARTICLES = Array.from({ length: 28 }, (_, index) => {
   };
 });
 
-const LIGHT_HALO_STARS = Array.from({ length: 38 }, (_, index) => {
-  const seed = index + 900;
-  return makeStar(
-    seed,
-    58 + random(seed, 1) * 36,
-    8 + random(seed, 2) * 50,
-  );
-});
-
-const LIGHT_STARS = [
-  ...SKY_STARS,
-  ...DOME_STARS.map((star, index) => ({
-    ...star,
-    x: Math.min(94, Math.max(58, star.x + 42 + random(index + 700, 11) * 8)),
-    y: Math.min(60, Math.max(8, star.y - random(index + 700, 12) * 6)),
-  })),
-  ...LIGHT_HALO_STARS,
-];
-
-const LIGHT_DRIFT_PARTICLES = DRIFT_PARTICLES.map((particle, index) => ({
-  ...particle,
-  x: Math.min(94, Math.max(62, particle.x + random(index + 800, 11) * 8 - 4)),
-  y: Math.max(12, particle.y - random(index + 800, 12) * 18),
-}));
-
 export default function SpaceParticles() {
-  const [light, setLight] = useState(false);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const sync = () => setLight(isLightMode());
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(root, { attributes: true, attributeFilter: ["class", "data-theme"] });
-    return () => observer.disconnect();
-  }, []);
-
-  const starColors = light ? LIGHT_PARTICLE_COLORS : STAR_COLORS;
-  const stars = light ? LIGHT_STARS : STARS;
-  const particles = light ? LIGHT_DRIFT_PARTICLES : DRIFT_PARTICLES;
-
   return (
     <>
       <div className="zh-starfield" aria-hidden="true">
-        {stars.map((star, index) => (
+        {STARS.map((star, index) => (
           <span
             key={index}
             className="zh-starfield__star"
@@ -119,8 +73,8 @@ export default function SpaceParticles() {
               top: `${star.y}%`,
               width: `${star.size}px`,
               height: `${star.size}px`,
-              color: starColors[star.colorIndex],
-              backgroundColor: starColors[star.colorIndex],
+              color: STAR_COLORS[star.colorIndex],
+              backgroundColor: STAR_COLORS[star.colorIndex],
               animationDuration: `${star.duration}s`,
               animationDelay: `${star.delay}s`,
             }}
@@ -128,7 +82,7 @@ export default function SpaceParticles() {
         ))}
       </div>
       <div className="zh-driftfield" aria-hidden="true">
-        {particles.map((particle, index) => (
+        {DRIFT_PARTICLES.map((particle, index) => (
           <span
             key={index}
             className="zh-driftfield__particle"
@@ -138,8 +92,8 @@ export default function SpaceParticles() {
                 top: `${particle.y}%`,
                 width: `${particle.size}px`,
                 height: `${particle.size}px`,
-                color: starColors[particle.colorIndex],
-                backgroundColor: starColors[particle.colorIndex],
+                color: STAR_COLORS[particle.colorIndex],
+                backgroundColor: STAR_COLORS[particle.colorIndex],
                 animationDuration: `${particle.duration}s`,
                 animationDelay: `${particle.delay}s`,
                 "--zh-drift-mid-x": `${particle.midX}vw`,
