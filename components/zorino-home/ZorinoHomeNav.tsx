@@ -22,6 +22,7 @@ const MOBILE_MQ = "(max-width: 767px) and (orientation: portrait)";
 
 export default function ZorinoHomeNav() {
   const t = useTranslations("common");
+  const tHero = useTranslations("hero");
   const { user } = useAuth();
   const displayName = user
     ? user.name.split(" ")[0] || user.name
@@ -50,6 +51,12 @@ export default function ZorinoHomeNav() {
         <Link href="/" className="zh-nav__logo">
           {/* Desktop ~60px (~13% under prior 69); CSS token keeps lockup in sync */}
           <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={60} />
+          <span className="zh-nav__logo-light">
+            <span className="zh-nav__logo-light-name">
+              <span className="zh-nav__logo-light-accent">Z</span>ORINO
+            </span>
+            <span className="zh-nav__logo-light-tagline">{tHero("title")}</span>
+          </span>
         </Link>
 
         <ZorinoHomeNavLinks />

@@ -82,6 +82,10 @@
   transform: none;
 }
 
+.zh-nav__logo-light {
+  display: none;
+}
+
 /* ─── Primary navigation (logo → search slot) ─── */
 .zh-nav__links {
   display: flex;
