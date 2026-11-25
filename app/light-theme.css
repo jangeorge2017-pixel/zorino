@@ -142,10 +142,35 @@ html.light .zh-page .zh-page__background {
   box-shadow: none;
 }
 
-/* Keep the exact Dark hero canvas so the original artwork and stars stay visible. */
+/* Full-bleed daylight canvas replaces the dark hero box without moving any hero chrome. */
+html.light .zh-page {
+  --zh-light-hero-gradient-height: calc(
+    var(--zh-hero-artwork-painted-top) +
+    var(--zh-hero-artwork-painted-height) +
+    var(--zh-hero-artwork-extend-down) +
+    24px
+  );
+}
+
+html.light .zh-page .zh-page__background {
+  background-color: #f1f5f9 !important;
+  background-image: linear-gradient(
+    135deg,
+    #dbeafe 0%,
+    #e0e7ff 48%,
+    #fce7f3 82%,
+    #f1f5f9 100%
+  ) !important;
+  background-repeat: no-repeat !important;
+  background-position: top center !important;
+  background-size: 100% var(--zh-light-hero-gradient-height) !important;
+}
+
 html.light .zh-page .zh-page__background::before,
 html.light .zh-page .zh-page__background::after {
-  background: #070b16 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
 }
 
 html.light .zh-page .zh-nav {
@@ -153,12 +178,19 @@ html.light .zh-page .zh-nav {
   border-bottom-color: rgba(15, 23, 42, 0.08) !important;
 }
 
-/* Original white raster lockup stays readable on the light header. */
-html.light .zh-logo-pill {
-  background: #0b1120 !important;
-  padding: 4px 10px;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16) !important;
+/* The original artwork PNG is opaque navy — screen-blend that box away. */
+html.light .zh-page .zh-page__artwork-clip {
+  mix-blend-mode: screen !important;
+}
+
+html.light .zh-page .zh-page__artwork {
+  filter: saturate(1.25) brightness(1.12) !important;
+}
+
+html.light .zh-page .zh-page__artwork::after {
+  mix-blend-mode: screen !important;
+  opacity: 0.5 !important;
+  filter: saturate(1.4) contrast(1.05) !important;
 }
 
 html.light .zh-page .zh-hero-zone {
@@ -168,6 +200,18 @@ html.light .zh-page .zh-hero-zone {
 /* ── Homepage typography & glass surfaces on light ──────────────────── */
 html.light .zh-page {
   color: #0f172a;
+}
+html.light .zh-hero__title,
+html.light .zh-hero__title span {
+  color: #0f172a !important;
+  background: none !important;
+  -webkit-text-fill-color: #0f172a !important;
+  text-shadow: none !important;
+}
+html.light .zh-hero__subtitle,
+html.light .zh-hero__subtitle-lead,
+html.light .zh-hero__subtitle-tail {
+  color: #334155 !important;
 }
 html.light .zh-nav__link,
 html.light .zh-nav__logo-lockup,
@@ -209,6 +253,22 @@ html.light .zh-quick-nav__pill {
 html.light .zh-categories__icon-box {
   background: #ffffff !important;
   border-color: rgba(15, 23, 42, 0.08);
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-categories-wrap,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-home-discovery-nav,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-quick-nav-wrap {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-categories__icon-box {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-color: rgba(148, 163, 184, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-categories__label {
+  color: #1e293b !important;
 }
 html.light .zh-orbit-card {
   background: #ffffff !important;
@@ -677,25 +737,94 @@ html body .product-card-badge--featured {
   filter: none !important;
 }
 
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-lockup {
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-logo-pill {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-lockup,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .logo-lockup {
   display: block !important;
   content: normal !important;
   width: auto !important;
-  filter: none !important;
+  filter: invert(1) hue-rotate(180deg) !important;
+  mix-blend-mode: multiply !important;
   transform: none !important;
   image-rendering: auto !important;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page {
+  --zh-light-hero-gradient-height: calc(
+    var(--zh-hero-artwork-painted-top) +
+    var(--zh-hero-artwork-painted-height) +
+    var(--zh-hero-artwork-extend-down) +
+    24px
+  );
+  background-color: #f1f5f9 !important;
+}
+
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background {
-  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
+  background-image: linear-gradient(
+    135deg,
+    #dbeafe 0%,
+    #e0e7ff 48%,
+    #fce7f3 82%,
+    #f1f5f9 100%
+  ) !important;
+  background-repeat: no-repeat !important;
+  background-position: top center !important;
+  background-size: 100% var(--zh-light-hero-gradient-height) !important;
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::before,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::after {
-  background: #070b16 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork-clip {
+  mix-blend-mode: screen !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork {
+  filter: saturate(1.25) brightness(1.12) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::after {
+  mix-blend-mode: screen !important;
+  opacity: 0.5 !important;
+  filter: saturate(1.4) contrast(1.05) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield {
+  mix-blend-mode: screen !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle {
+  filter: saturate(1.4) brightness(0.72) !important;
+  box-shadow: 0 0 8px currentColor !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero__title,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero__title span {
+  color: #0f172a !important;
+  background: none !important;
+  -webkit-text-fill-color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero__subtitle,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero__subtitle-lead,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero__subtitle-tail {
+  color: #334155 !important;
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-panel,
