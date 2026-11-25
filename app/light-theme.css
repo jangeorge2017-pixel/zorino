@@ -1000,3 +1000,48 @@ html body .product-card-badge--featured {
   border-color: #a5b4fc !important;
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.14) !important;
 }
+
+html.light body .zh-page .zh-trending-deals .listing-product-card .deal-discount,
+html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deals .listing-product-card .deal-discount,
+[data-theme="light"] body .zh-page .zh-trending-deals .listing-product-card .deal-discount,
+html.light body .zh-page .zh-trending-deal-card .zh-td-card__discount,
+html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .zh-td-card__discount,
+[data-theme="light"] body .zh-page .zh-trending-deal-card .zh-td-card__discount,
+html.light body .zh-page .zh-deal-card .zh-deal-card__discount,
+html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-deal-card .zh-deal-card__discount,
+[data-theme="light"] body .zh-page .zh-deal-card .zh-deal-card__discount {
+  color: #4338ca !important;
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.light body .zh-page .zh-trending-deals .listing-product-card .deal-marketplace,
+html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deals .listing-product-card .deal-marketplace,
+[data-theme="light"] body .zh-page .zh-trending-deals .listing-product-card .deal-marketplace {
+  color: #0f172a !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.light body .zh-page .zh-trending-deals .listing-product-card .product-card-badge--featured,
+html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deals .listing-product-card .product-card-badge--featured,
+[data-theme="light"] body .zh-page .zh-trending-deals .listing-product-card .product-card-badge--featured,
+html.light body .zh-page .listing-product-card .zor-deals-page__featured-badge,
+html:not(.dark):not([data-theme="dark"]) body .zh-page .listing-product-card .zor-deals-page__featured-badge,
+[data-theme="light"] body .zh-page .listing-product-card .zor-deals-page__featured-badge,
+html.light body .zh-page .zh-trending-deal-card .zh-td-badge,
+html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .zh-td-badge,
+[data-theme="light"] body .zh-page .zh-trending-deal-card .zh-td-badge {
+  color: #b45309 !important;
+  background: #fff7ed !important;
+  border-color: #fed7aa !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
