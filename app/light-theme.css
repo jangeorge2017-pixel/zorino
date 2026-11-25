@@ -155,11 +155,10 @@ html.light .zh-page {
 html.light .zh-page .zh-page__background {
   background-color: #f1f5f9 !important;
   background-image: linear-gradient(
-    135deg,
+    180deg,
     #dbeafe 0%,
-    #e0e7ff 48%,
-    #fce7f3 82%,
-    #f1f5f9 100%
+    #eff6ff 55%,
+    #f8fafc 100%
   ) !important;
   background-repeat: no-repeat !important;
   background-position: top center !important;
@@ -178,10 +177,11 @@ html.light .zh-page .zh-nav {
   border-bottom-color: rgba(15, 23, 42, 0.08) !important;
 }
 
-/* Inverted navy becomes near-white under multiply, leaving only deep blue/violet linework. */
+/* Light-only CSS emblem replaces the raster Z so no inverted pink/magenta hue remains. */
 html.light .zh-page .zh-page__artwork-clip {
-  mix-blend-mode: multiply !important;
-  filter: invert(1) hue-rotate(190deg) saturate(1.8) contrast(1.25) !important;
+  mix-blend-mode: normal !important;
+  filter: none !important;
+  background: transparent !important;
   -webkit-mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%) !important;
   mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%) !important;
   -webkit-mask-size: 100% var(--zh-light-hero-gradient-height) !important;
@@ -197,28 +197,142 @@ html.light .zh-page .zh-page__artwork-clip {
   box-shadow: none !important;
 }
 
+html.light .zh-page .zh-page__artwork-clip::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--zh-hero-artwork-painted-top) + clamp(268px, 31vw, 500px));
+  right: calc(var(--zh-hero-artwork-painted-right) + clamp(24px, 5vw, 96px));
+  width: clamp(220px, 30vw, 560px);
+  height: clamp(44px, 6vw, 92px);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 42%,
+    #1e293b 0%,
+    #0f172a 64%,
+    rgba(15, 23, 42, 0) 100%
+  );
+  box-shadow:
+    0 22px 44px rgba(15, 23, 42, 0.32),
+    inset 0 1px 0 rgba(148, 163, 184, 0.28);
+}
+
+html.light .zh-page .zh-page__artwork-clip::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--zh-hero-artwork-painted-top) - 6px);
+  right: calc(var(--zh-hero-artwork-painted-right) - clamp(30px, 5vw, 110px));
+  width: clamp(360px, 50vw, 900px);
+  height: clamp(280px, 38vw, 620px);
+  background:
+    radial-gradient(
+      ellipse 100% 100% at 50% 100%,
+      transparent 61%,
+      rgba(37, 99, 235, 0.18) 62%,
+      transparent 64%
+    ),
+    radial-gradient(
+      ellipse 84% 84% at 50% 100%,
+      transparent 65%,
+      rgba(79, 70, 229, 0.13) 66%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 68% 68% at 50% 100%,
+      transparent 69%,
+      rgba(2, 132, 199, 0.1) 70%,
+      transparent 72%
+    );
+  -webkit-mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%);
+  transform: rotate(-6deg);
+}
+
 html.light .zh-page .zh-page__artwork {
-  filter: saturate(1.6) contrast(1.2) !important;
+  z-index: 2;
+  background-image: none !important;
+  filter: none !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
+html.light .zh-page .zh-page__artwork::before,
 html.light .zh-page .zh-page__artwork::after {
-  content: none !important;
-  display: none !important;
+  position: absolute;
+  top: calc(var(--zh-hero-artwork-painted-top) + clamp(24px, 6vw, 96px));
+  right: calc(var(--zh-hero-artwork-painted-right) + clamp(46px, 9vw, 170px));
+  width: clamp(190px, 26vw, 460px);
+  height: clamp(220px, 30vw, 500px);
+  font-family: "Plus Jakarta Sans", var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(210px, 29vw, 520px);
+  font-weight: 900;
+  line-height: 0.78;
+  letter-spacing: -0.09em;
+  text-align: center;
+  transform: perspective(900px) rotateY(-12deg) rotateX(5deg) rotateZ(-3deg);
+  transform-origin: 70% 30%;
+}
+
+html.light .zh-page .zh-page__artwork::before {
+  content: "Z";
+  z-index: 2;
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 34%, #2563eb 68%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px rgba(2, 132, 199, 0.65);
+  text-shadow: none;
+  filter:
+    drop-shadow(0 18px 24px rgba(15, 23, 42, 0.28))
+    drop-shadow(0 0 18px rgba(37, 99, 235, 0.28));
+}
+
+html.light .zh-page .zh-page__artwork::after {
+  content: "Z";
+  z-index: 1;
+  color: rgba(15, 23, 42, 0.92);
+  -webkit-text-fill-color: rgba(15, 23, 42, 0.92);
+  transform: perspective(900px) rotateY(-12deg) rotateX(5deg) rotateZ(-3deg) translate(8px, 10px);
+  filter: blur(0.4px);
 }
 
 html.light .zh-page .zh-starfield,
 html.light .zh-page .zh-driftfield {
-  mix-blend-mode: multiply !important;
+  mix-blend-mode: normal !important;
+  filter: none !important;
 }
 
 html.light .zh-page .zh-starfield__star,
 html.light .zh-page .zh-driftfield__particle {
-  filter:
-    invert(1) hue-rotate(190deg) saturate(1.9) brightness(0.92)
-    drop-shadow(0 0 4px rgba(37, 99, 235, 0.8)) !important;
+  filter: none !important;
+  box-shadow: 0 0 8px currentColor !important;
+}
+
+html.light .zh-page .zh-starfield__star:nth-child(4n + 1),
+html.light .zh-page .zh-driftfield__particle:nth-child(4n + 1) {
+  background-color: #1d4ed8 !important;
+  color: #1d4ed8 !important;
+}
+
+html.light .zh-page .zh-starfield__star:nth-child(4n + 2),
+html.light .zh-page .zh-driftfield__particle:nth-child(4n + 2) {
+  background-color: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+html.light .zh-page .zh-starfield__star:nth-child(4n + 3),
+html.light .zh-page .zh-driftfield__particle:nth-child(4n + 3) {
+  background-color: #4338ca !important;
+  color: #4338ca !important;
+}
+
+html.light .zh-page .zh-starfield__star:nth-child(4n + 4),
+html.light .zh-page .zh-driftfield__particle:nth-child(4n + 4) {
+  background-color: #d97706 !important;
+  color: #d97706 !important;
 }
 
 html.light .zh-page .zh-hero-zone {
@@ -815,11 +929,10 @@ html body .product-card-badge--featured {
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background {
   background-color: #f1f5f9 !important;
   background-image: linear-gradient(
-    135deg,
+    180deg,
     #dbeafe 0%,
-    #e0e7ff 48%,
-    #fce7f3 82%,
-    #f1f5f9 100%
+    #eff6ff 55%,
+    #f8fafc 100%
   ) !important;
   background-repeat: no-repeat !important;
   background-position: top center !important;
@@ -834,8 +947,9 @@ html body .product-card-badge--featured {
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork-clip {
-  mix-blend-mode: multiply !important;
-  filter: invert(1) hue-rotate(190deg) saturate(1.8) contrast(1.25) !important;
+  mix-blend-mode: normal !important;
+  filter: none !important;
+  background: transparent !important;
   -webkit-mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%) !important;
   mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%) !important;
   -webkit-mask-size: 100% var(--zh-light-hero-gradient-height) !important;
@@ -851,28 +965,142 @@ html body .product-card-badge--featured {
   box-shadow: none !important;
 }
 
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork-clip::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--zh-hero-artwork-painted-top) + clamp(268px, 31vw, 500px));
+  right: calc(var(--zh-hero-artwork-painted-right) + clamp(24px, 5vw, 96px));
+  width: clamp(220px, 30vw, 560px);
+  height: clamp(44px, 6vw, 92px);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 42%,
+    #1e293b 0%,
+    #0f172a 64%,
+    rgba(15, 23, 42, 0) 100%
+  );
+  box-shadow:
+    0 22px 44px rgba(15, 23, 42, 0.32),
+    inset 0 1px 0 rgba(148, 163, 184, 0.28);
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork-clip::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--zh-hero-artwork-painted-top) - 6px);
+  right: calc(var(--zh-hero-artwork-painted-right) - clamp(30px, 5vw, 110px));
+  width: clamp(360px, 50vw, 900px);
+  height: clamp(280px, 38vw, 620px);
+  background:
+    radial-gradient(
+      ellipse 100% 100% at 50% 100%,
+      transparent 61%,
+      rgba(37, 99, 235, 0.18) 62%,
+      transparent 64%
+    ),
+    radial-gradient(
+      ellipse 84% 84% at 50% 100%,
+      transparent 65%,
+      rgba(79, 70, 229, 0.13) 66%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 68% 68% at 50% 100%,
+      transparent 69%,
+      rgba(2, 132, 199, 0.1) 70%,
+      transparent 72%
+    );
+  -webkit-mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%);
+  transform: rotate(-6deg);
+}
+
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork {
-  filter: saturate(1.6) contrast(1.2) !important;
+  z-index: 2;
+  background-image: none !important;
+  filter: none !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::before,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::after {
-  content: none !important;
-  display: none !important;
+  position: absolute;
+  top: calc(var(--zh-hero-artwork-painted-top) + clamp(24px, 6vw, 96px));
+  right: calc(var(--zh-hero-artwork-painted-right) + clamp(46px, 9vw, 170px));
+  width: clamp(190px, 26vw, 460px);
+  height: clamp(220px, 30vw, 500px);
+  font-family: "Plus Jakarta Sans", var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(210px, 29vw, 520px);
+  font-weight: 900;
+  line-height: 0.78;
+  letter-spacing: -0.09em;
+  text-align: center;
+  transform: perspective(900px) rotateY(-12deg) rotateX(5deg) rotateZ(-3deg);
+  transform-origin: 70% 30%;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::before {
+  content: "Z";
+  z-index: 2;
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 34%, #2563eb 68%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px rgba(2, 132, 199, 0.65);
+  text-shadow: none;
+  filter:
+    drop-shadow(0 18px 24px rgba(15, 23, 42, 0.28))
+    drop-shadow(0 0 18px rgba(37, 99, 235, 0.28));
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::after {
+  content: "Z";
+  z-index: 1;
+  color: rgba(15, 23, 42, 0.92);
+  -webkit-text-fill-color: rgba(15, 23, 42, 0.92);
+  transform: perspective(900px) rotateY(-12deg) rotateX(5deg) rotateZ(-3deg) translate(8px, 10px);
+  filter: blur(0.4px);
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield {
-  mix-blend-mode: multiply !important;
+  mix-blend-mode: normal !important;
+  filter: none !important;
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle {
-  filter:
-    invert(1) hue-rotate(190deg) saturate(1.9) brightness(0.92)
-    drop-shadow(0 0 4px rgba(37, 99, 235, 0.8)) !important;
+  filter: none !important;
+  box-shadow: 0 0 8px currentColor !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star:nth-child(4n + 1),
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle:nth-child(4n + 1) {
+  background-color: #1d4ed8 !important;
+  color: #1d4ed8 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star:nth-child(4n + 2),
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle:nth-child(4n + 2) {
+  background-color: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star:nth-child(4n + 3),
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle:nth-child(4n + 3) {
+  background-color: #4338ca !important;
+  color: #4338ca !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star:nth-child(4n + 4),
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle:nth-child(4n + 4) {
+  background-color: #d97706 !important;
+  color: #d97706 !important;
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero__title,
