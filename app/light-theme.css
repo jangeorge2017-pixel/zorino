@@ -1152,7 +1152,7 @@ html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .z
 
   :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__search-slot,
   :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__wishlist,
-  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__notify,
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__icon-btn--notify,
   :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__desktop-theme {
     display: none !important;
   }
