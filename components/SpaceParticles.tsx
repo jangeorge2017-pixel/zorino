@@ -66,6 +66,21 @@ const DRIFT_PARTICLES = Array.from({ length: 28 }, (_, index) => {
   };
 });
 
+const LIGHT_STARS = [
+  ...SKY_STARS,
+  ...DOME_STARS.map((star, index) => ({
+    ...star,
+    x: Math.min(94, Math.max(58, star.x + 42 + random(index + 700, 11) * 8)),
+    y: Math.min(60, Math.max(8, star.y - random(index + 700, 12) * 6)),
+  })),
+];
+
+const LIGHT_DRIFT_PARTICLES = DRIFT_PARTICLES.map((particle, index) => ({
+  ...particle,
+  x: Math.min(94, Math.max(62, particle.x + random(index + 800, 11) * 8 - 4)),
+  y: Math.max(12, particle.y - random(index + 800, 12) * 18),
+}));
+
 export default function SpaceParticles() {
   const [light, setLight] = useState(false);
 
@@ -79,11 +94,13 @@ export default function SpaceParticles() {
   }, []);
 
   const starColors = light ? LIGHT_PARTICLE_COLORS : STAR_COLORS;
+  const stars = light ? LIGHT_STARS : STARS;
+  const particles = light ? LIGHT_DRIFT_PARTICLES : DRIFT_PARTICLES;
 
   return (
     <>
       <div className="zh-starfield" aria-hidden="true">
-        {STARS.map((star, index) => (
+        {stars.map((star, index) => (
           <span
             key={index}
             className="zh-starfield__star"
@@ -101,7 +118,7 @@ export default function SpaceParticles() {
         ))}
       </div>
       <div className="zh-driftfield" aria-hidden="true">
-        {DRIFT_PARTICLES.map((particle, index) => (
+        {particles.map((particle, index) => (
           <span
             key={index}
             className="zh-driftfield__particle"

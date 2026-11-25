@@ -1045,3 +1045,58 @@ html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .z
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
+
+.zh-logo-vector,
+.zh-light-dome,
+.zh-light-z {
+  display: none;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-logo-raster {
+  display: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-lockup.zh-logo-vector {
+  display: block !important;
+  color: #0f172a !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-dome,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z {
+  display: block !important;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-dome svg,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z svg {
+  position: absolute;
+  display: block;
+  overflow: visible;
+  max-width: 100vw;
+  pointer-events: none;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-dome svg {
+  width: calc(var(--zh-hero-artwork-painted-width) * 0.92) !important;
+  height: calc(var(--zh-hero-artwork-painted-height) * 0.94) !important;
+  right: calc(var(--zh-hero-artwork-painted-right) + 180px) !important;
+  top: calc(var(--zh-hero-artwork-painted-top) + 40px) !important;
+  opacity: 0.92 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z svg {
+  width: calc(var(--zh-hero-artwork-painted-width) * 0.62) !important;
+  height: calc(var(--zh-hero-artwork-painted-height) * 0.82) !important;
+  right: calc(var(--zh-hero-artwork-painted-right) - 10px) !important;
+  top: calc(var(--zh-hero-artwork-painted-top) + 12px) !important;
+  filter: drop-shadow(0 22px 34px rgba(37, 99, 235, 0.18)) !important;
+}
+
