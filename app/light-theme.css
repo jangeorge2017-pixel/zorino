@@ -655,8 +655,12 @@ html body .product-card-badge--featured {
   z-index: 3 !important;
   width: max-content !important;
   max-width: calc(100% - 8px) !important;
-  padding: 2px 6px !important;
-  gap: 3px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding: 2px 5px !important;
+  gap: 0 !important;
   color: #0f172a !important;
   background: #f8fafc !important;
   border: 1px solid #e2e8f0 !important;
@@ -682,14 +686,21 @@ html body .product-card-badge--featured {
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-orbit-card__price {
-  display: -webkit-box !important;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  font-size: 9.5px !important;
+  line-height: 1.2 !important;
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-orbit-card__was {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
   color: #475569 !important;
+  font-size: 8px !important;
   font-weight: 600 !important;
+  line-height: 1.2 !important;
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-categories__arrow,
