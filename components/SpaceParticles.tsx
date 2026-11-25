@@ -66,6 +66,15 @@ const DRIFT_PARTICLES = Array.from({ length: 28 }, (_, index) => {
   };
 });
 
+const LIGHT_HALO_STARS = Array.from({ length: 38 }, (_, index) => {
+  const seed = index + 900;
+  return makeStar(
+    seed,
+    58 + random(seed, 1) * 36,
+    8 + random(seed, 2) * 50,
+  );
+});
+
 const LIGHT_STARS = [
   ...SKY_STARS,
   ...DOME_STARS.map((star, index) => ({
@@ -73,6 +82,7 @@ const LIGHT_STARS = [
     x: Math.min(94, Math.max(58, star.x + 42 + random(index + 700, 11) * 8)),
     y: Math.min(60, Math.max(8, star.y - random(index + 700, 12) * 6)),
   })),
+  ...LIGHT_HALO_STARS,
 ];
 
 const LIGHT_DRIFT_PARTICLES = DRIFT_PARTICLES.map((particle, index) => ({

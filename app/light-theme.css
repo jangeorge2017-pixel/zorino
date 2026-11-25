@@ -1100,3 +1100,72 @@ html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .z
   filter: drop-shadow(0 22px 34px rgba(37, 99, 235, 0.18)) !important;
 }
 
+@keyframes zh-light-z-emerge {
+  0%,
+  100% {
+    transform: perspective(900px) translateZ(-46px) scale(0.9);
+    opacity: 0.76;
+  }
+
+  50% {
+    transform: perspective(900px) translateZ(28px) scale(1.035);
+    opacity: 1;
+  }
+}
+
+.zh-nav-mobile-menu__light-tools {
+  display: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z {
+  transform-origin: 50% 56%;
+  transform-style: preserve-3d;
+  animation: zh-light-z-emerge 8.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star {
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.38) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle {
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.34) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav-mobile-menu__light-tools {
+  display: flex !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav-mobile-menu__theme-row {
+  cursor: default;
+}
+
+@media (max-width: 767px) and (orientation: portrait) {
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__logo-lockup {
+    max-width: none !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__logo {
+    margin-inline-end: 8px !important;
+  }
+
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__search-slot,
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__wishlist,
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__notify,
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__desktop-theme {
+    display: none !important;
+  }
+
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) body .zh-page .zh-nav__cluster {
+    gap: 6px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-light-z {
+    animation: none !important;
+    transform: perspective(900px) translateZ(0) scale(0.98) !important;
+  }
+}
+

@@ -55,25 +55,25 @@ export function LightHeroZEmblem() {
       <svg viewBox="0 0 520 560" preserveAspectRatio="xMidYMid meet" shapeRendering="geometricPrecision">
         <defs>
           <linearGradient id="zhLightZTop" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#e0f2fe" />
-            <stop offset="34%" stopColor="#7dd3fc" />
-            <stop offset="72%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#1d4ed8" />
+            <stop offset="0%" stopColor="#9845ed" />
+            <stop offset="36%" stopColor="#7959ec" />
+            <stop offset="74%" stopColor="#386ced" />
+            <stop offset="100%" stopColor="#2563eb" />
           </linearGradient>
           <linearGradient id="zhLightZFace" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#bfdbfe" />
-            <stop offset="30%" stopColor="#60a5fa" />
-            <stop offset="62%" stopColor="#4f46e5" />
+            <stop offset="0%" stopColor="#7959ec" />
+            <stop offset="34%" stopColor="#386ced" />
+            <stop offset="68%" stopColor="#3f8df0" />
             <stop offset="100%" stopColor="#1e3a8a" />
           </linearGradient>
           <linearGradient id="zhLightZSide" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#312e81" />
-            <stop offset="48%" stopColor="#4338ca" />
-            <stop offset="100%" stopColor="#0ea5e9" />
+            <stop offset="0%" stopColor="#0b0b1a" />
+            <stop offset="46%" stopColor="#312e81" />
+            <stop offset="100%" stopColor="#4f46e5" />
           </linearGradient>
           <linearGradient id="zhLightZBottom" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#4338ca" />
-            <stop offset="52%" stopColor="#2563eb" />
+            <stop offset="0%" stopColor="#386ced" />
+            <stop offset="52%" stopColor="#3f8df0" />
             <stop offset="100%" stopColor="#67e8f9" />
           </linearGradient>
           <linearGradient id="zhLightZGlass" x1="0" y1="0" x2="0.8" y2="1">

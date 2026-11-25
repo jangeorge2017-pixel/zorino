@@ -25,54 +25,76 @@ export function ZorinoLogoVector({ className }: { className?: string }) {
       <title id="zh-logo-vector-title">Zorino — Smart Price Comparison</title>
       <defs>
         <linearGradient id="zhLogoTop" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#67e8f9" />
-          <stop offset="52%" stopColor="#38bdf8" />
-          <stop offset="100%" stopColor="#2563eb" />
+          <stop offset="0%" stopColor="#9845ed" />
+          <stop offset="52%" stopColor="#7c4aec" />
+          <stop offset="100%" stopColor="#6d5af0" />
         </linearGradient>
         <linearGradient id="zhLogoFace" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#60a5fa" />
-          <stop offset="42%" stopColor="#4f46e5" />
-          <stop offset="100%" stopColor="#1d4ed8" />
+          <stop offset="0%" stopColor="#7959ec" />
+          <stop offset="48%" stopColor="#4f6ff0" />
+          <stop offset="100%" stopColor="#386ced" />
         </linearGradient>
         <linearGradient id="zhLogoFold" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0%" stopColor="#1e3a8a" />
-          <stop offset="48%" stopColor="#4338ca" />
-          <stop offset="100%" stopColor="#0ea5e9" />
+          <stop offset="0%" stopColor="#0b0b1a" />
+          <stop offset="52%" stopColor="#1e2a60" />
+          <stop offset="100%" stopColor="#386ced" />
         </linearGradient>
         <linearGradient id="zhLogoBottom" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#4f46e5" />
-          <stop offset="55%" stopColor="#2563eb" />
-          <stop offset="100%" stopColor="#22d3ee" />
+          <stop offset="0%" stopColor="#386ced" />
+          <stop offset="54%" stopColor="#3f8df0" />
+          <stop offset="100%" stopColor="#5fd0e8" />
         </linearGradient>
       </defs>
-      <g stroke="rgba(15, 23, 42, 0.12)" strokeWidth="0.8" strokeLinejoin="round">
-        <path d="M8 17.5H49L44.5 28H16.5Z" fill="url(#zhLogoTop)" />
-        <path d="M16.5 28H44.5L23 51H7.5Z" fill="url(#zhLogoFace)" />
-        <path d="M23 45.5H51V57.5H10.5Z" fill="url(#zhLogoBottom)" />
-        <path d="M49 17.5L54 22.5L49 33L44.5 28Z" fill="url(#zhLogoFold)" />
-        <path d="M51 57.5L46 62.5H8.5L10.5 57.5Z" fill="url(#zhLogoFold)" opacity="0.86" />
-        <path d="M16.5 28L44.5 28L23 45.5L10.5 45.5Z" fill="#ffffff" opacity="0.16" stroke="none" />
-      </g>
-      <path d="M9.5 19.5H44.8M18 31L10 49M13 54.3H46" fill="none" stroke="#ffffff" strokeOpacity="0.72" strokeWidth="1.2" strokeLinecap="round" />
+      <path
+        d="M69 18H78L83 23L78 27L74 28L70 32V43L68 46H78L82 51H80V54L76 57L55 56L52 60L48 61L41 60L45 57V56L35 58L38 52H34L33 44L35 43L38 32L40 30H49V28H38L44 20Z"
+        fill="url(#zhLogoFace)"
+      />
+      <path
+        d="M44 20L69 18H78L83 23L78 26L49 28H38Z"
+        fill="url(#zhLogoTop)"
+      />
+      <path
+        d="M49 28H70V43L68 46H45L38 52L34 52L33 44L38 32L40 30H49Z"
+        fill="url(#zhLogoFace)"
+      />
+      <path
+        d="M45 46H68L78 46L82 51H80V54L76 57L55 56L52 60L48 61L41 60L45 57V56Z"
+        fill="url(#zhLogoBottom)"
+      />
+      <path
+        d="M40 30H49L45 46L38 52L35 43L38 32Z"
+        fill="url(#zhLogoFold)"
+        opacity="0.82"
+      />
+      <path
+        d="M70 28L74 27L78 26L74 32L70 43V28Z"
+        fill="#ffffff"
+        opacity="0.18"
+      />
+      <path
+        d="M41 60L48 61L52 60L45 57Z"
+        fill="#0b0b1a"
+        opacity="0.32"
+      />
       <text
-        x="61"
-        y="43"
+        x="86"
+        y="44"
         fill="#0f172a"
-        fontFamily="Plus Jakarta Sans, Geist, system-ui, sans-serif"
-        fontSize="27"
+        fontFamily='"Plus Jakarta Sans", sans-serif'
+        fontSize="28"
         fontWeight="800"
-        letterSpacing="-0.6"
+        letterSpacing="1"
       >
         ZORINO
       </text>
       <text
-        x="62"
-        y="60"
+        x="92"
+        y="55"
         fill="#475569"
-        fontFamily="Plus Jakarta Sans, Geist, system-ui, sans-serif"
-        fontSize="8.5"
-        fontWeight="700"
-        letterSpacing="1.1"
+        fontFamily='"Plus Jakarta Sans", sans-serif'
+        fontSize="9"
+        fontWeight="600"
+        letterSpacing="0.05"
       >
         Smart Price Comparison
       </text>
