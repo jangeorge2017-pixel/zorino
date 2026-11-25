@@ -303,3 +303,234 @@ html body .zor-deals-page__featured-badge,
 html body .product-card-badge--featured {
   z-index: 10 !important;
 }
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) {
+  color-scheme: light;
+  --zor-text: #0f172a;
+  --zor-text-soft: #475569;
+  --zor-text-muted: #64748b;
+  --zor-text-accent: #6d28d9;
+  --zor-text-link: #4f46e5;
+  --zor-purple-light: #6d28d9;
+  --zor-glass: #ffffff;
+  --zor-glass-strong: #ffffff;
+  --zor-glass-border: rgba(15, 23, 42, 0.1);
+  --zor-border-subtle: rgba(15, 23, 42, 0.08);
+  --zor-border-default: rgba(15, 23, 42, 0.12);
+  --zor-gradient-title: linear-gradient(95deg, #0f172a 0%, #1e293b 42%, #6d28d9 100%);
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__logo img,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .logo-lockup,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-lockup {
+  content: url("/logo/hero-z-logo-light@2x.png") !important;
+  width: auto !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  image-rendering: auto !important;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+  transform: none !important;
+  filter: none !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav {
+  color: #0f172a !important;
+  border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__link,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__profile-copy strong,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__tagline {
+  color: #334155 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(124, 58, 237, 0.12) 22%,
+    rgba(79, 70, 229, 0.2) 50%,
+    rgba(124, 58, 237, 0.12) 78%,
+    transparent 100%
+  ) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__icon-btn,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__icon-btn,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav .theme-toggle,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav .theme-toggle,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav .zor-intl__trigger,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav .zor-intl__trigger {
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+  animation: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__icon-btn:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__icon-btn:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav .theme-toggle:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav .theme-toggle:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav .zor-intl__trigger:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav .zor-intl__trigger:hover {
+  background: rgba(124, 58, 237, 0.1) !important;
+  color: #6d28d9 !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.14) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav .theme-option {
+  color: #475569 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav .theme-option-active {
+  background: rgba(124, 58, 237, 0.12) !important;
+  color: #6d28d9 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__badge {
+  border-color: #ffffff !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__profile,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__profile {
+  background: rgba(15, 23, 42, 0.05) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__avatar-ring,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__avatar-ring {
+  background: conic-gradient(
+    from 0deg,
+    rgba(124, 58, 237, 0.16),
+    rgba(124, 58, 237, 0.55),
+    rgba(79, 70, 229, 0.45),
+    rgba(124, 58, 237, 0.55),
+    rgba(124, 58, 237, 0.16)
+  ) !important;
+  animation: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__profile img,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__profile-fallback,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__profile img,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__profile-fallback {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__profile-fallback {
+  background: rgba(124, 58, 237, 0.12) !important;
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-btn--primary,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .home-shop-btn,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .home-compare-btn,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .listing-view-btn,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-td-card__cta,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-deal-card__cta,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__submit {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+  border-color: transparent !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.22) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-btn--secondary {
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-btn--outline {
+  color: #6d28d9 !important;
+  background: #ffffff !important;
+  border-color: rgba(124, 58, 237, 0.32) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-btn--ghost {
+  color: #475569 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-select,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) select {
+  background-color: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-select option,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-label {
+  color: #334155 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__detail-hero,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__cta,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__filters.zor-filter-bar {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__eyebrow {
+  color: #6d28d9 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__title {
+  background: none !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__subtitle,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__cta-text {
+  color: #475569 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__back {
+  color: #4f46e5 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat--hot {
+  border-color: rgba(124, 58, 237, 0.35) !important;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat strong {
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat span {
+  color: #475569 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__quick-filter {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  color: #334155 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__quick-filter.is-active {
+  background: rgba(124, 58, 237, 0.12) !important;
+  border-color: rgba(124, 58, 237, 0.35) !important;
+  color: #6d28d9 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.12) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__cta-title {
+  color: #0f172a !important;
+}
