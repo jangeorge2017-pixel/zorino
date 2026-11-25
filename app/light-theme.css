@@ -320,22 +320,6 @@ html body .product-card-badge--featured {
   --zor-gradient-title: linear-gradient(95deg, #0f172a 0%, #1e293b 42%, #6d28d9 100%);
 }
 
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__logo img,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .logo-lockup,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-lockup {
-  content: url("/logo/hero-z-logo-light@2x.png") !important;
-  width: auto !important;
-  object-fit: contain !important;
-  object-position: left center !important;
-  image-rendering: auto !important;
-  shape-rendering: geometricPrecision;
-  text-rendering: geometricPrecision;
-  transform: none !important;
-  filter: none !important;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav {
   color: #0f172a !important;
@@ -535,53 +519,6 @@ html body .product-card-badge--featured {
   color: #0f172a !important;
 }
 
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-lockup {
-  display: none !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-light {
-  display: flex !important;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  height: var(--zh-nav-logo-h);
-  max-height: var(--zh-nav-logo-h);
-  width: max-content;
-  max-width: min(168px, 30vw);
-  color: #0f172a;
-  text-align: start;
-  text-shadow: none;
-  transform: none;
-  filter: none;
-  -webkit-font-smoothing: antialiased;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-light-name {
-  direction: ltr;
-  unicode-bidi: isolate;
-  color: #0f172a !important;
-  font-size: clamp(24px, calc(var(--zh-nav-logo-h) * 0.38), 31px);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-light-accent {
-  color: #6d28d9 !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-light-tagline {
-  color: #475569 !important;
-  font-size: clamp(8px, calc(var(--zh-nav-logo-h) * 0.12), 10px);
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-stat,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-stat:hover {
   background: #ffffff !important;
@@ -736,4 +673,330 @@ html body .product-card-badge--featured {
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-featured-brands__nav svg {
   color: inherit !important;
   filter: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-nav__logo-lockup {
+  display: block !important;
+  content: normal !important;
+  width: auto !important;
+  filter: none !important;
+  transform: none !important;
+  image-rendering: auto !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page {
+  background: #f8fafc !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::before,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::after,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero-zone {
+  background: linear-gradient(180deg, #e0e7ff 0%, #eef2ff 45%, #f8fafc 100%) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__background::before {
+  background:
+    radial-gradient(ellipse 44% 30% at 50% 92%, transparent 56%, rgba(79, 70, 229, 0.16) 57%, rgba(37, 99, 235, 0.09) 60%, transparent 63%),
+    radial-gradient(ellipse 52% 42% at 50% 100%, rgba(79, 70, 229, 0.1), transparent 72%),
+    linear-gradient(180deg, #e0e7ff 0%, #eef2ff 45%, #f8fafc 100%) !important;
+  border-radius: 48% 48% 0 0 / 24% 24% 0 0;
+  box-shadow: inset 0 -2px 0 rgba(79, 70, 229, 0.12), 0 18px 48px rgba(37, 99, 235, 0.08) !important;
+  opacity: 1 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-starfield,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-driftfield {
+  mix-blend-mode: normal !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-starfield__star,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-driftfield__particle {
+  min-width: 2px !important;
+  min-height: 2px !important;
+  box-shadow: 0 0 8px currentColor !important;
+  filter: saturate(1.15) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-panel,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-panel:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals.zh-deals-panel,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-product-section.zh-panel,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-featured-brands.zh-panel,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page #zh-section-coupons.zh-panel {
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-section-header {
+  background: #ffffff !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  border-bottom-color: rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-section-header__icon {
+  color: #4f46e5 !important;
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-view-all {
+  color: #4f46e5 !important;
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-view-all:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-view-all:focus-visible {
+  color: #4338ca !important;
+  background: #e0e7ff !important;
+  border-color: #a5b4fc !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.14) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-quick-nav__pill,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals__filter,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals__sort-select,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page select {
+  color: #1e293b !important;
+  background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-quick-nav__pill.is-active,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page a.zh-quick-nav__pill.is-active,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals__filter.is-active {
+  color: #ffffff !important;
+  background: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.22) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-quick-nav__pill.is-active::before,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page a.zh-quick-nav__pill.is-active::before {
+  opacity: 0 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-media,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__media,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-deal-card__media {
+  background: #f8fafc !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .deal-original,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-deal-card__was,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__was,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .lowest-price-original,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .deal-was,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-orbit-card__was {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  text-decoration: line-through !important;
+  text-decoration-color: #94a3b8 !important;
+  text-decoration-thickness: 1px !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .deal-price,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-deal-card__price,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__price,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .trending-card-price,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-orbit-card__price {
+  text-decoration: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badges--start,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badges--end,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .trending-card-badges,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__overlays,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__overlays--end {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badges--start .deal-marketplace,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badges--start .deal-discount,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badges--end .product-card-badge--featured,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__overlays .zh-td-badge,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__overlays .zh-td-card__discount {
+  position: absolute !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: max-content !important;
+  max-width: calc(100% - 16px) !important;
+  margin: 0 !important;
+  z-index: 4 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badges--start .deal-discount,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__overlays .zh-td-card__discount,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-deal-card__discount {
+  top: 8px !important;
+  bottom: auto !important;
+  inset-inline-start: 8px !important;
+  inset-inline-end: auto !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badges--start .deal-marketplace,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__overlays .zh-td-badge,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zor-deals-page__featured-badge {
+  top: 8px !important;
+  bottom: auto !important;
+  inset-inline-end: 8px !important;
+  inset-inline-start: auto !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badges--end .product-card-badge--featured {
+  top: auto !important;
+  bottom: 8px !important;
+  inset-inline-end: 8px !important;
+  inset-inline-start: auto !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badge,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .deal-marketplace,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .deal-discount,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zor-deals-page__featured-badge,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__discount,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-badge,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-deal-card__discount {
+  color: #0f172a !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .deal-discount,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__discount,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-deal-card__discount {
+  color: #4338ca !important;
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zor-deals-page__featured-badge,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-badge--featured,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-badge {
+  color: #b45309 !important;
+  background: #fff7ed !important;
+  border-color: #fed7aa !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-actions,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-actions-dual,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-actions-single {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .product-card-actions-single::before {
+  content: attr(data-shop-label);
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.22) !important;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .home-shop-btn,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .home-compare-btn,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-td-card__cta,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-deal-card__cta {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__detail-hero,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__cta,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__filters.zor-filter-bar {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__hero-glow {
+  background: radial-gradient(circle at 50% 30%, rgba(79, 70, 229, 0.16), rgba(124, 58, 237, 0.08) 40%, transparent 70%) !important;
+  opacity: 1 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__detail-icon,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat-icon {
+  color: #4f46e5 !important;
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat--hot {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat span,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page__stat-label {
+  color: #475569 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page .zor-btn--outline {
+  color: #4338ca !important;
+  background: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  box-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page .zor-btn--outline:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-categories-page .zor-btn--outline:focus-visible {
+  color: #3730a3 !important;
+  background: #e0e7ff !important;
+  border-color: #a5b4fc !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.14) !important;
 }

@@ -1,8 +1,14 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 const STAR_COLORS = ["#38bdf8", "#818cf8", "#60a5fa", "#ffffff"] as const;
+const LIGHT_PARTICLE_COLORS = ["#2563eb", "#4f46e5", "#7c3aed", "#2563eb"] as const;
+
+function isLightMode() {
+  const root = document.documentElement;
+  return root.classList.contains("light") || root.dataset.theme === "light";
+}
 
 function random(index: number, salt: number) {
   const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
@@ -14,7 +20,7 @@ function makeStar(index: number, x: number, y: number) {
     x,
     y,
     size: 1.5 + random(index, 3) * 1.5,
-    color: STAR_COLORS[Math.floor(random(index, 4) * STAR_COLORS.length)],
+    colorIndex: Math.floor(random(index, 4) * STAR_COLORS.length),
     duration: 2 + random(index, 5) * 3,
     delay: -random(index, 6) * 5,
   };
@@ -49,7 +55,7 @@ const DRIFT_PARTICLES = Array.from({ length: 28 }, (_, index) => {
     x: 76 + random(seed, 3) * 19,
     y: 36 + random(seed, 4) * 20,
     size: 1.5 + random(seed, 5) * 1.5,
-    color: STAR_COLORS[Math.floor(random(seed, 6) * STAR_COLORS.length)],
+    colorIndex: Math.floor(random(seed, 6) * STAR_COLORS.length),
     duration: 6 + random(seed, 7) * 6,
     delay: -random(seed, 8) * 12,
     midX: driftX * 0.55,
@@ -61,6 +67,19 @@ const DRIFT_PARTICLES = Array.from({ length: 28 }, (_, index) => {
 });
 
 export default function SpaceParticles() {
+  const [light, setLight] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const sync = () => setLight(isLightMode());
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { attributes: true, attributeFilter: ["class", "data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+
+  const starColors = light ? LIGHT_PARTICLE_COLORS : STAR_COLORS;
+
   return (
     <>
       <div className="zh-starfield" aria-hidden="true">
@@ -73,8 +92,8 @@ export default function SpaceParticles() {
               top: `${star.y}%`,
               width: `${star.size}px`,
               height: `${star.size}px`,
-              color: star.color,
-              backgroundColor: star.color,
+              color: starColors[star.colorIndex],
+              backgroundColor: starColors[star.colorIndex],
               animationDuration: `${star.duration}s`,
               animationDelay: `${star.delay}s`,
             }}
@@ -92,8 +111,8 @@ export default function SpaceParticles() {
                 top: `${particle.y}%`,
                 width: `${particle.size}px`,
                 height: `${particle.size}px`,
-                color: particle.color,
-                backgroundColor: particle.color,
+                color: starColors[particle.colorIndex],
+                backgroundColor: starColors[particle.colorIndex],
                 animationDuration: `${particle.duration}s`,
                 animationDelay: `${particle.delay}s`,
                 "--zh-drift-mid-x": `${particle.midX}vw`,
