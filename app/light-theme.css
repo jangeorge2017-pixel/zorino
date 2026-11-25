@@ -802,17 +802,6 @@ html body .product-card-badge--featured {
   filter: saturate(1.4) contrast(1.05) !important;
 }
 
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield {
-  mix-blend-mode: screen !important;
-}
-
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield__star,
-:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-driftfield__particle {
-  filter: saturate(1.4) brightness(0.72) !important;
-  box-shadow: 0 0 8px currentColor !important;
-}
-
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero__title,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-hero__title span {
   color: #0f172a !important;
