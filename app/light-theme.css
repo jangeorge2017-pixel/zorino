@@ -261,6 +261,7 @@ html.light .zh-page .zh-page__artwork {
 html.light .zh-page .zh-page__artwork::before,
 html.light .zh-page .zh-page__artwork::after {
   position: absolute;
+  display: block !important;
   top: calc(var(--zh-hero-artwork-painted-top) + clamp(24px, 6vw, 96px));
   right: calc(var(--zh-hero-artwork-painted-right) + clamp(46px, 9vw, 170px));
   width: clamp(190px, 26vw, 460px);
@@ -276,9 +277,9 @@ html.light .zh-page .zh-page__artwork::after {
 }
 
 html.light .zh-page .zh-page__artwork::before {
-  content: "Z";
+  content: "Z" !important;
   z-index: 2;
-  background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 34%, #2563eb 68%, #38bdf8 100%);
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 34%, #2563eb 68%, #38bdf8 100%) !important;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -291,12 +292,15 @@ html.light .zh-page .zh-page__artwork::before {
 }
 
 html.light .zh-page .zh-page__artwork::after {
-  content: "Z";
+  content: "Z" !important;
   z-index: 1;
+  background-image: none !important;
   color: rgba(15, 23, 42, 0.92);
   -webkit-text-fill-color: rgba(15, 23, 42, 0.92);
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
   transform: perspective(900px) rotateY(-12deg) rotateX(5deg) rotateZ(-3deg) translate(8px, 10px);
-  filter: blur(0.4px);
+  filter: blur(0.4px) !important;
 }
 
 html.light .zh-page .zh-starfield,
@@ -1029,6 +1033,7 @@ html body .product-card-badge--featured {
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::before,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::after {
   position: absolute;
+  display: block !important;
   top: calc(var(--zh-hero-artwork-painted-top) + clamp(24px, 6vw, 96px));
   right: calc(var(--zh-hero-artwork-painted-right) + clamp(46px, 9vw, 170px));
   width: clamp(190px, 26vw, 460px);
@@ -1044,9 +1049,9 @@ html body .product-card-badge--featured {
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::before {
-  content: "Z";
+  content: "Z" !important;
   z-index: 2;
-  background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 34%, #2563eb 68%, #38bdf8 100%);
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 34%, #2563eb 68%, #38bdf8 100%) !important;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1059,12 +1064,15 @@ html body .product-card-badge--featured {
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-page__artwork::after {
-  content: "Z";
+  content: "Z" !important;
   z-index: 1;
+  background-image: none !important;
   color: rgba(15, 23, 42, 0.92);
   -webkit-text-fill-color: rgba(15, 23, 42, 0.92);
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
   transform: perspective(900px) rotateY(-12deg) rotateX(5deg) rotateZ(-3deg) translate(8px, 10px);
-  filter: blur(0.4px);
+  filter: blur(0.4px) !important;
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-starfield,
