@@ -218,3 +218,88 @@ html.light .zh-orbit-card__was,
 html.light .zh-orbit-card__discount {
   color: #64748b !important;
 }
+
+html body .product-card-media,
+html body .zh-page .product-card-media,
+html body .listing-product-card .product-card-media,
+html body .zh-page .listing-product-card .product-card-media,
+html body .home-product-card .product-card-media,
+html body .zh-page .home-product-card .product-card-media,
+html body .zor-deals-page__card .product-card-media,
+html body .zh-page .zor-deals-page__card .product-card-media,
+html body .deal-card .product-card-media,
+html body .zh-page .deal-card .product-card-media,
+html body .zh-trending-deals__track .product-card-media,
+html body .zh-page .zh-trending-deals__track .product-card-media,
+html body .zh-td-card__media,
+html body .zh-page .zh-td-card__media,
+html body .zh-deal-card__media,
+html body .zh-page .zh-deal-card__media {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  background: rgba(30, 41, 59, 0.35) !important;
+}
+
+html body .product-card-image-frame,
+html body .zh-page .product-card-image-frame,
+html body .zh-trending-deals__track .product-card-image-frame,
+html body .zh-page .zh-trending-deals__track .product-card-image-frame {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: inherit !important;
+}
+
+html body .product-card-image,
+html body .zh-page .product-card-image,
+html body .zh-trending-deals__track .product-card-image,
+html body .zh-page .zh-trending-deals__track .product-card-image,
+html body .zh-page .listing-product-card img,
+html body .zh-page .zor-deals-page__card img,
+html body .zh-page .deal-card img,
+html body .deal-product-img,
+html body .zh-page .zh-trending-deals__track .deal-product-img,
+html body .lowest-price-img,
+html body .trending-card-image,
+html body .zh-page .zh-trending-deals__track .trending-card-image,
+html body .zh-deal-card__image,
+html body .zh-page .zh-deal-card__media img,
+html body .zh-page .zh-deal-card__media .zh-deal-card__image,
+html body .zh-td-card__image,
+html body .zh-page .zh-td-card__media img,
+html body .zh-page .zh-td-card__media .zh-td-card__image,
+html body .zor-compare-page__card-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  border-radius: inherit !important;
+  box-sizing: border-box !important;
+}
+
+html body .product-card-badges,
+html body .product-card-badges--start,
+html body .product-card-badges--end,
+html body .trending-card-badges,
+html body .zh-deal-card__discount,
+html body .zh-td-card__overlays,
+html body .zh-td-card__overlays--end,
+html body .zor-deals-page__featured-badge,
+html body .product-card-badge--featured {
+  z-index: 10 !important;
+}

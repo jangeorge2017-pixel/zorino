@@ -23,8 +23,8 @@ export default function ProductCardMedia({
   badgesEnd,
 }: ProductCardMediaProps) {
   return (
-    <div className="product-card-media">
-      <div className="product-card-image-frame">
+    <div className="product-card-media w-full">
+      <div className="product-card-image-frame w-full h-full">
         <AssetImage
           src={src}
           alt={alt}

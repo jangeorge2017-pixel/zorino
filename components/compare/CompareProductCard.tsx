@@ -38,6 +38,7 @@ export default function CompareProductCard({
             fill
             className="zor-compare-page__card-img"
             sizes="96px"
+            objectFit="cover"
             fallback={<span className="zor-compare-page__card-emoji">{item.product.emoji ?? "🛍️"}</span>}
           />
         </div>
