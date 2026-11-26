@@ -7,6 +7,7 @@ import AssetImage from "@/components/AssetImage";
 import ZorinoHomeSparkline from "@/components/zorino-home/ZorinoHomeSparkline";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { TrendingDealCard } from "@/lib/types/entities";
+import { buildSmartModelQuery } from "@/lib/search/model-matcher";
 import "./ZorinoHomeDealCard.css";
 
 export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard }) {
@@ -15,7 +16,10 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
   const { formatPrice } = useIntlPreferences();
   const dropped = deal.originalPrice > deal.price;
   const increased = deal.originalPrice < deal.price;
-  const compareHref = deal.productId ? `/product/${deal.productId}` : "/deals";
+  const compareQuery = buildSmartModelQuery(deal.name) || deal.name;
+  const compareHref = compareQuery
+    ? `/compare?q=${encodeURIComponent(compareQuery)}`
+    : "/deals";
 
   return (
     <article className="zh-deal-card">

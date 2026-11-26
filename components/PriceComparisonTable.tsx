@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
+import { buildSmartModelQuery } from "@/lib/search/model-matcher";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { CompareOffer } from "@/services/compare";
 
@@ -200,18 +201,26 @@ export function ComparePriceSummary({
 
 export function ComparePricesButton({
   productId,
+  productName,
   className = "deal-compare-btn",
   onClick,
 }: {
   productId: string;
+  productName?: string;
   className?: string;
   onClick?: () => void;
 }) {
   const t = useTranslations("product");
+  const compareQuery = productName?.trim()
+    ? buildSmartModelQuery(productName) || productName.trim()
+    : "";
+  const href = compareQuery
+    ? `/compare?q=${encodeURIComponent(compareQuery)}`
+    : `/product/${encodeURIComponent(productId)}#compare-prices`;
 
   return (
     <Link
-      href={`/product/${encodeURIComponent(productId)}#compare-prices`}
+      href={href}
       className={className}
       onClick={onClick}
     >

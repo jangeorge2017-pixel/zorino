@@ -27,11 +27,12 @@ import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
   buildIndexedSearchOrFilter,
-  buildFuzzyIlikeOrFilter,
+  buildCombinedSearchOrFilter,
+  combinedSearchTokens,
   escapeRegexToken,
   querySearchTokens,
-  tokenize,
 } from "@/lib/integration/word-match-filter";
+import { normalizeText } from "@/lib/search/text-normalization";
 import {
   currencyCodes,
   type CurrencyCode,
@@ -60,10 +61,53 @@ function db(client: SupabaseDb): any {
   return client;
 }
 
-/** True when `token` appears in `hay` as a whole word (not a substring). */
-function wordInTitle(hay: string, token: string): boolean {
-  const esc = escapeRegexToken(token);
-  return new RegExp(`(^|[^a-z0-9])${esc}($|[^a-z0-9])`, "i").test(hay);
+function normalizedWholeWordInTitle(hay: string, token: string): boolean {
+  const normalizedHay = normalizeText(hay);
+  const normalizedToken = normalizeText(token).trim();
+  if (!normalizedToken) return false;
+  const esc = escapeRegexToken(normalizedToken);
+  return new RegExp(`(^|[^\\p{L}\\p{N}])${esc}($|[^\\p{L}\\p{N}])`, "iu").test(
+    normalizedHay,
+  );
+}
+
+function phraseMatchScore(name: string, query: string): number {
+  const normalizedName = normalizeText(name);
+  const tokens = querySearchTokens(query);
+  if (tokens.length === 0) return 0;
+  const normalizedTokens = tokens.map((token) => normalizeText(token).trim()).filter(Boolean);
+  if (normalizedTokens.length === 0) return 0;
+  const phrase = normalizedTokens.join(" ");
+  if (normalizedName.includes(phrase)) return 1000 + normalizedTokens.length * 100;
+  return 0;
+}
+
+function combinedRelevanceScore(
+  name: string,
+  query: string,
+  originalQuery?: string,
+): number {
+  const phraseScore = Math.max(
+    phraseMatchScore(name, query),
+    phraseMatchScore(name, originalQuery ?? ""),
+  );
+  const tokens = combinedSearchTokens(query, originalQuery);
+  const overlap = tokens.filter((token) => normalizedWholeWordInTitle(name, token)).length;
+  return phraseScore + overlap * 10;
+}
+
+function sortByCombinedRelevance(
+  results: SearchResultItem[],
+  query: string,
+  originalQuery?: string,
+): void {
+  results.sort((a, b) => {
+    const scoreDelta =
+      combinedRelevanceScore(b.name, query, originalQuery) -
+      combinedRelevanceScore(a.name, query, originalQuery);
+    if (scoreDelta !== 0) return scoreDelta;
+    return b.discount - a.discount || a.price - b.price;
+  });
 }
 
 type LowestPriceRow = {
@@ -968,15 +1012,18 @@ export async function getFamilyBreadthResultsFromDatabase(
 export async function getSearchResultsFromDatabase(
   query: string,
   limit = 24,
-  options?: { timeoutMs?: number; useFuzzyMatch?: boolean },
+  options?: { timeoutMs?: number; useFuzzyMatch?: boolean; originalQuery?: string },
 ): Promise<SearchResultItem[]> {
   const deadline = options?.timeoutMs;
   const useFuzzy = options?.useFuzzyMatch === true;
-  if (!deadline || deadline <= 0) return loadSearchResultsFromDatabase(query, limit, useFuzzy);
+  const originalQuery = options?.originalQuery;
+  if (!deadline || deadline <= 0) {
+    return loadSearchResultsFromDatabase(query, limit, useFuzzy, originalQuery);
+  }
 
   return new Promise<SearchResultItem[]>((resolve) => {
     const timer = setTimeout(() => resolve([]), deadline);
-    loadSearchResultsFromDatabase(query, limit, useFuzzy).then(
+    loadSearchResultsFromDatabase(query, limit, useFuzzy, originalQuery).then(
       (items) => {
         clearTimeout(timer);
         resolve(items);
@@ -1001,6 +1048,7 @@ export async function getSyncedStoreResultsFromDatabase(
   query: string,
   limit = 24,
   timeoutMs = 200,
+  originalQuery?: string,
 ): Promise<SearchResultItem[]> {
   if (providers.length === 0) return [];
 
@@ -1010,7 +1058,7 @@ export async function getSyncedStoreResultsFromDatabase(
       : createSupabaseAnonClient();
     if (!supabase) return [];
 
-    const orFilter = buildIndexedSearchOrFilter(query);
+    const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
     if (!orFilter) return [];
 
     const { data, error } = await db(supabase)
@@ -1055,6 +1103,7 @@ async function loadSearchResultsFromDatabase(
   query: string,
   limit: number,
   useFuzzyMatch = false,
+  originalQuery?: string,
 ): Promise<SearchResultItem[]> {
   const supabase = supabaseClientFactoryForTests
     ? supabaseClientFactoryForTests()
@@ -1071,9 +1120,7 @@ async function loadSearchResultsFromDatabase(
   // Word overlap scoring happens post-query.
   // When useFuzzyMatch is true (for Arabic-translated queries), use ILIKE
   // substring matching for maximum recall.
-  const orFilter = useFuzzyMatch
-    ? buildFuzzyIlikeOrFilter(query)
-    : buildIndexedSearchOrFilter(query);
+  const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
 
   if (!orFilter) return [];
 
@@ -1115,18 +1162,7 @@ async function loadSearchResultsFromDatabase(
     return rowToSearchResultItem(row);
   });
 
-  // Rank by word overlap: products matching more query words rank higher.
-  // "Nike Air Max 90" matches 1/2 words for "nike shoes" â†’ score 1
-  // "Nike Running Shoes" matches 2/2 words â†’ score 2 (ranked first).
-  const queryWords = useFuzzyMatch ? tokenize(query) : querySearchTokens(query);
-  results.sort((a, b) => {
-    const aLower = a.name.toLowerCase();
-    const bLower = b.name.toLowerCase();
-    const aMatches = queryWords.filter((w) => wordInTitle(aLower, w)).length;
-    const bMatches = queryWords.filter((w) => wordInTitle(bLower, w)).length;
-    if (aMatches !== bMatches) return bMatches - aMatches;
-    return b.discount - a.discount || a.price - b.price;
-  });
+  sortByCombinedRelevance(results, query, originalQuery);
 
   return results.slice(0, limit);
 }
@@ -1164,6 +1200,7 @@ async function loadDeviceTailRows(
 export type DeviceDbLegOptions = {
   query: string;
   activeCurrency?: CurrencyCode;
+  originalQuery?: string;
 };
 
 const DEVICE_SEARCH_COUNT_CACHE_TTL_MS = 5 * 60_000;
@@ -1237,7 +1274,7 @@ function deviceGuardSqlQueryContext(device: DeviceDbLegOptions): {
 async function loadDeviceSearchCountFromDatabase(
   device: DeviceDbLegOptions,
 ): Promise<number> {
-  const cacheKey = `device:${getSearchCacheVersion()}:${device.query.trim().toLowerCase()}`;
+  const cacheKey = `device:${getSearchCacheVersion()}:${device.query.trim().toLowerCase()}:orig:${(device.originalQuery ?? "").trim().toLowerCase()}`;
   const cached = deviceSearchCountCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) return cached.count;
 
@@ -1246,10 +1283,10 @@ async function loadDeviceSearchCountFromDatabase(
     : createSupabaseAnonClient();
   if (!supabase) return 0;
 
-  const words = querySearchTokens(device.query);
+  const words = combinedSearchTokens(device.query, device.originalQuery);
   if (words.length === 0) return 0;
 
-  const orFilter = buildIndexedSearchOrFilter(device.query);
+  const orFilter = buildCombinedSearchOrFilter(device.query, device.originalQuery);
   const ctx = deviceGuardSqlQueryContext(device);
 
   const selected = db(supabase)
@@ -1321,7 +1358,11 @@ async function loadDeviceSearchCountFromDatabase(
  */
 export async function countSearchResultsFromDatabase(
   query: string,
-  options?: { timeoutMs?: number; device?: DeviceDbLegOptions },
+  options?: {
+    timeoutMs?: number;
+    device?: DeviceDbLegOptions;
+    originalQuery?: string;
+  },
 ): Promise<number> {
   if (options?.device) {
     const device = options.device;
@@ -1345,11 +1386,14 @@ export async function countSearchResultsFromDatabase(
   }
 
   const deadline = options?.timeoutMs;
-  if (!deadline || deadline <= 0) return loadSearchResultsCountFromDatabase(query);
+  const originalQuery = options?.originalQuery;
+  if (!deadline || deadline <= 0) {
+    return loadSearchResultsCountFromDatabase(query, originalQuery);
+  }
 
   return new Promise<number>((resolve) => {
     const timer = setTimeout(() => resolve(0), deadline);
-    loadSearchResultsCountFromDatabase(query).then(
+    loadSearchResultsCountFromDatabase(query, originalQuery).then(
       (count) => {
         clearTimeout(timer);
         resolve(count);
@@ -1362,16 +1406,19 @@ export async function countSearchResultsFromDatabase(
   });
 }
 
-async function loadSearchResultsCountFromDatabase(query: string): Promise<number> {
+async function loadSearchResultsCountFromDatabase(
+  query: string,
+  originalQuery?: string,
+): Promise<number> {
   const supabase = supabaseClientFactoryForTests
     ? supabaseClientFactoryForTests()
     : createSupabaseAnonClient();
   if (!supabase) return 0;
 
-  const words = querySearchTokens(query);
+  const words = combinedSearchTokens(query, originalQuery);
   if (words.length === 0) return 0;
 
-  const orFilter = buildIndexedSearchOrFilter(query);
+  const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
 
   const { count, error } = await db(supabase)
     .from("lowest_prices_today")
@@ -1415,6 +1462,7 @@ export async function getSearchResultsFromDatabasePaged(
     timeoutMs?: number;
     excludeProductIds?: readonly string[];
     device?: DeviceDbLegOptions;
+    originalQuery?: string;
   },
 ): Promise<{ items: SearchResultItem[]; total: number }> {
   const deadline = options?.timeoutMs;
@@ -1425,6 +1473,7 @@ export async function getSearchResultsFromDatabasePaged(
       limit,
       options?.excludeProductIds,
       options?.device,
+      options?.originalQuery,
     );
   }
 
@@ -1436,6 +1485,7 @@ export async function getSearchResultsFromDatabasePaged(
       limit,
       options?.excludeProductIds,
       options?.device,
+      options?.originalQuery,
     ).then(
       (page) => {
         clearTimeout(timer);
@@ -1455,16 +1505,17 @@ async function loadSearchResultsFromDatabasePaged(
   limit: number,
   excludeProductIds?: readonly string[],
   device?: DeviceDbLegOptions,
+  originalQuery?: string,
 ): Promise<{ items: SearchResultItem[]; total: number }> {
   const supabase = supabaseClientFactoryForTests
     ? supabaseClientFactoryForTests()
     : createSupabaseAnonClient();
   if (!supabase) return { items: [], total: 0 };
 
-  const words = querySearchTokens(query);
+  const words = combinedSearchTokens(query, originalQuery, device?.originalQuery);
   if (words.length === 0) return { items: [], total: 0 };
 
-  const orFilter = buildIndexedSearchOrFilter(query);
+  const orFilter = buildCombinedSearchOrFilter(query, originalQuery, device?.originalQuery);
 
   const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
   const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 1;
@@ -1559,15 +1610,7 @@ async function loadSearchResultsFromDatabasePaged(
 
     // Same word-overlap relevance ranking as the legacy supplement leg, applied
     // across the WHOLE deep window so the device sequence is relevance-ordered.
-    const queryWords = words;
-    results.sort((a, b) => {
-      const aLower = a.name.toLowerCase();
-      const bLower = b.name.toLowerCase();
-      const aMatches = queryWords.filter((w) => wordInTitle(aLower, w)).length;
-      const bMatches = queryWords.filter((w) => wordInTitle(bLower, w)).length;
-      if (aMatches !== bMatches) return bMatches - aMatches;
-      return b.discount - a.discount || a.price - b.price;
-    });
+    sortByCombinedRelevance(results, query, originalQuery ?? device?.originalQuery);
 
     const start = Math.min(results.length, safeOffset);
     return {
@@ -1609,15 +1652,7 @@ async function loadSearchResultsFromDatabasePaged(
 
   // Same word-overlap relevance ranking as the legacy supplement leg, applied
   // within the deterministic page window.
-  const queryWords = words;
-  results.sort((a, b) => {
-    const aLower = a.name.toLowerCase();
-    const bLower = b.name.toLowerCase();
-    const aMatches = queryWords.filter((w) => wordInTitle(aLower, w)).length;
-    const bMatches = queryWords.filter((w) => wordInTitle(bLower, w)).length;
-    if (aMatches !== bMatches) return bMatches - aMatches;
-    return b.discount - a.discount || a.price - b.price;
-  });
+  sortByCombinedRelevance(results, query, originalQuery ?? device?.originalQuery);
 
   return { items: results.slice(0, safeLimit), total };
 }

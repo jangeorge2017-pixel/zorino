@@ -6,6 +6,7 @@ import { ComparePricesButton } from "@/components/PriceComparisonTable";
 
 type ProductCardActionsProps = {
   productId: string;
+  productName?: string;
   shopHref?: string;
   showShop?: boolean;
   compareOnly?: boolean;
@@ -16,6 +17,7 @@ type ProductCardActionsProps = {
 /** Shop Now primary + Compare Prices secondary, or Compare Prices only (reference deals). */
 export default function ProductCardActions({
   productId,
+  productName,
   shopHref,
   showShop = true,
   compareOnly = false,
@@ -45,7 +47,11 @@ export default function ProductCardActions({
             <ExternalLink size={16} />
           </a>
         ) : null}
-        <ComparePricesButton productId={productId} className="home-compare-btn" />
+        <ComparePricesButton
+          productId={productId}
+          productName={productName}
+          className="home-compare-btn"
+        />
       </div>
       <p className="product-card-disclosure">
         {t("affiliateDisclosure")}

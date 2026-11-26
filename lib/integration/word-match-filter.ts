@@ -145,6 +145,47 @@ export function buildFuzzyIlikeOrFilter(query: string): string {
     .join(",");
 }
 
+const COMBINED_SEARCH_FILTER_LIMIT = 64;
+
+export function buildCombinedSearchOrFilter(
+  ...queries: ReadonlyArray<string | undefined>
+): string {
+  const variants: string[] = [];
+  const seen = new Set<string>();
+
+  for (const query of queries) {
+    if (!query?.trim()) continue;
+    for (const group of queryTokenGroups(query)) {
+      for (const rawVariant of group.variants) {
+        const variant = rawVariant.trim();
+        if (!variant || seen.has(variant)) continue;
+        seen.add(variant);
+        variants.push(variant);
+        if (variants.length >= COMBINED_SEARCH_FILTER_LIMIT) {
+          return variants
+            .map((token) => `product_name.ilike.%${escapeIlikeToken(token)}%`)
+            .join(",");
+        }
+      }
+    }
+  }
+
+  return variants
+    .map((token) => `product_name.ilike.%${escapeIlikeToken(token)}%`)
+    .join(",");
+}
+
+export function combinedSearchTokens(
+  ...queries: ReadonlyArray<string | undefined>
+): string[] {
+  const tokens = new Set<string>();
+  for (const query of queries) {
+    if (!query?.trim()) continue;
+    for (const token of querySearchTokens(query)) tokens.add(token);
+  }
+  return [...tokens];
+}
+
 /**
  * Escape a token for use in ILIKE pattern (% and _ are wildcards in ILIKE).
  */

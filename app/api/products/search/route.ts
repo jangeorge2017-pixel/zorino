@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { searchProductsSurface } from "@/lib/canonical/consumption/search";
 import { translateSearchQuery } from "@/lib/search/query-translation";
+import { buildCombinedSearchOrFilter } from "@/lib/integration/word-match-filter";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { ListingCondition } from "@/lib/search/types";
 
@@ -74,7 +75,14 @@ export async function GET(req: NextRequest) {
 
   try {
     // Primary: full search engine with translated query
-    let results = await searchProductsSurface(searchQuery, MAX_SEARCH_LIMIT);
+    let results = await searchProductsSurface(
+      searchQuery,
+      MAX_SEARCH_LIMIT,
+      undefined,
+      undefined,
+      wasTranslated,
+      q,
+    );
 
     // Fallback 1: if translated search empty and query was translated, try original query
     const hasData = Array.isArray(results) && results.length > 0;
@@ -89,11 +97,12 @@ export async function GET(req: NextRequest) {
     if (!hasData) {
       const supabase = createSupabaseAnonClient();
       if (supabase) {
+        const combinedFilter = buildCombinedSearchOrFilter(searchQuery, q);
         let query = supabase
           .from("lowest_prices_today")
           .select(PRODUCT_SEARCH_SELECT)
-          .ilike("product_name", `%${searchQuery}%`)
           .limit(MAX_SEARCH_LIMIT);
+        if (combinedFilter) query = query.or(combinedFilter);
 
         // Apply sanitized filters if present
         if (storeParam) query = query.or(`provider.ilike.%${storeParam}%,store_name.ilike.%${storeParam}%`);

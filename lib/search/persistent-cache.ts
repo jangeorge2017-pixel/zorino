@@ -49,6 +49,7 @@ function lowRamSearchOptions(options: PersistentSearchOptions) {
     sortBy: options.sortBy,
     ...(options.activeCurrency ? { activeCurrency: options.activeCurrency } : {}),
     ...(options.useFuzzyMatch ? { useFuzzyMatch: true } : {}),
+    ...(options.originalQuery ? { originalQuery: options.originalQuery } : {}),
     lowRam: true as const,
     providerTimeoutMs: LOW_RAM_PROVIDER_TIMEOUT_MS,
     providerConcurrency: LOW_RAM_PROVIDER_CONCURRENCY,

@@ -181,6 +181,7 @@ export default function ListingProductCard({
 
       <ProductCardActions
         productId={product.id}
+        productName={product.name}
         shopHref={shopHref}
         shopExternal={Boolean(shopHref)}
       />

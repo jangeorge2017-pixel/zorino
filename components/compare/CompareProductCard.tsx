@@ -43,7 +43,10 @@ export default function CompareProductCard({
           />
         </div>
         <div className="zor-compare-page__card-copy">
-          <Link href={`/product/${item.product.id}#compare-prices`} className="zor-compare-page__card-title">
+          <Link
+            href={item.detailHref || `/product/${item.product.id}#compare-prices`}
+            className="zor-compare-page__card-title"
+          >
             {item.product.name}
           </Link>
           <p className="zor-compare-page__card-meta-line">
@@ -64,7 +67,10 @@ export default function CompareProductCard({
 
       <PriceComparisonTable offers={item.offers} productId={item.product.id} />
 
-      <Link href={`/product/${item.product.id}#compare-prices`} className="zor-compare-page__card-link">
+      <Link
+        href={item.detailHref || `/product/${item.product.id}#compare-prices`}
+        className="zor-compare-page__card-link"
+      >
         <Button variant="outline" size="sm" className="w-full">
           {viewLabelText}
           <ArrowRight size={14} aria-hidden />

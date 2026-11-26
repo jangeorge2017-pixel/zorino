@@ -237,6 +237,7 @@ export default function HomeProductCard({
 
       <ProductCardActions
         productId={productId}
+        productName={name}
         shopHref={shopHref}
         shopExternal={shopExternal}
         onShopClick={onShopClick}

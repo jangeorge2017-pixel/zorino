@@ -1,8 +1,15 @@
 import type { CompareProductResult, CompareOffer } from "@/services/compare";
 import type { SearchResultItem } from "@/lib/data/homepage";
+import type { Product } from "@/lib/types/entities";
 import { searchProducts } from "@/lib/search/engine";
 import { buildStore } from "@/lib/data/marketplace-product-detail";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
+import {
+  buildSmartModelQuery,
+  smartMatchScore,
+} from "@/lib/search/model-matcher";
+import { clusterSignature } from "@/lib/search/cluster";
+import { normalizeText } from "@/lib/search/text-normalization";
 
 /**
  * Multi-store comparison enrichment.
@@ -400,4 +407,164 @@ export async function enrichCompareResults(
       enrichCompareResult(r).catch(() => r),
     ),
   );
+}
+
+export async function collectMatchingListingsAcrossStores(
+  query: string,
+  limit = 60,
+): Promise<SearchResultItem[]> {
+  const smartQuery = buildSmartModelQuery(query) || query.trim();
+  if (!smartQuery) return [];
+
+  const [live, imported] = await Promise.all([
+    searchProductsWithinDeadline(smartQuery, limit).catch(() => [] as SearchResultItem[]),
+    import("@/lib/integration/database-catalog")
+      .then((mod) =>
+        mod.getSearchResultsFromDatabase(smartQuery, limit, {
+          originalQuery: query,
+        }),
+      )
+      .catch(() => [] as SearchResultItem[]),
+  ]);
+
+  const seen = new Set<string>();
+  const matched: SearchResultItem[] = [];
+  for (const item of [...live, ...imported]) {
+    if (!item.name || item.price <= 0) continue;
+    if (!isValidProductDestinationUrl(item.affiliateUrl)) continue;
+    if (smartMatchScore(query, item.name) <= 0) continue;
+    const key = `${item.storeSlug || item.store}|${normalizeText(item.name)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    matched.push(item);
+  }
+
+  return matched.sort(
+    (a, b) =>
+      smartMatchScore(query, b.name) - smartMatchScore(query, a.name) ||
+      a.price - b.price,
+  );
+}
+
+function productFromSearchItem(item: SearchResultItem): Product {
+  const signature = clusterSignature(item.name);
+  return {
+    id: item.id,
+    name: item.name,
+    nameAr: null,
+    slug: item.id,
+    description: null,
+    imageUrl: item.imageSrc,
+    emoji: item.emoji || null,
+    categorySlug: item.category || null,
+    brand: signature.brand,
+    rating: item.rating ?? null,
+    reviewCount: item.reviewCount ?? 0,
+    currency: item.currency ?? "USD",
+    countryCode: item.countryCode ?? null,
+    inStock: item.inStock,
+    tags: [],
+    isActive: true,
+    lastSyncedAt: new Date().toISOString(),
+    affiliateUrl: item.affiliateUrl,
+  };
+}
+
+function summarizeCompareGroup(
+  product: Product,
+  offers: CompareOffer[],
+  detailHref?: string,
+): CompareProductResult {
+  const sorted = [...offers].sort((a, b) => a.price - b.price);
+  const lowest = sorted[0];
+  const highest = sorted[sorted.length - 1];
+  const maxDiscount = Math.max(...sorted.map((offer) => offer.discountPercent));
+  const highestDiscountOffer = sorted.reduce((best, offer) =>
+    offer.discountPercent > best.discountPercent ? offer : best,
+  );
+
+  for (const offer of sorted) {
+    offer.isLowest = offer.id === lowest.id;
+    offer.isHighestDiscount = maxDiscount > 0 && offer.discountPercent === maxDiscount;
+  }
+
+  return {
+    product,
+    offers: sorted,
+    lowestPrice: lowest.price,
+    highestPrice: highest.price,
+    highestDiscount: maxDiscount,
+    savingsVsHighest: Math.max(0, highest.price - lowest.price),
+    savingsPercent:
+      highest.price > lowest.price
+        ? Math.round(((highest.price - lowest.price) / highest.price) * 10000) / 100
+        : 0,
+    providerCount: new Set(
+      sorted.map((offer) => offer.provider ?? offer.store?.slug ?? offer.storeId),
+    ).size,
+    cheapestStoreName: lowest.store?.name ?? "",
+    highestDiscountStoreName: highestDiscountOffer.store?.name ?? "",
+    detailHref,
+  };
+}
+
+export async function compareProductsForQuery(
+  query: string,
+  maxGroups = 6,
+): Promise<CompareProductResult[]> {
+  const candidates = await collectMatchingListingsAcrossStores(query);
+  if (candidates.length === 0) return [];
+  if (candidates.length === 1) {
+    const detailHref = `/compare?q=${encodeURIComponent(query.trim())}`;
+    return [summarizeCompareGroup(
+      productFromSearchItem(candidates[0]),
+      [offerFromSearchItem(candidates[0], candidates[0].id)],
+      detailHref,
+    )];
+  }
+
+  const groups = new Map<string, SearchResultItem[]>();
+  for (const item of candidates) {
+    const signature = clusterSignature(item.name);
+    const key = signature.key || normalizeText(item.name);
+    const group = groups.get(key);
+    if (group) group.push(item);
+    else groups.set(key, [item]);
+  }
+
+  const results: CompareProductResult[] = [];
+  for (const group of groups.values()) {
+    group.sort(
+      (a, b) =>
+        smartMatchScore(query, b.name) - smartMatchScore(query, a.name) ||
+        a.price - b.price,
+    );
+    const representative = group[0];
+    const bestPerStore = new Map<string, SearchResultItem>();
+    for (const item of group) {
+      const storeSlug = item.storeSlug || item.store;
+      const existing = bestPerStore.get(storeSlug);
+      if (!existing || item.price < existing.price) bestPerStore.set(storeSlug, item);
+    }
+    const offers = [...bestPerStore.values()]
+      .map((item) => offerFromSearchItem(item, representative.id))
+      .sort((a, b) => a.price - b.price);
+    const detailQuery = buildSmartModelQuery(representative.name) || representative.name;
+    results.push(
+      summarizeCompareGroup(
+        productFromSearchItem(representative),
+        offers,
+        `/compare?q=${encodeURIComponent(detailQuery)}`,
+      ),
+    );
+  }
+
+  return results
+    .sort(
+      (a, b) =>
+        a.lowestPrice - b.lowestPrice ||
+        b.providerCount - a.providerCount ||
+        a.product.name.localeCompare(b.product.name),
+    )
+    .slice(0, maxGroups);
 }

@@ -76,7 +76,12 @@ export function setCanonicalSearchFetcherForTests(fetcher: CanonicalSearchFetche
   fetcherOverride = fetcher;
 }
 
-async function fetchCanonicalInputs(query: string, capped: number, useFuzzyMatch = false): Promise<{
+async function fetchCanonicalInputs(
+  query: string,
+  capped: number,
+  useFuzzyMatch = false,
+  originalQuery?: string,
+): Promise<{
   liveListings: RawProviderListing[];
   dbItems: SearchResultItem[];
   activeProviders: string[];
@@ -120,7 +125,10 @@ async function fetchCanonicalInputs(query: string, capped: number, useFuzzyMatch
 
   const [dbItems, activeProviders] = await Promise.all([
     (await import("@/lib/integration/database-catalog"))
-      .getSearchResultsFromDatabase(query.trim(), capped * 3, { useFuzzyMatch })
+      .getSearchResultsFromDatabase(query.trim(), capped * 3, {
+        useFuzzyMatch,
+        originalQuery,
+      })
       .catch(() => [] as SearchResultItem[]),
     getActiveProductionProviders().catch(() => []),
   ]);
@@ -287,6 +295,7 @@ export async function canonicalSearchProducts(
   sortBy?: SearchSortMode,
   activeCurrency?: CurrencyCode,
   useFuzzyMatch = false,
+  originalQuery?: string,
 ): Promise<SearchResultItem[]> {
   const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   if (!isSurfaceEnabled(SURFACE)) {
@@ -299,6 +308,7 @@ export async function canonicalSearchProducts(
         sortBy,
         activeCurrency: guardCurrency,
         useFuzzyMatch,
+        originalQuery,
       };
       const cached = await getCachedSearchResult(query, limit, cacheOptions);
       if (cached) return cached;
@@ -312,6 +322,7 @@ export async function canonicalSearchProducts(
       sortBy,
       ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
       ...(useFuzzyMatch ? { useFuzzyMatch } : {}),
+      ...(originalQuery ? { originalQuery } : {}),
     });
   }
 
@@ -320,12 +331,12 @@ export async function canonicalSearchProducts(
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
 
   const sort = sortBy ?? "relevance";
-  const cacheKey = `canonical-search:${getSearchCacheVersion()}:${trimmed.toLowerCase()}:${capped}:sort:${sort}:cur:${guardCurrency}:fuzzy:${useFuzzyMatch}`;
+  const cacheKey = `canonical-search:${getSearchCacheVersion()}:${trimmed.toLowerCase()}:${capped}:sort:${sort}:cur:${guardCurrency}:fuzzy:${useFuzzyMatch}${originalQuery ? `:orig:${originalQuery.trim().toLowerCase()}` : ""}`;
   const cached = canSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.items.slice(0, capped);
 
   try {
-    const inputs = await fetchCanonicalInputs(trimmed, capped, useFuzzyMatch);
+    const inputs = await fetchCanonicalInputs(trimmed, capped, useFuzzyMatch, originalQuery);
     const pooled = assembleCanonicalSearchPool({
       ...inputs,
       query: trimmed,
@@ -344,6 +355,7 @@ export async function canonicalSearchProducts(
         sortBy: sort,
         ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
         ...(useFuzzyMatch ? { useFuzzyMatch } : {}),
+        ...(originalQuery ? { originalQuery } : {}),
       });
       if (legacy.length > 0) {
         setCanonicalSearchCache(cacheKey, {
@@ -366,6 +378,7 @@ export async function canonicalSearchProducts(
       sortBy: sort,
       ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
       ...(useFuzzyMatch ? { useFuzzyMatch } : {}),
+      ...(originalQuery ? { originalQuery } : {}),
     });
   }
 }
@@ -377,13 +390,21 @@ export async function searchProductsSurface(
   sortBy?: SearchSortMode,
   activeCurrency?: CurrencyCode,
   useFuzzyMatch = false,
+  originalQuery?: string,
 ): Promise<SearchResultItem[]> {
   // Guard math defaults to USD (classic engine behavior); DISPLAY honors the
   // visitor's active currency, falling back to the EGP legacy when no currency
   // context is supplied (homepage/compare/category callers pass none today).
   const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   const displayCurrency: CurrencyCode = activeCurrency ?? DISPLAY_CURRENCY;
-  const items = await canonicalSearchProducts(query, limit, sortBy, guardCurrency, useFuzzyMatch);
+  const items = await canonicalSearchProducts(
+    query,
+    limit,
+    sortBy,
+    guardCurrency,
+    useFuzzyMatch,
+    originalQuery,
+  );
   // Display seam: convert source currency to the visitor's ACTIVE currency so
   // formatPrice() (which is called WITHOUT fromCurrency) renders the real
   // number, not raw digits wearing a mismatched label. Engine/pool math keeps
@@ -407,9 +428,10 @@ type PooledPageInput = {
   offset: number;
   limit: number;
   deviceIntent: boolean;
-  deviceLeg?: { query: string; activeCurrency: CurrencyCode };
+  deviceLeg?: { query: string; activeCurrency: CurrencyCode; originalQuery?: string };
   displayCurrency: CurrencyCode;
   guardCurrency: CurrencyCode;
+  originalQuery?: string;
 };
 
 /**
@@ -447,6 +469,7 @@ async function resolvePooledPagedResult(
       {
         timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
         excludeProductIds: selection.excludeProductIds,
+        originalQuery: input.originalQuery,
         ...(input.deviceLeg ? { device: input.deviceLeg } : {}),
       },
     ),
@@ -499,6 +522,7 @@ export async function searchResultsPagedSurface(
   sortBy?: SearchSortMode,
   activeCurrency?: CurrencyCode,
   useFuzzyMatch = false,
+  originalQuery?: string,
 ): Promise<SearchPageResult> {
   const guardCurrency: CurrencyCode = activeCurrency ?? "USD";
   const displayCurrency: CurrencyCode = activeCurrency ?? DISPLAY_CURRENCY;
@@ -520,18 +544,20 @@ export async function searchResultsPagedSurface(
     if (isPersistentSearchCacheEnabled()) {
       const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
       const deviceLeg = deviceIntent
-        ? { query: trimmed, activeCurrency: guardCurrency }
+        ? { query: trimmed, activeCurrency: guardCurrency, originalQuery }
         : undefined;
       const cacheOptions = {
         sortBy,
         activeCurrency: guardCurrency,
         useFuzzyMatch,
+        originalQuery,
       };
       const dbModule = import("@/lib/integration/database-catalog");
       const dbCountPromise = dbModule
         .then((m) =>
           m.countSearchResultsFromDatabase(trimmed, {
             timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+            originalQuery,
             ...(deviceLeg ? { device: deviceLeg } : {}),
           }),
         )
@@ -559,6 +585,7 @@ export async function searchResultsPagedSurface(
         deviceLeg,
         displayCurrency,
         guardCurrency,
+        originalQuery,
       });
     }
 
@@ -568,6 +595,7 @@ export async function searchResultsPagedSurface(
       sortBy,
       ...(activeCurrency ? { activeCurrency: guardCurrency } : {}),
       ...(useFuzzyMatch ? { useFuzzyMatch } : {}),
+      ...(originalQuery ? { originalQuery } : {}),
     });
     return { ...page, items: toDisplayCurrency(page.items, displayCurrency) };
   }
@@ -587,7 +615,7 @@ export async function searchResultsPagedSurface(
   // so `total`/`hasMore` describe the reachable genuine-device sequence.
   const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
   const deviceLeg = deviceIntent
-    ? { query: trimmed, activeCurrency: guardCurrency }
+    ? { query: trimmed, activeCurrency: guardCurrency, originalQuery }
     : undefined;
 
   const dbModule = import("@/lib/integration/database-catalog");
@@ -595,6 +623,7 @@ export async function searchResultsPagedSurface(
     .then((m) =>
       m.countSearchResultsFromDatabase(trimmed, {
         timeoutMs: PROVIDER_FETCH_TIMEOUT_MS,
+        originalQuery,
         ...(deviceLeg ? { device: deviceLeg } : {}),
       }),
     )
@@ -604,6 +633,8 @@ export async function searchResultsPagedSurface(
     SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
     sortBy,
     guardCurrency,
+    useFuzzyMatch,
+    originalQuery,
   );
 
   return resolvePooledPagedResult({
@@ -617,5 +648,6 @@ export async function searchResultsPagedSurface(
     deviceLeg,
     displayCurrency,
     guardCurrency,
+    originalQuery,
   });
 }

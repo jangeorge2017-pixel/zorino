@@ -83,6 +83,7 @@ export type GlobalSearchOptions = {
   providerConcurrency?: number;
   /** Raw listings kept per source in low-RAM mode (default: engine max). */
   maxListingsPerProvider?: number;
+  originalQuery?: string;
 };
 
 const FAIR_SEARCH_TTL_MS = 2 * 60 * 1000;
@@ -337,6 +338,7 @@ async function fetchDbSupplementForSearch(
   cachedLimit: number,
   familyKeyword: string | undefined,
   useFuzzyMatch = false,
+  originalQuery?: string,
 ): Promise<SearchResultItem[]> {
   const limit = cachedLimit * 3;
   const loadDbCatalog = () => import("@/lib/integration/database-catalog");
@@ -345,6 +347,7 @@ async function fetchDbSupplementForSearch(
       .getSearchResultsFromDatabase(query, limit, {
         timeoutMs: DB_SUPPLEMENT_TIMEOUT_MS,
         useFuzzyMatch,
+        originalQuery,
       })
       .catch(() => [] as SearchResultItem[]),
   );
@@ -354,6 +357,7 @@ async function fetchDbSupplementForSearch(
           .getSearchResultsFromDatabase(familyKeyword, limit, {
             timeoutMs: DB_SUPPLEMENT_TIMEOUT_MS,
             useFuzzyMatch,
+            originalQuery,
           })
           .catch(() => [] as SearchResultItem[]),
       )
@@ -714,6 +718,7 @@ export async function searchProducts(
     providerTimeoutMs?: number;
     providerConcurrency?: number;
     maxListingsPerProvider?: number;
+    originalQuery?: string;
   },
 ): Promise<SearchResultItem[]> {
   const capped = Math.min(limit, SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT);
@@ -724,13 +729,14 @@ export async function searchProducts(
   const sortBy: SearchSortMode = options?.sortBy ?? "relevance";
   const activeCurrency: CurrencyCode = options?.activeCurrency ?? "USD";
   const useFuzzyMatch = options?.useFuzzyMatch === true;
+  const originalQuery = options?.originalQuery?.trim();
   // Separate cache namespaces per mode + sort so a price-sorted pool can never
   // be served to (or evict) the relevance pool for the same query. The ACTIVE
   // currency is part of the key too: the strict device floor lives in the
   // visitor's currency (US$150 vs â‰ˆ7500 EGP), so a USD-mode pool never serves
   // an EGP-mode visitor who may legitimately hold different inventory.
   const cacheKey = `prod-v21-device-pool:${getSearchCacheVersion()}:${trimmed
-    .toLowerCase()}:${capped}${optimizeForDeviceIntent ? ":device-opt" : ""}:sort:${sortBy}:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}`;
+    .toLowerCase()}:${capped}${optimizeForDeviceIntent ? ":device-opt" : ""}:sort:${sortBy}:cur:${activeCurrency}:fuzzy:${useFuzzyMatch}${originalQuery ? `:orig:${originalQuery.toLowerCase()}` : ""}`;
   const cached = fairSearchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.items.slice(0, capped);
@@ -768,7 +774,13 @@ export async function searchProducts(
     PRODUCTION_PROVIDER_IDS,
   );
   const dbSupplementPromise = withLaneTimeout(
-    fetchDbSupplementForSearch(trimmed, capped, canonicalFamilyKeyword, useFuzzyMatch),
+    fetchDbSupplementForSearch(
+      trimmed,
+      capped,
+      canonicalFamilyKeyword,
+      useFuzzyMatch,
+      originalQuery,
+    ),
     DB_LANE_TIMEOUT_MS,
     [] as SearchResultItem[],
   );
@@ -780,6 +792,7 @@ export async function searchProducts(
           trimmed,
           capped,
           DB_FAST_LANE_TIMEOUT_MS,
+          originalQuery,
         )
         .catch(() => [] as SearchResultItem[]),
     ),
@@ -1125,6 +1138,7 @@ export async function searchProductsPaged(
     sortBy?: SearchSortMode;
     activeCurrency?: CurrencyCode;
     useFuzzyMatch?: boolean;
+    originalQuery?: string;
   }
 ): Promise<SearchPageResult> {
   const trimmed = query.trim();
@@ -1147,8 +1161,9 @@ export async function searchProductsPaged(
     analyzeSearchQueryIntent(trimmed).kind === "device";
   const searchCurrency = options?.activeCurrency ?? "USD";
   const useFuzzyMatch = options?.useFuzzyMatch === true;
+  const originalQuery = options?.originalQuery?.trim();
   const deviceLeg = deviceIntent
-    ? { query: trimmed, activeCurrency: searchCurrency }
+    ? { query: trimmed, activeCurrency: searchCurrency, originalQuery }
     : undefined;
 
   const dbModule = import("@/lib/integration/database-catalog");
@@ -1161,6 +1176,7 @@ export async function searchProductsPaged(
     dbModule.then((m) =>
       m.countSearchResultsFromDatabase(trimmed, {
         timeoutMs: providerFetchTimeoutMs,
+        originalQuery,
         ...(deviceLeg ? { device: deviceLeg } : {}),
       }),
     ),
@@ -1214,6 +1230,7 @@ export async function searchProductsPaged(
       {
         timeoutMs: providerFetchTimeoutMs,
         excludeProductIds: selection.excludeProductIds,
+        originalQuery,
         ...(deviceLeg ? { device: deviceLeg } : {}),
       },
     ),

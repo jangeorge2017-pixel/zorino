@@ -34,7 +34,14 @@ export async function GET(req: NextRequest) {
 
   const country = detectCountryFromHeaders(req);
   const currencyCode = resolveCurrencyForRequest(req, country) as CurrencyCode;
-  const page = await getSearchResultsPage(searchQuery, 0, limit, "relevance", currencyCode);
+  const page = await getSearchResultsPage(
+    searchQuery,
+    0,
+    limit,
+    "relevance",
+    currencyCode,
+    trimmed,
+  );
 
   const cards = page.items
     .map((item) => ({ item, card: item.productCard ?? toProductCard(item) }))

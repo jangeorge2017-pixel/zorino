@@ -59,6 +59,7 @@ export type PersistentSearchOptions = {
   sortBy?: SearchSortMode;
   activeCurrency?: CurrencyCode;
   useFuzzyMatch?: boolean;
+  originalQuery?: string;
 };
 
 export type PersistentSearchEntry = {
@@ -80,7 +81,8 @@ export function buildPersistentSearchKey(
   const currency = options.activeCurrency ?? "USD";
   const sort = options.sortBy ?? "relevance";
   const fuzzy = options.useFuzzyMatch === true ? "1" : "0";
-  return `${getSearchCacheVersion()}|${normalized}|sort:${sort}|cur:${currency}|fuzzy:${fuzzy}`;
+  const original = options.originalQuery?.trim().toLowerCase().replace(/\s+/g, " ") ?? "";
+  return `${getSearchCacheVersion()}|${normalized}|sort:${sort}|cur:${currency}|fuzzy:${fuzzy}|orig:${original}`;
 }
 
 export function isPersistentSearchEntryStale(fetchedAt: string): boolean {

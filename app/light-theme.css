@@ -1587,3 +1587,74 @@ html[data-theme="light"]:has(.zor-page-state--404) .zor-nav__logo-lockup {
     max-height: 82px !important;
   }
 }
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .zh-page .zh-trending-deals__head,
+  .zh-page .zh-section-header.zh-trending-deals__head {
+    overflow: visible !important;
+    padding-top: 12px !important;
+  }
+
+  .zh-page #zh-deals-title,
+  .zh-page .zh-section-header__title,
+  .zh-page .zh-section-head__title,
+  .zh-page .zor-deals-page__section-title {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding-top: 0.16em !important;
+    padding-bottom: 0.14em !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    line-height: 1.45 !important;
+  }
+
+  .zh-page .zh-section-header__copy {
+    min-height: 0 !important;
+  }
+
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"])
+    .zh-page
+    .zh-trending-deals
+    .deal-pricing,
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"])
+    .zh-page
+    .zh-trending-deals
+    .zh-td-card__prices {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: baseline !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    overflow: visible !important;
+  }
+
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"])
+    .zh-page
+    .zh-trending-deals
+    .deal-original,
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"])
+    .zh-page
+    .zh-trending-deals
+    .deal-was,
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"])
+    .zh-page
+    .zh-trending-deals
+    .lowest-price-original,
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"])
+    .zh-page
+    .zh-trending-deals
+    .zh-td-card__was {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
+    text-decoration: line-through !important;
+    text-decoration-color: #64748b !important;
+    text-decoration-thickness: 1px !important;
+    white-space: nowrap !important;
+  }
+}

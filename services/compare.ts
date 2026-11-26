@@ -38,6 +38,7 @@ export type CompareProductResult = {
   providerCount: number;
   cheapestStoreName: string;
   highestDiscountStoreName: string;
+  detailHref?: string | null;
 };
 
 type ExternalPriceRow = {

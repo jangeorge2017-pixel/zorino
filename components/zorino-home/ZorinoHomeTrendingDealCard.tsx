@@ -8,6 +8,7 @@ import TrendingDealBadge from "@/components/zorino-home/TrendingDealBadge";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { TrendingDealCard } from "@/lib/types/entities";
 import type { TrendingDealDisplayBadge } from "@/lib/zorino-home/trending-deals-section";
+import { buildSmartModelQuery } from "@/lib/search/model-matcher";
 import "./ZorinoHomeTrendingDealCard.css";
 
 type ZorinoHomeTrendingDealCardProps = {
@@ -22,7 +23,10 @@ export default function ZorinoHomeTrendingDealCard({
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
   const { formatPrice } = useIntlPreferences();
-  const compareHref = deal.productId ? `/product/${deal.productId}` : "/deals";
+  const compareQuery = buildSmartModelQuery(deal.name) || deal.name;
+  const compareHref = compareQuery
+    ? `/compare?q=${encodeURIComponent(compareQuery)}`
+    : "/deals";
   const hasDiscount = deal.discount > 0 && deal.originalPrice > deal.price;
 
   return (

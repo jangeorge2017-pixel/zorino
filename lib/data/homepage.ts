@@ -386,17 +386,26 @@ export async function getSearchResults(
   query: string,
   sort?: "relevance" | "price",
   activeCurrency?: CurrencyCode,
+  originalQuery?: string,
 ): Promise<SearchResultItem[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
   // Detect and translate Arabic/Franco-Arab queries to English for searching
   const { translateSearchQuery } = await import("@/lib/search/query-translation");
-  const { translatedQuery, wasTranslated } = await translateSearchQuery(trimmed);
+  const { translatedQuery, wasTranslated, originalQuery: translatedOriginal } =
+    await translateSearchQuery(trimmed);
   const searchQuery = translatedQuery || trimmed;
 
   const { searchProductsSurface } = await import("@/lib/canonical/consumption/search");
-  return searchProductsSurface(searchQuery, undefined, sort, activeCurrency, wasTranslated);
+  return searchProductsSurface(
+    searchQuery,
+    undefined,
+    sort,
+    activeCurrency,
+    wasTranslated,
+    originalQuery || translatedOriginal || trimmed,
+  );
 }
 
 /** Paged search results for the /search page "Load more" flow. */
@@ -406,14 +415,24 @@ export async function getSearchResultsPage(
   limit: number,
   sort?: "relevance" | "price",
   activeCurrency?: CurrencyCode,
+  originalQuery?: string,
 ) {
   // Detect and translate Arabic/Franco-Arab queries to English for searching
   const { translateSearchQuery } = await import("@/lib/search/query-translation");
-  const { translatedQuery, wasTranslated } = await translateSearchQuery(query.trim());
+  const { translatedQuery, wasTranslated, originalQuery: translatedOriginal } =
+    await translateSearchQuery(query.trim());
   const searchQuery = translatedQuery || query.trim();
 
   const { searchResultsPagedSurface } = await import("@/lib/canonical/consumption/search");
-  return searchResultsPagedSurface(searchQuery, offset, limit, sort, activeCurrency, wasTranslated);
+  return searchResultsPagedSurface(
+    searchQuery,
+    offset,
+    limit,
+    sort,
+    activeCurrency,
+    wasTranslated,
+    originalQuery || translatedOriginal || query.trim(),
+  );
 }
 
 /** Filter options for search page — derived from live search results across all active providers. */
