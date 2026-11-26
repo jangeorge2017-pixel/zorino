@@ -213,7 +213,7 @@ html.light .zh-page .zh-page__background::before {
       transparent 65%,
       rgba(2, 132, 199, 0.15) 66%,
       transparent 68%
-    );
+    ) !important;
   background-color: transparent !important;
   -webkit-mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%);
   mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%);
@@ -908,7 +908,7 @@ html body .product-card-badge--featured {
       transparent 65%,
       rgba(2, 132, 199, 0.15) 66%,
       transparent 68%
-    );
+    ) !important;
   background-color: transparent !important;
   -webkit-mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%);
   mask-image: radial-gradient(ellipse at center, black 55%, transparent 100%);
