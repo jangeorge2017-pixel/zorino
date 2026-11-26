@@ -1439,9 +1439,25 @@ html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .z
   max-width: 100% !important;
   overflow-wrap: anywhere !important;
 }
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions-group,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions-dual,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions-single,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .listing-secondary-actions {
   box-sizing: border-box !important;
   width: 100% !important;
   max-width: 100% !important;
+  min-width: 0 !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions-dual,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions-single {
+  grid-template-columns: 1fr !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions > * {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
 }
