@@ -1658,3 +1658,41 @@ html[data-theme="light"]:has(.zor-page-state--404) .zor-nav__logo-lockup {
     white-space: nowrap !important;
   }
 }
+
+:is(html.light, html[data-theme="light"], [data-theme="light"])
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]),
+    select,
+    .zor-input,
+    .zor-select
+  ) {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
+  opacity: 1 !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"])
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]),
+    select,
+    .zor-input,
+    .zor-select
+  )::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}

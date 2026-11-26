@@ -54,6 +54,20 @@ const ARABIC_SPELLINGS: Record<string, readonly string[]> = {
   ه: ["ه", "ة"],
 };
 
+const BILINGUAL_SEARCH_ALIASES: Readonly<Record<string, readonly string[]>> = {
+  ثلاجه: ["refrigerator", "fridge", "freezer"],
+  ثلاجة: ["refrigerator", "fridge", "freezer"],
+  ميكرويف: ["microwave"],
+  مايكرويف: ["microwave"],
+  مايكروويف: ["microwave"],
+  غساله: ["washing machine"],
+  غسالة: ["washing machine"],
+  مكنسه: ["vacuum"],
+  مكنسة: ["vacuum"],
+  تلفاز: ["television", "tv"],
+  تلفزيون: ["television", "tv"],
+};
+
 /**
  * All orthographic spellings of one (already-normalised) token: "ايفون" →
  * ايفون/أيفون/إيفون/آيفون (+ yeh variants). Bound-checked to avoid blow-up.
@@ -94,6 +108,12 @@ export function queryTokenGroups(query: string): Array<{ token: string; variants
       for (const v of expandQueryToken(spelling)) variants.add(v);
     }
     for (const v of expandQueryToken(token)) variants.add(v);
+    for (const alias of BILINGUAL_SEARCH_ALIASES[token] ?? []) {
+      for (const aliasToken of tokenize(alias)) {
+        variants.add(aliasToken);
+        for (const v of expandQueryToken(aliasToken)) variants.add(v);
+      }
+    }
     return { token, variants: [...variants] };
   });
 }
@@ -121,9 +141,7 @@ export function buildNormalizedSearchOrFilter(query: string): string {
 export function buildIndexedSearchOrFilter(query: string): string {
   const tokens = [...new Set(queryTokenGroups(query).map((group) => group.token))];
   if (tokens.length === 0) return "";
-  return tokens
-    .map((token) => `product_name.ilike.%${escapeIlikeToken(token)}%`)
-    .join(",");
+  return tokens.map(buildIlikeClause).join(",");
 }
 
 /**
@@ -138,11 +156,7 @@ export function buildIndexedSearchOrFilter(query: string): string {
 export function buildFuzzyIlikeOrFilter(query: string): string {
   const tokens = tokenize(query);
   if (tokens.length === 0) return "";
-  
-  // Each token becomes an ILIKE %term% clause
-  return tokens
-    .map((token) => `product_name.ilike.%${escapeIlikeToken(token)}%`)
-    .join(",");
+  return tokens.map(buildIlikeClause).join(",");
 }
 
 const COMBINED_SEARCH_FILTER_LIMIT = 64;
@@ -162,17 +176,13 @@ export function buildCombinedSearchOrFilter(
         seen.add(variant);
         variants.push(variant);
         if (variants.length >= COMBINED_SEARCH_FILTER_LIMIT) {
-          return variants
-            .map((token) => `product_name.ilike.%${escapeIlikeToken(token)}%`)
-            .join(",");
+          return variants.map(buildIlikeClause).join(",");
         }
       }
     }
   }
 
-  return variants
-    .map((token) => `product_name.ilike.%${escapeIlikeToken(token)}%`)
-    .join(",");
+  return variants.map(buildIlikeClause).join(",");
 }
 
 export function combinedSearchTokens(
@@ -181,7 +191,9 @@ export function combinedSearchTokens(
   const tokens = new Set<string>();
   for (const query of queries) {
     if (!query?.trim()) continue;
-    for (const token of querySearchTokens(query)) tokens.add(token);
+    for (const group of queryTokenGroups(query)) {
+      for (const token of group.variants) tokens.add(token);
+    }
   }
   return [...tokens];
 }
@@ -191,4 +203,12 @@ export function combinedSearchTokens(
  */
 function escapeIlikeToken(token: string): string {
   return token.replace(/[%_\\]/g, "\\$&");
+}
+
+function quotePostgrestValue(value: string): string {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+}
+
+function buildIlikeClause(token: string): string {
+  return `product_name.ilike.${quotePostgrestValue(`%${escapeIlikeToken(token)}%`)}`;
 }

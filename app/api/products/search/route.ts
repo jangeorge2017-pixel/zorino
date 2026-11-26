@@ -85,11 +85,12 @@ export async function GET(req: NextRequest) {
     );
 
     // Fallback 1: if translated search empty and query was translated, try original query
-    const hasData = Array.isArray(results) && results.length > 0;
+    let hasData = Array.isArray(results) && results.length > 0;
     if (!hasData && wasTranslated && searchQuery !== q) {
       const fallbackResults = await searchProductsSurface(q, MAX_SEARCH_LIMIT);
       if (fallbackResults.length > 0) {
         results = fallbackResults;
+        hasData = true;
       }
     }
 
