@@ -563,6 +563,63 @@ const STRICT_WASHING_DISALLOWED_TERMS: readonly string[] = [
   "خياطه",
 ];
 
+const STRICT_NON_PRODUCT_TITLE_TERMS: readonly string[] = [
+  "accessories",
+  "accessory",
+  "bag",
+  "brush",
+  "cover",
+  "covers",
+  "decor",
+  "egg",
+  "figure",
+  "filter",
+  "filters",
+  "holder",
+  "hose",
+  "knob",
+  "liner",
+  "liners",
+  "magnet",
+  "magnets",
+  "mat",
+  "miniature",
+  "mold",
+  "mould",
+  "mount",
+  "organizer",
+  "ornament",
+  "paper",
+  "part",
+  "parts",
+  "pipe",
+  "protector",
+  "rack",
+  "replacement",
+  "shelf",
+  "sleeve",
+  "spare",
+  "stand",
+  "steamer",
+  "sticker",
+  "stickers",
+  "tarpaulin",
+  "toy",
+  "tray",
+  "جراب",
+  "كفر",
+  "غلاف",
+  "غطاء",
+  "حامل",
+  "حمايه",
+  "لعبه",
+  "مجسم",
+  "ملصق",
+  "منظم",
+  "مغناطيس",
+  "قطعه",
+];
+
 const STRICT_ACCESSORY_QUERY_TERMS: readonly string[] = [
   "case",
   "cover",
@@ -684,30 +741,34 @@ export function strictTitleState(
   switch (intent.kind) {
     case "washing-machine": {
       if (strictHasAny(hay, STRICT_WASHING_DISALLOWED_TERMS)) return "rejected";
-      if (strictHasTerm(hay, "غساله")) return "tier1";
-      const washing = strictHasAny(hay, ["washing", "washer"]);
-      if (!washing) return "rejected";
-      return strictHasTerm(hay, "machine") || strictHasTerm(hay, "washer")
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
+      if (strictHasTerm(hay, "غساله") || strictHasTerm(hay, "washer")) return "tier1";
+      return strictHasTerm(hay, "washing") && strictHasTerm(hay, "machine")
         ? "tier1"
-        : "eligible";
+        : "rejected";
     }
     case "microwave":
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
       return strictHasAny(hay, ["microwave", "مايكرويف", "مايكروويف"])
         ? "tier1"
         : "rejected";
     case "refrigerator":
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
       return strictHasAny(hay, ["refrigerator", "fridge", "freezer", "ثلاجه"])
         ? "tier1"
         : "rejected";
     case "air-fryer": {
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
       if (!strictHasTerm(hay, "fryer")) return "rejected";
       return strictHasTerm(hay, "air") ? "tier1" : "eligible";
     }
     case "smart-tv":
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
       return strictHasAny(hay, ["tv", "television", "تلفاز", "تلفزيون"])
         ? "tier1"
         : "rejected";
     case "laptop":
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
       return strictHasAny(hay, ["laptop", "notebook", "لابتوب"])
         ? "tier1"
         : "rejected";

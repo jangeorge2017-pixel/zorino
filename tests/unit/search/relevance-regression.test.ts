@@ -68,9 +68,24 @@ describe("relevance — strict compound and accessory intent", () => {
       "Nespresso Coffee Machine",
       "Singer Sewing Machine",
       "Generic Machine",
+      "Front Automatic Washing Machine Cover Tarpaulin",
     ]) {
       expect(strictTitleState(title, intent!)).toBe("rejected");
     }
+  });
+
+  it("rejects accessory-style titles for appliance queries", () => {
+    const microwave = analyzeStrictIntent("مايكرويف")!;
+    const refrigerator = analyzeStrictIntent("ثلاجة")!;
+    expect(
+      strictTitleState("Portable Plastic Microwave Egg Steamer", microwave),
+    ).toBe("rejected");
+    expect(
+      strictTitleState(
+        "Totoro Anime Resin Fridge Magnet Sticker",
+        refrigerator,
+      ),
+    ).toBe("rejected");
   });
 
   it("requires an accessory term beside the Samsung Note model", () => {
