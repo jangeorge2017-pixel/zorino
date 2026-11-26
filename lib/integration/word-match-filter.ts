@@ -66,6 +66,16 @@ const BILINGUAL_SEARCH_ALIASES: Readonly<Record<string, readonly string[]>> = {
   مكنسة: ["vacuum"],
   تلفاز: ["television", "tv"],
   تلفزيون: ["television", "tv"],
+  جراب: ["case", "cover"],
+  كفر: ["case", "cover"],
+  غلاف: ["case", "cover"],
+  شاحن: ["charger"],
+  سامسونج: ["samsung"],
+  نوت: ["note"],
+  جالاكسي: ["galaxy"],
+  ايفون: ["iphone"],
+  ايباد: ["ipad"],
+  لابتوب: ["laptop"],
 };
 
 /**

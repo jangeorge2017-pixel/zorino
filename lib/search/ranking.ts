@@ -1,4 +1,11 @@
-import { analyzeSearchListing, looksLikeAsin, queryWantsAccessory, type ProductMatchTier } from "@/lib/search/relevance";
+import {
+  analyzeSearchListing,
+  analyzeStrictIntent,
+  looksLikeAsin,
+  queryWantsAccessory,
+  strictTitleState,
+  type ProductMatchTier,
+} from "@/lib/search/relevance";
 import { normalizeRawListing } from "@/lib/search/normalization";
 import type {
   NormalizedSearchListing,
@@ -103,6 +110,7 @@ export function rankRawListings(
 ): NormalizedSearchListing[] {
   const { MIN_DEVICES_BEFORE_ACCESSORIES } = SEARCH_ENGINE_DEFAULTS;
   const wantsAccessory = queryWantsAccessory(query);
+  const strictIntent = analyzeStrictIntent(query);
 
   // ASIN queries: normal token-overlap fails (an ASIN code isn't a word found
   // in a product title), so listings whose externalId exactly equals the ASIN
@@ -113,14 +121,18 @@ export function rankRawListings(
 
   const analyzed = listings
     .map((raw) => {
+      const strictState = strictIntent
+        ? strictTitleState(raw.title, strictIntent)
+        : null;
+      if (strictState === "rejected") return null;
       if (asin && raw.externalId && raw.externalId.toUpperCase() === asin) {
         return normalizeRawListing(raw, { score: 1060, tier: "exact", isDevice: true });
       }
       const result = analyzeSearchListing(raw.title, query, { category: raw.category });
       if (result.tier === "none" || result.tier === "repair") return null;
       return normalizeRawListing(raw, {
-        score: result.score,
-        tier: result.tier,
+        score: result.score + (strictState === "tier1" ? 10000 : strictState ? 1000 : 0),
+        tier: strictState === "tier1" ? "exact" : result.tier,
         isDevice: result.isDevice,
       });
     })

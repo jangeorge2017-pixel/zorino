@@ -516,6 +516,231 @@ export function queryWantsAccessory(query: string): boolean {
   );
 }
 
+export type StrictIntentKind =
+  | "washing-machine"
+  | "microwave"
+  | "refrigerator"
+  | "air-fryer"
+  | "smart-tv"
+  | "laptop"
+  | "accessory-device";
+
+export type StrictTitleState = "tier1" | "eligible" | "rejected";
+
+export interface StrictIntent {
+  kind: StrictIntentKind;
+  accessoryTerms: readonly string[];
+  deviceTerms: readonly string[];
+}
+
+function strictNormalize(value: string): string {
+  return normalizeArabic(value)
+    .replace(/[\u0640]/g, "")
+    .replace(/[^a-z0-9\u0621-\u064A\u0660-\u0669\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function strictHasTerm(hay: string, term: string): boolean {
+  const normalizedTerm = strictNormalize(term);
+  if (!normalizedTerm) return false;
+  const boundary = "[^\\p{L}\\p{N}]";
+  return new RegExp(
+    `(?:^|${boundary})${escapeRegex(normalizedTerm)}(?:$|${boundary})`,
+    "iu",
+  ).test(hay);
+}
+
+function strictHasAny(hay: string, terms: readonly string[]): boolean {
+  return terms.some((term) => strictHasTerm(hay, term));
+}
+
+const STRICT_WASHING_DISALLOWED_TERMS: readonly string[] = [
+  "coffee",
+  "espresso",
+  "sewing",
+  "قهوه",
+  "خياطه",
+];
+
+const STRICT_ACCESSORY_QUERY_TERMS: readonly string[] = [
+  "case",
+  "cover",
+  "screen protector",
+  "protector",
+  "tempered glass",
+  "charger",
+  "cable",
+  "جراب",
+  "كفر",
+  "غلاف",
+  "شاحن",
+  "زجاج",
+  "حمايه شاشه",
+];
+
+const STRICT_ACCESSORY_TITLE_TERMS: readonly string[] = [
+  "case",
+  "cases",
+  "cover",
+  "covers",
+  "screen protector",
+  "protector",
+  "protectors",
+  "tempered glass",
+  "charger",
+  "chargers",
+  "cable",
+  "cables",
+  "جراب",
+  "كفر",
+  "غلاف",
+  "شاحن",
+  "زجاج",
+  "حمايه شاشه",
+];
+
+const STRICT_DEVICE_TITLE_TERMS: Record<string, readonly string[]> = {
+  iphone: ["iphone", "ايفون"],
+  samsung: ["samsung", "سامسونج"],
+  note: ["note", "نوت"],
+  galaxy: ["galaxy", "جالاكسي"],
+  macbook: ["macbook", "ماك بوك"],
+  laptop: ["laptop", "notebook", "لابتوب"],
+  ipad: ["ipad", "ايباد"],
+};
+
+function strictHasDeviceTerm(hay: string, term: string): boolean {
+  if (term === "note") {
+    const boundary = "[^\\p{L}\\p{N}]";
+    return new RegExp(`(?:^|${boundary})note\\s*\\d*(?:$|${boundary})`, "iu").test(
+      hay,
+    );
+  }
+  return strictHasAny(hay, STRICT_DEVICE_TITLE_TERMS[term] ?? [term]);
+}
+
+function strictDeviceTerms(query: string): string[] {
+  const terms: string[] = [];
+  if (strictHasAny(query, ["iphone", "ايفون"])) terms.push("iphone");
+  if (strictHasAny(query, ["samsung", "سامسونج"])) terms.push("samsung");
+  if (strictHasAny(query, ["note", "نوت"])) terms.push("note");
+  if (strictHasAny(query, ["galaxy", "جالاكسي"])) terms.push("galaxy");
+  if (strictHasAny(query, ["macbook", "ماك بوك"])) terms.push("macbook");
+  if (strictHasAny(query, ["laptop", "لابتوب"])) terms.push("laptop");
+  if (strictHasAny(query, ["ipad", "ايباد"])) terms.push("ipad");
+  return terms;
+}
+
+export function analyzeStrictIntent(
+  ...queries: ReadonlyArray<string | undefined>
+): StrictIntent | null {
+  for (const raw of queries) {
+    if (!raw?.trim()) continue;
+    const query = strictNormalize(raw);
+    if (!query) continue;
+
+    if (
+      strictHasTerm(query, "washing machine") ||
+      strictHasTerm(query, "غساله") ||
+      strictHasTerm(query, "washer")
+    ) {
+      return { kind: "washing-machine", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["microwave", "مايكرويف", "مايكروويف"])) {
+      return { kind: "microwave", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["refrigerator", "fridge", "freezer", "ثلاجه"])) {
+      return { kind: "refrigerator", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasTerm(query, "air fryer")) {
+      return { kind: "air-fryer", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["smart tv", "تلفاز", "تلفزيون"])) {
+      return { kind: "smart-tv", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["laptop", "لابتوب"])) {
+      return { kind: "laptop", accessoryTerms: [], deviceTerms: [] };
+    }
+
+    const accessoryTerms = STRICT_ACCESSORY_QUERY_TERMS.filter((term) =>
+      strictHasTerm(query, term),
+    );
+    const deviceTerms = strictDeviceTerms(query);
+    if (accessoryTerms.length > 0 && deviceTerms.length > 0) {
+      return { kind: "accessory-device", accessoryTerms, deviceTerms };
+    }
+  }
+  return null;
+}
+
+export function strictTitleState(
+  title: string,
+  intent: StrictIntent,
+): StrictTitleState {
+  const hay = strictNormalize(title);
+  if (!hay) return "rejected";
+
+  switch (intent.kind) {
+    case "washing-machine": {
+      if (strictHasAny(hay, STRICT_WASHING_DISALLOWED_TERMS)) return "rejected";
+      if (strictHasTerm(hay, "غساله")) return "tier1";
+      const washing = strictHasAny(hay, ["washing", "washer"]);
+      if (!washing) return "rejected";
+      return strictHasTerm(hay, "machine") || strictHasTerm(hay, "washer")
+        ? "tier1"
+        : "eligible";
+    }
+    case "microwave":
+      return strictHasAny(hay, ["microwave", "مايكرويف", "مايكروويف"])
+        ? "tier1"
+        : "rejected";
+    case "refrigerator":
+      return strictHasAny(hay, ["refrigerator", "fridge", "freezer", "ثلاجه"])
+        ? "tier1"
+        : "rejected";
+    case "air-fryer": {
+      if (!strictHasTerm(hay, "fryer")) return "rejected";
+      return strictHasTerm(hay, "air") ? "tier1" : "eligible";
+    }
+    case "smart-tv":
+      return strictHasAny(hay, ["tv", "television", "تلفاز", "تلفزيون"])
+        ? "tier1"
+        : "rejected";
+    case "laptop":
+      return strictHasAny(hay, ["laptop", "notebook", "لابتوب"])
+        ? "tier1"
+        : "rejected";
+    case "accessory-device": {
+      if (!strictHasAny(hay, STRICT_ACCESSORY_TITLE_TERMS)) return "rejected";
+      return intent.deviceTerms.every((term) => strictHasDeviceTerm(hay, term))
+        ? "tier1"
+        : "rejected";
+    }
+  }
+}
+
+export function strictTitleRank(
+  title: string,
+  intent: StrictIntent | null,
+): number {
+  if (!intent) return 0;
+  const state = strictTitleState(title, intent);
+  return state === "tier1" ? 2 : state === "eligible" ? 1 : 0;
+}
+
+export function filterStrictRelevantTitles<T>(
+  items: readonly T[],
+  queries: ReadonlyArray<string | undefined>,
+  getTitle: (item: T) => string,
+): T[] {
+  const intent = analyzeStrictIntent(...queries);
+  if (!intent) return [...items];
+  return items.filter(
+    (item) => strictTitleState(getTitle(item), intent) !== "rejected",
+  );
+}
+
 /**
  * True for display/panel listings that are spare parts, not whole devices.
  * Whole-device titles that merely name their panel spec ("MacBook Pro 13

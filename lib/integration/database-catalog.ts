@@ -48,7 +48,13 @@ import {
   isHandsetQuery,
   passesStrictDeviceGuard,
 } from "@/lib/search/accessory-exclusion";
-import { requiredBrandTokensForQuery } from "@/lib/search/relevance";
+import {
+  analyzeStrictIntent,
+  requiredBrandTokensForQuery,
+  strictTitleRank,
+  strictTitleState,
+  type StrictIntent,
+} from "@/lib/search/relevance";
 import {
   CATALOG_COUNT_FRESHNESS_MS,
   getCatalogCount,
@@ -96,12 +102,21 @@ function combinedRelevanceScore(
   return phraseScore + overlap * 10;
 }
 
+function passesStrictTitle(name: string, intent: StrictIntent | null): boolean {
+  return !intent || strictTitleState(name, intent) !== "rejected";
+}
+
 function sortByCombinedRelevance(
   results: SearchResultItem[],
   query: string,
   originalQuery?: string,
 ): void {
+  const strictIntent = analyzeStrictIntent(query, originalQuery);
   results.sort((a, b) => {
+    const strictDelta = strictIntent
+      ? strictTitleRank(b.name, strictIntent) - strictTitleRank(a.name, strictIntent)
+      : 0;
+    if (strictDelta !== 0) return strictDelta;
     const scoreDelta =
       combinedRelevanceScore(b.name, query, originalQuery) -
       combinedRelevanceScore(a.name, query, originalQuery);
@@ -1060,6 +1075,7 @@ export async function getSyncedStoreResultsFromDatabase(
 
     const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
     if (!orFilter) return [];
+    const strictIntent = analyzeStrictIntent(query, originalQuery);
 
     const { data, error } = await db(supabase)
       .from("lowest_prices_today")
@@ -1079,7 +1095,8 @@ export async function getSyncedStoreResultsFromDatabase(
       (row) =>
         row.product_name &&
         row.image_url &&
-        normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER,
+        normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+        passesStrictTitle(row.product_name, strictIntent),
     );
     return rows.map((row) => rowToSearchResultItem(row));
   };
@@ -1120,6 +1137,7 @@ async function loadSearchResultsFromDatabase(
   // Word overlap scoring happens post-query.
   // When useFuzzyMatch is true (for Arabic-translated queries), use ILIKE
   // substring matching for maximum recall.
+  const strictIntent = analyzeStrictIntent(query, originalQuery);
   const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
 
   if (!orFilter) return [];
@@ -1143,7 +1161,8 @@ async function loadSearchResultsFromDatabase(
     (row) =>
       row.product_name &&
       row.image_url &&
-      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER,
+      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+      passesStrictTitle(row.product_name, strictIntent),
   );
 
   const productIds = rows.map((r) => r.product_id);
@@ -1514,6 +1533,7 @@ async function loadSearchResultsFromDatabasePaged(
 
   const words = combinedSearchTokens(query, originalQuery, device?.originalQuery);
   if (words.length === 0) return { items: [], total: 0 };
+  const strictIntent = analyzeStrictIntent(query, originalQuery ?? device?.originalQuery);
 
   const orFilter = buildCombinedSearchOrFilter(query, originalQuery, device?.originalQuery);
 
@@ -1583,6 +1603,7 @@ async function loadSearchResultsFromDatabasePaged(
         row.product_name &&
         row.image_url &&
         normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+        passesStrictTitle(row.product_name, strictIntent) &&
         passesStrictDeviceGuard(
           row.product_name,
           Number(row.lowest_price),
@@ -1631,7 +1652,8 @@ async function loadSearchResultsFromDatabasePaged(
     (row) =>
       row.product_name &&
       row.image_url &&
-      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER,
+      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+      passesStrictTitle(row.product_name, strictIntent),
   );
 
   const productIds = rows.map((r) => r.product_id);

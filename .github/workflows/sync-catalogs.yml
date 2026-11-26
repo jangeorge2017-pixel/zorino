@@ -125,7 +125,7 @@ jobs:
           SYNC_BUDGET_MS: ${{ vars.SYNC_BUDGET_MS || '3000000' }}
           SYNC_GLOBAL_TIMEOUT_MS: ${{ vars.SYNC_GLOBAL_TIMEOUT_MS || '600000' }}
           SYNC_STORE_MAX_PRODUCTS: ${{ vars.SYNC_STORE_MAX_PRODUCTS || '3000' }}
-          SYNC_STORE_QUERIES: ${{ vars.SYNC_STORE_QUERIES || '' }}
+          SYNC_STORE_QUERIES: "${{ vars.SYNC_STORE_QUERIES || 'Microwave,Refrigerator,Washing Machine,Air Fryer,Samsung Note Case,iPhone Case,Laptop,Smart TV' }}"
           SYNC_STORE_CONCURRENCY: ${{ vars.SYNC_STORE_CONCURRENCY || '6' }}
           SYNC_SCRAPER_ENABLED: "1"
           SYNC_SCRAPER_AUTO: "1"

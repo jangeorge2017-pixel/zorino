@@ -174,6 +174,7 @@ export function balanceFlatMarketplaceList<T>(
   getProviderId: (item: T) => string,
   limit: number,
   compare?: (a: T, b: T) => number,
+  maxConsecutive = 2,
 ): T[] {
   if (items.length === 0 || limit <= 0) return [];
 
@@ -196,7 +197,7 @@ export function balanceFlatMarketplaceList<T>(
     limit,
     compare: (a, b) => (compare ? compare(a.item, b.item) : 0),
     isComparable: () => true,
-    maxConsecutive: 2,
+    maxConsecutive,
   });
 
   return balanced.map((row) => row.item);

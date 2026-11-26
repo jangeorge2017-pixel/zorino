@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   analyzeSearchListing,
+  analyzeStrictIntent,
   hasSameSeries,
   isAccessoryListing,
   looksLikeDevice,
+  strictTitleState,
 } from "@/lib/search/relevance";
 
 describe("relevance — genuine devices vs compatibility accessories (live page-1 leak regression)", () => {
@@ -51,5 +53,46 @@ describe("relevance — genuine devices vs compatibility accessories (live page-
       expect(analysis.tier).toBe("series");
       expect(analysis.isDevice).toBe(true);
     }
+  });
+});
+
+describe("relevance — strict compound and accessory intent", () => {
+  it("accepts only washing-machine titles and rejects coffee/espresso/sewing machines", () => {
+    const intent = analyzeStrictIntent("غسالة");
+    expect(intent?.kind).toBe("washing-machine");
+    expect(
+      strictTitleState("Samsung Front Load Washing Machine 9KG", intent!),
+    ).toBe("tier1");
+    for (const title of [
+      "DeLonghi Espresso Machine",
+      "Nespresso Coffee Machine",
+      "Singer Sewing Machine",
+      "Generic Machine",
+    ]) {
+      expect(strictTitleState(title, intent!)).toBe("rejected");
+    }
+  });
+
+  it("requires an accessory term beside the Samsung Note model", () => {
+    const intent = analyzeStrictIntent("جراب سامسونج نوت");
+    expect(intent?.kind).toBe("accessory-device");
+    expect(
+      strictTitleState("Samsung Galaxy Note20 Silicone Case", intent!),
+    ).toBe("tier1");
+    expect(
+      strictTitleState("Samsung Galaxy Note20 5G 128GB Smartphone", intent!),
+    ).toBe("rejected");
+    expect(strictTitleState("iPhone 15 Pro Case", intent!)).toBe("rejected");
+  });
+
+  it("accepts Arabic and English appliance aliases without translator changes", () => {
+    expect(analyzeStrictIntent("مايكرويف")?.kind).toBe("microwave");
+    expect(analyzeStrictIntent("ثلاجة")?.kind).toBe("refrigerator");
+    expect(
+      strictTitleState(
+        "Sharp microwave oven - 562ctst",
+        analyzeStrictIntent("مايكرويف")!,
+      ),
+    ).toBe("tier1");
   });
 });

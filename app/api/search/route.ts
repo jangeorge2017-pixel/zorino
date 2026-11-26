@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     );
   const balanced = interleaveByStoreRoundRobin(
     cards,
-    (row) => row.card.store_name,
+    (row) => row.item.storeSlug || row.card.provider || row.card.store_name,
     limit,
   );
   const products = balanced.map(({ item, card }) => ({

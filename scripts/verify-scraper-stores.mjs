@@ -100,6 +100,17 @@ const REQUIRED_STORES = [
     supported_regions: ["US", "EG"],
     supported_currencies: ["USD", "EGP"],
   },
+  {
+    slug: "raneen",
+    name: "Raneen",
+    logo_url: "/stores/raneen.png",
+    logo_initial: "RN",
+    website: "https://www.raneen.com",
+    integration_type: "custom",
+    commission_rate: 4.0,
+    supported_regions: ["EG"],
+    supported_currencies: ["EGP"],
+  },
 ];
 
 const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -32,6 +32,7 @@ import {
 } from "@/lib/search/persistent-cache-store";
 import { getSearchCacheVersion } from "@/lib/search/cache-version";
 import { analyzeSearchQueryIntent } from "@/lib/search/query-intent";
+import { filterStrictRelevantTitles } from "@/lib/search/relevance";
 import { enforceStrictDevicePool, passesStrictDeviceGuard } from "@/lib/search/accessory-exclusion";
 import { rankRawListings } from "@/lib/search/ranking";
 import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
@@ -171,14 +172,24 @@ export function assembleCanonicalSearchPool(input: {
   // (query,capped,sort) where raw pool content is stable; accessory-intent
   // queries are untouched here.
   const deviceIntent = analyzeSearchQueryIntent(trimmed).kind === "device";
+  const relevantLive = filterStrictRelevantTitles(
+    input.liveListings,
+    [trimmed],
+    (item) => item.title,
+  );
+  const relevantDbItems = filterStrictRelevantTitles(
+    input.dbItems,
+    [trimmed],
+    (item) => item.name,
+  );
   const rawLive = deviceIntent
-    ? enforceStrictDevicePool(input.liveListings, trimmed, activeCurrency)
-    : input.liveListings;
+    ? enforceStrictDevicePool(relevantLive, trimmed, activeCurrency)
+    : relevantLive;
   const strictDbItems = deviceIntent
-    ? input.dbItems.filter((item) =>
+    ? relevantDbItems.filter((item) =>
         passesStrictDeviceGuard(item.name, item.price, trimmed, item.currency, activeCurrency),
       )
-    : input.dbItems;
+    : relevantDbItems;
   const ranked = rankRawListings(rawLive as NormalizedSearchListing[], trimmed);
   const canonical = canonicalizeSearchListings(ranked);
 
@@ -245,6 +256,7 @@ export function assembleCanonicalSearchPool(input: {
     (item) => item.storeSlug || item.store,
     dedupedDb.length,
     (a, b) => b.discount - a.discount || a.price - b.price,
+    1,
   );
 
   const mixed: SearchResultItem[] = [];
