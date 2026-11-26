@@ -308,6 +308,13 @@ html.light .zh-search__bar input,
 html.light .zh-search input {
   background: rgba(255, 255, 255, 0.95) !important;
   color: #0f172a !important;
+  font-weight: 700 !important;
+}
+html.light .zh-search__bar input::placeholder,
+html.light .zh-search input::placeholder {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
 }
 html.light .zh-page .zh-search__ai {
   background: #eef2ff !important;
@@ -335,14 +342,17 @@ html.light .zh-page .zh-search__ai:focus-visible {
   backdrop-filter: none !important;
 }
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown h4 {
-  color: #94a3b8 !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
 }
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li {
-  color: #1e293b !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
 }
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__suggestion-text,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__view-all {
-  color: #1e293b !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
 }
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li:hover,
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li:focus-visible {
@@ -885,12 +895,13 @@ html body .product-card-badge--featured {
   display: inline-flex !important;
   align-items: center !important;
   flex: 0 0 auto !important;
+  overflow: visible !important;
 }
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__logo--search .zor-nav__logo-lockup {
   display: block !important;
   width: auto !important;
-  height: 40px !important;
-  max-height: 40px !important;
+  height: 61.6px !important;
+  max-height: 61.6px !important;
   max-width: none !important;
   object-fit: contain !important;
   object-position: left center !important;
@@ -901,6 +912,12 @@ html body .product-card-badge--featured {
   image-rendering: auto !important;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__logo--search .zor-nav__logo-lockup {
+    height: 82px !important;
+    max-height: 82px !important;
+  }
 }
 
 :is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page {
@@ -1375,4 +1392,56 @@ html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .z
   text-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .listing-product-card,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-trending-deal-card,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-td-card {
+  overflow: visible !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-body,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-td-card__body {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  gap: 7px !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .deal-name,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-td-card__title {
+  max-height: none !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .trending-card-store,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .deal-rating,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .listing-stock,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-td-card__store,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-td-card__reviews {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .deal-pricing,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-td-card__prices {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  flex-wrap: wrap !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .deal-price,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .deal-original,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-td-card__price,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .zh-td-card__was {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .product-card-actions,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-trending-deals .listing-secondary-actions {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }

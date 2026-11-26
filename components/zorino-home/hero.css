@@ -223,6 +223,18 @@
   will-change: transform;
 }
 
+.zh-orbit-card--link {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  text-decoration: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.zh-orbit-card--link:focus-visible {
+  outline: 2px solid #a78bfa !important;
+  outline-offset: 3px;
+}
+
 /* 2×2 — desktop baseline (original). Tablet orbit nudges live only in homepage-responsive.css. */
 .zh-orbit-card[data-orbit-position="orbit-upper-left"] { left: calc(72% - 151px); top: calc(36% - 20px); }
 .zh-orbit-card[data-orbit-position="orbit-top"] { left: calc(72% - 151px); top: calc(60% - 40px); }

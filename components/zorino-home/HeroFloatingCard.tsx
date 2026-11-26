@@ -55,13 +55,11 @@ function preferOrbitImageSrc(src: string): string {
 
 export default function HeroFloatingCard({ product }: HeroFloatingCardProps) {
   const delay = getHeroOrbitAnimationDelay(product.position);
+  const className = `zh-orbit-card${product.href ? " zh-orbit-card--link" : ""}`;
+  const style = { animationDelay: `${delay}s` };
 
-  return (
-    <article
-      className="zh-orbit-card"
-      data-orbit-position={product.position}
-      style={{ animationDelay: `${delay}s` }}
-    >
+  const content = (
+    <>
       <div className="zh-orbit-card__media">
         <AssetImage
           src={preferOrbitImageSrc(product.imageSrc)}
@@ -84,6 +82,30 @@ export default function HeroFloatingCard({ product }: HeroFloatingCardProps) {
           <span className="zh-orbit-card__was">{product.original}</span>
         ) : null}
       </div>
-    </article>
+    </>
+  );
+
+  if (!product.href) {
+    return (
+      <article
+        className={className}
+        data-orbit-position={product.position}
+        style={style}
+      >
+        {content}
+      </article>
+    );
+  }
+
+  return (
+    <a
+      href={product.href}
+      className={className}
+      data-orbit-position={product.position}
+      style={style}
+      aria-label={product.label || "View featured deal"}
+    >
+      {content}
+    </a>
   );
 }

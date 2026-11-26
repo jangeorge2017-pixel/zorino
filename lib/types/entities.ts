@@ -341,6 +341,8 @@ export interface FloatingProductCard {
   price: string;
   original: string;
   position: string;
+  href?: string | null;
+  label?: string;
 }
 
 export interface HomepageCategoryItem {

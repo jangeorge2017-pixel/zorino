@@ -57,7 +57,7 @@ export default function SiteNav() {
             <span className="zor-nav__logo-light-wrap">
               <ZorinoLogo
                 className="logo-lockup zor-nav__logo-lockup"
-                displayHeight={40}
+                displayHeight={61.6}
               />
             </span>
           ) : null}

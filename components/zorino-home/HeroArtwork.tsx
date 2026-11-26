@@ -416,9 +416,9 @@ export default function HeroArtwork({
   }, [floatingProducts]);
 
   return (
-    <div ref={rootRef} className="hero-artwork" aria-hidden="true">
+    <div ref={rootRef} className="hero-artwork">
       {orbitCards.length > 0 ? (
-        <div className="hero-artwork__orbit" aria-label="Featured products">
+        <div className="hero-artwork__orbit" role="group" aria-label="Featured products">
           {orbitCards.map(({ position, product }) => (
             <HeroFloatingCard
               key={position}
