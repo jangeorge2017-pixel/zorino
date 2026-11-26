@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import {
   Bell,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import IntlNavSelectors from "@/components/international/IntlNavSelectors";
+import { ZorinoLogo } from "@/components/ZorinoLogo";
 import SiteNavMenu from "@/components/shell/SiteNavMenu";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -33,17 +35,32 @@ export default function SiteNav() {
   const { user } = useAuth();
   const accountHref = user ? "/profile" : "/auth/login";
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const pathSegments = pathname.split("/").filter(Boolean);
+  const isSearchRoute = pathSegments.includes("search");
 
   return (
     <header className="zor-nav" data-sticky-chrome="primary">
       <div className="zor-nav__inner">
-        <Link href="/" className="zor-nav__logo">
+        <Link
+          href="/"
+          className={`zor-nav__logo${isSearchRoute ? " zor-nav__logo--search" : ""}`}
+        >
           <Image
             src={ZORINO_LOGO_SOURCE}
             alt="ZORINO"
             width={118}
             height={40}
+            className="zor-nav__logo-image"
           />
+          {isSearchRoute ? (
+            <span className="zor-nav__logo-light-wrap">
+              <ZorinoLogo
+                className="logo-lockup zor-nav__logo-lockup"
+                displayHeight={40}
+              />
+            </span>
+          ) : null}
           <span className="zor-nav__tagline">{tHero("title")}</span>
         </Link>
 

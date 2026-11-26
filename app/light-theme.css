@@ -326,9 +326,44 @@ html.light .zh-page .zh-search__ai:focus-visible {
   color: #3730a3 !important;
   outline: none;
 }
-html.light .zh-search__suggestion-text,
-html.light .zh-search__view-all {
-  color: #334155 !important;
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow:
+    0 20px 25px -5px rgba(15, 23, 42, 0.1),
+    0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
+  backdrop-filter: none !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown h4 {
+  color: #94a3b8 !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li {
+  color: #1e293b !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__suggestion-text,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__view-all {
+  color: #1e293b !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li:focus-visible {
+  background: #eef2ff !important;
+  color: #4338ca !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li:hover .zh-search__suggestion-text,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li:focus-visible .zh-search__suggestion-text {
+  color: #4338ca !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__dropdown li svg {
+  color: #6366f1 !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__view-all {
+  background: transparent !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #4338ca !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-search__view-all:hover {
+  background: #eef2ff !important;
+  color: #3730a3 !important;
 }
 html.light .zh-quick-nav__pill {
   background: #ffffff !important;
@@ -834,6 +869,32 @@ html body .product-card-badge--featured {
   display: block !important;
   content: normal !important;
   width: auto !important;
+  filter: invert(1) hue-rotate(180deg) !important;
+  mix-blend-mode: multiply !important;
+  transform: none !important;
+  image-rendering: auto !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__logo--search .zor-nav__logo-image {
+  display: none !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__logo--search .zor-nav__logo-light-wrap,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__logo--search .zor-nav__logo-light-wrap .zh-logo-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex: 0 0 auto !important;
+}
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-nav__logo--search .zor-nav__logo-lockup {
+  display: block !important;
+  width: auto !important;
+  height: 40px !important;
+  max-height: 40px !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  flex: 0 0 auto !important;
   filter: invert(1) hue-rotate(180deg) !important;
   mix-blend-mode: multiply !important;
   transform: none !important;

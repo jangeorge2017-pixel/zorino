@@ -4,6 +4,25 @@
  * Flex: [Logo @ start] ……auto…… [actions @ end]
  */
 
+.zor-nav__logo-light-wrap {
+  display: none !important;
+}
+
+.zor-nav__logo-lockup {
+  display: block;
+  object-fit: contain;
+  object-position: left center;
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: none;
+}
+
 /* Hamburger menu — only shown below 1280px where inline links are hidden */
 .zor-nav__menu-btn {
   display: none;
