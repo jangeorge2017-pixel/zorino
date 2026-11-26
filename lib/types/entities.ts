@@ -343,6 +343,7 @@ export interface FloatingProductCard {
   position: string;
   href?: string | null;
   label?: string;
+  external?: boolean;
 }
 
 export interface HomepageCategoryItem {

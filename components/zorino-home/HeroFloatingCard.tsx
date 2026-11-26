@@ -104,6 +104,8 @@ export default function HeroFloatingCard({ product }: HeroFloatingCardProps) {
       data-orbit-position={product.position}
       style={style}
       aria-label={product.label || "View featured deal"}
+      target={product.external ? "_blank" : undefined}
+      rel={product.external ? "noopener noreferrer" : undefined}
     >
       {content}
     </a>

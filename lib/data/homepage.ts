@@ -7,9 +7,7 @@ import {
   getActiveCouponCount,
 } from "@/services/coupons";
 import { getStores } from "@/services/stores";
-import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
-import { resolveProviderId } from "@/lib/providers/registry";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { hasOfficialStoreLogo, resolveStoreLogoSrc } from "@/lib/assets";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
@@ -186,19 +184,22 @@ export async function getHeroFloatingProducts(): Promise<FloatingProductCard[]> 
           position,
         };
       }
-      const productId = String(deal.productId ?? deal.id);
-      const destinationUrl = deal.affiliateUrl?.trim();
-      const href =
-        productId && destinationUrl && isValidProductDestinationUrl(destinationUrl)
-          ? buildAffiliateRedirectPath({
-              productId,
-              storeSlug: resolveProviderId(deal.store || null),
-              destinationUrl,
-              source: "homepage-orbit",
-            })
-          : productId
-            ? `/product/${encodeURIComponent(productId)}`
-            : undefined;
+      const dealWithUrls = deal as TrendingDealCard & {
+        productUrl?: string | null;
+        product_url?: string | null;
+        affiliate_url?: string | null;
+        url?: string | null;
+      };
+      const destinationUrl =
+        dealWithUrls.productUrl?.trim() ||
+        dealWithUrls.product_url?.trim() ||
+        deal.affiliateUrl?.trim() ||
+        dealWithUrls.affiliate_url?.trim() ||
+        dealWithUrls.url?.trim();
+      const external = Boolean(destinationUrl && isValidProductDestinationUrl(destinationUrl));
+      const href = external
+        ? destinationUrl || ""
+        : `/search?q=${encodeURIComponent(deal.name)}`;
       return {
         imageSrc: deal.imageSrc,
         discount: deal.discount > 0 ? `-${Math.round(deal.discount)}%` : "",
@@ -206,6 +207,7 @@ export async function getHeroFloatingProducts(): Promise<FloatingProductCard[]> 
         original: await formatCurrency(deal.originalPrice, currencyCode),
         position,
         href,
+        external,
         label: `View ${deal.name} from ${deal.store}`,
       };
     }),

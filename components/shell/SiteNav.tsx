@@ -53,14 +53,12 @@ export default function SiteNav() {
             height={40}
             className="zor-nav__logo-image"
           />
-          {isSearchRoute ? (
-            <span className="zor-nav__logo-light-wrap">
-              <ZorinoLogo
-                className="logo-lockup zor-nav__logo-lockup"
-                displayHeight={61.6}
-              />
-            </span>
-          ) : null}
+          <span className="zor-nav__logo-light-wrap">
+            <ZorinoLogo
+              className="logo-lockup zor-nav__logo-lockup"
+              displayHeight={61.6}
+            />
+          </span>
           <span className="zor-nav__tagline">{tHero("title")}</span>
         </Link>
 

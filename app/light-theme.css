@@ -1461,3 +1461,129 @@ html:not(.dark):not([data-theme="dark"]) body .zh-page .zh-trending-deal-card .z
   min-width: 0 !important;
   justify-self: stretch !important;
 }
+.zh-page .zh-trending-deals__track .zh-trending-deals__slide,
+.zh-page .zh-trending-deals__track .zor-deals-page__card,
+.zh-page .zh-trending-deals__track .listing-product-card,
+.zh-page .zh-trending-deals__track .deal-card,
+.zh-page .zh-product-sections .listing-product-card,
+.zh-page .zh-product-sections .zor-deals-page__card,
+.zh-page .zh-product-sections .deal-card,
+.zh-page .zh-td-card,
+.zh-page .zh-deal-card {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.zh-page .zh-trending-deals__track .product-card-body,
+.zh-page .zh-trending-deals__track .zh-td-card__body,
+.zh-page .zh-trending-deals__track .zh-deal-card__body,
+.zh-page .zh-product-sections .product-card-body {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+.zh-page .zh-trending-deals__track .deal-name,
+.zh-page .zh-trending-deals__track .product-card-title,
+.zh-page .zh-trending-deals__track .zh-td-card__title,
+.zh-page .zh-trending-deals__track .zh-deal-card__name,
+.zh-page .zh-product-sections .deal-name {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+.zh-page .zh-trending-deals__track .trending-card-store,
+.zh-page .zh-trending-deals__track .deal-store,
+.zh-page .zh-trending-deals__track .deal-rating,
+.zh-page .zh-trending-deals__track .listing-stock,
+.zh-page .zh-trending-deals__track .zh-td-card__store,
+.zh-page .zh-trending-deals__track .zh-td-card__reviews,
+.zh-page .zh-trending-deals__track .listing-deal-meta {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+}
+.zh-page .zh-trending-deals__track .deal-pricing,
+.zh-page .zh-trending-deals__track .zh-td-card__prices {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  flex-wrap: wrap !important;
+}
+.zh-page .zh-trending-deals__track .deal-price,
+.zh-page .zh-trending-deals__track .deal-original,
+.zh-page .zh-trending-deals__track .zh-td-card__price,
+.zh-page .zh-trending-deals__track .zh-td-card__was {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+}
+.zh-page .zh-trending-deals__track .product-card-actions-group,
+.zh-page .zh-trending-deals__track .product-card-actions,
+.zh-page .zh-trending-deals__track .product-card-actions-dual,
+.zh-page .zh-trending-deals__track .product-card-actions-single,
+.zh-page .zh-trending-deals__track .listing-secondary-actions {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+.zh-page .zh-trending-deals__track .product-card-actions,
+.zh-page .zh-trending-deals__track .product-card-actions-dual,
+.zh-page .zh-trending-deals__track .product-card-actions-single {
+  grid-template-columns: 1fr !important;
+}
+.zh-page .zh-trending-deals__track .product-card-actions > * {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
+}
+:root:has(.zor-page-state--404) .zor-nav__logo-image {
+  display: none !important;
+}
+:root:has(.zor-page-state--404) .zor-nav__logo-light-wrap,
+:root:has(.zor-page-state--404) .zor-nav__logo-light-wrap .zh-logo-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+}
+:root:has(.zor-page-state--404) .zor-nav__logo-lockup {
+  display: block !important;
+  width: auto !important;
+  height: 61.6px !important;
+  max-height: 61.6px !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+  flex: 0 0 auto !important;
+  transform: none !important;
+  image-rendering: auto !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+html.light:has(.zor-page-state--404) .zor-nav__logo-lockup,
+html:not(.dark):not([data-theme="dark"]):has(.zor-page-state--404) .zor-nav__logo-lockup,
+html[data-theme="light"]:has(.zor-page-state--404) .zor-nav__logo-lockup {
+  filter: invert(1) hue-rotate(180deg) !important;
+  mix-blend-mode: multiply !important;
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  :root:has(.zor-page-state--404) .zor-nav__logo-lockup {
+    height: 82px !important;
+    max-height: 82px !important;
+  }
+}
