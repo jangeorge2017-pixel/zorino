@@ -4703,3 +4703,11 @@ html.light .zor-page-shell {
   -webkit-text-fill-color: #475569 !important;
   font-weight: 600 !important;
 }
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-page:not(.zh-page) :is([class*="section-title"], [class*="section-head__title"], [class*="section-header__title"]) {
+  background: none !important;
+  background-image: none !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  font-weight: 800 !important;
+}
