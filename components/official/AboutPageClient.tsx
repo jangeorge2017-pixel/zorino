@@ -75,7 +75,7 @@ export default function AboutPageClient() {
         <Card className="mb-8 zor-official-cta border-purple-500/30">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-4">{t("story")}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t("story")}</h2>
               <p className="text-[var(--zor-text-soft)] leading-relaxed mb-4">
                 ZORINO was founded to solve a simple problem: finding the best price shouldn&apos;t take hours.
                 We aggregate deals from trusted partner stores, compare prices with AI, and deliver personalized
@@ -90,19 +90,19 @@ export default function AboutPageClient() {
           </div>
         </Card>
 
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">{t("team")}</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">{t("team")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
           {team.map((member) => (
             <Card key={member.name} hover className="text-center zor-official-section">
               <div className="text-5xl mb-3" aria-hidden>{member.image}</div>
-              <h3 className="font-semibold text-white">{member.name}</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-white">{member.name}</h3>
               <p className="text-[var(--zor-purple-light)] text-sm mb-2">{member.role}</p>
               <p className="text-[var(--zor-text-muted)] text-sm">{member.bio}</p>
             </Card>
           ))}
         </div>
 
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">Why Choose ZORINO?</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">Why Choose ZORINO?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
           {features.map((feature) => (
             <Card key={feature.title} hover className="zor-official-section">
@@ -111,7 +111,7 @@ export default function AboutPageClient() {
                   <feature.icon size={20} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1">{feature.title}</h3>
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-1">{feature.title}</h3>
                   <p className="text-[var(--zor-text-muted)] text-sm">{feature.description}</p>
                 </div>
               </div>
@@ -120,13 +120,13 @@ export default function AboutPageClient() {
         </div>
 
         <Card className="text-center mb-8 bg-gradient-to-r from-purple-600/80 to-indigo-600/80 border-0">
-          <h2 className="text-2xl font-bold text-white mb-3">Ready to Start Saving?</h2>
-          <p className="text-white/85 mb-6 max-w-xl mx-auto">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Ready to Start Saving?</h2>
+          <p className="text-slate-900 dark:text-white/85 mb-6 max-w-xl mx-auto">
             Join smart shoppers saving with ZORINO. Browse deals, set price alerts, and never overpay again.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link href="/deals"><Button className="bg-white text-purple-700 hover:bg-gray-100">Browse Deals</Button></Link>
-            <Link href="/auth/register"><Button variant="outline" className="border-white text-white hover:bg-white/10">Sign Up Free</Button></Link>
+            <Link href="/auth/register"><Button variant="outline" className="border-slate-300 text-slate-900 hover:bg-slate-100 dark:border-white dark:text-white dark:hover:bg-white/10">Sign Up Free</Button></Link>
           </div>
         </Card>
 

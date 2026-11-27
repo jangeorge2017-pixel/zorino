@@ -121,7 +121,7 @@ export default function SettingsPageClient() {
         <Card>
           <div className="flex items-center gap-3 mb-6">
             <Globe className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-semibold text-white">{t("regionalPreferences")}</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t("regionalPreferences")}</h2>
           </div>
           <div className="space-y-4">
             <Select
@@ -163,7 +163,7 @@ export default function SettingsPageClient() {
         <Card>
           <div className="flex items-center gap-3 mb-6">
             <Bell className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-semibold text-white">{t("notifications")}</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t("notifications")}</h2>
           </div>
           <div className="space-y-4">
             {[
@@ -172,12 +172,12 @@ export default function SettingsPageClient() {
               { key: "dealDigest" as const, label: t("dealDigest") },
             ].map((item) => (
               <label key={item.key} className="flex items-center justify-between gap-4 cursor-pointer">
-                <span className="text-gray-300">{item.label}</span>
+                <span className="text-slate-700 dark:text-gray-300">{item.label}</span>
                 <input
                   type="checkbox"
                   checked={settings[item.key]}
                   onChange={(e) => setSettings({ ...settings, [item.key]: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-600"
+                  className="w-5 h-5 rounded border-slate-300 dark:border-gray-600"
                 />
               </label>
             ))}
@@ -187,7 +187,7 @@ export default function SettingsPageClient() {
         <Card>
           <div className="flex items-center gap-3 mb-6">
             <Moon className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-semibold text-white">{t("theme")}</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t("theme")}</h2>
           </div>
           <Select
             label={t("theme")}
@@ -204,7 +204,7 @@ export default function SettingsPageClient() {
         <Card>
           <div className="flex items-center gap-3 mb-6">
             <Shield className="w-5 h-5 text-purple-400" />
-            <h2 className="text-xl font-semibold text-white">{t("security")}</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t("security")}</h2>
           </div>
           <div className="space-y-4">
             <Input label={tCommon("password")} type="password" placeholder="••••••••" />

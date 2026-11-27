@@ -8,6 +8,7 @@ export default defineConfig({
     },
   },
   test: {
+    env: { GITHUB_ACTIONS: "true" },
     globals: true,
     environment: "node",
     include: ["tests/**/*.test.ts"],

@@ -108,7 +108,7 @@ export default function FAQPageClient() {
               <div className="zor-official-section__icon">
                 <category.icon size={20} />
               </div>
-              <h2 className="text-xl font-bold text-white">{category.title}</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">{category.title}</h2>
             </div>
             <div className="space-y-3">
               {category.questions.map((faq, qIndex) => {
@@ -125,7 +125,7 @@ export default function FAQPageClient() {
                       className="w-full text-left flex items-center justify-between gap-4"
                       aria-expanded={isOpen}
                     >
-                      <span className="font-semibold text-white">{faq.q}</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">{faq.q}</span>
                       <ChevronDown
                         size={18}
                         className={`text-[var(--zor-text-muted)] shrink-0 transition-transform duration-300${isOpen ? " rotate-180" : ""}`}

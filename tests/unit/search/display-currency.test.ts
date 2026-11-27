@@ -171,11 +171,11 @@ describe("search landing seams emit EGP prices (gate ON)", () => {
       liveListings: [],
       dbItems: [
         item({ id: "pg-1", name: "Apple iPhone 15 Pro Max 256GB", price: 849, storeSlug: "admitad" }),
-        item({ id: "pg-2", name: "Samsung Galaxy S24 Ultra", price: 960, storeSlug: "admitad" }),
+        item({ id: "pg-2", name: "Apple iPhone 15 Pro Max 512GB", price: 960, storeSlug: "admitad" }),
       ],
       activeProviders: ["admitad"],
     }));
-    const page = await searchResultsPagedSurface("wireless earbuds pro pg-egp", 0, 2);
+    const page = await searchResultsPagedSurface("iphone 15 pro max", 0, 2);
     expect(page.items).toHaveLength(2);
     expect(page.items[0]!.currency).toBe("EGP");
     expect(page.items[0]!.price).toBe(849 * 48.5);

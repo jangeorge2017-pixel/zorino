@@ -41,7 +41,7 @@ export default function AdminShell({ children, userName, userEmail }: AdminShell
   const normalizedPath = pathname.replace(/^\/(en|ar)/, "") || pathname;
 
   return (
-    <div className="min-h-screen bg-[#020611] text-white">
+    <div className="admin-shell min-h-screen bg-[#020611] text-white">
       <div className="lg:hidden sticky top-0 z-40 border-b border-gray-800 bg-[#020611]/95 backdrop-blur px-4 py-3 flex items-center justify-between">
         <div>
           <p className="font-bold">Zorino Admin</p>

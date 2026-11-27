@@ -132,9 +132,9 @@ function parseOrFilter(clause: string): RegExp[] {
           "i",
         );
       }
-      const ilike = /^product_name\.ilike\.%(.*)%$/.exec(c);
+      const ilike = /^product_name\.ilike\.(")?%(.*)%(")?$/.exec(c);
       if (ilike) {
-        const token = ilike[1].replace(/\\([%_\\])/g, "$1");
+        const token = ilike[2].replace(/\\([%_\\])/g, "$1");
         return new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
       }
       throw new Error(`unsupported or filter clause: ${c}`);
@@ -210,6 +210,9 @@ function buildFakeSupabase(rows: DbRow[], stats: { ranges: number }): () => unkn
       table === "products"
         ? {
             select: () => ({
+              or: () => ({
+                limit: () => Promise.resolve({ data: [], error: null }),
+              }),
               in: (_col: string, ids: string[]) =>
                 Promise.resolve({
                   data: ordered

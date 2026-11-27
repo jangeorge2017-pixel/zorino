@@ -49,7 +49,7 @@ export default function ZorinoHomeNav() {
       <div className="zh-nav__inner">
         <Link href="/" className="zh-nav__logo">
           {/* Desktop ~60px (~13% under prior 69); CSS token keeps lockup in sync */}
-          <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={60} />
+          <ZorinoLogo className="zh-nav__logo-lockup" displayHeight={61.6} />
         </Link>
 
         <ZorinoHomeNavLinks />

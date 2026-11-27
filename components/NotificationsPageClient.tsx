@@ -116,7 +116,7 @@ export default function NotificationsPageClient() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <Bell className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">{t("loginRequired")}</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t("loginRequired")}</h2>
           <p className="text-gray-400 mb-6">{t("loginToViewNotifications")}</p>
           <Button onClick={() => router.push("/auth/login")}>{t("login")}</Button>
         </div>
@@ -131,7 +131,7 @@ export default function NotificationsPageClient() {
     <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">{t("title")}</h1>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">{t("title")}</h1>
           <p className="text-gray-400">
             {t("unreadCount", { count: unreadCount })}
           </p>
@@ -184,8 +184,8 @@ export default function NotificationsPageClient() {
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-1">
                         <div>
-                          <h3 className="text-white font-semibold">{notification.title}</h3>
-                          <p className="text-gray-400 text-sm">{notification.message}</p>
+                          <h3 className="text-slate-900 dark:text-white font-semibold">{notification.title}</h3>
+                          <p className="text-slate-600 dark:text-gray-400 text-sm">{notification.message}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           {!notification.read && (
@@ -228,7 +228,7 @@ export default function NotificationsPageClient() {
           <Card>
             <div className="text-center py-12">
               <Bell className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No notifications</h3>
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">No notifications</h3>
               <p className="text-gray-400">
                 {filter === "unread"
                   ? "You have no unread notifications"
@@ -239,7 +239,7 @@ export default function NotificationsPageClient() {
         )}
 
         <Card className="mt-8">
-          <h2 className="text-xl font-bold text-white mb-4">Notification Preferences</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Notification Preferences</h2>
           <div className="space-y-4">
             {[
               {
@@ -260,11 +260,11 @@ export default function NotificationsPageClient() {
             ].map((item) => (
               <div
                 key={item.key}
-                className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg"
+                className="flex items-center justify-between p-4 bg-slate-100 dark:bg-gray-800/50 rounded-lg"
               >
                 <div>
-                  <p className="text-white font-medium">{item.label}</p>
-                  <p className="text-gray-400 text-sm">{item.description}</p>
+                  <p className="text-slate-900 dark:text-white font-medium">{item.label}</p>
+                  <p className="text-slate-600 dark:text-gray-400 text-sm">{item.description}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -273,7 +273,7 @@ export default function NotificationsPageClient() {
                     onChange={(e) => setPrefs((p) => ({ ...p, [item.key]: e.target.checked }))}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500" />
+                  <div className="w-11 h-6 bg-slate-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500" />
                 </label>
               </div>
             ))}

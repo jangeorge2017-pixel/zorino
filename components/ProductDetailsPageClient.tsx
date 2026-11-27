@@ -98,16 +98,16 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
   return (
     <PageLayout>
     <div>
-        <div className="text-sm text-gray-400 mb-6">
-          <Link href="/" className="hover:text-white">
+        <div className="text-sm text-slate-600 dark:text-gray-400 mb-6">
+          <Link href="/" className="hover:text-slate-900 dark:text-white">
             {t("breadcrumbHome")}
           </Link>
           {" > "}
-          <Link href="/categories" className="hover:text-white">
+          <Link href="/categories" className="hover:text-slate-900 dark:text-white">
             {categoryName}
           </Link>
           {" > "}
-          <span className="text-white">{product.name}</span>
+          <span className="text-slate-900 dark:text-white">{product.name}</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
@@ -161,15 +161,15 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
               )}
             </div>
 
-            <h1 className="text-3xl font-bold text-white mb-4">{product.name}</h1>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">{product.name}</h1>
 
             {(product.rating ?? 0) > 0 && (
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                  <span className="text-white font-semibold">{product.rating}</span>
+                  <span className="text-slate-900 dark:text-white font-semibold">{product.rating}</span>
                   {product.reviewCount ? (
-                    <span className="text-gray-400">
+                    <span className="text-slate-600 dark:text-gray-400">
                       ({t("reviewsCount", { count: product.reviewCount })})
                     </span>
                   ) : null}
@@ -188,7 +188,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
             )}
 
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-4xl font-bold text-white">
+              <span className="text-4xl font-bold text-slate-900 dark:text-white">
                 {formatPrice(price, detailsCurrency)}
               </span>
               {originalPrice > price && (
@@ -253,7 +253,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
               />
             )}
             {offers.length === 1 && (
-              <p className="text-gray-400 text-sm mt-3">{t("singleOfferNote")}</p>
+              <p className="text-slate-600 dark:text-gray-400 text-sm mt-3">{t("singleOfferNote")}</p>
             )}
 
             <p className="text-xs text-gray-500 mt-3 leading-relaxed">
@@ -264,10 +264,10 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
 
         <section id="compare-prices" data-compare-prices className="mb-12 scroll-mt-24">
           <Card>
-            <h2 className="text-2xl font-bold text-white mb-2">{t("comparePrices")}</h2>
-            <p className="text-gray-400 text-sm mb-6">{t("comparePricesSubtitle")}</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t("comparePrices")}</h2>
+            <p className="text-slate-600 dark:text-gray-400 text-sm mb-6">{t("comparePricesSubtitle")}</p>
             {offers.length === 0 ? (
-              <p className="text-gray-400 text-sm">{t("noStorePrices")}</p>
+              <p className="text-slate-600 dark:text-gray-400 text-sm">{t("noStorePrices")}</p>
             ) : (
               <PriceComparisonTable
                 offers={offers}
@@ -298,22 +298,22 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
         </section>
 
         <div className="mb-12">
-          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
-            <h3 className="text-lg font-semibold text-white mb-4">{t("description")}</h3>
-            <p className="text-gray-300 leading-relaxed mb-6">
+          <div className="bg-white dark:bg-gray-900/50 backdrop-blur-sm border border-slate-200 dark:border-gray-800 rounded-2xl p-8">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">{t("description")}</h3>
+            <p className="text-slate-700 dark:text-gray-300 leading-relaxed mb-6">
               {product.description ?? t("noDescription")}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {detailRows.map(([key, value]) => (
-                <div key={key} className="flex justify-between py-3 border-b border-gray-800">
-                  <span className="text-gray-400">{key}</span>
-                  <span className="text-white font-medium">{value}</span>
+                <div key={key} className="flex justify-between py-3 border-b border-slate-200 dark:border-gray-800">
+                  <span className="text-slate-600 dark:text-gray-400">{key}</span>
+                  <span className="text-slate-900 dark:text-white font-medium">{value}</span>
                 </div>
               ))}
               {Object.entries(specifications).map(([key, value]) => (
-                <div key={key} className="flex justify-between py-3 border-b border-gray-800">
-                  <span className="text-gray-400 capitalize">{key.replace(/_/g, " ")}</span>
-                  <span className="text-white font-medium">{value}</span>
+                <div key={key} className="flex justify-between py-3 border-b border-slate-200 dark:border-gray-800">
+                  <span className="text-slate-600 dark:text-gray-400 capitalize">{key.replace(/_/g, " ")}</span>
+                  <span className="text-slate-900 dark:text-white font-medium">{value}</span>
                 </div>
               ))}
             </div>
@@ -323,15 +323,15 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
         {variants.length > 0 && (
           <section className="mb-12">
             <Card>
-              <h2 className="text-2xl font-bold text-white mb-4">{t("availableVariants")}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t("availableVariants")}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {variants.map((variant) => (
                   <div
                     key={variant.id}
-                    className="flex items-center justify-between p-4 rounded-xl border border-gray-800 bg-gray-900/40"
+                    className="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-white dark:border-gray-800 dark:bg-gray-900/40"
                   >
                     <div>
-                      <p className="text-white font-medium">{variant.name}</p>
+                      <p className="text-slate-900 dark:text-white font-medium">{variant.name}</p>
                       <p className="text-xs text-gray-500">
                         {Object.entries(variant.attributes)
                           .map(([k, v]) => `${k}: ${v}`)
@@ -340,7 +340,7 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                     </div>
                     <div className="text-right">
                       {variant.price != null && (
-                        <p className="text-white font-semibold">{formatPrice(Number(variant.price))}</p>
+                        <p className="text-slate-900 dark:text-white font-semibold">{formatPrice(Number(variant.price))}</p>
                       )}
                       <p className={`text-xs ${variant.inStock ? "text-green-400" : "text-red-400"}`}>
                         {variant.inStock ? tCommon("inStock") : tCommon("outOfStock")}
@@ -356,11 +356,11 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
         {priceHistory.length > 1 && (
           <section className="mb-12">
             <Card>
-              <h2 className="text-2xl font-bold text-white mb-4">{t("priceHistory")}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t("priceHistory")}</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-gray-400 border-b border-gray-800">
+                    <tr className="text-slate-600 dark:text-gray-400 border-b border-slate-200 dark:border-gray-800">
                       <th className="text-left py-2">{t("historyDate")}</th>
                       <th className="text-right py-2">{tCommon("price")}</th>
                       <th className="text-right py-2">{t("historyChange")}</th>
@@ -369,11 +369,11 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                   </thead>
                   <tbody>
                     {[...priceHistory].reverse().slice(0, 10).map((point) => (
-                      <tr key={point.id} className="border-b border-gray-800/50">
-                        <td className="py-2 text-gray-300">
+                      <tr key={point.id} className="border-b border-slate-200 dark:border-gray-800/50">
+                        <td className="py-2 text-slate-700 dark:text-gray-300">
                           {new Date(point.recordedAt).toLocaleDateString()}
                         </td>
-                        <td className="py-2 text-right text-white">
+                        <td className="py-2 text-right text-slate-900 dark:text-white">
                           {formatPrice(point.price)}
                         </td>
                         <td className="py-2 text-right">
@@ -384,13 +384,13 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
                             <span className="text-red-400">↑ {point.changePercent}%</span>
                           )}
                           {point.changeDirection === "new" && (
-                            <span className="text-gray-400">{t("historyNew")}</span>
+                            <span className="text-slate-600 dark:text-gray-400">{t("historyNew")}</span>
                           )}
                           {point.changeDirection === "same" && (
                             <span className="text-gray-500">—</span>
                           )}
                         </td>
-                        <td className="py-2 text-gray-400 capitalize">{point.provider ?? "—"}</td>
+                        <td className="py-2 text-slate-600 dark:text-gray-400 capitalize">{point.provider ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -403,11 +403,11 @@ export default function ProductDetailsPageClient({ detail }: ProductDetailsPageC
         <Card className="flex items-center gap-4">
           <TrendingUp className="w-8 h-8 text-green-400" />
           <div>
-            <p className="text-white font-semibold flex items-center gap-2">
+            <p className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
               {t("priceTrackingActive")}
               <CheckCircle className="w-4 h-4 text-green-400" />
             </p>
-            <p className="text-sm text-gray-400">{t("priceTrackingDescription")}</p>
+            <p className="text-sm text-slate-600 dark:text-gray-400">{t("priceTrackingDescription")}</p>
           </div>
         </Card>
     </div>

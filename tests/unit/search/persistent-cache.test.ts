@@ -24,12 +24,14 @@ describe("persistent search cache", () => {
         activeCurrency: "EGP",
         useFuzzyMatch: true,
       }),
-    ).toBe(`${getSearchCacheVersion()}|iphone 15 pro|sort:price|cur:EGP|fuzzy:1`);
+    ).toBe(
+      `${getSearchCacheVersion()}|iphone 15 pro|sort:price|cur:EGP|fuzzy:1|orig:`,
+    );
   });
 
   it("defaults to relevance/USD/non-fuzzy", () => {
     expect(buildPersistentSearchKey("tv")).toBe(
-      `${getSearchCacheVersion()}|tv|sort:relevance|cur:USD|fuzzy:0`,
+      `${getSearchCacheVersion()}|tv|sort:relevance|cur:USD|fuzzy:0|orig:`,
     );
   });
 

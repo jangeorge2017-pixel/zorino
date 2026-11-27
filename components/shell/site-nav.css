@@ -4,10 +4,6 @@
  * Flex: [Logo @ start] ……auto…… [actions @ end]
  */
 
-.zor-nav__logo-light-wrap {
-  display: none !important;
-}
-
 .zor-nav__logo-lockup {
   display: block;
   object-fit: contain;

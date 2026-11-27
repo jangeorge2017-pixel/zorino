@@ -184,6 +184,9 @@ function buildFakeSupabase(rows: DbRow[]): () => unknown {
       table === "products"
         ? {
             select: () => ({
+              or: () => ({
+                limit: () => Promise.resolve({ data: [], error: null }),
+              }),
               in: (_col: string, ids: string[]) =>
                 Promise.resolve({
                   data: ordered

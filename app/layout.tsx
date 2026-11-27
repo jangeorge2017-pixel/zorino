@@ -10,6 +10,7 @@ import "./design-system.css";
 import "./site-final-polish.css";
 import "./badge-amber.css";
 import "./light-theme.css";
+import "./site-wide-light-mode.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

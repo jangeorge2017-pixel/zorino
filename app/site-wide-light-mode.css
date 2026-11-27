@@ -1,0 +1,270 @@
+:root {
+  --zor-nav-logo-height: 61.6px;
+}
+
+.logo-lockup,
+.zor-nav__logo-lockup,
+.zh-nav__logo-lockup,
+.zorino-brand-logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: var(--zh-nav-logo-h, var(--zor-nav-logo-height)) !important;
+  max-height: var(--zh-nav-logo-h, var(--zor-nav-logo-height)) !important;
+  width: auto !important;
+  max-width: none !important;
+  aspect-ratio: 205 / 82;
+  object-fit: contain !important;
+  object-position: left center !important;
+  flex: 0 0 auto !important;
+}
+
+html[dir="rtl"] .logo-lockup,
+html[dir="rtl"] .zor-nav__logo-lockup,
+html[dir="rtl"] .zh-nav__logo-lockup,
+html[dir="rtl"] .zorino-brand-logo {
+  object-position: right center !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-hero {
+  border-color: #e2e8f0 !important;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 45%, #ecfeff 100%) !important;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-hero__badge {
+  border-color: #ddd6fe !important;
+  background: #f5f3ff !important;
+  color: #6d28d9 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-toc__link {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-toc__link:hover {
+  border-color: #c4b5fd !important;
+  background: #ede9fe !important;
+  color: #5b21b6 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-section__icon {
+  border-color: #ddd6fe !important;
+  background: #f5f3ff !important;
+  color: #6d28d9 !important;
+  box-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-cta {
+  border-color: #ddd6fe !important;
+  background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-faq-item--open {
+  border-color: #c4b5fd !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) [class*="filter-bar"] {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) [class*="quick-filter"] {
+  border-color: #cbd5e1 !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #334155 !important;
+  box-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) [class*="quick-filter"]:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) [class*="quick-filter"].is-active {
+  border-color: #c4b5fd !important;
+  background: #ede9fe !important;
+  color: #5b21b6 !important;
+  box-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-intl__panel {
+  border-color: #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.16) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-intl__section + .zor-intl__section {
+  border-top-color: #e2e8f0 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-intl__option {
+  color: #334155 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-intl__option:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-intl__option--active {
+  background: #ede9fe !important;
+  color: #5b21b6 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-compare-page .compare-price-stat {
+  border-color: #e2e8f0 !important;
+  background: #f8fafc !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-compare-page .compare-price-stat-value {
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .wishlist-remove-btn {
+  border-color: #cbd5e1 !important;
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .wishlist-select-row {
+  color: #475569 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .wishlist-alerts-card h2 {
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .wishlist-alert-row {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .wishlist-alert-media {
+  background: #f1f5f9 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-back-to-top {
+  border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-back-to-top:hover,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-back-to-top:focus-visible {
+  background: #ede9fe !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-coupon {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.07) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-coupon:hover {
+  border-color: #c4b5fd !important;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12), 0 0 20px rgba(139, 92, 246, 0.1) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-coupon__code-box {
+  border-color: #cbd5e1 !important;
+  background: #f1f5f9 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-cta-band {
+  border-color: #ddd6fe !important;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 45%, #ecfeff 100%) !important;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.1) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-cta-band__eyebrow {
+  color: #6d28d9 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-cta-band__title {
+  background: linear-gradient(95deg, #0f172a 0%, #6d28d9 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-cta-band__text {
+  color: #475569 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-cta-band__btn--ghost {
+  border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-cta-band__btn--ghost:hover {
+  border-color: #c4b5fd !important;
+  background: #f5f3ff !important;
+  color: #5b21b6 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-footer {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 -8px 48px rgba(15, 23, 42, 0.08) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-footer__featured-stores,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-footer__newsletter {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-footer__featured-title {
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-footer__featured-link {
+  color: #6d28d9 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-footer__store-logo {
+  border-color: #e2e8f0 !important;
+  background: #f8fafc !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-footer__store-logo span {
+  color: #5b21b6 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .zh-brand-card__logo-wrap {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-brand-card__verified {
+  border-color: #a7f3d0 !important;
+  background: #ffffff !important;
+  color: #047857 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-brand-card__name {
+  color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-brand-card__offer {
+  color: #475569 !important;
+}
+
+html.light:has(.admin-shell) .text-white,
+html.light:has(.admin-shell) .text-gray-300 {
+  color: #f8fafc !important;
+}
+
+html.light:has(.admin-shell) .text-gray-400 {
+  color: #94a3b8 !important;
+}
+
+html.light:has(.admin-shell) .border-gray-800 {
+  border-color: #1f2937 !important;
+}
+
+html.light:has(.admin-shell) .bg-gray-900\/40 {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+}

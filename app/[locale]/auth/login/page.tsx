@@ -52,11 +52,11 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">{t('login')}</h1>
-          <p className="text-gray-400">{t('welcomeBack')}</p>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">{t('login')}</h1>
+          <p className="text-slate-600 dark:text-gray-400">{t('welcomeBack')}</p>
         </div>
 
-        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+        <div className="bg-white dark:bg-gray-900/50 backdrop-blur-sm border border-slate-200 dark:border-gray-800 rounded-2xl p-8">
           {error && (
             <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg mb-6">
               {error}
@@ -85,7 +85,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-between">
               <label className="flex items-center">
                 <input type="checkbox" className="mr-2" />
-                <span className="text-sm text-gray-400">{t('rememberMe')}</span>
+                <span className="text-sm text-slate-600 dark:text-gray-400">{t('rememberMe')}</span>
               </label>
               <Link href="/auth/forgot-password" className="text-sm text-purple-400 hover:text-purple-300">
                 {t('forgotPassword')}
@@ -100,24 +100,24 @@ export default function LoginPage() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-700"></div>
+                <div className="w-full border-t border-slate-200 dark:border-gray-700"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-900 text-gray-400">{t('orContinueWith')}</span>
+                <span className="px-2 bg-slate-50 text-slate-600 dark:bg-gray-900 dark:text-gray-400">{t('orContinueWith')}</span>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 onClick={handleGoogleLogin}
-                className="flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+                className="flex items-center justify-center px-4 py-3 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <Globe className="w-5 h-5 mr-2" />
                 {t('google')}
               </button>
               <button
                 onClick={handleFacebookLogin}
-                className="flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+                className="flex items-center justify-center px-4 py-3 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <Share2 className="w-5 h-5 mr-2" />
                 {t('facebook')}
@@ -125,7 +125,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <p className="mt-8 text-center text-sm text-gray-400">
+          <p className="mt-8 text-center text-sm text-slate-600 dark:text-gray-400">
             {t('noAccount')}{' '}
             <Link href="/auth/register" className="text-purple-400 hover:text-purple-300 font-medium">
               {t('signUpLink')}

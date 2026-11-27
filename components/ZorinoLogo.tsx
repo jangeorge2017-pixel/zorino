@@ -41,8 +41,16 @@ export function ZorinoLogo({
         loading="eager"
         fetchPriority="high"
         draggable={false}
-        className={className}
-        style={{ width: displayWidth, height: displayHeight }}
+        className={["zorino-brand-logo", className].filter(Boolean).join(" ")}
+        style={{
+          width: "auto",
+          height: displayHeight,
+          aspectRatio: `${ZORINO_LOGO_INTRINSIC.width} / ${ZORINO_LOGO_INTRINSIC.height}`,
+          objectFit: "contain",
+          objectPosition: "left center",
+          flexShrink: 0,
+        }}
+        referrerPolicy="no-referrer"
       />
     </span>
   );

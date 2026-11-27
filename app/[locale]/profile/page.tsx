@@ -40,7 +40,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Please log in</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Please log in</h2>
           <Button onClick={() => router.push('/auth/login')}>Login</Button>
         </div>
       </div>
@@ -51,8 +51,8 @@ export default function ProfilePage() {
     <div className="min-h-screen">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">{t('title')}</h1>
-          <p className="text-gray-400">Manage your account settings and preferences</p>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">{t('title')}</h1>
+          <p className="text-slate-600 dark:text-gray-400">Manage your account settings and preferences</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -63,11 +63,11 @@ export default function ProfilePage() {
                 <div className="w-24 h-24 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 relative">
                   <span className="text-4xl">👤</span>
                   <button className="absolute bottom-0 right-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                    <Camera className="w-4 h-4 text-white" />
+                    <Camera className="w-4 h-4 text-slate-900 dark:text-white" />
                   </button>
                 </div>
-                <h3 className="text-xl font-semibold text-white">{user.name}</h3>
-                <p className="text-gray-400 text-sm">{user.email}</p>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{user.name}</h3>
+                <p className="text-slate-600 dark:text-gray-400 text-sm">{user.email}</p>
                 {user.isVerified && (
                   <div className="flex items-center justify-center gap-1 mt-2 text-green-400 text-sm">
                     <CheckCircle className="w-4 h-4" />
@@ -82,7 +82,7 @@ export default function ProfilePage() {
                     <Link
                       key={tab.id}
                       href="/settings"
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-400 hover:bg-gray-800/50 hover:text-white"
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800/50 hover:text-slate-900 dark:hover:text-white"
                     >
                       <tab.icon className="w-5 h-5" />
                       {tab.label}
@@ -94,7 +94,7 @@ export default function ProfilePage() {
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       activeTab === tab.id
                         ? 'bg-purple-500/20 text-purple-400'
-                        : 'text-gray-400 hover:bg-gray-800/50 hover:text-white'
+                        : 'text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-gray-800/50 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     <tab.icon className="w-5 h-5" />
@@ -104,7 +104,7 @@ export default function ProfilePage() {
                 ))}
               </nav>
 
-              <div className="mt-6 pt-6 border-t border-gray-800">
+              <div className="mt-6 pt-6 border-t border-slate-200 dark:border-gray-800">
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
@@ -121,7 +121,7 @@ export default function ProfilePage() {
             {activeTab === 'profile' && (
               <Card>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white">{t('editProfile')}</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('editProfile')}</h2>
                   <Button
                     variant={isEditing ? 'primary' : 'outline'}
                     size="sm"
@@ -186,11 +186,11 @@ export default function ProfilePage() {
 
             {activeTab === 'settings' && (
               <Card>
-                <h2 className="text-2xl font-bold text-white mb-6">{t('accountSettings')}</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">{t('accountSettings')}</h2>
 
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Preferences</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Preferences</h3>
                     <div className="space-y-4">
                       <Select
                         label="Language"
@@ -214,28 +214,28 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Connected Accounts</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Connected Accounts</h3>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-gray-800/50 rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
                             <span className="text-xl">G</span>
                           </div>
                           <div>
-                            <p className="text-white font-medium">Google</p>
-                            <p className="text-gray-400 text-sm">Connected</p>
+                            <p className="text-slate-900 dark:text-white font-medium">Google</p>
+                            <p className="text-slate-600 dark:text-gray-400 text-sm">Connected</p>
                           </div>
                         </div>
                         <Button variant="outline" size="sm">Disconnect</Button>
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-gray-800/50 rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
                             <span className="text-xl">f</span>
                           </div>
                           <div>
-                            <p className="text-white font-medium">Facebook</p>
-                            <p className="text-gray-400 text-sm">Not connected</p>
+                            <p className="text-slate-900 dark:text-white font-medium">Facebook</p>
+                            <p className="text-slate-600 dark:text-gray-400 text-sm">Not connected</p>
                           </div>
                         </div>
                         <Button variant="outline" size="sm">Connect</Button>
@@ -250,7 +250,7 @@ export default function ProfilePage() {
 
             {activeTab === 'notifications' && (
               <Card>
-                <h2 className="text-2xl font-bold text-white mb-6">{t('notificationSettings')}</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">{t('notificationSettings')}</h2>
 
                 <div className="space-y-6">
                   <div className="space-y-4">
@@ -260,14 +260,14 @@ export default function ProfilePage() {
                       { label: 'Coupon codes', description: 'Get alerts when new coupon codes are available' },
                       { label: 'Newsletter', description: 'Weekly digest of the best deals and shopping tips' },
                     ].map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                      <div key={index} className="flex items-center justify-between p-4 bg-slate-100 dark:bg-gray-800/50 rounded-lg">
                         <div>
-                          <p className="text-white font-medium">{item.label}</p>
-                          <p className="text-gray-400 text-sm">{item.description}</p>
+                          <p className="text-slate-900 dark:text-white font-medium">{item.label}</p>
+                          <p className="text-slate-600 dark:text-gray-400 text-sm">{item.description}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" defaultChecked={index < 3} className="sr-only peer" />
-                          <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500" />
+                          <div className="w-11 h-6 bg-slate-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500" />
                         </label>
                       </div>
                     ))}
@@ -280,11 +280,11 @@ export default function ProfilePage() {
 
             {activeTab === 'security' && (
               <Card>
-                <h2 className="text-2xl font-bold text-white mb-6">{t('security')}</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">{t('security')}</h2>
 
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Change Password</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Change Password</h3>
                     <div className="space-y-4">
                       <Input
                         label="Current Password"
@@ -305,12 +305,12 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Two-Factor Authentication</h3>
-                    <div className="p-4 bg-gray-800/50 rounded-lg">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Two-Factor Authentication</h3>
+                    <div className="p-4 bg-slate-100 dark:bg-gray-800/50 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white font-medium">2FA is not enabled</p>
-                          <p className="text-gray-400 text-sm">Add an extra layer of security to your account</p>
+                          <p className="text-slate-900 dark:text-white font-medium">2FA is not enabled</p>
+                          <p className="text-slate-600 dark:text-gray-400 text-sm">Add an extra layer of security to your account</p>
                         </div>
                         <Button variant="outline" size="sm">Enable</Button>
                       </div>
@@ -318,12 +318,12 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-4 text-red-400">Danger Zone</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 text-red-400">Danger Zone</h3>
                     <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-white font-medium">Delete Account</p>
-                          <p className="text-gray-400 text-sm">Permanently delete your account and all data</p>
+                          <p className="text-slate-900 dark:text-white font-medium">Delete Account</p>
+                          <p className="text-slate-600 dark:text-gray-400 text-sm">Permanently delete your account and all data</p>
                         </div>
                         <Button variant="outline" className="border-red-500 text-red-400 hover:bg-red-500/10">
                           Delete

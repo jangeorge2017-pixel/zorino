@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020611] flex items-center justify-center px-4 py-12">
+    <div className="admin-shell min-h-screen bg-[#020611] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-500/20 text-purple-400 mb-4">

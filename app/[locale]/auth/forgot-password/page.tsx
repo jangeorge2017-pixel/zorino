@@ -36,10 +36,10 @@ export default function ForgotPasswordPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-12">
         <div className="max-w-md w-full">
-          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 text-center">
+          <div className="bg-white dark:bg-gray-900/50 backdrop-blur-sm border border-slate-200 dark:border-gray-800 rounded-2xl p-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">{t('checkEmail')}</h2>
-            <p className="text-gray-400 mb-6">{t('resetEmailSent')}</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('checkEmail')}</h2>
+            <p className="text-slate-600 dark:text-gray-400 mb-6">{t('resetEmailSent')}</p>
             <Button onClick={() => router.push('/auth/login')} className="w-full">
               {t('backToLogin')}
             </Button>
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
-        <Link href="/auth/login" className="inline-flex items-center text-gray-400 hover:text-white mb-8 transition-colors">
+        <Link href="/auth/login" className="inline-flex items-center text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('backToLogin')}
         </Link>
@@ -61,11 +61,11 @@ export default function ForgotPasswordPage() {
           <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-purple-500" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">{t('forgotPassword')}</h1>
-          <p className="text-gray-400">{t('resetPasswordHint')}</p>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">{t('forgotPassword')}</h1>
+          <p className="text-slate-600 dark:text-gray-400">{t('resetPasswordHint')}</p>
         </div>
 
-        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+        <div className="bg-white dark:bg-gray-900/50 backdrop-blur-sm border border-slate-200 dark:border-gray-800 rounded-2xl p-8">
           {error && (
             <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg mb-6">
               {error}
@@ -87,7 +87,7 @@ export default function ForgotPasswordPage() {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-400">
+          <p className="mt-8 text-center text-sm text-slate-600 dark:text-gray-400">
             {t('rememberPassword')}{' '}
             <Link href="/auth/login" className="text-purple-400 hover:text-purple-300 font-medium">
               {t('signInLink')}

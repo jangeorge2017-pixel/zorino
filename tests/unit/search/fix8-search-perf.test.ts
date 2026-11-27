@@ -160,6 +160,9 @@ function fastSupabaseFactory(row: Record<string, unknown>) {
   };
   const productsChain: any = {
     select: () => productsChain,
+    or: () => ({
+      limit: () => Promise.resolve({ data: [], error: null }),
+    }),
     in: () =>
       Promise.resolve({
         data: [{ id: row.product_id, category_slug: "smartphones" }],

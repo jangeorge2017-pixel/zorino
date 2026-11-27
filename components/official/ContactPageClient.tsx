@@ -48,11 +48,11 @@ export default function ContactPageClient() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
           <Card className="zor-official-section">
-            <h2 className="text-xl font-bold text-white mb-6">{t("sendMessage")}</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">{t("sendMessage")}</h2>
             {isSubmitted ? (
               <div className="text-center py-12 zor-official-section">
                 <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">{t("messageSent")}</h3>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{t("messageSent")}</h3>
                 <p className="text-[var(--zor-text-muted)]">We&apos;ll respond within 24 hours.</p>
               </div>
             ) : (
@@ -90,11 +90,11 @@ export default function ContactPageClient() {
                   <div>
                     <p className="text-[var(--zor-text-muted)] text-sm">{item.label}</p>
                     {item.link ? (
-                      <a href={item.link} className="text-white font-medium hover:text-[var(--zor-purple-light)] transition-colors">
+                      <a href={item.link} className="text-slate-900 dark:text-white font-medium hover:text-[var(--zor-purple-light)] transition-colors">
                         {item.value}
                       </a>
                     ) : (
-                      <p className="text-white font-medium">{item.value}</p>
+                      <p className="text-slate-900 dark:text-white font-medium">{item.value}</p>
                     )}
                   </div>
                 </div>
@@ -102,7 +102,7 @@ export default function ContactPageClient() {
             ))}
 
             <Card className="zor-official-cta">
-              <h3 className="font-semibold text-white mb-4">Department Contacts</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Department Contacts</h3>
               <div className="space-y-4">
                 {supportOptions.map((opt) => (
                   <div key={opt.title} className="flex gap-3">
@@ -110,7 +110,7 @@ export default function ContactPageClient() {
                       <opt.icon size={18} />
                     </div>
                     <div>
-                      <p className="text-white font-medium text-sm">{opt.title}</p>
+                      <p className="text-slate-900 dark:text-white font-medium text-sm">{opt.title}</p>
                       <p className="text-[var(--zor-text-muted)] text-xs mb-1">{opt.description}</p>
                       <a href={`mailto:${opt.email}`} className="text-[var(--zor-purple-light)] text-sm hover:underline">
                         {opt.email}
