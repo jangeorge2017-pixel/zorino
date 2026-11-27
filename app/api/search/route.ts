@@ -34,10 +34,14 @@ export async function GET(req: NextRequest) {
 
   const country = detectCountryFromHeaders(req);
   const currencyCode = resolveCurrencyForRequest(req, country) as CurrencyCode;
+  const candidateLimit = Math.min(
+    SEARCH_ENGINE_DEFAULTS.MAX_DISPLAY_LIMIT,
+    Math.max(limit * 8, SEARCH_ENGINE_DEFAULTS.PAGE_SIZE),
+  );
   const page = await getSearchResultsPage(
     searchQuery,
     0,
-    limit,
+    candidateLimit,
     "relevance",
     currencyCode,
     trimmed,

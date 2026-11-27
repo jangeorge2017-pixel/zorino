@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import StoreLogo from "@/components/StoreLogo";
 import { Check, CheckCircle, Copy, Flame, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
@@ -48,7 +48,6 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
   const t = useTranslations("home");
   const tCoupons = useTranslations("coupons");
   const [copied, setCopied] = useState(false);
-  const [logoFailed, setLogoFailed] = useState(false);
   const logoSrc = resolveTopCouponLogoSrc(coupon);
 
   const copyCode = () => {
@@ -60,21 +59,15 @@ function CouponRow({ coupon }: { coupon: TopCouponCard }) {
   return (
     <article className="zh-coupon">
       <div className="zh-coupon__logo">
-        {!logoFailed && logoSrc ? (
-          <Image
-            src={logoSrc}
-            alt={coupon.store}
-            width={60}
-            height={60}
-            loading="lazy"
-            sizes="60px"
-            onError={() => setLogoFailed(true)}
-          />
-        ) : (
-          <span className="store-logo-initial" aria-hidden>
-            {coupon.storeInitial ?? coupon.store.slice(0, 2)}
-          </span>
-        )}
+        <StoreLogo
+          slug={coupon.storeSlug}
+          name={coupon.store}
+          logoUrl={logoSrc}
+          logoInitial={coupon.storeInitial}
+          alt={coupon.store}
+          className="zh-coupon__logo-img"
+          fallbackClassName="store-logo-initial"
+        />
       </div>
       <div className="zh-coupon__body">
         <h3 className="zh-coupon__store">{coupon.store}</h3>

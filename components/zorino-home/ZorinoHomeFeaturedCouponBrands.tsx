@@ -8,7 +8,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import Image from "next/image";
+import StoreLogo from "@/components/StoreLogo";
 import { useTranslations } from "next-intl";
 import ZorinoHomeSectionHeader from "@/components/zorino-home/ZorinoHomeSectionHeader";
 import {
@@ -54,7 +54,6 @@ function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
   const tCommon = useTranslations("common");
   const [copied, setCopied] = useState(false);
   const logoSrc = resolveFeaturedBrandLogoSrc(brand);
-  const [logoFailed, setLogoFailed] = useState(!logoSrc);
 
   const copyCode = () => {
     navigator.clipboard.writeText(brand.code);
@@ -75,21 +74,15 @@ function BrandCard({ brand }: { brand: FeaturedCouponBrand }) {
       <div className="zh-brand-card__glow" aria-hidden />
 
       <div className="zh-brand-card__logo-wrap">
-        {!logoFailed && logoSrc ? (
-          <Image
-            src={logoSrc}
-            alt={brand.name}
-            className="zh-brand-card__logo"
-            fill
-            sizes="60px"
-            loading="lazy"
-            onError={() => setLogoFailed(true)}
-          />
-        ) : (
-          <span className="zh-brand-card__logo-fallback" aria-hidden>
-            {brand.logoInitial}
-          </span>
-        )}
+        <StoreLogo
+          slug={brand.slug}
+          name={brand.name}
+          logoUrl={logoSrc}
+          logoInitial={brand.logoInitial}
+          alt={brand.name}
+          className="zh-brand-card__logo"
+          fallbackClassName="zh-brand-card__logo-fallback"
+        />
         {brand.verified ? (
           <span className="zh-brand-card__verified">
             <CheckCircle size={11} aria-hidden />

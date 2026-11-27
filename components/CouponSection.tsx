@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Copy, Check, CheckCircle, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
-import AssetImage from "@/components/AssetImage";
+import StoreLogo from "@/components/StoreLogo";
 import ReferenceSectionHeader from "@/components/ReferenceSectionHeader";
 import { HOME_SECTIONS } from "@/lib/homepage/sections";
 import type { TopCouponCard } from "@/lib/types/entities";
@@ -43,13 +43,14 @@ export default function CouponSection({ coupons }: CouponSectionProps) {
         {coupons.map((coupon) => (
           <article key={coupon.id} className="coupon-card">
             <div className="coupon-store-logo">
-              <AssetImage
-                src={coupon.storeLogoSrc}
-                alt=""
-                width={42}
-                height={42}
+              <StoreLogo
+                slug={coupon.storeSlug}
+                name={coupon.store}
+                logoUrl={coupon.storeLogoSrc}
+                logoInitial={coupon.storeInitial}
+                alt={coupon.store}
                 className="coupon-store-logo-img"
-                fallback={<span className="coupon-store-initial">{coupon.storeInitial}</span>}
+                fallbackClassName="coupon-store-initial"
               />
             </div>
 

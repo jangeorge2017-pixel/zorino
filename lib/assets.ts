@@ -140,6 +140,10 @@ const STORE_LOGO_BY_SLUG: Record<string, string> = {
   admitad: STORE_LOGOS.admitad,
   alibaba: STORE_LOGOS.alibaba,
   alibabaww: STORE_LOGOS.alibaba,
+  alibabagroup: STORE_LOGOS.alibaba,
+  bestbuyus: STORE_LOGOS.bestBuy,
+  amazonegypt: STORE_LOGOS.amazon,
+  noonegypt: STORE_LOGOS.noon,
   default: STORE_LOGOS.default,
 };
 
@@ -158,6 +162,43 @@ export function resolveStoreLogoSrc(slug?: string | null): string {
 
 export function hasOfficialStoreLogo(slug?: string | null): boolean {
   return Boolean(STORE_LOGO_BY_SLUG[normalizeStoreLogoKey(slug)]);
+}
+
+export function storeLogoMonogram(
+  name?: string | null,
+  initial?: string | null,
+  slug?: string | null,
+): string {
+  const provided = initial?.trim();
+  if (provided) return Array.from(provided).slice(0, 2).join("").toUpperCase();
+
+  const words = name?.trim().split(/\s+/).filter(Boolean) ?? [];
+  if (words.length >= 2) {
+    return `${Array.from(words[0] ?? "")[0] ?? ""}${Array.from(words[1] ?? "")[0] ?? ""}`.toUpperCase();
+  }
+
+  const fallback = name?.trim() || slug?.trim() || "Z";
+  return Array.from(fallback).slice(0, 2).join("").toUpperCase();
+}
+
+export function resolveStoreLogo(input: {
+  slug?: string | null;
+  name?: string | null;
+  logoUrl?: string | null;
+  logoInitial?: string | null;
+}): { src: string | null; monogram: string } {
+  const slug = input.slug?.trim() || input.name?.trim() || "";
+  const officialSrc = hasOfficialStoreLogo(slug) ? resolveStoreLogoSrc(slug) : null;
+  const custom = input.logoUrl?.trim();
+  const customSrc =
+    custom && custom !== STORE_LOGOS.default && (custom.startsWith("/") || custom.startsWith("https://"))
+      ? custom
+      : null;
+
+  return {
+    src: officialSrc ?? customSrc,
+    monogram: storeLogoMonogram(input.name, input.logoInitial, slug),
+  };
 }
 
 export const MISSING_ASSETS = [] as const;

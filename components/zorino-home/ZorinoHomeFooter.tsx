@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import AssetImage from "@/components/AssetImage";
+import StoreLogo from "@/components/StoreLogo";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Mail, Package, Send, Store, Tag, Users } from "lucide-react";
 import { useNewsletter } from "@/lib/features/newsletter-system";
-import { hasOfficialStoreLogo, resolveStoreLogoSrc } from "@/lib/assets";
 import type { FooterStatItem, Store as StoreEntity } from "@/lib/types/entities";
 import type { Locale } from "@/i18n/config";
 import "./ZorinoHomeFooter.css";
@@ -78,30 +77,24 @@ export default function ZorinoHomeFooter({
           </Link>
         </div>
         <div className="zh-footer__store-logos">
-          {featuredStores.map((store) => {
-            const logoSrc = hasOfficialStoreLogo(store.slug)
-              ? resolveStoreLogoSrc(store.slug)
-              : store.logoUrl || resolveStoreLogoSrc(store.slug);
-            return (
-              <Link
-                key={store.slug}
-                href={`/stores/${store.slug}`}
-                className="zh-footer__store-logo"
-                title={store.name}
-              >
-                <AssetImage
-                  src={logoSrc}
-                  alt={store.name}
-                  width={40}
-                  height={40}
-                  className="zh-footer__store-logo-img"
-                  fallback={
-                    <span aria-hidden>{store.logoInitial ?? store.name.charAt(0)}</span>
-                  }
-                />
-              </Link>
-            );
-          })}
+          {featuredStores.map((store) => (
+            <Link
+              key={store.slug}
+              href={`/stores/${store.slug}`}
+              className="zh-footer__store-logo"
+              title={`Browse ${store.name} products`}
+            >
+              <StoreLogo
+                slug={store.slug}
+                name={store.name}
+                logoUrl={store.logoUrl}
+                logoInitial={store.logoInitial}
+                alt={store.name}
+                className="zh-footer__store-logo-img"
+              />
+              <span className="zh-footer__store-name">{store.name}</span>
+            </Link>
+          ))}
         </div>
       </div>
 

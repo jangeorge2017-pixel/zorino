@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Star } from "lucide-react";
+import StoreLogo from "@/components/StoreLogo";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
 import WishlistButton from "@/components/WishlistButton";
@@ -25,6 +26,8 @@ export type ListingProductCardData = {
   salesCount?: number;
   store?: string;
   storeSlug?: string;
+  storeLogoSrc?: string;
+  storeLogoInitial?: string;
   category?: string;
   inStock?: boolean;
   affiliateUrl?: string;
@@ -99,7 +102,14 @@ export default function ListingProductCard({
             className="deal-marketplace product-card-badge"
             data-marketplace={product.storeSlug || undefined}
           >
-            {marketplace}
+            <StoreLogo
+              slug={product.storeSlug}
+              name={marketplace ?? product.store}
+              logoUrl={product.storeLogoSrc}
+              logoInitial={product.storeLogoInitial}
+              alt=""
+            />
+            <span>{marketplace}</span>
           </span>
         ) : null}
         {discount > 0 ? (

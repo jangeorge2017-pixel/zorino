@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChevronRight, Clock, Star, TrendingDown, TrendingUp } from "lucide-react";
 import AssetImage from "@/components/AssetImage";
+import StoreLogo from "@/components/StoreLogo";
 import ZorinoHomeSparkline from "@/components/zorino-home/ZorinoHomeSparkline";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
 import type { TrendingDealCard } from "@/lib/types/entities";
@@ -80,12 +81,13 @@ export default function ZorinoHomeDealCard({ deal }: { deal: TrendingDealCard })
       <div className="zh-deal-card__store-row">
         <div className="zh-deal-card__store">
           <span className="zh-deal-card__store-logo">
-            <AssetImage
-              src={deal.storeLogoSrc || ""}
+            <StoreLogo
+              name={deal.store}
+              logoUrl={deal.storeLogoSrc}
+              logoInitial={deal.storeInitial}
               alt=""
-              width={24}
-              height={24}
-              fallback={<span className="store-logo-initial">{deal.store.slice(0, 2)}</span>}
+              className="zh-deal-card__store-logo-img"
+              fallbackClassName="store-logo-initial"
             />
           </span>
           {deal.store}

@@ -135,7 +135,7 @@ export default async function ZorinoHomePage() {
   const [stats, categories, storesResult] = await Promise.all([
     getHomepageStats(),
     getHomepageCategories(),
-    getStores(),
+    getStores({ includeAllActive: true }),
   ]);
 
   const allStores = Array.isArray(storesResult.data) ? storesResult.data : [];

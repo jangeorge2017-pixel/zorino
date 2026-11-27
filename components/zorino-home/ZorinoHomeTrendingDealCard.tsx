@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import AssetImage from "@/components/AssetImage";
+import StoreLogo from "@/components/StoreLogo";
 import { ChevronRight, Clock, Star } from "lucide-react";
 import TrendingDealBadge from "@/components/zorino-home/TrendingDealBadge";
 import { useIntlPreferences } from "@/components/international/IntlPreferencesProvider";
@@ -61,12 +62,13 @@ export default function ZorinoHomeTrendingDealCard({
 
         <div className="zh-td-card__store-row">
           <span className="zh-td-card__store-logo" aria-hidden>
-            <AssetImage
-              src={deal.storeLogoSrc || ""}
+            <StoreLogo
+              name={deal.store}
+              logoUrl={deal.storeLogoSrc}
+              logoInitial={deal.storeInitial}
               alt=""
-              width={24}
-              height={24}
-              fallback={<span className="store-logo-initial">{deal.store.slice(0, 2)}</span>}
+              className="zh-td-card__store-logo-img"
+              fallbackClassName="store-logo-initial"
             />
           </span>
           <span className="zh-td-card__store">{deal.store}</span>

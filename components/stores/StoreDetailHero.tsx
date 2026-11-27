@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
+import StoreLogo from "@/components/StoreLogo";
 import { ArrowLeft, CheckCircle, ExternalLink, Tag } from "lucide-react";
-import { hasOfficialStoreLogo, resolveStoreLogoSrc } from "@/lib/assets";
 import type { MockStoreDetail } from "@/lib/mock/types";
 
 type StoreDetailHeroProps = {
@@ -14,10 +12,6 @@ type StoreDetailHeroProps = {
 
 export default function StoreDetailHero({ detail }: StoreDetailHeroProps) {
   const { store, description, productCount, dealsCount, couponsCount } = detail;
-  const logoSrc = hasOfficialStoreLogo(store.slug)
-    ? resolveStoreLogoSrc(store.slug)
-    : store.logoUrl || resolveStoreLogoSrc(store.slug);
-  const [logoFailed, setLogoFailed] = useState(false);
 
   return (
     <section className="zor-stores-page__detail-hero" aria-labelledby="store-detail-title">
@@ -30,11 +24,15 @@ export default function StoreDetailHero({ detail }: StoreDetailHeroProps) {
       <div className="zor-stores-page__detail-inner">
         <div className="zor-stores-page__detail-brand">
           <div className="zor-stores-page__detail-logo">
-            {logoSrc && !logoFailed ? (
-              <Image src={logoSrc} alt={store.name} fill className="zor-stores-page__card-logo-img" unoptimized onError={() => setLogoFailed(true)} />
-            ) : (
-              <span className="zor-stores-page__card-logo-fallback">{store.logoInitial}</span>
-            )}
+            <StoreLogo
+              slug={store.slug}
+              name={store.name}
+              logoUrl={store.logoUrl}
+              logoInitial={store.logoInitial}
+              alt={store.name}
+              className="zor-stores-page__card-logo-img"
+              fallbackClassName="zor-stores-page__card-logo-fallback"
+            />
           </div>
           <div>
             <p className="zor-stores-page__eyebrow">

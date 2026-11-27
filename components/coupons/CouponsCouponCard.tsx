@@ -1,6 +1,6 @@
 "use client";
 
-import AssetImage from "@/components/AssetImage";
+import StoreLogo from "@/components/StoreLogo";
 import Button from "@/components/ui/Button";
 import { CheckCircle, Copy, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -38,13 +38,14 @@ export default function CouponsCouponCard({
     <article className="zor-coupons-page__card">
       <div className="zor-coupons-page__card-head">
         <div className="zor-coupons-page__card-logo">
-          <AssetImage
-            src={coupon.storeLogoSrc}
-            alt=""
-            width={42}
-            height={42}
+          <StoreLogo
+            slug={coupon.storeSlug}
+            name={coupon.store}
+            logoUrl={coupon.storeLogoSrc}
+            logoInitial={coupon.storeInitial}
+            alt={coupon.store}
             className="zor-coupons-page__card-logo-img"
-            fallback={<span className="zor-coupons-page__card-logo-fallback">{coupon.storeInitial}</span>}
+            fallbackClassName="zor-coupons-page__card-logo-fallback"
           />
         </div>
         <div>

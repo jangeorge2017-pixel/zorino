@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { ExternalLink, Tag, TrendingDown, Trophy, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import AssetImage from "@/components/AssetImage";
+import StoreLogo from "@/components/StoreLogo";
 import { buildAffiliateRedirectPath } from "@/lib/affiliate/generate";
 import { isValidProductDestinationUrl } from "@/lib/affiliate/product-url";
 import { buildSmartModelQuery } from "@/lib/search/model-matcher";
@@ -64,17 +64,14 @@ export default function PriceComparisonTable({
               >
                 <td>
                   <div className="price-comparison-store">
-                    <AssetImage
-                      src={offer.store?.logoUrl ?? ""}
-                      alt=""
-                      width={28}
-                      height={28}
+                    <StoreLogo
+                      slug={offer.store?.slug ?? offer.provider}
+                      name={storeName}
+                      logoUrl={offer.store?.logoUrl}
+                      logoInitial={offer.store?.logoInitial}
+                      alt={storeName}
                       className="price-comparison-store-logo"
-                      fallback={
-                        <span className="price-comparison-store-initial">
-                          {offer.store?.logoInitial ?? storeName.slice(0, 2)}
-                        </span>
-                      }
+                      fallbackClassName="price-comparison-store-initial"
                     />
                     <span>{storeName}</span>
                     {offer.isLowest && (

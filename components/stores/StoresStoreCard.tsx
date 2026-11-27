@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
+import StoreLogo from "@/components/StoreLogo";
 import { ExternalLink } from "lucide-react";
-import { hasOfficialStoreLogo, resolveStoreLogoSrc } from "@/lib/assets";
 import type { Store } from "@/lib/types/entities";
 
 type StoresStoreCardProps = {
@@ -19,30 +17,19 @@ export default function StoresStoreCard({
   viewProductsLabel,
   visitLabel = "Visit",
 }: StoresStoreCardProps) {
-  const [logoFailed, setLogoFailed] = useState(false);
-  const logoSrc = hasOfficialStoreLogo(store.slug)
-    ? resolveStoreLogoSrc(store.slug)
-    : store.logoUrl || resolveStoreLogoSrc(store.slug);
-  const showLogo = Boolean(logoSrc) && !logoFailed;
-
   return (
     <article className="zor-stores-page__card">
       <div className="zor-stores-page__card-head">
         <div className="zor-stores-page__card-logo">
-          {showLogo ? (
-            <Image
-              src={logoSrc}
-              alt={store.name}
-              fill
-              className="zor-stores-page__card-logo-img"
-              unoptimized
-              onError={() => setLogoFailed(true)}
-            />
-          ) : (
-            <span className="zor-stores-page__card-logo-fallback">
-              {store.logoInitial ?? store.name.slice(0, 2)}
-            </span>
-          )}
+          <StoreLogo
+            slug={store.slug}
+            name={store.name}
+            logoUrl={store.logoUrl}
+            logoInitial={store.logoInitial}
+            alt={store.name}
+            className="zor-stores-page__card-logo-img"
+            fallbackClassName="zor-stores-page__card-logo-fallback"
+          />
         </div>
         <div className="zor-stores-page__card-title-wrap">
           <h3 className="zor-stores-page__card-title">

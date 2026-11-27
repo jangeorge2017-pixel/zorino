@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Truck } from "lucide-react";
 import ProductCardMedia from "@/components/ProductCardMedia";
 import ProductCardActions from "@/components/ProductCardActions";
-import AssetImage from "@/components/AssetImage";
+import StoreLogo from "@/components/StoreLogo";
 import StarRating from "@/components/StarRating";
 import WishlistButton from "@/components/WishlistButton";
 import PriceAlertButton from "@/components/PriceAlertButton";
@@ -99,7 +99,6 @@ export default function HomeProductCard({
   const tCommon = useTranslations("common");
   const locale = useLocale() as Locale;
   const toCardNumerals = (s: string) => (locale === "ar" ? toArabicNumerals(s) : s);
-  const initial = storeInitial ?? storeName?.charAt(0).toUpperCase() ?? "?";
   const showOriginal = originalPrice !== undefined && originalPrice > price;
   const savingsAmount = showOriginal ? originalPrice! - price : 0;
   const showRating = rating !== undefined && rating > 0;
@@ -193,13 +192,13 @@ export default function HomeProductCard({
           <div className="deal-store-row">
             <div className="deal-store">
               <span className="store-logo">
-                <AssetImage
-                  src={storeLogoSrc ?? ""}
+                <StoreLogo
+                  name={storeName}
+                  logoUrl={storeLogoSrc}
+                  logoInitial={storeInitial}
                   alt=""
-                  width={28}
-                  height={28}
                   className="store-logo-img"
-                  fallback={<span className="store-logo-initial">{initial}</span>}
+                  fallbackClassName="store-logo-initial"
                 />
               </span>
               <span className="home-product-store-name">{storeName}</span>

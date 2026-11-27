@@ -4519,7 +4519,10 @@ img {
 }
 
 .price-comparison-store-logo {
+  width: 28px;
+  height: 28px;
   border-radius: 8px;
+  object-fit: contain;
 }
 
 .price-comparison-store-initial {

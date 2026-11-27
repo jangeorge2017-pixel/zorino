@@ -45,4 +45,24 @@ describe("search API round-robin", () => {
       "noon-4",
     ]);
   });
+
+  it("never repeats a store while another queued store has stock", () => {
+    const items = [
+      ...itemsFor("ebay", 12),
+      ...itemsFor("amazon", 12),
+      ...itemsFor("noon", 12),
+    ];
+    const mixed = interleaveByStoreRoundRobin(items, (item) => item.split("-")[0]!, 24);
+
+    expect(mixed).toHaveLength(24);
+    for (let index = 1; index < mixed.length; index += 1) {
+      const previous = mixed[index - 1]!.split("-")[0];
+      const current = mixed[index]!.split("-")[0];
+      const previousRemaining = items.filter((item) => item.startsWith(`${previous}-`)).length;
+      const currentRemaining = items.filter((item) => item.startsWith(`${current}-`)).length;
+      if (previousRemaining > 0 && currentRemaining > 0) {
+        expect(previous).not.toBe(current);
+      }
+    }
+  });
 });

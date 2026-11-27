@@ -85,6 +85,7 @@ export async function getStores(options?: {
   integrationType?: StoreRow["integration_type"];
   region?: string;
   limit?: number;
+  includeAllActive?: boolean;
 }): Promise<ServiceResult<Store[]>> {
   const supabase = createSupabaseAnonClient();
   if (!supabase) {
@@ -92,23 +93,43 @@ export async function getStores(options?: {
   }
 
   const limit = Math.min(Math.max(options?.limit ?? MAX_STORE_LIMIT, 1), MAX_STORE_LIMIT);
+  const includeAllActive = options?.includeAllActive === true;
 
-  const { data, error } = await supabase
-    .from("stores")
-    .select(STORE_SELECT)
-    .eq("is_active", true)
-    .order("name")
-    .limit(limit);
+  let rows: StoreRow[] = [];
+  if (includeAllActive) {
+    const pageSize = 100;
+    for (let from = 0; from < 5000; from += pageSize) {
+      const { data: page, error: pageError } = await supabase
+        .from("stores")
+        .select(STORE_SELECT)
+        .eq("is_active", true)
+        .order("name")
+        .range(from, from + pageSize - 1);
+      if (pageError) {
+        return { data: configuredProviderStores(), error: pageError.message };
+      }
+      const batch = (page as unknown as StoreRow[] | null) ?? [];
+      rows.push(...batch);
+      if (batch.length < pageSize) break;
+    }
+  } else {
+    const { data, error } = await supabase
+      .from("stores")
+      .select(STORE_SELECT)
+      .eq("is_active", true)
+      .order("name")
+      .limit(limit);
 
-  if (error) {
-    return { data: configuredProviderStores(), error: error.message };
+    if (error) {
+      return { data: configuredProviderStores(), error: error.message };
+    }
+
+    rows = ((data as unknown as StoreRow[] | null) ?? []).filter((row) => {
+      const isProvider = isProviderStoreSlug(row.slug);
+      const isAdmitad = row.admitted_network === "admitad" || row.slug.startsWith("admitad-");
+      return isProvider || isAdmitad || isBlendedStoreSlug(row.slug);
+    });
   }
-
-  const rows = ((data as unknown as StoreRow[] | null) ?? []).filter((row) => {
-    const isProvider = isProviderStoreSlug(row.slug);
-    const isAdmitad = row.admitted_network === "admitad" || row.slug.startsWith("admitad-");
-    return isProvider || isAdmitad || isBlendedStoreSlug(row.slug);
-  });
 
   const dbStores = rows.map(mapStore);
   const dbSlugs = new Set(dbStores.map((store) => store.slug));
@@ -124,7 +145,7 @@ export async function getStores(options?: {
     }
     return true;
   });
-  return { data: filtered.slice(0, limit), error: null };
+  return { data: includeAllActive ? filtered : filtered.slice(0, limit), error: null };
 }
 
 export async function getStoreBySlug(slug: string): Promise<ServiceResult<Store | null>> {
