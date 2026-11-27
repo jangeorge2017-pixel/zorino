@@ -723,11 +723,17 @@ const STRICT_PERFUME_DISALLOWED_TERMS: readonly string[] = [
 ];
 
 const STRICT_SCREEN_PROTECTOR_DISALLOWED_TERMS: readonly string[] = [
+  "burner",
   "case",
   "camera",
+  "cooker",
+  "cooktop",
   "cover",
+  "gas range",
+  "hob",
   "pouch",
   "silicone",
+  "stove",
   "tpu",
 ];
 

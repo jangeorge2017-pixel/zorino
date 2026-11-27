@@ -151,6 +151,7 @@ describe("relevance — universal strict product intents", () => {
     expect(headphones.kind).toBe("headphones");
     expect(strictTitleState("Tempered Glass Screen Protector", protector)).toBe("tier1");
     expect(strictTitleState("Camera Protector Case for Samsung", protector)).toBe("rejected");
+    expect(strictTitleState("Gas Stove 75 cm Tempered Glass", protector)).toBe("rejected");
     expect(strictTitleState("iPhone 15 Pro", protector)).toBe("rejected");
     expect(strictTitleState("65W USB C Fast Charger", charger)).toBe("tier1");
     expect(strictTitleState("iPhone 15 Pro", charger)).toBe("rejected");
