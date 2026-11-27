@@ -758,6 +758,7 @@ const STRICT_DEVICE_TITLE_TERMS: Record<string, readonly string[]> = {
   macbook: ["macbook", "ماك بوك"],
   laptop: ["laptop", "notebook", "لابتوب"],
   ipad: ["ipad", "ايباد"],
+  oppo: ["oppo", "اوبو"],
 };
 
 function strictHasDeviceTerm(hay: string, term: string): boolean {
@@ -779,6 +780,7 @@ function strictDeviceTerms(query: string): string[] {
   if (strictHasAny(query, ["macbook", "ماك بوك"])) terms.push("macbook");
   if (strictHasAny(query, ["laptop", "لابتوب"])) terms.push("laptop");
   if (strictHasAny(query, ["ipad", "ايباد"])) terms.push("ipad");
+  if (strictHasAny(query, ["oppo", "اوبو"])) terms.push("oppo");
   return terms;
 }
 
@@ -1123,6 +1125,9 @@ export function requiredBrandsForQuery(query: string): string[] | null {
   if (/\b(xiaomi|redmi|poco)\b/.test(q)) {
     return ["xiaomi", "redmi", "poco"];
   }
+  if (/\boppo\b/.test(q)) {
+    return ["oppo"];
+  }
   if (/\b(pixel|google)\b/.test(q)) {
     return ["google", "pixel"];
   }
@@ -1189,6 +1194,11 @@ export const ARABIC_BRAND_MUST_CONTAIN: ReadonlyArray<{
     arabic: ["شاومي"],
   },
   {
+    keys: ["اوبو"],
+    tokens: ["oppo"],
+    arabic: ["اوبو"],
+  },
+  {
     keys: ["بلايستيشن", "بلاي ستيشن"],
     tokens: ["sony", "playstation", "ps5"],
     arabic: ["بلايستيشن", "بلاي ستيشن"],
@@ -1238,6 +1248,9 @@ export function requiredBrandTokensForQuery(
   }
   if (/\b(xiaomi|redmi|poco)\b/.test(lq)) {
     return { tokens: ["xiaomi", "redmi", "poco"], arabic: ["شاومي"] };
+  }
+  if (/\boppo\b/.test(lq)) {
+    return { tokens: ["oppo"], arabic: ["اوبو"] };
   }
   if (/\b(pixel|google)\b/.test(lq)) {
     return { tokens: ["google", "pixel"], arabic: [] };

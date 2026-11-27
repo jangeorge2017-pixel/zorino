@@ -76,6 +76,8 @@ const BILINGUAL_SEARCH_ALIASES: Readonly<Record<string, readonly string[]>> = {
   جالاكسي: ["galaxy"],
   ايفون: ["iphone"],
   ايباد: ["ipad"],
+  اوبو: ["oppo"],
+  برو: ["pro"],
   لابتوب: ["laptop"],
 };
 
@@ -137,6 +139,78 @@ export function queryTokenGroups(query: string): Array<{ token: string; variants
   }
 
   return groups;
+}
+
+export type StrictTokenGroup = {
+  token: string;
+  variants: string[];
+};
+
+const STRICT_GROUP_VARIANT_LIMIT = 32;
+
+function mergeStrictGroup(
+  groups: StrictTokenGroup[],
+  incoming: { token: string; variants: readonly string[] },
+): void {
+  let target = groups.find(
+    (existing) =>
+      existing.token === incoming.token ||
+      incoming.variants.some((variant) => existing.variants.includes(variant)),
+  );
+  if (!target) {
+    target = { token: incoming.token, variants: [] };
+    groups.push(target);
+  }
+  if (!target.variants.includes(incoming.token)) target.variants.push(incoming.token);
+  for (const variant of incoming.variants) {
+    if (target.variants.includes(variant)) continue;
+    if (target.variants.length >= STRICT_GROUP_VARIANT_LIMIT) break;
+    target.variants.push(variant);
+  }
+}
+
+export function strictQueryTokenGroups(
+  ...queries: ReadonlyArray<string | undefined>
+): StrictTokenGroup[] {
+  const primary = queries.find((query) => query?.trim()) ?? "";
+  const groups: StrictTokenGroup[] = [];
+  for (const query of queries) {
+    if (!query?.trim()) continue;
+    for (const group of queryTokenGroups(query)) {
+      mergeStrictGroup(groups, group);
+    }
+  }
+  if (groups.length === 0) {
+    for (const group of queryTokenGroups(primary)) mergeStrictGroup(groups, group);
+  }
+  return groups;
+}
+
+export function buildStrictAllTokenFilter(
+  ...queries: ReadonlyArray<string | undefined>
+): string {
+  const groups = strictQueryTokenGroups(...queries);
+  if (groups.length === 0) return "";
+  const clauses = groups.map((group) => buildGroupOrFilter(group));
+  return clauses.length === 1 ? clauses[0]! : `and(${clauses.join(",")})`;
+}
+
+export function buildGroupOrFilter(group: StrictTokenGroup): string {
+  return buildValuesOrFilter(group.variants);
+}
+
+export function buildValuesOrFilter(values: readonly string[]): string {
+  const clauses: string[] = [];
+  const seen = new Set<string>();
+  for (const value of values) {
+    const trimmed = value.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    clauses.push(buildIlikeClause(trimmed));
+    if (clauses.length >= STRICT_GROUP_VARIANT_LIMIT) break;
+  }
+  if (clauses.length === 0) return "";
+  return clauses.length === 1 ? clauses[0]! : `or(${clauses.join(",")})`;
 }
 
 /**

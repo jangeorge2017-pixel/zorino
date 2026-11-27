@@ -26,14 +26,22 @@ import { toProductCard } from "@/lib/search/types";
 import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
+  buildGroupOrFilter,
   buildIndexedSearchOrFilter,
   buildCombinedSearchOrFilter,
   buildProductCategoryOrFilterWithColumns,
+  buildValuesOrFilter,
   combinedSearchTokens,
   escapeRegexToken,
   querySearchTokens,
+  strictQueryTokenGroups,
+  type StrictTokenGroup,
 } from "@/lib/integration/word-match-filter";
-import { normalizeText } from "@/lib/search/text-normalization";
+import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
+import {
+  cleanSearchableText,
+  normalizeText,
+} from "@/lib/search/text-normalization";
 import {
   currencyCodes,
   type CurrencyCode,
@@ -107,6 +115,154 @@ function passesStrictTitle(name: string, intent: StrictIntent | null): boolean {
   return !intent || strictTitleState(name, intent) !== "rejected";
 }
 
+const STRICT_TIER1_MIN_RESULTS = 12;
+const STRICT_SEARCH_ROW_COLUMNS =
+  "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency";
+
+const BRAND_FAMILIES: ReadonlyArray<{
+  family: string;
+  tokens: readonly string[];
+}> = [
+  { family: "apple", tokens: ["apple", "iphone", "ipad", "macbook"] },
+  { family: "samsung", tokens: ["samsung", "galaxy"] },
+  { family: "xiaomi", tokens: ["xiaomi", "redmi", "poco"] },
+  { family: "oppo", tokens: ["oppo"] },
+  { family: "vivo", tokens: ["vivo"] },
+  { family: "oneplus", tokens: ["oneplus"] },
+  { family: "google", tokens: ["google", "pixel"] },
+  { family: "huawei", tokens: ["huawei"] },
+  { family: "sony", tokens: ["sony", "playstation", "ps5"] },
+  { family: "nokia", tokens: ["nokia"] },
+  { family: "motorola", tokens: ["motorola", "moto"] },
+];
+
+function strictTitleTokenGroups(
+  query: string,
+  ...originalQueries: ReadonlyArray<string | undefined>
+): StrictTokenGroup[] {
+  return strictQueryTokenGroups(query, ...originalQueries);
+}
+
+function normalizedGroupVariants(group: StrictTokenGroup): string[] {
+  const seen = new Set<string>();
+  const variants: string[] = [];
+  for (const variant of group.variants) {
+    const normalized = cleanSearchableText(variant);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    variants.push(normalized);
+  }
+  return variants;
+}
+
+function groupMatchesTitle(group: StrictTokenGroup, title: string): boolean {
+  const cleanTitle = cleanSearchableText(title);
+  return normalizedGroupVariants(group).some((variant) =>
+    normalizedWholeWordInTitle(cleanTitle, variant),
+  );
+}
+
+function brandFamiliesForValues(values: readonly string[]): Set<string> {
+  const normalized = new Set(values.map((value) => cleanSearchableText(value)));
+  const families = new Set<string>();
+  for (const rule of BRAND_FAMILIES) {
+    if (rule.tokens.some((token) => normalized.has(cleanSearchableText(token)))) {
+      families.add(rule.family);
+    }
+  }
+  return families;
+}
+
+function brandFamiliesForGroups(groups: readonly StrictTokenGroup[]): Set<string> {
+  const values = groups.flatMap((group) => normalizedGroupVariants(group));
+  return brandFamiliesForValues(values);
+}
+
+function brandFamiliesForTitle(title: string): Set<string> {
+  const cleanTitle = cleanSearchableText(title);
+  const families = new Set<string>();
+  for (const rule of BRAND_FAMILIES) {
+    if (
+      rule.tokens.some((token) =>
+        normalizedWholeWordInTitle(cleanTitle, cleanSearchableText(token)),
+      )
+    ) {
+      families.add(rule.family);
+    }
+  }
+  return families;
+}
+
+function isBrandGroup(group: StrictTokenGroup): boolean {
+  return brandFamiliesForGroups([group]).size > 0;
+}
+
+function groupHasNoun(group: StrictTokenGroup): boolean {
+  return normalizedGroupVariants(group).some(
+    (variant) => /[a-z]{3,}/.test(variant) && !/^\d+$/.test(variant),
+  );
+}
+
+function strictTitleTierForGroups(
+  title: string,
+  groups: readonly StrictTokenGroup[],
+): 1 | 2 | 0 {
+  if (groups.length === 0) return 0;
+
+  const queryFamilies = brandFamiliesForGroups(groups);
+  const titleFamilies = brandFamiliesForTitle(title);
+  for (const family of titleFamilies) {
+    if (queryFamilies.size > 0 && !queryFamilies.has(family)) return 0;
+  }
+
+  const matches = groups.map((group) => groupMatchesTitle(group, title));
+  if (matches.every(Boolean)) return 1;
+
+  const nonBrandGroups = groups.filter((group) => !isBrandGroup(group));
+  const nounGroups = nonBrandGroups.filter((group) => groupHasNoun(group));
+  const tierTwoGroups = nounGroups.length > 0 ? nounGroups : nonBrandGroups;
+  if (tierTwoGroups.length === 0) return 0;
+  if (
+    queryFamilies.size > 0 &&
+    ![...queryFamilies].some((family) => titleFamilies.has(family))
+  ) {
+    return 0;
+  }
+  return tierTwoGroups.some((group) => groupMatchesTitle(group, title)) ? 2 : 0;
+}
+
+function strictCandidateFilterForGroups(
+  groups: readonly StrictTokenGroup[],
+): string {
+  if (groups.length === 0) return "";
+  const strictClauses = groups.map((group) => buildGroupOrFilter(group));
+  const strict = strictClauses.length === 1
+    ? strictClauses[0]!
+    : `and(${strictClauses.join(",")})`;
+
+  const nonBrandGroups = groups.filter((group) => !isBrandGroup(group));
+  const nounGroups = nonBrandGroups.filter((group) => groupHasNoun(group));
+  const tierTwoGroups = nounGroups.length > 0 ? nounGroups : nonBrandGroups;
+  if (tierTwoGroups.length === 0) return strict;
+
+  const tierTwoClauses = tierTwoGroups.map((group) => buildGroupOrFilter(group)).join(",");
+  const nounFilter = tierTwoGroups.length === 1
+    ? tierTwoClauses
+    : `or(${tierTwoClauses})`;
+  const queryFamilies = brandFamiliesForGroups(groups);
+  const brandValues = BRAND_FAMILIES.filter((rule) =>
+    queryFamilies.has(rule.family),
+  ).flatMap((rule) => [...rule.tokens]);
+  const brandFilter = brandValues.length > 0 ? buildValuesOrFilter(brandValues) : "";
+  const tierTwo = brandFilter ? `and(${brandFilter},${nounFilter})` : nounFilter;
+  return `${strict},${tierTwo}`;
+}
+
+function storeKeyForResult(item: SearchResultItem): string {
+  const providerId = resolveMarketplaceId(item.storeSlug || item.store);
+  return `${providerId}|${item.store.trim().toLowerCase()}`;
+}
+
 let categorySearchColumns: readonly string[] | null = null;
 
 async function categoryProductIdOrFilter(
@@ -155,7 +311,18 @@ function sortByCombinedRelevance(
   originalQuery?: string,
 ): void {
   const strictIntent = analyzeStrictIntent(query, originalQuery);
+  const groups = strictTitleTokenGroups(query, originalQuery);
+  const tierCache = new Map<string, 1 | 2 | 0>();
+  const tierOf = (name: string): 1 | 2 | 0 => {
+    const cached = tierCache.get(name);
+    if (cached !== undefined) return cached;
+    const tier = strictTitleTierForGroups(name, groups);
+    tierCache.set(name, tier);
+    return tier;
+  };
   results.sort((a, b) => {
+    const tierDelta = tierOf(b.name) - tierOf(a.name);
+    if (tierDelta !== 0) return tierDelta;
     const strictDelta = strictIntent
       ? strictTitleRank(b.name, strictIntent) - strictTitleRank(a.name, strictIntent)
       : 0;
@@ -166,6 +333,19 @@ function sortByCombinedRelevance(
     if (scoreDelta !== 0) return scoreDelta;
     return b.discount - a.discount || a.price - b.price;
   });
+}
+
+function selectStrictTierRows<T extends { product_name: string }>(
+  rows: readonly T[],
+  groups: readonly StrictTokenGroup[],
+): T[] {
+  const tiered = rows
+    .map((row) => ({ row, tier: strictTitleTierForGroups(row.product_name, groups) }))
+    .filter((entry): entry is { row: T; tier: 1 | 2 } => entry.tier > 0);
+  const tierOne = tiered.filter((entry) => entry.tier === 1);
+  return (tierOne.length >= STRICT_TIER1_MIN_RESULTS ? tierOne : tiered).map(
+    (entry) => entry.row,
+  );
 }
 
 type LowestPriceRow = {
@@ -1116,7 +1296,8 @@ export async function getSyncedStoreResultsFromDatabase(
       : createSupabaseAnonClient();
     if (!supabase) return [];
 
-    const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
+    const groups = strictTitleTokenGroups(query, originalQuery);
+    const orFilter = strictCandidateFilterForGroups(groups);
     const categoryIds = await categoryProductIdOrFilter(supabase, [query, originalQuery], limit);
     const combinedOrFilter = appendOrFilter(orFilter, categoryIds);
     if (!combinedOrFilter) return [];
@@ -1136,14 +1317,15 @@ export async function getSyncedStoreResultsFromDatabase(
 
     if (error || !data?.length) return [];
 
-    const rows = (data as LowestPriceRow[]).filter(
+    const usableRows = (data as LowestPriceRow[]).filter(
       (row) =>
         row.product_name &&
         row.image_url &&
         normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
         passesStrictTitle(row.product_name, strictIntent),
     );
-    return rows.map((row) => rowToSearchResultItem(row));
+    const rows = selectStrictTierRows(usableRows, groups);
+    return rows.map((row) => rowToSearchResultItem(row)).slice(0, limit);
   };
 
   return new Promise<SearchResultItem[]>((resolve) => {
@@ -1159,6 +1341,82 @@ export async function getSyncedStoreResultsFromDatabase(
       },
     );
   });
+}
+
+async function discoverSearchStoreNames(
+  supabase: SupabaseDb,
+): Promise<string[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const client = supabase as any;
+  if (typeof client.rpc !== "function") return [];
+  return getRealMerchantNames(supabase).catch(() => []);
+}
+
+async function loadSingleStorePool(
+  supabase: SupabaseDb,
+  combinedOrFilter: string,
+  limit: number,
+): Promise<LowestPriceRow[]> {
+  const { data, error } = await db(supabase)
+    .from("lowest_prices_today")
+    .select(STRICT_SEARCH_ROW_COLUMNS)
+    .or(combinedOrFilter)
+    .in("country_code", [...CATALOG_COUNTRIES])
+    .in("currency", currencyCodes)
+    .not("image_url", "is", null)
+    .neq("image_url", "")
+    .order("discount_percent", { ascending: false })
+    .order("product_name", { ascending: true })
+    .order("id", { ascending: true })
+    .limit(Math.max(limit * 2, 1));
+  if (error || !data?.length) return [];
+  return data as LowestPriceRow[];
+}
+
+async function loadPerStorePools(
+  supabase: SupabaseDb,
+  combinedOrFilter: string,
+  limit: number,
+): Promise<{ rows: LowestPriceRow[]; perStore: boolean }> {
+  const storeNames = await discoverSearchStoreNames(supabase);
+  if (storeNames.length === 0) {
+    return { rows: await loadSingleStorePool(supabase, combinedOrFilter, limit), perStore: false };
+  }
+
+  const perStoreLimit = Math.max(
+    8,
+    Math.min(60, Math.ceil(limit / storeNames.length) * 4),
+  );
+  const rows: LowestPriceRow[] = [];
+  const concurrency = 10;
+  for (let index = 0; index < storeNames.length; index += concurrency) {
+    const batch = storeNames.slice(index, index + concurrency);
+    const batches = await Promise.all(
+      batch.map(async (storeName) => {
+        const { data, error } = await db(supabase)
+          .from("lowest_prices_today")
+          .select(STRICT_SEARCH_ROW_COLUMNS)
+          .eq("store_name", storeName)
+          .or(combinedOrFilter)
+          .in("country_code", [...CATALOG_COUNTRIES])
+          .in("currency", currencyCodes)
+          .not("image_url", "is", null)
+          .neq("image_url", "")
+          .order("discount_percent", { ascending: false })
+          .order("product_name", { ascending: true })
+          .order("id", { ascending: true })
+          .limit(perStoreLimit);
+        if (error || !data?.length) return [] as LowestPriceRow[];
+        return data as LowestPriceRow[];
+      }),
+    );
+    for (const batchRows of batches) rows.push(...batchRows);
+  }
+
+  if (rows.length === 0) {
+    return { rows: await loadSingleStorePool(supabase, combinedOrFilter, limit), perStore: false };
+  }
+  return { rows, perStore: true };
 }
 
 async function loadSearchResultsFromDatabase(
@@ -1183,34 +1441,30 @@ async function loadSearchResultsFromDatabase(
   // When useFuzzyMatch is true (for Arabic-translated queries), use ILIKE
   // substring matching for maximum recall.
   const strictIntent = analyzeStrictIntent(query, originalQuery);
-  const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
+  const groups = strictTitleTokenGroups(query, originalQuery);
+  const orFilter = strictCandidateFilterForGroups(groups);
   const categoryIds = await categoryProductIdOrFilter(supabase, [query, originalQuery], limit);
   const combinedOrFilter = appendOrFilter(orFilter, categoryIds);
 
   if (!combinedOrFilter) return [];
 
-  const { data, error } = await db(supabase)
-    .from("lowest_prices_today")
-    .select(
-      "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
-    )
-    .or(combinedOrFilter)
-    .in("country_code", [...CATALOG_COUNTRIES])
-    .in("currency", currencyCodes)
-    .not("image_url", "is", null)
-    .neq("image_url", "")
-    .order("discount_percent", { ascending: false })
-    .limit(limit * 2);
-
-  if (error || !data?.length) return [];
-
-  const rows = (data as LowestPriceRow[]).filter(
-    (row) =>
-      row.product_name &&
-      row.image_url &&
-      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
-      passesStrictTitle(row.product_name, strictIntent),
+  const { rows: candidateRows, perStore } = await loadPerStorePools(
+    supabase,
+    combinedOrFilter,
+    limit,
   );
+  if (candidateRows.length === 0) return [];
+
+  const seenProductIds = new Set<string>();
+  const usableRows = candidateRows.filter((row) => {
+    if (!row.product_name || !row.image_url) return false;
+    if (normalizeProductImageUrl(row.image_url) === PRODUCT_IMAGE_PLACEHOLDER) return false;
+    if (seenProductIds.has(row.product_id)) return false;
+    seenProductIds.add(row.product_id);
+    return passesStrictTitle(row.product_name, strictIntent);
+  });
+  const rows = selectStrictTierRows(usableRows, groups);
+  if (rows.length === 0) return [];
 
   const productIds = rows.map((r) => r.product_id);
   const { data: productRows } = await db(supabase)
@@ -1230,11 +1484,22 @@ async function loadSearchResultsFromDatabase(
 
   sortByCombinedRelevance(results, query, originalQuery);
 
-  return results.slice(0, limit);
+  const balanced = perStore
+    ? balanceFlatMarketplaceList(
+        results,
+        storeKeyForResult,
+        results.length,
+        (a, b) => b.discount - a.discount || a.price - b.price,
+        1,
+      )
+    : results;
+
+  return balanced.slice(0, limit);
 }
 
 /**
  * Deep window the DEVICE-intent DB tail legs walk. It is read in paged chunks
+
  * under the Supabase 1000-row fetch cap, then the SQL-guard-prefiltered rows are
  * re-checked with the in-memory strict device guard + relevance ranking in JS,
  * so pages past the pool slice a genuine device sequence instead of a
@@ -1386,9 +1651,8 @@ async function loadDeviceSearchCountFromDatabase(
   if (rows.length === 0) return 0;
 
   const activeCurrency: CurrencyCode = device.activeCurrency ?? "USD";
-  let count = 0;
-  for (const row of rows) {
-    if (
+  const matchingRows = rows.filter(
+    (row) =>
       row.product_name &&
       row.image_url &&
       normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
@@ -1398,11 +1662,9 @@ async function loadDeviceSearchCountFromDatabase(
         device.query,
         row.currency,
         activeCurrency,
-      )
-    ) {
-      count++;
-    }
-  }
+      ),
+  );
+  const count = matchingRows.length;
 
   if (count > 0) {
     setDeviceSearchCountCache(cacheKey, {
