@@ -722,6 +722,15 @@ const STRICT_PERFUME_DISALLOWED_TERMS: readonly string[] = [
   "bottle only",
 ];
 
+const STRICT_SCREEN_PROTECTOR_DISALLOWED_TERMS: readonly string[] = [
+  "case",
+  "camera",
+  "cover",
+  "pouch",
+  "silicone",
+  "tpu",
+];
+
 const STRICT_HEADPHONES_DISALLOWED_TERMS: readonly string[] = [
   "case",
   "cover",
@@ -966,11 +975,14 @@ export function strictTitleState(
         : "rejected";
     }
     case "screen-protector": {
+      if (strictHasAny(hay, STRICT_SCREEN_PROTECTOR_DISALLOWED_TERMS)) return "rejected";
       return strictHasAny(hay, [
         "screen protector",
+        "screen guard",
         "tempered glass",
-        "protector",
+        "glass protector",
         "حمايه شاشه",
+        "حماية شاشة",
         "اسكرينه",
         "اسكرينة",
         "اسكرين",
