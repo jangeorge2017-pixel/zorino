@@ -28,6 +28,7 @@ import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
   buildIndexedSearchOrFilter,
   buildCombinedSearchOrFilter,
+  buildProductCategoryOrFilterWithColumns,
   combinedSearchTokens,
   escapeRegexToken,
   querySearchTokens,
@@ -104,6 +105,48 @@ function combinedRelevanceScore(
 
 function passesStrictTitle(name: string, intent: StrictIntent | null): boolean {
   return !intent || strictTitleState(name, intent) !== "rejected";
+}
+
+let categorySearchColumns: readonly string[] | null = null;
+
+async function categoryProductIdOrFilter(
+  supabase: SupabaseDb,
+  queries: ReadonlyArray<string | undefined>,
+  limit: number,
+): Promise<string> {
+  const columnSets: ReadonlyArray<readonly string[]> = categorySearchColumns
+    ? [categorySearchColumns]
+    : [
+        ["title"],
+        ["name"],
+        ["title", "title_ar", "category_slug"],
+        ["name", "name_ar", "category_slug"],
+        ["title", "category_slug"],
+        ["name", "category_slug"],
+      ];
+
+  for (const columns of columnSets) {
+    const categoryFilter = buildProductCategoryOrFilterWithColumns(queries, columns);
+    if (!categoryFilter) continue;
+    const { data, error } = await db(supabase)
+      .from("products")
+      .select("id")
+      .or(categoryFilter)
+      .limit(Math.min(Math.max(limit * 4, 60), 500));
+    if (error) continue;
+    categorySearchColumns = columns;
+    const ids = (data ?? [])
+      .map((row: { id?: unknown }) => row.id)
+      .filter((id: unknown): id is string => typeof id === "string" && /^[A-Za-z0-9_-]+$/.test(id));
+    return ids.length > 0 ? `product_id.in.(${ids.join(",")})` : "";
+  }
+
+  return "";
+}
+
+function appendOrFilter(base: string, extra: string): string {
+  if (!extra) return base;
+  return base ? `${base},${extra}` : extra;
 }
 
 function sortByCombinedRelevance(
@@ -1074,7 +1117,9 @@ export async function getSyncedStoreResultsFromDatabase(
     if (!supabase) return [];
 
     const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
-    if (!orFilter) return [];
+    const categoryIds = await categoryProductIdOrFilter(supabase, [query, originalQuery], limit);
+    const combinedOrFilter = appendOrFilter(orFilter, categoryIds);
+    if (!combinedOrFilter) return [];
     const strictIntent = analyzeStrictIntent(query, originalQuery);
 
     const { data, error } = await db(supabase)
@@ -1083,7 +1128,7 @@ export async function getSyncedStoreResultsFromDatabase(
         "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
       )
       .in("provider", [...providers])
-      .or(orFilter)
+      .or(combinedOrFilter)
       .in("country_code", [...CATALOG_COUNTRIES])
       .not("image_url", "is", null)
       .neq("image_url", "")
@@ -1139,15 +1184,17 @@ async function loadSearchResultsFromDatabase(
   // substring matching for maximum recall.
   const strictIntent = analyzeStrictIntent(query, originalQuery);
   const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
+  const categoryIds = await categoryProductIdOrFilter(supabase, [query, originalQuery], limit);
+  const combinedOrFilter = appendOrFilter(orFilter, categoryIds);
 
-  if (!orFilter) return [];
+  if (!combinedOrFilter) return [];
 
   const { data, error } = await db(supabase)
     .from("lowest_prices_today")
     .select(
       "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
     )
-    .or(orFilter)
+    .or(combinedOrFilter)
     .in("country_code", [...CATALOG_COUNTRIES])
     .in("currency", currencyCodes)
     .not("image_url", "is", null)
@@ -1306,6 +1353,12 @@ async function loadDeviceSearchCountFromDatabase(
   if (words.length === 0) return 0;
 
   const orFilter = buildCombinedSearchOrFilter(device.query, device.originalQuery);
+  const categoryIds = await categoryProductIdOrFilter(
+    supabase,
+    [device.query, device.originalQuery],
+    60,
+  );
+  const combinedOrFilter = appendOrFilter(orFilter, categoryIds);
   const ctx = deviceGuardSqlQueryContext(device);
 
   const selected = db(supabase)
@@ -1313,7 +1366,7 @@ async function loadDeviceSearchCountFromDatabase(
     .select(
       "id, product_id, product_name, product_slug, image_url, emoji, lowest_price, original_price, discount_percent, store_name, provider, affiliate_url, external_url, country_code, currency",
     )
-    .or(orFilter)
+    .or(combinedOrFilter)
     .in("country_code", [...CATALOG_COUNTRIES])
     .in("currency", currencyCodes)
     .not("image_url", "is", null)
@@ -1438,11 +1491,13 @@ async function loadSearchResultsCountFromDatabase(
   if (words.length === 0) return 0;
 
   const orFilter = buildCombinedSearchOrFilter(query, originalQuery);
+  const categoryIds = await categoryProductIdOrFilter(supabase, [query, originalQuery], 60);
+  const combinedOrFilter = appendOrFilter(orFilter, categoryIds);
 
   const { count, error } = await db(supabase)
     .from("lowest_prices_today")
     .select("product_id", { count: "exact", head: true })
-    .or(orFilter)
+    .or(combinedOrFilter)
     .in("country_code", [...CATALOG_COUNTRIES])
     .in("currency", currencyCodes)
     .not("image_url", "is", null)
@@ -1534,11 +1589,16 @@ async function loadSearchResultsFromDatabasePaged(
   const words = combinedSearchTokens(query, originalQuery, device?.originalQuery);
   if (words.length === 0) return { items: [], total: 0 };
   const strictIntent = analyzeStrictIntent(query, originalQuery ?? device?.originalQuery);
-
-  const orFilter = buildCombinedSearchOrFilter(query, originalQuery, device?.originalQuery);
-
   const safeOffset = Number.isFinite(offset) ? Math.max(0, Math.floor(offset)) : 0;
   const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 1;
+
+  const orFilter = buildCombinedSearchOrFilter(query, originalQuery, device?.originalQuery);
+  const categoryIds = await categoryProductIdOrFilter(
+    supabase,
+    [query, originalQuery, device?.originalQuery],
+    safeLimit,
+  );
+  const combinedOrFilter = appendOrFilter(orFilter, categoryIds);
 
   // Exclusion set carries real `product_id` values; the `not in (...)` list must
   // never be able to smuggle raw filter syntax, so only values without
@@ -1559,7 +1619,7 @@ async function loadSearchResultsFromDatabasePaged(
       // PostgREST for an exact head count.
       deviceContext ? undefined : { count: "exact" },
     )
-    .or(orFilter)
+    .or(combinedOrFilter)
     .in("country_code", [...CATALOG_COUNTRIES])
     .in("currency", currencyCodes)
     .not("image_url", "is", null)

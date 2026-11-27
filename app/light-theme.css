@@ -1696,3 +1696,55 @@ html[data-theme="light"]:has(.zor-page-state--404) .zor-nav__logo-lockup {
   color: #0f172a !important;
   -webkit-text-fill-color: #0f172a !important;
 }
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__hero {
+  border-color: #cbd5e1 !important;
+  background: linear-gradient(135deg, #ecfeff 0%, #ffffff 46%, #eff6ff 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.04), 0 8px 28px rgba(15, 23, 42, 0.06) !important;
+  margin-bottom: var(--zor-space-6) !important;
+  padding: clamp(var(--zor-space-4), 2.6vw, var(--zor-space-6)) !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__hero-glow {
+  background:
+    radial-gradient(ellipse 50% 65% at 6% 0%, rgba(6, 182, 212, 0.12), transparent 55%),
+    radial-gradient(ellipse 40% 50% at 94% 100%, rgba(59, 130, 246, 0.1), transparent 50%) !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__title {
+  background: linear-gradient(95deg, #0f172a 0%, #0e7490 42%, #0369a1 72%, #1d4ed8 100%) !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__subtitle {
+  color: #475569 !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__stats {
+  grid-template-columns: repeat(2, minmax(130px, 1fr)) !important;
+  flex-basis: min(100%, 380px) !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__stat {
+  border-color: #cbd5e1 !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: none !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__stat--hot {
+  border-color: rgba(8, 145, 178, 0.42) !important;
+  box-shadow: 0 4px 16px rgba(8, 145, 178, 0.14) !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__stat-icon {
+  background: rgba(8, 145, 178, 0.1) !important;
+  color: #0e7490 !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__stat strong {
+  color: #0f172a !important;
+}
+
+:is(html.light, html[data-theme="light"], [data-theme="light"]) .zor-compare-page__stat span {
+  color: #64748b !important;
+}

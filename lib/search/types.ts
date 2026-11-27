@@ -13,7 +13,7 @@ import {
 export const MAX_PRODUCTS_PER_STORE = 5;
 export const SEARCH_BROAD_MAX_PRODUCTS_PER_STORE = 20;
 export const SEARCH_INTERLEAVE_MAX_PER_STORE = 12;
-export const SEARCH_API_ROUND_ROBIN_MAX_PER_STORE = 20;
+export const SEARCH_API_ROUND_ROBIN_MAX_PER_STORE = 60;
 
 export type ProductCard = {
   id: string;

@@ -111,3 +111,49 @@ describe("relevance — strict compound and accessory intent", () => {
     ).toBe("tier1");
   });
 });
+
+describe("relevance — universal strict product intents", () => {
+  it("rejects cooker covers and accepts real cookers", () => {
+    const intent = analyzeStrictIntent("بوتجاز")!;
+    expect(intent.kind).toBe("cooker");
+    expect(strictTitleState("Gas Cooker 4 Burners Stainless Steel", intent)).toBe("tier1");
+    expect(strictTitleState("Gas Cooker Cover Waterproof", intent)).toBe("rejected");
+  });
+
+  it("accepts split AC titles and rejects AC remote covers", () => {
+    const intent = analyzeStrictIntent("تكييف")!;
+    expect(intent.kind).toBe("air-conditioner");
+    expect(strictTitleState("Split Inverter AC 1.5 Ton", intent)).toBe("tier1");
+    expect(strictTitleState("AC Remote Cover Protective Case", intent)).toBe("rejected");
+  });
+
+  it("keeps only genuine vacuum, blender, iron and perfume products", () => {
+    const vacuum = analyzeStrictIntent("مكنسة")!;
+    const blender = analyzeStrictIntent("خلاط")!;
+    const iron = analyzeStrictIntent("مكواة")!;
+    const perfume = analyzeStrictIntent("برفان")!;
+    expect(strictTitleState("Dyson Vacuum Cleaner V12", vacuum)).toBe("tier1");
+    expect(strictTitleState("Vacuum Cleaner Dust Bag", vacuum)).toBe("rejected");
+    expect(strictTitleState("800W Blender 1.5L Jar", blender)).toBe("tier1");
+    expect(strictTitleState("Blender Jar Replacement", blender)).toBe("rejected");
+    expect(strictTitleState("Steam Iron 2400W", iron)).toBe("tier1");
+    expect(strictTitleState("Ironing Board Cover", iron)).toBe("rejected");
+    expect(strictTitleState("Perfume Eau De Parfum 100ml", perfume)).toBe("tier1");
+    expect(strictTitleState("Perfume Sample Decant 5ml", perfume)).toBe("rejected");
+  });
+
+  it("handles screen protectors, chargers and headphones as real product intents", () => {
+    const protector = analyzeStrictIntent("اسكرينه")!;
+    const charger = analyzeStrictIntent("شاحن")!;
+    const headphones = analyzeStrictIntent("سماعات")!;
+    expect(protector.kind).toBe("screen-protector");
+    expect(charger.kind).toBe("charger");
+    expect(headphones.kind).toBe("headphones");
+    expect(strictTitleState("Tempered Glass Screen Protector", protector)).toBe("tier1");
+    expect(strictTitleState("iPhone 15 Pro", protector)).toBe("rejected");
+    expect(strictTitleState("65W USB C Fast Charger", charger)).toBe("tier1");
+    expect(strictTitleState("iPhone 15 Pro", charger)).toBe("rejected");
+    expect(strictTitleState("Wireless Headphones Noise Cancelling", headphones)).toBe("tier1");
+    expect(strictTitleState("Headphone Case Cover", headphones)).toBe("rejected");
+  });
+});

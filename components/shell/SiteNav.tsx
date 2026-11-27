@@ -37,7 +37,8 @@ export default function SiteNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const pathSegments = pathname.split("/").filter(Boolean);
-  const isSearchRoute = pathSegments.includes("search");
+  const isSearchRoute =
+    pathSegments.includes("search") || pathSegments.includes("compare");
 
   return (
     <header className="zor-nav" data-sticky-chrome="primary">

@@ -24,6 +24,7 @@
  * broad substring matching instead of word-boundary matching).
  */
 
+import { getArabicSearchExpansionSync } from "@/lib/search/arabic-search-dictionary";
 import {
   expandQueryToken,
   tokenize,
@@ -111,7 +112,7 @@ export function querySearchTokens(query: string): string[] {
 
 /** Canonical token → every regex alternation for that token. */
 export function queryTokenGroups(query: string): Array<{ token: string; variants: string[] }> {
-  return tokenize(query).map((token) => {
+  const groups = tokenize(query).map((token) => {
     const variants = new Set<string>();
     variants.add(token);
     for (const spelling of arabicSpellingVariants(token)) {
@@ -126,6 +127,16 @@ export function queryTokenGroups(query: string): Array<{ token: string; variants
     }
     return { token, variants: [...variants] };
   });
+
+  const expansion = getArabicSearchExpansionSync(query);
+  for (const term of [...expansion.english, ...expansion.arabic]) {
+    for (const token of tokenize(term)) {
+      if (groups.some((group) => group.token === token)) continue;
+      groups.push({ token, variants: expandQueryToken(token) });
+    }
+  }
+
+  return groups;
 }
 
 /**
@@ -170,6 +181,38 @@ export function buildFuzzyIlikeOrFilter(query: string): string {
 }
 
 const COMBINED_SEARCH_FILTER_LIMIT = 64;
+const CATEGORY_SEARCH_FILTER_LIMIT = 96;
+
+export function buildProductCategoryOrFilterWithColumns(
+  queries: ReadonlyArray<string | undefined>,
+  columns: readonly string[],
+): string {
+  const clauses: string[] = [];
+  const seen = new Set<string>();
+
+  for (const query of queries) {
+    if (!query?.trim()) continue;
+    for (const group of queryTokenGroups(query)) {
+      for (const rawVariant of group.variants) {
+        const variant = rawVariant.trim();
+        if (!variant || seen.has(variant)) continue;
+        seen.add(variant);
+        for (const column of columns) {
+          clauses.push(buildColumnIlikeClause(column, variant));
+          if (clauses.length >= CATEGORY_SEARCH_FILTER_LIMIT) return clauses.join(",");
+        }
+      }
+    }
+  }
+
+  return clauses.join(",");
+}
+
+export function buildProductCategoryOrFilter(
+  ...queries: ReadonlyArray<string | undefined>
+): string {
+  return buildProductCategoryOrFilterWithColumns(queries, ["title"]);
+}
 
 export function buildCombinedSearchOrFilter(
   ...queries: ReadonlyArray<string | undefined>
@@ -219,6 +262,10 @@ function quotePostgrestValue(value: string): string {
   return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
+function buildColumnIlikeClause(column: string, token: string): string {
+  return `${column}.ilike.${quotePostgrestValue(`%${escapeIlikeToken(token)}%`)}`;
+}
+
 function buildIlikeClause(token: string): string {
-  return `product_name.ilike.${quotePostgrestValue(`%${escapeIlikeToken(token)}%`)}`;
+  return buildColumnIlikeClause("product_name", token);
 }

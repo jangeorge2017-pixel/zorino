@@ -1,3 +1,4 @@
+import { expandArabicSearchQuery } from "@/lib/search/arabic-search-dictionary";
 import { detectAndTranslateArabic } from "@/lib/search/translation";
 
 /**
@@ -57,6 +58,18 @@ const FRANCO_ARAB_TRANSLITERATION: ReadonlyArray<[franco: string, english: strin
 
 const francoCache = new Map<string, string>();
 
+function uniqueTerms(parts: readonly string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const part of parts) {
+    const term = part.trim();
+    if (!term || seen.has(term)) continue;
+    seen.add(term);
+    result.push(term);
+  }
+  return result;
+}
+
 function transliterateFrancoArab(text: string): string {
   const lower = text.toLowerCase();
   const cached = francoCache.get(lower);
@@ -105,12 +118,21 @@ export async function translateSearchQuery(query: string): Promise<{
 
   // First, try Arabic script translation (frozen utility)
   const arabicResult = await detectAndTranslateArabic(trimmed);
+  const expansion = await expandArabicSearchQuery(trimmed, {
+    allowDynamicTranslation: !arabicResult.wasTranslated,
+  });
+  const expandedTerms = uniqueTerms([
+    ...(arabicResult.wasTranslated ? [arabicResult.translatedQuery] : []),
+    ...expansion.english,
+    ...expansion.arabic,
+  ]);
 
-  if (arabicResult.wasTranslated) {
+  if (arabicResult.wasTranslated || expandedTerms.length > 0) {
     // Arabic script was translated, now apply Franco-Arab on the result
     // in case there are mixed scripts
-    const francoResult = transliterateFrancoArab(arabicResult.translatedQuery);
-    const wasFrancoTranslated = francoResult !== arabicResult.translatedQuery;
+    const expandedQuery = expandedTerms.length > 0 ? expandedTerms.join(" ") : arabicResult.translatedQuery;
+    const francoResult = transliterateFrancoArab(expandedQuery);
+    const wasFrancoTranslated = francoResult !== expandedQuery;
     return {
       originalQuery: query,
       translatedQuery: francoResult,

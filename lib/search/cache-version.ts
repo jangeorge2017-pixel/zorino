@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { supabaseUrl } from "@/lib/supabase/config";
 
-const FALLBACK_VERSION = "v4";
+const FALLBACK_VERSION = "v5";
 const FALLBACK_CATALOG_FINGERPRINT = "catalog:0:none:none";
 const CHECK_INTERVAL_MS = 60_000;
 

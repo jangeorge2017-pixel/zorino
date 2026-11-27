@@ -521,6 +521,15 @@ export type StrictIntentKind =
   | "microwave"
   | "refrigerator"
   | "air-fryer"
+  | "cooker"
+  | "air-conditioner"
+  | "vacuum"
+  | "blender"
+  | "iron"
+  | "perfume"
+  | "screen-protector"
+  | "charger"
+  | "headphones"
   | "smart-tv"
   | "laptop"
   | "accessory-device";
@@ -632,8 +641,13 @@ const STRICT_ACCESSORY_QUERY_TERMS: readonly string[] = [
   "كفر",
   "غلاف",
   "شاحن",
+  "كابل",
   "زجاج",
+  "زجاج مقوي",
   "حمايه شاشه",
+  "اسكرينه",
+  "اسكرينة",
+  "اسكرين",
 ];
 
 const STRICT_ACCESSORY_TITLE_TERMS: readonly string[] = [
@@ -653,8 +667,72 @@ const STRICT_ACCESSORY_TITLE_TERMS: readonly string[] = [
   "كفر",
   "غلاف",
   "شاحن",
+  "كابل",
   "زجاج",
+  "زجاج مقوي",
   "حمايه شاشه",
+  "اسكرينه",
+  "اسكرينة",
+  "اسكرين",
+  "tempered glass",
+  "screen protector",
+];
+
+const STRICT_COOKER_DISALLOWED_TERMS: readonly string[] = [
+  "cover",
+  "bag",
+  "case",
+  "knob",
+  "pipe",
+  "hose",
+  " grill",
+  "barbecue",
+];
+
+const STRICT_AIR_CONDITIONER_MODIFIERS: readonly string[] = [
+  "split",
+  "inverter",
+  "ton",
+  "window",
+  "portable",
+  "central",
+];
+
+const STRICT_BLENDER_DISALLOWED_TERMS: readonly string[] = [
+  "jar",
+  "jug",
+  "blade",
+  "cup",
+  "knife",
+];
+
+const STRICT_IRON_DISALLOWED_TERMS: readonly string[] = [
+  "board",
+  "cover",
+  "stand",
+  "rest",
+];
+
+const STRICT_PERFUME_DISALLOWED_TERMS: readonly string[] = [
+  "sample",
+  "decant",
+  "tester",
+  "refill",
+  "atomizer",
+  "bottle only",
+];
+
+const STRICT_HEADPHONES_DISALLOWED_TERMS: readonly string[] = [
+  "case",
+  "cover",
+  "tips",
+  "ear tips",
+  "cable",
+  "charger",
+  "holder",
+  "stand",
+  "for iphone",
+  "for samsung",
 ];
 
 const STRICT_DEVICE_TITLE_TERMS: Record<string, readonly string[]> = {
@@ -713,6 +791,72 @@ export function analyzeStrictIntent(
     if (strictHasTerm(query, "air fryer")) {
       return { kind: "air-fryer", accessoryTerms: [], deviceTerms: [] };
     }
+    if (
+      strictHasAny(query, [
+        "gas cooker",
+        "cooker",
+        "stove",
+        "bottlegaz",
+        "بوتاجاز",
+        "بوتجاز",
+        "بوتاغاز",
+        "فرن",
+      ])
+    ) {
+      return { kind: "cooker", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (
+      strictHasAny(query, [
+        "air conditioner",
+        "air conditioning",
+        "تكييف",
+        "مكيف",
+      ])
+    ) {
+      return { kind: "air-conditioner", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["vacuum", "vacuum cleaner", "مكنسة", "مكنسه", "hoover"])) {
+      return { kind: "vacuum", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["blender", "mixer", "خلاط"])) {
+      return { kind: "blender", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["clothes iron", "iron", "مكواة", "مكوه"])) {
+      return { kind: "iron", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["perfume", "fragrance", "برفان", "عطر"])) {
+      return { kind: "perfume", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (
+      strictHasAny(query, [
+        "screen protector",
+        "tempered glass",
+        "اسكرينه",
+        "اسكرينة",
+        "اسكرين",
+        "حمايه شاشه",
+        "زجاج مقوي",
+      ])
+    ) {
+      return { kind: "screen-protector", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (strictHasAny(query, ["charger", "شاحن"])) {
+      return { kind: "charger", accessoryTerms: [], deviceTerms: [] };
+    }
+    if (
+      strictHasAny(query, [
+        "headphones",
+        "headphone",
+        "earbuds",
+        "earbud",
+        "airpods",
+        "سماعه",
+        "سماعات",
+        "ايربودز",
+      ])
+    ) {
+      return { kind: "headphones", accessoryTerms: [], deviceTerms: [] };
+    }
     if (strictHasAny(query, ["smart tv", "تلفاز", "تلفزيون"])) {
       return { kind: "smart-tv", accessoryTerms: [], deviceTerms: [] };
     }
@@ -761,6 +905,100 @@ export function strictTitleState(
       if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
       if (!strictHasTerm(hay, "fryer")) return "rejected";
       return strictHasTerm(hay, "air") ? "tier1" : "eligible";
+    }
+    case "cooker": {
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
+      if (strictHasAny(hay, STRICT_COOKER_DISALLOWED_TERMS)) return "rejected";
+      return strictHasAny(hay, [
+        "cooker",
+        "stove",
+        "gas range",
+        "hob",
+        "oven",
+        "بوتاجاز",
+        "بوتجاز",
+        "فرن",
+      ])
+        ? "tier1"
+        : "rejected";
+    }
+    case "air-conditioner": {
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
+      if (strictHasAny(hay, ["conditioner", "conditioning", "تكييف", "مكيف"])) {
+        return "tier1";
+      }
+      if (
+        strictHasTerm(hay, "ac") &&
+        strictHasAny(hay, STRICT_AIR_CONDITIONER_MODIFIERS)
+      ) {
+        return "tier1";
+      }
+      return "rejected";
+    }
+    case "vacuum": {
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
+      return strictHasAny(hay, ["vacuum", "hoover", "مكنسة", "مكنسه"])
+        ? "tier1"
+        : "rejected";
+    }
+    case "blender": {
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
+      if (!strictHasAny(hay, ["blender", "mixer", "خلاط"])) return "rejected";
+      if (
+        strictHasAny(hay, STRICT_BLENDER_DISALLOWED_TERMS) &&
+        !/\b\d{3,4}\s*w\b/.test(hay) &&
+        !strictHasTerm(hay, "set")
+      ) {
+        return "rejected";
+      }
+      return "tier1";
+    }
+    case "iron": {
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
+      if (strictHasAny(hay, STRICT_IRON_DISALLOWED_TERMS)) return "rejected";
+      return strictHasAny(hay, ["iron", "مكواة", "مكوه"]) ? "tier1" : "rejected";
+    }
+    case "perfume": {
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
+      if (strictHasAny(hay, STRICT_PERFUME_DISALLOWED_TERMS)) return "rejected";
+      return strictHasAny(hay, ["perfume", "fragrance", "برفان", "عطر"])
+        ? "tier1"
+        : "rejected";
+    }
+    case "screen-protector": {
+      return strictHasAny(hay, [
+        "screen protector",
+        "tempered glass",
+        "protector",
+        "حمايه شاشه",
+        "اسكرينه",
+        "اسكرينة",
+        "اسكرين",
+        "زجاج مقوي",
+      ])
+        ? "tier1"
+        : "rejected";
+    }
+    case "charger": {
+      return strictHasAny(hay, ["charger", "charging adapter", "شاحن"])
+        ? "tier1"
+        : "rejected";
+    }
+    case "headphones": {
+      if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
+      if (strictHasAny(hay, STRICT_HEADPHONES_DISALLOWED_TERMS)) return "rejected";
+      return strictHasAny(hay, [
+        "headphone",
+        "headphones",
+        "earbud",
+        "earbuds",
+        "airpods",
+        "سماعه",
+        "سماعات",
+        "ايربودز",
+      ])
+        ? "tier1"
+        : "rejected";
     }
     case "smart-tv":
       if (strictHasAny(hay, STRICT_NON_PRODUCT_TITLE_TERMS)) return "rejected";
