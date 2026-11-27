@@ -252,6 +252,7 @@ html[dir="rtl"] .zorino-brand-logo {
   color: #475569 !important;
 }
 
+html.light .admin-shell,
 html.light:has(.admin-shell) .text-white,
 html.light:has(.admin-shell) .text-gray-300 {
   color: #f8fafc !important;
