@@ -4675,3 +4675,31 @@ html.light .zh-page__background,
 html.light .zor-page-shell {
   filter: none;
 }
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) :is([class*="page__hero"], .zor-official-hero, .zor-page-header, .zor-page-state, .wishlist-recommendations) :is(h1, h2, h3) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) [class*="page__stat"]:not([class*="__stats"]):not([class*="__stat-icon"]):not([class*="__stat-value"]):not([class*="__stat-label"]),
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-stat {
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) [class*="page__stat"]:not([class*="__stats"]):not([class*="__stat-icon"]):not([class*="__stat-value"]):not([class*="__stat-label"]) :is(strong, [class*="stat__value"], [class*="stat-value"]),
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-stat__value {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) [class*="page__stat"]:not([class*="__stats"]):not([class*="__stat-icon"]):not([class*="__stat-value"]):not([class*="__stat-label"]) > div > span,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-official-stat__label {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  font-weight: 600 !important;
+}
