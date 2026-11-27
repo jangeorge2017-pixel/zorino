@@ -269,3 +269,116 @@ html.light:has(.admin-shell) .border-gray-800 {
 html.light:has(.admin-shell) .bg-gray-900\/40 {
   background-color: rgba(15, 23, 42, 0.4) !important;
 }
+
+:is(.product-card, .deal-card, .listing-product-card, .zh-page) .deal-marketplace {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 4px !important;
+  height: 20px !important;
+  max-height: 20px !important;
+  width: auto !important;
+  max-width: 104px !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.14) !important;
+  color: #0f172a !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: hidden !important;
+}
+
+:is(.product-card, .deal-card, .listing-product-card, .zh-page) .deal-marketplace > span:not(.zor-store-logo) {
+  max-width: 48px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+:is(.product-card, .deal-card, .listing-product-card, .zh-page) .deal-marketplace .zor-store-logo,
+:is(.product-card, .deal-card, .listing-product-card, .zh-page) .store-logo img,
+.zh-deal-card__store-logo img,
+.zh-td-card__store-logo img {
+  display: block !important;
+  height: 20px !important;
+  max-height: 20px !important;
+  width: auto !important;
+  max-width: 80px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+}
+
+:is(.product-card, .deal-card, .listing-product-card) .store-logo,
+.zh-deal-card__store-logo,
+.zh-td-card__store-logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  height: 20px !important;
+  max-height: 20px !important;
+  width: auto !important;
+  max-width: 80px !important;
+  padding: 2px 6px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.14) !important;
+  color: #0f172a !important;
+  font-size: 9px !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-coupons-page__title {
+  background: none !important;
+  -webkit-text-fill-color: #0f172a !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-coupons-page__stat {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-coupons-page__stat--hot {
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-coupons-page__stat strong {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-coupons-page__stat span:last-child {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-coupons-page__stat-icon {
+  color: #b45309 !important;
+  background: #fef3c7 !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zor-coupons-page__cta-text {
+  color: #e2e8f0 !important;
+}
+
+.zh-trending-deals__sort,
+.zh-trending-deals__sort-select {
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: 190px !important;
+}
+
+.zh-trending-deals__sort {
+  flex: 0 0 auto !important;
+}
