@@ -53,7 +53,7 @@
 /* The Trending Deals carousel cards are much narrower than the full-width
    grid cards, so two side-by-side buttons don't fit. Stack them there. */
 .zh-page .zh-trending-deals__track .product-card-actions-dual {
-  grid-template-columns: 1fr;
+  flex-direction: column;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -97,6 +97,6 @@
    ───────────────────────────────────────────────────────────── */
 @media (max-width: 767px) and (orientation: portrait) {
   .zh-page .product-card-actions-dual {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 }

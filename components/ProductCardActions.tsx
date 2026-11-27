@@ -33,7 +33,6 @@ export default function ProductCardActions({
     <div className="product-card-actions-group">
       <div
         className={`product-card-actions${showShopButton ? " product-card-actions-dual" : " product-card-actions-single"}`}
-        data-shop-label={t("shopNow")}
       >
         {showShopButton ? (
           <a

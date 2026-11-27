@@ -541,3 +541,96 @@ html.light:has(.admin-shell) .bg-gray-900\/40 {
     flex: 0 1 auto !important;
   }
 }
+
+.product-card-actions,
+.product-card-actions-dual,
+.product-card-actions-single,
+.lowest-price-actions,
+.wishlist-item-actions,
+.listing-product-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+}
+
+.product-card-actions > .home-shop-btn,
+.product-card-actions > .home-compare-btn,
+.product-card-actions > .deal-compare-btn,
+.product-card-actions > .lowest-price-shop,
+.product-card-actions > .lowest-price-details,
+.product-card-actions > .trending-card-cta,
+.product-card-actions > .listing-view-btn {
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.home-shop-btn,
+.home-compare-btn {
+  min-height: 44px !important;
+  height: auto !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  text-align: center !important;
+}
+
+.home-shop-btn {
+  color: #ffffff !important;
+  background: #4f46e5 !important;
+  border: 1px solid #4f46e5 !important;
+}
+
+.home-compare-btn {
+  color: #4338ca !important;
+  background: #eef2ff !important;
+  border: 1px solid #c7d2fe !important;
+  box-shadow: none !important;
+}
+
+.home-shop-btn:hover {
+  background: #4338ca !important;
+  border-color: #4338ca !important;
+}
+
+.home-compare-btn:hover {
+  color: #3730a3 !important;
+  background: #e0e7ff !important;
+  border-color: #a5b4fc !important;
+}
+
+.deal-pricing,
+.trending-card-prices,
+.lowest-price-row {
+  flex-wrap: wrap !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.deal-price,
+.trending-card-price,
+.lowest-price-current {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: 100% !important;
+}
+
+@media (max-width: 767px) {
+  .deal-price,
+  .trending-card-price,
+  .lowest-price-current {
+    font-size: 16px !important;
+  }
+
+  .deal-pricing .deal-price {
+    flex: 1 1 100% !important;
+  }
+}

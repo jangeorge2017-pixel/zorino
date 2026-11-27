@@ -127,7 +127,7 @@
 
   /* ── Product card CTAs: stack on tablet 2-col grids ── */
   .zh-page .zh-product-grid .product-card-actions-dual {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 
   /* ── Quick nav: keep 44px touch height when padding shrinks ── */
@@ -1463,7 +1463,7 @@
   }
 
   .zh-page .zh-trending-deals__track .product-card-actions-dual {
-    grid-template-columns: 1fr 1fr;
+    flex-direction: column;
     gap: 8px;
   }
 
@@ -1800,7 +1800,7 @@
   }
 
   .zh-page .product-card-actions-dual {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 8px;
   }
 
