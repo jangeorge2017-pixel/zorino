@@ -382,3 +382,13 @@ html.light:has(.admin-shell) .bg-gray-900\/40 {
 .zh-trending-deals__sort {
   flex: 0 0 auto !important;
 }
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .zh-page .deal-marketplace,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .deal-card .deal-marketplace,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .listing-product-card .deal-marketplace,
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) .product-card .deal-marketplace {
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.14) !important;
+}
