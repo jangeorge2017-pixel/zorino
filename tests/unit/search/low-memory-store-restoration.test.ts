@@ -67,6 +67,7 @@ describe("remote product image guard", () => {
     expect(isUsableRemoteProductImageUrl("/products/placeholder.svg")).toBe(false);
     expect(isUsableRemoteProductImageUrl("http://images.example.com/p.jpg")).toBe(false);
     expect(isUsableRemoteProductImageUrl("data:image/gif;base64,R0lGODlh")).toBe(false);
+    expect(isUsableRemoteProductImageUrl("/media/products/1.jpg")).toBe(false);
   });
 
   it("accepts real https product images", () => {

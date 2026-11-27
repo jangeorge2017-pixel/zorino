@@ -20,8 +20,8 @@
 
 import type { SupabaseDb } from "@/lib/supabase/config";
 import {
+  isUsableRemoteProductImageUrl,
   normalizeProductImageUrl,
-  PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import {
   CATALOG_COUNTRIES,
@@ -156,7 +156,7 @@ export async function bridgeArabClicksOffersToLowestPrices(
     if (!Number.isFinite(price) || price <= 0) continue;
 
     const image = normalizeProductImageUrl(product?.main_image ?? "");
-    if (!image || image === PRODUCT_IMAGE_PLACEHOLDER) continue;
+    if (!isUsableRemoteProductImageUrl(image)) continue;
 
     const key = `${offer.product_id}|${countryCode}|${currency}`;
     if (shouldSkipBridgeWrite(existing.get(key) ?? null, price, image)) continue;

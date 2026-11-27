@@ -13,7 +13,10 @@
  * reported; on any exception the surface falls back to the legacy path.
  */
 
-import { SEARCH_ENGINE_DEFAULTS } from "@/lib/search/types";
+import {
+  SEARCH_ENGINE_DEFAULTS,
+  storeRoundRobinKey,
+} from "@/lib/search/types";
 import type { NormalizedSearchListing, RawProviderListing, SearchSortMode } from "@/lib/search/types";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import type { CurrencyCode } from "@/lib/international/config";
@@ -253,7 +256,7 @@ export function assembleCanonicalSearchPool(input: {
 
   const balancedDb = balanceFlatMarketplaceList(
     dedupedDb,
-    (item) => item.storeSlug || item.store,
+    storeRoundRobinKey,
     dedupedDb.length,
     (a, b) => b.discount - a.discount || a.price - b.price,
     1,

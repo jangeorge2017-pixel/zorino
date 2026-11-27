@@ -2,6 +2,7 @@
 
 import { Clock } from "lucide-react";
 import ListingProductCard from "@/components/ListingProductCard";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 import type { Deal } from "@/lib/types/entities";
 
 type DealsDealCardProps = {
@@ -15,13 +16,16 @@ export default function DealsDealCard({
   endsInLabel,
   featuredLabel,
 }: DealsDealCardProps) {
+  const imageSrc = deal.product?.imageUrl ?? "";
+  if (!isUsableRemoteProductImageUrl(imageSrc)) return null;
+
   return (
     <div className="zor-deals-page__card">
       <ListingProductCard
         product={{
           id: deal.product?.id ?? deal.id,
           name: deal.product?.name ?? deal.title,
-          imageSrc: deal.product?.imageUrl ?? "",
+          imageSrc,
           emoji: deal.product?.emoji ?? undefined,
           price: deal.price,
           originalPrice: deal.originalPrice,

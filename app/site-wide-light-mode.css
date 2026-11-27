@@ -442,3 +442,102 @@ html.light:has(.admin-shell) .bg-gray-900\/40 {
   -webkit-text-fill-color: #0f172a !important;
   font-weight: 800 !important;
 }
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) :is(
+  .zh-page #zh-section-coupons .zh-section-header__title,
+  .zh-page #zh-section-coupons .zh-section-head__title,
+  .zh-page .zh-coupons-panel .zh-section-header__title,
+  .zh-page .zh-coupons-panel .zh-section-head__title,
+  .zor-coupons-page__title,
+  .zor-coupons-page__section-title
+) {
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+
+:is(html.light, html:not(.dark):not([data-theme="dark"]), [data-theme="light"]) :is(
+  .zh-page #zh-section-coupons .zh-section-header__icon,
+  .zh-page #zh-section-coupons .zh-section-head__title > [aria-hidden],
+  .zh-page .zh-coupons-panel .zh-section-header__icon,
+  .zh-page .zh-coupons-panel .zh-section-head__title > [aria-hidden]
+) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  filter: none !important;
+}
+
+:is(.listing-product-card, .deal-card, .product-card, .zh-page) :is(.product-card-badges--start, .trending-card-badges) .deal-marketplace {
+  inset-block-start: 8px !important;
+  inset-block-end: auto !important;
+  inset-inline-start: 8px !important;
+  inset-inline-end: auto !important;
+  max-width: min(70%, 168px) !important;
+}
+
+:is(.listing-product-card, .deal-card, .product-card, .zh-page) :is(.product-card-badges--end, .zh-td-card__overlays--end) .deal-discount,
+:is(.listing-product-card, .deal-card, .product-card, .zh-page) .zh-deal-card__discount {
+  inset-block-start: 8px !important;
+  inset-block-end: auto !important;
+  inset-inline-end: 8px !important;
+  inset-inline-start: auto !important;
+}
+
+:is(.listing-product-card, .deal-card, .product-card, .zh-page) .deal-marketplace > span:not(.zor-store-logo) {
+  max-width: 104px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .product-card-actions-dual,
+  .zh-page .product-card-actions-dual,
+  .zh-page .zh-trending-deals__track .product-card-actions-dual {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .zh-page .zh-trending-deals__track .home-shop-btn,
+  .zh-page .zh-trending-deals__track .home-compare-btn,
+  .listing-product-card .home-shop-btn,
+  .listing-product-card .home-compare-btn {
+    min-height: 44px !important;
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+
+  .zh-page .deal-pricing,
+  .listing-product-card .deal-pricing {
+    flex-wrap: wrap !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .zh-page .deal-pricing .deal-price,
+  .zh-page .deal-pricing .deal-original,
+  .listing-product-card .deal-pricing .deal-price,
+  .listing-product-card .deal-pricing .deal-original {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: 100% !important;
+  }
+
+  .zh-page .deal-pricing .deal-price,
+  .listing-product-card .deal-pricing .deal-price {
+    flex: 1 1 auto !important;
+  }
+
+  .zh-page .deal-pricing .deal-original,
+  .listing-product-card .deal-pricing .deal-original {
+    flex: 0 1 auto !important;
+  }
+}

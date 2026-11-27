@@ -94,37 +94,37 @@ export default function ListingProductCard({
       })
     : undefined;
 
-  const leftBadges =
-    marketplace || discount > 0 ? (
+  const leftBadges = marketplace ? (
+    <span
+      className="deal-marketplace product-card-badge"
+      data-marketplace={product.storeSlug || undefined}
+    >
+      <StoreLogo
+        slug={product.storeSlug}
+        name={marketplace ?? product.store}
+        logoUrl={product.storeLogoSrc}
+        logoInitial={product.storeLogoInitial}
+        alt=""
+      />
+      <span>{marketplace}</span>
+    </span>
+  ) : null;
+
+  const rightBadges =
+    discount > 0 || featuredLabel ? (
       <>
-        {marketplace ? (
-          <span
-            className="deal-marketplace product-card-badge"
-            data-marketplace={product.storeSlug || undefined}
-          >
-            <StoreLogo
-              slug={product.storeSlug}
-              name={marketplace ?? product.store}
-              logoUrl={product.storeLogoSrc}
-              logoInitial={product.storeLogoInitial}
-              alt=""
-            />
-            <span>{marketplace}</span>
-          </span>
-        ) : null}
         {discount > 0 ? (
           <span className="deal-discount product-card-badge">
             {toCardNumerals(`-${discount}%`)}
           </span>
         ) : null}
+        {featuredLabel ? (
+          <span className="zor-deals-page__featured-badge product-card-badge product-card-badge--featured">
+            {featuredLabel}
+          </span>
+        ) : null}
       </>
     ) : null;
-
-  const rightBadges = featuredLabel ? (
-    <span className="zor-deals-page__featured-badge product-card-badge product-card-badge--featured">
-      {featuredLabel}
-    </span>
-  ) : null;
 
   return (
     <article className="deal-card product-card listing-product-card">

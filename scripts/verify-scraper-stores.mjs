@@ -70,8 +70,8 @@ const REQUIRED_STORES = [
   {
     slug: "temu",
     name: "Temu",
-    logo_url: "/stores/temu.png",
-    logo_initial: "T",
+    logo_url: "/stores/temu.svg",
+    logo_initial: "TM",
     website: "https://www.temu.com",
     integration_type: "temu",
     commission_rate: 7.0,

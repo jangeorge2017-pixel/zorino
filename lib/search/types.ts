@@ -9,6 +9,7 @@ import {
   isUsableRemoteProductImageUrl,
   normalizeProductImageUrl,
 } from "@/lib/images/product-image";
+import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 
 export const MAX_PRODUCTS_PER_STORE = 5;
 export const SEARCH_BROAD_MAX_PRODUCTS_PER_STORE = 20;
@@ -148,6 +149,32 @@ export function interleaveByStore<T>(
     }
   }
   return result;
+}
+
+/**
+ * Stable identity for store-level distribution. Provider id alone is too
+ * coarse for networks such as Admitad/Amazon that carry many real merchants;
+ * the real store name keeps the round-robin genuinely 1-by-1 per merchant.
+ */
+export function storeRoundRobinKey(item: {
+  storeSlug?: string | null;
+  store?: string | null;
+  store_name?: string | null;
+  provider?: string | null;
+}): string {
+  const provider = resolveMarketplaceId(
+    item.storeSlug || item.provider || item.store || item.store_name,
+  );
+  const store = (
+    item.store ||
+    item.store_name ||
+    item.storeSlug ||
+    item.provider ||
+    "unknown"
+  )
+    .trim()
+    .toLowerCase();
+  return `${provider}|${store}`;
 }
 
 export function interleaveByStoreRoundRobin<T>(

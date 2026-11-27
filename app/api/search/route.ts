@@ -8,8 +8,10 @@ import {
 import {
   interleaveByStoreRoundRobin,
   SEARCH_ENGINE_DEFAULTS,
+  storeRoundRobinKey,
   toProductCard,
 } from "@/lib/search/types";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 import { translateSearchQuery } from "@/lib/search/query-translation";
 
 export const maxDuration = 60;
@@ -51,11 +53,17 @@ export async function GET(req: NextRequest) {
     .map((item) => ({ item, card: item.productCard ?? toProductCard(item) }))
     .filter(
       (row): row is { item: (typeof page.items)[number]; card: NonNullable<ReturnType<typeof toProductCard>> } =>
-        row.card !== null,
+        row.card !== null && isUsableRemoteProductImageUrl(row.card.image_url),
     );
   const balanced = interleaveByStoreRoundRobin(
     cards,
-    (row) => row.item.storeSlug || row.card.provider || row.card.store_name,
+    (row) =>
+      storeRoundRobinKey({
+        storeSlug: row.item.storeSlug,
+        store: row.item.store,
+        store_name: row.card.store_name,
+        provider: row.card.provider,
+      }),
     limit,
   );
   const products = balanced.map(({ item, card }) => ({
@@ -81,8 +89,12 @@ export async function GET(req: NextRequest) {
 
   const storeCounts: Record<string, number> = {};
   for (const product of products) {
-    const slug = product.store_slug || product.store || "unknown";
-    storeCounts[slug] = (storeCounts[slug] ?? 0) + 1;
+    const key = storeRoundRobinKey({
+      storeSlug: product.store_slug,
+      store: product.store,
+      provider: product.provider,
+    });
+    storeCounts[key] = (storeCounts[key] ?? 0) + 1;
   }
 
   return NextResponse.json({

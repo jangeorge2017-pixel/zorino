@@ -14,6 +14,7 @@ import ProductDynamicBadge from "@/components/ProductDynamicBadge";
 import PriceSparkline from "@/components/PriceSparkline";
 import type { Locale } from "@/i18n/config";
 import { toArabicNumerals } from "@/lib/international/arabic-numerals";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 import {
   resolveDynamicBadge,
   type DynamicBadgeType,
@@ -99,6 +100,8 @@ export default function HomeProductCard({
   const tCommon = useTranslations("common");
   const locale = useLocale() as Locale;
   const toCardNumerals = (s: string) => (locale === "ar" ? toArabicNumerals(s) : s);
+  if (!isUsableRemoteProductImageUrl(imageSrc)) return null;
+
   const showOriginal = originalPrice !== undefined && originalPrice > price;
   const savingsAmount = showOriginal ? originalPrice! - price : 0;
   const showRating = rating !== undefined && rating > 0;

@@ -24,7 +24,10 @@
 
 import { unstable_cache } from "next/cache";
 import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/catalog-types";
-import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import {
+  isUsableRemoteProductImageUrl,
+  normalizeProductImageUrl,
+} from "@/lib/images/product-image";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -339,6 +342,9 @@ export async function processSource(
             entry.affiliateUrl,
             resolvedUrl,
           );
+          if (catalogItem && !isUsableRemoteProductImageUrl(catalogItem.imageUrl)) {
+            catalogItem = null;
+          }
         }
       }
 

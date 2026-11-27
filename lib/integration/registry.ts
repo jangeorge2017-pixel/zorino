@@ -304,11 +304,11 @@ export const CONNECTOR_REGISTRY: ConnectorSpec[] = [
       "lib/search/connectors/egypt-stores.ts",
     ],
     hasSearchConnector: true,
-    hasSyncProvider: false,
+    hasSyncProvider: true,
     hasAffiliateLinks: true,
-    hasCatalogIntegration: false,
+    hasCatalogIntegration: true,
     producesRealResults: true,
-    notes: "Live storefront adapter. No credentials required; failed fetches return [] silently.",
+    notes: "Live storefront adapter and catalog sync provider. No credentials required; failed fetches return [] silently.",
   },
 
   // ── Best Buy ────────────────────────────────────────────────────────

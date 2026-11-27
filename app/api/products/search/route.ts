@@ -2,6 +2,7 @@
 import { searchProductsSurface } from "@/lib/canonical/consumption/search";
 import { translateSearchQuery } from "@/lib/search/query-translation";
 import { buildCombinedSearchOrFilter } from "@/lib/integration/word-match-filter";
+import { isUsableRemoteProductImageUrl } from "@/lib/images/product-image";
 import { createSupabaseAnonClient } from "@/lib/supabase/server";
 import type { ListingCondition } from "@/lib/search/types";
 
@@ -102,6 +103,8 @@ export async function GET(req: NextRequest) {
         let query = supabase
           .from("lowest_prices_today")
           .select(PRODUCT_SEARCH_SELECT)
+          .not("image_url", "is", null)
+          .neq("image_url", "")
           .limit(MAX_SEARCH_LIMIT);
         if (combinedFilter) query = query.or(combinedFilter);
 
@@ -110,10 +113,13 @@ export async function GET(req: NextRequest) {
         if (minPriceParam) query = query.gte("lowest_price", parseFloat(minPriceParam));
         if (maxPriceParam) query = query.lte("lowest_price", parseFloat(maxPriceParam));
 
-        const { data: localResults } = await query;
+        const { data } = await query;
+        const localResults = data as ProductRow[] | null;
 
         if (localResults && localResults.length > 0) {
-          results = localResults.map(mapProductRow);
+          results = localResults
+            .filter((row) => isUsableRemoteProductImageUrl(row.image_url))
+            .map(mapProductRow);
         }
       }
     }

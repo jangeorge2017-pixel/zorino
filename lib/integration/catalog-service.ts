@@ -15,7 +15,10 @@ import {
   emptySectionProducts,
   minutesSinceFetched,
 } from "@/lib/integration/homepage-sections";
-import { PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/images/product-image";
+import {
+  isUsableRemoteProductImageUrl,
+  PRODUCT_IMAGE_PLACEHOLDER,
+} from "@/lib/images/product-image";
 import { balanceFlatMarketplaceList } from "@/lib/search/marketplace-balance";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
 import { STUB_PROVIDER_IDS } from "@/lib/providers/registry";
@@ -208,6 +211,7 @@ async function computeMergedCatalog(): Promise<{
       // getCatalogItemsFromDatabase(). Live providers (aliExpress, eBay,
       // Amazon US/EG, CJdropshipping, Admitad) are never excluded here.
       const activeFiltered = merged.filter((item) => {
+        if (!isUsableRemoteProductImageUrl(item.imageUrl)) return false;
         const providerId = resolveMarketplaceId(
           item.providerIds[0] ?? item.offers[0]?.providerId ?? "unknown",
         );
@@ -234,9 +238,12 @@ async function computeMergedCatalog(): Promise<{
       }
 
       const { items } = await fetchMergedCatalog();
-      // Apply the same viability + completeness gate to the comparison-engine
-      // fallback.
-      const outcome = resolveCatalogSnapshot(items, complete);
+      // Apply the same image, viability + completeness gate to the
+      // comparison-engine fallback.
+      const usableFallback = items.filter((item) =>
+        isUsableRemoteProductImageUrl(item.imageUrl),
+      );
+      const outcome = resolveCatalogSnapshot(usableFallback, complete);
       return { items: outcome.items, complete: outcome.healthy };
     } catch (error) {
       console.error("[catalog] merged fetch failed:", error);

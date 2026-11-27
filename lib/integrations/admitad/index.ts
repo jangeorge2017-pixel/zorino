@@ -1,8 +1,8 @@
 import type { AdmitadFeedOffer } from "./types";
 import type { NormalizedCatalogItem } from "@/lib/integration/catalog-types";
 import {
+  isUsableRemoteProductImageUrl,
   normalizeProductImageUrl,
-  PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { retargetIndirectFeedOffer } from "@/lib/canonical/adapters";
 import { DEFAULT_COUNTRY } from "@/lib/international/config";
@@ -71,7 +71,7 @@ export function admitadFeedsToCatalogItems(
       // resolves to the local placeholder — skip it so real products do not
       // surface as placeholder-only cards (mirrors the database-catalog rule).
       const imageUrl = normalizeProductImageUrl(raw.images?.[0]?.url ?? "");
-      if (!imageUrl || imageUrl === PRODUCT_IMAGE_PLACEHOLDER) continue;
+      if (!isUsableRemoteProductImageUrl(imageUrl)) continue;
 
       // Market country from the REAL offer signal (currency home market),
       // never a hardcoded "US".

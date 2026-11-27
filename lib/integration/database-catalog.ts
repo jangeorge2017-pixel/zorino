@@ -17,12 +17,12 @@ import type { NormalizedCatalogItem, ProviderOffer } from "@/lib/integration/cat
 import type { ProductionProviderId } from "@/lib/integration/constants";
 import type { SearchResultItem } from "@/lib/data/homepage";
 import {
+  isUsableRemoteProductImageUrl,
   normalizeProductImageUrl,
-  PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { getSearchCacheVersion } from "@/lib/search/cache-version";
 import { resolveMarketplaceId } from "@/lib/search/resolve-marketplace-id";
-import { toProductCard } from "@/lib/search/types";
+import { storeRoundRobinKey, toProductCard } from "@/lib/search/types";
 import { setBoundedCacheEntry } from "@/lib/utils/bounded-map-cache";
 import { LIVE_PROVIDER_IDS } from "@/lib/providers/registry";
 import {
@@ -259,8 +259,7 @@ function strictCandidateFilterForGroups(
 }
 
 function storeKeyForResult(item: SearchResultItem): string {
-  const providerId = resolveMarketplaceId(item.storeSlug || item.store);
-  return `${providerId}|${item.store.trim().toLowerCase()}`;
+  return storeRoundRobinKey(item);
 }
 
 let categorySearchColumns: readonly string[] | null = null;
@@ -675,7 +674,7 @@ export async function getCatalogItemsFromDatabase(): Promise<NormalizedCatalogIt
           row.image_url &&
           // Reject rows whose image normalizes to the placeholder (empty,
           // http-only, or invalid URLs all land there) â€” never placeholder cards.
-          normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER
+          isUsableRemoteProductImageUrl(row.image_url)
         ) {
           collected.push(row);
         }
@@ -1321,7 +1320,7 @@ export async function getSyncedStoreResultsFromDatabase(
       (row) =>
         row.product_name &&
         row.image_url &&
-        normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+        isUsableRemoteProductImageUrl(row.image_url) &&
         passesStrictTitle(row.product_name, strictIntent),
     );
     const rows = selectStrictTierRows(usableRows, groups);
@@ -1448,7 +1447,7 @@ async function loadSearchResultsFromDatabase(
 
   if (!combinedOrFilter) return [];
 
-  const { rows: candidateRows, perStore } = await loadPerStorePools(
+  const { rows: candidateRows } = await loadPerStorePools(
     supabase,
     combinedOrFilter,
     limit,
@@ -1458,7 +1457,7 @@ async function loadSearchResultsFromDatabase(
   const seenProductIds = new Set<string>();
   const usableRows = candidateRows.filter((row) => {
     if (!row.product_name || !row.image_url) return false;
-    if (normalizeProductImageUrl(row.image_url) === PRODUCT_IMAGE_PLACEHOLDER) return false;
+    if (!isUsableRemoteProductImageUrl(row.image_url)) return false;
     if (seenProductIds.has(row.product_id)) return false;
     seenProductIds.add(row.product_id);
     return passesStrictTitle(row.product_name, strictIntent);
@@ -1484,15 +1483,13 @@ async function loadSearchResultsFromDatabase(
 
   sortByCombinedRelevance(results, query, originalQuery);
 
-  const balanced = perStore
-    ? balanceFlatMarketplaceList(
-        results,
-        storeKeyForResult,
-        results.length,
-        (a, b) => b.discount - a.discount || a.price - b.price,
-        1,
-      )
-    : results;
+  const balanced = balanceFlatMarketplaceList(
+    results,
+    storeKeyForResult,
+    results.length,
+    (a, b) => b.discount - a.discount || a.price - b.price,
+    1,
+  );
 
   return balanced.slice(0, limit);
 }
@@ -1655,7 +1652,7 @@ async function loadDeviceSearchCountFromDatabase(
     (row) =>
       row.product_name &&
       row.image_url &&
-      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+      isUsableRemoteProductImageUrl(row.image_url) &&
       passesStrictDeviceGuard(
         row.product_name,
         Number(row.lowest_price),
@@ -1924,7 +1921,7 @@ async function loadSearchResultsFromDatabasePaged(
       (row) =>
         row.product_name &&
         row.image_url &&
-        normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+        isUsableRemoteProductImageUrl(row.image_url) &&
         passesStrictTitle(row.product_name, strictIntent) &&
         passesStrictDeviceGuard(
           row.product_name,
@@ -1974,7 +1971,7 @@ async function loadSearchResultsFromDatabasePaged(
     (row) =>
       row.product_name &&
       row.image_url &&
-      normalizeProductImageUrl(row.image_url) !== PRODUCT_IMAGE_PLACEHOLDER &&
+      isUsableRemoteProductImageUrl(row.image_url) &&
       passesStrictTitle(row.product_name, strictIntent),
   );
 
@@ -1995,7 +1992,9 @@ async function loadSearchResultsFromDatabasePaged(
   });
 
   // Same word-overlap relevance ranking as the legacy supplement leg, applied
-  // within the deterministic page window.
+  // within the deterministic page window. Store-level rotation is applied by
+  // the page-one assembly and API interleave, not here: reordering this paged
+  // window would break exact successive slices of the unified universe.
   sortByCombinedRelevance(results, query, originalQuery ?? device?.originalQuery);
 
   return { items: results.slice(0, safeLimit), total };
@@ -2055,7 +2054,7 @@ export async function getDatabaseSearchItemByProductId(
     !row ||
     !row.product_name ||
     !row.image_url ||
-    normalizeProductImageUrl(row.image_url) === PRODUCT_IMAGE_PLACEHOLDER
+    !isUsableRemoteProductImageUrl(row.image_url)
   ) {
     return null;
   }
@@ -2100,7 +2099,7 @@ export async function getDatabaseSearchItemByProductSlug(
     !row ||
     !row.product_name ||
     !row.image_url ||
-    normalizeProductImageUrl(row.image_url) === PRODUCT_IMAGE_PLACEHOLDER
+    !isUsableRemoteProductImageUrl(row.image_url)
   ) {
     return null;
   }

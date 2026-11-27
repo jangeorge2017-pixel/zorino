@@ -63,7 +63,7 @@ const SYNC_STORE_META: Record<
   },
   temu: {
     storeId: "store-temu",
-    storeSlug: "default",
+    storeSlug: "temu",
     integrationType: "temu",
     name: "Temu",
   },

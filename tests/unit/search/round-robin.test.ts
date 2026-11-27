@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { interleaveByStoreRoundRobin } from "@/lib/search/types";
+import {
+  interleaveByStoreRoundRobin,
+  storeRoundRobinKey,
+} from "@/lib/search/types";
 
 function itemsFor(store: string, count: number): string[] {
   return Array.from({ length: count }, (_, index) => `${store}-${index + 1}`);
@@ -43,6 +46,23 @@ describe("search API round-robin", () => {
       "noon-3",
       "ebay-4",
       "noon-4",
+    ]);
+  });
+
+  it("keeps real merchant stores separate inside one provider", () => {
+    const rows = [
+      { storeSlug: "admitad", store: "Raneen", id: "a1" },
+      { storeSlug: "admitad", store: "B-Tech", id: "a2" },
+      { storeSlug: "temu", store: "Temu", id: "t1" },
+      { storeSlug: "admitad", store: "Raneen", id: "a3" },
+    ];
+
+    expect(storeRoundRobinKey(rows[0]!)).not.toBe(storeRoundRobinKey(rows[1]!));
+    expect(interleaveByStoreRoundRobin(rows, storeRoundRobinKey, 4).map((row) => row.id)).toEqual([
+      "a1",
+      "a2",
+      "t1",
+      "a3",
     ]);
   });
 

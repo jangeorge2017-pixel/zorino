@@ -25,8 +25,8 @@
 
 import type { SupabaseDb } from "@/lib/supabase/config";
 import {
+  isUsableRemoteProductImageUrl,
   normalizeProductImageUrl,
-  PRODUCT_IMAGE_PLACEHOLDER,
 } from "@/lib/images/product-image";
 import { getSyncStoreMeta } from "@/lib/integration/provider-context";
 import {
@@ -113,8 +113,7 @@ export async function bridgeImportedProductsToLowestPrices(
     if (!productId) continue;
     if (!isCatalogCountry(product.countryCode) || !isCatalogCurrency(product.currency)) continue;
     if (!product.title || product.price <= 0) continue;
-    const image = normalizeProductImageUrl(product.imageUrl);
-    if (!image || image === PRODUCT_IMAGE_PLACEHOLDER) continue;
+    if (!isUsableRemoteProductImageUrl(product.imageUrl)) continue;
     candidates.set(productId, item);
   }
   if (candidates.size === 0) return 0;
@@ -154,6 +153,7 @@ export async function bridgeImportedProductsToLowestPrices(
     if (!productId) continue;
     const existing = existingPrices.get(productId) ?? null;
     const image = normalizeProductImageUrl(product.imageUrl);
+    if (!isUsableRemoteProductImageUrl(image)) continue;
     if (shouldSkipBridgeWrite(existing, product.price, image)) continue;
 
     const originalPrice =
