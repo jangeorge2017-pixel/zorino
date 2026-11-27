@@ -511,7 +511,7 @@ html.light:has(.admin-shell) .bg-gray-900\/40 {
   .listing-product-card .home-compare-btn {
     min-height: 44px !important;
     padding: 10px 12px !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
   }
 
   .zh-page .deal-pricing,

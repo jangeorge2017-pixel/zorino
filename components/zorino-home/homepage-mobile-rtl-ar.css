@@ -442,7 +442,7 @@
   html[dir="rtl"] .zh-page .zh-td-card__price,
   html[dir="rtl"] .zh-page .trending-card-price {
     color: #fff7ed !important;
-    font-size: 22px !important;
+    font-size: 16px !important;
     font-weight: 800 !important;
     letter-spacing: -0.02em;
     line-height: 1;
