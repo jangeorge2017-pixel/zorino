@@ -23,7 +23,7 @@ export class TemuProvider extends BaseConnector {
   };
 
   isConfigured(): boolean {
-    return hasStoreSearchAdapter("temu");
+    return Boolean(process.env.TEMU_API_KEY?.trim()) && hasStoreSearchAdapter("temu");
   }
 
   getCredentials() {
